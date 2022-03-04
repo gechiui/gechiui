@@ -1,0 +1,159 @@
+/**
+ * Colors
+ */
+/**
+ * Breakpoints & Media Queries
+ */
+/**
+ * SCSS Variables.
+ *
+ * Please use variables from this sheet to ensure consistency across the UI.
+ * Don't add to this sheet unless you're pretty sure the value will be reused in many places.
+ * For example, don't add rules to this sheet that affect block visuals. It's purely for UI.
+ */
+/**
+ * Colors
+ */
+/**
+ * Fonts & basic variables.
+ */
+/**
+ * Grid System.
+ * https://make.gechiui.com/design/2019/10/31/proposal-a-consistent-spacing-system-for-gechiui/
+ */
+/**
+ * Dimensions.
+ */
+/**
+ * Shadows.
+ */
+/**
+ * Editor widths.
+ */
+/**
+ * Block & Editor UI.
+ */
+/**
+ * Block paddings.
+ */
+/**
+ * React Native specific.
+ * These variables do not appear to be used anywhere else.
+ */
+/**
+*  Converts a hex value into the rgb equivalent.
+*
+* @param {string} hex - the hexadecimal value to convert
+* @return {string} comma separated rgb values
+*/
+/**
+ * Breakpoint mixins
+ */
+/**
+ * Long content fade mixin
+ *
+ * Creates a fading overlay to signify that the content is longer
+ * than the space allows.
+ */
+/**
+ * Focus styles.
+ */
+/**
+ * Applies editor left position to the selector passed as argument
+ */
+/**
+ * Styles that are reused verbatim in a few places
+ */
+/**
+ * Allows users to opt-out of animations via OS-level preferences.
+ */
+/**
+ * Reset default styles for JavaScript UI based pages.
+ * This is a GC-admin agnostic reset
+ */
+/**
+ * Reset the GC Admin page styles for Gutenberg-like pages.
+ */
+.gc-block-button__link {
+  color: #fff;
+  background-color: #32373c;
+  border-radius: 9999px;
+  box-shadow: none;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 1.125em;
+  padding: calc(0.667em + 2px) calc(1.333em + 2px);
+  text-align: center;
+  text-decoration: none;
+  word-break: break-word;
+  box-sizing: border-box;
+}
+.gc-block-button__link:hover, .gc-block-button__link:focus, .gc-block-button__link:active, .gc-block-button__link:visited {
+  color: #fff;
+}
+.gc-block-button__link.aligncenter {
+  text-align: center;
+}
+.gc-block-button__link.alignright {
+  /*rtl:ignore*/
+  text-align: right;
+}
+
+.gc-block-buttons > .gc-block-button.has-custom-width {
+  max-width: none;
+}
+.gc-block-buttons > .gc-block-button.has-custom-width .gc-block-button__link {
+  width: 100%;
+}
+.gc-block-buttons > .gc-block-button.has-custom-font-size .gc-block-button__link {
+  font-size: inherit;
+}
+.gc-block-buttons > .gc-block-button.gc-block-button__width-25 {
+  width: calc(25% - (var(--gc--style--block-gap, 0.5em) * 0.75));
+}
+.gc-block-buttons > .gc-block-button.gc-block-button__width-50 {
+  width: calc(50% - (var(--gc--style--block-gap, 0.5em) * 0.5));
+}
+.gc-block-buttons > .gc-block-button.gc-block-button__width-75 {
+  width: calc(75% - (var(--gc--style--block-gap, 0.5em) * 0.25));
+}
+.gc-block-buttons > .gc-block-button.gc-block-button__width-100 {
+  width: 100%;
+  flex-basis: 100%;
+}
+
+.gc-block-buttons.is-vertical > .gc-block-button.gc-block-button__width-25 {
+  width: 25%;
+}
+.gc-block-buttons.is-vertical > .gc-block-button.gc-block-button__width-50 {
+  width: 50%;
+}
+.gc-block-buttons.is-vertical > .gc-block-button.gc-block-button__width-75 {
+  width: 75%;
+}
+
+.gc-block-button.is-style-squared,
+.gc-block-button__link.gc-block-button.is-style-squared {
+  border-radius: 0;
+}
+
+.gc-block-button.no-border-radius,
+.gc-block-button__link.no-border-radius {
+  border-radius: 0 !important;
+}
+
+.is-style-outline > :where(.gc-block-button__link),
+:where(.gc-block-button__link).is-style-outline {
+  border: 2px solid currentColor;
+  padding: 0.667em 1.333em;
+}
+
+.is-style-outline > .gc-block-button__link:not(.has-text-color),
+.gc-block-button__link.is-style-outline:not(.has-text-color) {
+  color: currentColor;
+}
+
+.is-style-outline > .gc-block-button__link:not(.has-background),
+.gc-block-button__link.is-style-outline:not(.has-background) {
+  background-color: transparent;
+}

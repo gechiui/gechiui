@@ -1,0 +1,45 @@
+{
+	"apiVersion": 2,
+	"name": "core/group",
+	"title": "组",
+	"category": "design",
+	"description": "将多个区块组合成一组。",
+	"keywords": [ "container", "wrapper", "row", "section" ],
+	"textdomain": "default",
+	"attributes": {
+		"tagName": {
+			"type": "string",
+			"default": "div"
+		},
+		"templateLock": {
+			"type": [ "string", "boolean" ],
+			"enum": [ "all", "insert", false ]
+		}
+	},
+	"supports": {
+		"align": [ "wide", "full" ],
+		"anchor": true,
+		"html": false,
+		"color": {
+			"gradients": true,
+			"link": true
+		},
+		"spacing": {
+			"padding": true,
+			"blockGap": true,
+			"__experimentalDefaultControls": {
+				"padding": true,
+				"blockGap": true
+			}
+		},
+		"__experimentalBorder": {
+			"color": true,
+			"radius": true,
+			"style": true,
+			"width": true
+		},
+		"__experimentalLayout": true
+	},
+	"editorStyle": "gc-block-group-editor",
+	"style": "gc-block-group"
+}

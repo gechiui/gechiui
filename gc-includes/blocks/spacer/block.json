@@ -1,0 +1,23 @@
+{
+	"apiVersion": 2,
+	"name": "core/spacer",
+	"title": "空格",
+	"category": "design",
+	"description": "在区块间添加空白并自定义其高度。",
+	"textdomain": "default",
+	"attributes": {
+		"height": {
+			"type": "number",
+			"default": 100
+		},
+		"width": {
+			"type": "number"
+		}
+	},
+	"usesContext": [ "orientation" ],
+	"supports": {
+		"anchor": true
+	},
+	"editorStyle": "gc-block-spacer-editor",
+	"style": "gc-block-spacer"
+}

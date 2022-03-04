@@ -1,0 +1,19 @@
+{
+	"apiVersion": 2,
+	"name": "core/block",
+	"title": "可重用区块",
+	"category": "reusable",
+	"description": "创建并保存内容以在您的站点上重复使用。更新该区块后，这些变更将应用​​至所有使用该区块的位置。",
+	"textdomain": "default",
+	"attributes": {
+		"ref": {
+			"type": "number"
+		}
+	},
+	"supports": {
+		"customClassName": false,
+		"html": false,
+		"inserter": false
+	},
+	"editorStyle": "gc-block-editor"
+}

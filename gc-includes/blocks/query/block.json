@@ -1,0 +1,56 @@
+{
+	"apiVersion": 2,
+	"name": "core/query",
+	"title": "循环查询",
+	"category": "theme",
+	"description": "一个可以根据不同的查询参数和视觉配置来显示文章类型的高级区块。",
+	"textdomain": "default",
+	"attributes": {
+		"queryId": {
+			"type": "number"
+		},
+		"query": {
+			"type": "object",
+			"default": {
+				"perPage": null,
+				"pages": 0,
+				"offset": 0,
+				"postType": "post",
+				"categoryIds": [],
+				"tagIds": [],
+				"order": "desc",
+				"orderBy": "date",
+				"author": "",
+				"search": "",
+				"exclude": [],
+				"sticky": "",
+				"inherit": true
+			}
+		},
+		"tagName": {
+			"type": "string",
+			"default": "div"
+		},
+		"displayLayout": {
+			"type": "object",
+			"default": {
+				"type": "list"
+			}
+		}
+	},
+	"providesContext": {
+		"queryId": "queryId",
+		"query": "query",
+		"displayLayout": "displayLayout"
+	},
+	"supports": {
+		"align": [ "wide", "full" ],
+		"html": false,
+		"color": {
+			"gradients": true,
+			"link": true
+		},
+		"__experimentalLayout": true
+	},
+	"editorStyle": "gc-block-query-editor"
+}

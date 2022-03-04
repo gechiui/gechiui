@@ -1,0 +1,26 @@
+{
+	"apiVersion": 2,
+	"name": "core/post-template",
+	"title": "文章模板",
+	"category": "design",
+	"parent": [ "core/query" ],
+	"description": "包含用于呈现文章的区块元素，如标题、日期、特色图片、内容或摘要等。",
+	"textdomain": "default",
+	"usesContext": [
+		"queryId",
+		"query",
+		"queryContext",
+		"displayLayout",
+		"templateSlug"
+	],
+	"supports": {
+		"reusable": false,
+		"html": false,
+		"align": true,
+		"__experimentalLayout": {
+			"allowEditing": false
+		}
+	},
+	"style": "gc-block-post-template",
+	"editorStyle": "gc-block-post-template-editor"
+}

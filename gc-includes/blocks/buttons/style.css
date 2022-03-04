@@ -1,0 +1,126 @@
+/**
+ * Colors
+ */
+/**
+ * Breakpoints & Media Queries
+ */
+/**
+ * SCSS Variables.
+ *
+ * Please use variables from this sheet to ensure consistency across the UI.
+ * Don't add to this sheet unless you're pretty sure the value will be reused in many places.
+ * For example, don't add rules to this sheet that affect block visuals. It's purely for UI.
+ */
+/**
+ * Colors
+ */
+/**
+ * Fonts & basic variables.
+ */
+/**
+ * Grid System.
+ * https://make.gechiui.com/design/2019/10/31/proposal-a-consistent-spacing-system-for-gechiui/
+ */
+/**
+ * Dimensions.
+ */
+/**
+ * Shadows.
+ */
+/**
+ * Editor widths.
+ */
+/**
+ * Block & Editor UI.
+ */
+/**
+ * Block paddings.
+ */
+/**
+ * React Native specific.
+ * These variables do not appear to be used anywhere else.
+ */
+/**
+*  Converts a hex value into the rgb equivalent.
+*
+* @param {string} hex - the hexadecimal value to convert
+* @return {string} comma separated rgb values
+*/
+/**
+ * Breakpoint mixins
+ */
+/**
+ * Long content fade mixin
+ *
+ * Creates a fading overlay to signify that the content is longer
+ * than the space allows.
+ */
+/**
+ * Focus styles.
+ */
+/**
+ * Applies editor left position to the selector passed as argument
+ */
+/**
+ * Styles that are reused verbatim in a few places
+ */
+/**
+ * Allows users to opt-out of animations via OS-level preferences.
+ */
+/**
+ * Reset default styles for JavaScript UI based pages.
+ * This is a GC-admin agnostic reset
+ */
+/**
+ * Reset the GC Admin page styles for Gutenberg-like pages.
+ */
+.gc-block-buttons {
+  /* stylelint-disable indentation */
+}
+.gc-block-buttons.is-vertical {
+  flex-direction: column;
+}
+.gc-block-buttons.is-vertical > .gc-block-button:last-child {
+  margin-bottom: 0;
+}
+.gc-block-buttons > .gc-block-button {
+  display: inline-block;
+  margin: 0;
+}
+.gc-block-buttons.is-content-justification-left {
+  justify-content: flex-start;
+}
+.gc-block-buttons.is-content-justification-left.is-vertical {
+  align-items: flex-start;
+}
+.gc-block-buttons.is-content-justification-center {
+  justify-content: center;
+}
+.gc-block-buttons.is-content-justification-center.is-vertical {
+  align-items: center;
+}
+.gc-block-buttons.is-content-justification-right {
+  justify-content: flex-end;
+}
+.gc-block-buttons.is-content-justification-right.is-vertical {
+  align-items: flex-end;
+}
+.gc-block-buttons.is-content-justification-space-between {
+  justify-content: space-between;
+}
+.gc-block-buttons.aligncenter {
+  text-align: center;
+}
+.gc-block-buttons:not(.is-content-justification-space-between,
+.is-content-justification-right,
+.is-content-justification-left,
+.is-content-justification-center) .gc-block-button.aligncenter {
+  /* stylelint-enable indentation */
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.gc-block-button.aligncenter {
+  text-align: center;
+}

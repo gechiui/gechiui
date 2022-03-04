@@ -1,0 +1,54 @@
+{
+	"apiVersion": 2,
+	"name": "core/paragraph",
+	"title": "段落",
+	"category": "text",
+	"description": "从所有叙事的基础部分开始。",
+	"keywords": [ "text" ],
+	"textdomain": "default",
+	"attributes": {
+		"align": {
+			"type": "string"
+		},
+		"content": {
+			"type": "string",
+			"source": "html",
+			"selector": "p",
+			"default": "",
+			"__experimentalRole": "content"
+		},
+		"dropCap": {
+			"type": "boolean",
+			"default": false
+		},
+		"placeholder": {
+			"type": "string"
+		},
+		"direction": {
+			"type": "string",
+			"enum": [ "ltr", "rtl" ]
+		}
+	},
+	"supports": {
+		"anchor": true,
+		"className": false,
+		"color": {
+			"link": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalFontWeight": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalTextTransform": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		},
+		"__experimentalSelector": "p",
+		"__unstablePasteTextInline": true
+	},
+	"editorStyle": "gc-block-paragraph-editor",
+	"style": "gc-block-paragraph"
+}

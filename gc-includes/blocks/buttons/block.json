@@ -1,0 +1,30 @@
+{
+	"apiVersion": 2,
+	"name": "core/buttons",
+	"title": "多个按钮",
+	"category": "design",
+	"description": "使用一组按钮式的链接来提示访客进行操作。",
+	"keywords": [ "link" ],
+	"textdomain": "default",
+	"supports": {
+		"anchor": true,
+		"align": [ "wide", "full" ],
+		"__experimentalExposeControlsToChildren": true,
+		"spacing": {
+			"blockGap": true,
+			"margin": ["top", "bottom" ],
+			"__experimentalDefaultControls": {
+				"blockGap": true
+			}
+		},
+		"__experimentalLayout": {
+			"allowSwitching": false,
+			"allowInheriting": false,
+			"default": {
+				"type": "flex"
+			}
+		}
+	},
+	"editorStyle": "gc-block-buttons-editor",
+	"style": "gc-block-buttons"
+}

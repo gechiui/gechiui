@@ -1,16 +1,51 @@
-### Hi there 👋
+### GeChiUI 6.0
 
-<!--
-**gechiui/gechiui** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+www.gechiui.com
 
-Here are some ideas to get you started:
+源码全中文，无需语言包安装
+如需英文版，请按照英文语言包
+全新支持页面UI拖拽设计与模板（Bate）
+项目工程整体优化，关闭了不可访问的外部请求资源，改为本地
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+面向高级开发者，提供专属NPM私有库与工程包(微信：gongenlin）👋
+我们接受多种形式的赞助
+
+
+GeChiIUI 6.0 格尺建站系统是国人开发的网络信息发布系统，可搭建博客、企业建站、资源站、帮助中心、电商等。支持多站点模式，可用于集团建站、SaaS系统服务。内置主题与插件市场，可扩展更多的第三方服务。
+管理后台UI部分采用Bootstrap+SCSS+ES6，适合开发者高度定制魔改。
+
+V6.0更新
+
+1. 源码全中文，无需语言包安装
+2. 全新支持页面UI拖拽设计与模板（Bate）
+
+3. 面向高级开发者，提供专属NPM私有库与工程包
+
+
+主题
+1. 自适应H5主题
+2. 帮助中心主题
+
+插件支持
+1. 自适应模板 （200多个）
+2. 在线商城
+3. 可拖拽页面生成器
+4. 可拖拽表单
+5. 自定义字段
+
+个性化功能
+1、邮箱+手机号注册登录，支持短信验证码功能，内置用友短信服务插件
+2、支持RBAC（Role-Based Access Control）基于角色的访问控制
+3、用户功能地图，方便用户快速索引功能菜单
+4、主题与插件市场，众多国产化插件与服务
+5、专业版插件的在线购买、安装及升级功能
+6、支持REST-API，APPKey安全授权
+7、支持多站点模式
+
+功能说明
+1、后台地址：/gc-admin.php
+2、开启多站点模式：gc-config.php 尾部添加 define('GC_ALLOW_MULTISITE',true);
+3、站点地图访问地址：/gc-sitemap.xml
+4、feed地址：/feed
+GeChiUI能让您省却对后台技术的担心，集中精力做好网站的内容。
+

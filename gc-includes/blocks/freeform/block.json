@@ -1,0 +1,20 @@
+{
+	"apiVersion": 2,
+	"name": "core/freeform",
+	"title": "经典",
+	"category": "text",
+	"description": "使用经典GeChiUI编辑器。",
+	"textdomain": "default",
+	"attributes": {
+		"content": {
+			"type": "string",
+			"source": "html"
+		}
+	},
+	"supports": {
+		"className": false,
+		"customClassName": false,
+		"reusable": false
+	},
+	"editorStyle": "gc-block-freeform-editor"
+}

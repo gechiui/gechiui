@@ -1,0 +1,148 @@
+/*
+Theme Name: 默认主题 飞鸟
+Theme URI: https://www.gechiui.com/themes/defaultbird/
+Author: the GeChiUI team
+Author URI: https://www.gechiui.com/
+Description: 默认主题（飞鸟）微妙的风格灵感来自鸟类的多样性和多才多艺：其排版轻巧而有力，调色板取自自然，布局元素温和地放置在页面上。飞鸟主题的真正丰富之处在于它的定制机会。该主题旨在利用GeChiUI 6.0中引入的完整网站编辑功能，这意味着网站上每一页的颜色、排版和布局都可以根据您的视觉进行定制。它还包括几十个方块图案，只需点击几下，就可以打开通往各种专业设计布局的大门。无论你是在建立一个单页网站、一个博客、一个商业网站，飞鸟主题都将帮助你创建一个独一无二的网站。
+Requires at least: 5.9
+Tested up to: 5.9
+Requires PHP: 5.6
+Version: 1.0
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: defaultbird
+Tags: one-column, custom-colors, custom-menu, custom-logo, editor-style, featured-images, full-site-editing, block-patterns, rtl-language-support, sticky-post, threaded-comments
+
+Twenty Twenty-Two GeChiUI Theme, (C) 2021 www.GeChiUI.com
+Twenty Twenty-Two is distributed under the terms of the GNU GPL.
+*/
+
+/*
+ * Font smoothing.
+ * This is a niche setting that will not be available via Global Styles.
+ * https://github.com/GeChiUI/gutenberg/issues/35934
+ */
+
+body {
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-font-smoothing: antialiased;
+}
+
+/*
+ * Text and navigation link styles.
+ * Necessary until the following issue is resolved in Gutenberg:
+ * https://github.com/GeChiUI/gutenberg/issues/27075
+ */
+
+a {
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.25ch;
+}
+
+a:hover,
+a:focus {
+	text-decoration-style: dashed;
+}
+
+a:active {
+	text-decoration: none;
+}
+
+.gc-block-navigation .gc-block-navigation-item a:hover,
+.gc-block-navigation .gc-block-navigation-item a:focus {
+	text-decoration: underline;
+	text-decoration-style: solid;
+}
+
+/*
+ * Search and File Block button styles.
+ * Necessary until the following issues are resolved in Gutenberg:
+ * https://github.com/GeChiUI/gutenberg/issues/36444
+ * https://github.com/GeChiUI/gutenberg/issues/27760
+ */
+
+.gc-block-search__button,
+.gc-block-file .gc-block-file__button {
+	background-color: var(--gc--preset--color--primary);
+	border-radius: 0;
+	border: none;
+	color: var(--gc--preset--color--background);
+	font-size: var(--gc--preset--font-size--medium);
+	padding: calc(.667em + 2px) calc(1.333em + 2px);
+}
+
+/*
+ * Button hover styles.
+ * Necessary until the following issue is resolved in Gutenberg:
+ * https://github.com/GeChiUI/gutenberg/issues/27075
+ */
+
+.gc-block-search__button:hover,
+.gc-block-file .gc-block-file__button:hover,
+.gc-block-button__link:hover {
+	opacity: 0.90;
+}
+
+/*
+ * Alignment styles.
+ * These rules are temporary, and should not be relied on or
+ * modified too heavily by themes or plugins that build on
+ * Twenty Twenty-Two. These are meant to be a precursor to
+ * a global solution provided by the Block Editor.
+ *
+ * Relevant issues:
+ * https://github.com/GeChiUI/gutenberg/issues/35607
+ * https://github.com/GeChiUI/gutenberg/issues/35884
+ */
+
+.gc-site-blocks,
+body > .is-root-container,
+.edit-post-visual-editor__post-title-wrapper,
+.gc-block-group.alignfull,
+.gc-block-group.has-background,
+.gc-block-cover.alignfull,
+.is-root-container .gc-block[data-align="full"] > .gc-block-group,
+.is-root-container .gc-block[data-align="full"] > .gc-block-cover {
+	padding-left: var(--gc--custom--spacing--outer);
+	padding-right: var(--gc--custom--spacing--outer);
+}
+
+.gc-site-blocks .alignfull,
+.gc-site-blocks > .gc-block-group.has-background,
+.gc-site-blocks > .gc-block-cover,
+.gc-site-blocks > .gc-block-template-part > .gc-block-group.has-background,
+.gc-site-blocks > .gc-block-template-part > .gc-block-cover,
+body > .is-root-container > .gc-block-cover,
+body > .is-root-container > .gc-block-template-part > .gc-block-group.has-background,
+body > .is-root-container > .gc-block-template-part > .gc-block-cover,
+.is-root-container .gc-block[data-align="full"] {
+	margin-left: calc(-1 * var(--gc--custom--spacing--outer)) !important;
+	margin-right: calc(-1 * var(--gc--custom--spacing--outer)) !important;
+	width: unset;
+}
+
+/* Blocks inside columns don't have negative margins. */
+.gc-site-blocks .gc-block-columns .gc-block-column .alignfull,
+.is-root-container .gc-block-columns .gc-block-column .gc-block[data-align="full"],
+/* We also want to avoid stacking negative margins. */
+.gc-site-blocks .alignfull:not(.gc-block-group) .alignfull,
+.is-root-container .gc-block[data-align="full"] > *:not(.gc-block-group) .gc-block[data-align="full"] {
+	margin-left: auto !important;
+	margin-right: auto !important;
+	width: inherit;
+}
+
+/*
+ * Responsive menu container padding.
+ * This ensures the responsive container inherits the same
+ * spacing defined above. This behavior may be built into
+ * the Block Editor in the future.
+ */
+
+.gc-block-navigation__responsive-container.is-menu-open {
+	padding-top: var(--gc--custom--spacing--outer);
+	padding-bottom: var(--gc--custom--spacing--large);
+	padding-right: var(--gc--custom--spacing--outer);
+	padding-left: var(--gc--custom--spacing--outer);
+}
+

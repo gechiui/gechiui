@@ -1,0 +1,32 @@
+{
+	"apiVersion": 2,
+	"name": "core/page-list",
+	"title": "页面列表",
+	"category": "widgets",
+	"description": "显示所有页面的列表。",
+	"keywords": [ "menu", "navigation" ],
+	"textdomain": "default",
+	"attributes": {
+	},
+	"usesContext": [
+		"textColor",
+		"customTextColor",
+		"backgroundColor",
+		"customBackgroundColor",
+		"overlayTextColor",
+		"customOverlayTextColor",
+		"overlayBackgroundColor",
+		"customOverlayBackgroundColor",
+		"fontSize",
+		"customFontSize",
+		"showSubmenuIcon",
+		"style",
+		"openSubmenusOnClick"
+	],
+	"supports": {
+		"reusable": false,
+		"html": false
+	},
+	"editorStyle": "gc-block-page-list-editor",
+	"style": "gc-block-page-list"
+}

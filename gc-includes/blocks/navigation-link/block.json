@@ -1,0 +1,65 @@
+{
+	"apiVersion": 2,
+	"name": "core/navigation-link",
+	"title": "自定义链接",
+	"category": "design",
+	"parent": [
+		"core/navigation"
+	],
+	"description": "将页面、链接或其他项目添加到导航中。",
+	"textdomain": "default",
+	"attributes": {
+		"label": {
+			"type": "string"
+		},
+		"type": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
+		"rel": {
+			"type": "string"
+		},
+		"id": {
+			"type": "number"
+		},
+		"opensInNewTab": {
+			"type": "boolean",
+			"default": false
+		},
+		"url": {
+			"type": "string"
+		},
+		"title": {
+			"type": "string"
+		},
+		"kind": {
+			"type": "string"
+		},
+		"isTopLevelLink": {
+			"type": "boolean"
+		}
+	},
+	"usesContext": [
+		"textColor",
+		"customTextColor",
+		"backgroundColor",
+		"customBackgroundColor",
+		"overlayTextColor",
+		"customOverlayTextColor",
+		"overlayBackgroundColor",
+		"customOverlayBackgroundColor",
+		"fontSize",
+		"customFontSize",
+		"showSubmenuIcon",
+		"style"
+	],
+	"supports": {
+		"reusable": false,
+		"html": false,
+		"__experimentalSlashInserter": true
+	},
+	"editorStyle": "gc-block-navigation-link-editor",
+	"style": "gc-block-navigation-link"
+}

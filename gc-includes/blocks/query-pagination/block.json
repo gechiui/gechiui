@@ -1,0 +1,37 @@
+{
+	"apiVersion": 2,
+	"name": "core/query-pagination",
+	"title": "分页",
+	"category": "design",
+	"parent": [ "core/query" ],
+	"description": "如果适用，显示下一组/上一组文章的分页导航。",
+	"textdomain": "default",
+	"attributes": {
+		"paginationArrow": {
+			"type": "string",
+			"default": "none"
+		}
+	},
+	"usesContext": [ "queryId", "query" ],
+	"providesContext": {
+		"paginationArrow": "paginationArrow"
+	},
+	"supports": {
+		"align": true,
+		"reusable": false,
+		"html": false,
+		"color": {
+			"gradients": true,
+			"link": true
+		},
+		"__experimentalLayout": {
+			"allowSwitching": false,
+			"allowInheriting": false,
+			"default": {
+				"type": "flex"
+			}
+		}
+	},
+	"editorStyle": "gc-block-query-pagination-editor",
+	"style": "gc-block-query-pagination"
+}
