@@ -54,7 +54,7 @@ if ( is_singular() ) {
 <div id="header" role="banner">
 	<div id="headerimg">
 		<h1><a href="<?php echo home_url(); ?>/"><?php bloginfo( 'name' ); ?></a></h1>
-		<div class="描述"><?php bloginfo( 'description' ); ?></div>
+		<div class="description"><?php bloginfo( 'description' ); ?></div>
 	</div>
 </div>
 <hr />

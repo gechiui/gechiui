@@ -58,7 +58,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 <input name="default_comment_status" type="checkbox" id="default_comment_status" value="open" <?php checked( 'open', get_option( 'default_comment_status' ) ); ?> />
 <?php _e( '允许他人在新文章上发表评论' ); ?></label>
 <br />
-<p class="描述"><?php _e( '个别文章可能会覆盖这些设置。此处进行的更改仅适用于新文章。' ); ?></p>
+<p class="description"><?php _e( '个别文章可能会覆盖这些设置。此处进行的更改仅适用于新文章。' ); ?></p>
 </fieldset></td>
 </tr>
 <tr>

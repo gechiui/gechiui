@@ -500,11 +500,11 @@ if ( current_user_can( 'create_users' ) ) {
 	?>
 <table class="form-table" role="presentation">
 	<tr class="form-field form-required">
-		<th scope="row"><label for="user_login"><?php _e( '用户名' ); ?> <span class="描述"><?php _e( '（必填）' ); ?></span></label></th>
+		<th scope="row"><label for="user_login"><?php _e( '用户名' ); ?> <span class="description"><?php _e( '（必填）' ); ?></span></label></th>
 		<td><input name="user_login" type="text" id="user_login" value="<?php echo esc_attr( $new_user_login ); ?>" aria-required="true" autocapitalize="none" autocorrect="off" maxlength="60" /></td>
 	</tr>
 	<tr class="form-field form-required">
-		<th scope="row"><label for="email"><?php _e( '电子邮箱' ); ?> <span class="描述"><?php _e( '（必填）' ); ?></span></label></th>
+		<th scope="row"><label for="email"><?php _e( '电子邮箱' ); ?> <span class="description"><?php _e( '（必填）' ); ?></span></label></th>
 		<td><input name="email" type="email" id="email" value="<?php echo esc_attr( $new_user_email ); ?>" /></td>
 	</tr>
 	<?php if ( ! is_multisite() ) { ?>
@@ -571,10 +571,10 @@ if ( current_user_can( 'create_users' ) ) {
 		</td>
 	</tr>
 	<tr class="form-field form-required user-pass2-wrap hide-if-js">
-		<th scope="row"><label for="pass2"><?php _e( '重复密码' ); ?> <span class="描述"><?php _e( '（必填）' ); ?></span></label></th>
+		<th scope="row"><label for="pass2"><?php _e( '重复密码' ); ?> <span class="description"><?php _e( '（必填）' ); ?></span></label></th>
 		<td>
 		<input name="pass2" type="password" id="pass2" autocomplete="off" aria-describedby="pass2-desc" />
-		<p class="描述" id="pass2-desc"><?php _e( '再次输入密码。' ); ?></p>
+		<p class="description" id="pass2-desc"><?php _e( '再次输入密码。' ); ?></p>
 		</td>
 	</tr>
 	<tr class="pw-weak">

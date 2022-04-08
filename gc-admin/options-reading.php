@@ -164,7 +164,7 @@ else :
 		<label><input name="rss_use_excerpt" type="radio" value="0" <?php checked( 0, get_option( 'rss_use_excerpt' ) ); ?>	/> <?php _e( '全文' ); ?></label><br />
 		<label><input name="rss_use_excerpt" type="radio" value="1" <?php checked( 1, get_option( 'rss_use_excerpt' ) ); ?> /> <?php _e( '摘要' ); ?></label>
 	</p>
-	<p class="描述">
+	<p class="description">
 		<?php
 		printf(
 			/* translators: %s: Documentation URL. */
@@ -184,7 +184,7 @@ else :
 	<label for="blog-public"><?php _e( '允许搜索引擎索引本站点' ); ?></label><br/>
 	<input id="blog-norobots" type="radio" name="blog_public" value="0" <?php checked( '0', get_option( 'blog_public' ) ); ?> />
 	<label for="blog-norobots"><?php _e( '建议搜索引擎不索引本站点' ); ?></label>
-	<p class="描述"><?php _e( '注意：这些设置并不能彻底防止搜索引擎访问您的站点——具体行为还取决于它们是否遵循您的要求。' ); ?></p>
+	<p class="description"><?php _e( '注意：这些设置并不能彻底防止搜索引擎访问您的站点——具体行为还取决于它们是否遵循您的要求。' ); ?></p>
 	<?php
 	/**
 	 * Enable the legacy '站点可见性' privacy options.
@@ -204,7 +204,7 @@ else :
 <?php else : ?>
 	<label for="blog_public"><input name="blog_public" type="checkbox" id="blog_public" value="0" <?php checked( '0', get_option( 'blog_public' ) ); ?> />
 	<?php _e( '建议搜索引擎不索引本站点' ); ?></label>
-	<p class="描述"><?php _e( '搜索引擎将本着自觉自愿的原则对待GeChiUI提出的请求。并不是所有搜索引擎都会遵守这类请求。' ); ?></p>
+	<p class="description"><?php _e( '搜索引擎将本着自觉自愿的原则对待GeChiUI提出的请求。并不是所有搜索引擎都会遵守这类请求。' ); ?></p>
 <?php endif; ?>
 </fieldset></td>
 </tr>

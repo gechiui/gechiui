@@ -130,5 +130,5 @@ function options_reading_add_js() {
  */
 function options_reading_blog_charset() {
 	echo '<input name="blog_charset" type="text" id="blog_charset" value="' . esc_attr( get_option( 'blog_charset' ) ) . '" class="regular-text" />';
-	echo '<p class="描述">' . __( '您的站点的<a href="https://www.gechiui.com/support/glossary/#character-set">字符编码</a>（推荐使用UTF-8）' ) . '</p>';
+	echo '<p class="description">' . __( '您的站点的<a href="https://www.gechiui.com/support/glossary/#character-set">字符编码</a>（推荐使用UTF-8）' ) . '</p>';
 }

@@ -161,7 +161,7 @@ if ( isset( $_GET['updated'] ) ) {
 				<th scope="row"><label for="admin_email"><?php _e( '网络管理员邮箱' ); ?></label></th>
 				<td>
 					<input name="new_admin_email" type="email" id="admin_email" aria-describedby="admin-email-desc" class="regular-text" value="<?php echo esc_attr( get_site_option( 'admin_email' ) ); ?>" />
-					<p class="描述" id="admin-email-desc">
+					<p class="description" id="admin-email-desc">
 						<?php _e( '这个地址将被用于管理目的。如果您修改这个地址，我们将会向新地址发送一封邮件来确认。<strong>新的电子邮箱直到获得确认才会生效。</strong>' ); ?>
 					</p>
 					<?php
@@ -207,7 +207,7 @@ if ( isset( $_GET['updated'] ) ) {
 					<label><input name="registration" type="radio" id="registration4" value="all"<?php checked( $reg, 'all' ); ?> /> <?php _e( '可以注册站点和用户账户' ); ?></label>
 					<?php
 					if ( is_subdomain_install() ) {
-						echo '<p class="描述">';
+						echo '<p class="description">';
 						printf(
 							/* translators: 1: NOBLOGREDIRECT, 2: gc-config.php */
 							__( '如果注册未启用，请在%2$s中设置%1$s为您希望重定向不存在站点的访问者到的URL。' ),
@@ -253,7 +253,7 @@ if ( isset( $_GET['updated'] ) ) {
 					}
 					?>
 					<input name="illegal_names" type="text" id="illegal_names" aria-describedby="illegal-names-desc" class="large-text" value="<?php echo esc_attr( $illegal_names ); ?>" size="45" />
-					<p class="描述" id="illegal-names-desc">
+					<p class="description" id="illegal-names-desc">
 						<?php _e( '用户不可注册这些站点。名称间使用空格隔开。' ); ?>
 					</p>
 				</td>
@@ -278,7 +278,7 @@ if ( isset( $_GET['updated'] ) ) {
 					?>
 					<textarea name="limited_email_domains" id="limited_email_domains" aria-describedby="limited-email-domains-desc" cols="45" rows="5">
 <?php echo esc_textarea( $limited_email_domains ); ?></textarea>
-					<p class="描述" id="limited-email-domains-desc">
+					<p class="description" id="limited-email-domains-desc">
 						<?php _e( '若您想把站点的注册限制于某些域名。每行一个域名。' ); ?>
 					</p>
 				</td>
@@ -298,7 +298,7 @@ if ( isset( $_GET['updated'] ) ) {
 					?>
 					<textarea name="banned_email_domains" id="banned_email_domains" aria-describedby="banned-email-domains-desc" cols="45" rows="5">
 <?php echo esc_textarea( $banned_email_domains ); ?></textarea>
-					<p class="描述" id="banned-email-domains-desc">
+					<p class="description" id="banned-email-domains-desc">
 						<?php _e( '如果您想禁止使用下列电子邮箱域名的用户注册站点。每行一个域。' ); ?>
 					</p>
 				</td>
@@ -313,7 +313,7 @@ if ( isset( $_GET['updated'] ) ) {
 				<td>
 					<textarea name="welcome_email" id="welcome_email" aria-describedby="welcome-email-desc" rows="5" cols="45" class="large-text">
 <?php echo esc_textarea( get_site_option( 'welcome_email' ) ); ?></textarea>
-					<p class="描述" id="welcome-email-desc">
+					<p class="description" id="welcome-email-desc">
 						<?php _e( '用以欢迎新站点所有者的邮件内容。' ); ?>
 					</p>
 				</td>
@@ -323,7 +323,7 @@ if ( isset( $_GET['updated'] ) ) {
 				<td>
 					<textarea name="welcome_user_email" id="welcome_user_email" aria-describedby="welcome-user-email-desc" rows="5" cols="45" class="large-text">
 <?php echo esc_textarea( get_site_option( 'welcome_user_email' ) ); ?></textarea>
-					<p class="描述" id="welcome-user-email-desc">
+					<p class="description" id="welcome-user-email-desc">
 						<?php _e( '要发送给新用户的欢迎邮件内容。' ); ?>
 					</p>
 				</td>
@@ -333,7 +333,7 @@ if ( isset( $_GET['updated'] ) ) {
 				<td>
 					<textarea name="first_post" id="first_post" aria-describedby="first-post-desc" rows="5" cols="45" class="large-text">
 <?php echo esc_textarea( get_site_option( 'first_post' ) ); ?></textarea>
-					<p class="描述" id="first-post-desc">
+					<p class="description" id="first-post-desc">
 						<?php _e( '新站点的首篇文章。' ); ?>
 					</p>
 				</td>
@@ -343,7 +343,7 @@ if ( isset( $_GET['updated'] ) ) {
 				<td>
 					<textarea name="first_page" id="first_page" aria-describedby="first-page-desc" rows="5" cols="45" class="large-text">
 <?php echo esc_textarea( get_site_option( 'first_page' ) ); ?></textarea>
-					<p class="描述" id="first-page-desc">
+					<p class="description" id="first-page-desc">
 						<?php _e( '新站点的首个页面。' ); ?>
 					</p>
 				</td>
@@ -353,7 +353,7 @@ if ( isset( $_GET['updated'] ) ) {
 				<td>
 					<textarea name="first_comment" id="first_comment" aria-describedby="first-comment-desc" rows="5" cols="45" class="large-text">
 <?php echo esc_textarea( get_site_option( 'first_comment' ) ); ?></textarea>
-					<p class="描述" id="first-comment-desc">
+					<p class="description" id="first-comment-desc">
 						<?php _e( '新站点的首条评论。' ); ?>
 					</p>
 				</td>
@@ -362,7 +362,7 @@ if ( isset( $_GET['updated'] ) ) {
 				<th scope="row"><label for="first_comment_author"><?php _e( '首条评论的评论者名称' ); ?></label></th>
 				<td>
 					<input type="text" size="40" name="first_comment_author" id="first_comment_author" aria-describedby="first-comment-author-desc" value="<?php echo esc_attr( get_site_option( 'first_comment_author' ) ); ?>" />
-					<p class="描述" id="first-comment-author-desc">
+					<p class="description" id="first-comment-author-desc">
 						<?php _e( '新站点首条评论的评论者名称。' ); ?>
 					</p>
 				</td>
@@ -371,7 +371,7 @@ if ( isset( $_GET['updated'] ) ) {
 				<th scope="row"><label for="first_comment_email"><?php _e( '首条评论者的邮箱地址' ); ?></label></th>
 				<td>
 					<input type="text" size="40" name="first_comment_email" id="first_comment_email" aria-describedby="first-comment-email-desc" value="<?php echo esc_attr( get_site_option( 'first_comment_email' ) ); ?>" />
-					<p class="描述" id="first-comment-email-desc">
+					<p class="description" id="first-comment-email-desc">
 						<?php _e( '新站点上首个评论者的邮箱地址。' ); ?>
 					</p>
 				</td>
@@ -380,7 +380,7 @@ if ( isset( $_GET['updated'] ) ) {
 				<th scope="row"><label for="first_comment_url"><?php _e( '首条评论者的URL' ); ?></label></th>
 				<td>
 					<input type="text" size="40" name="first_comment_url" id="first_comment_url" aria-describedby="first-comment-url-desc" value="<?php echo esc_attr( get_site_option( 'first_comment_url' ) ); ?>" />
-					<p class="描述" id="first-comment-url-desc">
+					<p class="description" id="first-comment-url-desc">
 						<?php _e( '新站点首条评论者的网址。' ); ?>
 					</p>
 				</td>
@@ -410,7 +410,7 @@ if ( isset( $_GET['updated'] ) ) {
 				<th scope="row"><label for="upload_filetypes"><?php _e( '上传文件类型' ); ?></label></th>
 				<td>
 					<input name="upload_filetypes" type="text" id="upload_filetypes" aria-describedby="upload-filetypes-desc" class="large-text" value="<?php echo esc_attr( get_site_option( 'upload_filetypes', 'jpg jpeg png gif' ) ); ?>" size="45" />
-					<p class="描述" id="upload-filetypes-desc">
+					<p class="description" id="upload-filetypes-desc">
 						<?php _e( '允许的文件类型，以空格分隔。' ); ?>
 					</p>
 				</td>

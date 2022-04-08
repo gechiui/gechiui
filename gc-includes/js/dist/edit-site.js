@@ -1185,7 +1185,7 @@ function InterfaceSkeleton(_ref, ref) {
     drawer: Object(external_gc_i18n_["__"])('抽屉'),
 
     /* translators: accessibility text for the top bar landmark region. */
-    header: Object(external_gc_i18n_["__"])('表头'),
+    header: Object(external_gc_i18n_["__"])('页眉'),
 
     /* translators: accessibility text for the content landmark region. */
     body: Object(external_gc_i18n_["__"])('内容'),
@@ -1200,7 +1200,7 @@ function InterfaceSkeleton(_ref, ref) {
     actions: Object(external_gc_i18n_["__"])('发布'),
 
     /* translators: accessibility text for the footer landmark region. */
-    footer: Object(external_gc_i18n_["__"])('注脚')
+    footer: Object(external_gc_i18n_["__"])('页脚')
   };
   const mergedLabels = { ...defaultLabels,
     ...labels
@@ -1404,7 +1404,6 @@ __webpack_require__.d(actions_namespaceObject, "removeTemplate", function() { re
 __webpack_require__.d(actions_namespaceObject, "setTemplatePart", function() { return actions_setTemplatePart; });
 __webpack_require__.d(actions_namespaceObject, "setHomeTemplateId", function() { return setHomeTemplateId; });
 __webpack_require__.d(actions_namespaceObject, "setPage", function() { return actions_setPage; });
-__webpack_require__.d(actions_namespaceObject, "showHomepage", function() { return actions_showHomepage; });
 __webpack_require__.d(actions_namespaceObject, "setNavigationPanelActiveMenu", function() { return setNavigationPanelActiveMenu; });
 __webpack_require__.d(actions_namespaceObject, "openNavigationPanelToMenu", function() { return openNavigationPanelToMenu; });
 __webpack_require__.d(actions_namespaceObject, "setIsNavigationPanelOpened", function() { return actions_setIsNavigationPanelOpened; });
@@ -1453,135 +1452,34 @@ var external_gc_coreData_ = __webpack_require__("NxuN");
 // EXTERNAL MODULE: external ["gc","editor"]
 var external_gc_editor_ = __webpack_require__("/7UU");
 
+// EXTERNAL MODULE: external ["gc","i18n"]
+var external_gc_i18n_ = __webpack_require__("z4sU");
+
 // EXTERNAL MODULE: external ["gc","viewport"]
 var external_gc_viewport_ = __webpack_require__("3BOu");
 
 // EXTERNAL MODULE: external ["gc","url"]
 var external_gc_url_ = __webpack_require__("zP/e");
 
-// EXTERNAL MODULE: external ["gc","plugins"]
-var external_gc_plugins_ = __webpack_require__("Xm27");
+// EXTERNAL MODULE: external ["gc","hooks"]
+var external_gc_hooks_ = __webpack_require__("kZIl");
 
-// EXTERNAL MODULE: external "lodash"
-var external_lodash_ = __webpack_require__("YLtl");
+// EXTERNAL MODULE: external ["gc","mediaUtils"]
+var external_gc_mediaUtils_ = __webpack_require__("Yjv4");
 
-// EXTERNAL MODULE: external ["gc","components"]
-var external_gc_components_ = __webpack_require__("jd0n");
-
-// EXTERNAL MODULE: external ["gc","i18n"]
-var external_gc_i18n_ = __webpack_require__("z4sU");
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/header/tools-more-menu-group/index.js
-
-
-/**
- * External dependencies
- */
-
+// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/hooks/components.js
 /**
  * GeChiUI dependencies
  */
 
 
+Object(external_gc_hooks_["addFilter"])('editor.MediaUpload', 'core/edit-site/components/media-upload', () => external_gc_mediaUtils_["MediaUpload"]);
 
-const {
-  Fill: ToolsMoreMenuGroup,
-  Slot
-} = Object(external_gc_components_["createSlotFill"])('EditSiteToolsMoreMenuGroup');
-
-ToolsMoreMenuGroup.Slot = _ref => {
-  let {
-    fillProps
-  } = _ref;
-  return Object(external_gc_element_["createElement"])(Slot, {
-    fillProps: fillProps
-  }, fills => !Object(external_lodash_["isEmpty"])(fills) && Object(external_gc_element_["createElement"])(external_gc_components_["MenuGroup"], {
-    label: Object(external_gc_i18n_["__"])('工具')
-  }, fills));
-};
-
-/* harmony default export */ var tools_more_menu_group = (ToolsMoreMenuGroup);
-
-// EXTERNAL MODULE: ./node_modules/downloadjs/download.js
-var download = __webpack_require__("rrFr");
-var download_default = /*#__PURE__*/__webpack_require__.n(download);
-
-// EXTERNAL MODULE: external ["gc","apiFetch"]
-var external_gc_apiFetch_ = __webpack_require__("xuem");
-var external_gc_apiFetch_default = /*#__PURE__*/__webpack_require__.n(external_gc_apiFetch_);
-
-// EXTERNAL MODULE: external ["gc","primitives"]
-var external_gc_primitives_ = __webpack_require__("Gz8V");
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/download.js
-
-
+// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/hooks/index.js
 /**
- * GeChiUI dependencies
+ * Internal dependencies
  */
 
-const download_download = Object(external_gc_element_["createElement"])(external_gc_primitives_["SVG"], {
-  xmlns: "http://www.w3.org/2000/svg",
-  viewBox: "0 0 24 24"
-}, Object(external_gc_element_["createElement"])(external_gc_primitives_["Path"], {
-  d: "M18 11.3l-1-1.1-4 4V3h-1.5v11.3L7 10.2l-1 1.1 6.2 5.8 5.8-5.8zm.5 3.7v3.5h-13V15H4v5h16v-5h-1.5z"
-}));
-/* harmony default export */ var library_download = (download_download);
-
-// EXTERNAL MODULE: external ["gc","notices"]
-var external_gc_notices_ = __webpack_require__("W2Kb");
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/plugins/site-export.js
-
-
-/**
- * External dependencies
- */
-
-/**
- * GeChiUI dependencies
- */
-
-
-
-
-
-
-
-function SiteExport() {
-  const {
-    createErrorNotice
-  } = Object(external_gc_data_["useDispatch"])(external_gc_notices_["store"]);
-
-  async function handleExport() {
-    try {
-      const response = await external_gc_apiFetch_default()({
-        path: '/gc-block-editor/v1/export',
-        parse: false
-      });
-      const blob = await response.blob();
-      download_default()(blob, 'edit-site-export.zip', 'application/zip');
-    } catch (errorResponse) {
-      let error = {};
-
-      try {
-        error = await errorResponse.json();
-      } catch (e) {}
-
-      const errorMessage = error.message && error.code !== 'unknown_error' ? error.message : Object(external_gc_i18n_["__"])('创建站点导出数据时出错。');
-      createErrorNotice(errorMessage, {
-        type: 'snackbar'
-      });
-    }
-  }
-
-  return Object(external_gc_element_["createElement"])(external_gc_components_["MenuItem"], {
-    role: "menuitem",
-    icon: library_download,
-    onClick: handleExport,
-    info: Object(external_gc_i18n_["__"])('下载您的模板和模板组件。')
-  }, Object(external_gc_i18n_["_x"])('Export', 'site exporter menu item'));
-}
 
 // EXTERNAL MODULE: external ["gc","dataControls"]
 var external_gc_dataControls_ = __webpack_require__("8GGG");
@@ -1908,6 +1806,9 @@ function listViewPanel() {
   listViewPanel
 }));
 
+// EXTERNAL MODULE: external ["gc","notices"]
+var external_gc_notices_ = __webpack_require__("W2Kb");
+
 // EXTERNAL MODULE: ./node_modules/@gechiui/interface/build-module/index.js + 17 modules
 var build_module = __webpack_require__("2YC4");
 
@@ -2107,10 +2008,16 @@ function* actions_setPage(page) {
     page.path = Object(external_gc_url_["getPathAndQueryString"])(entity.link);
   }
 
+  const template = yield external_gc_data_["controls"].resolveSelect(external_gc_coreData_["store"], '__experimentalGetTemplateForLink', page.path);
+
+  if (!template) {
+    return;
+  }
+
   const {
     id: templateId,
     slug: templateSlug
-  } = yield external_gc_data_["controls"].resolveSelect(external_gc_coreData_["store"], '__experimentalGetTemplateForLink', page.path);
+  } = template;
   yield {
     type: 'SET_PAGE',
     page: !templateSlug ? page : { ...page,
@@ -2121,28 +2028,6 @@ function* actions_setPage(page) {
     templateId
   };
   return templateId;
-}
-/**
- * Displays the site homepage for editing in the editor.
- */
-
-function* actions_showHomepage() {
-  const {
-    show_on_front: showOnFront,
-    page_on_front: frontpageId
-  } = yield external_gc_data_["controls"].resolveSelect(external_gc_coreData_["store"], 'getEntityRecord', 'root', 'site');
-  const {
-    siteUrl
-  } = yield external_gc_data_["controls"].select(STORE_NAME, 'getSettings');
-  const page = {
-    path: siteUrl,
-    context: showOnFront === 'page' ? {
-      postType: 'page',
-      postId: frontpageId
-    } : {}
-  };
-  const homeTemplate = yield* actions_setPage(page);
-  yield setHomeTemplateId(homeTemplate);
 }
 /**
  * Returns an action object used to set the active navigation panel menu.
@@ -2352,11 +2237,11 @@ function* closeGeneralSidebar() {
   yield external_gc_data_["controls"].dispatch(build_module["i" /* store */], 'disableComplementaryArea', STORE_NAME);
 }
 
+// EXTERNAL MODULE: external "lodash"
+var external_lodash_ = __webpack_require__("YLtl");
+
 // EXTERNAL MODULE: ./node_modules/rememo/es/rememo.js
 var rememo = __webpack_require__("pPDe");
-
-// EXTERNAL MODULE: external ["gc","mediaUtils"]
-var external_gc_mediaUtils_ = __webpack_require__("Yjv4");
 
 // CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/navigation-sidebar/navigation-panel/template-hierarchy.js
 /**
@@ -2748,66 +2633,8 @@ const store = Object(external_gc_data_["createReduxStore"])(STORE_NAME, storeCon
 
 Object(external_gc_data_["registerStore"])(STORE_NAME, storeConfig);
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/plugins/welcome-guide-menu-item.js
-
-
-/**
- * GeChiUI dependencies
- */
-
-
-
-/**
- * Internal dependencies
- */
-
-
-function WelcomeGuideMenuItem() {
-  const {
-    toggleFeature
-  } = Object(external_gc_data_["useDispatch"])(store);
-  return Object(external_gc_element_["createElement"])(external_gc_components_["MenuItem"], {
-    onClick: () => toggleFeature('welcomeGuide')
-  }, Object(external_gc_i18n_["__"])('欢迎指南'));
-}
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/plugins/index.js
-
-
-/**
- * GeChiUI dependencies
- */
-
-/**
- * Internal dependencies
- */
-
-
-
-
-Object(external_gc_plugins_["registerPlugin"])('edit-site', {
-  render() {
-    return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(tools_more_menu_group, null, Object(external_gc_element_["createElement"])(SiteExport, null), Object(external_gc_element_["createElement"])(WelcomeGuideMenuItem, null)));
-  }
-
-});
-
-// EXTERNAL MODULE: external ["gc","hooks"]
-var external_gc_hooks_ = __webpack_require__("kZIl");
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/hooks/components.js
-/**
- * GeChiUI dependencies
- */
-
-
-Object(external_gc_hooks_["addFilter"])('editor.MediaUpload', 'core/edit-site/components/media-upload', () => external_gc_mediaUtils_["MediaUpload"]);
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/hooks/index.js
-/**
- * Internal dependencies
- */
-
+// EXTERNAL MODULE: external ["gc","components"]
+var external_gc_components_ = __webpack_require__("jd0n");
 
 // EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/extends.js
 var esm_extends = __webpack_require__("wx14");
@@ -3679,6 +3506,9 @@ function Routes(_ref) {
 // EXTERNAL MODULE: external ["gc","blockEditor"]
 var external_gc_blockEditor_ = __webpack_require__("nLrk");
 
+// EXTERNAL MODULE: external ["gc","plugins"]
+var external_gc_plugins_ = __webpack_require__("Xm27");
+
 // EXTERNAL MODULE: external ["gc","keyboardShortcuts"]
 var external_gc_keyboardShortcuts_ = __webpack_require__("IuOC");
 
@@ -3691,8 +3521,280 @@ var plus = __webpack_require__("th/Q");
 // EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/library/list-view.js
 var list_view = __webpack_require__("2BQN");
 
+// EXTERNAL MODULE: external ["gc","keycodes"]
+var external_gc_keycodes_ = __webpack_require__("l35S");
+
 // EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/library/more-vertical.js
 var more_vertical = __webpack_require__("eTuh");
+
+// EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/library/external.js
+var external = __webpack_require__("rHI3");
+
+// EXTERNAL MODULE: ./node_modules/classnames/index.js
+var classnames = __webpack_require__("TSYQ");
+var classnames_default = /*#__PURE__*/__webpack_require__.n(classnames);
+
+// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/keyboard-shortcut-help-modal/config.js
+/**
+ * GeChiUI dependencies
+ */
+
+const textFormattingShortcuts = [{
+  keyCombination: {
+    modifier: 'primary',
+    character: 'b'
+  },
+  description: Object(external_gc_i18n_["__"])('将选定的文字加粗。')
+}, {
+  keyCombination: {
+    modifier: 'primary',
+    character: 'i'
+  },
+  description: Object(external_gc_i18n_["__"])('将选定的文字设为斜体。')
+}, {
+  keyCombination: {
+    modifier: 'primary',
+    character: 'k'
+  },
+  description: Object(external_gc_i18n_["__"])('将选定的文字转换为链接。')
+}, {
+  keyCombination: {
+    modifier: 'primaryShift',
+    character: 'k'
+  },
+  description: Object(external_gc_i18n_["__"])('移除链接。')
+}, {
+  keyCombination: {
+    modifier: 'primary',
+    character: 'u'
+  },
+  description: Object(external_gc_i18n_["__"])('给选定的文字加下划线。')
+}];
+
+// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/keyboard-shortcut-help-modal/shortcut.js
+
+
+/**
+ * External dependencies
+ */
+
+/**
+ * GeChiUI dependencies
+ */
+
+
+
+
+function KeyCombination(_ref) {
+  let {
+    keyCombination,
+    forceAriaLabel
+  } = _ref;
+  const shortcut = keyCombination.modifier ? external_gc_keycodes_["displayShortcutList"][keyCombination.modifier](keyCombination.character) : keyCombination.character;
+  const ariaLabel = keyCombination.modifier ? external_gc_keycodes_["shortcutAriaLabel"][keyCombination.modifier](keyCombination.character) : keyCombination.character;
+  return Object(external_gc_element_["createElement"])("kbd", {
+    className: "edit-site-keyboard-shortcut-help-modal__shortcut-key-combination",
+    "aria-label": forceAriaLabel || ariaLabel
+  }, Object(external_lodash_["castArray"])(shortcut).map((character, index) => {
+    if (character === '+') {
+      return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], {
+        key: index
+      }, character);
+    }
+
+    return Object(external_gc_element_["createElement"])("kbd", {
+      key: index,
+      className: "edit-site-keyboard-shortcut-help-modal__shortcut-key"
+    }, character);
+  }));
+}
+
+function Shortcut(_ref2) {
+  let {
+    description,
+    keyCombination,
+    aliases = [],
+    ariaLabel
+  } = _ref2;
+  return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])("div", {
+    className: "edit-site-keyboard-shortcut-help-modal__shortcut-description"
+  }, description), Object(external_gc_element_["createElement"])("div", {
+    className: "edit-site-keyboard-shortcut-help-modal__shortcut-term"
+  }, Object(external_gc_element_["createElement"])(KeyCombination, {
+    keyCombination: keyCombination,
+    forceAriaLabel: ariaLabel
+  }), aliases.map((alias, index) => Object(external_gc_element_["createElement"])(KeyCombination, {
+    keyCombination: alias,
+    forceAriaLabel: ariaLabel,
+    key: index
+  }))));
+}
+
+// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/keyboard-shortcut-help-modal/dynamic-shortcut.js
+
+
+/**
+ * GeChiUI dependencies
+ */
+
+
+/**
+ * Internal dependencies
+ */
+
+
+function DynamicShortcut(_ref) {
+  let {
+    name
+  } = _ref;
+  const {
+    keyCombination,
+    description,
+    aliases
+  } = Object(external_gc_data_["useSelect"])(select => {
+    const {
+      getShortcutKeyCombination,
+      getShortcutDescription,
+      getShortcutAliases
+    } = select(external_gc_keyboardShortcuts_["store"]);
+    return {
+      keyCombination: getShortcutKeyCombination(name),
+      aliases: getShortcutAliases(name),
+      description: getShortcutDescription(name)
+    };
+  }, [name]);
+
+  if (!keyCombination) {
+    return null;
+  }
+
+  return Object(external_gc_element_["createElement"])(Shortcut, {
+    keyCombination: keyCombination,
+    description: description,
+    aliases: aliases
+  });
+}
+
+// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/keyboard-shortcut-help-modal/index.js
+
+
+/**
+ * External dependencies
+ */
+
+
+/**
+ * GeChiUI dependencies
+ */
+
+
+
+
+
+/**
+ * Internal dependencies
+ */
+
+
+
+
+
+const ShortcutList = _ref => {
+  let {
+    shortcuts
+  } = _ref;
+  return (
+    /*
+     * Disable reason: The `list` ARIA role is redundant but
+     * Safari+VoiceOver won't announce the list otherwise.
+     */
+
+    /* eslint-disable jsx-a11y/no-redundant-roles */
+    Object(external_gc_element_["createElement"])("ul", {
+      className: "edit-site-keyboard-shortcut-help-modal__shortcut-list",
+      role: "list"
+    }, shortcuts.map((shortcut, index) => Object(external_gc_element_["createElement"])("li", {
+      className: "edit-site-keyboard-shortcut-help-modal__shortcut",
+      key: index
+    }, Object(external_lodash_["isString"])(shortcut) ? Object(external_gc_element_["createElement"])(DynamicShortcut, {
+      name: shortcut
+    }) : Object(external_gc_element_["createElement"])(Shortcut, shortcut))))
+    /* eslint-enable jsx-a11y/no-redundant-roles */
+
+  );
+};
+
+const ShortcutSection = _ref2 => {
+  let {
+    title,
+    shortcuts,
+    className
+  } = _ref2;
+  return Object(external_gc_element_["createElement"])("section", {
+    className: classnames_default()('edit-site-keyboard-shortcut-help-modal__section', className)
+  }, !!title && Object(external_gc_element_["createElement"])("h2", {
+    className: "edit-site-keyboard-shortcut-help-modal__section-title"
+  }, title), Object(external_gc_element_["createElement"])(ShortcutList, {
+    shortcuts: shortcuts
+  }));
+};
+
+const ShortcutCategorySection = _ref3 => {
+  let {
+    title,
+    categoryName,
+    additionalShortcuts = []
+  } = _ref3;
+  const categoryShortcuts = Object(external_gc_data_["useSelect"])(select => {
+    return select(external_gc_keyboardShortcuts_["store"]).getCategoryShortcuts(categoryName);
+  }, [categoryName]);
+  return Object(external_gc_element_["createElement"])(ShortcutSection, {
+    title: title,
+    shortcuts: categoryShortcuts.concat(additionalShortcuts)
+  });
+};
+
+function KeyboardShortcutHelpModal(_ref4) {
+  let {
+    isModalActive,
+    toggleModal
+  } = _ref4;
+
+  if (!isModalActive) {
+    return null;
+  }
+
+  return Object(external_gc_element_["createElement"])(external_gc_components_["Modal"], {
+    className: "edit-site-keyboard-shortcut-help-modal",
+    title: Object(external_gc_i18n_["__"])('键盘快捷键'),
+    closeLabel: Object(external_gc_i18n_["__"])('关闭'),
+    onRequestClose: toggleModal
+  }, Object(external_gc_element_["createElement"])(ShortcutSection, {
+    className: "edit-site-keyboard-shortcut-help-modal__main-shortcuts",
+    shortcuts: ['core/edit-site/keyboard-shortcuts']
+  }), Object(external_gc_element_["createElement"])(ShortcutCategorySection, {
+    title: Object(external_gc_i18n_["__"])('全局快捷键'),
+    categoryName: "global"
+  }), Object(external_gc_element_["createElement"])(ShortcutCategorySection, {
+    title: Object(external_gc_i18n_["__"])('选定快捷键'),
+    categoryName: "selection"
+  }), Object(external_gc_element_["createElement"])(ShortcutCategorySection, {
+    title: Object(external_gc_i18n_["__"])('区块快捷键'),
+    categoryName: "block",
+    additionalShortcuts: [{
+      keyCombination: {
+        character: '/'
+      },
+      description: Object(external_gc_i18n_["__"])('在添加新段落后修改区块类型。'),
+
+      /* translators: The forward-slash character. e.g. '/'. */
+      ariaLabel: Object(external_gc_i18n_["__"])('正斜杠')
+    }]
+  }), Object(external_gc_element_["createElement"])(ShortcutSection, {
+    title: Object(external_gc_i18n_["__"])('文字内容格式化'),
+    shortcuts: textFormattingShortcuts
+  }));
+}
 
 // EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/library/check.js
 var check = __webpack_require__("Tv9K");
@@ -3753,6 +3855,135 @@ function FeatureToggle(_ref) {
   }, label);
 }
 
+// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/header/tools-more-menu-group/index.js
+
+
+/**
+ * External dependencies
+ */
+
+/**
+ * GeChiUI dependencies
+ */
+
+
+const {
+  Fill: ToolsMoreMenuGroup,
+  Slot
+} = Object(external_gc_components_["createSlotFill"])('EditSiteToolsMoreMenuGroup');
+
+ToolsMoreMenuGroup.Slot = _ref => {
+  let {
+    fillProps
+  } = _ref;
+  return Object(external_gc_element_["createElement"])(Slot, {
+    fillProps: fillProps
+  }, fills => !Object(external_lodash_["isEmpty"])(fills) && fills);
+};
+
+/* harmony default export */ var tools_more_menu_group = (ToolsMoreMenuGroup);
+
+// EXTERNAL MODULE: ./node_modules/downloadjs/download.js
+var download = __webpack_require__("rrFr");
+var download_default = /*#__PURE__*/__webpack_require__.n(download);
+
+// EXTERNAL MODULE: external ["gc","apiFetch"]
+var external_gc_apiFetch_ = __webpack_require__("xuem");
+var external_gc_apiFetch_default = /*#__PURE__*/__webpack_require__.n(external_gc_apiFetch_);
+
+// EXTERNAL MODULE: external ["gc","primitives"]
+var external_gc_primitives_ = __webpack_require__("Gz8V");
+
+// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/download.js
+
+
+/**
+ * GeChiUI dependencies
+ */
+
+const download_download = Object(external_gc_element_["createElement"])(external_gc_primitives_["SVG"], {
+  xmlns: "http://www.w3.org/2000/svg",
+  viewBox: "0 0 24 24"
+}, Object(external_gc_element_["createElement"])(external_gc_primitives_["Path"], {
+  d: "M18 11.3l-1-1.1-4 4V3h-1.5v11.3L7 10.2l-1 1.1 6.2 5.8 5.8-5.8zm.5 3.7v3.5h-13V15H4v5h16v-5h-1.5z"
+}));
+/* harmony default export */ var library_download = (download_download);
+
+// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/header/more-menu/site-export.js
+
+
+/**
+ * External dependencies
+ */
+
+/**
+ * GeChiUI dependencies
+ */
+
+
+
+
+
+
+
+function SiteExport() {
+  const {
+    createErrorNotice
+  } = Object(external_gc_data_["useDispatch"])(external_gc_notices_["store"]);
+
+  async function handleExport() {
+    try {
+      const response = await external_gc_apiFetch_default()({
+        path: '/gc-block-editor/v1/export',
+        parse: false
+      });
+      const blob = await response.blob();
+      download_default()(blob, 'edit-site-export.zip', 'application/zip');
+    } catch (errorResponse) {
+      let error = {};
+
+      try {
+        error = await errorResponse.json();
+      } catch (e) {}
+
+      const errorMessage = error.message && error.code !== 'unknown_error' ? error.message : Object(external_gc_i18n_["__"])('创建站点导出数据时出错。');
+      createErrorNotice(errorMessage, {
+        type: 'snackbar'
+      });
+    }
+  }
+
+  return Object(external_gc_element_["createElement"])(external_gc_components_["MenuItem"], {
+    role: "menuitem",
+    icon: library_download,
+    onClick: handleExport,
+    info: Object(external_gc_i18n_["__"])('下载您的模板和模板组件。')
+  }, Object(external_gc_i18n_["_x"])('Export', 'site exporter menu item'));
+}
+
+// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/header/more-menu/welcome-guide-menu-item.js
+
+
+/**
+ * GeChiUI dependencies
+ */
+
+
+
+/**
+ * Internal dependencies
+ */
+
+
+function WelcomeGuideMenuItem() {
+  const {
+    toggleFeature
+  } = Object(external_gc_data_["useDispatch"])(store);
+  return Object(external_gc_element_["createElement"])(external_gc_components_["MenuItem"], {
+    onClick: () => toggleFeature('welcomeGuide')
+  }, Object(external_gc_i18n_["__"])('欢迎指南'));
+}
+
 // CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/header/more-menu/index.js
 
 
@@ -3763,9 +3994,15 @@ function FeatureToggle(_ref) {
 
 
 
+
+
+
 /**
  * Internal dependencies
  */
+
+
+
 
 
 
@@ -3776,46 +4013,65 @@ const POPOVER_PROPS = {
 const TOGGLE_PROPS = {
   tooltipPosition: 'bottom'
 };
-
-const MoreMenu = () => Object(external_gc_element_["createElement"])(external_gc_components_["DropdownMenu"], {
-  className: "edit-site-more-menu",
-  icon: more_vertical["a" /* default */],
-  label: Object(external_gc_i18n_["__"])('更多工具和选项'),
-  popoverProps: POPOVER_PROPS,
-  toggleProps: TOGGLE_PROPS
-}, _ref => {
-  let {
-    onClose
-  } = _ref;
-  return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(external_gc_components_["MenuGroup"], {
-    label: Object(external_gc_i18n_["_x"])('View', 'noun')
-  }, Object(external_gc_element_["createElement"])(FeatureToggle, {
-    feature: "fixedToolbar",
-    label: Object(external_gc_i18n_["__"])('顶部工具栏'),
-    info: Object(external_gc_i18n_["__"])('在一个位置访问所有的区块和文档工具'),
-    messageActivated: Object(external_gc_i18n_["__"])('顶部工具栏已启用'),
-    messageDeactivated: Object(external_gc_i18n_["__"])('顶部工具栏已禁用')
-  }), Object(external_gc_element_["createElement"])(FeatureToggle, {
-    feature: "focusMode",
-    label: Object(external_gc_i18n_["__"])('探照灯模式'),
-    info: Object(external_gc_i18n_["__"])('集中注意力在一个区块上'),
-    messageActivated: Object(external_gc_i18n_["__"])('探照灯模式已启用'),
-    messageDeactivated: Object(external_gc_i18n_["__"])('探照灯模式已禁用')
-  }), Object(external_gc_element_["createElement"])(build_module["a" /* ActionItem */].Slot, {
-    name: "core/edit-site/plugin-more-menu",
-    label: Object(external_gc_i18n_["__"])('插件'),
-    as: external_gc_components_["MenuGroup"],
-    fillProps: {
-      onClick: onClose
-    }
-  })), Object(external_gc_element_["createElement"])(tools_more_menu_group.Slot, {
-    fillProps: {
+function MoreMenu() {
+  const [isModalActive, toggleModal] = Object(external_gc_element_["useReducer"])(isActive => !isActive, false);
+  Object(external_gc_keyboardShortcuts_["useShortcut"])('core/edit-site/keyboard-shortcuts', toggleModal);
+  return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(external_gc_components_["DropdownMenu"], {
+    className: "edit-site-more-menu",
+    icon: more_vertical["a" /* default */],
+    label: Object(external_gc_i18n_["__"])('更多工具和选项'),
+    popoverProps: POPOVER_PROPS,
+    toggleProps: TOGGLE_PROPS
+  }, _ref => {
+    let {
       onClose
-    }
+    } = _ref;
+    return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(external_gc_components_["MenuGroup"], {
+      label: Object(external_gc_i18n_["_x"])('View', 'noun')
+    }, Object(external_gc_element_["createElement"])(FeatureToggle, {
+      feature: "fixedToolbar",
+      label: Object(external_gc_i18n_["__"])('顶部工具栏'),
+      info: Object(external_gc_i18n_["__"])('在一个位置访问所有的区块和文档工具'),
+      messageActivated: Object(external_gc_i18n_["__"])('顶部工具栏已启用'),
+      messageDeactivated: Object(external_gc_i18n_["__"])('顶部工具栏已禁用')
+    }), Object(external_gc_element_["createElement"])(FeatureToggle, {
+      feature: "focusMode",
+      label: Object(external_gc_i18n_["__"])('探照灯模式'),
+      info: Object(external_gc_i18n_["__"])('集中注意力在一个区块上'),
+      messageActivated: Object(external_gc_i18n_["__"])('探照灯模式已启用'),
+      messageDeactivated: Object(external_gc_i18n_["__"])('探照灯模式已禁用')
+    }), Object(external_gc_element_["createElement"])(build_module["a" /* ActionItem */].Slot, {
+      name: "core/edit-site/plugin-more-menu",
+      label: Object(external_gc_i18n_["__"])('插件'),
+      as: external_gc_components_["MenuGroup"],
+      fillProps: {
+        onClick: onClose
+      }
+    })), Object(external_gc_element_["createElement"])(external_gc_components_["MenuGroup"], {
+      label: Object(external_gc_i18n_["__"])('工具')
+    }, Object(external_gc_element_["createElement"])(SiteExport, null), Object(external_gc_element_["createElement"])(external_gc_components_["MenuItem"], {
+      onClick: toggleModal,
+      shortcut: external_gc_keycodes_["displayShortcut"].access('h')
+    }, Object(external_gc_i18n_["__"])('键盘快捷键')), Object(external_gc_element_["createElement"])(WelcomeGuideMenuItem, null), Object(external_gc_element_["createElement"])(external_gc_components_["MenuItem"], {
+      icon: external["a" /* default */],
+      role: "menuitem",
+      href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/article/site-editor/'),
+      target: "_blank",
+      rel: "noopener noreferrer"
+    }, Object(external_gc_i18n_["__"])('帮助'), Object(external_gc_element_["createElement"])(external_gc_components_["VisuallyHidden"], {
+      as: "span"
+    },
+    /* translators: accessibility text */
+    Object(external_gc_i18n_["__"])('（在新窗口中打开）'))), Object(external_gc_element_["createElement"])(tools_more_menu_group.Slot, {
+      fillProps: {
+        onClose
+      }
+    })));
+  }), Object(external_gc_element_["createElement"])(KeyboardShortcutHelpModal, {
+    isModalActive: isModalActive,
+    toggleModal: toggleModal
   }));
-});
-
-/* harmony default export */ var more_menu = (MoreMenu);
+}
 
 // CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/save-button/index.js
 
@@ -3870,9 +4126,6 @@ var library_undo = __webpack_require__("mkk6");
 
 // EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/library/redo.js
 var library_redo = __webpack_require__("WNKN");
-
-// EXTERNAL MODULE: external ["gc","keycodes"]
-var external_gc_keycodes_ = __webpack_require__("l35S");
 
 // CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/header/undo-redo/undo.js
 
@@ -3931,10 +4184,6 @@ function RedoButton() {
     onClick: hasRedo ? redo : undefined
   });
 }
-
-// EXTERNAL MODULE: ./node_modules/classnames/index.js
-var classnames = __webpack_require__("TSYQ");
-var classnames_default = /*#__PURE__*/__webpack_require__.n(classnames);
 
 // EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/library/chevron-down.js
 var chevron_down = __webpack_require__("Lsdq");
@@ -4490,7 +4739,7 @@ function Header(_ref) {
     onMouseDown: preventDefault,
     onClick: openInserter,
     icon: plus["a" /* default */],
-    label: Object(external_gc_i18n_["_x"])('切换区块插入器', 'Generic label for block inserter button')
+    label: Object(external_gc_i18n_["_x"])('Toggle block inserter', 'Generic label for block inserter button')
   }), isLargeViewport && Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(external_gc_blockEditor_["ToolSelector"], null), Object(external_gc_element_["createElement"])(UndoButton, null), Object(external_gc_element_["createElement"])(RedoButton, null), Object(external_gc_element_["createElement"])(external_gc_components_["Button"], {
     className: "edit-site-header-toolbar__list-view-toggle",
     icon: list_view["a" /* default */],
@@ -4526,7 +4775,7 @@ function Header(_ref) {
     isEntitiesSavedStatesOpen: isEntitiesSavedStatesOpen
   }), Object(external_gc_element_["createElement"])(build_module["h" /* PinnedItems */].Slot, {
     scope: "core/edit-site"
-  }), Object(external_gc_element_["createElement"])(more_menu, null))));
+  }), Object(external_gc_element_["createElement"])(MoreMenu, null))));
 }
 
 // EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/library/cog.js
@@ -5589,7 +5838,7 @@ function ScreenRoot() {
     path: "/blocks"
   }, Object(external_gc_element_["createElement"])(external_gc_components_["__experimentalHStack"], {
     justify: "space-between"
-  }, Object(external_gc_element_["createElement"])(external_gc_components_["FlexItem"], null, Object(external_gc_i18n_["__"])('块')), Object(external_gc_element_["createElement"])(external_gc_components_["FlexItem"], null, Object(external_gc_element_["createElement"])(build_module_icon["a" /* default */], {
+  }, Object(external_gc_element_["createElement"])(external_gc_components_["FlexItem"], null, Object(external_gc_i18n_["__"])('区块')), Object(external_gc_element_["createElement"])(external_gc_components_["FlexItem"], null, Object(external_gc_element_["createElement"])(build_module_icon["a" /* default */], {
     icon: Object(external_gc_i18n_["isRTL"])() ? chevron_left["a" /* default */] : chevron_right["a" /* default */]
   })))))));
 }
@@ -5629,7 +5878,7 @@ function ScreenHeader(_ref) {
     }),
     size: "small",
     isBack: true,
-    "aria-label": Object(external_gc_i18n_["__"])('转到上一视图')
+    "aria-label": Object(external_gc_i18n_["__"])('导航至上一视图')
   })), Object(external_gc_element_["createElement"])(external_gc_components_["__experimentalSpacer"], null, Object(external_gc_element_["createElement"])(external_gc_components_["__experimentalHeading"], {
     level: 5
   }, title))), description && Object(external_gc_element_["createElement"])("p", {
@@ -5687,7 +5936,7 @@ function BlockMenuItem(_ref) {
 function ScreenBlockList() {
   return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(global_styles_header, {
     back: "/",
-    title: Object(external_gc_i18n_["__"])('块'),
+    title: Object(external_gc_i18n_["__"])('区块'),
     description: Object(external_gc_i18n_["__"])('自定义特定区块和全站的外观。')
   }), Object(external_gc_blocks_["getBlockTypes"])().map(block => Object(external_gc_element_["createElement"])(BlockMenuItem, {
     block: block,
@@ -5827,7 +6076,7 @@ function ScreenTypography(_ref2) {
     name: name,
     parentMenu: parentMenu,
     element: "text",
-    label: Object(external_gc_i18n_["__"])('文字')
+    label: Object(external_gc_i18n_["__"])('文本')
   }), Object(external_gc_element_["createElement"])(Item, {
     name: name,
     parentMenu: parentMenu,
@@ -5857,7 +6106,7 @@ function ScreenTypography(_ref2) {
 const screen_typography_element_elements = {
   text: {
     description: Object(external_gc_i18n_["__"])('管理站点上使用的字体。'),
-    title: Object(external_gc_i18n_["__"])('文字')
+    title: Object(external_gc_i18n_["__"])('文本')
   },
   link: {
     description: Object(external_gc_i18n_["__"])('管理链接上使用的字体和排版。'),
@@ -5912,7 +6161,7 @@ function Palette(_ref) {
   const colors = Object(external_gc_element_["useMemo"])(() => [...(customColors || EMPTY_COLORS), ...(themeColors || EMPTY_COLORS), ...(defaultColors && defaultPaletteEnabled ? defaultColors : EMPTY_COLORS)], [customColors, themeColors, defaultColors, defaultPaletteEnabled]);
   const screenPath = !name ? '/colors/palette' : '/blocks/' + name + '/colors/palette';
   const paletteButtonText = colors.length > 0 ? Object(external_gc_i18n_["sprintf"])( // Translators: %d: Number of palette colors.
-  Object(external_gc_i18n_["_n"])('%d种颜色', '%d种颜色', colors.length), colors.length) : Object(external_gc_i18n_["__"])('添加自定义颜色');
+  Object(external_gc_i18n_["_n"])('%d color', '%d colors', colors.length), colors.length) : Object(external_gc_i18n_["__"])('添加自定义颜色');
   return Object(external_gc_element_["createElement"])(external_gc_components_["__experimentalVStack"], {
     spacing: 3
   }, Object(external_gc_element_["createElement"])(subtitle, null, Object(external_gc_i18n_["__"])('调色板')), Object(external_gc_element_["createElement"])(external_gc_components_["__experimentalItemGroup"], {
@@ -5998,7 +6247,7 @@ function TextColorItem(_ref2) {
     justify: "flex-start"
   }, Object(external_gc_element_["createElement"])(external_gc_components_["FlexItem"], null, Object(external_gc_element_["createElement"])(external_gc_components_["ColorIndicator"], {
     colorValue: color
-  })), Object(external_gc_element_["createElement"])(external_gc_components_["FlexItem"], null, Object(external_gc_i18n_["__"])('文字'))));
+  })), Object(external_gc_element_["createElement"])(external_gc_components_["FlexItem"], null, Object(external_gc_i18n_["__"])('文本'))));
 }
 
 function LinkColorItem(_ref3) {
@@ -6218,6 +6467,7 @@ function ScreenColorPalette(_ref) {
 // CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/global-styles/screen-background-color.js
 
 
+
 /**
  * GeChiUI dependencies
  */
@@ -6254,7 +6504,6 @@ function ScreenBackgroundColor(_ref) {
     return null;
   }
 
-  const settings = [];
   let backgroundSettings = {};
 
   if (hasBackgroundColor) {
@@ -6281,17 +6530,15 @@ function ScreenBackgroundColor(_ref) {
     }
   }
 
-  settings.push({ ...backgroundSettings,
-    ...gradientSettings,
-    label: Object(external_gc_i18n_["__"])('背景颜色')
-  });
+  const controlProps = { ...backgroundSettings,
+    ...gradientSettings
+  };
   return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(global_styles_header, {
     back: parentMenu + '/colors',
     title: Object(external_gc_i18n_["__"])('背景'),
     description: Object(external_gc_i18n_["__"])('设置整站的背景颜色或渐变。')
-  }), Object(external_gc_element_["createElement"])(external_gc_blockEditor_["__experimentalPanelColorGradientSettings"], {
-    title: Object(external_gc_i18n_["__"])('颜色'),
-    settings: settings,
+  }), Object(external_gc_element_["createElement"])(external_gc_blockEditor_["__experimentalColorGradientControl"], Object(esm_extends["a" /* default */])({
+    className: "edit-site-screen-background-color__control",
     colors: colorsPerOrigin,
     gradients: gradientsPerOrigin,
     disableCustomColors: !areCustomSolidsEnabled,
@@ -6300,7 +6547,7 @@ function ScreenBackgroundColor(_ref) {
     showTitle: false,
     enableAlpha: true,
     __experimentalIsRenderedInSidebar: true
-  }));
+  }, controlProps)));
 }
 
 /* harmony default export */ var screen_background_color = (ScreenBackgroundColor);
@@ -6338,25 +6585,21 @@ function ScreenTextColor(_ref) {
     return null;
   }
 
-  const settings = [{
-    colorValue: color,
-    onColorChange: setColor,
-    label: Object(external_gc_i18n_["__"])('文字颜色'),
-    clearable: color === userColor
-  }];
   return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(global_styles_header, {
     back: parentMenu + '/colors',
-    title: Object(external_gc_i18n_["__"])('文字'),
+    title: Object(external_gc_i18n_["__"])('文本'),
     description: Object(external_gc_i18n_["__"])('设置用于全站的默认文字颜色。')
-  }), Object(external_gc_element_["createElement"])(external_gc_blockEditor_["__experimentalPanelColorGradientSettings"], {
-    title: Object(external_gc_i18n_["__"])('颜色'),
-    settings: settings,
+  }), Object(external_gc_element_["createElement"])(external_gc_blockEditor_["__experimentalColorGradientControl"], {
+    className: "edit-site-screen-text-color__control",
     colors: colorsPerOrigin,
     disableCustomColors: !areCustomSolidsEnabled,
     __experimentalHasMultipleOrigins: true,
     showTitle: false,
     enableAlpha: true,
-    __experimentalIsRenderedInSidebar: true
+    __experimentalIsRenderedInSidebar: true,
+    colorValue: color,
+    onColorChange: setColor,
+    clearable: color === userColor
   }));
 }
 
@@ -6395,25 +6638,21 @@ function ScreenLinkColor(_ref) {
     return null;
   }
 
-  const settings = [{
-    colorValue: linkColor,
-    onColorChange: setLinkColor,
-    label: Object(external_gc_i18n_["__"])('链接颜色'),
-    clearable: linkColor === userLinkColor
-  }];
   return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(global_styles_header, {
     back: parentMenu + '/colors',
     title: Object(external_gc_i18n_["__"])('链接'),
     description: Object(external_gc_i18n_["__"])('设置用于跨站点链接的默认颜色。')
-  }), Object(external_gc_element_["createElement"])(external_gc_blockEditor_["__experimentalPanelColorGradientSettings"], {
-    title: Object(external_gc_i18n_["__"])('颜色'),
-    settings: settings,
+  }), Object(external_gc_element_["createElement"])(external_gc_blockEditor_["__experimentalColorGradientControl"], {
+    className: "edit-site-screen-link-color__control",
     colors: colorsPerOrigin,
     disableCustomColors: !areCustomSolidsEnabled,
     __experimentalHasMultipleOrigins: true,
     showTitle: false,
     enableAlpha: true,
-    __experimentalIsRenderedInSidebar: true
+    __experimentalIsRenderedInSidebar: true,
+    colorValue: linkColor,
+    onColorChange: setLinkColor,
+    clearable: linkColor === userLinkColor
   }));
 }
 
@@ -6956,7 +7195,7 @@ function GlobalStylesSidebar() {
     closeLabel: Object(external_gc_i18n_["__"])('关闭全局样式侧边栏'),
     header: Object(external_gc_element_["createElement"])(external_gc_components_["Flex"], null, Object(external_gc_element_["createElement"])(external_gc_components_["FlexBlock"], null, Object(external_gc_element_["createElement"])("strong", null, Object(external_gc_i18n_["__"])('样式')), Object(external_gc_element_["createElement"])("span", {
       className: "edit-site-global-styles-sidebar__beta"
-    }, Object(external_gc_i18n_["__"])('Beta 版'))), Object(external_gc_element_["createElement"])(external_gc_components_["FlexItem"], null, Object(external_gc_element_["createElement"])(external_gc_components_["DropdownMenu"], {
+    }, Object(external_gc_i18n_["__"])('测试版'))), Object(external_gc_element_["createElement"])(external_gc_components_["FlexItem"], null, Object(external_gc_element_["createElement"])(external_gc_components_["DropdownMenu"], {
       icon: more_vertical["a" /* default */],
       label: Object(external_gc_i18n_["__"])('更多全局样式操作'),
       toggleProps: {
@@ -7384,7 +7623,7 @@ const NavigationPanel = _ref2 => {
       className: "edit-site-navigation-panel__back-to-dashboard",
       href: "index.php"
     })), Object(external_gc_element_["createElement"])(external_gc_components_["__experimentalNavigationMenu"], null, Object(external_gc_element_["createElement"])(external_gc_components_["__experimentalNavigationGroup"], {
-      title: Object(external_gc_i18n_["__"])('编辑')
+      title: Object(external_gc_i18n_["__"])('编辑器')
     }, Object(external_gc_element_["createElement"])(NavLink, {
       icon: library_home,
       title: Object(external_gc_i18n_["__"])('站点'),
@@ -7649,7 +7888,7 @@ function CreateTemplatePartModal(_ref) {
       });
     }
   }, Object(external_gc_element_["createElement"])(external_gc_components_["TextControl"], {
-    label: Object(external_gc_i18n_["__"])('名称'),
+    label: Object(external_gc_i18n_["__"])('显示名称'),
     value: title,
     onChange: setTitle,
     required: true
@@ -7747,8 +7986,11 @@ function ConvertToTemplatePart(_ref) {
       title,
       area
     } = _ref2;
+    // Currently template parts only allow latin chars.
+    // Fallback slug will receive suffix by default.
+    const cleanSlug = Object(external_lodash_["kebabCase"])(title).replace(/[^\w-]+/g, '') || 'gc-custom-part';
     const templatePart = await saveEntityRecord('postType', 'gc_template_part', {
-      slug: Object(external_lodash_["kebabCase"])(title),
+      slug: cleanSlug,
       title,
       content: Object(external_gc_blocks_["serialize"])(blocks),
       area
@@ -8457,9 +8699,18 @@ function KeyboardShortcutsRegister() {
       }
     });
     registerShortcut({
+      name: 'core/edit-site/keyboard-shortcuts',
+      category: 'main',
+      description: Object(external_gc_i18n_["__"])('显示这些键盘快捷键。'),
+      keyCombination: {
+        modifier: 'access',
+        character: 'h'
+      }
+    });
+    registerShortcut({
       name: 'core/edit-site/next-region',
       category: 'global',
-      description: Object(external_gc_i18n_["__"])('转到编辑器的下一个功能区域。'),
+      description: Object(external_gc_i18n_["__"])('导航至编辑器的下一个功能区域。'),
       keyCombination: {
         modifier: 'ctrl',
         character: '`'
@@ -8472,7 +8723,7 @@ function KeyboardShortcutsRegister() {
     registerShortcut({
       name: 'core/edit-site/previous-region',
       category: 'global',
-      description: Object(external_gc_i18n_["__"])('转到编辑器的上一个功能区域。'),
+      description: Object(external_gc_i18n_["__"])('导航至编辑器的上一个功能区域。'),
       keyCombination: {
         modifier: 'ctrlShift',
         character: '`'
@@ -8505,25 +8756,16 @@ function URLQueryController() {
   const {
     setTemplate,
     setTemplatePart,
-    showHomepage,
     setPage
   } = Object(external_gc_data_["useDispatch"])(store);
-  const history = useHistory();
   const {
     params: {
       postId,
       postType
     }
-  } = useLocation();
-  const {
-    getPage,
-    getEditedPostId,
-    getEditedPostType
-  } = Object(external_gc_data_["useSelect"])(store); // Set correct entity on page navigation.
+  } = useLocation(); // Set correct entity on page navigation.
 
   Object(external_gc_element_["useEffect"])(() => {
-    let isMounted = true;
-
     if ('page' === postType || 'post' === postType) {
       setPage({
         context: {
@@ -8535,35 +8777,7 @@ function URLQueryController() {
       setTemplate(postId);
     } else if ('gc_template_part' === postType) {
       setTemplatePart(postId);
-    } else {
-      showHomepage().then(() => {
-        var _page$context, _page$context2;
-
-        if (!isMounted) {
-          return;
-        }
-
-        const page = getPage();
-        const editedPostId = getEditedPostId();
-        const editedPostType = getEditedPostType();
-
-        if (page !== null && page !== void 0 && (_page$context = page.context) !== null && _page$context !== void 0 && _page$context.postId && page !== null && page !== void 0 && (_page$context2 = page.context) !== null && _page$context2 !== void 0 && _page$context2.postType) {
-          history.replace({
-            postId: page.context.postId,
-            postType: page.context.postType
-          });
-        } else if (editedPostId && editedPostType) {
-          history.replace({
-            postId: editedPostId,
-            postType: editedPostType
-          });
-        }
-      });
     }
-
-    return () => {
-      isMounted = false;
-    };
   }, [postId, postType]);
   return null;
 }
@@ -8688,13 +8902,12 @@ function ListViewSidebar() {
   );
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/error-boundary/index.js
+// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/error-boundary/warning.js
 
 
 /**
  * GeChiUI dependencies
  */
-
 
 
 
@@ -8711,6 +8924,57 @@ function CopyButton(_ref) {
     ref: ref
   }, children);
 }
+
+function ErrorBoundaryWarning(_ref2) {
+  let {
+    message,
+    error,
+    reboot,
+    dashboardLink
+  } = _ref2;
+  const actions = [];
+
+  if (reboot) {
+    actions.push(Object(external_gc_element_["createElement"])(external_gc_components_["Button"], {
+      key: "recovery",
+      onClick: reboot,
+      variant: "secondary"
+    }, Object(external_gc_i18n_["__"])('尝试恢复')));
+  }
+
+  if (error) {
+    actions.push(Object(external_gc_element_["createElement"])(CopyButton, {
+      key: "copy-error",
+      text: error.stack
+    }, Object(external_gc_i18n_["__"])('复制错误')));
+  }
+
+  if (dashboardLink) {
+    actions.push(Object(external_gc_element_["createElement"])(external_gc_components_["Button"], {
+      key: "back-to-dashboard",
+      variant: "secondary",
+      href: dashboardLink
+    }, Object(external_gc_i18n_["__"])('回到仪表盘')));
+  }
+
+  return Object(external_gc_element_["createElement"])(external_gc_blockEditor_["Warning"], {
+    className: "editor-error-boundary",
+    actions: actions
+  }, message);
+}
+
+// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/error-boundary/index.js
+
+
+/**
+ * GeChiUI dependencies
+ */
+
+
+/**
+ * Internal dependencies
+ */
+
 
 class error_boundary_ErrorBoundary extends external_gc_element_["Component"] {
   constructor() {
@@ -8740,17 +9004,11 @@ class error_boundary_ErrorBoundary extends external_gc_element_["Component"] {
       return this.props.children;
     }
 
-    return Object(external_gc_element_["createElement"])(external_gc_blockEditor_["Warning"], {
-      className: "editor-error-boundary",
-      actions: [Object(external_gc_element_["createElement"])(external_gc_components_["Button"], {
-        key: "recovery",
-        onClick: this.reboot,
-        variant: "secondary"
-      }, Object(external_gc_i18n_["__"])('尝试恢复')), Object(external_gc_element_["createElement"])(CopyButton, {
-        key: "copy-error",
-        text: error.stack
-      }, Object(external_gc_i18n_["__"])('复制错误'))]
-    }, Object(external_gc_i18n_["__"])('编辑器遇到了未知错误。'));
+    return Object(external_gc_element_["createElement"])(ErrorBoundaryWarning, {
+      message: Object(external_gc_i18n_["__"])('编辑器遇到了未知错误。'),
+      error: error,
+      reboot: this.reboot
+    });
   }
 
 }
@@ -8896,7 +9154,7 @@ function WelcomeGuideStyles() {
         className: "edit-site-welcome-guide__heading"
       }, Object(external_gc_i18n_["__"])('个性化区块')), Object(external_gc_element_["createElement"])("p", {
         className: "edit-site-welcome-guide__text"
-      }, Object(external_gc_i18n_["__"])('您可以调整区块来保持全站的一致体验--为品牌按钮区块加上独特的颜色，或将标题区块调整到您喜欢的尺寸。')))
+      }, Object(external_gc_i18n_["__"])('您可以调整区块以确保全站的一致体验 - 为品牌按钮区块加上独特的颜色，或将标题区块调整到您喜欢的尺寸。')))
     }, {
       image: Object(external_gc_element_["createElement"])(WelcomeGuideImage, {
         nonAnimatedSrc: "https://s.w.org/images/block-editor/welcome-documentation.svg",
@@ -8907,7 +9165,7 @@ function WelcomeGuideStyles() {
       }, Object(external_gc_i18n_["__"])('了解更多')), Object(external_gc_element_["createElement"])("p", {
         className: "edit-site-welcome-guide__text"
       }, Object(external_gc_i18n_["__"])('区块主题和美化站点的新手？'), Object(external_gc_element_["createElement"])(external_gc_components_["ExternalLink"], {
-        href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/styles-overview/')
+        href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/article/styles-overview/')
       }, Object(external_gc_i18n_["__"])('这是一份详细的指南，可帮助您了解如何充分利用这些功能。'))))
     }]
   });
@@ -9288,7 +9546,7 @@ function Editor(_ref) {
   // action in <URlQueryController> from double-announcing.
 
 
-  useTitle(isReady && Object(external_gc_i18n_["__"])('编辑器（ (beta)）'));
+  useTitle(isReady && Object(external_gc_i18n_["__"])('编辑器（测试版）'));
   return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(URLQueryController, null), isReady && Object(external_gc_element_["createElement"])(external_gc_keyboardShortcuts_["ShortcutProvider"], null, Object(external_gc_element_["createElement"])(external_gc_coreData_["EntityProvider"], {
     kind: "root",
     type: "site"
@@ -9355,7 +9613,7 @@ function useRegisterShortcuts() {
     registerShortcut({
       name: 'core/edit-site/next-region',
       category: 'global',
-      description: Object(external_gc_i18n_["__"])('转到编辑器的下一个功能区域。'),
+      description: Object(external_gc_i18n_["__"])('导航至编辑器的下一个功能区域。'),
       keyCombination: {
         modifier: 'ctrl',
         character: '`'
@@ -9368,7 +9626,7 @@ function useRegisterShortcuts() {
     registerShortcut({
       name: 'core/edit-site/previous-region',
       category: 'global',
-      description: Object(external_gc_i18n_["__"])('转到编辑器的上一个功能区域。'),
+      description: Object(external_gc_i18n_["__"])('导航至编辑器的上一个功能区域。'),
       keyCombination: {
         modifier: 'ctrlShift',
         character: '`'
@@ -9559,8 +9817,11 @@ function NewTemplatePart(_ref) {
     }
 
     try {
+      // Currently template parts only allow latin chars.
+      // Fallback slug will receive suffix by default.
+      const cleanSlug = Object(external_lodash_["kebabCase"])(title).replace(/[^\w-]+/g, '') || 'gc-custom-part';
       const templatePart = await saveEntityRecord('postType', 'gc_template_part', {
-        slug: Object(external_lodash_["kebabCase"])(title),
+        slug: cleanSlug,
         title,
         content: '',
         area
@@ -9770,7 +10031,7 @@ function RenameMenuItem(_ref) {
     align: "flex-start",
     gap: 8
   }, Object(external_gc_element_["createElement"])(external_gc_components_["FlexItem"], null, Object(external_gc_element_["createElement"])(external_gc_components_["TextControl"], {
-    label: Object(external_gc_i18n_["__"])('名称'),
+    label: Object(external_gc_i18n_["__"])('显示名称'),
     value: title,
     onChange: setTitle,
     required: true
@@ -9896,6 +10157,9 @@ const commentAuthorAvatar = Object(external_gc_element_["createElement"])(extern
 }));
 /* harmony default export */ var comment_author_avatar = (commentAuthorAvatar);
 
+// EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/library/globe.js
+var globe = __webpack_require__("TS6h");
+
 // CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/list/added-by.js
 
 
@@ -9930,67 +10194,75 @@ function CustomizedTooltip(_ref) {
   }, children);
 }
 
-function AddedByTheme(_ref2) {
+function BaseAddedBy(_ref2) {
+  let {
+    text,
+    icon,
+    imageUrl,
+    isCustomized
+  } = _ref2;
+  const [isImageLoaded, setIsImageLoaded] = Object(external_gc_element_["useState"])(false);
+  return Object(external_gc_element_["createElement"])(external_gc_components_["__experimentalHStack"], {
+    alignment: "left"
+  }, Object(external_gc_element_["createElement"])(CustomizedTooltip, {
+    isCustomized: isCustomized
+  }, imageUrl ? Object(external_gc_element_["createElement"])("div", {
+    className: classnames_default()('edit-site-list-added-by__avatar', {
+      'is-loaded': isImageLoaded
+    })
+  }, Object(external_gc_element_["createElement"])("img", {
+    onLoad: () => setIsImageLoaded(true),
+    alt: "",
+    src: imageUrl
+  })) : Object(external_gc_element_["createElement"])("div", {
+    className: classnames_default()('edit-site-list-added-by__icon', {
+      'is-customized': isCustomized
+    })
+  }, Object(external_gc_element_["createElement"])(external_gc_components_["Icon"], {
+    icon: icon
+  }))), Object(external_gc_element_["createElement"])("span", null, text));
+}
+
+function AddedByTheme(_ref3) {
   var _theme$name;
 
   let {
     slug,
     isCustomized
-  } = _ref2;
+  } = _ref3;
   const theme = Object(external_gc_data_["useSelect"])(select => select(external_gc_coreData_["store"]).getTheme(slug), [slug]);
-  return Object(external_gc_element_["createElement"])(external_gc_components_["__experimentalHStack"], {
-    alignment: "left"
-  }, Object(external_gc_element_["createElement"])(CustomizedTooltip, {
+  return Object(external_gc_element_["createElement"])(BaseAddedBy, {
+    icon: layout["a" /* default */],
+    text: (theme === null || theme === void 0 ? void 0 : (_theme$name = theme.name) === null || _theme$name === void 0 ? void 0 : _theme$name.rendered) || slug,
     isCustomized: isCustomized
-  }, Object(external_gc_element_["createElement"])("div", {
-    className: classnames_default()('edit-site-list-added-by__icon', {
-      'is-customized': isCustomized
-    })
-  }, Object(external_gc_element_["createElement"])(external_gc_components_["Icon"], {
-    icon: layout["a" /* default */]
-  }))), Object(external_gc_element_["createElement"])("span", null, (theme === null || theme === void 0 ? void 0 : (_theme$name = theme.name) === null || _theme$name === void 0 ? void 0 : _theme$name.rendered) || slug));
+  });
 }
 
-function AddedByPlugin(_ref3) {
+function AddedByPlugin(_ref4) {
   let {
     slug,
     isCustomized
-  } = _ref3;
+  } = _ref4;
   const plugin = Object(external_gc_data_["useSelect"])(select => select(external_gc_coreData_["store"]).getPlugin(slug), [slug]);
-  return Object(external_gc_element_["createElement"])(external_gc_components_["__experimentalHStack"], {
-    alignment: "left"
-  }, Object(external_gc_element_["createElement"])(CustomizedTooltip, {
+  return Object(external_gc_element_["createElement"])(BaseAddedBy, {
+    icon: plugins["a" /* default */],
+    text: (plugin === null || plugin === void 0 ? void 0 : plugin.name) || slug,
     isCustomized: isCustomized
-  }, Object(external_gc_element_["createElement"])("div", {
-    className: "edit-site-list-added-by__icon"
-  }, Object(external_gc_element_["createElement"])(external_gc_components_["Icon"], {
-    icon: plugins["a" /* default */]
-  }))), Object(external_gc_element_["createElement"])("span", null, (plugin === null || plugin === void 0 ? void 0 : plugin.name) || slug));
+  });
 }
 
-function AddedByAuthor(_ref4) {
+function AddedByAuthor(_ref5) {
   var _user$avatar_urls;
 
   let {
     id
-  } = _ref4;
+  } = _ref5;
   const user = Object(external_gc_data_["useSelect"])(select => select(external_gc_coreData_["store"]).getUser(id), [id]);
-  const [isImageLoaded, setIsImageLoaded] = Object(external_gc_element_["useState"])(false);
-  const avatarURL = user === null || user === void 0 ? void 0 : (_user$avatar_urls = user.avatar_urls) === null || _user$avatar_urls === void 0 ? void 0 : _user$avatar_urls[48];
-  const hasAvatar = !!avatarURL;
-  return Object(external_gc_element_["createElement"])(external_gc_components_["__experimentalHStack"], {
-    alignment: "left"
-  }, Object(external_gc_element_["createElement"])("div", {
-    className: classnames_default()(hasAvatar ? 'edit-site-list-added-by__avatar' : 'edit-site-list-added-by__icon', {
-      'is-loaded': isImageLoaded
-    })
-  }, hasAvatar ? Object(external_gc_element_["createElement"])("img", {
-    onLoad: () => setIsImageLoaded(true),
-    alt: "",
-    src: avatarURL
-  }) : Object(external_gc_element_["createElement"])(external_gc_components_["Icon"], {
-    icon: comment_author_avatar
-  })), Object(external_gc_element_["createElement"])("span", null, user === null || user === void 0 ? void 0 : user.nickname));
+  return Object(external_gc_element_["createElement"])(BaseAddedBy, {
+    icon: comment_author_avatar,
+    imageUrl: user === null || user === void 0 ? void 0 : (_user$avatar_urls = user.avatar_urls) === null || _user$avatar_urls === void 0 ? void 0 : _user$avatar_urls[48],
+    text: user === null || user === void 0 ? void 0 : user.nickname
+  });
 }
 
 function AddedBySite() {
@@ -10006,29 +10278,22 @@ function AddedBySite() {
     } = select(external_gc_coreData_["store"]);
     const siteData = getEntityRecord('root', '__unstableBase');
     return {
-      name: siteData.name,
+      name: siteData === null || siteData === void 0 ? void 0 : siteData.name,
       logoURL: siteData !== null && siteData !== void 0 && siteData.site_logo ? (_getMedia = getMedia(siteData.site_logo)) === null || _getMedia === void 0 ? void 0 : _getMedia.source_url : undefined
     };
   }, []);
-  const [isImageLoaded, setIsImageLoaded] = Object(external_gc_element_["useState"])(false);
-  return Object(external_gc_element_["createElement"])(external_gc_components_["__experimentalHStack"], {
-    alignment: "left"
-  }, Object(external_gc_element_["createElement"])("div", {
-    className: classnames_default()('edit-site-list-added-by__avatar', {
-      'is-loaded': isImageLoaded
-    })
-  }, Object(external_gc_element_["createElement"])("img", {
-    onLoad: () => setIsImageLoaded(true),
-    alt: "",
-    src: logoURL
-  })), Object(external_gc_element_["createElement"])("span", null, name));
+  return Object(external_gc_element_["createElement"])(BaseAddedBy, {
+    icon: globe["a" /* default */],
+    imageUrl: logoURL,
+    text: name
+  });
 }
 
-function AddedBy(_ref5) {
+function AddedBy(_ref6) {
   let {
     templateType,
     template
-  } = _ref5;
+  } = _ref6;
 
   if (!template) {
     return;
@@ -10307,6 +10572,101 @@ function EditSiteApp(_ref) {
   }));
 }
 
+// CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/routes/redirect-to-homepage.js
+/**
+ * GeChiUI dependencies
+ */
+
+
+/**
+ * Internal dependencies
+ */
+
+
+
+
+function getNeedsHomepageRedirect(params) {
+  const {
+    postType
+  } = params;
+  return !getIsListPage(params) && !['post', 'page', 'gc_template', 'gc_template_part'].includes(postType);
+}
+/**
+ * Returns the postType and postId of the default homepage.
+ *
+ * @param {string} siteUrl The URL of the site.
+ * @return {Object} An object containing the postType and postId properties
+ *                  or `undefined` if a homepage could not be found.
+ */
+
+
+async function getHomepageParams(siteUrl) {
+  const siteSettings = await external_gc_apiFetch_default()({
+    path: '/gc/v2/settings'
+  });
+
+  if (!siteSettings) {
+    throw new Error('`getHomepageParams`: unable to load site settings.');
+  }
+
+  const {
+    show_on_front: showOnFront,
+    page_on_front: frontpageId
+  } = siteSettings; // If the user has set a page as the homepage, use those details.
+
+  if (showOnFront === 'page') {
+    return {
+      postType: 'page',
+      postId: frontpageId
+    };
+  } // Else get the home template.
+  // This matches the logic in `__experimentalGetTemplateForLink`.
+  // (packages/core-data/src/resolvers.js)
+
+
+  const template = await window.fetch(Object(external_gc_url_["addQueryArgs"])(siteUrl, {
+    '_gc-find-template': true
+  })).then(response => {
+    if (!response.ok) {
+      throw new Error(`\`getHomepageParams\`: HTTP status error, ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }).then(_ref => {
+    let {
+      data
+    } = _ref;
+
+    if (data.message) {
+      throw new Error(`\`getHomepageParams\`: REST API error, ${data.message}`);
+    }
+
+    return data;
+  });
+
+  if (!(template !== null && template !== void 0 && template.id)) {
+    throw new Error('`getHomepageParams`: unable to find home template.');
+  }
+
+  return {
+    postType: 'gc_template',
+    postId: template.id
+  };
+}
+
+async function redirectToHomepage(siteUrl) {
+  const searchParams = new URLSearchParams(utils_history.location.search);
+  const params = Object.fromEntries(searchParams.entries());
+
+  if (getNeedsHomepageRedirect(params)) {
+    const homepageParams = await getHomepageParams(siteUrl);
+
+    if (homepageParams) {
+      utils_history.replace(homepageParams);
+    }
+  }
+}
+
 // CONCATENATED MODULE: ./node_modules/@gechiui/edit-site/build-module/components/sidebar/plugin-sidebar/index.js
 
 
@@ -10347,13 +10707,13 @@ function EditSiteApp(_ref) {
  * 			PluginSidebar,
  * 			{
  * 				name: 'my-sidebar',
- * 				title: '我的侧边栏标题',
+ * 				title: 'My sidebar title',
  * 				icon: moreIcon,
  * 			},
  * 			el(
  * 				PanelBody,
  * 				{},
- * 				__( '我的侧边栏内容' )
+ * 				__( 'My sidebar content' )
  * 			)
  * 	);
  * }
@@ -10374,7 +10734,7 @@ function EditSiteApp(_ref) {
  * 		icon={ more }
  * 	>
  * 		<PanelBody>
- * 			{ __( '我的侧边栏内容' ) }
+ * 			{ __( 'My sidebar content' ) }
  * 		</PanelBody>
  * 	</PluginSidebar>
  * );
@@ -10424,7 +10784,7 @@ function PluginSidebarEditSite(_ref) {
  * 			target: 'my-sidebar',
  * 			icon: moreIcon,
  * 		},
- * 		__( '我的侧边栏标题' )
+ * 		__( 'My sidebar title' )
  * 	)
  * }
  * ```
@@ -10441,7 +10801,7 @@ function PluginSidebarEditSite(_ref) {
  * 		target="my-sidebar"
  * 		icon={ more }
  * 	>
- * 		{ __( '我的侧边栏标题' ) }
+ * 		{ __( 'My sidebar title' ) }
  * 	</PluginSidebarMoreMenuItem>
  * );
  * ```
@@ -10493,7 +10853,7 @@ function PluginSidebarMoreMenuItem(props) {
  * 			icon: moreIcon,
  * 			onClick: onButtonClick,
  * 		},
- * 		__( '我的按钮标题' )
+ * 		__( 'My button title' )
  * 	);
  * }
  * ```
@@ -10514,7 +10874,7 @@ function PluginSidebarMoreMenuItem(props) {
  * 		icon={ more }
  * 		onClick={ onButtonClick }
  * 	>
- * 		{ __( '我的按钮标题' ) }
+ * 		{ __( 'My button title' ) }
  * 	</PluginMoreMenuItem>
  * );
  * ```
@@ -10543,9 +10903,11 @@ function PluginSidebarMoreMenuItem(props) {
 
 
 
+
 /**
  * Internal dependencies
  */
+
 
 
 
@@ -10561,8 +10923,23 @@ function PluginSidebarMoreMenuItem(props) {
  * @param {?Object} settings Editor settings object.
  */
 
-function reinitializeEditor(target, settings) {
-  // This will be a no-op if the target doesn't have any React nodes.
+async function reinitializeEditor(target, settings) {
+  // The site editor relies on `postType` and `postId` params in the URL to
+  // define what's being edited. When visiting via the dashboard link, these
+  // won't be present. Do a client side redirect to the 'homepage' if that's
+  // the case.
+  try {
+    await redirectToHomepage(settings.siteUrl);
+  } catch (error) {
+    Object(external_gc_element_["render"])(Object(external_gc_element_["createElement"])(ErrorBoundaryWarning, {
+      message: Object(external_gc_i18n_["__"])('编辑器无法找到主页的区块模板。'),
+      error: error,
+      dashboardLink: "index.php"
+    }), target);
+    return;
+  } // This will be a no-op if the target doesn't have any React nodes.
+
+
   Object(external_gc_element_["unmountComponentAtNode"])(target);
   const reboot = reinitializeEditor.bind(null, target, settings); // We dispatch actions and update the store synchronously before rendering
   // so that we won't trigger unnecessary re-renders with useEffect.
@@ -10852,6 +11229,31 @@ const closeSmall = Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createE
 /***/ (function(module, exports) {
 
 (function() { module.exports = window["gc"]["reusableBlocks"]; }());
+
+/***/ }),
+
+/***/ "TS6h":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("ewfG");
+/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("Gz8V");
+/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__);
+
+
+/**
+ * GeChiUI dependencies
+ */
+
+const globe = Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["SVG"], {
+  xmlns: "http://www.w3.org/2000/svg",
+  viewBox: "0 0 24 24"
+}, Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["Path"], {
+  d: "M12 3.3c-4.8 0-8.8 3.9-8.8 8.8 0 4.8 3.9 8.8 8.8 8.8 4.8 0 8.8-3.9 8.8-8.8s-4-8.8-8.8-8.8zm6.5 5.5h-2.6C15.4 7.3 14.8 6 14 5c2 .6 3.6 2 4.5 3.8zm.7 3.2c0 .6-.1 1.2-.2 1.8h-2.9c.1-.6.1-1.2.1-1.8s-.1-1.2-.1-1.8H19c.2.6.2 1.2.2 1.8zM12 18.7c-1-.7-1.8-1.9-2.3-3.5h4.6c-.5 1.6-1.3 2.9-2.3 3.5zm-2.6-4.9c-.1-.6-.1-1.1-.1-1.8 0-.6.1-1.2.1-1.8h5.2c.1.6.1 1.1.1 1.8s-.1 1.2-.1 1.8H9.4zM4.8 12c0-.6.1-1.2.2-1.8h2.9c-.1.6-.1 1.2-.1 1.8 0 .6.1 1.2.1 1.8H5c-.2-.6-.2-1.2-.2-1.8zM12 5.3c1 .7 1.8 1.9 2.3 3.5H9.7c.5-1.6 1.3-2.9 2.3-3.5zM10 5c-.8 1-1.4 2.3-1.8 3.8H5.5C6.4 7 8 5.6 10 5zM5.5 15.3h2.6c.4 1.5 1 2.8 1.8 3.7-1.8-.6-3.5-2-4.4-3.7zM14 19c.8-1 1.4-2.2 1.8-3.7h2.6C17.6 17 16 18.4 14 19z"
+}));
+/* harmony default export */ __webpack_exports__["a"] = (globe);
+
 
 /***/ }),
 
@@ -11476,6 +11878,31 @@ function isShallowEqual( a, b, fromIndex ) {
 
 	return callSelector;
 });
+
+
+/***/ }),
+
+/***/ "rHI3":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("ewfG");
+/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("Gz8V");
+/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__);
+
+
+/**
+ * GeChiUI dependencies
+ */
+
+const external = Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["SVG"], {
+  xmlns: "http://www.w3.org/2000/svg",
+  viewBox: "0 0 24 24"
+}, Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["Path"], {
+  d: "M18.2 17c0 .7-.6 1.2-1.2 1.2H7c-.7 0-1.2-.6-1.2-1.2V7c0-.7.6-1.2 1.2-1.2h3.2V4.2H7C5.5 4.2 4.2 5.5 4.2 7v10c0 1.5 1.2 2.8 2.8 2.8h10c1.5 0 2.8-1.2 2.8-2.8v-3.6h-1.5V17zM14.9 3v1.5h3.7l-6.4 6.4 1.1 1.1 6.4-6.4v3.7h1.5V3h-6.3z"
+}));
+/* harmony default export */ __webpack_exports__["a"] = (external);
 
 
 /***/ }),

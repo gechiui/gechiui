@@ -389,7 +389,7 @@ endif;
 <table class="form-table" role="presentation">
 	<tr class="user-user-login-wrap">
 		<th><label for="user_login"><?php _e( '用户名' ); ?></label></th>
-		<td><input type="text" name="user_login" id="user_login" value="<?php echo esc_attr( $profile_user->user_login ); ?>" disabled="disabled" class="regular-text" /> <span class="描述"><?php _e( '用户名不可更改。' ); ?></span></td>
+		<td><input type="text" name="user_login" id="user_login" value="<?php echo esc_attr( $profile_user->user_login ); ?>" disabled="disabled" class="regular-text" /> <span class="description"><?php _e( '用户名不可更改。' ); ?></span></td>
 	</tr>
 
 		<?php if ( ! IS_PROFILE_PAGE && ! is_network_admin() && current_user_can( 'promote_user', $profile_user->ID ) ) : ?>
@@ -437,7 +437,7 @@ endif;
 </tr>
 
 <tr class="user-nickname-wrap">
-	<th><label for="nickname"><?php _e( '昵称' ); ?> <span class="描述"><?php _e( '（必填）' ); ?></span></label></th>
+	<th><label for="nickname"><?php _e( '昵称' ); ?> <span class="description"><?php _e( '（必填）' ); ?></span></label></th>
 	<td><input type="text" name="nickname" id="nickname" value="<?php echo esc_attr( $profile_user->nickname ); ?>" class="regular-text" /></td>
 </tr>
 
@@ -498,12 +498,12 @@ endif;
 	</tr>
 	<?php endif; ?>
 	<tr class="user-email-wrap">
-		<th><label for="email"><?php _e( '电子邮箱' ); ?> <span class="描述"><?php _e( '（必填）' ); ?></span></label></th>
+		<th><label for="email"><?php _e( '电子邮箱' ); ?> <span class="description"><?php _e( '（必填）' ); ?></span></label></th>
 		<td><input type="email" name="email" id="email" aria-describedby="email-description" value="<?php echo esc_attr( $profile_user->user_email ); ?>" class="regular-text ltr" />
 		<?php
 		if ( $profile_user->ID === $current_user->ID ) :
 			?>
-		<p class="描述" id="email-description">
+		<p class="description" id="email-description">
 			<?php _e( '如果您修改该地址，我们将会向新地址发送一封邮件来确认。<strong>新的电子邮箱直到获得确认才会生效。</strong>' ); ?>
 		</p>
 			<?php
@@ -567,9 +567,9 @@ endif;
 
 <table class="form-table" role="presentation">
 <tr class="user-description-wrap">
-	<th><label for="描述"><?php _e( '个人说明' ); ?></label></th>
-	<td><textarea name="描述" id="描述" rows="5" cols="30"><?php echo $profile_user->description; // textarea_escaped ?></textarea>
-	<p class="描述"><?php _e( '分享关于您的一些信息。可能会被公开。' ); ?></p></td>
+	<th><label for="description"><?php _e( '个人说明' ); ?></label></th>
+	<td><textarea name="description" id="description" rows="5" cols="30"><?php echo $profile_user->description; // textarea_escaped ?></textarea>
+	<p class="description"><?php _e( '分享关于您的一些信息。可能会被公开。' ); ?></p></td>
 </tr>
 
 		<?php if ( get_option( 'show_avatars' ) ) : ?>
@@ -621,9 +621,9 @@ endif;
 	<td>
 	<input name="pass2" type="password" id="pass2" class="regular-text" value="" autocomplete="off" aria-describedby="pass2-desc" />
 			<?php if ( IS_PROFILE_PAGE ) : ?>
-				<p class="描述" id="pass2-desc"><?php _e( '再输入一遍新密码。' ); ?></p>
+				<p class="description" id="pass2-desc"><?php _e( '再输入一遍新密码。' ); ?></p>
 			<?php else : ?>
-				<p class="描述" id="pass2-desc"><?php _e( '再输入新密码。' ); ?></p>
+				<p class="description" id="pass2-desc"><?php _e( '再输入新密码。' ); ?></p>
 			<?php endif; ?>
 	</td>
 </tr>
@@ -650,7 +650,7 @@ endif;
 					<?php _e( '发送重置链接' ); ?>
 				</button>
 			</div>
-			<p class="描述">
+			<p class="description">
 				<?php
 				printf(
 					/* translators: %s: User's display name. */
@@ -670,7 +670,7 @@ endif;
 		<th><?php _e( '会话' ); ?></th>
 		<td aria-live="assertive">
 			<div class="destroy-sessions"><button type="button" disabled class="button"><?php _e( '注销除此之外的所有会话' ); ?></button></div>
-			<p class="描述">
+			<p class="description">
 				<?php _e( '您目前只有当前会话保持登录状态。' ); ?>
 			</p>
 		</td>
@@ -680,7 +680,7 @@ endif;
 		<th><?php _e( '会话' ); ?></th>
 		<td aria-live="assertive">
 			<div class="destroy-sessions"><button type="button" class="button" id="destroy-sessions"><?php _e( '注销除此之外的所有会话' ); ?></button></div>
-			<p class="描述">
+			<p class="description">
 				<?php _e( '如果您丢失了您的手机或是在公共电脑上登录了您的账户，您可以立即注销其他设备的登陆状态，并只保留此处的登录状态。' ); ?>
 			</p>
 		</td>
@@ -690,7 +690,7 @@ endif;
 		<th><?php _e( '会话' ); ?></th>
 		<td>
 			<p><button type="button" class="button" id="destroy-sessions"><?php _e( '注销所有会话' ); ?></button></p>
-			<p class="描述">
+			<p class="description">
 				<?php
 				/* translators: %s: User's display name. */
 				printf( __( '注销%s的所有会话。' ), $profile_user->display_name );
@@ -737,7 +737,7 @@ endif;
 				<div class="form-field">
 					<label for="new_appkey_name"><?php _e( '新的Appkey名称' ); ?></label>
 					<input type="text" size="30" id="new_appkey_name" name="new_appkey_name" class="input" aria-required="true" aria-describedby="new_appkey_name_desc" />
-					<p class="描述" id="new_appkey_name_desc"><?php _e( '此功能需要创建Appkey，但不需要更新用户信息。' ); ?></p>
+					<p class="description" id="new_appkey_name_desc"><?php _e( '此功能需要创建Appkey，但不需要更新用户信息。' ); ?></p>
 				</div>
 
 				<?php

@@ -6,13 +6,13 @@
  * block support despite both belonging under a single panel in the editor.
  *
  * @package GeChiUI
- *
+ * @since 5.8.0
  */
 
 /**
  * Registers the style block attribute for block types that support it.
  *
- *
+ * @since 5.8.0
  * @access private
  *
  * @param GC_Block_Type $block_type Block Type.
@@ -36,7 +36,7 @@ function gc_register_spacing_support( $block_type ) {
  * Add CSS classes for block spacing to the incoming attributes array.
  * This will be applied to the block markup in the front-end.
  *
- *
+ * @since 5.8.0
  * @access private
  *
  * @param GC_Block_Type $block_type       Block Type.
@@ -44,15 +44,17 @@ function gc_register_spacing_support( $block_type ) {
  * @return array Block spacing CSS classes and inline styles.
  */
 function gc_apply_spacing_support( $block_type, $block_attributes ) {
-	if ( gc_skip_spacing_serialization( $block_type ) ) {
+	if ( gc_should_skip_block_supports_serialization( $block_type, 'spacing' ) ) {
 		return array();
 	}
 
 	$has_padding_support = block_has_support( $block_type, array( 'spacing', 'padding' ), false );
 	$has_margin_support  = block_has_support( $block_type, array( 'spacing', 'margin' ), false );
+	$skip_padding        = gc_should_skip_block_supports_serialization( $block_type, 'spacing', 'padding' );
+	$skip_margin         = gc_should_skip_block_supports_serialization( $block_type, 'spacing', 'margin' );
 	$styles              = array();
 
-	if ( $has_padding_support ) {
+	if ( $has_padding_support && ! $skip_padding ) {
 		$padding_value = _gc_array_get( $block_attributes, array( 'style', 'spacing', 'padding' ), null );
 		if ( is_array( $padding_value ) ) {
 			foreach ( $padding_value as $key => $value ) {
@@ -63,7 +65,7 @@ function gc_apply_spacing_support( $block_type, $block_attributes ) {
 		}
 	}
 
-	if ( $has_margin_support ) {
+	if ( $has_margin_support && ! $skip_margin ) {
 		$margin_value = _gc_array_get( $block_attributes, array( 'style', 'spacing', 'margin' ), null );
 		if ( is_array( $margin_value ) ) {
 			foreach ( $margin_value as $key => $value ) {
@@ -75,24 +77,6 @@ function gc_apply_spacing_support( $block_type, $block_attributes ) {
 	}
 
 	return empty( $styles ) ? array() : array( 'style' => implode( ' ', $styles ) );
-}
-
-/**
- * Checks whether serialization of the current block's spacing properties should
- * occur.
- *
- *
- * @access private
- *
- * @param GC_Block_Type $block_type Block type.
- * @return bool Whether to serialize spacing support styles & classes.
- */
-function gc_skip_spacing_serialization( $block_type ) {
-	$spacing_support = _gc_array_get( $block_type->supports, array( 'spacing' ), false );
-
-	return is_array( $spacing_support ) &&
-		array_key_exists( '__experimentalSkipSerialization', $spacing_support ) &&
-		$spacing_support['__experimentalSkipSerialization'];
 }
 
 // Register the block support.

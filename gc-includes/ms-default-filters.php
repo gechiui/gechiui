@@ -87,8 +87,13 @@ add_action( 'update_network_counts', 'gc_update_network_counts', 10, 0 );
 foreach ( array( 'user_register', 'deleted_user', 'gcmu_new_user', 'make_spam_user', 'make_ham_user' ) as $action ) {
 	add_action( $action, 'gc_maybe_update_network_user_counts', 10, 0 );
 }
+
+// These counts are handled by gc_update_network_counts() on Multisite:
+remove_action( 'admin_init', 'gc_schedule_update_user_counts' );
+remove_action( 'gc_update_user_counts', 'gc_schedule_update_user_counts' );
+
 foreach ( array( 'make_spam_blog', 'make_ham_blog', 'archive_blog', 'unarchive_blog', 'make_delete_blog', 'make_undelete_blog' ) as $action ) {
-	add_action( $action, 'gc_maybe_update_network_site_counts', 10, 0 );
+    add_action( $action, 'gc_maybe_update_network_site_counts', 10, 0 );
 }
 unset( $action );
 

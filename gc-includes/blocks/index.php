@@ -48,6 +48,7 @@ require ABSPATH . GCINC . '/blocks/social-link.php';
 require ABSPATH . GCINC . '/blocks/tag-cloud.php';
 require ABSPATH . GCINC . '/blocks/template-part.php';
 require ABSPATH . GCINC . '/blocks/term-description.php';
+require ABSPATH . GCINC . '/blocks/widget-group.php';
 
 /**
  * Registers core block types using metadata files.

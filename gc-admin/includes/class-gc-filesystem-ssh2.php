@@ -84,7 +84,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 			$this->options['public_key']  = $opt['public_key'];
 			$this->options['private_key'] = $opt['private_key'];
 
-			$this->options['hostkey'] = array( 'hostkey' => 'ssh-rsa' );
+			$this->options['hostkey'] = array( 'hostkey' => 'ssh-rsa,ssh-ed25519' );
 
 			$this->keys = true;
 		} elseif ( empty( $opt['username'] ) ) {

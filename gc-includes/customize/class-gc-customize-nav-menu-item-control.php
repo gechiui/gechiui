@@ -125,7 +125,7 @@ class GC_Customize_Nav_Menu_Item_Control extends GC_Customize_Control {
 				<label for="edit-menu-item-description-{{ data.menu_item_id }}">
 					<?php _e( '描述' ); ?><br />
 					<textarea id="edit-menu-item-description-{{ data.menu_item_id }}" class="widefat edit-menu-item-description" rows="3" cols="20" name="menu-item-description">{{ data.description }}</textarea>
-					<span class="描述"><?php _e( '如果活动主题支持，说明将显示在菜单中。' ); ?></span>
+					<span class="description"><?php _e( '如果活动主题支持，说明将显示在菜单中。' ); ?></span>
 				</label>
 			</p>
 

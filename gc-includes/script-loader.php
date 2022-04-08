@@ -845,7 +845,7 @@ function gc_default_scripts( $scripts ) {
 	// jQuery plugins.
 	$scripts->add( 'jquery-color', '/assets/vendors/jquery/jquery.color.min.js', array( 'jquery' ), '2.2.0', 1 );
 	$scripts->add( 'schedule', '/assets/vendors/jquery/jquery.schedule.js', array( 'jquery' ), '20m', 1 );
-	$scripts->add( 'jquery-query', '/assets/vendors/jquery/jquery.query.js', array( 'jquery' ), '2.1.7', 1 );
+	$scripts->add( 'jquery-query', '/assets/vendors/jquery/jquery.query.js', array( 'jquery' ), '2.2.3', 1 );
 	$scripts->add( 'jquery-serialize-object', '/assets/vendors/jquery/jquery.serialize-object.js', array( 'jquery' ), '0.2-gc', 1 );
 	$scripts->add( 'jquery-hotkeys', "/assets/vendors/jquery/jquery.hotkeys$suffix.js", array( 'jquery' ), '0.0.2m', 1 );
 	$scripts->add( 'jquery-table-hotkeys', "/assets/vendors/jquery/jquery.table-hotkeys$suffix.js", array( 'jquery', 'jquery-hotkeys' ), false, 1 );
@@ -875,7 +875,7 @@ function gc_default_scripts( $scripts ) {
 		)
 	);
 
-	$scripts->add( 'jcrop', '/assets/vendors/jcrop/jquery.Jcrop.min.js', array( 'jquery' ), '0.9.12' );
+	$scripts->add( 'jcrop', '/assets/vendors/jcrop/jquery.Jcrop.min.js', array( 'jquery' ), '0.9.15' );
 
 	$scripts->add( 'swfobject', "/assets/vendors/swfobject$suffix.js", array(), '2.2-20120417' );
 
@@ -1227,6 +1227,16 @@ function gc_default_scripts( $scripts ) {
 			'publishSettings'         => __( '发布设置' ),
 			'invalidDate'             => __( '无效日期。' ),
 			'invalidValue'            => __( '无效值。' ),
+			'blockThemeNotification'  => sprintf(
+				/* translators: 1: Link to Site Editor documentation on HelpHub, 2: HTML button. */
+				__( '万岁！您的主题支持使用块进行完整的站点编辑。 <a href="%1$s">告诉我更多</a>. %2$s' ),
+				__( 'https://www.gechiui.com/support/article/site-editor/' ),
+				sprintf(
+					'<button type="button" data-action="%1$s" class="button switch-to-editor">%2$s</button>',
+					esc_url( admin_url( 'site-editor.php' ) ),
+					__( '使用网站编辑器' )
+				)
+			),
 		)
 	);
 	$scripts->add( 'customize-selective-refresh', "/gc-includes/js/customize-selective-refresh$suffix.js", array( 'jquery', 'gc-util', 'customize-preview' ), false, 1 );
@@ -1358,7 +1368,7 @@ function gc_default_scripts( $scripts ) {
 		$scripts->add( 'list-revisions', "/gc-includes/js/gc-list-revisions$suffix.js" );
 
 		$scripts->add( 'media-grid', "/gc-includes/js/media-grid$suffix.js", array( 'media-editor' ), false, 1 );
-		$scripts->add( 'media', "/gc-admin/js/media$suffix.js", array( 'jquery' ), false, 1 );
+		$scripts->add( 'media', "/gc-admin/js/media$suffix.js", array( 'jquery', 'clipboard', 'gc-i18n', 'gc-a11y' ), false, 1 );
 		$scripts->set_translations( 'media' );
 
 		$scripts->add( 'image-edit', "/gc-admin/js/image-edit$suffix.js", array( 'jquery', 'jquery-ui-core', 'json2', 'imgareaselect', 'gc-a11y' ), false, 1 );
@@ -1501,7 +1511,7 @@ function gc_default_styles( $styles ) {
 	// Deprecated CSS.
 	$styles->add( 'deprecated-media', "/gc-admin/css/deprecated-media$suffix.css" );
 	$styles->add( 'farbtastic', "/gc-admin/css/farbtastic$suffix.css", array(), '1.3u1' );
-	$styles->add( 'jcrop', '/assets/vendors/jcrop/jquery.Jcrop.min.css', array(), '0.9.12' );
+	$styles->add( 'jcrop', '/assets/vendors/jcrop/jquery.Jcrop.min.css', array(), '0.9.15' );
 	$styles->add( 'colors-fresh', false, array( 'gc-admin', 'buttons' ) ); // Old handle.
 
 
@@ -2288,7 +2298,9 @@ function gc_common_block_scripts_and_styles() {
  *
  */
 function gc_enqueue_global_styles() {
-	$separate_assets = gc_should_load_separate_core_block_assets();
+	$separate_assets  = gc_should_load_separate_core_block_assets();
+	$is_block_theme   = gc_is_block_theme();
+	$is_classic_theme = ! $is_block_theme;
 
 	/*
 	 * Global styles should be printed in the head when loading all styles combined.
@@ -2296,7 +2308,12 @@ function gc_enqueue_global_styles() {
 	 *
 	 * See https://core.trac.gechiui.com/ticket/53494.
 	 */
-	if ( ( ! $separate_assets && doing_action( 'gc_footer' ) ) || ( $separate_assets && doing_action( 'gc_enqueue_scripts' ) ) ) {
+	if (
+		( $is_block_theme && doing_action( 'gc_footer' ) ) ||
+		( $is_classic_theme && doing_action( 'gc_footer' ) && ! $separate_assets ) ||
+		( $is_classic_theme && doing_action( 'gc_enqueue_scripts' ) && $separate_assets )
+	) {
+
 		return;
 	}
 
@@ -2309,6 +2326,34 @@ function gc_enqueue_global_styles() {
 	gc_register_style( 'global-styles', false, array(), true, true );
 	gc_add_inline_style( 'global-styles', $stylesheet );
 	gc_enqueue_style( 'global-styles' );
+}
+
+/**
+ * Render the SVG filters supplied by theme.json.
+ *
+ * Note that this doesn't render the per-block user-defined
+ * filters which are handled by gc_render_duotone_support,
+ * but it should be rendered before the filtered content
+ * in the body to satisfy Safari's rendering quirks.
+ *
+ * @since 5.9.1
+ */
+function gc_global_styles_render_svg_filters() {
+	/*
+	 * When calling via the in_admin_header action, we only want to render the
+	 * SVGs on block editor pages.
+	 */
+	if (
+		is_admin() &&
+		! get_current_screen()->is_block_editor()
+	) {
+		return;
+	}
+
+	$filters = gc_get_global_styles_svg_filters();
+	if ( ! empty( $filters ) ) {
+		echo $filters;
+	}
 }
 
 /**
@@ -2751,6 +2796,11 @@ function _gc_normalize_relative_css_links( $css, $stylesheet_url ) {
 				continue;
 			}
 
+			// Skip if the URL is a data URI.
+			if ( str_starts_with( $src_result, 'data:' ) ) {
+				continue;
+			}
+
 			// Build the absolute URL.
 			$absolute_url = dirname( $stylesheet_url ) . '/' . $src_result;
 			$absolute_url = str_replace( '/./', '/', $absolute_url );
@@ -2853,3 +2903,32 @@ function gc_enqueue_global_styles_css_custom_properties() {
 	gc_add_inline_style( 'global-styles-css-custom-properties', gc_get_global_stylesheet( array( 'variables' ) ) );
 	gc_enqueue_style( 'global-styles-css-custom-properties' );
 }
+
+/**
+ * This function takes care of adding inline styles
+ * in the proper place, depending on the theme in use.
+ *
+ * @since 5.9.1
+ *
+ * For block themes, it's loaded in the head.
+ * For classic ones, it's loaded in the body
+ * because the gc_head action happens before
+ * the render_block.
+ *
+ * @link https://core.trac.wordpress.org/ticket/53494.
+ *
+ * @param string $style String containing the CSS styles to be added.
+ */
+function gc_enqueue_block_support_styles( $style ) {
+	$action_hook_name = 'gc_footer';
+	if ( gc_is_block_theme() ) {
+		$action_hook_name = 'gc_head';
+	}
+	add_action(
+		$action_hook_name,
+		static function () use ( $style ) {
+			echo "<style>$style</style>\n";
+		}
+	);
+}
+

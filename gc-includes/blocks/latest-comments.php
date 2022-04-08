@@ -20,10 +20,10 @@
  *    admin for a block's output. It's a very small/simple function as well,
  *    so duplicating it isn't too terrible.
  *
- *
+ * @since 3.3.0
  *
  * @param int|GC_Post $post Optional. Post ID or GC_Post object. Default is global $post.
- * @return string The post title if set; "（无标题）" if no title is set.
+ * @return string The post title if set; "(no title)" if no title is set.
  */
 function gc_latest_comments_draft_or_post_title( $post = 0 ) {
 	$title = get_the_title( $post );

@@ -1146,7 +1146,7 @@ function InterfaceSkeleton(_ref, ref) {
     drawer: Object(external_gc_i18n_["__"])('抽屉'),
 
     /* translators: accessibility text for the top bar landmark region. */
-    header: Object(external_gc_i18n_["__"])('表头'),
+    header: Object(external_gc_i18n_["__"])('页眉'),
 
     /* translators: accessibility text for the content landmark region. */
     body: Object(external_gc_i18n_["__"])('内容'),
@@ -1161,7 +1161,7 @@ function InterfaceSkeleton(_ref, ref) {
     actions: Object(external_gc_i18n_["__"])('发布'),
 
     /* translators: accessibility text for the footer landmark region. */
-    footer: Object(external_gc_i18n_["__"])('注脚')
+    footer: Object(external_gc_i18n_["__"])('页脚')
   };
   const mergedLabels = { ...defaultLabels,
     ...labels
@@ -2305,7 +2305,7 @@ function MoreMenu() {
   }), Object(external_gc_element_["createElement"])(external_gc_components_["MenuItem"], {
     role: "menuitem",
     icon: external["a" /* default */],
-    href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/block-based-widgets-editor/'),
+    href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/article/block-based-widgets-editor/'),
     target: "_blank",
     rel: "noopener noreferrer"
   }, Object(external_gc_i18n_["__"])('帮助'), Object(external_gc_element_["createElement"])(external_gc_components_["VisuallyHidden"], {
@@ -2401,7 +2401,7 @@ function Header(_ref) {
     isPressed: isInserterOpened,
     variant: "primary",
     icon: plus["a" /* default */],
-    label: Object(external_gc_i18n_["_x"])('添加区块', 'Generic label for block inserter button'),
+    label: Object(external_gc_i18n_["_x"])('Add block', 'Generic label for block inserter button'),
     onClick: () => {
       setIsInserterOpened(isOpen => !isOpen);
     }
@@ -2867,7 +2867,7 @@ function WelcomeGuide(_ref) {
   }, Object(external_gc_i18n_["__"])('获取经典小工具插件。'))), Object(external_gc_element_["createElement"])("p", {
     className: "customize-widgets-welcome-guide__more-info"
   }, Object(external_gc_i18n_["__"])('新的区块编辑器？'), Object(external_gc_element_["createElement"])("br", null), Object(external_gc_element_["createElement"])(external_gc_components_["ExternalLink"], {
-    href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/gechiui-editor/')
+    href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/article/gechiui-editor/')
   }, Object(external_gc_i18n_["__"])("这是详细的指南。"))));
 }
 

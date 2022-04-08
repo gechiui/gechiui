@@ -390,7 +390,7 @@ function get_image_tag( $id, $alt, $title, $align, $size = 'medium' ) {
 	 */
 	$class = apply_filters( 'get_image_tag_class', $class, $id, $align, $size );
 
-	$html = '<img src="' . esc_attr( $img_src ) . '" alt="' . esc_attr( $alt ) . '" ' . $title . $hwstring . 'class="' . $class . '" />';
+	$html = '<img src="' . esc_url( $img_src ) . '" alt="' . esc_attr( $alt ) . '" ' . $title . $hwstring . 'class="' . $class . '" />';
 
 	/**
 	 * Filters the HTML content for the image tag.
@@ -1823,6 +1823,17 @@ function gc_filter_content_tags( $content, $context = null ) {
 			if ( $add_img_loading_attr && false === strpos( $filtered_image, ' loading=' ) ) {
 				$filtered_image = gc_img_tag_add_loading_attr( $filtered_image, $context );
 			}
+
+			/**
+			 * Filters an img tag within the content for a given context.
+			 *
+			 * @since 6.0.0
+			 *
+			 * @param string $filtered_image Full img tag with attributes that will replace the source img tag.
+			 * @param string $context        Additional context, like the current filter name or the function name from where this was called.
+			 * @param int    $attachment_id  The image attachment ID. May be 0 in case the image is not an attachment.
+			 */
+			$filtered_image = apply_filters( 'gc_content_img_tag', $filtered_image, $context, $attachment_id );
 
 			if ( $filtered_image !== $match[0] ) {
 				$content = str_replace( $match[0], $filtered_image, $content );
@@ -3995,7 +4006,7 @@ function gc_prepare_attachment_for_js( $attachment ) {
 	if ( isset( $meta['filesize'] ) ) {
 		$bytes = $meta['filesize'];
 	} elseif ( file_exists( $attached_file ) ) {
-		$bytes = filesize( $attached_file );
+		$bytes = gc_filesize( $attached_file );
 	} else {
 		$bytes = '';
 	}
@@ -4417,13 +4428,14 @@ function gc_enqueue_media( $args = array() ) {
 		'mine'                        => _x( '我的', 'media items' ),
 		'trash'                       => _x( '回收站', 'noun' ),
 		'uploadedToThisPost'          => $post_type_object->labels->uploaded_to_this_item,
-		'warnDelete'                  => __( "You are about to permanently delete this item from your site.\nThis action cannot be undone.\n 'Cancel' to stop, 'OK' to delete." ),
-		'warnBulkDelete'              => __( "You are about to permanently delete these items from your site.\nThis action cannot be undone.\n 'Cancel' to stop, 'OK' to delete." ),
-		'warnBulkTrash'               => __( "You are about to trash these items.\n  'Cancel' to stop, 'OK' to delete." ),
+		'warnDelete'                  => __( "您将要从网站中永久删除此项目。\n此操作无法撤消。\n“取消”停止，“确定”删除。" ),
+		'warnBulkDelete'              => __( "您将要从站点中永久删除这些项目。\n此操作无法撤消。\n“取消”停止，“确定”删除。" ),
+		'warnBulkTrash'               => __( "你将要扔掉这些物品。\n“取消”停止，“确定”删除。" ),
 		'bulkSelect'                  => __( '批量选择' ),
 		'trashSelected'               => __( '移动至回收站' ),
 		'restoreSelected'             => __( '从回收站中恢复' ),
 		'deletePermanently'           => __( '永久删除' ),
+		'errorDeleting'               => __( '删除附件时出错。' ),
 		'apply'                       => __( '应用' ),
 		'filterByDate'                => __( '按日期筛选' ),
 		'filterByType'                => __( '按类型筛选' ),
@@ -4715,9 +4727,12 @@ function get_post_galleries( $post, $html = true ) {
 				continue;
 			}
 
-			// All blocks nested inside non-Gallery blocks should be in the root array.
-			if ( $has_inner_blocks && 'core/gallery' !== $block['blockName'] ) {
-				array_push( $post_blocks, ...$block['innerBlocks'] );
+			// Skip non-Gallery blocks.
+			if ( 'core/gallery' !== $block['blockName'] ) {
+				// Move inner blocks into the root array before skipping.
+				if ( $has_inner_blocks ) {
+					array_push( $post_blocks, ...$block['innerBlocks'] );
+				}
 				continue;
 			}
 
@@ -5168,47 +5183,44 @@ function gc_get_webp_info( $filename ) {
 		return compact( 'width', 'height', 'type' );
 	}
 
-	try {
-		$handle = fopen( $filename, 'rb' );
-		if ( $handle ) {
-			$magic = fread( $handle, 40 );
-			fclose( $handle );
+	$magic = file_get_contents( $filename, false, null, 0, 40 );
 
-			// Make sure we got enough bytes.
-			if ( strlen( $magic ) < 40 ) {
-				return compact( 'width', 'height', 'type' );
-			}
+	if ( false === $magic ) {
+		return compact( 'width', 'height', 'type' );
+	}
 
-			// The headers are a little different for each of the three formats.
-			// Header values based on WebP docs, see https://developers.google.com/speed/webp/docs/riff_container.
-			switch ( substr( $magic, 12, 4 ) ) {
-				// Lossy WebP.
-				case 'VP8 ':
-					$parts  = unpack( 'v2', substr( $magic, 26, 4 ) );
-					$width  = (int) ( $parts[1] & 0x3FFF );
-					$height = (int) ( $parts[2] & 0x3FFF );
-					$type   = 'lossy';
-					break;
-				// Lossless WebP.
-				case 'VP8L':
-					$parts  = unpack( 'C4', substr( $magic, 21, 4 ) );
-					$width  = (int) ( $parts[1] | ( ( $parts[2] & 0x3F ) << 8 ) ) + 1;
-					$height = (int) ( ( ( $parts[2] & 0xC0 ) >> 6 ) | ( $parts[3] << 2 ) | ( ( $parts[4] & 0x03 ) << 10 ) ) + 1;
-					$type   = 'lossless';
-					break;
-				// Animated/alpha WebP.
-				case 'VP8X':
-					// Pad 24-bit int.
-					$width = unpack( 'V', substr( $magic, 24, 3 ) . "\x00" );
-					$width = (int) ( $width[1] & 0xFFFFFF ) + 1;
-					// Pad 24-bit int.
-					$height = unpack( 'V', substr( $magic, 27, 3 ) . "\x00" );
-					$height = (int) ( $height[1] & 0xFFFFFF ) + 1;
-					$type   = 'animated-alpha';
-					break;
-			}
-		}
-	} catch ( Exception $e ) {
+	// Make sure we got enough bytes.
+	if ( strlen( $magic ) < 40 ) {
+		return compact( 'width', 'height', 'type' );
+	}
+
+	// The headers are a little different for each of the three formats.
+	// Header values based on WebP docs, see https://developers.google.com/speed/webp/docs/riff_container.
+	switch ( substr( $magic, 12, 4 ) ) {
+		// Lossy WebP.
+		case 'VP8 ':
+			$parts  = unpack( 'v2', substr( $magic, 26, 4 ) );
+			$width  = (int) ( $parts[1] & 0x3FFF );
+			$height = (int) ( $parts[2] & 0x3FFF );
+			$type   = 'lossy';
+			break;
+		// Lossless WebP.
+		case 'VP8L':
+			$parts  = unpack( 'C4', substr( $magic, 21, 4 ) );
+			$width  = (int) ( $parts[1] | ( ( $parts[2] & 0x3F ) << 8 ) ) + 1;
+			$height = (int) ( ( ( $parts[2] & 0xC0 ) >> 6 ) | ( $parts[3] << 2 ) | ( ( $parts[4] & 0x03 ) << 10 ) ) + 1;
+			$type   = 'lossless';
+			break;
+		// Animated/alpha WebP.
+		case 'VP8X':
+			// Pad 24-bit int.
+			$width = unpack( 'V', substr( $magic, 24, 3 ) . "\x00" );
+			$width = (int) ( $width[1] & 0xFFFFFF ) + 1;
+			// Pad 24-bit int.
+			$height = unpack( 'V', substr( $magic, 27, 3 ) . "\x00" );
+			$height = (int) ( $height[1] & 0xFFFFFF ) + 1;
+			$type   = 'animated-alpha';
+			break;
 	}
 
 	return compact( 'width', 'height', 'type' );

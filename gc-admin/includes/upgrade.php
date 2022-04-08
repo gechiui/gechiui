@@ -832,6 +832,9 @@ function upgrade_all() {
 	if ( $gc_current_db_version < 51917 ) {
 		upgrade_590();
 	}
+	if ( $gc_current_db_version < 53011 ) {
+		upgrade_600();
+	}
 
 	maybe_disable_link_manager();
 
@@ -2269,6 +2272,23 @@ function upgrade_590() {
 		}
 	}
 }
+
+/**
+ * Executes changes made in WordPress 6.0.0.
+ *
+ * @ignore
+ * @since 6.0.0
+ *
+ * @global int $gc_current_db_version The old (current) database version.
+ */
+function upgrade_600() {
+	global $gc_current_db_version;
+
+	if ( $gc_current_db_version < 53011 ) {
+		gc_update_user_counts();
+	}
+}
+
 
 /**
  * Executes network-level upgrade routines.

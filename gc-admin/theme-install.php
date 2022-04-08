@@ -35,9 +35,10 @@ if ( false === $installed_themes ) {
 	$installed_themes = array();
 }
 
-foreach ( $installed_themes as $k => $v ) {
-	if ( false !== strpos( $k, '/' ) ) {
-		unset( $installed_themes[ $k ] );
+foreach ( $installed_themes as $theme_slug => $theme_data ) {
+	// Ignore child themes.
+	if ( str_contains( $theme_slug, '/' ) ) {
+		unset( $installed_themes[ $theme_slug ] );
 	}
 }
 
@@ -223,7 +224,7 @@ if ( $tab ) {
 <script id="tmpl-theme" type="text/template">
 	<# if ( data.screenshot_url ) { #>
 		<div class="theme-screenshot">
-			<img src="{{ data.screenshot_url }}" alt="" />
+			<img src="{{ data.screenshot_url }}?ver={{ data.version }}" alt="" />
 		</div>
 	<# } else { #>
 		<div class="theme-screenshot blank"></div>
@@ -315,7 +316,9 @@ if ( $tab ) {
 					<# } #>
 					<# if ( data.customize_url ) { #>
 						<# if ( ! data.active ) { #>
-							<a class="button load-customize" href="{{ data.customize_url }}"><?php _e( '实时预览' ); ?></a>
+							<# if ( ! data.block_theme ) { #>
+								<a class="button load-customize" href="{{ data.customize_url }}"><?php _e( '实时预览' ); ?></a>
+							<# } #>
 						<# } else { #>
 							<a class="button load-customize" href="{{ data.customize_url }}"><?php _e( '自定义' ); ?></a>
 						<# } #>
@@ -395,7 +398,7 @@ if ( $tab ) {
 						?>
 					</span>
 
-					<img class="theme-screenshot" src="{{ data.screenshot_url }}" alt="" />
+					<img class="theme-screenshot" src="{{ data.screenshot_url }}?ver={{ data.version }}" alt="" />
 
 					<div class="theme-details">
 						<# if ( data.rating ) { #>

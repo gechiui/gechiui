@@ -700,7 +700,7 @@ final class GC_Customize_Widgets {
 				_x( '移动至', 'Move widget' ),
 			),
 			'<div class="move-widget-area">
-				<p class="描述">{description}</p>
+				<p class="description">{description}</p>
 				<ul class="widget-area-select">
 					<% _.each( sidebars, function ( sidebar ){ %>
 						<li class="" data-id="<%- sidebar.id %>" title="<%- sidebar.description %>" tabindex="0"><%- sidebar.name %></li>

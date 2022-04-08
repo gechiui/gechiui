@@ -96,7 +96,7 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 					'description' => sprintf(
 						/* translators: %s: HTML meta tag. */
 						__( 'URL 中 %s 元素的内容。' ),
-						'<meta name="描述">'
+						'<meta name="description">'
 					),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),

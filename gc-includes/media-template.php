@@ -477,7 +477,7 @@ function gc_print_media_templates() {
 						<label for="attachment-details-two-column-alt-text" class="name"><?php _e( '替代文本' ); ?></label>
 						<input type="text" id="attachment-details-two-column-alt-text" value="{{ data.alt }}" aria-describedby="alt-text-description" {{ maybeReadOnly }} />
 					</span>
-					<p class="描述" id="alt-text-description"><?php echo $alt_text_description; ?></p>
+					<p class="description" id="alt-text-description"><?php echo $alt_text_description; ?></p>
 				<# } #>
 				<?php if ( post_type_supports( 'attachment', 'title' ) ) : ?>
 				<span class="setting" data-setting="title">
@@ -502,7 +502,7 @@ function gc_print_media_templates() {
 					<label for="attachment-details-two-column-caption" class="name"><?php _e( '说明文字' ); ?></label>
 					<textarea id="attachment-details-two-column-caption" {{ maybeReadOnly }}>{{ data.caption }}</textarea>
 				</span>
-				<span class="setting" data-setting="描述">
+				<span class="setting" data-setting="description">
 					<label for="attachment-details-two-column-description" class="name"><?php _e( '描述' ); ?></label>
 					<textarea id="attachment-details-two-column-description" {{ maybeReadOnly }}>{{ data.description }}</textarea>
 				</span>
@@ -706,7 +706,7 @@ function gc_print_media_templates() {
 				<label for="attachment-details-alt-text" class="name"><?php _e( '替代文本' ); ?></label>
 				<input type="text" id="attachment-details-alt-text" value="{{ data.alt }}" aria-describedby="alt-text-description" {{ maybeReadOnly }} />
 			</span>
-			<p class="描述" id="alt-text-description"><?php echo $alt_text_description; ?></p>
+			<p class="description" id="alt-text-description"><?php echo $alt_text_description; ?></p>
 		<# } #>
 		<?php if ( post_type_supports( 'attachment', 'title' ) ) : ?>
 		<span class="setting" data-setting="title">
@@ -731,7 +731,7 @@ function gc_print_media_templates() {
 			<label for="attachment-details-caption" class="name"><?php _e( '说明文字' ); ?></label>
 			<textarea id="attachment-details-caption" {{ maybeReadOnly }}>{{ data.caption }}</textarea>
 		</span>
-		<span class="setting" data-setting="描述">
+		<span class="setting" data-setting="description">
 			<label for="attachment-details-description" class="name"><?php _e( '描述' ); ?></label>
 			<textarea id="attachment-details-description" {{ maybeReadOnly }}>{{ data.description }}</textarea>
 		</span>
@@ -1012,7 +1012,7 @@ function gc_print_media_templates() {
 			<label for="embed-image-settings-alt-text" class="name"><?php _e( '替代文本' ); ?></label>
 			<input type="text" id="embed-image-settings-alt-text" data-setting="alt" aria-describedby="alt-text-description" />
 		</span>
-		<p class="描述" id="alt-text-description"><?php echo $alt_text_description; ?></p>
+		<p class="description" id="alt-text-description"><?php echo $alt_text_description; ?></p>
 
 		<?php
 		/** This filter is documented in gc-admin/includes/media.php */
@@ -1075,7 +1075,7 @@ function gc_print_media_templates() {
 						<label for="image-details-alt-text" class="name"><?php _e( '替代文本' ); ?></label>
 						<input type="text" id="image-details-alt-text" data-setting="alt" value="{{ data.model.alt }}" aria-describedby="alt-text-description" />
 					</span>
-					<p class="描述" id="alt-text-description"><?php echo $alt_text_description; ?></p>
+					<p class="description" id="alt-text-description"><?php echo $alt_text_description; ?></p>
 
 					<?php
 					/** This filter is documented in gc-admin/includes/media.php */
@@ -1155,7 +1155,7 @@ function gc_print_media_templates() {
 									<label for="image-details-size-height"><?php _e( '高度' ); ?></label>
 									<input type="number" id="image-details-size-height" aria-describedby="image-size-desc" data-setting="customHeight" step="1" value="{{ data.model.customHeight }}" />
 								</span>
-								<p id="image-size-desc" class="描述"><?php _e( '图片的像素尺寸' ); ?></p>
+								<p id="image-size-desc" class="description"><?php _e( '图片的像素尺寸' ); ?></p>
 							</div>
 					<# } #>
 
@@ -1423,7 +1423,7 @@ function gc_print_media_templates() {
 							content += track.outerHTML; #>
 						<label for="video-details-track-{{ index }}" class="name"><?php _e( '“音轨”（字幕、说明文字、内容描述、章节或元数据）' ); ?></label>
 						<input class="content-track" type="text" id="video-details-track-{{ index }}" aria-describedby="video-details-track-desc-{{ index }}" value="{{ track.outerHTML }}" />
-						<span class="描述" id="video-details-track-desc-{{ index }}">
+						<span class="description" id="video-details-track-desc-{{ index }}">
 						<?php
 							printf(
 								/* translators: 1: "srclang" HTML attribute, 2: "label" HTML attribute, 3: "kind" HTML attribute. */

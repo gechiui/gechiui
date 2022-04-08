@@ -80,16 +80,10 @@ if ( ! CUSTOM_TAGS ) {
 			'target' => true,
 		),
 		'article'    => array(
-			'align'    => true,
-			'dir'      => true,
-			'lang'     => true,
-			'xml:lang' => true,
+			'align' => true,
 		),
 		'aside'      => array(
-			'align'    => true,
-			'dir'      => true,
-			'lang'     => true,
-			'xml:lang' => true,
+			'align' => true,
 		),
 		'audio'      => array(
 			'autoplay' => true,
@@ -100,14 +94,10 @@ if ( ! CUSTOM_TAGS ) {
 			'src'      => true,
 		),
 		'b'          => array(),
-		'bdo'        => array(
-			'dir' => true,
-		),
+		'bdo'        => array(),
 		'big'        => array(),
-		'段落引用' => array(
-			'cite'     => true,
-			'lang'     => true,
-			'xml:lang' => true,
+		'blockquote' => array(
+			'cite' => true,
 		),
 		'br'         => array(),
 		'button'     => array(
@@ -119,17 +109,13 @@ if ( ! CUSTOM_TAGS ) {
 		'caption'    => array(
 			'align' => true,
 		),
-		'cite'       => array(
-			'dir'  => true,
-			'lang' => true,
-		),
+		'cite'       => array(),
 		'code'       => array(),
 		'col'        => array(
 			'align'   => true,
 			'char'    => true,
 			'charoff' => true,
 			'span'    => true,
-			'dir'     => true,
 			'valign'  => true,
 			'width'   => true,
 		),
@@ -147,33 +133,21 @@ if ( ! CUSTOM_TAGS ) {
 		'dd'         => array(),
 		'dfn'        => array(),
 		'details'    => array(
-			'align'    => true,
-			'dir'      => true,
-			'lang'     => true,
-			'open'     => true,
-			'xml:lang' => true,
+			'align' => true,
+			'open'  => true,
 		),
 		'div'        => array(
-			'align'    => true,
-			'dir'      => true,
-			'lang'     => true,
-			'xml:lang' => true,
+			'align' => true,
 		),
 		'dl'         => array(),
 		'dt'         => array(),
 		'em'         => array(),
 		'fieldset'   => array(),
 		'figure'     => array(
-			'align'    => true,
-			'dir'      => true,
-			'lang'     => true,
-			'xml:lang' => true,
+			'align' => true,
 		),
 		'figcaption' => array(
-			'align'    => true,
-			'dir'      => true,
-			'lang'     => true,
-			'xml:lang' => true,
+			'align' => true,
 		),
 		'font'       => array(
 			'color' => true,
@@ -181,10 +155,7 @@ if ( ! CUSTOM_TAGS ) {
 			'size'  => true,
 		),
 		'footer'     => array(
-			'align'    => true,
-			'dir'      => true,
-			'lang'     => true,
-			'xml:lang' => true,
+			'align' => true,
 		),
 		'h1'         => array(
 			'align' => true,
@@ -205,16 +176,10 @@ if ( ! CUSTOM_TAGS ) {
 			'align' => true,
 		),
 		'header'     => array(
-			'align'    => true,
-			'dir'      => true,
-			'lang'     => true,
-			'xml:lang' => true,
+			'align' => true,
 		),
 		'hgroup'     => array(
-			'align'    => true,
-			'dir'      => true,
-			'lang'     => true,
-			'xml:lang' => true,
+			'align' => true,
 		),
 		'hr'         => array(
 			'align'   => true,
@@ -252,10 +217,7 @@ if ( ! CUSTOM_TAGS ) {
 			'value' => true,
 		),
 		'main'       => array(
-			'align'    => true,
-			'dir'      => true,
-			'lang'     => true,
-			'xml:lang' => true,
+			'align' => true,
 		),
 		'map'        => array(
 			'name' => true,
@@ -265,10 +227,7 @@ if ( ! CUSTOM_TAGS ) {
 			'type' => true,
 		),
 		'nav'        => array(
-			'align'    => true,
-			'dir'      => true,
-			'lang'     => true,
-			'xml:lang' => true,
+			'align' => true,
 		),
 		'object'     => array(
 			'data' => array(
@@ -281,10 +240,7 @@ if ( ! CUSTOM_TAGS ) {
 			),
 		),
 		'p'          => array(
-			'align'    => true,
-			'dir'      => true,
-			'lang'     => true,
-			'xml:lang' => true,
+			'align' => true,
 		),
 		'pre'        => array(
 			'width' => true,
@@ -292,29 +248,25 @@ if ( ! CUSTOM_TAGS ) {
 		'q'          => array(
 			'cite' => true,
 		),
+		'rb'         => array(),
+		'rp'         => array(),
+		'rt'         => array(),
+		'rtc'        => array(),
+		'ruby'       => array(),
 		's'          => array(),
 		'samp'       => array(),
 		'span'       => array(
-			'dir'      => true,
-			'align'    => true,
-			'lang'     => true,
-			'xml:lang' => true,
+			'align' => true,
 		),
 		'section'    => array(
-			'align'    => true,
-			'dir'      => true,
-			'lang'     => true,
-			'xml:lang' => true,
+			'align' => true,
 		),
 		'small'      => array(),
 		'strike'     => array(),
 		'strong'     => array(),
 		'sub'        => array(),
 		'summary'    => array(
-			'align'    => true,
-			'dir'      => true,
-			'lang'     => true,
-			'xml:lang' => true,
+			'align' => true,
 		),
 		'sup'        => array(),
 		'table'      => array(
@@ -323,7 +275,6 @@ if ( ! CUSTOM_TAGS ) {
 			'border'      => true,
 			'cellpadding' => true,
 			'cellspacing' => true,
-			'dir'         => true,
 			'rules'       => true,
 			'summary'     => true,
 			'width'       => true,
@@ -342,7 +293,6 @@ if ( ! CUSTOM_TAGS ) {
 			'char'    => true,
 			'charoff' => true,
 			'colspan' => true,
-			'dir'     => true,
 			'headers' => true,
 			'height'  => true,
 			'nowrap'  => true,
@@ -866,6 +816,9 @@ function gc_kses_allowed_html( $context = '' ) {
 		/**
 		 * Filters the HTML tags that are allowed for a given context.
 		 *
+		 * HTML tags and attribute names are case-insensitive in HTML but must be
+		 * added to the KSES allow list in lowercase. An item added to the allow list
+		 * in upper or mixed case will not recognized as permitted by KSES.
 		 *
 		 * @param array[] $html    Allowed HTML tags.
 		 * @param string  $context Context name.
@@ -1228,10 +1181,7 @@ function gc_kses_attr( $element, $attr, $allowed_html, $allowed_protocols ) {
 
 /**
  * Determines whether an attribute is allowed.
- *
- *
- *
- *
+ * 
  * @param string $name         The attribute name. Passed by reference. Returns empty string when not allowed.
  * @param string $value        The attribute value. Passed by reference. Returns a filtered value.
  * @param string $whole        The `name=value` input. Passed by reference. Returns filtered input.
@@ -1264,7 +1214,9 @@ function gc_kses_attr_check( &$name, &$value, &$whole, $vless, $element, $allowe
 		 * Note: the attribute name should only contain `A-Za-z0-9_-` chars,
 		 * double hyphens `--` are not accepted by GeChiUI.
 		 */
-		if ( strpos( $name_low, 'data-' ) === 0 && ! empty( $allowed_attr['data-*'] ) && preg_match( '/^data(?:-[a-z0-9_]+)+$/', $name_low, $match ) ) {
+		if ( strpos( $name_low, 'data-' ) === 0 && ! empty( $allowed_attr['data-*'] )
+			&& preg_match( '/^data(?:-[a-z0-9_]+)+$/', $name_low, $match )
+		) {
 			/*
 			 * Add the whole attribute name to the allowed attributes and set any restrictions
 			 * for the `data-*` attribute values for the current element.
@@ -2194,12 +2146,14 @@ function kses_init_filters() {
 		add_filter( 'pre_comment_content', 'gc_filter_kses' );
 	}
 
+	// Global Styles filtering: Global Styles filters should be executed before normal post_kses HTML filters.
+	add_filter( 'content_save_pre', 'gc_filter_global_styles_post', 9 );
+	add_filter( 'content_filtered_save_pre', 'gc_filter_global_styles_post', 9 );
+
 	// Post filtering.
 	add_filter( 'content_save_pre', 'gc_filter_post_kses' );
-	add_filter( 'content_save_pre', 'gc_filter_global_styles_post' );
 	add_filter( 'excerpt_save_pre', 'gc_filter_post_kses' );
 	add_filter( 'content_filtered_save_pre', 'gc_filter_post_kses' );
-	add_filter( 'content_filtered_save_pre', 'gc_filter_global_styles_post' );
 }
 
 /**
@@ -2222,12 +2176,14 @@ function kses_remove_filters() {
 	remove_filter( 'pre_comment_content', 'gc_filter_post_kses' );
 	remove_filter( 'pre_comment_content', 'gc_filter_kses' );
 
+	// Global Styles filtering.
+	remove_filter( 'content_save_pre', 'gc_filter_global_styles_post', 9 );
+	remove_filter( 'content_filtered_save_pre', 'gc_filter_global_styles_post', 9 );
+
 	// Post filtering.
 	remove_filter( 'content_save_pre', 'gc_filter_post_kses' );
-	remove_filter( 'content_save_pre', 'gc_filter_global_styles_post' );
 	remove_filter( 'excerpt_save_pre', 'gc_filter_post_kses' );
 	remove_filter( 'content_filtered_save_pre', 'gc_filter_post_kses' );
-	remove_filter( 'content_filtered_save_pre', 'gc_filter_global_styles_post' );
 }
 
 /**
@@ -2555,11 +2511,14 @@ function _gc_add_global_attributes( $value ) {
 		'aria-labelledby'  => true,
 		'aria-hidden'      => true,
 		'class'            => true,
+		'data-*'           => true,
+		'dir'              => true,
 		'id'               => true,
+		'lang'             => true,
 		'style'            => true,
 		'title'            => true,
 		'role'             => true,
-		'data-*'           => true,
+		'xml:lang'         => true,
 	);
 
 	if ( true === $value ) {

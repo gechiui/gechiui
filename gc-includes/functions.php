@@ -437,7 +437,7 @@ function number_format_i18n( $number, $decimals = 0 ) {
 }
 
 /**
- * Convert number of bytes largest unit bytes will fit into.
+ * Converts a number of bytes to the largest unit the bytes will fit into.
  *
  * It is easier to read 1 KB than 1024 bytes and 1 MB than 1048576 bytes. Converts
  * number of bytes to human readable number by taking the number of that unit
@@ -458,6 +458,14 @@ function number_format_i18n( $number, $decimals = 0 ) {
  */
 function size_format( $bytes, $decimals = 0 ) {
 	$quant = array(
+		/* translators: Unit symbol for yottabyte. */
+		_x( 'YB', 'unit symbol' ) => YB_IN_BYTES,
+		/* translators: Unit symbol for zettabyte. */
+		_x( 'ZB', 'unit symbol' ) => ZB_IN_BYTES,
+		/* translators: Unit symbol for exabyte. */
+		_x( 'EB', 'unit symbol' ) => EB_IN_BYTES,
+		/* translators: Unit symbol for petabyte. */
+		_x( 'PB', 'unit symbol' ) => PB_IN_BYTES,
 		/* translators: Unit symbol for terabyte. */
 		_x( 'TB', 'unit symbol' ) => TB_IN_BYTES,
 		/* translators: Unit symbol for gigabyte. */
@@ -820,7 +828,7 @@ function gc_extract_urls( $content ) {
 			. '(?:'
 				. '\([\w\d]+\)|'
 				. '(?:'
-					. "[^`!()\[\]{};:'\".,<>«»“”‘’\s]|"
+					. "[^`!()\[\]{}:'\".,<>«»“”‘’\s]|"
 					. '(?:[:]\d+)?/?'
 				. ')+'
 			. ')'
@@ -829,7 +837,18 @@ function gc_extract_urls( $content ) {
 		$post_links
 	);
 
-	$post_links = array_unique( array_map( 'html_entity_decode', $post_links[2] ) );
+	$post_links = array_unique(
+		array_map(
+			static function( $link ) {
+				// Decode to replace valid entities, like &amp;.
+				$link = html_entity_decode( $link );
+				// Maintain backward compatibility by removing extraneous semi-colons (`;`).
+				return str_replace( ';', '', $link );
+			},
+			$post_links[2]
+		)
+	);
+
 
 	return array_values( $post_links );
 }
@@ -3246,12 +3265,8 @@ function gc_get_image_mime( $file ) {
 			return $mime;
 		}
 
-		$handle = fopen( $file, 'rb' );
-		if ( false === $handle ) {
-			return false;
-		}
+		$magic = file_get_contents( $file, false, null, 0, 12 );
 
-		$magic = fread( $handle, 12 );
 		if ( false === $magic ) {
 			return false;
 		}
@@ -3271,7 +3286,6 @@ function gc_get_image_mime( $file ) {
 			$mime = 'image/webp';
 		}
 
-		fclose( $handle );
 	} catch ( Exception $e ) {
 		$mime = false;
 	}
@@ -3441,6 +3455,44 @@ function gc_get_ext_types() {
 			'code'        => array( 'css', 'htm', 'html', 'php', 'js' ),
 		)
 	);
+}
+
+/**
+ * Wrapper for PHP filesize with filters and casting the result as an integer.
+ *
+ * @since 6.0.0
+ *
+ * @link https://www.php.net/manual/en/function.filesize.php
+ *
+ * @param string $path Path to the file.
+ * @return int The size of the file in bytes, or 0 in the event of an error.
+ */
+function gc_filesize( $path ) {
+	/**
+	 * Filters the result of gc_filesize before the PHP function is run.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param null|int $size The unfiltered value. Returning an int from the callback bypasses the filesize call.
+	 * @param string   $path Path to the file.
+	 */
+	$size = apply_filters( 'pre_gc_filesize', null, $path );
+
+	if ( is_int( $size ) ) {
+		return $size;
+	}
+
+	$size = (int) @filesize( $path );
+
+	/**
+	 * Filters the size of the file.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param int    $size The result of PHP filesize on the file.
+	 * @param string $path Path to the file.
+	 */
+	return (int) apply_filters( 'gc_filesize', $size, $path );
 }
 
 /**
@@ -5095,6 +5147,10 @@ function gc_list_filter( $list, $args = array(), $operator = 'AND' ) {
  *               `$list` will be preserved in the results.
  */
 function gc_list_pluck( $list, $field, $index_key = null ) {
+	if ( ! is_array( $list ) ) {
+		return array();
+	}
+
 	$util = new GC_List_Util( $list );
 
 	return $util->pluck( $field, $index_key );
@@ -5165,7 +5221,13 @@ function gc_widgets_add_menu() {
 		return;
 	}
 
-	$submenu['themes.php'][7] = array( __( '小工具' ), 'edit_theme_options', 'widgets.php' );
+	$menu_name = __( 'Widgets' );
+	if ( gc_is_block_theme() ) {
+		$submenu['themes.php'][] = array( $menu_name, 'edit_theme_options', 'widgets.php' );
+	} else {
+		$submenu['themes.php'][7] = array( $menu_name, 'edit_theme_options', 'widgets.php' );
+	}
+
 	ksort( $submenu['themes.php'], SORT_NUMERIC );
 }
 
@@ -6525,16 +6587,10 @@ function gc_scheduled_delete() {
  * @return string[] Array of file header values keyed by header name.
  */
 function get_file_data( $file, $default_headers, $context = '' ) {
-	// We don't need to write to the file, so just open for reading.
-	$fp = fopen( $file, 'r' );
+	// Pull only the first 8 KB of the file in.
+	$file_data = file_get_contents( $file, false, null, 0, 8 * KB_IN_BYTES );
 
-	if ( $fp ) {
-		// Pull only the first 8 KB of the file in.
-		$file_data = fread( $fp, 8 * KB_IN_BYTES );
-
-		// PHP will close file handle, but we are good citizens.
-		fclose( $fp );
-	} else {
+	if ( false === $file_data ) {
 		$file_data = '';
 	}
 
@@ -7898,10 +7954,10 @@ function gc_get_default_update_php_url() {
  *
  *
  *
- * @param string $before Markup to output before the annotation. Default `<p class="描述">`.
+ * @param string $before Markup to output before the annotation. Default `<p class="description">`.
  * @param string $after  Markup to output after the annotation. Default `</p>`.
  */
-function gc_update_php_annotation( $before = '<p class="描述">', $after = '</p>' ) {
+function gc_update_php_annotation( $before = '<p class="description">', $after = '</p>' ) {
 	$annotation = gc_get_update_php_annotation();
 
 	if ( $annotation ) {

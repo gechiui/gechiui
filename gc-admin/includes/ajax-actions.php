@@ -3556,6 +3556,19 @@ function gc_ajax_query_themes() {
 
 	$update_php = network_admin_url( 'update.php?action=install-theme' );
 
+	$installed_themes = search_theme_directories();
+
+	if ( false === $installed_themes ) {
+		$installed_themes = array();
+	}
+
+	foreach ( $installed_themes as $theme_slug => $theme_data ) {
+		// Ignore child themes.
+		if ( str_contains( $theme_slug, '/' ) ) {
+			unset( $installed_themes[ $theme_slug ] );
+		}
+	}
+
 	foreach ( $api->themes as &$theme ) {
 		$theme->install_url = add_query_arg(
 			array(
@@ -3587,12 +3600,19 @@ function gc_ajax_query_themes() {
 			}
 		}
 
+		$is_theme_installed = array_key_exists( $theme->slug, $installed_themes );
+
+		// We only care about installed themes.
+		$theme->block_theme = $is_theme_installed && gc_get_theme( $theme->slug )->is_block_theme();
+
 		if ( ! is_multisite() && current_user_can( 'edit_theme_options' ) && current_user_can( 'customize' ) ) {
+			$customize_url = $theme->block_theme ? admin_url( 'site-editor.php' ) : gc_customize_url( $theme->slug );
+
 			$theme->customize_url = add_query_arg(
 				array(
 					'return' => urlencode( network_admin_url( 'theme-install.php', 'relative' ) ),
 				),
-				gc_customize_url( $theme->slug )
+				$customize_url
 			);
 		}
 
@@ -3938,19 +3958,46 @@ function gc_ajax_crop_image() {
 			/** This filter is documented in gc-admin/includes/class-custom-image-header.php */
 			$cropped = apply_filters( 'gc_create_file_in_uploads', $cropped, $attachment_id ); // For replication.
 
-			$parent_url = gc_get_attachment_url( $attachment_id );
-			$url        = str_replace( gc_basename( $parent_url ), gc_basename( $cropped ), $parent_url );
+			$parent_url      = gc_get_attachment_url( $attachment_id );
+			$parent_basename = gc_basename( $parent_url );
+			$url             = str_replace( $parent_basename, gc_basename( $cropped ), $parent_url );
 
 			$size       = gc_getimagesize( $cropped );
 			$image_type = ( $size ) ? $size['mime'] : 'image/jpeg';
 
+			// Get the original image's post to pre-populate the cropped image.
+			$original_attachment      = get_post( $attachment_id );
+			$sanitized_post_title     = sanitize_file_name( $original_attachment->post_title );
+			$use_original_title       = (
+				( '' !== trim( $original_attachment->post_title ) ) &&
+				/*
+				 * Check if the original image has a title other than the "filename" default,
+				 * meaning the image had a title when originally uploaded or its title was edited.
+				 */
+				( $parent_basename !== $sanitized_post_title ) &&
+				( pathinfo( $parent_basename, PATHINFO_FILENAME ) !== $sanitized_post_title )
+			);
+			$use_original_description = ( '' !== trim( $original_attachment->post_content ) );
+
 			$object = array(
-				'post_title'     => gc_basename( $cropped ),
-				'post_content'   => $url,
+				'post_title'     => $use_original_title ? $original_attachment->post_title : gc_basename( $cropped ),
+				'post_content'   => $use_original_description ? $original_attachment->post_content : $url,
 				'post_mime_type' => $image_type,
 				'guid'           => $url,
 				'context'        => $context,
 			);
+
+			// Copy the image caption attribute (post_excerpt field) from the original image.
+			if ( '' !== trim( $original_attachment->post_excerpt ) ) {
+				$object['post_excerpt'] = $original_attachment->post_excerpt;
+			}
+
+			// Copy the image alt text attribute from the original image.
+			if ( '' !== trim( $original_attachment->_gc_attachment_image_alt ) ) {
+				$object['meta_input'] = array(
+					'_gc_attachment_image_alt' => gc_slash( $original_attachment->_gc_attachment_image_alt ),
+				);
+			}
 
 			$attachment_id = gc_insert_attachment( $object, $cropped );
 			$metadata      = gc_generate_attachment_metadata( $attachment_id, $cropped );
@@ -4126,6 +4173,9 @@ function gc_ajax_install_theme() {
 			);
 		}
 	}
+
+	$theme                = gc_get_theme( $slug );
+	$status['blockTheme'] = $theme->is_block_theme();
 
 	if ( ! is_multisite() && current_user_can( 'edit_theme_options' ) && current_user_can( 'customize' ) ) {
 		$status['customizeUrl'] = add_query_arg(

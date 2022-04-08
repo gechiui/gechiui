@@ -228,7 +228,7 @@ class Walker_Nav_Menu_Edit extends Walker_Nav_Menu {
 					<label for="edit-menu-item-description-<?php echo $item_id; ?>">
 						<?php _e( '描述' ); ?><br />
 						<textarea id="edit-menu-item-description-<?php echo $item_id; ?>" class="widefat edit-menu-item-description" rows="3" cols="20" name="menu-item-description[<?php echo $item_id; ?>]"><?php echo esc_html( $menu_item->description ); // textarea_escaped ?></textarea>
-						<span class="描述"><?php _e( '如果活动主题支持，说明将显示在菜单中。' ); ?></span>
+						<span class="description"><?php _e( '如果活动主题支持，说明将显示在菜单中。' ); ?></span>
 					</label>
 				</p>
 

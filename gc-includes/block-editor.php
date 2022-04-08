@@ -302,7 +302,8 @@ function get_block_editor_settings( array $custom_settings, $block_editor_contex
 		$custom_settings
 	);
 
-	$presets = array(
+	$global_styles = array();
+	$presets       = array(
 		array(
 			'css'            => 'variables',
 			'__unstableType' => 'presets',
@@ -315,8 +316,8 @@ function get_block_editor_settings( array $custom_settings, $block_editor_contex
 	foreach ( $presets as $preset_style ) {
 		$actual_css = gc_get_global_stylesheet( array( $preset_style['css'] ) );
 		if ( '' !== $actual_css ) {
-			$preset_style['css']         = $actual_css;
-			$editor_settings['styles'][] = $preset_style;
+			$preset_style['css'] = $actual_css;
+			$global_styles[]     = $preset_style;
 		}
 	}
 
@@ -327,10 +328,11 @@ function get_block_editor_settings( array $custom_settings, $block_editor_contex
 		);
 		$actual_css    = gc_get_global_stylesheet( array( $block_classes['css'] ) );
 		if ( '' !== $actual_css ) {
-			$block_classes['css']        = $actual_css;
-			$editor_settings['styles'][] = $block_classes;
+			$block_classes['css'] = $actual_css;
+			$global_styles[]      = $block_classes;
 		}
 	}
+	$editor_settings['styles'] = array_merge( $global_styles, get_block_editor_theme_styles() );
 
 	$editor_settings['__experimentalFeatures'] = gc_get_global_settings();
 	// These settings may need to be updated based on data coming from theme.json sources.
@@ -418,7 +420,9 @@ function get_block_editor_settings( array $custom_settings, $block_editor_contex
  *
  *
  *
- * @global GC_Post $post Global post object.
+ * @global GC_Post    $post       Global post object.
+ * @global GC_Scripts $gc_scripts The GC_Scripts object for printing scripts.
+ * @global GC_Styles  $gc_styles  The GC_Styles object for printing styles.
  *
  * @param string[]                $preload_paths        List of paths to preload.
  * @param GC_Block_Editor_Context $block_editor_context The current block editor context.
@@ -426,7 +430,7 @@ function get_block_editor_settings( array $custom_settings, $block_editor_contex
  * @return void
  */
 function block_editor_rest_api_preload( array $preload_paths, $block_editor_context ) {
-	global $post;
+	global $post, $gc_scripts, $gc_styles;
 
 	/**
 	 * Filters the array of REST API paths that will be used to preloaded common data for the block editor.
@@ -458,11 +462,15 @@ function block_editor_rest_api_preload( array $preload_paths, $block_editor_cont
 	}
 
 	/*
-	 * Ensure the global $post remains the same after API data is preloaded.
+	 * Ensure the global $post, $gc_scripts, and $gc_styles remain the same after
+	 * API data is preloaded.
 	 * Because API preloading can call the_content and other filters, plugins
-	 * can unexpectedly modify $post.
+	 * can unexpectedly modify the global $post or enqueue assets which are not
+	 * intended for the block editor.
 	 */
 	$backup_global_post = ! empty( $post ) ? clone $post : $post;
+	$backup_gc_scripts  = ! empty( $gc_scripts ) ? clone $gc_scripts : $gc_scripts;
+	$backup_gc_styles   = ! empty( $gc_styles ) ? clone $gc_styles : $gc_styles;
 
 	foreach ( $preload_paths as &$path ) {
 		if ( is_string( $path ) && ! str_starts_with( $path, '/' ) ) {
@@ -471,7 +479,7 @@ function block_editor_rest_api_preload( array $preload_paths, $block_editor_cont
 		}
 
 		if ( is_array( $path ) && is_string( $path[0] ) && ! str_starts_with( $path[0], '/' ) ) {
-				$path[0] = '/' . $path[0];
+			$path[0] = '/' . $path[0];
 		}
 	}
 
@@ -483,8 +491,10 @@ function block_editor_rest_api_preload( array $preload_paths, $block_editor_cont
 		array()
 	);
 
-	// Restore the global $post as it was before API preloading.
-	$post = $backup_global_post;
+	// Restore the global $post, $gc_scripts, and $gc_styles as they were before API preloading.
+	$post       = $backup_global_post;
+	$gc_scripts = $backup_gc_scripts;
+	$gc_styles  = $backup_gc_styles;
 
 	gc_add_inline_script(
 		'gc-api-fetch',

@@ -143,7 +143,7 @@ if ( isset( $tag->name ) ) {
 		<tr class="form-field form-required term-name-wrap">
 			<th scope="row"><label for="name"><?php _ex( '名称', 'term name' ); ?></label></th>
 			<td><input name="name" id="name" type="text" value="<?php echo $tag_name_value; ?>" size="40" aria-required="true" />
-			<p class="描述"><?php echo $tax->labels->name_field_description; ?></p></td>
+			<p class="description"><?php echo $tax->labels->name_field_description; ?></p></td>
 		</tr>
 <?php if ( ! global_terms_enabled() ) { ?>
 		<tr class="form-field term-slug-wrap">
@@ -165,7 +165,7 @@ if ( isset( $tag->name ) ) {
 			$slug = isset( $tag->slug ) ? apply_filters( 'editable_slug', $tag->slug, $tag ) : '';
 			?>
 			<td><input name="slug" id="slug" type="text" value="<?php echo esc_attr( $slug ); ?>" size="40" />
-			<p class="描述"><?php echo $tax->labels->slug_field_description; ?></p></td>
+			<p class="description"><?php echo $tax->labels->slug_field_description; ?></p></td>
 		</tr>
 <?php } ?>
 <?php if ( is_taxonomy_hierarchical( $taxonomy ) ) : ?>
@@ -190,17 +190,17 @@ if ( isset( $tag->name ) ) {
 				gc_dropdown_categories( $dropdown_args );
 				?>
 				<?php if ( 'category' === $taxonomy ) : ?>
-					<p class="描述"><?php _e( '分类和标签不同，它可以有层级关系。您可以有一个名为“音乐”的分类，在该分类下可以有名为“流行”和“古典”的子分类（完全可选）。' ); ?></p>
+					<p class="description"><?php _e( '分类和标签不同，它可以有层级关系。您可以有一个名为“音乐”的分类，在该分类下可以有名为“流行”和“古典”的子分类（完全可选）。' ); ?></p>
 				<?php else : ?>
-					<p class="描述"><?php echo $tax->labels->parent_field_description; ?></p>
+					<p class="description"><?php echo $tax->labels->parent_field_description; ?></p>
 				<?php endif; ?>
 			</td>
 		</tr>
 <?php endif; // is_taxonomy_hierarchical() ?>
 		<tr class="form-field term-description-wrap">
-			<th scope="row"><label for="描述"><?php _e( '描述' ); ?></label></th>
-			<td><textarea name="描述" id="描述" rows="5" cols="50" class="large-text"><?php echo $tag->description; // textarea_escaped ?></textarea>
-			<p class="描述"><?php echo $tax->labels->desc_field_description; ?></p></td>
+			<th scope="row"><label for="description"><?php _e( '描述' ); ?></label></th>
+			<td><textarea name="description" id="description" rows="5" cols="50" class="large-text"><?php echo $tag->description; // textarea_escaped ?></textarea>
+			<p class="description"><?php echo $tax->labels->desc_field_description; ?></p></td>
 		</tr>
 		<?php
 		// Back compat hooks.

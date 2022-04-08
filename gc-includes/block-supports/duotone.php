@@ -29,7 +29,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * @package GeChiUI
- *
+ * @since 5.8.0
  */
 
 /**
@@ -40,7 +40,7 @@
  *
  * @see https://github.com/bgrins/TinyColor
  *
- *
+ * @since 5.8.0
  * @access private
  *
  * @param mixed $n   Number of unknown type.
@@ -74,7 +74,7 @@ function gc_tinycolor_bound01( $n, $max ) {
  *
  * @see https://github.com/bgrins/TinyColor
  *
- *
+ * @since 5.9.0
  * @access private
  *
  * @param mixed $n Number of unknown type.
@@ -98,7 +98,7 @@ function _gc_tinycolor_bound_alpha( $n ) {
  *
  * @see https://github.com/bgrins/TinyColor
  *
- *
+ * @since 5.8.0
  * @access private
  *
  * @param array $rgb_color RGB object.
@@ -120,7 +120,7 @@ function gc_tinycolor_rgb_to_rgb( $rgb_color ) {
  *
  * @see https://github.com/bgrins/TinyColor
  *
- *
+ * @since 5.8.0
  * @access private
  *
  * @param float $p first component.
@@ -155,7 +155,7 @@ function gc_tinycolor_hue_to_rgb( $p, $q, $t ) {
  *
  * @see https://github.com/bgrins/TinyColor
  *
- *
+ * @since 5.8.0
  * @access private
  *
  * @param array $hsl_color HSL object.
@@ -196,8 +196,8 @@ function gc_tinycolor_hsl_to_rgb( $hsl_color ) {
  * @see https://github.com/bgrins/TinyColor
  * @see https://github.com/casesandberg/react-color/
  *
- *
- *
+ * @since 5.8.0
+ * @since 5.9.0 Added alpha processing.
  * @access private
  *
  * @param string $color_str CSS color string.
@@ -352,55 +352,61 @@ function gc_tinycolor_string_to_rgb( $color_str ) {
 	}
 }
 
-
 /**
- * Registers the style and colors block attributes for block types that support it.
+ * Returns the prefixed id for the duotone filter for use as a CSS id.
  *
- *
+ * @since 5.9.1
  * @access private
  *
- * @param GC_Block_Type $block_type Block Type.
+ * @param array $preset Duotone preset value as seen in theme.json.
+ * @return string Duotone filter CSS id.
  */
-function gc_register_duotone_support( $block_type ) {
-	$has_duotone_support = false;
-	if ( property_exists( $block_type, 'supports' ) ) {
-		$has_duotone_support = _gc_array_get( $block_type->supports, array( 'color', '__experimentalDuotone' ), false );
+function gc_get_duotone_filter_id( $preset ) {
+	if ( ! isset( $preset['slug'] ) ) {
+		return '';
 	}
 
-	if ( $has_duotone_support ) {
-		if ( ! $block_type->attributes ) {
-			$block_type->attributes = array();
-		}
-
-		if ( ! array_key_exists( 'style', $block_type->attributes ) ) {
-			$block_type->attributes['style'] = array(
-				'type' => 'object',
-			);
-		}
-	}
+	return 'gc-duotone-' . $preset['slug'];
 }
 
 /**
- * Renders the duotone filter SVG and returns the CSS filter property to
- * reference the rendered SVG.
+ * Returns the CSS filter property url to reference the rendered SVG.
  *
- *
+ * @since 5.9.0
  * @access private
-
+ *
  * @param array $preset Duotone preset value as seen in theme.json.
- * @return string Duotone CSS filter property.
+ * @return string Duotone CSS filter property url value.
  */
-function gc_render_duotone_filter_preset( $preset ) {
-	$duotone_id     = $preset['slug'];
-	$duotone_colors = $preset['colors'];
-	$filter_id      = 'gc-duotone-' . $duotone_id;
+function gc_get_duotone_filter_property( $preset ) {
+	$filter_id = gc_get_duotone_filter_id( $preset );
+	return "url('#" . $filter_id . "')";
+}
+
+/**
+ * Returns the duotone filter SVG string for the preset.
+ *
+ * @since 5.9.1
+ * @access private
+ *
+ * @param array $preset Duotone preset value as seen in theme.json.
+ * @return string Duotone SVG filter.
+ */
+function gc_get_duotone_filter_svg( $preset ) {
+	$filter_id = gc_get_duotone_filter_id( $preset );
+
 	$duotone_values = array(
 		'r' => array(),
 		'g' => array(),
 		'b' => array(),
 		'a' => array(),
 	);
-	foreach ( $duotone_colors as $color_str ) {
+
+	if ( ! isset( $preset['colors'] ) || ! is_array( $preset['colors'] ) ) {
+		$preset['colors'] = array();
+	}
+
+	foreach ( $preset['colors'] as $color_str ) {
 		$color = gc_tinycolor_string_to_rgb( $color_str );
 
 		$duotone_values['r'][] = $color['r'] / 255;
@@ -456,23 +462,40 @@ function gc_render_duotone_filter_preset( $preset ) {
 		$svg = trim( $svg );
 	}
 
-	add_action(
-		// Safari doesn't render SVG filters defined in data URIs,
-		// and SVG filters won't render in the head of a document,
-		// so the next best place to put the SVG is in the footer.
-		is_admin() ? 'admin_footer' : 'gc_footer',
-		function () use ( $svg ) {
-			echo $svg;
-		}
-	);
+	return $svg;
+}
 
-	return "url('#" . $filter_id . "')";
+/**
+ * Registers the style and colors block attributes for block types that support it.
+ *
+ * @since 5.8.0
+ * @access private
+ *
+ * @param GC_Block_Type $block_type Block Type.
+ */
+function gc_register_duotone_support( $block_type ) {
+	$has_duotone_support = false;
+	if ( property_exists( $block_type, 'supports' ) ) {
+		$has_duotone_support = _gc_array_get( $block_type->supports, array( 'color', '__experimentalDuotone' ), false );
+	}
+
+	if ( $has_duotone_support ) {
+		if ( ! $block_type->attributes ) {
+			$block_type->attributes = array();
+		}
+
+		if ( ! array_key_exists( 'style', $block_type->attributes ) ) {
+			$block_type->attributes['style'] = array(
+				'type' => 'object',
+			);
+		}
+	}
 }
 
 /**
  * Render out the duotone stylesheet and SVG.
  *
- *
+ * @since 5.8.0
  * @access private
  *
  * @param string $block_content Rendered block content.
@@ -497,11 +520,12 @@ function gc_render_duotone_support( $block_content, $block ) {
 	}
 
 	$filter_preset   = array(
-		'slug'   => uniqid(),
+		'slug'   => gc_unique_id( sanitize_key( implode( '-', $block['attrs']['style']['color']['duotone'] ) . '-' ) ),
 		'colors' => $block['attrs']['style']['color']['duotone'],
 	);
-	$filter_property = gc_render_duotone_filter_preset( $filter_preset );
-	$filter_id       = 'gc-duotone-' . $filter_preset['slug'];
+	$filter_property = gc_get_duotone_filter_property( $filter_preset );
+	$filter_id       = gc_get_duotone_filter_id( $filter_preset );
+	$filter_svg      = gc_get_duotone_filter_svg( $filter_preset );
 
 	$scope     = '.' . $filter_id;
 	$selectors = explode( ',', $duotone_support );
@@ -520,6 +544,28 @@ function gc_render_duotone_support( $block_content, $block ) {
 	gc_register_style( $filter_id, false, array(), true, true );
 	gc_add_inline_style( $filter_id, $filter_style );
 	gc_enqueue_style( $filter_id );
+
+	add_action(
+		'gc_footer',
+		static function () use ( $filter_svg, $selector ) {
+			echo $filter_svg;
+
+			/*
+			 * Safari renders elements incorrectly on first paint when the SVG
+			 * filter comes after the content that it is filtering, so we force
+			 * a repaint with a WebKit hack which solves the issue.
+			 */
+			global $is_safari;
+			if ( $is_safari ) {
+				printf(
+					// Simply accessing el.offsetHeight flushes layout and style
+					// changes in WebKit without having to wait for setTimeout.
+					'<script>( function() { var el = document.querySelector( %s ); var display = el.style.display; el.style.display = "none"; el.offsetHeight; el.style.display = display; } )();</script>',
+					gc_json_encode( $selector )
+				);
+			}
+		}
+	);
 
 	// Like the layout hook, this assumes the hook only applies to blocks with a single wrapper.
 	return preg_replace(

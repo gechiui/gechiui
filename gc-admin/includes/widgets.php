@@ -109,7 +109,7 @@ function gc_list_widget_controls( $sidebar, $sidebar_name = '' ) {
 	if ( ! empty( $description ) ) {
 		?>
 		<div class="sidebar-description">
-			<p class="描述"><?php echo $description; ?></p>
+			<p class="description"><?php echo $description; ?></p>
 		</div>
 		<?php
 	}

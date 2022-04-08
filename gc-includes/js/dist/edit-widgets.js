@@ -1196,7 +1196,7 @@ function InterfaceSkeleton(_ref, ref) {
     drawer: Object(external_gc_i18n_["__"])('抽屉'),
 
     /* translators: accessibility text for the top bar landmark region. */
-    header: Object(external_gc_i18n_["__"])('表头'),
+    header: Object(external_gc_i18n_["__"])('页眉'),
 
     /* translators: accessibility text for the content landmark region. */
     body: Object(external_gc_i18n_["__"])('内容'),
@@ -1211,7 +1211,7 @@ function InterfaceSkeleton(_ref, ref) {
     actions: Object(external_gc_i18n_["__"])('发布'),
 
     /* translators: accessibility text for the footer landmark region. */
-    footer: Object(external_gc_i18n_["__"])('注脚')
+    footer: Object(external_gc_i18n_["__"])('页脚')
   };
   const mergedLabels = { ...defaultLabels,
     ...labels
@@ -3339,7 +3339,7 @@ function KeyboardShortcutsRegister() {
     registerShortcut({
       name: 'core/edit-widgets/next-region',
       category: 'global',
-      description: Object(external_gc_i18n_["__"])('转到编辑器的下一个功能区域。'),
+      description: Object(external_gc_i18n_["__"])('导航至编辑器的下一个功能区域。'),
       keyCombination: {
         modifier: 'ctrl',
         character: '`'
@@ -3352,7 +3352,7 @@ function KeyboardShortcutsRegister() {
     registerShortcut({
       name: 'core/edit-widgets/previous-region',
       category: 'global',
-      description: Object(external_gc_i18n_["__"])('转到编辑器的上一个功能区域。'),
+      description: Object(external_gc_i18n_["__"])('导航至编辑器的上一个功能区域。'),
       keyCombination: {
         modifier: 'ctrlShift',
         character: '`'
@@ -4175,7 +4175,7 @@ function MoreMenu() {
   }), Object(external_gc_element_["createElement"])(external_gc_components_["MenuItem"], {
     role: "menuitem",
     icon: external["a" /* default */],
-    href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/block-based-widgets-editor/'),
+    href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/article/block-based-widgets-editor/'),
     target: "_blank",
     rel: "noopener noreferrer"
   }, Object(external_gc_i18n_["__"])('帮助'), Object(external_gc_element_["createElement"])(external_gc_components_["VisuallyHidden"], {
@@ -4309,7 +4309,7 @@ function Header() {
     /* translators: button label text should, if possible, be under 16
     characters. */
     ,
-    label: Object(external_gc_i18n_["_x"])('切换区块插入器', 'Generic label for block inserter button')
+    label: Object(external_gc_i18n_["_x"])('Toggle block inserter', 'Generic label for block inserter button')
   }), isMediumViewport && Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(UndoButton, null), Object(external_gc_element_["createElement"])(RedoButton, null), Object(external_gc_element_["createElement"])(external_gc_components_["ToolbarItem"], {
     as: external_gc_components_["Button"],
     className: "edit-widgets-header-toolbar__list-view-toggle",
@@ -4847,7 +4847,7 @@ function WelcomeGuide() {
       }, Object(external_gc_i18n_["__"])('欢迎来到区块小工具')), isEntirelyBlockWidgets ? Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])("p", {
         className: "edit-widgets-welcome-guide__text"
       }, Object(external_gc_i18n_["sprintf"])( // Translators: %s: Number of block areas in the current theme.
-      Object(external_gc_i18n_["_n"])('', '您的主题提供了%s 个\"区块\"区域供添加和编辑内容。请试着在这里添加搜索栏、社交图标或其他类型的区块并观察其在站点上的显示效果。', numWidgetAreas), numWidgetAreas))) : Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])("p", {
+      Object(external_gc_i18n_["_n"])('', 'Your theme provides %s different “block” areas for you to add and edit content. Try adding a search bar, social icons, or other types of blocks here and see how they’ll look on your site.', numWidgetAreas), numWidgetAreas))) : Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])("p", {
         className: "edit-widgets-welcome-guide__text"
       }, Object(external_gc_i18n_["__"])('您现可在站点的小工具区添加任意区块。不用担心，您之前添加的所有小工具仍然可完美运作。')), Object(external_gc_element_["createElement"])("p", {
         className: "edit-widgets-welcome-guide__text"
@@ -4890,7 +4890,7 @@ function WelcomeGuide() {
       }, Object(external_gc_i18n_["__"])('了解如何使用区块编辑器')), Object(external_gc_element_["createElement"])("p", {
         className: "edit-widgets-welcome-guide__text"
       }, Object(external_gc_i18n_["__"])('刚开始使用区块编辑器？想进一步了解区块编辑器的使用方式？'), Object(external_gc_element_["createElement"])(external_gc_components_["ExternalLink"], {
-        href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/gechiui-editor/')
+        href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/article/gechiui-editor/')
       }, Object(external_gc_i18n_["__"])("这是详细的指南。"))))
     }]
   });

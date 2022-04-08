@@ -1195,10 +1195,10 @@ function xfn_check( $class, $value = '', $deprecated = '' ) {
 		if ( 'family' === $class && strpos( $link_rel, 'child' ) === false && strpos( $link_rel, 'parent' ) === false && strpos( $link_rel, 'sibling' ) === false && strpos( $link_rel, 'spouse' ) === false && strpos( $link_rel, 'kin' ) === false ) {
 			echo ' checked="checked"';
 		}
-		if ( '友情' === $class && strpos( $link_rel, 'friend' ) === false && strpos( $link_rel, '熟人' ) === false && strpos( $link_rel, 'contact' ) === false ) {
+		if ( 'friendship' === $class && strpos( $link_rel, 'friend' ) === false && strpos( $link_rel, 'acquaintance' ) === false && strpos( $link_rel, 'contact' ) === false ) {
 			echo ' checked="checked"';
 		}
-		if ( '地理关系' === $class && strpos( $link_rel, '同住' ) === false && strpos( $link_rel, 'neighbor' ) === false ) {
+		if ( 'geographical' === $class && strpos( $link_rel, 'co-resident' ) === false && strpos( $link_rel, 'neighbor' ) === false ) {
 			echo ' checked="checked"';
 		}
 		if ( 'identity' === $class && in_array( 'me', $rels, true ) ) {
@@ -1233,16 +1233,16 @@ function link_xfn_meta_box( $link ) {
 		<th scope="row"><?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '友情' ); ?></th>
 		<td><fieldset><legend class="screen-reader-text"><span><?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '友情' ); ?></span></legend>
 			<label for="contact">
-			<input class="valinp" type="radio" name="友情" value="contact" id="contact" <?php xfn_check( '友情', 'contact' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '偶有联系' ); ?>
+			<input class="valinp" type="radio" name="friendship" value="偶有联系" id="contact" <?php xfn_check( 'xfn_check', 'contact' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '偶有联系' ); ?>
 			</label>
-			<label for="熟人">
-			<input class="valinp" type="radio" name="友情" value="熟人" id="熟人" <?php xfn_check( '友情', '熟人' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '熟人' ); ?>
+			<label for="acquaintance">
+			<input class="valinp" type="radio" name="friendship" value="熟人" id="acquaintance" <?php xfn_check( 'xfn_check', 'acquaintance' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '熟人' ); ?>
 			</label>
 			<label for="friend">
-			<input class="valinp" type="radio" name="友情" value="friend" id="friend" <?php xfn_check( '友情', 'friend' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '朋友' ); ?>
+			<input class="valinp" type="radio" name="friendship" value="朋友" id="friend" <?php xfn_check( 'xfn_check', 'friend' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '朋友' ); ?>
 			</label>
-			<label for="友情">
-			<input name="友情" type="radio" class="valinp" value="" id="友情" <?php xfn_check( '友情' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '无' ); ?>
+			<label for="friendship">
+			<input name="friendship" type="radio" class="valinp" value="" id="xfn_check" <?php xfn_check( 'xfn_check' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '无' ); ?>
 			</label>
 		</fieldset></td>
 	</tr>
@@ -1257,25 +1257,25 @@ function link_xfn_meta_box( $link ) {
 	<tr>
 		<th scope="row"> <?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '职场关系' ); ?> </th>
 		<td><fieldset><legend class="screen-reader-text"><span><?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '职场关系' ); ?></span></legend>
-			<label for="同事">
-			<input class="valinp" type="checkbox" name="职场关系" value="同事" id="同事" <?php xfn_check( '职场关系', '同事' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '同事' ); ?>
+			<label for="co-worker">
+			<input class="valinp" type="checkbox" name="professional" value="同事" id="co-worker" <?php xfn_check( 'professional', 'co-worker' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '同事' ); ?>
 			</label>
-			<label for="同行">
-			<input class="valinp" type="checkbox" name="职场关系" value="同行" id="同行" <?php xfn_check( '职场关系', '同行' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '同行' ); ?>
+			<label for="colleague">
+			<input class="valinp" type="checkbox" name="professional" value="同行" id="colleague" <?php xfn_check( 'professional', 'colleague' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '同行' ); ?>
 			</label>
 		</fieldset></td>
 	</tr>
 	<tr>
 		<th scope="row"><?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '地理关系' ); ?></th>
 		<td><fieldset><legend class="screen-reader-text"><span> <?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '地理关系' ); ?> </span></legend>
-			<label for="同住">
-			<input class="valinp" type="radio" name="地理关系" value="同住" id="同住" <?php xfn_check( '地理关系', '同住' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '同住' ); ?>
+			<label for="co-resident">
+			<input class="valinp" type="radio" name="geographical" value="同住" id="co-resident" <?php xfn_check( 'geographical', 'co-resident' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '同住' ); ?>
 			</label>
 			<label for="neighbor">
-			<input class="valinp" type="radio" name="地理关系" value="neighbor" id="neighbor" <?php xfn_check( '地理关系', 'neighbor' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '邻居' ); ?>
+			<input class="valinp" type="radio" name="geographical" value="邻居" id="neighbor" <?php xfn_check( 'geographical', 'neighbor' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '邻居' ); ?>
 			</label>
-			<label for="地理关系">
-			<input class="valinp" type="radio" name="地理关系" value="" id="地理关系" <?php xfn_check( '地理关系' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '无' ); ?>
+			<label for="geographical">
+			<input class="valinp" type="radio" name="geographical" value="" id="geographical" <?php xfn_check( 'geographical' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '无' ); ?>
 			</label>
 		</fieldset></td>
 	</tr>
@@ -1283,19 +1283,19 @@ function link_xfn_meta_box( $link ) {
 		<th scope="row"><?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '家庭关系' ); ?></th>
 		<td><fieldset><legend class="screen-reader-text"><span> <?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '家庭关系' ); ?> </span></legend>
 			<label for="child">
-			<input class="valinp" type="radio" name="family" value="child" id="child" <?php xfn_check( 'family', 'child' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '子女' ); ?>
+			<input class="valinp" type="radio" name="family" value="子女" id="child" <?php xfn_check( 'family', 'child' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '子女' ); ?>
 			</label>
 			<label for="kin">
-			<input class="valinp" type="radio" name="family" value="kin" id="kin" <?php xfn_check( 'family', 'kin' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '亲戚' ); ?>
+			<input class="valinp" type="radio" name="family" value="亲戚" id="kin" <?php xfn_check( 'family', 'kin' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '亲戚' ); ?>
 			</label>
 			<label for="parent">
-			<input class="valinp" type="radio" name="family" value="parent" id="parent" <?php xfn_check( 'family', 'parent' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '父母' ); ?>
+			<input class="valinp" type="radio" name="family" value="父母" id="parent" <?php xfn_check( 'family', 'parent' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '父母' ); ?>
 			</label>
 			<label for="sibling">
-			<input class="valinp" type="radio" name="family" value="sibling" id="sibling" <?php xfn_check( 'family', 'sibling' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '兄弟姐妹' ); ?>
+			<input class="valinp" type="radio" name="family" value="兄弟姐妹" id="sibling" <?php xfn_check( 'family', 'sibling' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '兄弟姐妹' ); ?>
 			</label>
 			<label for="spouse">
-			<input class="valinp" type="radio" name="family" value="spouse" id="spouse" <?php xfn_check( 'family', 'spouse' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '配偶' ); ?>
+			<input class="valinp" type="radio" name="family" value="配偶" id="spouse" <?php xfn_check( 'family', 'spouse' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '配偶' ); ?>
 			</label>
 			<label for="family">
 			<input class="valinp" type="radio" name="family" value="" id="family" <?php xfn_check( 'family' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '无' ); ?>
@@ -1306,13 +1306,13 @@ function link_xfn_meta_box( $link ) {
 		<th scope="row"><?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '情感关系' ); ?></th>
 		<td><fieldset><legend class="screen-reader-text"><span> <?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '情感关系' ); ?> </span></legend>
 			<label for="muse">
-			<input class="valinp" type="checkbox" name="romantic" value="muse" id="muse" <?php xfn_check( 'romantic', 'muse' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '灵感女神' ); ?>
+			<input class="valinp" type="checkbox" name="romantic" value="灵感女神" id="muse" <?php xfn_check( 'romantic', 'muse' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '灵感女神' ); ?>
 			</label>
 			<label for="crush">
-			<input class="valinp" type="checkbox" name="romantic" value="crush" id="crush" <?php xfn_check( 'romantic', 'crush' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '迷恋' ); ?>
+			<input class="valinp" type="checkbox" name="romantic" value="迷恋" id="crush" <?php xfn_check( 'romantic', 'crush' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '迷恋' ); ?>
 			</label>
 			<label for="date">
-			<input class="valinp" type="checkbox" name="romantic" value="date" id="date" <?php xfn_check( 'romantic', 'date' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '交往中' ); ?>
+			<input class="valinp" type="checkbox" name="romantic" value="交往中" id="date" <?php xfn_check( 'romantic', 'date' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '交往中' ); ?>
 			</label>
 			<label for="romantic">
 			<input class="valinp" type="checkbox" name="romantic" value="恋人" id="romantic" <?php xfn_check( 'romantic', '恋人' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '恋人' ); ?>

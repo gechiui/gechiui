@@ -57,16 +57,17 @@ $rest_path = rest_get_route_for_post( $post );
 
 // Preload common data.
 $preload_paths = array(
-	'/',
 	'/gc/v2/types?context=edit',
-	'/gc/v2/taxonomies?per_page=-1&context=edit',
+	'/gc/v2/taxonomies?context=edit',
 	'/gc/v2/themes?status=active',
 	add_query_arg( 'context', 'edit', $rest_path ),
 	sprintf( '/gc/v2/types/%s?context=edit', $post_type ),
 	sprintf( '/gc/v2/users/me?post_type=%s&context=edit', $post_type ),
+	'/gc/v2/users/me',
 	array( rest_get_route_for_post_type_items( 'attachment' ), 'OPTIONS' ),
 	array( rest_get_route_for_post_type_items( 'gc_block' ), 'OPTIONS' ),
 	sprintf( '%s/autosaves?context=edit', $rest_path ),
+	'/gc/v2/settings',
 );
 
 block_editor_rest_api_preload( $preload_paths, $block_editor_context );
@@ -151,9 +152,9 @@ if ( $user_id ) {
 	if ( $locked ) {
 		$user         = get_userdata( $user_id );
 		$user_details = array(
+			'avatar' => get_avatar_url( $user_id, array( 'size' => 128 ) ),
 			'name' => $user->display_name,
 		);
-		$avatar       = get_avatar_url( $user_id, array( 'size' => 64 ) );
 	}
 
 	$lock_details = array(
@@ -191,7 +192,6 @@ $editor_settings = array(
 	'titlePlaceholder'                     => apply_filters( 'enter_title_here', __( '添加标题' ), $post ),
 	'bodyPlaceholder'                      => $body_placeholder,
 	'autosaveInterval'                     => AUTOSAVE_INTERVAL,
-	'styles'                               => get_block_editor_theme_styles(),
 	'richEditingEnabled'                   => user_can_richedit(),
 	'postLock'                             => $lock_details,
 	'postLockUtils'                        => array(

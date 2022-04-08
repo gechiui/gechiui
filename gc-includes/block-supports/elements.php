@@ -3,13 +3,13 @@
  * Elements styles block support.
  *
  * @package GeChiUI
- *
+ * @since 5.8.0
  */
 
 /**
  * Render the elements stylesheet.
  *
- *
+ * @since 5.8.0
  * @access private
  *
  * @param string $block_content Rendered block content.
@@ -18,6 +18,13 @@
  */
 function gc_render_elements_support( $block_content, $block ) {
 	if ( ! $block_content ) {
+		return $block_content;
+	}
+
+	$block_type                    = GC_Block_Type_Registry::get_instance()->get_registered( $block['blockName'] );
+	$skip_link_color_serialization = gc_should_skip_block_supports_serialization( $block_type, 'color', 'link' );
+
+	if ( $skip_link_color_serialization ) {
 		return $block_content;
 	}
 
@@ -36,7 +43,7 @@ function gc_render_elements_support( $block_content, $block ) {
 		return $block_content;
 	}
 
-	$class_name = 'gc-elements-' . uniqid();
+	$class_name = gc_unique_id( 'gc-elements-' );
 
 	if ( strpos( $link_color, 'var:preset|color|' ) !== false ) {
 		// Get the name from the string and add proper styles.
@@ -46,7 +53,7 @@ function gc_render_elements_support( $block_content, $block ) {
 	}
 	$link_color_declaration = esc_html( safecss_filter_attr( "color: $link_color" ) );
 
-	$style = "<style>.$class_name a{" . $link_color_declaration . ";}</style>\n";
+	$style = ".$class_name a{" . $link_color_declaration . ';}';
 
 	// Like the layout hook this assumes the hook only applies to blocks with a single wrapper.
 	// Retrieve the opening tag of the first HTML element.
@@ -68,17 +75,7 @@ function gc_render_elements_support( $block_content, $block ) {
 		$content              = substr_replace( $block_content, ' class="' . $class_name . '"', $first_element_offset + strlen( $first_element ) - 1, 0 );
 	}
 
-	/*
-	 * Ideally styles should be loaded in the head, but blocks may be parsed
-	 * after that, so loading in the footer for now.
-	 * See https://core.trac.gechiui.com/ticket/53494.
-	 */
-	add_action(
-		'gc_footer',
-		static function () use ( $style ) {
-			echo $style;
-		}
-	);
+	gc_enqueue_block_support_styles( $style );
 
 	return $content;
 }

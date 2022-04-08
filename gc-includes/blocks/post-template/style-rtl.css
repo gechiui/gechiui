@@ -82,6 +82,10 @@
   list-style: none;
   padding: 0;
 }
+.gc-block-post-template.gc-block-post-template,
+.gc-block-query-loop.gc-block-post-template {
+  background: none;
+}
 .gc-block-post-template.is-flex-container,
 .gc-block-query-loop.is-flex-container {
   flex-direction: row;

@@ -1290,7 +1290,7 @@ function getDownloadableBlockLabel(_ref, _ref2) {
 
   return Object(external_gc_i18n_["sprintf"])(
   /* translators: %1$s: block title, %2$s: average rating, %3$s: total ratings count. */
-  Object(external_gc_i18n_["_n"])('安装%1$s。%2$s星基于%3$s条评价。', '安装%1$s。%2$s星基于%3$s条评价。', ratingCount), Object(external_gc_htmlEntities_["decodeEntities"])(title), stars, ratingCount);
+  Object(external_gc_i18n_["_n"])('安装%1$s。%2$s星基于%3$s条评价。', 'Install %1$s. %2$s stars with %3$s reviews.', ratingCount), Object(external_gc_htmlEntities_["decodeEntities"])(title), stars, ratingCount);
 }
 
 function DownloadableBlockListItem(_ref3) {
@@ -1730,11 +1730,11 @@ function InstalledBlocksPrePublishPanel() {
   return Object(external_gc_element_["createElement"])(external_gc_editPost_["PluginPrePublishPanel"], {
     icon: block_default["a" /* default */],
     title: Object(external_gc_i18n_["sprintf"])( // translators: %d: number of blocks (number).
-    Object(external_gc_i18n_["_n"])('已加: %d 区块', '已加: %d 区块', newBlockTypes.length), newBlockTypes.length),
+    Object(external_gc_i18n_["_n"])('Added: %d block', 'Added: %d blocks', newBlockTypes.length), newBlockTypes.length),
     initialOpen: true
   }, Object(external_gc_element_["createElement"])("p", {
     className: "installed-blocks-pre-publish-panel__copy"
-  }, Object(external_gc_i18n_["_n"])('以下区块已添加至您的站点。', '以下区块已添加至您的站点。', newBlockTypes.length)), Object(external_gc_element_["createElement"])(CompactList, {
+  }, Object(external_gc_i18n_["_n"])('以下区块已添加至您的站点。', 'The following blocks have been added to your site.', newBlockTypes.length)), Object(external_gc_element_["createElement"])(CompactList, {
     items: newBlockTypes
   }));
 }

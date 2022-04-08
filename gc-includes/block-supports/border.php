@@ -3,14 +3,14 @@
  * Border block support flag.
  *
  * @package GeChiUI
- *
+ * @since 5.8.0
  */
 
 /**
  * Registers the style attribute used by the border feature if needed for block
  * types that support borders.
  *
- *
+ * @since 5.8.0
  * @access private
  *
  * @param GC_Block_Type $block_type Block Type.
@@ -42,7 +42,7 @@ function gc_register_border_support( $block_type ) {
  * Adds CSS classes and inline styles for border styles to the incoming
  * attributes array. This will be applied to the block markup in the front-end.
  *
- *
+ * @since 5.8.0
  * @access private
  *
  * @param GC_Block_Type $block_type       Block type.
@@ -50,7 +50,7 @@ function gc_register_border_support( $block_type ) {
  * @return array Border CSS classes and inline styles.
  */
 function gc_apply_border_support( $block_type, $block_attributes ) {
-	if ( gc_skip_border_serialization( $block_type ) ) {
+	if ( gc_should_skip_block_supports_serialization( $block_type, 'border' ) ) {
 		return array();
 	}
 
@@ -60,7 +60,8 @@ function gc_apply_border_support( $block_type, $block_attributes ) {
 	// Border radius.
 	if (
 		gc_has_border_feature_support( $block_type, 'radius' ) &&
-		isset( $block_attributes['style']['border']['radius'] )
+		isset( $block_attributes['style']['border']['radius'] ) &&
+		! gc_should_skip_block_supports_serialization( $block_type, '__experimentalBorder', 'radius' )
 	) {
 		$border_radius = $block_attributes['style']['border']['radius'];
 
@@ -84,7 +85,8 @@ function gc_apply_border_support( $block_type, $block_attributes ) {
 	// Border style.
 	if (
 		gc_has_border_feature_support( $block_type, 'style' ) &&
-		isset( $block_attributes['style']['border']['style'] )
+		isset( $block_attributes['style']['border']['style'] ) &&
+		! gc_should_skip_block_supports_serialization( $block_type, '__experimentalBorder', 'style' )
 	) {
 		$border_style = $block_attributes['style']['border']['style'];
 		$styles[]     = sprintf( 'border-style: %s;', $border_style );
@@ -93,7 +95,8 @@ function gc_apply_border_support( $block_type, $block_attributes ) {
 	// Border width.
 	if (
 		gc_has_border_feature_support( $block_type, 'width' ) &&
-		isset( $block_attributes['style']['border']['width'] )
+		isset( $block_attributes['style']['border']['width'] ) &&
+		! gc_should_skip_block_supports_serialization( $block_type, '__experimentalBorder', 'width' )
 	) {
 		$border_width = $block_attributes['style']['border']['width'];
 
@@ -106,7 +109,10 @@ function gc_apply_border_support( $block_type, $block_attributes ) {
 	}
 
 	// Border color.
-	if ( gc_has_border_feature_support( $block_type, 'color' ) ) {
+	if (
+		gc_has_border_feature_support( $block_type, 'color' ) &&
+		! gc_should_skip_block_supports_serialization( $block_type, '__experimentalBorder', 'color' )
+	) {
 		$has_named_border_color  = array_key_exists( 'borderColor', $block_attributes );
 		$has_custom_border_color = isset( $block_attributes['style']['border']['color'] );
 
@@ -137,25 +143,6 @@ function gc_apply_border_support( $block_type, $block_attributes ) {
 }
 
 /**
- * Checks whether serialization of the current block's border properties should
- * occur.
- *
- *
- * @access private
- *
- * @param GC_Block_Type $block_type Block type.
- * @return bool Whether serialization of the current block's border properties
- *              should occur.
- */
-function gc_skip_border_serialization( $block_type ) {
-	$border_support = _gc_array_get( $block_type->supports, array( '__experimentalBorder' ), false );
-
-	return is_array( $border_support ) &&
-		array_key_exists( '__experimentalSkipSerialization', $border_support ) &&
-		$border_support['__experimentalSkipSerialization'];
-}
-
-/**
  * Checks whether the current block type supports the border feature requested.
  *
  * If the `__experimentalBorder` support flag is a boolean `true` all border
@@ -163,7 +150,7 @@ function gc_skip_border_serialization( $block_type ) {
  * flag nested under `experimentalBorder` must be enabled for the feature
  * to be opted into.
  *
- *
+ * @since 5.8.0
  * @access private
  *
  * @param GC_Block_Type $block_type Block type to check for support.

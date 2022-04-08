@@ -156,7 +156,7 @@ function display_setup_form( $error = null ) {
 		<tr class="form-field form-required user-pass2-wrap hide-if-js">
 			<th scope="row">
 				<label for="pass2"><?php _e( '重复密码' ); ?>
-					<span class="描述"><?php _e( '（必填）' ); ?></span>
+					<span class="description"><?php _e( '（必填）' ); ?></span>
 				</label>
 			</th>
 			<td>
@@ -190,7 +190,7 @@ function display_setup_form( $error = null ) {
 						<label for="blog-public"><?php _e( '允许搜索引擎索引本站点' ); ?></label><br/>
 						<input id="blog-norobots" type="radio" name="blog_public" value="0" <?php checked( 0, $blog_public ); ?> />
 						<label for="blog-norobots"><?php _e( '建议搜索引擎不索引本站点' ); ?></label>
-						<p class="描述"><?php _e( '注意：这些设置并不能彻底防止搜索引擎访问您的站点——具体行为还取决于它们是否遵循您的要求。' ); ?></p>
+						<p class="description"><?php _e( '注意：这些设置并不能彻底防止搜索引擎访问您的站点——具体行为还取决于它们是否遵循您的要求。' ); ?></p>
 						<?php
 						/** This action is documented in gc-admin/options-reading.php */
 						do_action( 'blog_privacy_selector' );
@@ -198,7 +198,7 @@ function display_setup_form( $error = null ) {
 						?>
 						<label for="blog_public"><input name="blog_public" type="checkbox" id="blog_public" value="0" <?php checked( 0, $blog_public ); ?> />
 						<?php _e( '建议搜索引擎不索引本站点' ); ?></label>
-						<p class="描述"><?php _e( '搜索引擎将本着自觉自愿的原则对待GeChiUI提出的请求。并不是所有搜索引擎都会遵守这类请求。' ); ?></p>
+						<p class="description"><?php _e( '搜索引擎将本着自觉自愿的原则对待GeChiUI提出的请求。并不是所有搜索引擎都会遵守这类请求。' ); ?></p>
 					<?php } ?>
 				</fieldset>
 			</td>

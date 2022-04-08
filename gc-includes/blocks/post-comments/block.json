@@ -1,7 +1,7 @@
 {
 	"apiVersion": 2,
 	"name": "core/post-comments",
-	"title": "发表评论",
+	"title": "文章评论",
 	"category": "theme",
 	"description": "显示文章的评论。",
 	"textdomain": "default",

@@ -429,7 +429,7 @@ do_action( 'widgets_admin_page' );
 		</div>
 		<div class="widget-holder">
 			<div class="sidebar-description">
-				<p class="描述"><?php _e( '要启用某一小工具，将它拖动到侧栏或点击它。要禁用某一小工具并删除其设置，将它拖回来。' ); ?></p>
+				<p class="description"><?php _e( '要启用某一小工具，将它拖动到侧栏或点击它。要禁用某一小工具并删除其设置，将它拖回来。' ); ?></p>
 			</div>
 			<div id="widget-list">
 				<?php gc_list_widgets(); ?>
@@ -476,7 +476,7 @@ foreach ( $gc_registered_sidebars as $sidebar => $registered_sidebar ) {
 				<?php } ?>
 			</div>
 			<?php if ( $is_inactive_widgets ) { ?>
-			<p class="描述"><?php _e( '这会从未启用的小工具列表中清除所有项目，您将无法还原任何自定义选项。' ); ?></p>
+			<p class="description"><?php _e( '这会从未启用的小工具列表中清除所有项目，您将无法还原任何自定义选项。' ); ?></p>
 			<?php } ?>
 		</div>
 		<?php

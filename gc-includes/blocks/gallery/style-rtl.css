@@ -287,6 +287,7 @@
   margin-top: auto;
   margin-bottom: auto;
   flex-direction: column;
+  max-width: 100%;
 }
 .gc-block-gallery.has-nested-images figure.gc-block-image > div,
 .gc-block-gallery.has-nested-images figure.gc-block-image > a {
@@ -297,7 +298,7 @@
 .gc-block-gallery.has-nested-images figure.gc-block-image img {
   display: block;
   height: auto;
-  max-width: 100%;
+  max-width: 100% !important;
   width: auto;
 }
 .gc-block-gallery.has-nested-images figure.gc-block-image figcaption {

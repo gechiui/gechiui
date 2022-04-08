@@ -98,6 +98,13 @@ add_filter( 'post_mime_type', 'sanitize_mime_type' );
 // Meta.
 add_filter( 'register_meta_args', '_gc_register_meta_args_allowed_list', 10, 2 );
 
+// Counts.
+add_action( 'admin_init', 'gc_schedule_update_user_counts' );
+add_action( 'gc_update_user_counts', 'gc_schedule_update_user_counts', 10, 0 );
+foreach ( array( 'user_register', 'deleted_user' ) as $action ) {
+	add_action( $action, 'gc_maybe_update_user_counts', 10, 0 );
+}
+
 // Post meta.
 add_action( 'added_post_meta', 'gc_cache_set_posts_last_changed' );
 add_action( 'updated_post_meta', 'gc_cache_set_posts_last_changed' );
@@ -573,6 +580,10 @@ add_action( 'admin_head', 'gc_check_widget_editor_deps' );
 // Global styles can be enqueued in both the header and the footer. See https://core.trac.gechiui.com/ticket/53494.
 add_action( 'gc_enqueue_scripts', 'gc_enqueue_global_styles' );
 add_action( 'gc_footer', 'gc_enqueue_global_styles', 1 );
+
+// SVG filters like duotone have to be loaded at the beginning of the body in both admin and the front-end.
+add_action( 'gc_body_open', 'gc_global_styles_render_svg_filters' );
+add_action( 'in_admin_header', 'gc_global_styles_render_svg_filters' );
 
 add_action( 'gc_default_styles', 'gc_default_styles' );
 add_filter( 'style_loader_src', 'gc_style_loader_src', 10, 2 );

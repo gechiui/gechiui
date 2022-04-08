@@ -69,7 +69,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 <tr>
 <th scope="row"><label for="blogdescription"><?php _e( '副标题' ); ?></label></th>
 <td><input name="blogdescription" type="text" id="blogdescription" aria-describedby="tagline-description" value="<?php form_option( 'blogdescription' ); ?>" class="regular-text" />
-<p class="描述" id="tagline-description"><?php _e( '用简洁的文字描述本站点。' ); ?></p></td>
+<p class="description" id="tagline-description"><?php _e( '用简洁的文字描述本站点。' ); ?></p></td>
 </tr>
 
 <?php
@@ -93,7 +93,7 @@ if ( ! is_multisite() ) {
 <th scope="row"><label for="home"><?php _e( '站点地址（URL）' ); ?></label></th>
 <td><input name="home" type="url" id="home" aria-describedby="home-description" value="<?php form_option( 'home' ); ?>"<?php disabled( defined( 'GC_HOME' ) ); ?> class="regular-text code<?php echo $gc_home_class; ?>" />
 	<?php if ( ! defined( 'GC_HOME' ) ) : ?>
-<p class="描述" id="home-description">
+<p class="description" id="home-description">
 		<?php
 		printf(
 			/* translators: %s: Documentation URL. */
@@ -111,7 +111,7 @@ if ( ! is_multisite() ) {
 <tr>
 <th scope="row"><label for="new_admin_email"><?php _e( '管理员电子邮箱' ); ?></label></th>
 <td><input name="new_admin_email" type="email" id="new_admin_email" aria-describedby="new-admin-email-description" value="<?php form_option( 'admin_email' ); ?>" class="regular-text ltr" />
-<p class="描述" id="new-admin-email-description"><?php _e( '这个地址将被用于管理目的。如果您修改这个地址，我们将会向新地址发送一封邮件来确认。<strong>新的电子邮箱直到获得确认才会生效。</strong>' ); ?></p>
+<p class="description" id="new-admin-email-description"><?php _e( '这个地址将被用于管理目的。如果您修改这个地址，我们将会向新地址发送一封邮件来确认。<strong>新的电子邮箱直到获得确认才会生效。</strong>' ); ?></p>
 <?php
 $new_admin_email = get_option( 'new_admin_email' );
 if ( $new_admin_email && get_option( 'admin_email' ) !== $new_admin_email ) :
@@ -228,7 +228,7 @@ if ( empty( $tzstring ) ) { // Create a UTC+- zone if no timezone string exists.
 	<?php echo gc_timezone_choice( $tzstring, get_user_locale() ); ?>
 </select>
 
-<p class="描述" id="timezone-description">
+<p class="description" id="timezone-description">
 <?php
 	printf(
 		/* translators: %s: UTC abbreviation */

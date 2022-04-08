@@ -485,7 +485,7 @@ function ReusableBlockConvertButton(_ref) {
         onClose();
       }
     }, Object(external_gc_element_["createElement"])(external_gc_components_["TextControl"], {
-      label: Object(external_gc_i18n_["__"])('名称'),
+      label: Object(external_gc_i18n_["__"])('显示名称'),
       value: title,
       onChange: setTitle
     }), Object(external_gc_element_["createElement"])(external_gc_components_["Flex"], {

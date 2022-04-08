@@ -1510,7 +1510,7 @@ function InlineColorUI(_ref2) {
   }, Object(external_gc_element_["createElement"])(external_gc_components_["TabPanel"], {
     tabs: [{
       name: 'color',
-      title: Object(external_gc_i18n_["__"])('文字')
+      title: Object(external_gc_i18n_["__"])('文本')
     }, {
       name: 'backgroundColor',
       title: Object(external_gc_i18n_["__"])('背景')

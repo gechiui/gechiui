@@ -1,7 +1,7 @@
 {
 	"apiVersion": 2,
 	"name": "core/template-part",
-	"title": "模版组件",
+	"title": "模板组件",
 	"category": "theme",
 	"description": "编辑站点的不同全局区域，如页眉、页脚、侧边栏，或创建自己的区域。",
 	"textdomain": "default",

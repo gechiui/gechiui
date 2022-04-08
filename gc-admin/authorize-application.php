@@ -257,7 +257,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 					)
 				);
 				?>
-				<p class="描述" id="description-approve">
+				<p class="description" id="description-approve">
 					<?php
 					if ( $success_url ) {
 						printf(
@@ -291,7 +291,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 					)
 				);
 				?>
-				<p class="描述" id="description-reject">
+				<p class="description" id="description-reject">
 					<?php
 					if ( $reject_url ) {
 						printf(

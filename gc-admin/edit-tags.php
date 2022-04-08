@@ -503,7 +503,7 @@ if ( $can_edit_terms ) {
 	<?php endif; // is_taxonomy_hierarchical() ?>
 <div class="form-field term-description-wrap">
 	<label for="tag-description"><?php _e( '描述' ); ?></label>
-	<textarea name="描述" id="tag-description" rows="5" cols="40"></textarea>
+	<textarea name="description" id="tag-description" rows="5" cols="40"></textarea>
 	<p><?php echo $tax->labels->desc_field_description; ?></p>
 </div>
 

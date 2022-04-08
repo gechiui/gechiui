@@ -1178,7 +1178,7 @@ function InterfaceSkeleton(_ref, ref) {
     drawer: Object(external_gc_i18n_["__"])('抽屉'),
 
     /* translators: accessibility text for the top bar landmark region. */
-    header: Object(external_gc_i18n_["__"])('表头'),
+    header: Object(external_gc_i18n_["__"])('页眉'),
 
     /* translators: accessibility text for the content landmark region. */
     body: Object(external_gc_i18n_["__"])('内容'),
@@ -1193,7 +1193,7 @@ function InterfaceSkeleton(_ref, ref) {
     actions: Object(external_gc_i18n_["__"])('发布'),
 
     /* translators: accessibility text for the footer landmark region. */
-    footer: Object(external_gc_i18n_["__"])('注脚')
+    footer: Object(external_gc_i18n_["__"])('页脚')
   };
   const mergedLabels = { ...defaultLabels,
     ...labels
@@ -2032,7 +2032,7 @@ Object(external_gc_plugins_["registerPlugin"])('edit-post', {
       }), Object(external_gc_element_["createElement"])(WelcomeGuideMenuItem, null), Object(external_gc_element_["createElement"])(CopyContentMenuItem, null), Object(external_gc_element_["createElement"])(external_gc_components_["MenuItem"], {
         role: "menuitem",
         icon: external["a" /* default */],
-        href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/gechiui-editor/'),
+        href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/article/gechiui-editor/'),
         target: "_blank",
         rel: "noopener noreferrer"
       }, Object(external_gc_i18n_["__"])('帮助'), Object(external_gc_element_["createElement"])(external_gc_components_["VisuallyHidden"], {
@@ -2473,7 +2473,7 @@ function KeyboardShortcuts() {
     registerShortcut({
       name: 'core/edit-post/next-region',
       category: 'global',
-      description: Object(external_gc_i18n_["__"])('转到编辑器的下一个功能区域。'),
+      description: Object(external_gc_i18n_["__"])('导航至编辑器的下一个功能区域。'),
       keyCombination: {
         modifier: 'ctrl',
         character: '`'
@@ -2486,7 +2486,7 @@ function KeyboardShortcuts() {
     registerShortcut({
       name: 'core/edit-post/previous-region',
       category: 'global',
-      description: Object(external_gc_i18n_["__"])('转到编辑器的上一个功能区域。'),
+      description: Object(external_gc_i18n_["__"])('导航至编辑器的上一个功能区域。'),
       keyCombination: {
         modifier: 'ctrlShift',
         character: '`'
@@ -3121,7 +3121,7 @@ function BlockManager(_ref) {
     className: "edit-post-block-manager__disabled-blocks-count"
   }, Object(external_gc_i18n_["sprintf"])(
   /* translators: %d: number of blocks. */
-  Object(external_gc_i18n_["_n"])('%d个区块已被隐藏。', '%d个区块已被隐藏。', numberOfHiddenBlocks), numberOfHiddenBlocks)), Object(external_gc_element_["createElement"])(external_gc_components_["SearchControl"], {
+  Object(external_gc_i18n_["_n"])('%d block is hidden.', '%d blocks are hidden.', numberOfHiddenBlocks), numberOfHiddenBlocks)), Object(external_gc_element_["createElement"])(external_gc_components_["SearchControl"], {
     label: Object(external_gc_i18n_["__"])('搜索区块'),
     placeholder: Object(external_gc_i18n_["__"])('搜索区块'),
     value: search,
@@ -3288,7 +3288,7 @@ function PreferencesModal() {
     })))
   }, {
     name: 'blocks',
-    tabLabel: Object(external_gc_i18n_["__"])('块'),
+    tabLabel: Object(external_gc_i18n_["__"])('区块'),
     content: Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(preferences_modal_section, {
       title: Object(external_gc_i18n_["__"])('区块交互'),
       description: Object(external_gc_i18n_["__"])('自定义您与区块库和编辑画布中的区块的交互方式。')
@@ -3419,7 +3419,7 @@ function PreferencesModal() {
         path: "/",
         icon: Object(external_gc_i18n_["isRTL"])() ? chevron_right["a" /* default */] : chevron_left["a" /* default */],
         isBack: true,
-        "aria-label": Object(external_gc_i18n_["__"])('转到上一视图')
+        "aria-label": Object(external_gc_i18n_["__"])('导航至上一视图')
       }), Object(external_gc_element_["createElement"])(external_gc_components_["__experimentalText"], {
         size: "16"
       }, section.tabLabel)), Object(external_gc_element_["createElement"])(external_gc_components_["CardBody"], null, section.content)));
@@ -3800,7 +3800,7 @@ function HeaderToolbar() {
     /* translators: button label text should, if possible, be under 16
     characters. */
     ,
-    label: Object(external_gc_i18n_["_x"])('切换区块插入器', 'Generic label for block inserter button'),
+    label: Object(external_gc_i18n_["_x"])('Toggle block inserter', 'Generic label for block inserter button'),
     showTooltip: !showIconLabels
   }, showIconLabels && (!isInserterOpened ? Object(external_gc_i18n_["__"])('添加') : Object(external_gc_i18n_["__"])('关闭'))), (isWideViewport || !showIconLabels) && Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, isLargeViewport && Object(external_gc_element_["createElement"])(external_gc_components_["ToolbarItem"], {
     as: external_gc_blockEditor_["ToolSelector"],
@@ -3886,7 +3886,7 @@ function ModeSwitcher() {
     return choice;
   });
   return Object(external_gc_element_["createElement"])(external_gc_components_["MenuGroup"], {
-    label: Object(external_gc_i18n_["__"])('编辑')
+    label: Object(external_gc_i18n_["__"])('编辑器')
   }, Object(external_gc_element_["createElement"])(external_gc_components_["MenuItemsChoice"], {
     choices: choices,
     value: mode,
@@ -4070,7 +4070,7 @@ function PostPublishButtonOrToggle(_ref) {
    * Conditions to show a BUTTON (publish directly) or a TOGGLE (open publish sidebar):
    *
    * 1) We want to show a BUTTON when the post status is at the _final stage_
-   * for a particular role (see https://www.gechiui.com/support/post-status/):
+   * for a particular role (see https://www.gechiui.com/support/article/post-status/):
    *
    * - is published
    * - is scheduled to be published
@@ -5008,7 +5008,7 @@ const {
  * 		{
  * 			className: 'my-plugin-post-status-info',
  * 		},
- * 		__( '我的文章状态信息' )
+ * 		__( 'My post status info' )
  * 	)
  * }
  * ```
@@ -5023,7 +5023,7 @@ const {
  * 	<PluginPostStatusInfo
  * 		className="my-plugin-post-status-info"
  * 	>
- * 		{ __( '我的文章状态信息' ) }
+ * 		{ __( 'My post status info' ) }
  * 	</PluginPostStatusInfo>
  * );
  * ```
@@ -5432,7 +5432,7 @@ function PostLink(_ref) {
       }
     }
   }), Object(external_gc_element_["createElement"])("p", null, Object(external_gc_i18n_["__"])('URL的最后一段。'), ' ', Object(external_gc_element_["createElement"])(external_gc_components_["ExternalLink"], {
-    href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/writing-posts/#post-field-descriptions')
+    href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/article/writing-posts/#post-field-descriptions')
   }, Object(external_gc_i18n_["__"])('了解固定链接')))), Object(external_gc_element_["createElement"])("h3", {
     className: "edit-post-post-link__preview-label"
   }, postTypeLabel || Object(external_gc_i18n_["__"])('查看文章')), Object(external_gc_element_["createElement"])("div", {
@@ -5869,13 +5869,13 @@ var plugin_document_setting_panel = __webpack_require__("mgUN");
  * 			PluginSidebar,
  * 			{
  * 				name: 'my-sidebar',
- * 				title: '我的侧边栏标题',
+ * 				title: 'My sidebar title',
  * 				icon: moreIcon,
  * 			},
  * 			el(
  * 				PanelBody,
  * 				{},
- * 				__( '我的侧边栏内容' )
+ * 				__( 'My sidebar content' )
  * 			)
  * 	);
  * }
@@ -5896,7 +5896,7 @@ var plugin_document_setting_panel = __webpack_require__("mgUN");
  * 		icon={ more }
  * 	>
  * 		<PanelBody>
- * 			{ __( '我的侧边栏内容' ) }
+ * 			{ __( 'My sidebar content' ) }
  * 		</PanelBody>
  * 	</PluginSidebar>
  * );
@@ -6054,7 +6054,7 @@ function PostTemplateActions() {
     align: "flex-start",
     gap: 8
   }, Object(external_gc_element_["createElement"])(external_gc_components_["FlexItem"], null, Object(external_gc_element_["createElement"])(external_gc_components_["TextControl"], {
-    label: Object(external_gc_i18n_["__"])('名称'),
+    label: Object(external_gc_i18n_["__"])('显示名称'),
     value: title,
     onChange: setTitle,
     placeholder: defaultTitle,
@@ -6144,7 +6144,8 @@ function TemplatePanel() {
     const _supportsTemplateMode = select(external_gc_editor_["store"]).getEditorSettings().supportsTemplateMode && _isViewable;
 
     const gcTemplates = getEntityRecords('postType', 'gc_template', {
-      post_type: currentPostType
+      post_type: currentPostType,
+      per_page: -1
     });
     const newAvailableTemplates = Object(external_lodash_["fromPairs"])((gcTemplates || []).map(_ref => {
       let {
@@ -6433,7 +6434,7 @@ function WelcomeGuideDefault() {
       }, Object(external_gc_i18n_["__"])('了解如何使用区块编辑器')), Object(external_gc_element_["createElement"])("p", {
         className: "edit-post-welcome-guide__text"
       }, Object(external_gc_i18n_["__"])('刚开始使用区块编辑器？想进一步了解区块编辑器的使用方式？'), Object(external_gc_element_["createElement"])(external_gc_components_["ExternalLink"], {
-        href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/gechiui-editor/')
+        href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/article/gechiui-editor/')
       }, Object(external_gc_i18n_["__"])("这是详细的指南。"))))
     }]
   });
@@ -6567,10 +6568,10 @@ const PluginPostPublishPanelFill = _ref => {
  * 		PluginPostPublishPanel,
  * 		{
  * 			className: 'my-plugin-post-publish-panel',
- * 			title: __( '我的面板标题' ),
+ * 			title: __( 'My panel title' ),
  * 			initialOpen: true,
  * 		},
- * 		__( '我的面板内容' )
+ * 		__( 'My panel content' )
  * 	);
  * }
  * ```
@@ -6584,10 +6585,10 @@ const PluginPostPublishPanelFill = _ref => {
  * const MyPluginPostPublishPanel = () => (
  * 	<PluginPostPublishPanel
  * 		className="my-plugin-post-publish-panel"
- * 		title={ __( '我的面板标题' ) }
+ * 		title={ __( 'My panel title' ) }
  * 		initialOpen={ true }
  * 	>
- *         { __( '我的面板内容' ) }
+ *         { __( 'My panel content' ) }
  * 	</PluginPostPublishPanel>
  * );
  * ```
@@ -6657,10 +6658,10 @@ const PluginPrePublishPanelFill = _ref => {
  * 		PluginPrePublishPanel,
  * 		{
  * 			className: 'my-plugin-pre-publish-panel',
- * 			title: __( '我的面板标题' ),
+ * 			title: __( 'My panel title' ),
  * 			initialOpen: true,
  * 		},
- * 		__( '我的面板内容' )
+ * 		__( 'My panel content' )
  * 	);
  * }
  * ```
@@ -6674,10 +6675,10 @@ const PluginPrePublishPanelFill = _ref => {
  * const MyPluginPrePublishPanel = () => (
  * 	<PluginPrePublishPanel
  * 		className="my-plugin-pre-publish-panel"
- * 		title={ __( '我的面板标题' ) }
+ * 		title={ __( 'My panel title' ) }
  * 		initialOpen={ true }
  * 	>
- * 	    { __( '我的面板内容' ) }
+ * 	    { __( 'My panel content' ) }
  * 	</PluginPrePublishPanel>
  * );
  * ```
@@ -7307,7 +7308,7 @@ const shouldRenderItem = (selectedBlocks, allowedBlocks) => !Array.isArray(allow
  * 		{
  * 			allowedBlocks: [ 'core/paragraph' ],
  * 			icon: 'dashicon-name',
- * 			label: __( '菜单项文字' ),
+ * 			label: __( 'Menu item text' ),
  * 			onClick: doOnClick,
  * 		}
  * 	);
@@ -7328,7 +7329,7 @@ const shouldRenderItem = (selectedBlocks, allowedBlocks) => !Array.isArray(allow
  *     <PluginBlockSettingsMenuItem
  * 		allowedBlocks={ [ 'core/paragraph' ] }
  * 		icon='dashicon-name'
- * 		label={ __( '菜单项文字' ) }
+ * 		label={ __( 'Menu item text' ) }
  * 		onClick={ doOnClick } />
  * );
  * ```
@@ -7402,7 +7403,7 @@ const PluginBlockSettingsMenuItem = _ref => {
  * 			icon: moreIcon,
  * 			onClick: onButtonClick,
  * 		},
- * 		__( '我的按钮标题' )
+ * 		__( 'My button title' )
  * 	);
  * }
  * ```
@@ -7423,7 +7424,7 @@ const PluginBlockSettingsMenuItem = _ref => {
  * 		icon={ more }
  * 		onClick={ onButtonClick }
  * 	>
- * 		{ __( '我的按钮标题' ) }
+ * 		{ __( 'My button title' ) }
  * 	</PluginMoreMenuItem>
  * );
  * ```
@@ -7469,7 +7470,7 @@ const PluginBlockSettingsMenuItem = _ref => {
  * 			target: 'my-sidebar',
  * 			icon: moreIcon,
  * 		},
- * 		__( '我的侧边栏标题' )
+ * 		__( 'My sidebar title' )
  * 	)
  * }
  * ```
@@ -7486,7 +7487,7 @@ const PluginBlockSettingsMenuItem = _ref => {
  * 		target="my-sidebar"
  * 		icon={ more }
  * 	>
- * 		{ __( '我的侧边栏标题' ) }
+ * 		{ __( 'My sidebar title' ) }
  * 	</PluginSidebarMoreMenuItem>
  * );
  * ```
@@ -8387,7 +8388,7 @@ const PluginDocumentSettingFill = _ref => {
  * 			className: 'my-document-setting-plugin',
  * 			title: 'My Panel',
  * 		},
- * 		__( '我的文档设置面板' )
+ * 		__( 'My Document Setting Panel' )
  * 	);
  * }
  *
@@ -10196,7 +10197,9 @@ const getEditedPostTemplate = Object(external_gc_data_["createRegistrySelector"]
   if (currentTemplate) {
     var _select$getEntityReco;
 
-    const templateWithSameSlug = (_select$getEntityReco = select(external_gc_coreData_["store"]).getEntityRecords('postType', 'gc_template')) === null || _select$getEntityReco === void 0 ? void 0 : _select$getEntityReco.find(template => template.slug === currentTemplate);
+    const templateWithSameSlug = (_select$getEntityReco = select(external_gc_coreData_["store"]).getEntityRecords('postType', 'gc_template', {
+      per_page: -1
+    })) === null || _select$getEntityReco === void 0 ? void 0 : _select$getEntityReco.find(template => template.slug === currentTemplate);
 
     if (!templateWithSameSlug) {
       return templateWithSameSlug;

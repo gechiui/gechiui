@@ -122,7 +122,7 @@ if ( isset( $GLOBALS['gc_settings']['media']['embeds'] ) ) :
 <tr>
 <th scope="row"><label for="upload_path"><?php _e( '默认上传路径' ); ?></label></th>
 <td><input name="upload_path" type="text" id="upload_path" value="<?php echo esc_attr( get_option( 'upload_path' ) ); ?>" class="regular-text code" />
-<p class="描述">
+<p class="description">
 		<?php
 		/* translators: %s: gc-content/uploads */
 		printf( __( '缺省为%s' ), '<code>gc-content/uploads</code>' );
@@ -134,7 +134,7 @@ if ( isset( $GLOBALS['gc_settings']['media']['embeds'] ) ) :
 <tr>
 <th scope="row"><label for="upload_url_path"><?php _e( '文件的完整URL地址' ); ?></label></th>
 <td><input name="upload_url_path" type="text" id="upload_url_path" value="<?php echo esc_attr( get_option( 'upload_url_path' ) ); ?>" class="regular-text code" />
-<p class="描述"><?php _e( '可选配置，默认留空。' ); ?></p>
+<p class="description"><?php _e( '可选配置，默认留空。' ); ?></p>
 </td>
 </tr>
 <tr>

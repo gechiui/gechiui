@@ -3,17 +3,17 @@
  * Dimensions block support flag.
  *
  * This does not include the `spacing` block support even though that visually
- * appears under the "尺寸" panel in the editor. It remains in its
- * original `spacing.php` file for backwards compatibility.
+ * appears under the "Dimensions" panel in the editor. It remains in its
+ * original `spacing.php` file for compatibility with core.
  *
  * @package GeChiUI
- *
+ * @since 5.9.0
  */
 
 /**
  * Registers the style block attribute for block types that support it.
  *
- *
+ * @since 5.9.0
  * @access private
  *
  * @param GC_Block_Type $block_type Block Type.
@@ -43,7 +43,7 @@ function gc_register_dimensions_support( $block_type ) {
  * Adds CSS classes for block dimensions to the incoming attributes array.
  * This will be applied to the block markup in the front-end.
  *
- *
+ * @since 5.9.0
  * @access private
  *
  * @param GC_Block_Type $block_type       Block Type.
@@ -51,7 +51,7 @@ function gc_register_dimensions_support( $block_type ) {
  * @return array Block dimensions CSS classes and inline styles.
  */
 function gc_apply_dimensions_support( $block_type, $block_attributes ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	if ( gc_skip_dimensions_serialization( $block_type ) ) {
+	if ( gc_should_skip_block_supports_serialization( $block_type, '__experimentalDimensions' ) ) {
 		return array();
 	}
 
@@ -61,23 +61,6 @@ function gc_apply_dimensions_support( $block_type, $block_attributes ) { // phpc
 	// Width support to be added in near future.
 
 	return empty( $styles ) ? array() : array( 'style' => implode( ' ', $styles ) );
-}
-
-/**
- * Checks whether serialization of the current block's dimensions properties
- * should occur.
- *
- *
- * @access private
- *
- * @param GC_Block_type $block_type Block type.
- * @return bool Whether to serialize spacing support styles & classes.
- */
-function gc_skip_dimensions_serialization( $block_type ) {
-	$dimensions_support = _gc_array_get( $block_type->supports, array( '__experimentalDimensions' ), false );
-	return is_array( $dimensions_support ) &&
-		array_key_exists( '__experimentalSkipSerialization', $dimensions_support ) &&
-		$dimensions_support['__experimentalSkipSerialization'];
 }
 
 // Register the block support.

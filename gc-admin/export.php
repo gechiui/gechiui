@@ -179,7 +179,7 @@ function export_date_options( $post_type = 'post' ) {
 <legend class="screen-reader-text"><?php _e( '要导出的内容' ); ?></legend>
 <input type="hidden" name="download" value="true" />
 <p><label><input type="radio" name="content" value="all" checked="checked" aria-describedby="all-content-desc" /> <?php _e( '所有内容' ); ?></label></p>
-<p class="描述" id="all-content-desc"><?php _e( '选择此项，则将包含您站点的所有文章、页面、评论、自定义字段、条目信息（分类和标签等）、导航菜单以及自定义文章。' ); ?></p>
+<p class="description" id="all-content-desc"><?php _e( '选择此项，则将包含您站点的所有文章、页面、评论、自定义字段、条目信息（分类和标签等）、导航菜单以及自定义文章。' ); ?></p>
 
 <p><label><input type="radio" name="content" value="posts" /> <?php _ex( '文章', 'post type general name' ); ?></label></p>
 <ul id="post-filters" class="export-filters">

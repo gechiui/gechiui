@@ -503,7 +503,7 @@ function create_initial_post_types() {
 			'public'                => false,
 			'_builtin'              => true, /* internal use only. don't use this when registering your own post type. */
 			'has_archive'           => false,
-			'show_ui'               => gc_is_block_theme(),
+			'show_ui'               => true,
 			'show_in_menu'          => false,
 			'show_in_admin_bar'     => false,
 			'show_in_rest'          => true,
@@ -520,6 +520,7 @@ function create_initial_post_types() {
 				'delete_others_posts'    => 'edit_theme_options',
 				'edit_private_posts'     => 'edit_theme_options',
 				'edit_published_posts'   => 'edit_theme_options',
+				'edit_posts'             => 'edit_theme_options',
 			),
 			'rest_base'             => '导航',
 			'rest_controller_class' => 'GC_REST_Posts_Controller',
@@ -1705,7 +1706,7 @@ function register_post_type( $post_type, $args = array() ) {
 /**
  * Unregisters a post type.
  *
- * Can not be used to unregister built-in post types.
+ * Cannot be used to unregister built-in post types.
  *
  *
  *
@@ -2579,7 +2580,9 @@ function unregister_post_meta( $post_type, $meta_key ) {
  *
  *
  * @param int $post_id Optional. Post ID. Default is the ID of the global `$post`.
- * @return array Post meta for the given post.
+ * @return mixed An array of values.
+ *               False for an invalid `$post_id` (non-numeric, zero, or negative value).
+ *               An empty string if a valid but non-existing post ID is passed.
  */
 function get_post_custom( $post_id = 0 ) {
 	$post_id = absint( $post_id );
@@ -6459,6 +6462,7 @@ function gc_delete_attachment_files( $post_id, $meta, $backup_sizes, $file ) {
  *     @type array  $sizes      Keys are size slugs, each value is an array containing
  *                              'file', 'width', 'height', and 'mime-type'.
  *     @type array  $image_meta Image metadata.
+ *     @type int    $filesize   File size of the attachment.
  * }
  */
 function gc_get_attachment_metadata( $attachment_id = 0, $unfiltered = false ) {
@@ -7280,9 +7284,14 @@ function update_post_cache( &$posts ) {
 		return;
 	}
 
+	$data = array();
 	foreach ( $posts as $post ) {
-		gc_cache_add( $post->ID, $post, 'posts' );
+		if ( empty( $post->filter ) || 'raw' !== $post->filter ) {
+			$post = sanitize_post( $post, 'raw' );
+		}
+		$data[ $post->ID ] = $post;
 	}
+	gc_cache_add_multiple( $data, 'posts' );
 }
 
 /**

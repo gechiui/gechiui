@@ -712,7 +712,7 @@ function validate_file_to_edit( $file, $allowed_files = array() ) {
 			gc_die( __( '抱歉，不能编辑那个文件。' ) );
 
 			// case 2 :
-			// gc_die( __('Sorry, can&#8217;t call files with their real path.' ));
+			// gc_die( __('抱歉，无法使用文件的实际路径调用文件。' ));
 
 		case 3:
 			gc_die( __( '抱歉，不能编辑那个文件。' ) );
@@ -1190,6 +1190,8 @@ function download_url( $url, $timeout = 300, $signature_verification = false ) {
 		if ( $tmpfname_disposition && is_string( $tmpfname_disposition )
 			&& ( 0 === validate_file( $tmpfname_disposition ) )
 		) {
+			$tmpfname_disposition = dirname( $tmpfname ) . '/' . $tmpfname_disposition;
+		
 			if ( rename( $tmpfname, $tmpfname_disposition ) ) {
 				$tmpfname = $tmpfname_disposition;
 			}

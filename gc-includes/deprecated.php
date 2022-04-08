@@ -15,7 +15,7 @@
 /**
  * Retrieves all post data for a given post.
  *
- *
+ * @since 0.71
  * @deprecated 1.5.1 Use get_post()
  * @see get_post()
  *
@@ -55,13 +55,13 @@ function get_postdata($postid) {
  *
  * @link https://developer.gechiui.com/themes/basics/the-loop/
  *
- *
+ * @since 1.0.1
  * @deprecated 1.5.0
  */
 function start_gc() {
 	global $gc_query;
 
-	_deprecated_function( __FUNCTION__, '1.5.0', __('新的GeChiUI Loop机制') );
+	_deprecated_function( __FUNCTION__, '1.5.0', __('new GeChiUI Loop') );
 
 	// Since the old style loop is being used, advance the query iterator here.
 	$gc_query->next_post();
@@ -72,7 +72,7 @@ function start_gc() {
 /**
  * Returns or prints a category ID.
  *
- *
+ * @since 0.71
  * @deprecated 0.71 Use get_the_category()
  * @see get_the_category()
  *
@@ -95,7 +95,7 @@ function the_category_ID($echo = true) {
 /**
  * Prints a category with optional text before and after.
  *
- *
+ * @since 0.71
  * @deprecated 0.71 Use get_the_category_by_ID()
  * @see get_the_category_by_ID()
  *
@@ -121,7 +121,7 @@ function the_category_head( $before = '', $after = '' ) {
 /**
  * Prints a link to the previous post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.0.0 Use previous_post_link()
  * @see previous_post_link()
  *
@@ -157,7 +157,7 @@ function previous_post($format='%', $previous='previous post: ', $title='yes', $
 /**
  * Prints link to the next post.
  *
- *
+ * @since 0.71
  * @deprecated 2.0.0 Use next_post_link()
  * @see next_post_link()
  *
@@ -192,7 +192,7 @@ function next_post($format='%', $next='next post: ', $title='yes', $in_same_cat=
 /**
  * Whether user can create a post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.0.0 Use current_user_can()
  * @see current_user_can()
  *
@@ -211,7 +211,7 @@ function user_can_create_post($user_id, $blog_id = 1, $category_id = 'None') {
 /**
  * Whether user can create a post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.0.0 Use current_user_can()
  * @see current_user_can()
  *
@@ -230,7 +230,7 @@ function user_can_create_draft($user_id, $blog_id = 1, $category_id = 'None') {
 /**
  * Whether user can edit a post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.0.0 Use current_user_can()
  * @see current_user_can()
  *
@@ -258,7 +258,7 @@ function user_can_edit_post($user_id, $post_id, $blog_id = 1) {
 /**
  * Whether user can delete a post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.0.0 Use current_user_can()
  * @see current_user_can()
  *
@@ -277,7 +277,7 @@ function user_can_delete_post($user_id, $post_id, $blog_id = 1) {
 /**
  * Whether user can set new posts' dates.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.0.0 Use current_user_can()
  * @see current_user_can()
  *
@@ -296,7 +296,7 @@ function user_can_set_post_date($user_id, $blog_id = 1, $category_id = 'None') {
 /**
  * Whether user can delete a post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.0.0 Use current_user_can()
  * @see current_user_can()
  *
@@ -315,7 +315,7 @@ function user_can_edit_post_date($user_id, $post_id, $blog_id = 1) {
 /**
  * Whether user can delete a post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.0.0 Use current_user_can()
  * @see current_user_can()
  *
@@ -334,7 +334,7 @@ function user_can_edit_post_comments($user_id, $post_id, $blog_id = 1) {
 /**
  * Whether user can delete a post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.0.0 Use current_user_can()
  * @see current_user_can()
  *
@@ -353,7 +353,7 @@ function user_can_delete_post_comments($user_id, $post_id, $blog_id = 1) {
 /**
  * Can user can edit other user.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.0.0 Use current_user_can()
  * @see current_user_can()
  *
@@ -375,7 +375,7 @@ function user_can_edit_user($user_id, $other_user) {
 /**
  * Gets the links associated with category $cat_name.
  *
- *
+ * @since 0.71
  * @deprecated 2.1.0 Use get_bookmarks()
  * @see get_bookmarks()
  *
@@ -413,7 +413,7 @@ function get_linksbyname($cat_name = "noname", $before = '', $after = '<br />', 
 /**
  * Gets the links associated with the named category.
  *
- *
+ * @since 1.0.1
  * @deprecated 2.1.0 Use gc_list_bookmarks()
  * @see gc_list_bookmarks()
  *
@@ -448,7 +448,7 @@ function gc_get_linksbyname($category, $args = '') {
  *      	echo '<li>' . $link->link_name . '</li>';
  *     }
  *
- *
+ * @since 1.0.1
  * @deprecated 2.1.0 Use get_bookmarks()
  * @see get_bookmarks()
  *
@@ -501,7 +501,7 @@ function get_linkobjectsbyname($cat_name = "noname" , $orderby = 'name', $limit 
  * - link_rel
  * - link_notes
  *
- *
+ * @since 1.0.1
  * @deprecated 2.1.0 Use get_bookmarks()
  * @see get_bookmarks()
  *
@@ -530,7 +530,7 @@ function get_linkobjects($category = 0, $orderby = 'name', $limit = 0) {
 /**
  * Gets the links associated with category 'cat_name' and display rating stars/chars.
  *
- *
+ * @since 0.71
  * @deprecated 2.1.0 Use get_bookmarks()
  * @see get_bookmarks()
  *
@@ -561,7 +561,7 @@ function get_linksbyname_withrating($cat_name = "noname", $before = '', $after =
 /**
  * Gets the links associated with category n and display rating stars/chars.
  *
- *
+ * @since 0.71
  * @deprecated 2.1.0 Use get_bookmarks()
  * @see get_bookmarks()
  *
@@ -592,7 +592,7 @@ function get_links_withrating($category = -1, $before = '', $after = '<br />', $
 /**
  * Gets the auto_toggle setting.
  *
- *
+ * @since 0.71
  * @deprecated 2.1.0
  *
  * @param int $id The category to get. If no category supplied uses 0
@@ -606,7 +606,7 @@ function get_autotoggle($id = 0) {
 /**
  * Lists categories.
  *
- *
+ * @since 0.71
  * @deprecated 2.1.0 Use gc_list_categories()
  * @see gc_list_categories()
  *
@@ -643,7 +643,7 @@ function list_cats($optionall = 1, $all = 'All', $sort_column = 'ID', $sort_orde
 /**
  * Lists categories.
  *
- *
+ * @since 1.2.0
  * @deprecated 2.1.0 Use gc_list_categories()
  * @see gc_list_categories()
  *
@@ -676,7 +676,7 @@ function gc_list_cats($args = '') {
 /**
  * Deprecated method for generating a drop-down of categories.
  *
- *
+ * @since 0.71
  * @deprecated 2.1.0 Use gc_dropdown_categories()
  * @see gc_dropdown_categories()
  *
@@ -703,7 +703,7 @@ function dropdown_cats($optionall = 1, $all = 'All', $orderby = 'ID', $order = '
 
 	$show_option_none = '';
 	if ( $optionnone )
-		$show_option_none = __( '无');
+		$show_option_none = __('None');
 
 	$vars = compact('show_option_all', 'show_option_none', 'orderby', 'order',
 					'show_last_update', 'show_count', 'hide_empty', 'selected', 'exclude');
@@ -714,7 +714,7 @@ function dropdown_cats($optionall = 1, $all = 'All', $orderby = 'ID', $order = '
 /**
  * Lists authors.
  *
- *
+ * @since 1.2.0
  * @deprecated 2.1.0 Use gc_list_authors()
  * @see gc_list_authors()
  *
@@ -736,7 +736,7 @@ function list_authors($optioncount = false, $exclude_admin = true, $show_fullnam
 /**
  * Retrieves a list of post categories.
  *
- *
+ * @since 1.0.1
  * @deprecated 2.1.0 Use gc_get_post_categories()
  * @see gc_get_post_categories()
  *
@@ -752,7 +752,7 @@ function gc_get_post_cats($blogid = '1', $post_ID = 0) {
 /**
  * Sets the categories that the post ID belongs to.
  *
- *
+ * @since 1.0.1
  * @deprecated 2.1.0
  * @deprecated Use gc_set_post_categories()
  * @see gc_set_post_categories()
@@ -770,7 +770,7 @@ function gc_set_post_cats($blogid = '1', $post_ID = 0, $post_categories = array(
 /**
  * Retrieves a list of archives.
  *
- *
+ * @since 0.71
  * @deprecated 2.1.0 Use gc_get_archives()
  * @see gc_get_archives()
  *
@@ -791,7 +791,7 @@ function get_archives($type='', $limit='', $format='html', $before = '', $after 
 /**
  * Returns or Prints link to the author's posts.
  *
- *
+ * @since 1.2.0
  * @deprecated 2.1.0 Use get_author_posts_url()
  * @see get_author_posts_url()
  *
@@ -813,7 +813,7 @@ function get_author_link($echo, $author_id, $author_nicename = '') {
 /**
  * Print list of pages based on arguments.
  *
- *
+ * @since 0.71
  * @deprecated 2.1.0 Use gc_link_pages()
  * @see gc_link_pages()
  *
@@ -826,7 +826,7 @@ function get_author_link($echo, $author_id, $author_nicename = '') {
  * @param string $more_file
  * @return string
  */
-function link_pages($before='<br />', $after='<br />', $next_or_number='number', $nextpagelink='下一页', $previouspagelink='previous page',
+function link_pages($before='<br />', $after='<br />', $next_or_number='number', $nextpagelink='next page', $previouspagelink='previous page',
 					$pagelink='%', $more_file='') {
 	_deprecated_function( __FUNCTION__, '2.1.0', 'gc_link_pages()' );
 
@@ -837,7 +837,7 @@ function link_pages($before='<br />', $after='<br />', $next_or_number='number',
 /**
  * Get value based on option.
  *
- *
+ * @since 0.71
  * @deprecated 2.1.0 Use get_option()
  * @see get_option()
  *
@@ -853,7 +853,7 @@ function get_settings($option) {
 /**
  * Print the permalink of the current post in the loop.
  *
- *
+ * @since 0.71
  * @deprecated 1.2.0 Use the_permalink()
  * @see the_permalink()
  */
@@ -865,7 +865,7 @@ function permalink_link() {
 /**
  * Print the permalink to the RSS feed.
  *
- *
+ * @since 0.71
  * @deprecated 2.3.0 Use the_permalink_rss()
  * @see the_permalink_rss()
  *
@@ -879,7 +879,7 @@ function permalink_single_rss($deprecated = '') {
 /**
  * Gets the links associated with category.
  *
- *
+ * @since 1.0.1
  * @deprecated 2.1.0 Use gc_list_bookmarks()
  * @see gc_list_bookmarks()
  *
@@ -918,7 +918,7 @@ function gc_get_links($args = '') {
 /**
  * Gets the links associated with category by ID.
  *
- *
+ * @since 0.71
  * @deprecated 2.1.0 Use get_bookmarks()
  * @see get_bookmarks()
  *
@@ -981,7 +981,7 @@ function get_links($category = -1, $before = '', $after = '<br />', $between = '
 
 		if ( $show_updated )
 			if (substr($row->link_updated_f, 0, 2) != '00')
-				$title .= ' ('.__('最后更新') . ' ' . gmdate(get_option('links_updated_date_format'), $row->link_updated_f + (get_option('gmt_offset') * HOUR_IN_SECONDS)) . ')';
+				$title .= ' ('.__('Last updated') . ' ' . gmdate(get_option('links_updated_date_format'), $row->link_updated_f + (get_option('gmt_offset') * HOUR_IN_SECONDS)) . ')';
 
 		if ( '' != $title )
 			$title = ' title="' . $title . '"';
@@ -1029,7 +1029,7 @@ function get_links($category = -1, $before = '', $after = '<br />', $between = '
  * Output a list of all links, listed by category, using the settings in
  * $gcdb->linkcategories and output it as a nested HTML unordered list.
  *
- *
+ * @since 1.0.1
  * @deprecated 2.1.0 Use gc_list_bookmarks()
  * @see gc_list_bookmarks()
  *
@@ -1071,7 +1071,7 @@ function get_links_list($order = 'name') {
 /**
  * Show the link to the links popup and the number of links.
  *
- *
+ * @since 0.71
  * @deprecated 2.1.0
  *
  * @param string $text the text of the link
@@ -1087,7 +1087,7 @@ function links_popup_script($text = 'Links', $width=400, $height=400, $file='lin
 /**
  * Legacy function that retrieved the value of a link's link_rating field.
  *
- *
+ * @since 1.0.1
  * @deprecated 2.1.0 Use sanitize_bookmark_field()
  * @see sanitize_bookmark_field()
  *
@@ -1102,7 +1102,7 @@ function get_linkrating( $link ) {
 /**
  * Gets the name of category by ID.
  *
- *
+ * @since 0.71
  * @deprecated 2.1.0 Use get_category()
  * @see get_category()
  *
@@ -1131,7 +1131,7 @@ function get_linkcatname($id = 0) {
 /**
  * Print RSS comment feed link.
  *
- *
+ * @since 1.0.1
  * @deprecated 2.5.0 Use post_comments_feed_link()
  * @see post_comments_feed_link()
  *
@@ -1145,7 +1145,7 @@ function comments_rss_link($link_text = 'Comments RSS') {
 /**
  * Print/Return link to category RSS2 feed.
  *
- *
+ * @since 1.2.0
  * @deprecated 2.5.0 Use get_category_feed_link()
  * @see get_category_feed_link()
  *
@@ -1166,7 +1166,7 @@ function get_category_rss_link($echo = false, $cat_ID = 1) {
 /**
  * Print/Return link to author RSS feed.
  *
- *
+ * @since 1.2.0
  * @deprecated 2.5.0 Use get_author_feed_link()
  * @see get_author_feed_link()
  *
@@ -1186,7 +1186,7 @@ function get_author_rss_link($echo = false, $author_id = 1) {
 /**
  * Return link to the post RSS feed.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.2.0 Use get_post_comments_feed_link()
  * @see get_post_comments_feed_link()
  *
@@ -1200,7 +1200,7 @@ function comments_rss() {
 /**
  * An alias of gc_create_user().
  *
- *
+ * @since 2.0.0
  * @deprecated 2.0.0 Use gc_create_user()
  * @see gc_create_user()
  *
@@ -1227,7 +1227,7 @@ function gzip_compression() {
 /**
  * Retrieve an array of comment data about comment $comment_ID.
  *
- *
+ * @since 0.71
  * @deprecated 2.7.0 Use get_comment()
  * @see get_comment()
  *
@@ -1244,7 +1244,7 @@ function get_commentdata( $comment_ID, $no_cache = 0, $include_unapproved = fals
 /**
  * Retrieve the category name by the category ID.
  *
- *
+ * @since 0.71
  * @deprecated 2.8.0 Use get_cat_name()
  * @see get_cat_name()
  *
@@ -1259,7 +1259,7 @@ function get_catname( $cat_ID ) {
 /**
  * Retrieve category children list separated before and after the term IDs.
  *
- *
+ * @since 1.2.0
  * @deprecated 2.8.0 Use get_term_children()
  * @see get_term_children()
  *
@@ -1297,7 +1297,7 @@ function get_category_children( $id, $before = '/', $after = '', $visited = arra
 /**
  * Retrieves all category IDs.
  *
- *
+ * @since 2.0.0
  * @deprecated 4.0.0 Use get_terms()
  * @see get_terms()
  *
@@ -1322,7 +1322,7 @@ function get_all_category_ids() {
 /**
  * Retrieve the description of the author of the current post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.8.0 Use get_the_author_meta()
  * @see get_the_author_meta()
  *
@@ -1336,7 +1336,7 @@ function get_the_author_description() {
 /**
  * Display the description of the author of the current post.
  *
- *
+ * @since 1.0.0
  * @deprecated 2.8.0 Use the_author_meta()
  * @see the_author_meta()
  */
@@ -1348,7 +1348,7 @@ function the_author_description() {
 /**
  * Retrieve the login name of the author of the current post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.8.0 Use get_the_author_meta()
  * @see get_the_author_meta()
  *
@@ -1362,7 +1362,7 @@ function get_the_author_login() {
 /**
  * Display the login name of the author of the current post.
  *
- *
+ * @since 0.71
  * @deprecated 2.8.0 Use the_author_meta()
  * @see the_author_meta()
  */
@@ -1374,7 +1374,7 @@ function the_author_login() {
 /**
  * Retrieve the first name of the author of the current post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.8.0 Use get_the_author_meta()
  * @see get_the_author_meta()
  *
@@ -1388,7 +1388,7 @@ function get_the_author_firstname() {
 /**
  * Display the first name of the author of the current post.
  *
- *
+ * @since 0.71
  * @deprecated 2.8.0 Use the_author_meta()
  * @see the_author_meta()
  */
@@ -1400,7 +1400,7 @@ function the_author_firstname() {
 /**
  * Retrieve the last name of the author of the current post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.8.0 Use get_the_author_meta()
  * @see get_the_author_meta()
  *
@@ -1414,7 +1414,7 @@ function get_the_author_lastname() {
 /**
  * Display the last name of the author of the current post.
  *
- *
+ * @since 0.71
  * @deprecated 2.8.0 Use the_author_meta()
  * @see the_author_meta()
  */
@@ -1426,7 +1426,7 @@ function the_author_lastname() {
 /**
  * Retrieve the nickname of the author of the current post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.8.0 Use get_the_author_meta()
  * @see get_the_author_meta()
  *
@@ -1440,7 +1440,7 @@ function get_the_author_nickname() {
 /**
  * Display the nickname of the author of the current post.
  *
- *
+ * @since 0.71
  * @deprecated 2.8.0 Use the_author_meta()
  * @see the_author_meta()
  */
@@ -1452,7 +1452,7 @@ function the_author_nickname() {
 /**
  * Retrieve the email of the author of the current post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.8.0 Use get_the_author_meta()
  * @see get_the_author_meta()
  *
@@ -1466,7 +1466,7 @@ function get_the_author_email() {
 /**
  * Display the email of the author of the current post.
  *
- *
+ * @since 0.71
  * @deprecated 2.8.0 Use the_author_meta()
  * @see the_author_meta()
  */
@@ -1478,7 +1478,7 @@ function the_author_email() {
 /**
  * Retrieve the ICQ number of the author of the current post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.8.0 Use get_the_author_meta()
  * @see get_the_author_meta()
  *
@@ -1492,7 +1492,7 @@ function get_the_author_icq() {
 /**
  * Display the ICQ number of the author of the current post.
  *
- *
+ * @since 0.71
  * @deprecated 2.8.0 Use the_author_meta()
  * @see the_author_meta()
  */
@@ -1504,7 +1504,7 @@ function the_author_icq() {
 /**
  * Retrieve the Yahoo! IM name of the author of the current post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.8.0 Use get_the_author_meta()
  * @see get_the_author_meta()
  *
@@ -1518,7 +1518,7 @@ function get_the_author_yim() {
 /**
  * Display the Yahoo! IM name of the author of the current post.
  *
- *
+ * @since 0.71
  * @deprecated 2.8.0 Use the_author_meta()
  * @see the_author_meta()
  */
@@ -1530,7 +1530,7 @@ function the_author_yim() {
 /**
  * Retrieve the MSN address of the author of the current post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.8.0 Use get_the_author_meta()
  * @see get_the_author_meta()
  *
@@ -1544,7 +1544,7 @@ function get_the_author_msn() {
 /**
  * Display the MSN address of the author of the current post.
  *
- *
+ * @since 0.71
  * @deprecated 2.8.0 Use the_author_meta()
  * @see the_author_meta()
  */
@@ -1556,7 +1556,7 @@ function the_author_msn() {
 /**
  * Retrieve the AIM address of the author of the current post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.8.0 Use get_the_author_meta()
  * @see get_the_author_meta()
  *
@@ -1570,7 +1570,7 @@ function get_the_author_aim() {
 /**
  * Display the AIM address of the author of the current post.
  *
- *
+ * @since 0.71
  * @deprecated 2.8.0 Use the_author_meta('aim')
  * @see the_author_meta()
  */
@@ -1582,7 +1582,7 @@ function the_author_aim() {
 /**
  * Retrieve the specified author's preferred display name.
  *
- *
+ * @since 1.0.0
  * @deprecated 2.8.0 Use get_the_author_meta()
  * @see get_the_author_meta()
  *
@@ -1597,7 +1597,7 @@ function get_author_name( $auth_id = false ) {
 /**
  * Retrieve the URL to the home page of the author of the current post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.8.0 Use get_the_author_meta()
  * @see get_the_author_meta()
  *
@@ -1611,7 +1611,7 @@ function get_the_author_url() {
 /**
  * Display the URL to the home page of the author of the current post.
  *
- *
+ * @since 0.71
  * @deprecated 2.8.0 Use the_author_meta()
  * @see the_author_meta()
  */
@@ -1623,7 +1623,7 @@ function the_author_url() {
 /**
  * Retrieve the ID of the author of the current post.
  *
- *
+ * @since 1.5.0
  * @deprecated 2.8.0 Use get_the_author_meta()
  * @see get_the_author_meta()
  *
@@ -1637,7 +1637,7 @@ function get_the_author_ID() {
 /**
  * Display the ID of the author of the current post.
  *
- *
+ * @since 0.71
  * @deprecated 2.8.0 Use the_author_meta()
  * @see the_author_meta()
  */
@@ -1663,7 +1663,7 @@ function the_author_ID() {
  * If there is content left over, then dots will be added and the rest of the content
  * will be removed.
  *
- *
+ * @since 0.71
  *
  * @deprecated 2.9.0 Use the_content_feed()
  * @see the_content_feed()
@@ -1682,6 +1682,7 @@ function the_content_rss($more_link_text='(more...)', $stripteaser=0, $more_file
 	/**
 	 * Filters the post content in the context of an RSS feed.
 	 *
+	 * @since 0.71
 	 *
 	 * @param string $content Content of the current post.
 	 */
@@ -1722,7 +1723,7 @@ function the_content_rss($more_link_text='(more...)', $stripteaser=0, $more_file
  * Searches for all of the links, strips them out of the content, and places
  * them at the bottom of the content with numbers.
  *
- *
+ * @since 0.71
  * @deprecated 2.9.0
  *
  * @param string $content Content to get links.
@@ -1759,7 +1760,7 @@ function make_url_footnote( $content ) {
  * including the pipe character. If there is no pipe in the translated text then
  * everything is returned.
  *
- *
+ * @since 2.2.0
  * @deprecated 2.9.0 Use _x()
  * @see _x()
  *
@@ -1776,7 +1777,7 @@ function _c( $text, $domain = 'default' ) {
  * Translates $text like translate(), but assumes that the text
  * contains a context after its last vertical bar.
  *
- *
+ * @since 2.5.0
  * @deprecated 3.0.0 Use _x()
  * @see _x()
  *
@@ -1794,7 +1795,7 @@ function translate_with_context( $text, $domain = 'default' ) {
  *
  * Strips everything from the translation after the last bar.
  *
- *
+ * @since 2.7.0
  * @deprecated 3.0.0 Use _nx()
  * @see _nx()
  *
@@ -1813,7 +1814,7 @@ function _nc( $single, $plural, $number, $domain = 'default' ) {
 /**
  * Retrieve the plural or single form based on the amount.
  *
- *
+ * @since 1.2.0
  * @deprecated 2.8.0 Use _n()
  * @see _n()
  */
@@ -1825,7 +1826,7 @@ function __ngettext( ...$args ) { // phpcs:ignore PHPCompatibility.FunctionNameR
 /**
  * Register plural strings in POT file, but don't translate them.
  *
- *
+ * @since 2.5.0
  * @deprecated 2.8.0 Use _n_noop()
  * @see _n_noop()
  */
@@ -1838,7 +1839,7 @@ function __ngettext_noop( ...$args ) { // phpcs:ignore PHPCompatibility.Function
 /**
  * Retrieve all autoload options, or all options if no autoloaded ones exist.
  *
- *
+ * @since 1.0.0
  * @deprecated 3.0.0 Use gc_load_alloptions())
  * @see gc_load_alloptions()
  *
@@ -1852,7 +1853,7 @@ function get_alloptions() {
 /**
  * Retrieve HTML content of attachment image with link.
  *
- *
+ * @since 2.0.0
  * @deprecated 2.5.0 Use gc_get_attachment_link()
  * @see gc_get_attachment_link()
  *
@@ -1868,7 +1869,7 @@ function get_the_attachment_link($id = 0, $fullsize = false, $max_dims = false, 
 	$_post = get_post($id);
 
 	if ( ('attachment' != $_post->post_type) || !$url = gc_get_attachment_url($_post->ID) )
-		return __('附件丢失');
+		return __('Missing Attachment');
 
 	if ( $permalink )
 		$url = get_attachment_link($_post->ID);
@@ -1882,7 +1883,7 @@ function get_the_attachment_link($id = 0, $fullsize = false, $max_dims = false, 
 /**
  * Retrieve icon URL and Path.
  *
- *
+ * @since 2.1.0
  * @deprecated 2.5.0 Use gc_get_attachment_image_src()
  * @see gc_get_attachment_image_src()
  *
@@ -1924,7 +1925,7 @@ function get_attachment_icon_src( $id = 0, $fullsize = false ) {
 /**
  * Retrieve HTML content of icon attachment image element.
  *
- *
+ * @since 2.0.0
  * @deprecated 2.5.0 Use gc_get_attachment_image()
  * @see gc_get_attachment_image()
  *
@@ -1980,7 +1981,7 @@ function get_attachment_icon( $id = 0, $fullsize = false, $max_dims = false ) {
 /**
  * Retrieve HTML content of image element.
  *
- *
+ * @since 2.0.0
  * @deprecated 2.5.0 Use gc_get_attachment_image()
  * @see gc_get_attachment_image()
  *
@@ -2006,7 +2007,7 @@ function get_attachment_innerHTML($id = 0, $fullsize = false, $max_dims = false)
 /**
  * Retrieves bookmark data based on ID.
  *
- *
+ * @since 2.0.0
  * @deprecated 2.1.0 Use get_bookmark()
  * @see get_bookmark()
  *
@@ -2029,7 +2030,7 @@ function get_link( $bookmark_id, $output = OBJECT, $filter = 'raw' ) {
  * (the default behaviour) ampersands are also replaced. The 'clean_url' filter
  * is applied to the returned cleaned URL.
  *
- *
+ * @since 1.2.0
  * @deprecated 3.0.0 Use esc_url()
  * @see esc_url()
  *
@@ -2051,7 +2052,7 @@ function clean_url( $url, $protocols = null, $context = 'display' ) {
  *
  * The filter {@see 'js_escape'} is also applied by esc_js().
  *
- *
+ * @since 2.0.4
  * @deprecated 2.8.0 Use esc_js()
  * @see esc_js()
  *
@@ -2087,7 +2088,7 @@ function gc_specialchars( $string, $quote_style = ENT_NOQUOTES, $charset = false
 /**
  * Escaping for HTML attributes.
  *
- *
+ * @since 2.0.6
  * @deprecated 2.8.0 Use esc_attr()
  * @see esc_attr()
  *
@@ -2109,7 +2110,7 @@ function attribute_escape( $text ) {
  * Passes to gc_register_sidebar_widget() after argument list and backward
  * compatibility is complete.
  *
- *
+ * @since 2.2.0
  * @deprecated 2.8.0 Use gc_register_sidebar_widget()
  * @see gc_register_sidebar_widget()
  *
@@ -2141,7 +2142,7 @@ function register_sidebar_widget($name, $output_callback, $classname = '', ...$p
 /**
  * Serves as an alias of gc_unregister_sidebar_widget().
  *
- *
+ * @since 2.2.0
  * @deprecated 2.8.0 Use gc_unregister_sidebar_widget()
  * @see gc_unregister_sidebar_widget()
  *
@@ -2162,7 +2163,7 @@ function unregister_sidebar_widget($id) {
  * Passes to gc_register_widget_control() after the argument list has
  * been compiled.
  *
- *
+ * @since 2.2.0
  * @deprecated 2.8.0 Use gc_register_widget_control()
  * @see gc_register_widget_control()
  *
@@ -2198,7 +2199,7 @@ function register_widget_control($name, $control_callback, $width = '', $height 
 /**
  * Alias of gc_unregister_widget_control().
  *
- *
+ * @since 2.2.0
  * @deprecated 2.8.0 Use gc_unregister_widget_control()
  * @see gc_unregister_widget_control()
  *
@@ -2212,7 +2213,7 @@ function unregister_widget_control($id) {
 /**
  * Remove user meta data.
  *
- *
+ * @since 2.0.0
  * @deprecated 3.0.0 Use delete_user_meta()
  * @see delete_user_meta()
  *
@@ -2259,7 +2260,7 @@ function delete_usermeta( $user_id, $meta_key, $meta_value = '' ) {
  * one item to be returned, which be that single item type. If there is more
  * than one metadata value, then it will be list of metadata values.
  *
- *
+ * @since 2.0.0
  * @deprecated 3.0.0 Use get_user_meta()
  * @see get_user_meta()
  *
@@ -2311,7 +2312,7 @@ function get_usermeta( $user_id, $meta_key = '' ) {
  *
  * Will remove the metadata, if the meta value is empty.
  *
- *
+ * @since 2.0.0
  * @deprecated 3.0.0 Use update_user_meta()
  * @see update_user_meta()
  *
@@ -2365,7 +2366,7 @@ function update_usermeta( $user_id, $meta_key, $meta_value ) {
  * For setups that use the multisite feature. Can be used outside of the
  * multisite feature.
  *
- *
+ * @since 2.2.0
  * @deprecated 3.1.0 Use get_users()
  * @see get_users()
  *
@@ -2389,7 +2390,7 @@ function get_users_of_blog( $id = '' ) {
 /**
  * Enable/disable automatic general feed link outputting.
  *
- *
+ * @since 2.8.0
  * @deprecated 3.0.0 Use add_theme_support()
  * @see add_theme_support()
  *
@@ -2407,7 +2408,7 @@ function automatic_feed_links( $add = true ) {
 /**
  * Retrieve user data based on field.
  *
- *
+ * @since 1.5.0
  * @deprecated 3.0.0 Use get_the_author_meta()
  * @see get_the_author_meta()
  *
@@ -2427,7 +2428,7 @@ function get_profile( $field, $user = false ) {
 /**
  * Retrieves the number of posts a user has written.
  *
- *
+ * @since 0.71
  * @deprecated 3.0.0 Use count_user_posts()
  * @see count_user_posts()
  *
@@ -2442,7 +2443,7 @@ function get_usernumposts( $userid ) {
 /**
  * Callback used to change %uXXXX to &#YYY; syntax
  *
- *
+ * @since 2.8.0
  * @access private
  * @deprecated 3.0.0
  *
@@ -2458,7 +2459,7 @@ function funky_javascript_callback($matches) {
  *
  * Converts unicode characters to HTML numbered entities.
  *
- *
+ * @since 1.5.0
  * @deprecated 3.0.0
  *
  * @global $is_macIE
@@ -2483,7 +2484,7 @@ function funky_javascript_fix($text) {
 /**
  * Checks that the taxonomy name exists.
  *
- *
+ * @since 2.3.0
  * @deprecated 3.0.0 Use taxonomy_exists()
  * @see taxonomy_exists()
  *
@@ -2498,7 +2499,7 @@ function is_taxonomy( $taxonomy ) {
 /**
  * Check if Term exists.
  *
- *
+ * @since 2.3.0
  * @deprecated 3.0.0 Use term_exists()
  * @see term_exists()
  *
@@ -2521,7 +2522,7 @@ function is_term( $term, $taxonomy = '', $parent = 0 ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
+ * @since 1.5.0
  * @deprecated 3.1.0
  *
  * @global $plugin_page
@@ -2546,7 +2547,7 @@ function is_plugin_page() {
  * needed. It might be a legacy function left over from when there was a need
  * for updating the category cache.
  *
- *
+ * @since 1.5.0
  * @deprecated 3.1.0
  *
  * @return bool Always return True
@@ -2560,7 +2561,7 @@ function update_category_cache() {
 /**
  * Check for PHP timezone support
  *
- *
+ * @since 2.9.0
  * @deprecated 3.2.0
  *
  * @return bool
@@ -2574,7 +2575,7 @@ function gc_timezone_supported() {
 /**
  * Displays an editor: TinyMCE, HTML, or both.
  *
- *
+ * @since 2.1.0
  * @deprecated 3.3.0 Use gc_editor()
  * @see gc_editor()
  *
@@ -2594,7 +2595,7 @@ function the_editor($content, $id = 'content', $prev_id = 'title', $media_button
 /**
  * Perform the query to get the $metavalues array(s) needed by _fill_user and _fill_many_users
  *
- *
+ * @since 3.0.0
  * @deprecated 3.3.0
  *
  * @param array $ids User ID numbers list.
@@ -2627,7 +2628,7 @@ function get_user_metavalues($ids) {
  *
  * If the context is 'raw', then the user object or array will get minimal santization of the int fields.
  *
- *
+ * @since 2.3.0
  * @deprecated 3.3.0
  *
  * @param object|array $user    The user object or array.
@@ -2664,7 +2665,7 @@ function sanitize_user_object($user, $context = 'display') {
  *
  * Can either be start or end post relational link.
  *
- *
+ * @since 2.8.0
  * @deprecated 3.3.0
  *
  * @param string $title               Optional. Link title format. Default '%title'.
@@ -2687,7 +2688,7 @@ function get_boundary_post_rel_link($title = '%title', $in_same_cat = false, $ex
 	$post = $posts[0];
 
 	if ( empty($post->post_title) )
-		$post->post_title = $start ? __('首篇文章') : __('最后一篇文章');
+		$post->post_title = $start ? __('First Post') : __('Last Post');
 
 	$date = mysql2date(get_option('date_format'), $post->post_date);
 
@@ -2706,7 +2707,7 @@ function get_boundary_post_rel_link($title = '%title', $in_same_cat = false, $ex
 /**
  * Display relational link for the first post.
  *
- *
+ * @since 2.8.0
  * @deprecated 3.3.0
  *
  * @param string $title Optional. Link title format.
@@ -2722,7 +2723,7 @@ function start_post_rel_link($title = '%title', $in_same_cat = false, $excluded_
 /**
  * Get site index relational link.
  *
- *
+ * @since 2.8.0
  * @deprecated 3.3.0
  *
  * @return string
@@ -2737,7 +2738,7 @@ function get_index_rel_link() {
 /**
  * Display relational link for the site index.
  *
- *
+ * @since 2.8.0
  * @deprecated 3.3.0
  */
 function index_rel_link() {
@@ -2749,7 +2750,7 @@ function index_rel_link() {
 /**
  * Get parent post relational link.
  *
- *
+ * @since 2.8.0
  * @deprecated 3.3.0
  *
  * @param string $title Optional. Link title format. Default '%title'.
@@ -2780,7 +2781,7 @@ function get_parent_post_rel_link( $title = '%title' ) {
 /**
  * Display relational link for parent item
  *
- *
+ * @since 2.8.0
  * @deprecated 3.3.0
  *
  * @param string $title Optional. Link title format. Default '%title'.
@@ -2792,9 +2793,9 @@ function parent_post_rel_link( $title = '%title' ) {
 }
 
 /**
- * Add the "仪表盘"/"查看站点" menu.
+ * Add the "Dashboard"/"Visit Site" menu.
  *
- *
+ * @since 3.2.0
  * @deprecated 3.3.0
  *
  * @param GC_Admin_Bar $gc_admin_bar GC_Admin_Bar instance.
@@ -2806,18 +2807,18 @@ function gc_admin_bar_dashboard_view_site_menu( $gc_admin_bar ) {
 
 	if ( 0 != $user_id ) {
 		if ( is_admin() )
-			$gc_admin_bar->add_menu( array( 'id' => 'view-site', 'title' => __( '查看站点' ), 'href' => home_url() ) );
+			$gc_admin_bar->add_menu( array( 'id' => 'view-site', 'title' => __( 'Visit Site' ), 'href' => home_url() ) );
 		elseif ( is_multisite() )
-			$gc_admin_bar->add_menu( array( 'id' => 'dashboard', 'title' => __( '仪表盘' ), 'href' => get_dashboard_url( $user_id ) ) );
+			$gc_admin_bar->add_menu( array( 'id' => 'dashboard', 'title' => __( 'Dashboard' ), 'href' => get_dashboard_url( $user_id ) ) );
 		else
-			$gc_admin_bar->add_menu( array( 'id' => 'dashboard', 'title' => __( '仪表盘' ), 'href' => admin_url() ) );
+			$gc_admin_bar->add_menu( array( 'id' => 'dashboard', 'title' => __( 'Dashboard' ), 'href' => admin_url() ) );
 	}
 }
 
 /**
  * Checks if the current user belong to a given site.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 3.3.0 Use is_user_member_of_blog()
  * @see is_user_member_of_blog()
  *
@@ -2833,7 +2834,7 @@ function is_blog_user( $blog_id = 0 ) {
 /**
  * Open the file handle for debugging.
  *
- *
+ * @since 0.71
  * @deprecated 3.4.0 Use error_log()
  * @see error_log()
  *
@@ -2851,7 +2852,7 @@ function debug_fopen( $filename, $mode ) {
 /**
  * Write contents to the file used for debugging.
  *
- *
+ * @since 0.71
  * @deprecated 3.4.0 Use error_log()
  * @see error_log()
  *
@@ -2869,7 +2870,7 @@ function debug_fwrite( $fp, $string ) {
 /**
  * Close the debugging file handle.
  *
- *
+ * @since 0.71
  * @deprecated 3.4.0 Use error_log()
  * @see error_log()
  *
@@ -2888,7 +2889,7 @@ function debug_fclose( $fp ) {
  * style.css and, or index.php. If the theme has a parent theme then it is
  * broken, if it is missing style.css; index.php is optional.
  *
- *
+ * @since 1.5.0
  * @deprecated 3.4.0 Use gc_get_themes()
  * @see gc_get_themes()
  *
@@ -2918,7 +2919,7 @@ function get_themes() {
 /**
  * Retrieve theme data.
  *
- *
+ * @since 1.5.0
  * @deprecated 3.4.0 Use gc_get_theme()
  * @see gc_get_theme()
  *
@@ -2937,7 +2938,7 @@ function get_theme( $theme ) {
 /**
  * Retrieve current theme name.
  *
- *
+ * @since 1.5.0
  * @deprecated 3.4.0 Use gc_get_theme()
  * @see gc_get_theme()
  *
@@ -2958,7 +2959,7 @@ function get_current_theme() {
  * Ensures that the contents of a `<pre>...</pre>` HTML block are not
  * converted into paragraphs or line breaks.
  *
- *
+ * @since 1.2.0
  * @deprecated 3.4.0
  *
  * @param array|string $matches The array or string
@@ -2983,7 +2984,7 @@ function clean_pre($matches) {
 /**
  * Add callbacks for image header display.
  *
- *
+ * @since 2.1.0
  * @deprecated 3.4.0 Use add_theme_support()
  * @see add_theme_support()
  *
@@ -3005,7 +3006,7 @@ function add_custom_image_header( $gc_head_callback, $admin_head_callback, $admi
 /**
  * Remove image header support.
  *
- *
+ * @since 3.1.0
  * @deprecated 3.4.0 Use remove_theme_support()
  * @see remove_theme_support()
  *
@@ -3019,7 +3020,7 @@ function remove_custom_image_header() {
 /**
  * Add callbacks for background image display.
  *
- *
+ * @since 3.0.0
  * @deprecated 3.4.0 Use add_theme_support()
  * @see add_theme_support()
  *
@@ -3042,7 +3043,7 @@ function add_custom_background( $gc_head_callback = '', $admin_head_callback = '
 /**
  * Remove custom background support.
  *
- *
+ * @since 3.1.0
  * @deprecated 3.4.0 Use add_custom_background()
  * @see add_custom_background()
  *
@@ -3056,7 +3057,7 @@ function remove_custom_background() {
 /**
  * Retrieve theme data from parsed theme file.
  *
- *
+ * @since 1.5.0
  * @deprecated 3.4.0 Use gc_get_theme()
  * @see gc_get_theme()
  *
@@ -3070,7 +3071,7 @@ function get_theme_data( $theme_file ) {
 	$theme_data = array(
 		'Name' => $theme->get('Name'),
 		'URI' => $theme->display('ThemeURI', true, false),
-		'description' => $theme->display('description', true, false),
+		'Description' => $theme->display('Description', true, false),
 		'Author' => $theme->display('Author', true, false),
 		'AuthorURI' => $theme->display('AuthorURI', true, false),
 		'Version' => $theme->get('Version'),
@@ -3094,7 +3095,7 @@ function get_theme_data( $theme_file ) {
  *
  * @see update_post_cache() Posts and pages are the same, alias is intentional
  *
- *
+ * @since 1.5.1
  * @deprecated 3.4.0 Use update_post_cache()
  * @see update_post_cache()
  *
@@ -3112,7 +3113,7 @@ function update_page_cache( &$pages ) {
  * Clean (read: delete) page from cache that matches $id. Will also clean cache
  * associated with 'all_page_ids' and 'get_pages'.
  *
- *
+ * @since 2.0.0
  * @deprecated 3.4.0 Use clean_post_cache
  * @see clean_post_cache()
  *
@@ -3129,7 +3130,7 @@ function clean_page_cache( $id ) {
  *
  * Deprecated in 3.4.1 and 3.5.0. Backported to 3.3.3.
  *
- *
+ * @since 2.0.4
  * @deprecated 3.4.1 Use gc_nonce_ays()
  * @see gc_nonce_ays()
  *
@@ -3138,13 +3139,13 @@ function clean_page_cache( $id ) {
  */
 function gc_explain_nonce( $action ) {
 	_deprecated_function( __FUNCTION__, '3.4.1', 'gc_nonce_ays()' );
-	return __( '您确定要这样做？' );
+	return __( 'Are you sure you want to do this?' );
 }
 
 /**
  * Display "sticky" CSS class, if a post is sticky.
  *
- *
+ * @since 2.7.0
  * @deprecated 3.5.0 Use post_class()
  * @see post_class()
  *
@@ -3162,7 +3163,7 @@ function sticky_class( $post_id = null ) {
  * This is no longer needed as GC_Post lazy-loads the ancestors
  * property with get_post_ancestors().
  *
- *
+ * @since 2.3.4
  * @deprecated 3.5.0 Use get_post_ancestors()
  * @see get_post_ancestors()
  *
@@ -3175,7 +3176,7 @@ function _get_post_ancestors( &$post ) {
 /**
  * Load an image from a string, if PHP supports it.
  *
- *
+ * @since 2.1.0
  * @deprecated 3.5.0 Use gc_get_image_editor()
  * @see gc_get_image_editor()
  *
@@ -3191,11 +3192,11 @@ function gc_load_image( $file ) {
 
 	if ( ! is_file( $file ) ) {
 		/* translators: %s: File name. */
-		return sprintf( __( '“%s”文件不存在？' ), $file );
+		return sprintf( __( 'File &#8220;%s&#8221; does not exist?' ), $file );
 	}
 
 	if ( ! function_exists('imagecreatefromstring') )
-		return __('未安装 GD 图片库。');
+		return __('The GD image library is not installed.');
 
 	// Set artificially high because GD uses uncompressed images in memory.
 	gc_raise_memory_limit( 'image' );
@@ -3204,7 +3205,7 @@ function gc_load_image( $file ) {
 
 	if ( ! is_gd_image( $image ) ) {
 		/* translators: %s: File name. */
-		return sprintf( __( '“%s”不是图片文件。' ), $file );
+		return sprintf( __( 'File &#8220;%s&#8221; is not an image.' ), $file );
 	}
 
 	return $image;
@@ -3221,7 +3222,7 @@ function gc_load_image( $file ) {
  * support. This is not the fault of GeChiUI (where functionality is
  * downgraded, not actual defects), but of your PHP version.
  *
- *
+ * @since 2.5.0
  * @deprecated 3.5.0 Use gc_get_image_editor()
  * @see gc_get_image_editor()
  *
@@ -3261,7 +3262,7 @@ function image_resize( $file, $max_w, $max_h, $crop = false, $suffix = null, $de
  * Has categories in 'post_category' property or key. Has tags in 'tags_input'
  * property or key.
  *
- *
+ * @since 1.0.0
  * @deprecated 3.5.0 Use get_post()
  * @see get_post()
  *
@@ -3277,7 +3278,7 @@ function gc_get_single_post( $postid = 0, $mode = OBJECT ) {
 /**
  * Check that the user login name and password is correct.
  *
- *
+ * @since 0.71
  * @deprecated 3.5.0 Use gc_authenticate()
  * @see gc_authenticate()
  *
@@ -3297,7 +3298,7 @@ function user_pass_ok($user_login, $user_pass) {
 /**
  * Callback formerly fired on the save_post hook. No longer needed.
  *
- *
+ * @since 2.3.0
  * @deprecated 3.5.0
  */
 function _save_post_hook() {}
@@ -3305,7 +3306,7 @@ function _save_post_hook() {}
 /**
  * Check if the installed version of GD supports particular image type
  *
- *
+ * @since 2.9.0
  * @deprecated 3.5.0 Use gc_image_editor_supports()
  * @see gc_image_editor_supports()
  *
@@ -3344,7 +3345,7 @@ function gd_edit_image_support($mime_type) {
 /**
  * Converts an integer byte value to a shorthand byte value.
  *
- *
+ * @since 2.3.0
  * @deprecated 3.6.0 Use size_format()
  * @see size_format()
  *
@@ -3372,7 +3373,7 @@ function gc_convert_bytes_to_hr( $bytes ) {
 /**
  * Formerly used internally to tidy up the search terms.
  *
- *
+ * @since 2.9.0
  * @access private
  * @deprecated 3.7.0
  *
@@ -3390,7 +3391,7 @@ function _search_terms_tidy( $t ) {
  * Checks to see if the user has deleted the tinymce files to slim down
  * their GeChiUI installation.
  *
- *
+ * @since 2.1.0
  * @deprecated 3.9.0
  *
  * @return bool Whether TinyMCE exists.
@@ -3408,7 +3409,7 @@ function rich_edit_exists() {
 /**
  * Old callback for tag link tooltips.
  *
- *
+ * @since 2.7.0
  * @access private
  * @deprecated 3.9.0
  *
@@ -3424,7 +3425,7 @@ function default_topic_count_text( $count ) {
  *
  * Has not performed this function for many, many years. Use gcdb::prepare() instead.
  *
- *
+ * @since 0.71
  * @deprecated 3.9.0
  *
  * @param string $content The text to format.
@@ -3438,7 +3439,7 @@ function format_to_post( $content ) {
 /**
  * Formerly used to escape strings before searching the DB. It was poorly documented and never worked as described.
  *
- *
+ * @since 2.5.0
  * @deprecated 4.0.0 Use gcdb::esc_like()
  * @see gcdb::esc_like()
  *
@@ -3456,7 +3457,7 @@ function like_escape($text) {
  * Determines if the URL can be accessed over SSL by using the GeChiUI HTTP API to access
  * the URL using https as the scheme.
  *
- *
+ * @since 2.5.0
  * @deprecated 4.0.0
  *
  * @param string $url The URL to test.
@@ -3483,7 +3484,7 @@ function url_is_accessable_via_ssl( $url ) {
  * Will only perform task if the user has permissions and template and preview
  * query variables exist.
  *
- *
+ * @since 2.6.0
  * @deprecated 4.3.0
  */
 function preview_theme() {
@@ -3493,7 +3494,7 @@ function preview_theme() {
 /**
  * Private function to modify the current template when previewing a theme
  *
- *
+ * @since 2.9.0
  * @deprecated 4.3.0
  * @access private
  *
@@ -3507,7 +3508,7 @@ function _preview_theme_template_filter() {
 /**
  * Private function to modify the current stylesheet when previewing a theme
  *
- *
+ * @since 2.9.0
  * @deprecated 4.3.0
  * @access private
  *
@@ -3521,7 +3522,7 @@ function _preview_theme_stylesheet_filter() {
 /**
  * Callback function for ob_start() to capture all links in the theme.
  *
- *
+ * @since 2.6.0
  * @deprecated 4.3.0
  * @access private
  *
@@ -3538,7 +3539,7 @@ function preview_theme_ob_filter( $content ) {
  *
  * Callback function for preg_replace_callback() to accept and filter matches.
  *
- *
+ * @since 2.6.0
  * @deprecated 4.3.0
  * @access private
  *
@@ -3556,7 +3557,7 @@ function preview_theme_ob_filter_callback( $matches ) {
  * The {@see 'richedit_pre'} filter is applied here. If `$text` is empty the filter will
  * be applied to an empty string.
  *
- *
+ * @since 2.0.0
  * @deprecated 4.3.0 Use format_for_editor()
  * @see format_for_editor()
  *
@@ -3577,6 +3578,7 @@ function gc_richedit_pre($text) {
 		 * If a non-empty string is passed, the filter is evaluated on the gc_richedit_pre()
 		 * return after being formatted.
 		 *
+		 * @since 2.0.0
 		 * @deprecated 4.3.0
 		 *
 		 * @param string $output Text for the rich text editor.
@@ -3598,7 +3600,7 @@ function gc_richedit_pre($text) {
  * Unless $output is empty it will pass through htmlspecialchars before the
  * {@see 'htmledit_pre'} filter is applied.
  *
- *
+ * @since 2.5.0
  * @deprecated 4.3.0 Use format_for_editor()
  * @see format_for_editor()
  *
@@ -3614,6 +3616,7 @@ function gc_htmledit_pre($output) {
 	/**
 	 * Filters the text before it is formatted for the HTML editor.
 	 *
+	 * @since 2.5.0
 	 * @deprecated 4.3.0
 	 *
 	 * @param string $output The HTML-formatted text.
@@ -3624,7 +3627,7 @@ function gc_htmledit_pre($output) {
 /**
  * Retrieve permalink from post ID.
  *
- *
+ * @since 1.0.0
  * @deprecated 4.4.0 Use get_permalink()
  * @see get_permalink()
  *
@@ -3643,7 +3646,7 @@ function post_permalink( $post_id = 0 ) {
  * If $file_path is a writable filename, this will do a GET request and write
  * the file to that path.
  *
- *
+ * @since 2.5.0
  * @deprecated 4.4.0 Use GC_Http
  * @see GC_Http
  *
@@ -3700,7 +3703,7 @@ function gc_get_http( $url, $file_path = false, $red = 1 ) {
 /**
  * Whether SSL login should be forced.
  *
- *
+ * @since 2.6.0
  * @deprecated 4.4.0 Use force_ssl_admin()
  * @see force_ssl_admin()
  *
@@ -3715,7 +3718,7 @@ function force_ssl_login( $force = null ) {
 /**
  * Retrieve path of comment popup template in current or parent template.
  *
- *
+ * @since 1.5.0
  * @deprecated 4.5.0
  *
  * @return string Full path to comments popup template file.
@@ -3733,7 +3736,7 @@ function get_comments_popup_template() {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
+ * @since 1.5.0
  * @deprecated 4.5.0
  *
  * @return false Always returns false.
@@ -3747,7 +3750,7 @@ function is_comments_popup() {
 /**
  * Display the JS popup script to show a comment.
  *
- *
+ * @since 0.71
  * @deprecated 4.5.0
  */
 function comments_popup_script() {
@@ -3757,7 +3760,7 @@ function comments_popup_script() {
 /**
  * Adds element attributes to open links in new tabs.
  *
- *
+ * @since 0.71
  * @deprecated 4.5.0
  *
  * @param string $text Content to replace links to open in a new tab.
@@ -3775,7 +3778,7 @@ function popuplinks( $text ) {
  * Deprecated function that previously assisted in turning Google Video URLs
  * into embeds but that service has since been shut down.
  *
- *
+ * @since 2.9.0
  * @deprecated 4.6.0
  *
  * @return string An empty string.
@@ -3789,7 +3792,7 @@ function gc_embed_handler_googlevideo( $matches, $attr, $url, $rawattr ) {
 /**
  * Retrieve path of paged template in current or parent template.
  *
- *
+ * @since 1.5.0
  * @deprecated 4.7.0 The paged.php template is no longer part of the theme template hierarchy.
  *
  * @return string Full path to paged template file.
@@ -3814,7 +3817,7 @@ function get_paged_template() {
  * energy demands it placed, now merely passing through its
  * input to the return.
  *
- *
+ * @since 1.0.0
  * @deprecated 4.7.0 Officially dropped security support for Netscape 4.
  *
  * @param string $string
@@ -3832,7 +3835,7 @@ function gc_kses_js_entities( $string ) {
  * Used by usort() as a callback, should not be used directly. Can actually be
  * used to sort any term object.
  *
- *
+ * @since 2.3.0
  * @deprecated 4.7.0 Use gc_list_sort()
  * @access private
  *
@@ -3857,7 +3860,7 @@ function _usort_terms_by_ID( $a, $b ) {
  * Used by usort() as a callback, should not be used directly. Can actually be
  * used to sort any term object.
  *
- *
+ * @since 2.3.0
  * @deprecated 4.7.0 Use gc_list_sort()
  * @access private
  *
@@ -3874,7 +3877,7 @@ function _usort_terms_by_name( $a, $b ) {
 /**
  * Sort menu items by the desired key.
  *
- *
+ * @since 3.0.0
  * @deprecated 4.7.0 Use gc_list_sort()
  * @access private
  *
@@ -3909,7 +3912,7 @@ function _sort_nav_menu_items( $a, $b ) {
 /**
  * Retrieves the Press This bookmarklet link.
  *
- *
+ * @since 2.6.0
  * @deprecated 4.9.0
  *
  */
@@ -3921,6 +3924,7 @@ function get_shortcut_link() {
 	/**
 	 * Filters the Press This bookmarklet link.
 	 *
+	 * @since 2.6.0
 	 * @deprecated 4.9.0
 	 *
 	 * @param string $link The Press This bookmarklet link.
@@ -3931,7 +3935,7 @@ function get_shortcut_link() {
 /**
 * Ajax handler for saving a post from Press This.
 *
-*
+* @since 4.2.0
 * @deprecated 4.9.0
 */
 function gc_ajax_press_this_save_post() {
@@ -3941,14 +3945,14 @@ function gc_ajax_press_this_save_post() {
 		$gc_press_this = new GC_Press_This_Plugin();
 		$gc_press_this->save_post();
 	} else {
-		gc_send_json_error( array( 'errorMessage' => __( '需要安装“快速发布”插件。' ) ) );
+		gc_send_json_error( array( 'errorMessage' => __( 'The Press This plugin is required.' ) ) );
 	}
 }
 
 /**
 * Ajax handler for creating new category from Press This.
 *
-*
+* @since 4.2.0
 * @deprecated 4.9.0
 */
 function gc_ajax_press_this_add_category() {
@@ -3958,14 +3962,14 @@ function gc_ajax_press_this_add_category() {
 		$gc_press_this = new GC_Press_This_Plugin();
 		$gc_press_this->add_category();
 	} else {
-		gc_send_json_error( array( 'errorMessage' => __( '需要安装“快速发布”插件。' ) ) );
+		gc_send_json_error( array( 'errorMessage' => __( 'The Press This plugin is required.' ) ) );
 	}
 }
 
 /**
  * Return the user request object for the specified request ID.
  *
- *
+ * @since 4.9.6
  * @deprecated 5.4.0 Use gc_get_user_request()
  * @see gc_get_user_request()
  *
@@ -3980,7 +3984,7 @@ function gc_get_user_request_data( $request_id ) {
 /**
  * Filters 'img' elements in post content to add 'srcset' and 'sizes' attributes.
  *
- *
+ * @since 4.4.0
  * @deprecated 5.5.0
  *
  * @see gc_image_add_srcset_and_sizes()
@@ -3998,7 +4002,7 @@ function gc_make_content_images_responsive( $content ) {
 /**
  * Turn register globals off.
  *
- *
+ * @since 2.1.0
  * @access private
  * @deprecated 5.5.0
  */
@@ -4010,9 +4014,9 @@ function gc_unregister_GLOBALS() {  // phpcs:ignore GeChiUI.NamingConventions.Va
 /**
  * Does comment contain disallowed characters or words.
  *
- *
+ * @since 1.5.0
  * @deprecated 5.5.0 Use gc_check_comment_disallowed_list() instead.
- *                   请考虑编写更具包容性的代码。
+ *                   Please consider writing more inclusive code.
  *
  * @param string $author The author of the comment
  * @param string $email The email of the comment
@@ -4035,9 +4039,9 @@ function gc_blacklist_check( $author, $email, $url, $comment, $user_ip, $user_ag
  * to be explicitly turned off is a warranty seal of sorts.
  *
  * @access private
- *
+ * @since 4.6.0
  * @deprecated 5.5.0 Use _gc_register_meta_args_allowed_list() instead.
- *                   请考虑编写更具包容性的代码。
+ *                   Please consider writing more inclusive code.
  *
  * @param array $args         Arguments from `register_meta()`.
  * @param array $default_args Default arguments for `register_meta()`.
@@ -4052,9 +4056,9 @@ function _gc_register_meta_args_whitelist( $args, $default_args ) {
 /**
  * Adds an array of options to the list of allowed options.
  *
- *
+ * @since 2.7.0
  * @deprecated 5.5.0 Use add_allowed_options() instead.
- *                   请考虑编写更具包容性的代码。
+ *                   Please consider writing more inclusive code.
  *
  * @global array $allowed_options
  *
@@ -4071,9 +4075,9 @@ function add_option_whitelist( $new_options, $options = '' ) {
 /**
  * Removes a list of options from the allowed options list.
  *
- *
+ * @since 2.7.0
  * @deprecated 5.5.0 Use remove_allowed_options() instead.
- *                   请考虑编写更具包容性的代码。
+ *                   Please consider writing more inclusive code.
  *
  * @global array $allowed_options
  *
@@ -4093,7 +4097,7 @@ function remove_option_whitelist( $del_options, $options = '' ) {
  * This should be used when preparing data for core APIs that expect slashed data.
  * This should not be used to escape data going directly into an SQL query.
  *
- *
+ * @since 5.3.0
  * @deprecated 5.6.0 Use gc_slash()
  *
  * @see gc_slash()
@@ -4108,7 +4112,7 @@ function gc_slash_strings_only( $value ) {
 /**
  * Adds slashes only if the provided value is a string.
  *
- *
+ * @since 5.3.0
  * @deprecated 5.6.0
  *
  * @see gc_slash()
@@ -4133,7 +4137,7 @@ function addslashes_strings_only( $value ) {
  *
  * @see gc_no_robots()
  *
- *
+ * @since 2.1.0
  * @deprecated 5.7.0 Use gc_robots_noindex() instead on 'gc_robots' filter.
  */
 function noindex() {
@@ -4151,8 +4155,8 @@ function noindex() {
  * Outputs a noindex meta tag that tells web robots not to index the page content.
  * Typical usage is as a {@see 'gc_head'} callback. add_action( 'gc_head', 'gc_no_robots' );
  *
- *
- *
+ * @since 3.3.0
+ * @since 5.3.0 Echo "noindex,nofollow" if search engine visibility is discouraged.
  * @deprecated 5.7.0 Use gc_robots_no_robots() instead on 'gc_robots' filter.
  */
 function gc_no_robots() {
@@ -4175,7 +4179,7 @@ function gc_no_robots() {
  *
  * Typical usage is as a gc_head callback. add_action( 'gc_head', 'gc_sensitive_page_meta' );
  *
- *
+ * @since 5.0.1
  * @deprecated 5.7.0 Use gc_robots_sensitive_page() instead on 'gc_robots' filter
  *                   and gc_strict_cross_origin_referrer() on 'gc_head' action.
  */
@@ -4191,7 +4195,7 @@ function gc_sensitive_page_meta() {
 /**
  * Render inner blocks from the `core/columns` block for generating an excerpt.
  *
- *
+ * @since 5.2.0
  * @deprecated 5.8.0
  *
  * @access private
@@ -4203,4 +4207,81 @@ function gc_sensitive_page_meta() {
 function _excerpt_render_inner_columns_blocks( $columns, $allowed_blocks ) {
 	_deprecated_function( __FUNCTION__, '5.8.0', '_excerpt_render_inner_blocks()' );
 	return _excerpt_render_inner_blocks( $columns, $allowed_blocks );
+}
+
+/**
+ * Renders the duotone filter SVG and returns the CSS filter property to
+ * reference the rendered SVG.
+ *
+ * @since 5.9.0
+ * @deprecated 5.9.1 Use `gc_get_duotone_filter_property` introduced in 5.9.1.
+ *
+ * @see gc_get_duotone_filter_property()
+ *
+ * @param array $preset Duotone preset value as seen in theme.json.
+ * @return string Duotone CSS filter property.
+ */
+function gc_render_duotone_filter_preset( $preset ) {
+	_deprecated_function( __FUNCTION__, '5.9.1', 'gc_get_duotone_filter_property()' );
+	return gc_get_duotone_filter_property( $preset );
+}
+
+/**
+ * Checks whether serialization of the current block's border properties should
+ * occur.
+ *
+ * @since 5.8.0
+ * @access private
+ * @deprecated 6.0.0 Use `gc_should_skip_block_supports_serialization` introduced in 6.0.0.
+ *
+ * @param GC_Block_Type $block_type Block type.
+ * @return bool Whether serialization of the current block's border properties
+ *              should occur.
+ */
+function gc_skip_border_serialization( $block_type ) {
+	_deprecated_function( __FUNCTION__, '6.0.0', 'gc_should_skip_block_supports_serialization()' );
+	$border_support = _gc_array_get( $block_type->supports, array( '__experimentalBorder' ), false );
+
+	return is_array( $border_support ) &&
+		array_key_exists( '__experimentalSkipSerialization', $border_support ) &&
+		$border_support['__experimentalSkipSerialization'];
+}
+
+/**
+ * Checks whether serialization of the current block's dimensions properties
+ * should occur.
+ *
+ * @since 5.9.0
+ * @access private
+ * @deprecated 6.0.0 Use `gc_should_skip_block_supports_serialization` introduced in 6.0.0.
+ *
+ * @param GC_Block_type $block_type Block type.
+ * @return bool Whether to serialize spacing support styles & classes.
+ */
+function gc_skip_dimensions_serialization( $block_type ) {
+	_deprecated_function( __FUNCTION__, '6.0.0', 'gc_should_skip_block_supports_serialization()' );
+	$dimensions_support = _gc_array_get( $block_type->supports, array( '__experimentalDimensions' ), false );
+	return is_array( $dimensions_support ) &&
+		array_key_exists( '__experimentalSkipSerialization', $dimensions_support ) &&
+		$dimensions_support['__experimentalSkipSerialization'];
+}
+
+/**
+ * Checks whether serialization of the current block's spacing properties should
+ * occur.
+ *
+ * @since 5.9.0
+ * @access private
+ * @deprecated 6.0.0 Use `gc_should_skip_block_supports_serialization` introduced in 6.0.0.
+ *
+ * @param GC_Block_Type $block_type Block type.
+ * @return bool Whether to serialize spacing support styles & classes.
+ */
+function gc_skip_spacing_serialization( $block_type ) {
+	_deprecated_function( __FUNCTION__, '6.0.0', 'gc_should_skip_block_supports_serialization()' );
+	$spacing_support = _gc_array_get( $block_type->supports, array( 'spacing' ), false );
+
+	return is_array( $spacing_support ) &&
+		array_key_exists( '__experimentalSkipSerialization', $spacing_support ) &&
+		$spacing_support['__experimentalSkipSerialization'];
 }

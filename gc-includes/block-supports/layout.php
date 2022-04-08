@@ -3,13 +3,13 @@
  * Layout block support flag.
  *
  * @package GeChiUI
- *
+ * @since 5.8.0
  */
 
 /**
  * Registers the layout block attribute for block types that support it.
  *
- *
+ * @since 5.8.0
  * @access private
  *
  * @param GC_Block_Type $block_type Block Type.
@@ -32,7 +32,7 @@ function gc_register_layout_support( $block_type ) {
 /**
  * Generates the CSS corresponding to the provided layout.
  *
- *
+ * @since 5.9.0
  * @access private
  *
  * @param string $selector              CSS selector.
@@ -54,9 +54,8 @@ function gc_get_layout_style( $selector, $layout, $has_block_gap_support = false
 		$wide_max_width_value = $wide_size ? $wide_size : $content_size;
 
 		// Make sure there is a single CSS rule, and all tags are stripped for security.
-		// TODO: Use `safecss_filter_attr` instead - once https://core.trac.gechiui.com/ticket/46197 is patched.
-		$all_max_width_value  = gc_strip_all_tags( explode( ';', $all_max_width_value )[0] );
-		$wide_max_width_value = gc_strip_all_tags( explode( ';', $wide_max_width_value )[0] );
+		$all_max_width_value  = safecss_filter_attr( explode( ';', $all_max_width_value )[0] );
+		$wide_max_width_value = safecss_filter_attr( explode( ';', $wide_max_width_value )[0] );
 
 		$style = '';
 		if ( $content_size || $wide_size ) {
@@ -132,7 +131,7 @@ function gc_get_layout_style( $selector, $layout, $has_block_gap_support = false
 /**
  * Renders the layout config to the block wrapper.
  *
- *
+ * @since 5.8.0
  * @access private
  *
  * @param string $block_content Rendered block content.
@@ -159,33 +158,23 @@ function gc_render_layout_support_flag( $block_content, $block ) {
 		$used_layout = $default_layout;
 	}
 
-	$id        = uniqid();
-	$gap_value = _gc_array_get( $block, array( 'attrs', 'style', 'spacing', 'blockGap' ) );
+	$class_name = gc_unique_id( 'gc-container-' );
+	$gap_value  = _gc_array_get( $block, array( 'attrs', 'style', 'spacing', 'blockGap' ) );
 	// Skip if gap value contains unsupported characters.
 	// Regex for CSS value borrowed from `safecss_filter_attr`, and used here
 	// because we only want to match against the value, not the CSS attribute.
 	$gap_value = preg_match( '%[\\\(&=}]|/\*%', $gap_value ) ? null : $gap_value;
-	$style     = gc_get_layout_style( ".gc-container-$id", $used_layout, $has_block_gap_support, $gap_value );
+	$style     = gc_get_layout_style( ".$class_name", $used_layout, $has_block_gap_support, $gap_value );
 	// This assumes the hook only applies to blocks with a single wrapper.
 	// I think this is a reasonable limitation for that particular hook.
 	$content = preg_replace(
 		'/' . preg_quote( 'class="', '/' ) . '/',
-		'class="gc-container-' . $id . ' ',
+		'class="' . esc_attr( $class_name ) . ' ',
 		$block_content,
 		1
 	);
 
-	/*
-	 * Ideally styles should be loaded in the head, but blocks may be parsed
-	 * after that, so loading in the footer for now.
-	 * See https://core.trac.gechiui.com/ticket/53494.
-	 */
-	add_action(
-		'gc_footer',
-		static function () use ( $style ) {
-			echo '<style>' . $style . '</style>';
-		}
-	);
+	gc_enqueue_block_support_styles( $style );
 
 	return $content;
 }
@@ -204,7 +193,7 @@ add_filter( 'render_block', 'gc_render_layout_support_flag', 10, 2 );
  * to restore the inner div for the group block
  * to avoid breaking styles relying on that div.
  *
- *
+ * @since 5.8.0
  * @access private
  *
  * @param string $block_content Rendered block content.

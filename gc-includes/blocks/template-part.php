@@ -53,7 +53,7 @@ function render_block_core_template_part( $attributes ) {
 			/**
 			 * Fires when a block template part is loaded from a template post stored in the database.
 			 *
-	
+			 * @since 5.9.0
 			 *
 			 * @param string  $template_part_id   The requested template part namespaced to the theme.
 			 * @param array   $attributes         The block attributes.
@@ -80,7 +80,7 @@ function render_block_core_template_part( $attributes ) {
 				/**
 				 * Fires when a block template part is loaded from a template part in the theme.
 				 *
-		
+				 * @since 5.9.0
 				 *
 				 * @param string $template_part_id        The requested template part namespaced to the theme.
 				 * @param array  $attributes              The block attributes.
@@ -92,7 +92,7 @@ function render_block_core_template_part( $attributes ) {
 				/**
 				 * Fires when a requested block template part does not exist in the database nor in the theme.
 				 *
-		
+				 * @since 5.9.0
 				 *
 				 * @param string $template_part_id        The requested template part namespaced to the theme.
 				 * @param array  $attributes              The block attributes.

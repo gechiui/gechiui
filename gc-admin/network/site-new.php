@@ -215,7 +215,7 @@ printf(
 				<input name="blog[domain]" type="text" class="regular-text ltr" id="site-address" aria-describedby="site-address-desc" autocapitalize="none" autocorrect="off" required />
 				<?php
 			}
-			echo '<p class="描述" id="site-address-desc">' . __( '只允许小写字母（a-z）、数字和连字符。' ) . '</p>';
+			echo '<p class="description" id="site-address-desc">' . __( '只允许小写字母（a-z）、数字和连字符。' ) . '</p>';
 			?>
 			</td>
 		</tr>

@@ -355,7 +355,7 @@ function network_step1( $errors = false ) {
 				<th scope='row'><label for="sitename"><?php esc_html_e( '网络标题' ); ?></label></th>
 				<td>
 					<input name='sitename' id='sitename' type='text' size='45' value='<?php echo esc_attr( $site_name ); ?>' />
-					<p class="描述">
+					<p class="description">
 						<?php _e( '您想怎么称呼您的站点网络？' ); ?>
 					</p>
 				</td>
@@ -364,7 +364,7 @@ function network_step1( $errors = false ) {
 				<th scope='row'><label for="email"><?php esc_html_e( '网络管理员邮箱' ); ?></label></th>
 				<td>
 					<input name='email' id='email' type='text' size='45' value='<?php echo esc_attr( $admin_email ); ?>' />
-					<p class="描述">
+					<p class="description">
 						<?php _e( '您的邮箱地址。' ); ?>
 					</p>
 				</td>
@@ -472,7 +472,7 @@ function network_step2( $errors = false ) {
 		<li><p>
 		<?php
 		printf(
-			/* translators: 1: gc-config.php, 2: Location of gc-config file, 3: Translated version of "That's all, stop editing! Happy publishing." */
+			/* translators: 1: gc-config.php, 2: Location of gc-config file, 3: Translated version of "停止编辑，到这里截止自定义值。" */
 			__( '将以下内容加入位于%2$s的%1$s文件，加在%3$s这行<strong>上方</strong>：' ),
 			'<code>gc-config.php</code>',
 			'<code>' . $location_of_gc_config . '</code>',
@@ -481,7 +481,7 @@ function network_step2( $errors = false ) {
 			 * You can check the localized release package or
 			 * https://i18n.svn.gechiui.com/<locale code>/branches/<gc version>/dist/gc-config-sample.php
 			 */
-			'<code>/* ' . __( 'That&#8217;s all, stop editing! Happy publishing.' ) . ' */</code>'
+			'<code>/* ' . __( '停止编辑，到这里截止自定义值。' ) . ' */</code>'
 		);
 		?>
 		</p>

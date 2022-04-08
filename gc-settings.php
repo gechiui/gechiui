@@ -11,7 +11,7 @@
 /**
  * Stores the location of the GeChiUI directory of functions, classes, and core content.
  *
- *
+ * @since 1.0.0
  */
 define( 'GCINC', 'gc-includes' );
 
@@ -53,7 +53,7 @@ require_once ABSPATH . GCINC . '/plugin.php';
  * configuration. In multisite, it will be overridden by default in ms-settings.php.
  *
  * @global int $blog_id
- *
+ * @since 2.0.0
  */
 global $blog_id;
 
@@ -85,7 +85,7 @@ gc_debug_mode();
  * This filter runs before it can be used by plugins. It is designed for non-web
  * run-times. If false is returned, advanced-cache.php will never be loaded.
  *
- *
+ * @since 4.6.0
  *
  * @param bool $enable_advanced_cache Whether to enable loading advanced-cache.php (if present).
  *                                    Default true.
@@ -117,7 +117,7 @@ require ABSPATH . GCINC . '/pomo/mo.php';
 
 /**
  * @global gcdb $gcdb GeChiUI database abstraction object.
- *
+ * @since 0.71
  */
 global $gcdb;
 // Include the gcdb class and, if present, a db.php database drop-in.
@@ -317,6 +317,7 @@ require ABSPATH . GCINC . '/blocks/index.php';
 require ABSPATH . GCINC . '/block-editor.php';
 require ABSPATH . GCINC . '/block-patterns.php';
 require ABSPATH . GCINC . '/class-gc-block-supports.php';
+require ABSPATH . GCINC . '/block-supports/utils.php';
 require ABSPATH . GCINC . '/block-supports/align.php';
 require ABSPATH . GCINC . '/block-supports/border.php';
 require ABSPATH . GCINC . '/block-supports/colors.php';
@@ -346,39 +347,46 @@ $GLOBALS['gc_plugin_paths'] = array();
 
 // Load must-use plugins.
 foreach ( gc_get_mu_plugins() as $mu_plugin ) {
+	$_gc_plugin_file = $mu_plugin;
 	include_once $mu_plugin;
+	$mu_plugin = $_gc_plugin_file; // Avoid stomping of the $mu_plugin variable in a plugin.
 
 	/**
 	 * Fires once a single must-use plugin has loaded.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param string $mu_plugin Full path to the plugin's main file.
 	 */
 	do_action( 'mu_plugin_loaded', $mu_plugin );
 }
-unset( $mu_plugin );
+unset( $mu_plugin, $_gc_plugin_file );
 
 // Load network activated plugins.
 if ( is_multisite() ) {
 	foreach ( gc_get_active_network_plugins() as $network_plugin ) {
 		gc_register_plugin_realpath( $network_plugin );
+
+		$_gc_plugin_file = $network_plugin;
 		include_once $network_plugin;
+		$network_plugin = $_gc_plugin_file; // Avoid stomping of the $network_plugin variable in a plugin.
 
 		/**
 		 * Fires once a single network-activated plugin has loaded.
 		 *
+		 * @since 5.1.0
 		 *
 		 * @param string $network_plugin Full path to the plugin's main file.
 		 */
 		do_action( 'network_plugin_loaded', $network_plugin );
 	}
-	unset( $network_plugin );
+	unset( $network_plugin, $_gc_plugin_file );
 }
 
 /**
  * Fires once all must-use and network-activated plugins have loaded.
  *
- *
+ * @since 2.8.0
  */
 do_action( 'muplugins_loaded' );
 
@@ -413,17 +421,21 @@ if ( ! is_multisite() ) {
 // Load active plugins.
 foreach ( gc_get_active_and_valid_plugins() as $plugin ) {
 	gc_register_plugin_realpath( $plugin );
+
+	$_gc_plugin_file = $plugin;
 	include_once $plugin;
+	$plugin = $_gc_plugin_file; // Avoid stomping of the $plugin variable in a plugin.
 
 	/**
 	 * Fires once a single activated plugin has loaded.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param string $plugin Full path to the plugin's main file.
 	 */
 	do_action( 'plugin_loaded', $plugin );
 }
-unset( $plugin );
+unset( $plugin, $_gc_plugin_file );
 
 // Load pluggable functions.
 require ABSPATH . GCINC . '/pluggable.php';
@@ -442,7 +454,7 @@ if ( GC_CACHE && function_exists( 'gc_cache_postload' ) ) {
  *
  * Pluggable functions are also available at this point in the loading order.
  *
- *
+ * @since 1.5.0
  */
 do_action( 'plugins_loaded' );
 
@@ -455,7 +467,7 @@ gc_magic_quotes();
 /**
  * Fires when comment cookies are sanitized.
  *
- *
+ * @since 2.0.11
  */
 do_action( 'sanitize_comment_cookies' );
 
@@ -463,7 +475,7 @@ do_action( 'sanitize_comment_cookies' );
  * GeChiUI Query object
  *
  * @global GC_Query $gc_the_query GeChiUI Query object.
- *
+ * @since 2.0.0
  */
 $GLOBALS['gc_the_query'] = new GC_Query();
 
@@ -472,7 +484,7 @@ $GLOBALS['gc_the_query'] = new GC_Query();
  * Use this global for GeChiUI queries
  *
  * @global GC_Query $gc_query GeChiUI Query object.
- *
+ * @since 1.5.0
  */
 $GLOBALS['gc_query'] = $GLOBALS['gc_the_query'];
 
@@ -480,7 +492,7 @@ $GLOBALS['gc_query'] = $GLOBALS['gc_the_query'];
  * Holds the GeChiUI Rewrite object for creating pretty URLs
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
- *
+ * @since 1.5.0
  */
 $GLOBALS['gc_rewrite'] = new GC_Rewrite();
 
@@ -488,7 +500,7 @@ $GLOBALS['gc_rewrite'] = new GC_Rewrite();
  * GeChiUI Object
  *
  * @global GC $gc Current GeChiUI environment instance.
- *
+ * @since 2.0.0
  */
 $GLOBALS['gc'] = new GC();
 
@@ -496,7 +508,7 @@ $GLOBALS['gc'] = new GC();
  * GeChiUI Widget Factory Object
  *
  * @global GC_Widget_Factory $gc_widget_factory
- *
+ * @since 2.8.0
  */
 $GLOBALS['gc_widget_factory'] = new GC_Widget_Factory();
 
@@ -504,14 +516,14 @@ $GLOBALS['gc_widget_factory'] = new GC_Widget_Factory();
  * GeChiUI User Roles
  *
  * @global GC_Roles $gc_roles GeChiUI role management object.
- *
+ * @since 2.0.0
  */
 $GLOBALS['gc_roles'] = new GC_Roles();
 
 /**
  * Fires before the theme is loaded.
  *
- *
+ * @since 2.6.0
  */
 do_action( 'setup_theme' );
 
@@ -532,14 +544,14 @@ unset( $locale_file );
  * GeChiUI Locale object for loading locale domain date and various strings.
  *
  * @global GC_Locale $gc_locale GeChiUI date and time locale object.
- *
+ * @since 2.1.0
  */
 $GLOBALS['gc_locale'] = new GC_Locale();
 
 /**
  * GeChiUI Locale Switcher object for switching locales.
  *
- *
+ * @since 4.7.0
  *
  * @global GC_Locale_Switcher $gc_locale_switcher GeChiUI locale switcher object.
  */
@@ -557,7 +569,7 @@ unset( $theme );
 /**
  * Fires after the theme is loaded.
  *
- *
+ * @since 3.0.0
  */
 do_action( 'after_setup_theme' );
 
@@ -579,7 +591,7 @@ $GLOBALS['gc']->init();
  *
  * If you wish to plug an action once GC is loaded, use the {@see 'gc_loaded'} hook below.
  *
- *
+ * @since 1.5.0
  */
 do_action( 'init' );
 
@@ -601,6 +613,6 @@ if ( is_multisite() ) {
  *
  * @link https://codex.gechiui.com/AJAX_in_Plugins
  *
- *
+ * @since 3.0.0
  */
 do_action( 'gc_loaded' );

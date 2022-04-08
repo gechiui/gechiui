@@ -1,9 +1,9 @@
 {
 	"apiVersion": 2,
 	"name": "core/quote",
-	"title": "引用",
+	"title": "引语",
 	"category": "text",
-	"description": "对引用的文本进行视觉强调。 \"引用别人的话时，我们引用自己的话。\" — 胡里奥·科尔塔扎",
+	"description": "Give quoted text visual emphasis. \"In quoting others, we cite ourselves.\" — Julio Cortázar",
 	"keywords": [ "blockquote", "cite" ],
 	"textdomain": "default",
 	"attributes": {

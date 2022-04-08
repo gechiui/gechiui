@@ -5966,10 +5966,10 @@ function EntityRecordItem(_ref) {
 function getEntityDescription(entity, length) {
   switch (entity) {
     case 'site':
-      return Object(external_gc_i18n_["_n"])('此更改将影响整个站点。', '此更改将影响整个站点。', length);
+      return Object(external_gc_i18n_["_n"])('此更改将影响整个站点。', 'These changes will affect your whole site.', length);
 
     case 'gc_template':
-      return Object(external_gc_i18n_["_n"])('此更改将影响使用此模板的页面和文章。', '此更改将影响使用此模板的页面和文章。', length);
+      return Object(external_gc_i18n_["_n"])('此更改将影响使用此模板的页面和文章。', 'These changes will affect pages and posts that use these templates.', length);
 
     case 'page':
     case 'post':
@@ -5989,7 +5989,7 @@ function EntityTypeList(_ref) {
   const {
     name
   } = firstRecord;
-  const entityLabel = name === 'gc_template_part' ? Object(external_gc_i18n_["_n"])('模版组件', '模版组件', list.length) : entity.label; // Set description based on type of entity.
+  const entityLabel = name === 'gc_template_part' ? Object(external_gc_i18n_["_n"])('Template Part', 'Template Parts', list.length) : entity.label; // Set description based on type of entity.
 
   const description = getEntityDescription(name, list.length);
   return Object(external_gc_element_["createElement"])(external_gc_components_["PanelBody"], {
@@ -7304,7 +7304,7 @@ function PostExcerpt(_ref) {
     onChange: value => onUpdateExcerpt(value),
     value: excerpt
   }), Object(external_gc_element_["createElement"])(external_gc_components_["ExternalLink"], {
-    href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/excerpt/')
+    href: Object(external_gc_i18n_["__"])('https://www.gechiui.com/support/article/excerpt/')
   }, Object(external_gc_i18n_["__"])('了解关于人工摘要细节')));
 }
 
@@ -7539,7 +7539,7 @@ function PostFeaturedImage(_ref) {
       return Object(external_gc_element_["createElement"])(external_gc_components_["Button"], {
         onClick: open,
         variant: "secondary"
-      }, Object(external_gc_i18n_["__"])('更换图片'));
+      }, Object(external_gc_i18n_["__"])('替换图片'));
     }
   })), !!featuredImageId && Object(external_gc_element_["createElement"])(external_gc_blockEditor_["MediaUploadCheck"], null, Object(external_gc_element_["createElement"])(external_gc_components_["Button"], {
     onClick: onRemoveImage,
@@ -7689,7 +7689,7 @@ const POST_FORMATS = [{
   caption: Object(external_gc_i18n_["__"])('链接')
 }, {
   id: 'quote',
-  caption: Object(external_gc_i18n_["__"])('引用')
+  caption: Object(external_gc_i18n_["__"])('引语')
 }, {
   id: 'standard',
   caption: Object(external_gc_i18n_["__"])('标准')
@@ -7860,7 +7860,7 @@ function LastRevision(_ref) {
     icon: library_backup
   }, Object(external_gc_i18n_["sprintf"])(
   /* translators: %d: number of revisions */
-  Object(external_gc_i18n_["_n"])('%d个修订版本', '%d个修订版本', revisionsCount), revisionsCount)));
+  Object(external_gc_i18n_["_n"])('%d Revision', '%d Revisions', revisionsCount), revisionsCount)));
 }
 
 /* harmony default export */ var post_last_revision = (Object(external_gc_data_["withSelect"])(select => {
@@ -9387,7 +9387,7 @@ function FlatTermSelector(_ref) {
     const newTermIds = [...termIds, newTerm.id];
     const termAddedMessage = Object(external_gc_i18n_["sprintf"])(
     /* translators: %s: term name. */
-    Object(external_gc_i18n_["_x"])('已添加%s', 'term'), Object(external_lodash_["get"])(taxonomy, ['labels', 'singular_name'], slug === 'post_tag' ? Object(external_gc_i18n_["__"])('标签') : Object(external_gc_i18n_["__"])('项目')));
+    Object(external_gc_i18n_["_x"])('%s added', 'term'), Object(external_lodash_["get"])(taxonomy, ['labels', 'singular_name'], slug === 'post_tag' ? Object(external_gc_i18n_["__"])('标签') : Object(external_gc_i18n_["__"])('项目')));
     Object(external_gc_a11y_["speak"])(termAddedMessage, 'assertive');
     onUpdateTerms(newTermIds);
   }
@@ -9396,13 +9396,13 @@ function FlatTermSelector(_ref) {
   const singularName = Object(external_lodash_["get"])(taxonomy, ['labels', 'singular_name'], slug === 'post_tag' ? Object(external_gc_i18n_["__"])('标签') : Object(external_gc_i18n_["__"])('项目'));
   const termAddedLabel = Object(external_gc_i18n_["sprintf"])(
   /* translators: %s: term name. */
-  Object(external_gc_i18n_["_x"])('已添加%s', 'term'), singularName);
+  Object(external_gc_i18n_["_x"])('%s added', 'term'), singularName);
   const termRemovedLabel = Object(external_gc_i18n_["sprintf"])(
   /* translators: %s: term name. */
-  Object(external_gc_i18n_["_x"])('已删除%s', 'term'), singularName);
+  Object(external_gc_i18n_["_x"])('%s removed', 'term'), singularName);
   const removeTermLabel = Object(external_gc_i18n_["sprintf"])(
   /* translators: %s: term name. */
-  Object(external_gc_i18n_["_x"])('删除%s', 'term'), singularName);
+  Object(external_gc_i18n_["_x"])('Remove %s', 'term'), singularName);
   return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(external_gc_components_["FormTokenField"], {
     value: values,
     suggestions: suggestions,
@@ -10808,7 +10808,7 @@ function HierarchicalTermSelector(_ref) {
     });
     const termAddedMessage = Object(external_gc_i18n_["sprintf"])(
     /* translators: %s: taxonomy name */
-    Object(external_gc_i18n_["_x"])('已添加%s', 'term'), Object(external_lodash_["get"])(taxonomy, ['labels', 'singular_name'], slug === 'category' ? Object(external_gc_i18n_["__"])('分类') : Object(external_gc_i18n_["__"])('项目')));
+    Object(external_gc_i18n_["_x"])('%s added', 'term'), Object(external_lodash_["get"])(taxonomy, ['labels', 'singular_name'], slug === 'category' ? Object(external_gc_i18n_["__"])('分类') : Object(external_gc_i18n_["__"])('项目')));
     Object(external_gc_a11y_["speak"])(termAddedMessage, 'assertive');
     setAdding(false);
     setFormName('');
@@ -10838,7 +10838,7 @@ function HierarchicalTermSelector(_ref) {
     const resultCount = getResultCount(newFilteredTermsTree);
     const resultsFoundMessage = Object(external_gc_i18n_["sprintf"])(
     /* translators: %d: number of results */
-    Object(external_gc_i18n_["_n"])('找到%d个结果。', '找到%d个结果。', resultCount), resultCount);
+    Object(external_gc_i18n_["_n"])('%d result found.', '%d results found.', resultCount), resultCount);
     debouncedSpeak(resultsFoundMessage, 'assertive');
   };
 
@@ -11571,7 +11571,7 @@ function TableOfContentsPanel(_ref) {
       className: "table-of-contents__number"
     }, paragraphCount)), Object(external_gc_element_["createElement"])("li", {
       className: "table-of-contents__count"
-    }, Object(external_gc_i18n_["__"])('块'), Object(external_gc_element_["createElement"])("span", {
+    }, Object(external_gc_i18n_["__"])('区块'), Object(external_gc_element_["createElement"])("span", {
       className: "table-of-contents__number"
     }, numberOfBlocks)))), headingCount > 0 && Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])("hr", null), Object(external_gc_element_["createElement"])("h2", {
       className: "table-of-contents__title"
@@ -11899,7 +11899,7 @@ function useBlockEditorSettings(settings, hasTemplate) {
     return saveEntityRecord('postType', 'page', options);
   };
 
-  return Object(external_gc_element_["useMemo"])(() => ({ ...Object(external_lodash_["pick"])(settings, ['__experimentalBlockDirectory', '__experimentalBlockPatternCategories', '__experimentalBlockPatterns', '__experimentalFeatures', '__experimentalPreferredStyleVariations', '__experimentalSetIsInserterOpened', '__unstableGalleryWithImageBlocks', 'alignWide', 'allowedBlockTypes', 'bodyPlaceholder', 'codeEditingEnabled', 'colors', 'disableCustomColors', 'disableCustomFontSizes', 'disableCustomGradients', 'enableCustomLineHeight', 'enableCustomSpacing', 'enableCustomUnits', 'focusMode', 'fontSizes', 'gradients', 'hasFixedToolbar', 'hasReducedUI', 'imageDefaultSize', 'imageDimensions', 'imageEditing', 'imageSizes', 'isRTL', 'keepCaretInsideBlock', 'maxWidth', 'onUpdateDefaultBlockStyles', 'styles', 'template', 'templateLock', 'titlePlaceholder', 'supportsLayout', 'widgetTypesToHideFromLegacyWidgetBlock']),
+  return Object(external_gc_element_["useMemo"])(() => ({ ...Object(external_lodash_["pick"])(settings, ['__experimentalBlockDirectory', '__experimentalBlockPatternCategories', '__experimentalBlockPatterns', '__experimentalFeatures', '__experimentalPreferredStyleVariations', '__experimentalSetIsInserterOpened', '__experimentalGenerateAnchors', '__unstableGalleryWithImageBlocks', 'alignWide', 'allowedBlockTypes', 'bodyPlaceholder', 'codeEditingEnabled', 'colors', 'disableCustomColors', 'disableCustomFontSizes', 'disableCustomGradients', 'enableCustomLineHeight', 'enableCustomSpacing', 'enableCustomUnits', 'focusMode', 'fontSizes', 'gradients', 'hasFixedToolbar', 'hasReducedUI', 'imageDefaultSize', 'imageDimensions', 'imageEditing', 'imageSizes', 'isRTL', 'keepCaretInsideBlock', 'maxWidth', 'onUpdateDefaultBlockStyles', 'styles', 'template', 'templateLock', 'titlePlaceholder', 'supportsLayout', 'widgetTypesToHideFromLegacyWidgetBlock']),
     mediaUpload: hasUploadPermissions ? mediaUpload : undefined,
     __experimentalReusableBlocks: reusableBlocks,
     __experimentalFetchLinkSuggestions: (search, searchOptions) => Object(external_gc_coreData_["__experimentalFetchLinkSuggestions"])(search, searchOptions, settings),
