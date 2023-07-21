@@ -50,7 +50,7 @@ function render_block_core_post_terms( $attributes, $content, $block ) {
  */
 function register_block_core_post_terms() {
 	register_block_type_from_metadata(
-		__DIR__ . '/post-terms',
+		ABSPATH . 'assets/blocks/post-terms',
 		array(
 			'render_callback' => 'render_block_core_post_terms',
 		)

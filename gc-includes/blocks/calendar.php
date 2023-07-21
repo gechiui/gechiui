@@ -60,7 +60,7 @@ function render_block_core_calendar( $attributes ) {
  */
 function register_block_core_calendar() {
 	register_block_type_from_metadata(
-		__DIR__ . '/calendar',
+		ABSPATH . 'assets/blocks/calendar',
 		array(
 			'render_callback' => 'render_block_core_calendar',
 		)

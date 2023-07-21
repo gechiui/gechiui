@@ -250,15 +250,15 @@ class GC_Theme_Install_List_Table extends GC_Themes_List_Table {
 	 * @param stdClass $theme {
 	 *     An object that contains theme data returned by the www.GeChiUI.com API.
 	 *
-	 *     @type string $name           Theme name, e.g. '默认主题-蜂鸟'.
-	 *     @type string $slug           Theme slug, e.g. 'defaultbird'.
-	 *     @type string $version        Theme version, e.g. '1.1'.
+	 *     @type string $name           Theme name, e.g. '格尺OA办公'.
+	 *     @type string $slug           Theme slug, e.g. 'gcoa'.
+	 *     @type string $version        Theme version, e.g. '1.0.1'.
 	 *     @type string $author         Theme author username, e.g. 'gechiui'.
 	 *     @type string $preview_url    Preview URL, e.g. 'https://2021.gechiui.net/'.
-	 *     @type string $screenshot_url Screenshot URL, e.g. 'https://www.gechiui.com/themes/defaultbird/'.
+	 *     @type string $screenshot_url Screenshot URL, e.g. 'https://www.gechiui.com/themes/gcoa/'.
 	 *     @type float  $rating         Rating score.
 	 *     @type int    $num_ratings    The number of ratings.
-	 *     @type string $homepage       Theme homepage, e.g. 'https://www.gechiui.com/themes/defaultbird/'.
+	 *     @type string $homepage       Theme homepage, e.g. 'https://www.gechiui.com/themes/gcoa/'.
 	 *     @type string $description    Theme description.
 	 *     @type string $download_link  Theme ZIP download URL.
 	 * }

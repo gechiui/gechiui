@@ -333,7 +333,7 @@ function render_block_core_page_list( $attributes, $content, $block ) {
 	 */
 function register_block_core_page_list() {
 	register_block_type_from_metadata(
-		__DIR__ . '/page-list',
+		ABSPATH . 'assets/blocks/page-list',
 		array(
 			'render_callback' => 'render_block_core_page_list',
 		)

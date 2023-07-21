@@ -59,7 +59,7 @@ function render_block_core_post_comments( $attributes, $content, $block ) {
  */
 function register_block_core_post_comments() {
 	register_block_type_from_metadata(
-		__DIR__ . '/post-comments',
+		ABSPATH . 'assets/blocks/post-comments',
 		array(
 			'render_callback' => 'render_block_core_post_comments',
 		)

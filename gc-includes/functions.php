@@ -1716,7 +1716,7 @@ function do_favicon() {
 	 */
 	do_action( 'do_faviconico' );
 
-	gc_redirect( get_site_icon_url( 32, includes_url( 'images/w-logo-blue-white-bg.png' ) ) );
+	gc_redirect( get_site_icon_url( 32, assets_url( '/images/w-logo-blue-white-bg.png' ) ) );
 	exit;
 }
 
@@ -5221,7 +5221,7 @@ function gc_widgets_add_menu() {
 		return;
 	}
 
-	$menu_name = __( 'Widgets' );
+	$menu_name = __( '小工具' );
 	if ( gc_is_block_theme() ) {
 		$submenu['themes.php'][] = array( $menu_name, 'edit_theme_options', 'widgets.php' );
 	} else {
@@ -8378,4 +8378,128 @@ function is_php_version_compatible( $required ) {
  */
 function gc_fuzzy_number_match( $expected, $actual, $precision = 1 ) {
 	return abs( (float) $expected - (float) $actual ) <= $precision;
+}
+
+/**
+ * 版本：v6.0.2
+ * 专业版授权验证的统一说明提示
+ */
+function get_pro_license_html() {
+	if( get_pro_license_valid() ){
+		$res = get_option( 'pro_license' );
+		return '<p class="m-b-10">专业版授权：有效期至'. date("Y/m/d", strtotime($res->license['next_payment_date'])) .'，<a href="'. esc_url( self_admin_url( 'update-core.php' ) ) .'">更新许可证</a></p>';
+	}else{
+		return '<p class="m-b-10">当前为免费版，<a href="https://www.gechiui.com/pro/">立即升级专业版</a>, 或<a href="'. esc_url( self_admin_url( 'update-core.php' ) ) .'">更新许可证</a></p>';
+	}
+}
+
+/**
+ * 版本：v6.0.3
+ * 判断pro_license是否有效
+ */
+function get_pro_license_valid() {
+	if(!defined( 'GECHIUI_USERNAME' ) || !defined( 'GECHIUI_APPKEY' ) ){
+		return false;
+	}
+
+	// 读取本地存储的授权信息
+	$res = get_option( 'pro_license' );
+	if ( ! $res ) {
+		$res = get_pro_license_api();
+	}
+
+	if( isset($res->license) && strtotime( $res->license['next_payment_date'] ) > strtotime('now') ) {
+		update_option( 'pro_license', $res );
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * 版本：v6.0.3
+ * 通过API获取专业版授权
+ */
+function get_pro_license_api( $action = 'pro_license' ) {
+
+	$args = (object)array();
+	// 在请求参数中添加www.gechiui.com的appkey身份识别
+	if(defined( 'GECHIUI_USERNAME' ) && defined( 'GECHIUI_APPKEY' ) ){
+		$args->username = GECHIUI_USERNAME;
+	    $args->appkey = GECHIUI_APPKEY;
+	}else{
+		// 没有设置许可证信息，直接返回false
+		return false;
+	}
+
+	require ABSPATH . GCINC . '/version.php';
+
+	$res =  apply_filters( 'get_pro_license_api', false, $action, $args );
+
+	if ( false === $res ) {
+
+		$url = 'http://api.gechiui.com/pro/1.0/';
+		$url = add_query_arg(
+			array(
+				'action'  => $action,
+				'request' => $args,
+			),
+			$url
+		);
+
+		$http_url = $url;
+		$ssl      = gc_http_supports( array( 'ssl' ) );
+		if ( $ssl ) {
+			$url = set_url_scheme( $url, 'https' );
+		}
+
+		$http_args = array(
+			'timeout'    => 15,
+			'user-agent' => 'GeChiUI/' . $gc_version . '; ' . home_url( '/' ),
+		);
+		$request   = gc_remote_get( $url, $http_args );
+
+		if ( $ssl && is_gc_error( $request ) ) {
+			if ( ! gc_is_json_request() ) {
+				trigger_error( __( '专业版许可证获取失败！' ), headers_sent() || GC_DEBUG ? E_USER_WARNING : E_USER_NOTICE );
+			}
+
+			$request = gc_remote_get( $http_url, $http_args );
+		}
+
+		if ( is_gc_error( $request ) ) {
+			$res = new GC_Error(
+				'get_pro_license_api_failed',
+				__( '专业版许可证获取失败！' ),
+				$request->get_error_message()
+			);
+		} else {
+			$res = json_decode( gc_remote_retrieve_body( $request ), true );
+			if ( is_array( $res ) ) {
+				// Object casting is required in order to match the info/1.0 format.
+				$res = (object) $res;
+			} elseif ( null === $res ) {
+				$res = new GC_Error(
+					'get_pro_license_api_failed',
+					__( '专业版许可证获取失败！' ),
+					gc_remote_retrieve_body( $request )
+				);
+			}
+
+			if ( isset( $res->error ) ) {
+				$res = new GC_Error( 'get_pro_license_api_failed', $res->error );
+			}
+		}
+	} elseif ( ! is_gc_error( $res ) ) {
+		$res->external = true;
+	}
+
+	/**
+	 * 过滤专业版许可证API响应结果。
+	 *
+	 * @param object|GC_Error $res    Response object or GC_Error.
+	 * @param string          $action The type of information being requested from the Plugin Installation API.
+	 * @param object          $args   Plugin API arguments.
+	 */
+	return apply_filters( 'get_pro_license_api_result', $res, $action, $args );
 }

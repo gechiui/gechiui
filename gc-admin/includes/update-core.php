@@ -47,7 +47,7 @@ $_old_files = array(
 	'gc-includes/functions-compat.php',
 	'gc-includes/functions-formatting.php',
 	'gc-includes/functions-post.php',
-	'gc-includes/js/dbx-key.js',
+	'assets/js/dbx-key.js',
 	'gc-includes/links.php',
 	'gc-includes/pluggable-functions.php',
 	'gc-includes/template-functions-author.php',
@@ -59,9 +59,9 @@ $_old_files = array(
 	// 2.2
 	'gc-admin/cat-js.php',
 	'gc-admin/import/b2.php',
-	'gc-includes/js/autosave-js.php',
-	'gc-includes/js/list-manipulation-js.php',
-	'gc-includes/js/gc-ajax-js.php',
+	'assets/js/autosave-js.php',
+	'assets/js/list-manipulation-js.php',
+	'assets/js/gc-ajax-js.php',
 	// 2.3
 	'gc-admin/admin-db.php',
 	'gc-admin/cat.js',
@@ -79,7 +79,6 @@ $_old_files = array(
 	'gc-admin/users.js',
 	'gc-admin/widgets-rtl.css',
 	'gc-admin/widgets.css',
-	'gc-admin/xfn.js',
 	// 2.5
 	'gc-admin/css/upload.css',
 	'gc-admin/images/box-bg-left.gif',
@@ -104,13 +103,13 @@ $_old_files = array(
 	'gc-includes/images/wlw/GcComments.png',
 	'gc-includes/images/wlw/GcIcon.png',
 	'gc-includes/images/wlw/GcWatermark.png',
-	'gc-includes/js/dbx.js',
-	'gc-includes/js/fat.js',
-	'gc-includes/js/list-manipulation.js',
+	'assets/js/dbx.js',
+	'assets/js/fat.js',
+	'assets/js/list-manipulation.js',
 
 	// 2.6
 	'gc-admin/bookmarklet.php',
-	'gc-includes/js/gc-ajax.js',
+	'assets/js/gc-ajax.js',
 	// 2.7
 	'gc-admin/css/press-this-ie-rtl.css',
 	'gc-admin/css/press-this-ie.css',
@@ -202,9 +201,9 @@ $_old_files = array(
 	'gc-admin/update-links.php',
 	'gc-admin/gc-admin.css',
 	'gc-admin/gc-admin.dev.css',
-	'gc-includes/js/codepress',
-	'gc-includes/js/codepress/engines/khtml.js',
-	'gc-includes/js/codepress/engines/older.js',
+	'assets/js/codepress',
+	'assets/js/codepress/engines/khtml.js',
+	'assets/js/codepress/engines/older.js',
 	// Following file added back in 5.1, see #45645.
 	// 3.1
 	'gc-admin/edit-attachment-rows.php',
@@ -268,8 +267,8 @@ $_old_files = array(
 	'gc-admin/css/widgets.dev.css',
 	'gc-admin/includes/internal-linking.php',
 	'gc-includes/images/admin-bar-sprite-rtl.png',
-	'gc-includes/js/l10n.dev.js',
-	'gc-includes/js/l10n.js',
+	'assets/js/l10n.dev.js',
+	'assets/js/l10n.js',
 	// Don't delete, yet: 'gc-rss.php',
 	// Don't delete, yet: 'gc-rdf.php',
 	// Don't delete, yet: 'gc-rss2.php',
@@ -336,8 +335,8 @@ $_old_files = array(
 	'gc-admin/images/widgets-arrow.gif',
 	'gc-admin/images/gcspin_dark.gif',
 	'gc-includes/images/upload.png',
-	'gc-includes/js/prototype.js',
-	'gc-includes/js/scriptaculous',
+	'assets/js/prototype.js',
+	'assets/js/scriptaculous',
 	'gc-admin/css/gc-admin-rtl.dev.css',
 	'gc-admin/css/gc-admin.dev.css',
 	'gc-admin/css/media-rtl.dev.css',
@@ -349,19 +348,18 @@ $_old_files = array(
 	'gc-admin/css/ie.dev.css',
 	'gc-admin/css/install.dev.css',
 	'gc-admin/css/colors-fresh.dev.css',
-	'gc-includes/js/customize-base.dev.js',
-	'gc-includes/js/comment-reply.dev.js',
-	'gc-includes/js/customize-preview.dev.js',
-	'gc-includes/js/gclink.dev.js',
-	'gc-includes/js/gc-list-revisions.dev.js',
-	'gc-includes/js/autosave.dev.js',
-	'gc-includes/js/admin-bar.dev.js',
-	'gc-includes/js/quicktags.dev.js',
-	'gc-includes/js/gc-ajax-response.dev.js',
-	'gc-includes/js/gc-pointer.dev.js',
-	'gc-includes/js/gc-lists.dev.js',
-	'gc-includes/js/customize-loader.dev.js',
-	'gc-admin/js/xfn.dev.js',
+	'assets/js/customize-base.dev.js',
+	'assets/js/comment-reply.dev.js',
+	'assets/js/customize-preview.dev.js',
+	'assets/js/gclink.dev.js',
+	'assets/js/gc-list-revisions.dev.js',
+	'assets/js/autosave.dev.js',
+	'assets/js/admin-bar.dev.js',
+	'assets/js/quicktags.dev.js',
+	'assets/js/gc-ajax-response.dev.js',
+	'assets/js/gc-pointer.dev.js',
+	'assets/js/gc-lists.dev.js',
+	'assets/js/customize-loader.dev.js',
 	'gc-admin/js/set-post-thumbnail.dev.js',
 	'gc-admin/js/comment.dev.js',
 	'gc-admin/js/theme.dev.js',
@@ -501,8 +499,8 @@ $_old_files = array(
 	// 5.1
 	'gc-includes/random_compat/random_bytes_openssl.php',
 	// 5.3
-	'gc-includes/js/gc-a11y.js',     // Moved to: gc-includes/js/dist/a11y.js
-	'gc-includes/js/gc-a11y.min.js', // Moved to: gc-includes/js/dist/a11y.min.js
+	'assets/js/gc-a11y.js',     // Moved to: assets/js/dist/a11y.js
+	'assets/js/gc-a11y.min.js', // Moved to: assets/js/dist/a11y.min.js
 	// 5.4
 	'gc-admin/js/gc-fullscreen-stub.js',
 	'gc-admin/js/gc-fullscreen-stub.min.js',
@@ -512,7 +510,7 @@ $_old_files = array(
 	'gc-admin/css/ie-rtl.css',
 	'gc-admin/css/ie-rtl.min.css',
 	// 5.7
-	'gc-includes/blocks/classic/block.json',
+	'assets/blocks/classic/block.json',
 	// 5.8
 	'gc-admin/images/freedoms.png',
 	'gc-admin/images/privacy.png',
@@ -530,29 +528,29 @@ $_old_files = array(
 	'gc-includes/block-patterns/text-two-columns-with-images.php',
 	'gc-includes/block-patterns/text-two-columns.php',
 	'gc-includes/block-patterns/large-header-button.php',
-	'gc-includes/blocks/subhead/block.json',
-	'gc-includes/blocks/subhead',
+	'assets/blocks/subhead/block.json',
+	'assets/blocks/subhead',
 	'gc-includes/css/dist/editor/editor-styles.css',
 	'gc-includes/css/dist/editor/editor-styles.min.css',
 	'gc-includes/css/dist/editor/editor-styles-rtl.css',
 	'gc-includes/css/dist/editor/editor-styles-rtl.min.css',
 	// 5.9
-	'gc-includes/blocks/heading/editor.css',
-	'gc-includes/blocks/heading/editor.min.css',
-	'gc-includes/blocks/heading/editor-rtl.css',
-	'gc-includes/blocks/heading/editor-rtl.min.css',
-	'gc-includes/blocks/post-content/editor.css',
-	'gc-includes/blocks/post-content/editor.min.css',
-	'gc-includes/blocks/post-content/editor-rtl.css',
-	'gc-includes/blocks/post-content/editor-rtl.min.css',
-	'gc-includes/blocks/query-title/editor.css',
-	'gc-includes/blocks/query-title/editor.min.css',
-	'gc-includes/blocks/query-title/editor-rtl.css',
-	'gc-includes/blocks/query-title/editor-rtl.min.css',
-	'gc-includes/blocks/tag-cloud/editor.css',
-	'gc-includes/blocks/tag-cloud/editor.min.css',
-	'gc-includes/blocks/tag-cloud/editor-rtl.css',
-	'gc-includes/blocks/tag-cloud/editor-rtl.min.css',
+	'assets/blocks/heading/editor.css',
+	'assets/blocks/heading/editor.min.css',
+	'assets/blocks/heading/editor-rtl.css',
+	'assets/blocks/heading/editor-rtl.min.css',
+	'assets/blocks/post-content/editor.css',
+	'assets/blocks/post-content/editor.min.css',
+	'assets/blocks/post-content/editor-rtl.css',
+	'assets/blocks/post-content/editor-rtl.min.css',
+	'assets/blocks/query-title/editor.css',
+	'assets/blocks/query-title/editor.min.css',
+	'assets/blocks/query-title/editor-rtl.css',
+	'assets/blocks/query-title/editor-rtl.min.css',
+	'assets/blocks/tag-cloud/editor.css',
+	'assets/blocks/tag-cloud/editor.min.css',
+	'assets/blocks/tag-cloud/editor-rtl.css',
+	'assets/blocks/tag-cloud/editor-rtl.min.css',
 );
 
 /**
@@ -580,7 +578,7 @@ global $_new_bundled_files;
 
 $_new_bundled_files = array(
 	'themes/gechiui-book/' => '5.8',
-	'themes/defaultbird/' => '5.9',
+	'themes/gcoa/' => '5.9',
 );
 
 /**

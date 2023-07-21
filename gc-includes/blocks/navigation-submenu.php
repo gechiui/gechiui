@@ -276,7 +276,7 @@ function render_block_core_navigation_submenu( $attributes, $content, $block ) {
  */
 function register_block_core_navigation_submenu() {
 	register_block_type_from_metadata(
-		__DIR__ . '/navigation-submenu',
+		ABSPATH . 'assets/blocks/navigation-submenu',
 		array(
 			'render_callback' => 'render_block_core_navigation_submenu',
 		)

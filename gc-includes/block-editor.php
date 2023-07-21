@@ -187,7 +187,7 @@ function get_default_block_editor_settings() {
 
 	// These styles are used if the "no theme styles" options is triggered or on
 	// themes without their own editor styles.
-	$default_editor_styles_file = ABSPATH . GCINC . '/css/dist/block-editor/default-editor-styles.css';
+	$default_editor_styles_file = ABSPATH . '/assets/css/dist/block-editor/default-editor-styles.css';
 	if ( file_exists( $default_editor_styles_file ) ) {
 		$default_editor_styles = array(
 			array( 'css' => file_get_contents( $default_editor_styles_file ) ),

@@ -1,0 +1,57 @@
+<!-- archive.html -->
+<div class="app">
+	<div class="layout">
+		<!-- gc:template-part {"slug":"header","tagName":"div","align":"wide"} /-->
+		<!-- Page Container START -->
+        <div class="page-container">
+        	<div class="main-content">
+
+        		<div class="page-header">
+                    <!-- gc:query-title /-->
+                </div>
+                <!-- gc:query {"query":{"perPage":10,"pages":0,"offset":0,"postType":"post","categoryIds":[],"tagIds":[],"order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":true},"layout":{"inherit":true},"tagName":"main"} -->
+				<div class="container">
+				<!-- 循环体 -->
+				<!-- gc:post-template {"align":"wide"} -->
+                
+    				<!-- gc:group {"layout":{"inherit":true}} -->
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <a href="<!-- gc:post-url /-->">
+                                    	<h4 class="m-b-10"><!-- gc:gcoa-post-title /--></h4>
+                                        <div class="d-flex align-items-center m-t-5 m-b-15">
+                                            <div class="m-l-10">
+                                                <span class="text-gray font-weight-semibold"><!-- gc:gcoa-post-author /--></span>
+                                                <span class="m-h-5 text-gray">|</span>
+                                                <span class="text-gray"><!-- gc:post-date /--></span>
+                                            </div>
+                                        </div>
+                                        <p class="m-b-20"><!-- gc:post-excerpt /--></p>
+                                    </a>
+    							</div>
+                            </div>
+                        </div>
+                    </div>
+    				<!-- /gc:group -->
+                
+				<!-- /gc:post-template -->
+
+                <div class="m-t-30">
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            <!-- gc:query-pagination-numbers /-->
+                        </ul>
+                    </nav>
+                </div>
+				<!-- 循环体 End -->
+				</div>
+				<!-- /gc:query -->
+
+			</div>
+			<!-- gc:template-part {"slug":"footer","tagName":"footer"} /-->
+		</div>
+        <!-- Page Container END -->
+	</div>
+</div>

@@ -17,7 +17,7 @@
  *
  * @global string $gc_version
  */
-$gc_version = '6.0.1';
+$gc_version = '6.0.6';
 
 /**
  * Holds the GeChiUI DB revision, increments when changes are made to the GeChiUI DB schema.

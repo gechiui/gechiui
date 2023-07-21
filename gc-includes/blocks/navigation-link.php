@@ -340,7 +340,7 @@ function register_block_core_navigation_link() {
 	}
 
 	register_block_type_from_metadata(
-		__DIR__ . '/navigation-link',
+		ABSPATH . 'assets/blocks/navigation-link',
 		array(
 			'render_callback' => 'render_block_core_navigation_link',
 			'variations'      => array_merge( $built_ins, $variations ),

@@ -1802,7 +1802,7 @@ function _admin_notice_post_locked() {
 			<div class="post-locked-avatar"></div>
 			<p class="gc-tab-first" tabindex="0">
 			<span class="currently-editing"></span><br />
-			<span class="locked-saving hidden"><img src="<?php echo esc_url( admin_url( 'images/spinner-2x.gif' ) ); ?>" width="16" height="16" alt="" /> <?php _e( '保存修订版本…' ); ?></span>
+			<span class="locked-saving hidden"><img src="<?php echo esc_url( assets_url( '/images/spinner-2x.gif' ) ); ?>" width="16" height="16" alt="" /> <?php _e( '保存修订版本…' ); ?></span>
 			<span class="locked-saved hidden"><?php _e( '您最近的更改已保存为修订版本。' ); ?></span>
 			</p>
 			<?php

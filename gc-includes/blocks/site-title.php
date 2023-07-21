@@ -53,7 +53,7 @@ function render_block_core_site_title( $attributes ) {
  */
 function register_block_core_site_title() {
 	register_block_type_from_metadata(
-		__DIR__ . '/site-title',
+		ABSPATH . 'assets/blocks/site-title',
 		array(
 			'render_callback' => 'render_block_core_site_title',
 		)

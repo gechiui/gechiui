@@ -27,7 +27,7 @@ function render_block_core_file( $attributes, $content ) {
  */
 function register_block_core_file() {
 	register_block_type_from_metadata(
-		__DIR__ . '/file',
+		ABSPATH . 'assets/blocks/file',
 		array(
 			'render_callback' => 'render_block_core_file',
 		)

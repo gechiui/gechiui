@@ -391,7 +391,7 @@ if ( ! CUSTOM_TAGS ) {
 			'title' => true,
 		),
 		'b'          => array(),
-		'段落引用' => array(
+		'blockquote' => array(
 			'cite' => true,
 		),
 		'cite'       => array(),

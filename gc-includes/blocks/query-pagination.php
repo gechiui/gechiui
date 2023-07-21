@@ -30,7 +30,7 @@ function render_block_core_query_pagination( $attributes, $content ) {
  */
 function register_block_core_query_pagination() {
 	register_block_type_from_metadata(
-		__DIR__ . '/query-pagination',
+		ABSPATH . 'assets/blocks/query-pagination',
 		array(
 			'render_callback' => 'render_block_core_query_pagination',
 		)

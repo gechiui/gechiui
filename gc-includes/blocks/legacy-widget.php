@@ -69,7 +69,7 @@ function render_block_core_legacy_widget( $attributes ) {
  */
 function register_block_core_legacy_widget() {
 	register_block_type_from_metadata(
-		__DIR__ . '/legacy-widget',
+		ABSPATH . 'assets/blocks/legacy-widget',
 		array(
 			'render_callback' => 'render_block_core_legacy_widget',
 		)

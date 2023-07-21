@@ -1,0 +1,74 @@
+{
+	"apiVersion": 2,
+	"name": "core/social-links",
+	"title": "社交图标",
+	"category": "widgets",
+	"description": "显示链接至您的社交媒体资料或网站的图标。",
+	"keywords": [ "links" ],
+	"textdomain": "default",
+	"attributes": {
+		"iconColor": {
+			"type": "string"
+		},
+		"customIconColor": {
+			"type": "string"
+		},
+		"iconColorValue": {
+			"type": "string"
+		},
+		"iconBackgroundColor": {
+			"type": "string"
+		},
+		"customIconBackgroundColor": {
+			"type": "string"
+		},
+		"iconBackgroundColorValue": {
+			"type": "string"
+		},
+		"openInNewTab": {
+			"type": "boolean",
+			"default": false
+		},
+		"size": {
+			"type": "string"
+		}
+	},
+	"providesContext": {
+		"openInNewTab": "openInNewTab",
+		"iconColorValue": "iconColorValue",
+		"iconBackgroundColorValue": "iconBackgroundColorValue"
+	},
+	"supports": {
+		"align": [ "left", "center", "right" ],
+		"anchor": true,
+		"__experimentalExposeControlsToChildren": true,
+		"__experimentalLayout": {
+			"allowSwitching": false,
+			"allowInheriting": false,
+			"default": {
+				"type": "flex"
+			}
+		},
+		"spacing": {
+			"blockGap": true,
+			"margin": [ "top", "bottom" ],
+			"units": [
+				"px",
+				"em",
+				"rem",
+				"vh",
+				"vw"
+			],
+			"__experimentalDefaultControls": {
+				"blockGap": true
+			}
+		}
+	},
+	"styles": [
+		{ "name": "default", "label": "默认", "isDefault": true },
+		{ "name": "logos-only", "label": "Logos Only" },
+		{ "name": "pill-shape", "label": "Pill Shape" }
+	],
+	"editorStyle": "gc-block-social-links-editor",
+	"style": "gc-block-social-links"
+}

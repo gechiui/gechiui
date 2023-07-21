@@ -12,7 +12,7 @@
  */
 function register_block_core_pattern() {
 	register_block_type_from_metadata(
-		__DIR__ . '/pattern',
+		ABSPATH . 'assets/blocks/pattern',
 		array(
 			'render_callback' => 'render_block_core_pattern',
 		)

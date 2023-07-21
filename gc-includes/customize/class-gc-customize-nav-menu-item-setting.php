@@ -52,7 +52,6 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 		'attr_title'       => '',
 		'description'      => '',
 		'classes'          => '',
-		'xfn'              => '',
 		'status'           => 'publish',
 		'original_title'   => '',
 		'nav_menu_term_id' => 0, // This will be supplied as the $menu_id arg for gc_update_nav_menu_item().
@@ -354,7 +353,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 				$this->value[ $key ] = (int) $this->value[ $key ];
 			}
 		}
-		foreach ( array( 'classes', 'xfn' ) as $key ) {
+		foreach ( array( 'classes' ) as $key ) {
 			if ( is_array( $this->value[ $key ] ) ) {
 				$this->value[ $key ] = implode( ' ', $this->value[ $key ] );
 			}
@@ -661,7 +660,6 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 			'attr_title'       => '',
 			'description'      => '',
 			'classes'          => '',
-			'xfn'              => '',
 			'status'           => 'publish',
 			'original_title'   => '',
 			'nav_menu_term_id' => 0,
@@ -680,7 +678,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 			$menu_item_value[ $key ] = sanitize_key( $menu_item_value[ $key ] );
 		}
 
-		foreach ( array( 'xfn', 'classes' ) as $key ) {
+		foreach ( array( 'classes' ) as $key ) {
 			$value = $menu_item_value[ $key ];
 			if ( ! is_array( $value ) ) {
 				$value = explode( ' ', $value );
@@ -830,7 +828,6 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 				'menu-item-attr-title'  => $value['attr_title'],
 				'menu-item-target'      => $value['target'],
 				'menu-item-classes'     => $value['classes'],
-				'menu-item-xfn'         => $value['xfn'],
 				'menu-item-status'      => $value['status'],
 			);
 

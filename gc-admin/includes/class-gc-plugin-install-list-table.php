@@ -109,7 +109,6 @@ class GC_Plugin_Install_List_Table extends GC_List_Table {
         $tabs['featured']     = _x( '特色', 'Plugin Installer' );
         $tabs['free']     = _x( '免费', 'Plugin Installer' );
         $tabs['all']     = _x( '全部', 'Plugin Installer' );
-        $tabs['professionals']   = _x( '专业版', 'Plugin Installer' );
 
 		if ( current_user_can( 'upload_plugins' ) ) {
 			// No longer a real tab. Here for filter compatibility.
@@ -125,7 +124,7 @@ class GC_Plugin_Install_List_Table extends GC_List_Table {
 		 * @since 2.7.0
 		 *
 		 * @param string[] $tabs The tabs shown on the Add Plugins screen. Defaults include
-		 *                       'featured', 'free', 'all', 'professionals', and 'upload'.
+		 *                       'featured', 'free', 'all', and 'upload'.
 		 */
 		$tabs = apply_filters( 'install_plugins_tabs', $tabs );
 
@@ -178,35 +177,6 @@ class GC_Plugin_Install_List_Table extends GC_List_Table {
          case 'free':
 				$args['browse'] = $tab;
 				break;
-                
-         case 'professionals':
-                $args['browse'] = $tab;
-				$action = 'save_gcorg_username_' . get_current_user_id();
-				if ( isset( $_GET['_gcnonce'] ) && gc_verify_nonce( gc_unslash( $_GET['_gcnonce'] ), $action ) ) {
-                    $user = array();
-                    if( isset( $_GET['username'] ) ) {
-					   $user['username'] = gc_unslash( $_GET['username'] ) ;
-                    }
-                    if( isset( $_GET['appkey'] ) ) {
-					   $user['appkey'] = gc_unslash( $_GET['appkey'] ) ;
-                    }
-					// If the save url parameter is passed with a falsey value, don't save the professional user.
-					if ( ! isset( $_GET['save'] ) || $_GET['save'] ) {
-						update_user_meta( get_current_user_id(), 'gcorg_professionals', $user );
-					}
-				} else {
-					$user = get_user_option( 'gcorg_professionals' );
-				}
-				if ( $user ) {
-					$args['username'] = $user['username'];
-                    $args['appkey'] = $user['appkey'];
-				} else {
-					$args = false;
-				}
-                
-				add_action( 'install_plugins_professionals', 'install_plugins_professionals_form', 9, 0 );
-				break;
-                
 			default:
 				$args = false;
 				break;
@@ -219,7 +189,6 @@ class GC_Plugin_Install_List_Table extends GC_List_Table {
 		 *
 		 * Possible hook names include:
 		 *
-		 *  - `install_plugins_table_api_args_professionals`
 		 *  - `install_plugins_table_api_args_featured`
 		 *  - `install_plugins_table_api_args_free`
 		 *  - `install_plugins_table_api_args_all`
@@ -509,12 +478,6 @@ class GC_Plugin_Install_List_Table extends GC_List_Table {
 
 			$name = strip_tags( $title . ' ' . $version );
 
-			$author = gc_kses( $plugin['author'], $plugins_allowedtags );
-			if ( ! empty( $author ) ) {
-				/* translators: %s: Plugin author. */
-				$author = ' <cite>' . sprintf( __( '由 %s' ), $author ) . '</cite>';
-			}
-
 			$requires_php = isset( $plugin['requires_php'] ) ? $plugin['requires_php'] : null;
 			$requires_gc  = isset( $plugin['requires'] ) ? $plugin['requires'] : null;
 
@@ -629,16 +592,6 @@ class GC_Plugin_Install_List_Table extends GC_List_Table {
 				'plugin-install.php?tab=plugin-information&amp;plugin=' . $plugin['slug'] .
 				'&amp;TB_iframe=true&amp;width=600&amp;height=550'
 			);
-
-			if ( ! empty( $plugin['icons']['svg'] ) ) {
-				$plugin_icon_url = $plugin['icons']['svg'];
-			} elseif ( ! empty( $plugin['icons']['2x'] ) ) {
-				$plugin_icon_url = $plugin['icons']['2x'];
-			} elseif ( ! empty( $plugin['icons']['1x'] ) ) {
-				$plugin_icon_url = $plugin['icons']['1x'];
-			} else {
-				$plugin_icon_url = $plugin['icons']['default'];
-			}
 
 			/**
 			 * Filters the install action links for a plugin.

@@ -54,7 +54,7 @@ function render_block_core_post_featured_image( $attributes, $content, $block ) 
  */
 function register_block_core_post_featured_image() {
 	register_block_type_from_metadata(
-		__DIR__ . '/post-featured-image',
+		ABSPATH . 'assets/blocks/post-featured-image',
 		array(
 			'render_callback' => 'render_block_core_post_featured_image',
 		)

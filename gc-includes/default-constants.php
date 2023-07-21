@@ -414,7 +414,7 @@ function gc_templating_constants() {
 	 * @see GC_Theme::get_core_default_theme()
 	 */
 	if ( ! defined( 'GC_DEFAULT_THEME' ) ) {
-		define( 'GC_DEFAULT_THEME', 'twentytwentytwo' );
+		define( 'GC_DEFAULT_THEME', 'gcoa' );
 	}
 
 }

@@ -1415,7 +1415,7 @@ final class GC_Customize_Nav_Menus {
 			&&
 			// ...and if the nav menu would be rendered with a wrapper container element (upon which to attach data-* attributes).
 			(
-				! empty( $args['容器'] )
+				! empty( $args['container'] )
 				||
 				( isset( $args['items_wrap'] ) && '<' === substr( $args['items_wrap'], 0, 1 ) )
 			)

@@ -726,8 +726,8 @@ function populate_roles() {
 function populate_roles_160() {
 	// Add roles.
 	add_role( 'administrator', '管理员' );
-	add_role( 'editor', 'Editor' );
-	add_role( 'author', 'Author' );
+	add_role( 'editor', '编辑' );
+	add_role( 'author', '作者' );
 	add_role( 'contributor', '贡献者' );
 	add_role( 'subscriber', '订阅者' );
 

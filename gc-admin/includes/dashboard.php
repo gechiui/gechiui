@@ -287,8 +287,15 @@ function gc_dashboard() {
  *
  */
 function gc_dashboard_right_now() {
+
 	?>
 	<div class="main">
+	<?php 	
+	/* 显示授权许可 */
+	if ( ! is_multisite() ){
+		echo get_pro_license_html();
+	}
+	?>
 	<ul>
 	<?php
 	// Posts and Pages.
@@ -425,9 +432,14 @@ function gc_dashboard_right_now() {
 }
 
 /**
- *
+ * 版本 6.0.2
+ * 修订，增加专业版显示与引导开通功能
  */
 function gc_network_dashboard_right_now() {
+		
+	/* 显示授权许可 */
+	echo get_pro_license_html();
+
 	$actions = array();
 
 	if ( current_user_can( 'create_sites' ) ) {
@@ -1771,7 +1783,7 @@ function gc_welcome_panel() {
 			<div class="welcome-panel-icon-pages"></div>
 			<div class="welcome-panel-column-content">
 				<h3><?php _e( '使用区块和区块样板创作丰富的内容' ); ?></h3>
-				<p><?php _e( '区块样板是预先配置好的区块布局。通过区块样板获得灵感或在极短时间内创建新页面。' ); ?></p>
+				<p class="m-t-10"><?php _e( '区块样板是预先配置好的区块布局。通过区块样板获得灵感或在极短时间内创建新页面。' ); ?></p>
 				<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=page' ) ); ?>"><?php _e( '添加新页面' ); ?></a>
 			</div>
 		</div>
@@ -1780,11 +1792,11 @@ function gc_welcome_panel() {
 			<div class="welcome-panel-column-content">
 			<?php if ( $is_block_theme ) : ?>
 				<h3><?php _e( '使用区块主题定制整个站点' ); ?></h3>
-				<p><?php _e( '上至页眉下至页脚，整个站点都可通过区块获区块样板进行设计。' ); ?></p>
+				<p class="m-t-10"><?php _e( '上至页眉下至页脚，整个站点都可通过区块获区块样板进行设计。' ); ?></p>
 				<a href="<?php echo esc_url( admin_url( 'site-editor.php' ) ); ?>"><?php _e( '打开站点编辑器' ); ?></a>
 			<?php else : ?>
 				<h3><?php _e( '开始定制' ); ?></h3>
-				<p><?php _e( '在定制器中配置您站点的 logo、标题、菜单等。' ); ?></p>
+				<p class="m-t-10"><?php _e( '在定制器中配置您站点的 logo、标题、菜单等。' ); ?></p>
 				<?php if ( $can_customize ) : ?>
 					<a class="load-customize hide-if-no-customize" href="<?php echo gc_customize_url(); ?>"><?php _e( '打开外观定制器' ); ?></a>
 				<?php endif; ?>
@@ -1796,11 +1808,11 @@ function gc_welcome_panel() {
 			<div class="welcome-panel-column-content">
 			<?php if ( $is_block_theme ) : ?>
 				<h3><?php _e( '使用样式变更站点的外观和风格' ); ?></h3>
-				<p><?php _e( '调整站点或赋予全新外观！ -使用新的调色盘或字体发挥创意！' ); ?></p>
+				<p class="m-t-10"><?php _e( '调整站点或赋予全新外观！ -使用新的调色盘或字体发挥创意！' ); ?></p>
 				<a href="<?php echo esc_url( admin_url( 'site-editor.php?styles=open' ) ); ?>"><?php _e( '编辑样式' ); ?></a>
 			<?php else : ?>
 				<h3><?php _e( '探索构建站点的新方式' ); ?></h3>
-				<p><?php _e( '全新的 GeChiUI 主题，可让您按需使用区块和区块样板来构建站点。' ); ?></p>
+				<p class="m-t-10"><?php _e( '全新的 GeChiUI 主题，可让您按需使用区块和区块样板来构建站点。' ); ?></p>
 				<a href="<?php echo esc_url( __( 'https://www.gechiui.com/support/block-themes/' ) ); ?>"><?php _e( '了解区块主题' ); ?></a>
 			<?php endif; ?>
 			</div>

@@ -64,7 +64,7 @@ foreach ( $load as $handle ) {
 		continue;
 	}
 
-	$path = ABSPATH . $style->src;
+	$path = ABSPATH . 'assets' . $style->src;
 
 	if ( $rtl && ! empty( $style->extra['rtl'] ) ) {
 		// All default styles have fully independent RTL files.
@@ -73,13 +73,16 @@ foreach ( $load as $handle ) {
 
 	$content = get_file( $path ) . "\n";
 
-	if ( strpos( $style->src, '/' . GCINC . '/css/' ) === 0 ) {
-		$content = str_replace( '../images/', '../' . GCINC . '/images/', $content );
-		$content = str_replace( '../js/tinymce/', '/assets/vendors/tinymce/', $content );
-		$content = str_replace( '../fonts/', '../' . GCINC . '/fonts/', $content );
+
+	if ( strpos( $style->src, '/css/' ) === 0 ) {
+		$content = str_replace( '../images/', '../assets/images/', $content );
+		$content = str_replace( '../js/tinymce/', '../assets/vendors/tinymce/', $content );
+		$content = str_replace( '../fonts/', '../assets/fonts/', $content );
 		$out    .= $content;
 	} else {
-		$out .= str_replace( '../images/', 'images/', $content );
+		$content = str_replace( '../images/', '../assets/images/', $content );
+		$content = str_replace( '../fonts/', '../assets/fonts/', $content );
+		$out    .= $content;
 	}
 }
 

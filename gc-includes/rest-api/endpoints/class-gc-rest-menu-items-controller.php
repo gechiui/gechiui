@@ -338,7 +338,6 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 				'menu-item-target'      => $menu_item_obj->target,
 				'menu-item-classes'     => $menu_item_obj->classes,
 				// Stored in the database as a string.
-				'menu-item-xfn'         => explode( ' ', $menu_item_obj->xfn ),
 				'menu-item-status'      => $menu_item_obj->post_status,
 				'menu-id'               => $this->get_menu_id( $menu_item_db_id ),
 			);
@@ -357,7 +356,6 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 				'menu-item-attr-title'  => '',
 				'menu-item-target'      => '',
 				'menu-item-classes'     => array(),
-				'menu-item-xfn'         => array(),
 				'menu-item-status'      => 'publish',
 			);
 		}
@@ -374,7 +372,6 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 			'menu-item-attr-title'  => 'attr_title',
 			'menu-item-target'      => 'target',
 			'menu-item-classes'     => 'classes',
-			'menu-item-xfn'         => 'xfn',
 			'menu-item-status'      => 'status',
 		);
 
@@ -449,7 +446,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 		}
 
 		// The xfn and classes properties are arrays, but passed to gc_update_nav_menu_item as a string.
-		foreach ( array( 'menu-item-xfn', 'menu-item-classes' ) as $key ) {
+		foreach ( array( 'menu-item-classes' ) as $key ) {
 			$prepared_nav_item[ $key ] = implode( ' ', $prepared_nav_item[ $key ] );
 		}
 
@@ -559,10 +556,6 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 
 		if ( rest_is_field_included( 'classes', $fields ) ) {
 			$data['classes'] = (array) $menu_item->classes;
-		}
-
-		if ( rest_is_field_included( 'xfn', $fields ) ) {
-			$data['xfn'] = array_map( 'sanitize_html_class', explode( ' ', $menu_item->xfn ) );
 		}
 
 		if ( rest_is_field_included( 'invalid', $fields ) ) {
@@ -851,20 +844,6 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 						'rest_invalid_url',
 						__( '无效URL。' )
 					);
-				},
-			),
-		);
-
-		$schema['properties']['xfn'] = array(
-			'description' => __( '该菜单项的链接中表示的XFN关系。' ),
-			'type'        => 'array',
-			'items'       => array(
-				'type' => 'string',
-			),
-			'context'     => array( 'view', 'edit', 'embed' ),
-			'arg_options' => array(
-				'sanitize_callback' => function ( $value ) {
-					return array_map( 'sanitize_html_class', gc_parse_list( $value ) );
 				},
 			),
 		);

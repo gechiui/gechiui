@@ -2795,7 +2795,7 @@ function get_the_posts_pagination( $args = array() ) {
 				'next_text'          => _x( '下一页', 'next set of posts' ),
 				'screen_reader_text' => __( '文章导航' ),
 				'aria_label'         => __( '文章' ),
-				'class'              => '分页',
+				'class'              => 'pagination',
 			)
 		);
 
@@ -3394,8 +3394,6 @@ function get_admin_url( $blog_id = null, $path = '', $scheme = 'admin' ) {
 /**
  * Retrieves the URL to the includes directory.
  *
- *
- *
  * @param string      $path   Optional. Path relative to the includes URL. Default empty.
  * @param string|null $scheme Optional. Scheme to give the includes URL context. Accepts
  *                            'http', 'https', or 'relative'. Default null.
@@ -3419,6 +3417,41 @@ function includes_url( $path = '', $scheme = null ) {
 	 *                            'http', 'https', 'relative', or null. Default null.
 	 */
 	return apply_filters( 'includes_url', $url, $path, $scheme );
+}
+
+/**
+ * 资源目录assets URL
+ *
+ * @param string      $path   Optional. Path relative to the assets URL. Default empty.
+ * @param string|null $scheme Optional. Scheme to give the assets URL context. Accepts
+ *                            'http', 'https', or 'relative'. Default null.
+ * @return string Includes URL link with optional path appended.
+ */
+function assets_url( $path = '', $scheme = null ) {
+	$url = site_url( '/assets/', $scheme );
+
+	if ( defined( 'GC_CDN_URL' ) && GC_CDN_URL && get_pro_license_valid() ) {
+		// 自定义路径
+		// 配置GeChiUI官方的cdn为 'https://cdn.gechiui.com/release/'.$GLOBALS['gc_version'].'/assets/'
+		$url = rtrim( GC_CDN_URL, '/' ).'/assets/';
+
+	}
+
+	if ( $path && is_string( $path ) ) {
+		$url .= ltrim( $path, '/' );
+	}
+
+	/**
+	 * Filters the URL to the assets directory.
+	 *
+	 *
+	 * @param string      $url    The complete URL to the assets directory including scheme and path.
+	 * @param string      $path   Path relative to the URL to the gc-assets directory. Blank string
+	 *                            if no path is specified.
+	 * @param string|null $scheme Scheme to give the assets URL context. Accepts
+	 *                            'http', 'https', 'relative', or null. Default null.
+	 */
+	return apply_filters( 'assets_url', $url, $path, $scheme );
 }
 
 /**
@@ -3451,7 +3484,7 @@ function content_url( $path = '' ) {
  * Retrieves a URL within the plugins or mu-plugins directory.
  *
  * Defaults to the plugins directory URL if no arguments are supplied.
- *
+ * 6.0.4 需改支持CDN
  *
  *
  * @param string $path   Optional. Extra path appended to the end of the URL, including
@@ -3466,20 +3499,33 @@ function plugins_url( $path = '', $plugin = '' ) {
 	$path          = gc_normalize_path( $path );
 	$plugin        = gc_normalize_path( $plugin );
 	$mu_plugin_dir = gc_normalize_path( GCMU_PLUGIN_DIR );
+	$folder = '';
 
-	if ( ! empty( $plugin ) && 0 === strpos( $plugin, $mu_plugin_dir ) ) {
-		$url = GCMU_PLUGIN_URL;
-	} else {
-		$url = GC_PLUGIN_URL;
-	}
-
-	$url = set_url_scheme( $url );
-
+	// 获取插件的文件夹名称
 	if ( ! empty( $plugin ) && is_string( $plugin ) ) {
 		$folder = dirname( plugin_basename( $plugin ) );
-		if ( '.' !== $folder ) {
-			$url .= '/' . ltrim( $folder, '/' );
+		if ( '.' == $folder ) {
+			$folder = '';
+		} else {
+			$folder = '/' .ltrim( $folder, '/' );
 		}
+	}
+
+	if ( defined( 'GC_CDN_URL' ) && GC_CDN_URL && !empty( $folder ) && get_pro_license_valid() ) {
+		if( strstr(GC_CDN_URL, 'cdn.gechiui.com') ){
+			$plugin_cdn = substr( GC_CDN_URL,0 , stripos(GC_CDN_URL, 'cdn.gechiui.com')+15 ).'/plugin';
+			$plugin_version = '/'.get_file_data( $plugin, array('Version'=> 'Version'), 'plugin' )['Version'];
+			$url = $plugin_cdn.$folder.$plugin_version;
+		}else{
+			$url = rtrim( GC_CDN_URL, '/' ).'/gc-content/plugins'.$folder;
+		}
+	}else{
+		if ( ! empty( $plugin ) && 0 === strpos( $plugin, $mu_plugin_dir ) ) {
+			$url = GCMU_PLUGIN_URL;
+		} else {
+			$url = GC_PLUGIN_URL;
+		}
+		$url = set_url_scheme( $url ).$folder;
 	}
 
 	if ( $path && is_string( $path ) ) {
@@ -4279,7 +4325,7 @@ function get_avatar_data( $id_or_email, $args = null ) {
 	} 
 
 	$url_args = array();
-	$url = content_url('/avatar/'.$args['default']) ;
+	$url = assets_url('/images/avatars/'.$args['default']) ;
 	$url = add_query_arg(
 		rawurlencode_deep( array_filter( $url_args ) ),
 		set_url_scheme( $url, $args['scheme'] )

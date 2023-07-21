@@ -63,7 +63,7 @@ function render_block_core_query_pagination_next( $attributes, $content, $block 
  */
 function register_block_core_query_pagination_next() {
 	register_block_type_from_metadata(
-		__DIR__ . '/query-pagination-next',
+		ABSPATH . 'assets/blocks/query-pagination-next',
 		array(
 			'render_callback' => 'render_block_core_query_pagination_next',
 		)

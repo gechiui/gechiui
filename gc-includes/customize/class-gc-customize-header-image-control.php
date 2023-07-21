@@ -224,7 +224,7 @@ class GC_Customize_Header_Image_Control extends GC_Customize_Image_Control {
 						<?php _e( '当前页眉图片' ); ?>
 					</span>
 				</label>
-				<div class="容器">
+				<div class="container">
 				</div>
 			</div>
 			<div class="actions">

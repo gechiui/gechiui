@@ -115,12 +115,6 @@ class GC_Customize_Nav_Menu_Item_Control extends GC_Customize_Control {
 					<input type="text" id="edit-menu-item-classes-{{ data.menu_item_id }}" class="widefat code edit-menu-item-classes" name="menu-item-classes" />
 				</label>
 			</p>
-			<p class="field-xfn description description-thin">
-				<label for="edit-menu-item-xfn-{{ data.menu_item_id }}">
-					<?php _e( '链接关系（XFN）' ); ?><br />
-					<input type="text" id="edit-menu-item-xfn-{{ data.menu_item_id }}" class="widefat code edit-menu-item-xfn" name="menu-item-xfn" />
-				</label>
-			</p>
 			<p class="field-description description description-thin">
 				<label for="edit-menu-item-description-{{ data.menu_item_id }}">
 					<?php _e( '描述' ); ?><br />

@@ -79,7 +79,7 @@ function render_block_core_post_template( $attributes, $content, $block ) {
  */
 function register_block_core_post_template() {
 	register_block_type_from_metadata(
-		__DIR__ . '/post-template',
+		ABSPATH . 'assets/blocks/post-template',
 		array(
 			'render_callback'   => 'render_block_core_post_template',
 			'skip_inner_blocks' => true,

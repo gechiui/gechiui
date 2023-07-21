@@ -148,7 +148,7 @@ function render_block_core_latest_comments( $attributes = array() ) {
  */
 function register_block_core_latest_comments() {
 	register_block_type_from_metadata(
-		__DIR__ . '/latest-comments',
+		ABSPATH . 'assets/blocks/latest-comments',
 		array(
 			'render_callback' => 'render_block_core_latest_comments',
 		)

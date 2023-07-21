@@ -46,7 +46,7 @@ final class GC_Theme implements ArrayAccess {
 	private static $default_themes = array(
 		'classic'         => 'GeChiUI Classic',
 		'default'         => 'GeChiUI Default',
-		'defaultbird' => '默认主题 蜂鸟',
+		'gcoa' => '格尺OA办公',
 	);
 
 	/**

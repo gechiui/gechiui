@@ -1,0 +1,28 @@
+$mail-content-height        : $content-height - 2px;
+$mail-nav-width             : 250px;
+$mail-list-sender-width     : 220px;
+$mail-list-date-width       : 100px;
+
+
+.co-bg {
+   width: 330px;
+    height: 210px;
+    background-image: url(../images/avatars/background.jpeg);
+}
+.co-bg:hover {
+    background-image: url(../images/avatars/background-blue.jpeg);
+}
+
+.co-business {
+   margin: 0 auto;
+    width: 180px; 
+    height: 120px; 
+    background-image: url(../images/avatars/BusinessLicense.jpeg);
+}
+
+.co-authorizer {
+   margin: 0 auto;
+    width: 180px; 
+    height: 120px; 
+    background-image: url(../images/avatars/authorizer.jpeg);
+}

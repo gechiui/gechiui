@@ -1373,7 +1373,7 @@ function gc_page_menu( $args = array() ) {
 		'sort_column'  => 'menu_order, post_title',
 		'menu_id'      => '',
 		'menu_class'   => 'menu',
-		'容器'    => 'div',
+		'container'    => 'div',
 		'echo'         => true,
 		'link_before'  => '',
 		'link_after'   => '',
@@ -1439,7 +1439,7 @@ function gc_page_menu( $args = array() ) {
 	$list_args['title_li'] = '';
 	$menu                 .= gc_list_pages( $list_args );
 
-	$container = sanitize_text_field( $args['容器'] );
+	$container = sanitize_text_field( $args['container'] );
 
 	// Fallback in case `gc_nav_menu()` was called without a container.
 	if ( empty( $container ) ) {

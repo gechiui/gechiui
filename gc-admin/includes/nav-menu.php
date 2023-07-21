@@ -160,9 +160,8 @@ function gc_nav_menu_setup() {
 			array(
 				0 => 'link-target',
 				1 => 'css-classes',
-				2 => 'xfn',
-				3 => 'description',
-				4 => 'title-attribute',
+				2 => 'description',
+				3 => 'title-attribute',
 			)
 		);
 	}
@@ -971,7 +970,6 @@ function gc_save_nav_menu_items( $menu_id = 0, $menu_data = array() ) {
 				'menu-item-attr-title'  => ( isset( $_item_object_data['menu-item-attr-title'] ) ? $_item_object_data['menu-item-attr-title'] : '' ),
 				'menu-item-target'      => ( isset( $_item_object_data['menu-item-target'] ) ? $_item_object_data['menu-item-target'] : '' ),
 				'menu-item-classes'     => ( isset( $_item_object_data['menu-item-classes'] ) ? $_item_object_data['menu-item-classes'] : '' ),
-				'menu-item-xfn'         => ( isset( $_item_object_data['menu-item-xfn'] ) ? $_item_object_data['menu-item-xfn'] : '' ),
 			);
 
 			$items_saved[] = gc_update_nav_menu_item( $menu_id, $_actual_db_id, $args );
@@ -1112,7 +1110,6 @@ function gc_nav_menu_manage_columns() {
 		'link-target'     => __( '链接目标' ),
 		'title-attribute' => __( 'title属性' ),
 		'css-classes'     => __( 'CSS类' ),
-		'xfn'             => __( '链接关系（XFN）' ),
 		'description'     => __( '描述' ),
 	);
 }
@@ -1178,7 +1175,6 @@ function gc_nav_menu_update_menu_items( $nav_menu_selected_id, $nav_menu_selecte
 		'menu-item-attr-title',
 		'menu-item-target',
 		'menu-item-classes',
-		'menu-item-xfn',
 	);
 
 	gc_defer_term_counting( true );

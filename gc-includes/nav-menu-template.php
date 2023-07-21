@@ -59,7 +59,7 @@ function gc_nav_menu( $args = array() ) {
 
 	$defaults = array(
 		'menu'                 => '',
-		'容器'            => 'div',
+		'container'            => 'div',
 		'container_class'      => '',
 		'container_id'         => '',
 		'container_aria_label' => '',

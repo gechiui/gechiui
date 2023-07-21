@@ -91,6 +91,11 @@ function includes_url() {}
 /**
  * @ignore
  */
+function assets_url() {}
+
+/**
+ * @ignore
+ */
 function gc_guess_url() {}
 
 function get_file( $path ) {

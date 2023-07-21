@@ -1,0 +1,30 @@
+{
+	"apiVersion": 2,
+	"name": "core/social-link",
+	"title": "社交图标",
+	"category": "widgets",
+	"parent": [ "core/social-links" ],
+	"description": "显示链接至您的社交媒体资料或网站的图标。",
+	"textdomain": "default",
+	"attributes": {
+		"url": {
+			"type": "string"
+		},
+		"service": {
+			"type": "string"
+		},
+		"label": {
+			"type": "string"
+		}
+	},
+	"usesContext": [
+		"openInNewTab",
+		"iconColorValue",
+		"iconBackgroundColorValue"
+	],
+	"supports": {
+		"reusable": false,
+		"html": false
+	},
+	"editorStyle": "gc-block-social-link-editor"
+}

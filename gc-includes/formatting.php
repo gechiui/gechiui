@@ -2515,7 +2515,7 @@ function force_balance_tags( $text ) {
 	// Known single-entity/self-closing tags.
 	$single_tags = array( 'area', 'base', 'basefont', 'br', 'col', 'command', 'embed', 'frame', 'hr', 'img', 'input', 'isindex', 'link', 'meta', 'param', 'source', 'track', 'wbr' );
 	// Tags that can be immediately nested within themselves.
-	$nestable_tags = array( 'article', 'aside', '段落引用', 'details', 'div', 'figure', 'object', 'q', 'section', 'span' );
+	$nestable_tags = array( 'article', 'aside', 'blockquote', 'details', 'div', 'figure', 'object', 'q', 'section', 'span' );
 
 	// GC bug fix for comments - in case you REALLY meant to type '< !--'.
 	$text = str_replace( '< !--', '<    !--', $text );
@@ -3363,7 +3363,7 @@ function translate_smiley( $matches ) {
 	 * @param string $img        Filename for the smiley image.
 	 * @param string $site_url   Site URL, as returned by site_url().
 	 */
-	$src_url = apply_filters( 'smilies_src', includes_url( "images/smilies/$img" ), $img, site_url() );
+	$src_url = apply_filters( 'smilies_src', assets_url( "/images/smilies/$img" ), $img, site_url() );
 
 	return sprintf( '<img src="%s" alt="%s" class="gc-smiley" style="height: 1em; max-height: 1em;" />', esc_url( $src_url ), esc_attr( $smiley ) );
 }
@@ -5734,20 +5734,20 @@ function _print_emoji_detection_script() {
 	if ( SCRIPT_DEBUG ) {
 		$settings['source'] = array(
 			/** This filter is documented in gc-includes/class.gc-scripts.php */
-			'gcemoji' => apply_filters( 'script_loader_src', includes_url( "/js/gc-emoji.js?$version" ), 'gcemoji' ),
+			'gcemoji' => apply_filters( 'script_loader_src', assets_url( "/js/gc-emoji.js?$version" ), 'gcemoji' ),
 			/** This filter is documented in gc-includes/class.gc-scripts.php */
-			'twemoji' => apply_filters( 'script_loader_src', "/assets/vendors/twemoji.js?$version", 'twemoji' ),
+			'twemoji' => apply_filters( 'script_loader_src', assets_url("/vendors/twemoji.js?$version"), 'twemoji' ),
 		);
 	} else {
 		$settings['source'] = array(
 			/** This filter is documented in gc-includes/class.gc-scripts.php */
-			'concatemoji' => apply_filters( 'script_loader_src', includes_url( "js/gc-emoji-release.min.js?$version" ), 'concatemoji' ),
+			'concatemoji' => apply_filters( 'script_loader_src', assets_url( "/js/gc-emoji-release.min.js?$version" ), 'concatemoji' ),
 		);
 	}
 
 	gc_print_inline_script_tag(
 		sprintf( 'window._gcemojiSettings = %s;', gc_json_encode( $settings ) ) . "\n" .
-			file_get_contents( sprintf( ABSPATH . GCINC . '/js/gc-emoji-loader' . gc_scripts_get_suffix() . '.js' ) )
+			file_get_contents( sprintf( ABSPATH . 'assets/js/gc-emoji-loader' . gc_scripts_get_suffix() . '.js' ) )
 	);
 }
 
@@ -5812,7 +5812,7 @@ function gc_staticize_emoji( $text ) {
 	}
 
 	/** This filter is documented in gc-includes/formatting.php */
-	$cdn_url = apply_filters( 'emoji_url', 'https://s.w.org/images/core/emoji/13.1.0/72x72/' );
+	$emoji_assets_url = apply_filters( 'emoji_url', 'https://s.w.org/images/core/emoji/13.1.0/72x72/' );
 
 	/** This filter is documented in gc-includes/formatting.php */
 	$ext = apply_filters( 'emoji_ext', '.png' );
@@ -5849,7 +5849,7 @@ function gc_staticize_emoji( $text ) {
 				$file = str_replace( ';&#x', '-', $emojum );
 				$file = str_replace( array( '&#x', ';' ), '', $file );
 
-				$entity = sprintf( '<img src="%s" alt="%s" class="gc-smiley" style="height: 1em; max-height: 1em;" />', $cdn_url . $file . $ext, $emoji_char );
+				$entity = sprintf( '<img src="%s" alt="%s" class="gc-smiley" style="height: 1em; max-height: 1em;" />', $emoji_assets_url . $file . $ext, $emoji_char );
 
 				$content = str_replace( $emojum, $entity, $content );
 			}

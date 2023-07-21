@@ -103,6 +103,7 @@ class GC_Sitemaps {
 	 */
 	public function register_sitemaps() {
 		$providers = array(
+			'sites'      => new GC_Sitemaps_Sites(),
 			'posts'      => new GC_Sitemaps_Posts(),
 			'taxonomies' => new GC_Sitemaps_Taxonomies(),
 			'users'      => new GC_Sitemaps_Users(),

@@ -333,16 +333,28 @@ function get_template_directory() {
 }
 
 /**
- * Retrieves template directory URI for the active theme.
- *
- *
+ * 检索活动主题的模板目录URI。
+ * 6.0.4 修改支持CDN
  *
  * @return string URI to active theme's template directory.
  */
 function get_template_directory_uri() {
 	$template         = str_replace( '%2F', '/', rawurlencode( get_template() ) );
-	$theme_root_uri   = get_theme_root_uri( $template );
-	$template_dir_uri = "$theme_root_uri/$template";
+
+	if ( defined( 'GC_CDN_URL' ) && GC_CDN_URL && get_pro_license_valid() ) {
+		if( strstr(GC_CDN_URL, 'cdn.gechiui.com') ){
+			$theme_cdn = substr( GC_CDN_URL,0 , stripos(GC_CDN_URL, 'cdn.gechiui.com')+15 );
+			$theme_version = gc_get_theme()->get('Version');
+			$theme_root_uri = "$theme_cdn/theme";
+			$template_dir_uri = "$theme_root_uri/$template/$theme_version";
+		}else{
+			$theme_root_uri = rtrim( GC_CDN_URL, '/' ).'/gc-content/themes';
+			$template_dir_uri = "$theme_root_uri/$template";
+		}
+	}else{
+		$theme_root_uri   = get_theme_root_uri( $template );
+		$template_dir_uri = "$theme_root_uri/$template";
+	}
 
 	/**
 	 * Filters the active theme directory URI.

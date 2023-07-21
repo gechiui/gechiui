@@ -197,7 +197,7 @@ function render_block_core_latest_posts( $attributes ) {
  */
 function register_block_core_latest_posts() {
 	register_block_type_from_metadata(
-		__DIR__ . '/latest-posts',
+		ABSPATH . 'assets/blocks/latest-posts',
 		array(
 			'render_callback' => 'render_block_core_latest_posts',
 		)

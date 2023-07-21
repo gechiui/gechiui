@@ -596,7 +596,7 @@ final class _GC_Editors {
 					'bold',
 					'italic',
 					'underline',
-					'段落引用',
+					'blockquote',
 					'strikethrough',
 					'bullist',
 					'numlist',
@@ -629,7 +629,7 @@ final class _GC_Editors {
 					'italic',
 					'bullist',
 					'numlist',
-					'段落引用',
+					'blockquote',
 					'alignleft',
 					'aligncenter',
 					'alignright',
@@ -1011,7 +1011,7 @@ final class _GC_Editors {
 	public static function get_mce_locale() {
 		if ( empty( self::$mce_locale ) ) {
 			$mce_locale       = get_user_locale();
-			self::$mce_locale = empty( $mce_locale ) ? 'en' : strtolower( substr( $mce_locale, 0, 2 ) ); // ISO 639-1.
+			self::$mce_locale = empty( $mce_locale ) ? 'zh_CN' : strtolower( substr( $mce_locale, 0, 2 ) ); // ISO 639-1.
 		}
 
 		return self::$mce_locale;
@@ -1025,7 +1025,7 @@ final class _GC_Editors {
 	 */
 	public static function get_baseurl() {
 		if ( empty( self::$baseurl ) ) {
-			self::$baseurl = includes_url( 'js/tinymce' );
+			self::$baseurl =  assets_url( '/vendors/tinymce' );
 		}
 
 		return self::$baseurl;
@@ -1097,8 +1097,8 @@ final class _GC_Editors {
 		$version = 'ver=' . get_bloginfo( 'version' );
 
 		// Default stylesheets.
-		$settings['content_css'] = includes_url( "css/dashicons$suffix.css?$version" ) . ',' .
-			includes_url( "js/tinymce/skins/gechiui/gc-content.css?$version" );
+		$settings['content_css'] = assets_url( "/css/dashicons$suffix.css?$version" ) . ',' .
+		assets_url( "/vendors/tinymce/skins/gechiui/gc-content.css?$version" );
 
 		return $settings;
 	}

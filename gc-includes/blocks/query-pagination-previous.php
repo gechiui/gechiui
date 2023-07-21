@@ -51,7 +51,7 @@ function render_block_core_query_pagination_previous( $attributes, $content, $bl
  */
 function register_block_core_query_pagination_previous() {
 	register_block_type_from_metadata(
-		__DIR__ . '/query-pagination-previous',
+		ABSPATH . 'assets/blocks/query-pagination-previous',
 		array(
 			'render_callback' => 'render_block_core_query_pagination_previous',
 		)

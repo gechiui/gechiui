@@ -107,13 +107,14 @@ function register_block_script_handle( $metadata, $field_name ) {
 		return false;
 	}
 	// Path needs to be normalized to work in Windows env.
-	$gcinc_path_norm  = gc_normalize_path( realpath( ABSPATH . GCINC ) );
+	$gcinc_path_norm  = gc_normalize_path( realpath( ABSPATH . 'assets' ) );
 	$script_path_norm = gc_normalize_path( realpath( dirname( $metadata['file'] ) . '/' . $script_path ) );
 	$is_core_block    = isset( $metadata['file'] ) && 0 === strpos( $metadata['file'], $gcinc_path_norm );
 
 	$script_uri          = $is_core_block ?
-		includes_url( str_replace( $gcinc_path_norm, '', $script_path_norm ) ) :
+		assets_url( str_replace( $gcinc_path_norm, '', $script_path_norm ) ) :
 		plugins_url( $script_path, $metadata['file'] );
+
 	$script_asset        = require $script_asset_path;
 	$script_dependencies = isset( $script_asset['dependencies'] ) ? $script_asset['dependencies'] : array();
 	$result              = gc_register_script(
@@ -149,7 +150,7 @@ function register_block_style_handle( $metadata, $field_name ) {
 	if ( empty( $metadata[ $field_name ] ) ) {
 		return false;
 	}
-	$gcinc_path_norm = gc_normalize_path( realpath( ABSPATH . GCINC ) );
+	$gcinc_path_norm = gc_normalize_path( realpath( ABSPATH . 'assets' ) );
 	$is_core_block   = isset( $metadata['file'] ) && 0 === strpos( $metadata['file'], $gcinc_path_norm );
 	if ( $is_core_block && ! gc_should_load_separate_core_block_assets() ) {
 		return false;
@@ -168,7 +169,7 @@ function register_block_style_handle( $metadata, $field_name ) {
 	$style_uri = plugins_url( $style_path, $metadata['file'] );
 	if ( $is_core_block ) {
 		$style_path = "style$suffix.css";
-		$style_uri  = includes_url( 'blocks/' . str_replace( 'core/', '', $metadata['name'] ) . "/style$suffix.css" );
+		$style_uri  = assets_url( '/blocks/' . str_replace( 'core/', '', $metadata['name'] ) . "/style$suffix.css" );
 	}
 
 	$style_handle   = generate_block_asset_handle( $metadata['name'], $field_name );

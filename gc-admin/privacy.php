@@ -39,7 +39,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 
 	<div class="about__section has-2-columns is-wider-right">
 		<div class="column about__image">
-			<img class="privacy-image" src="<?php echo esc_url( admin_url( 'images/privacy.svg' ) ); ?>" alt="" />
+			<img class="privacy-image" src="<?php echo esc_url( assets_url( '/images/privacy.svg' ) ); ?>" alt="" />
 		</div>
 		<div class="column is-vertically-aligned-center">
 			<p><?php _e( '您的GeChiUI站点可能需要不时将数据发送到www.GeChiUI.com，数据内容包括但不限于您正在使用的GeChiUI版本、已安装的插件及主题列表等。' ); ?></p>

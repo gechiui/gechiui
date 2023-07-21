@@ -1,0 +1,168 @@
+/**
+ * Colors
+ */
+/**
+ * Breakpoints & Media Queries
+ */
+/**
+ * SCSS Variables.
+ *
+ * Please use variables from this sheet to ensure consistency across the UI.
+ * Don't add to this sheet unless you're pretty sure the value will be reused in many places.
+ * For example, don't add rules to this sheet that affect block visuals. It's purely for UI.
+ */
+/**
+ * Colors
+ */
+/**
+ * Fonts & basic variables.
+ */
+/**
+ * Grid System.
+ * https://make.gechiui.com/design/2019/10/31/proposal-a-consistent-spacing-system-for-gechiui/
+ */
+/**
+ * Dimensions.
+ */
+/**
+ * Shadows.
+ */
+/**
+ * Editor widths.
+ */
+/**
+ * Block & Editor UI.
+ */
+/**
+ * Block paddings.
+ */
+/**
+ * React Native specific.
+ * These variables do not appear to be used anywhere else.
+ */
+/**
+*  Converts a hex value into the rgb equivalent.
+*
+* @param {string} hex - the hexadecimal value to convert
+* @return {string} comma separated rgb values
+*/
+/**
+ * Breakpoint mixins
+ */
+/**
+ * Long content fade mixin
+ *
+ * Creates a fading overlay to signify that the content is longer
+ * than the space allows.
+ */
+/**
+ * Focus styles.
+ */
+/**
+ * Applies editor left position to the selector passed as argument
+ */
+/**
+ * Styles that are reused verbatim in a few places
+ */
+/**
+ * Allows users to opt-out of animations via OS-level preferences.
+ */
+/**
+ * Reset default styles for JavaScript UI based pages.
+ * This is a GC-admin agnostic reset
+ */
+/**
+ * Reset the GC Admin page styles for Gutenberg-like pages.
+ */
+.gc-block-social-links {
+  padding-left: 0;
+  padding-right: 0;
+  text-indent: 0;
+  margin-left: 0;
+}
+.gc-block-social-links .gc-social-link a,
+.gc-block-social-links .gc-social-link a:hover {
+  text-decoration: none;
+  border-bottom: 0;
+  box-shadow: none;
+}
+.gc-block-social-links .gc-social-link a {
+  padding: 0.25em;
+}
+.gc-block-social-links .gc-social-link svg {
+  width: 1em;
+  height: 1em;
+}
+.gc-block-social-links.has-small-icon-size {
+  font-size: 16px;
+}
+.gc-block-social-links, .gc-block-social-links.has-normal-icon-size {
+  font-size: 24px;
+}
+.gc-block-social-links.has-large-icon-size {
+  font-size: 36px;
+}
+.gc-block-social-links.has-huge-icon-size {
+  font-size: 48px;
+}
+.gc-block-social-links.aligncenter {
+  justify-content: center;
+  display: flex;
+}
+.gc-block-social-links.alignright {
+  justify-content: flex-end;
+}
+
+.gc-block-social-link {
+  display: block;
+  border-radius: 9999px;
+  transition: transform 0.1s ease;
+  height: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gc-block-social-link {
+    transition-duration: 0s;
+    transition-delay: 0s;
+  }
+}
+.gc-block-social-link a {
+  display: block;
+  line-height: 0;
+  transition: transform 0.1s ease;
+}
+.gc-block-social-link:hover {
+  transform: scale(1.1);
+}
+.gc-block-social-links .gc-block-social-link .gc-block-social-link-anchor, .gc-block-social-links .gc-block-social-link .gc-block-social-link-anchor:hover, .gc-block-social-links .gc-block-social-link .gc-block-social-link-anchor:active, .gc-block-social-links .gc-block-social-link .gc-block-social-link-anchor:visited,
+.gc-block-social-links .gc-block-social-link .gc-block-social-link-anchor svg {
+  color: currentColor;
+  fill: currentColor;
+}
+.gc-block-social-links:not(.is-style-logos-only) .gc-social-link {
+  background-color: #f0f0f0;
+  color: #444;
+}
+.gc-block-social-links:not(.is-style-logos-only) .gc-social-link-gechiui {
+  background-color: #3499cd;
+  color: #fff;
+}
+.gc-block-social-links.is-style-logos-only .gc-social-link {
+  background: none;
+}
+.gc-block-social-links.is-style-logos-only .gc-social-link a {
+  padding: 0;
+}
+.gc-block-social-links.is-style-logos-only .gc-social-link svg {
+  width: 1.25em;
+  height: 1.25em;
+}
+.gc-block-social-links.is-style-logos-only .gc-social-link-gechiui {
+  color: #3499cd;
+}
+.gc-block-social-links.is-style-pill-shape .gc-social-link {
+  width: auto;
+}
+.gc-block-social-links.is-style-pill-shape .gc-social-link a {
+  padding-left: calc((2/3) * 1em);
+  padding-right: calc((2/3) * 1em);
+}

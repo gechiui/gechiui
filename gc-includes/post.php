@@ -522,7 +522,7 @@ function create_initial_post_types() {
 				'edit_published_posts'   => 'edit_theme_options',
 				'edit_posts'             => 'edit_theme_options',
 			),
-			'rest_base'             => '导航',
+			'rest_base'             => 'navigation',
 			'rest_controller_class' => 'GC_REST_Posts_Controller',
 			'supports'              => array(
 				'title',
@@ -6841,7 +6841,7 @@ function gc_mime_type_icon( $mime = 0 ) {
 			 *
 			 * @param string $path Icon directory absolute path.
 			 */
-			$icon_dir = apply_filters( 'icon_dir', ABSPATH . GCINC . '/images/media' );
+			$icon_dir = apply_filters( 'icon_dir', ABSPATH . '/assets/images/media' );
 
 			/**
 			 * Filters the icon directory URI.
@@ -6850,7 +6850,7 @@ function gc_mime_type_icon( $mime = 0 ) {
 			 *
 			 * @param string $uri Icon directory URI.
 			 */
-			$icon_dir_uri = apply_filters( 'icon_dir_uri', includes_url( 'images/media' ) );
+			$icon_dir_uri = apply_filters( 'icon_dir_uri', assets_url( '/images/media' ) );
 
 			/**
 			 * Filters the array of icon directory URIs.

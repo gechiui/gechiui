@@ -234,7 +234,7 @@ class SimplePie_Sanitize
 			$element_attribute = array(
 				'a' => 'href',
 				'area' => 'href',
-				'段落引用' => 'cite',
+				'blockquote' => 'cite',
 				'del' => 'cite',
 				'form' => 'action',
 				'img' => array(

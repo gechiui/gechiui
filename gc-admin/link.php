@@ -100,7 +100,6 @@ switch ( $action ) {
 
 	case 'edit':
 		gc_enqueue_script( 'link' );
-		gc_enqueue_script( 'xfn' );
 
 		if ( gc_is_mobile() ) {
 			gc_enqueue_script( 'jquery-touch-punch' );

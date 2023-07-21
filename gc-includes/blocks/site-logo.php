@@ -98,7 +98,7 @@ add_action( 'rest_api_init', 'register_block_core_site_icon_setting', 10 );
  */
 function register_block_core_site_logo() {
 	register_block_type_from_metadata(
-		__DIR__ . '/site-logo',
+		ABSPATH . 'assets/blocks/site-logo',
 		array(
 			'render_callback' => 'render_block_core_site_logo',
 		)

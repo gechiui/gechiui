@@ -218,12 +218,6 @@ class Walker_Nav_Menu_Edit extends Walker_Nav_Menu {
 						<input type="text" id="edit-menu-item-classes-<?php echo $item_id; ?>" class="widefat code edit-menu-item-classes" name="menu-item-classes[<?php echo $item_id; ?>]" value="<?php echo esc_attr( implode( ' ', $menu_item->classes ) ); ?>" />
 					</label>
 				</p>
-				<p class="field-xfn description description-thin">
-					<label for="edit-menu-item-xfn-<?php echo $item_id; ?>">
-						<?php _e( '链接关系（XFN）' ); ?><br />
-						<input type="text" id="edit-menu-item-xfn-<?php echo $item_id; ?>" class="widefat code edit-menu-item-xfn" name="menu-item-xfn[<?php echo $item_id; ?>]" value="<?php echo esc_attr( $menu_item->xfn ); ?>" />
-					</label>
-				</p>
 				<p class="field-description description description-wide">
 					<label for="edit-menu-item-description-<?php echo $item_id; ?>">
 						<?php _e( '描述' ); ?><br />

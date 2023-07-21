@@ -176,7 +176,7 @@ class GCSignup_Mobile {
                 <div class="form-group user-pass-wrap">
                     <label class="font-weight-semibold" for="user_pass"><?php _e( '密码' ); ?></label>
                     <div class="input-affix m-b-10">
-                        <input type="password" class="form-control" name="user_pass" id="user_pass" size="20" <?php echo $aria_describedby_error; ?> placeholder="<?php _e( '请输入您的密码' ); ?>" value="<?php echo esc_attr( $user_pass ); ?>" aria-label="<?php esc_attr_e( '显示密码' ); ?>"/>
+                        <input type="password" class="form-control" name="user_pass" id="user_pass" size="20" <?php echo $aria_describedby_error; ?> placeholder="<?php _e( '请输入您的密码' ); ?>" value="" aria-label="<?php esc_attr_e( '显示密码' ); ?>"/>
                         <i class="suffix-icon anticon anticon-eye gc-hide-pw pointer"></i>
                     </div>
                 </div>

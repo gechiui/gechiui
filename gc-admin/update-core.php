@@ -1046,6 +1046,27 @@ if ( 'upgrade-core' === $action ) {
 		$last_update_check = $current->last_checked + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
 	}
 
+	/**
+	 * 处理专业版许可证
+	 */
+	echo '<h2 class="gc-current-version">专业版许可</h2>';
+	if(defined( 'GECHIUI_USERNAME' ) && defined( 'GECHIUI_APPKEY' ) ){
+		echo '<p>许可用户：'. GECHIUI_USERNAME .'</p>';
+		echo '<p>许可秘钥：'. GECHIUI_APPKEY .'</p>';
+		$res = get_pro_license_api();
+		if( isset($res->license) && strtotime( $res->license['next_payment_date'] ) > strtotime('now') ) {
+			update_option( 'pro_license', $res );
+			echo '<p>专业版授权：有效期至'. date("Y/m/d", strtotime($res->license['next_payment_date'])). '</p>';
+		}else{
+			echo '<p>专业版授权获取失败！</p>';
+		}
+	}else{
+		echo '<p>当前为免费版，<a href="https://www.gechiui.com/pro/">立即升级专业版</a></p>';
+	}
+
+	/**
+	 * GeChiUi版本升级
+	 */
 	echo '<h2 class="gc-current-version">';
 	/* translators: Current version of GeChiUI. */
 	printf( __( '当前版本：%s' ), get_bloginfo( 'version' ) );

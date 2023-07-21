@@ -91,7 +91,7 @@ function build_dropdown_script_block_core_categories( $dropdown_id ) {
  */
 function register_block_core_categories() {
 	register_block_type_from_metadata(
-		__DIR__ . '/categories',
+		ABSPATH . 'assets/blocks/categories',
 		array(
 			'render_callback' => 'render_block_core_categories',
 		)

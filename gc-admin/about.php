@@ -53,24 +53,24 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 
 		<div class="about__section has-2-columns has-gutters is-wider-left">
 			<div class="column about__image is-vertically-aligned-center is-edge-to-edge">
-				<img src="images/defaultbird.png" alt="" />
+				<img src="<?php echo esc_url( assets_url( '/images/gcoa.png' ) ); ?>" alt="" />
 			</div>
 			<div class="column is-edge-to-edge">
 				<h3>
-					<?php _e( '全新的默认主题-飞鸟' ); ?>
+					<?php _e( '格尺OA办公主题' ); ?>
 				</h3>
 				<p>
 					<?php _e( '这是 GeChiUI 有史以来的第一个默认区块主题。 它不仅是一个新的默认主题， 也是使用 GeChiUI 主题的一种全新方式。' ); ?>
 				</p>
 				<p>
-					<?php _e( '区块主题为您提供了大量的视觉化选择，从配色方案到字体组合在到页面模板和图片筛选，全部都可通过站点编辑器进行变更。由于只需要在一个地方进行修改，您可以为飞鸟主题提供与自有品牌或其他网站相同的外观和风格，或将您站点的外观转向另一方向。' ); ?>
+					<?php _e( '区块主题为您提供了大量的视觉化选择，从配色方案到字体组合在到页面模板和图片筛选，全部都可通过站点编辑器进行变更。由于只需要在一个地方进行修改，您可以为格尺OA办公主题提供与自有品牌或其他网站相同的外观和风格，或将您站点的外观转向另一方向。' ); ?>
 				</p>
 				<?php if ( current_user_can( 'switch_themes' ) ) : ?>
 				<p>
 					<?php
 					printf(
 						/* translators: %s: Link to Themes screen. */
-						__( '飞鸟主题已可供使用，此主题会与 GeChiUI 6.0 一并安装，可在<a href="%s">已安装的主题</a>页面中找到。' ),
+						__( '格尺OA办公主题已可供使用，此主题会与 GeChiUI 6.0 一并安装，可在<a href="%s">已安装的主题</a>页面中找到。' ),
 						admin_url( 'themes.php' )
 					);
 					?>
@@ -85,7 +85,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 					<?php _e( '构建站点，创意无限' ); ?>
 				</h3>
 				<p>
-					<?php _e( '随着飞鸟主题的发布，更多支持全站编辑的区块主题也会陆续上架到主题目录中，并等待用户进行深入探索。敬请期待将来发布的更多区块主题。' ); ?>
+					<?php _e( '随着格尺OA办公主题的发布，更多支持全站编辑的区块主题也会陆续上架到主题目录中，并等待用户进行深入探索。敬请期待将来发布的更多区块主题。' ); ?>
 				</p>
 				<p>
 					<?php _e( '使用任意一个区块主题后，您便不再需要外观定制器；取而代之的是站点编辑器中、样式界面中的全部功能。使用这些区块就像在飞鸟主题中一样，您可以按需为站点构建合适的外观和风格，并在流畅、顺手的界面中使用所需的工具完成工作。' ); ?>

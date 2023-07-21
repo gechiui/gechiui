@@ -603,7 +603,6 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 		<head>
 			<meta charset="<?php bloginfo( 'charset' ); ?>" />
 			<meta name="viewport" content="width=device-width, initial-scale=1" />
-			<link rel="profile" href="https://gmpg.org/xfn/11" />
 			<?php gc_head(); ?>
 			<style>
 				/* Reset theme styles */

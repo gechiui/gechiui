@@ -30,7 +30,6 @@ require_once ABSPATH . 'gc-admin/includes/meta-boxes.php';
 add_meta_box( 'linksubmitdiv', __( '保存' ), 'link_submit_meta_box', null, 'side', 'core' );
 add_meta_box( 'linkcategorydiv', __( '分类' ), 'link_categories_meta_box', null, 'normal', 'core' );
 add_meta_box( 'linktargetdiv', __( '打开方式' ), 'link_target_meta_box', null, 'normal', 'core' );
-add_meta_box( 'linkxfndiv', __( '链接关系（XFN）' ), 'link_xfn_meta_box', null, 'normal', 'core' );
 add_meta_box( 'linkadvanceddiv', __( '高级' ), 'link_advanced_meta_box', null, 'normal', 'core' );
 
 /** This action is documented in gc-admin/includes/meta-boxes.php */
@@ -66,8 +65,7 @@ get_current_screen()->add_help_tab(
 		'title'   => __( '概述' ),
 		'content' =>
 		'<p>' . __( '您可以在相关模块中添加或编辑链接。只有链接的地址和名称是必填项。' ) . '</p>' .
-		'<p>' . __( '链接名称、网络地址及描述是固定不动的，您可通过拖放来移动其他模块。您也可以在“显示选项”选项卡中隐藏它们，或是点击部件的标题栏来最小化。' ) . '</p>' .
-		'<p>' . __( 'XFN是可选项，其含义为<a href="https://gmpg.org/xfn/">XHTML社交网络</a>。GeChiUI允许通过创建XFN属性来标识您与您的站点所链接站点作者/拥有者的关系。' ) . '</p>',
+		'<p>' . __( '链接名称、网络地址及描述是固定不动的，您可通过拖放来移动其他模块。您也可以在“显示选项”选项卡中隐藏它们，或是点击部件的标题栏来最小化。' ) . '</p>' ,
 	)
 );
 

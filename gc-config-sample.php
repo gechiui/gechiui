@@ -79,6 +79,32 @@ $table_prefix = 'gc_';
  */
 define( 'GC_DEBUG', false );
 
+
+/* 专业版本服务配置 */
+
+/**
+ * 设置GeChiUI专业版
+ * 访问 https://www.gechiui.com/pro 获取专业版
+ * 在这里填写：用户名和appkey
+ * GECHIUI_USERNAME：登录 www.gechiui.com 的用户名
+ * GECHIUI_APPKEY：登录 www.gechiui.com 的个人资料页面创建AppKey
+ */
+# define( 'GECHIUI_USERNAME', 'username' );
+# define( 'GECHIUI_APPKEY', 'appkey' );
+
+/**
+ * 专业版功能-CDN
+ * 开启CDN加速服务。真的CSS、JS、图片和字体等
+ * 
+ * SaaS子路径模式：可以指定站点根域名，解决子站点重复加载问题，如 https://www.gechiui.com/
+ * SaaS子域名模式：可以指定为跟域名，解决子站点重复加载问题，如 https://www.gechiui.com/
+ * 也可以指定自定义域名，如 https://cdn.gechiui.com/
+ * GeChiUI官方CDN-专业版地址，如：https://cdn.gechiui.com/release/6.0.3/ 
+ * 
+ */
+# define( 'GC_CDN_URL', 'https://cdn.gechiui.com/release/6.0.3/' );
+
+
 /* 在此行和“停止编辑”行之间添加任何自定义值。 */
 
 

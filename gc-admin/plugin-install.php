@@ -69,7 +69,6 @@ gc_enqueue_script( 'updates' );
  * Possible hook names include:
  *
  *  - `install_plugins_pre_beta`
- *  - `install_plugins_pre_professionals`
  *  - `install_plugins_pre_featured`
  *  - `install_plugins_pre_plugin-information`
  *  - `install_plugins_pre_free`
@@ -181,7 +180,6 @@ if ( 'upload' !== $tab ) {
  * Possible hook names include:
  *
  *  - `install_plugins_beta`
- *  - `install_plugins_professionals`
  *  - `install_plugins_featured`
  *  - `install_plugins_plugin-information`
  *  - `install_plugins_free`

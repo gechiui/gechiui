@@ -392,13 +392,6 @@ function gc_update_plugins( $extra_stats = array() ) {
 		$options['body']['update_stats'] = gc_json_encode( $extra_stats );
 	}
 
-	//添加appkey身份识别
-    $gcorg_professionals = get_user_option( 'gcorg_professionals' );
-    if ( $gcorg_professionals ) {
-		$options['body']['username'] = $gcorg_professionals['username'];
-        $options['body']['appkey'] = $gcorg_professionals['appkey'];
-	}
-
 	$url      = 'http://api.gechiui.com/plugins/update-check/1.1/';
 	$http_url = $url;
 	$ssl      = gc_http_supports( array( 'ssl' ) );

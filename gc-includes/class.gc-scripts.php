@@ -643,17 +643,21 @@ JS;
 
 	/**
 	 * Whether a handle's source is in a default directory.
-	 *
+	 * 如果开启CDN，将不使用动态压缩
 	 *
 	 * @param string $src The source of the enqueued script.
 	 * @return bool True if found, false if not.
 	 */
 	public function in_default_dir( $src ) {
+		if ( defined( 'GC_CDN_URL' ) && GC_CDN_URL && get_pro_license_valid() ){
+			return false;
+		}
+
 		if ( ! $this->default_dirs ) {
 			return true;
 		}
 
-		if ( 0 === strpos( $src, '/' . GCINC . '/js/l10n' ) ) {
+		if ( 0 === strpos( $src, '/assets/js/l10n' ) ) {
 			return false;
 		}
 

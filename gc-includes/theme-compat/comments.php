@@ -49,7 +49,7 @@ if ( post_password_required() ) { ?>
 		?>
 	</h3>
 
-	<div class="导航">
+	<div class="navigation">
 		<div class="alignleft"><?php previous_comments_link(); ?></div>
 		<div class="alignright"><?php next_comments_link(); ?></div>
 	</div>
@@ -58,7 +58,7 @@ if ( post_password_required() ) { ?>
 	<?php gc_list_comments(); ?>
 	</ol>
 
-	<div class="导航">
+	<div class="navigation">
 		<div class="alignleft"><?php previous_comments_link(); ?></div>
 		<div class="alignright"><?php next_comments_link(); ?></div>
 	</div>

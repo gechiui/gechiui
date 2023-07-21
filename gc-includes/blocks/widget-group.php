@@ -45,7 +45,7 @@ function render_block_core_widget_group( $attributes, $content, $block ) {
  */
 function register_block_core_widget_group() {
 	register_block_type_from_metadata(
-		__DIR__ . '/widget-group',
+		ABSPATH . 'assets/blocks/widget-group',
 		array(
 			'render_callback' => 'render_block_core_widget_group',
 		)

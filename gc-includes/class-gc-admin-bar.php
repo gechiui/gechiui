@@ -419,7 +419,7 @@ class GC_Admin_Bar {
 	 * @param object $root
 	 */
 	final protected function _render( $root ) {
-        global $current_screen,$gc_roles;
+        global $current_screen,$gc_roles, $menu, $submenu;
         
 		// Add browser classes.
 		// We have to do this here since admin bar shows on the front end.
@@ -446,12 +446,12 @@ class GC_Admin_Bar {
         <div class="header" id="gcadminbar">
             <div class="logo logo-dark dropdown dropdown-animated scale-right"> 
                  <a href="javascript:void(0);" data-toggle="modal" data-target="#adminmenu_map">
-                    <img src="<?echo network_site_url()?>/assets/images/logo/logo.png" alt="Logo"> 
-                    <img class="logo-fold" src="<?echo network_site_url()?>/assets/images/logo/logo-fold.png" alt="Logo"> 
+                    <img src="<?echo assets_url('/images/logo/logo.png')?>" alt="Logo"> 
+                    <img class="logo-fold" src="<?echo assets_url('/images/logo/logo-fold.png')?>" alt="Logo"> 
                 </a>
             </div>
              
-            <div class="logo logo-white"> <a href="<?php echo esc_url( admin_url() ); ?>" data-toggle="modal"> <img src="<?echo network_site_url()?>/assets/images/logo/logo-white.png" alt="Logo"> <img class="logo-fold" src="<?echo network_site_url()?>/assets/images/logo/logo-fold-white.png" alt="Logo"> </a> </div>
+            <div class="logo logo-white"> <a href="<?php echo esc_url( admin_url() ); ?>" data-toggle="modal"> <img src="<?echo assets_url('/images/logo/logo-white.png')?>" alt="Logo"> <img class="logo-fold" src="<?echo assets_url('/images/logo/logo-fold-white.png')?>" alt="Logo"> </a> </div>
             <div class="nav-wrap">
                 <ul class="nav-left">
                 <?php if(is_admin()) : ?>

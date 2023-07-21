@@ -52,7 +52,7 @@ function render_block_core_post_author( $attributes, $content, $block ) {
  */
 function register_block_core_post_author() {
 	register_block_type_from_metadata(
-		__DIR__ . '/post-author',
+		ABSPATH . 'assets/blocks/post-author',
 		array(
 			'render_callback' => 'render_block_core_post_author',
 		)

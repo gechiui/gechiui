@@ -20,7 +20,6 @@ $parent_file = 'link-manager.php';
 gc_reset_vars( array( 'action', 'cat_id', 'link_id' ) );
 
 gc_enqueue_script( 'link' );
-gc_enqueue_script( 'xfn' );
 
 if ( gc_is_mobile() ) {
 	gc_enqueue_script( 'jquery-touch-punch' );

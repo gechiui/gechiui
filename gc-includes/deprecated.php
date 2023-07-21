@@ -3401,7 +3401,7 @@ function rich_edit_exists() {
 	_deprecated_function( __FUNCTION__, '3.9.0' );
 
 	if ( ! isset( $gc_rich_edit_exists ) )
-		$gc_rich_edit_exists = file_exists( ABSPATH . GCINC . '/js/tinymce/tinymce.js' );
+		$gc_rich_edit_exists = file_exists( ABSPATH . 'assets/vendors/tinymce/tinymce.js' );
 
 	return $gc_rich_edit_exists;
 }

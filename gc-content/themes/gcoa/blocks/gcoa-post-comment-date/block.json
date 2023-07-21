@@ -1,0 +1,40 @@
+{
+	"apiVersion": 2,
+	"name": "core/gcoa-post-comment-date",
+	"title": "评论日期",
+	"category": "theme",
+	"description": "添加此文章的日期。",
+	"textdomain": "default",
+	"attributes": {
+		"textAlign": {
+			"type": "string"
+		},
+		"format": {
+			"type": "string"
+		},
+		"isLink": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"usesContext": [ "comment_ID" ],
+	"supports": {
+		"html": false,
+		"color": {
+			"gradients": true,
+			"link": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalTextTransform": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		}
+	}
+}

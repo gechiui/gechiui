@@ -132,7 +132,6 @@ class GC_Links_List_Table extends GC_List_Table {
 			'name'       => _x( '名称', 'link name' ),
 			'url'        => __( 'URL' ),
 			'categories' => __( '分类' ),
-			'rel'        => __( '关系' ),
 			'visible'    => __( '可见性' ),
 			'rating'     => __( '评级' ),
 		);

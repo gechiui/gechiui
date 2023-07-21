@@ -444,7 +444,6 @@ function gc_update_nav_menu_item( $menu_id = 0, $menu_item_db_id = 0, $menu_item
 		'menu-item-attr-title'    => '',
 		'menu-item-target'        => '',
 		'menu-item-classes'       => '',
-		'menu-item-xfn'           => '',
 		'menu-item-status'        => '',
 		'menu-item-post-date'     => '',
 		'menu-item-post-date-gmt' => '',
@@ -563,9 +562,7 @@ function gc_update_nav_menu_item( $menu_id = 0, $menu_item_db_id = 0, $menu_item
 	update_post_meta( $menu_item_db_id, '_menu_item_target', sanitize_key( $args['menu-item-target'] ) );
 
 	$args['menu-item-classes'] = array_map( 'sanitize_html_class', explode( ' ', $args['menu-item-classes'] ) );
-	$args['menu-item-xfn']     = implode( ' ', array_map( 'sanitize_html_class', explode( ' ', $args['menu-item-xfn'] ) ) );
 	update_post_meta( $menu_item_db_id, '_menu_item_classes', $args['menu-item-classes'] );
-	update_post_meta( $menu_item_db_id, '_menu_item_xfn', $args['menu-item-xfn'] );
 	update_post_meta( $menu_item_db_id, '_menu_item_url', esc_url_raw( $args['menu-item-url'] ) );
 
 	if ( 0 == $menu_id ) {
@@ -803,7 +800,6 @@ function gc_get_nav_menu_items( $menu, $args = array() ) {
  * - type:             The family of objects originally represented, such as 'post_type' or 'taxonomy'.
  * - type_label:       用于描述此类菜单项的单数标签。
  * - url:              该菜单项指向的URL。
- * - xfn:              该菜单项的链接中表示的XFN关系。
  * - _invalid:         菜单项是否表示不存在的对象。
  *
  *
@@ -931,7 +927,6 @@ function gc_setup_nav_menu_item( $menu_item ) {
 			}
 
 			$menu_item->classes = ! isset( $menu_item->classes ) ? (array) get_post_meta( $menu_item->ID, '_menu_item_classes', true ) : $menu_item->classes;
-			$menu_item->xfn     = ! isset( $menu_item->xfn ) ? get_post_meta( $menu_item->ID, '_menu_item_xfn', true ) : $menu_item->xfn;
 		} else {
 			$menu_item->db_id            = 0;
 			$menu_item->menu_item_parent = 0;
@@ -957,7 +952,6 @@ function gc_setup_nav_menu_item( $menu_item ) {
 			/** This filter is documented in gc-includes/nav-menu.php */
 			$menu_item->description = apply_filters( 'nav_menu_description', '' );
 			$menu_item->classes     = array();
-			$menu_item->xfn         = '';
 		}
 	} elseif ( isset( $menu_item->taxonomy ) ) {
 		$menu_item->ID               = $menu_item->term_id;
@@ -977,7 +971,6 @@ function gc_setup_nav_menu_item( $menu_item ) {
 		$menu_item->attr_title  = '';
 		$menu_item->description = get_term_field( 'description', $menu_item->term_id, $menu_item->taxonomy );
 		$menu_item->classes     = array();
-		$menu_item->xfn         = '';
 
 	}
 
@@ -1215,7 +1208,7 @@ function gc_map_nav_menu_locations( $new_nav_menu_locations, $old_nav_menu_locat
 	 * from within the same group, make an educated guess and map it.
 	 */
 	$common_slug_groups = array(
-		array( 'primary', 'menu-1', 'main', 'header', '导航', 'top' ),
+		array( 'primary', 'menu-1', 'main', 'header', 'navigation', 'top' ),
 		array( 'secondary', 'menu-2', 'footer', 'subsidiary', 'bottom' ),
 		array( 'social' ),
 	);

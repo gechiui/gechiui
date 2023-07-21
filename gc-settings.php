@@ -300,6 +300,7 @@ require ABSPATH . GCINC . '/sitemaps/class-gc-sitemaps-provider.php';
 require ABSPATH . GCINC . '/sitemaps/class-gc-sitemaps-registry.php';
 require ABSPATH . GCINC . '/sitemaps/class-gc-sitemaps-renderer.php';
 require ABSPATH . GCINC . '/sitemaps/class-gc-sitemaps-stylesheet.php';
+require ABSPATH . GCINC . '/sitemaps/providers/class-gc-sitemaps-sites.php';
 require ABSPATH . GCINC . '/sitemaps/providers/class-gc-sitemaps-posts.php';
 require ABSPATH . GCINC . '/sitemaps/providers/class-gc-sitemaps-taxonomies.php';
 require ABSPATH . GCINC . '/sitemaps/providers/class-gc-sitemaps-users.php';

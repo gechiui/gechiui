@@ -1488,7 +1488,7 @@ function gc_print_media_templates() {
 		<h2><?php _e( '预览' ); ?></h2>
 		<strong aria-hidden="true"><?php _e( '作为浏览器图标' ); ?></strong>
 		<div class="favicon-preview">
-			<img src="<?php echo esc_url( admin_url( 'images/' . ( is_rtl() ? 'browser-rtl.png' : 'browser.png' ) ) ); ?>" class="browser-preview" width="182" height="" alt="" />
+			<img src="<?php echo esc_url( assets_url( '/images/' . ( is_rtl() ? 'browser-rtl.png' : 'browser.png' ) ) ); ?>" class="browser-preview" width="182" height="" alt="" />
 
 			<div class="favicon">
 				<img id="preview-favicon" src="{{ data.url }}" alt="<?php esc_attr_e( '作为浏览器图标预览' ); ?>" />

@@ -113,7 +113,7 @@ _deprecated_file(
 			</li>
 			<?php endif; ?>
 		</ul>
-		<ul role="导航">
+		<ul role="navigation">
 				<?php gc_list_pages( 'title_li=<h2>' . __( '页面' ) . '</h2>' ); ?>
 
 			<li><h2><?php _e( '归档' ); ?></h2>

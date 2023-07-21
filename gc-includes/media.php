@@ -951,7 +951,7 @@ function gc_get_attachment_image_src( $attachment_id, $size = 'thumbnail', $icon
 
 			if ( $src ) {
 				/** This filter is documented in gc-includes/post.php */
-				$icon_dir = apply_filters( 'icon_dir', ABSPATH . GCINC . '/images/media' );
+				$icon_dir = apply_filters( 'icon_dir', ABSPATH . '/assets/images/media' );
 
 				$src_file               = $icon_dir . '/' . gc_basename( $src );
 				list( $width, $height ) = gc_getimagesize( $src_file );
@@ -4970,8 +4970,8 @@ function attachment_url_to_postid( $url ) {
  */
 function gcview_media_sandbox_styles() {
 	$version        = 'ver=' . get_bloginfo( 'version' );
-	$mediaelement   = includes_url( "js/mediaelement/mediaelementplayer-legacy.min.css?$version" );
-	$gcmediaelement = includes_url( "js/mediaelement/gc-mediaelement.css?$version" );
+	$mediaelement   = assets_url( "/js/mediaelement/mediaelementplayer-legacy.min.css?$version" );
+	$gcmediaelement = assets_url( "/js/mediaelement/gc-mediaelement.css?$version" );
 
 	return array( $mediaelement, $gcmediaelement );
 }

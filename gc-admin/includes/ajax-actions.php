@@ -3769,9 +3769,9 @@ function gc_ajax_parse_embed() {
 
 	if ( strpos( $parsed, 'class="gc-embedded-content' ) ) {
 		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-			$script_src = includes_url( 'js/gc-embed.js' );
+			$script_src = assets_url( '/js/gc-embed.js' );
 		} else {
-			$script_src = includes_url( 'js/gc-embed.min.js' );
+			$script_src = assets_url( '/js/gc-embed.min.js' );
 		}
 
 		$return['head']    = '<script src="' . $script_src . '"></script>';

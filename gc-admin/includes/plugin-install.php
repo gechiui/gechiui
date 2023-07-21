@@ -113,11 +113,10 @@ function plugins_api( $action, $args = array() ) {
 		}
 	}
 
-	//添加appkey身份识别
-    $gcorg_professionals = get_user_option( 'gcorg_professionals' );
-   if ( $gcorg_professionals ) {
-		$args->username = $gcorg_professionals['username'];
-        $args->appkey = $gcorg_professionals['appkey'];
+	//在请求参数中添加www.gechiui.com的appkey身份识别
+	if(defined( 'GECHIUI_USERNAME' ) && defined( 'GECHIUI_APPKEY' ) ){
+		$args->username = GECHIUI_USERNAME;
+	    $args->appkey = GECHIUI_APPKEY;
 	}
 
 	if ( ! isset( $args->locale ) ) {
@@ -156,7 +155,7 @@ function plugins_api( $action, $args = array() ) {
 
 	if ( false === $res ) {
 
-		$url = 'http://api.gechiui.com/plugins/info/1.2/';
+		$url = 'http://api.gechiui.com/plugins/info/1.3/';
 		$url = add_query_arg(
 			array(
 				'action'  => $action,
@@ -365,29 +364,6 @@ function install_plugins_upload() {
 }
 
 /**
- * 显示专业版AppKey表单
- *
- */
-function install_plugins_professionals_form() {
-	$user   = get_user_option( 'gcorg_professionals' );
-	$action = 'save_gcorg_username_' . get_current_user_id();
-	?>
-	<p><?php _e( '您可在此浏览在www.GeChiUI.com上购买的专业版插件。' ); ?></p>
-	<form method="get">
-		<input type="hidden" name="tab" value="professionals" />
-		<p>
-			<label for="username"><?php _e( '您的www.GeChiUI.com用户名：' ); ?></label>
-			<input type="search" id="username" name="username" value="<?php echo esc_attr( $user['username'] ); ?>" />
-            <label for="appkey"><?php _e( 'AppKey：' ); ?></label>
-            <input type="search" id="appkey" name="appkey" value="<?php echo esc_attr( $user['appkey'] ); ?>" />
-			<input type="submit" class="button" value="<?php esc_attr_e( '获取专业版列表' ); ?>" />
-			<input type="hidden" id="gcorg-username-nonce" name="_gcnonce" value="<?php echo esc_attr( gc_create_nonce( $action ) ); ?>" />
-		</p>
-	</form>
-	<?php
-}
-
-/**
  * Display plugin content based on plugin list.
  *
  *
@@ -567,7 +543,7 @@ function install_plugin_information() {
 			'class' => array(),
 			'alt'   => array(),
 		),
-		'段落引用' => array( 'cite' => true ),
+		'blockquote' => array( 'cite' => true ),
 	);
 
 	$plugins_section_titles = array(

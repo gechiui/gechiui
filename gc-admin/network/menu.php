@@ -29,7 +29,7 @@ if ( $update_data['counts']['total'] ) {
 			/* translators: %s: Number of available updates. */
 			__( '更新%s' ),
 			sprintf(
-				'<span class="update-plugins count-%s"><span class="update-count">%s</span></span>',
+				'<span class="avatar avatar-text bg-danger avatar-xs m-l-5 count-%s"><span class="update-count">%s</span></span>',
 				$update_data['counts']['total'],
 				number_format_i18n( $update_data['counts']['total'] )
 			)

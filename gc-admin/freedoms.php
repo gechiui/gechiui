@@ -57,22 +57,22 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 
 	<div class="about__section has-2-columns">
 		<div class="column aligncenter">
-			<img class="freedom-image" src="<?php echo esc_url( admin_url( 'images/freedom-1.svg' ) ); ?>" alt="" />
+			<img class="freedom-image" src="<?php echo esc_url( assets_url( '/images/freedom-1.svg' ) ); ?>" alt="" />
 			<h2 class="is-smaller-heading"><?php _e( '自由之一' ); ?></h2>
 			<p><?php _e( '可将程序执行于任何用途。' ); ?></p>
 		</div>
 		<div class="column aligncenter">
-			<img class="freedom-image" src="<?php echo esc_url( admin_url( 'images/freedom-2.svg' ) ); ?>" alt="" />
+			<img class="freedom-image" src="<?php echo esc_url( assets_url( '/images/freedom-2.svg' ) ); ?>" alt="" />
 			<h2 class="is-smaller-heading"><?php _e( '自由之二' ); ?></h2>
 			<p><?php _e( '研究程序的工作原理，并对其进行更改，以使其按您的意愿执行。' ); ?></p>
 		</div>
 		<div class="column aligncenter">
-			<img class="freedom-image" src="<?php echo esc_url( admin_url( 'images/freedom-3.svg' ) ); ?>" alt="" />
+			<img class="freedom-image" src="<?php echo esc_url( assets_url( '/images/freedom-3.svg' ) ); ?>" alt="" />
 			<h2 class="is-smaller-heading"><?php _e( '自由之三' ); ?></h2>
 			<p><?php _e( '将程序重新分发。' ); ?></p>
 		</div>
 		<div class="column aligncenter">
-			<img class="freedom-image" src="<?php echo esc_url( admin_url( 'images/freedom-4.svg' ) ); ?>" alt="" />
+			<img class="freedom-image" src="<?php echo esc_url( assets_url( '/images/freedom-4.svg' ) ); ?>" alt="" />
 			<h2 class="is-smaller-heading"><?php _e( '自由之四' ); ?></h2>
 			<p><?php _e( '将经过您修改的版本重新分发给其他人。' ); ?></p>
 		</div>

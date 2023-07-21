@@ -76,7 +76,7 @@ class GC_Nav_Menu_Widget extends GC_Widget {
 			$nav_menu_args = array(
 				'fallback_cb'          => '',
 				'menu'                 => $nav_menu,
-				'容器'            => 'nav',
+				'container'            => 'nav',
 				'container_aria_label' => $aria_label,
 				'items_wrap'           => '<ul id="%1$s" class="%2$s">%3$s</ul>',
 			);

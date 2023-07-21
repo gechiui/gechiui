@@ -506,7 +506,7 @@ function get_post_embed_html( $width, $height, $post = null ) {
 	// will fail to match and everything will be matched by `.*` and not included in the group. This regex issue goes
 	// back to GeChiUI 4.4, so in order to not break older installs this script must come at the end.
 	$output .= gc_get_inline_script_tag(
-		file_get_contents( ABSPATH . GCINC . '/js/gc-embed' . gc_scripts_get_suffix() . '.js' )
+		file_get_contents( ABSPATH . '/assets/js/gc-embed' . gc_scripts_get_suffix() . '.js' )
 	);
 
 	/**
@@ -908,7 +908,7 @@ function gc_filter_oembed_result( $result, $data, $url ) {
 		'a'          => array(
 			'href' => true,
 		),
-		'段落引用' => array(),
+		'blockquote' => array(),
 		'iframe'     => array(
 			'src'          => true,
 			'width'        => true,
@@ -942,7 +942,7 @@ function gc_filter_oembed_result( $result, $data, $url ) {
 		$html = str_replace( '<blockquote', "<blockquote data-secret=\"$secret\"", $html );
 	}
 
-	$allowed_html['段落引用']['data-secret'] = true;
+	$allowed_html['blockquote']['data-secret'] = true;
 	$allowed_html['iframe']['data-secret']     = true;
 
 	$html = gc_kses( $html, $allowed_html );
@@ -1050,7 +1050,7 @@ function print_embed_styles() {
 	$suffix    = SCRIPT_DEBUG ? '' : '.min';
 	?>
 	<style<?php echo $type_attr; ?>>
-		<?php echo file_get_contents( ABSPATH . GCINC . "/css/gc-embed-template$suffix.css" ); ?>
+		<?php echo file_get_contents( ABSPATH . "/assets/css/gc-embed-template$suffix.css" ); ?>
 	</style>
 	<?php
 }
@@ -1062,7 +1062,7 @@ function print_embed_styles() {
  */
 function print_embed_scripts() {
 	gc_print_inline_script_tag(
-		file_get_contents( ABSPATH . GCINC . '/js/gc-embed-template' . gc_scripts_get_suffix() . '.js' )
+		file_get_contents( ABSPATH . '/assets/js/gc-embed-template' . gc_scripts_get_suffix() . '.js' )
 	);
 }
 
@@ -1180,8 +1180,8 @@ function the_embed_site_title() {
 	$site_title = sprintf(
 		'<a href="%s" target="_top"><img src="%s" srcset="%s 2x" width="32" height="32" alt="" class="gc-embed-site-icon" /><span>%s</span></a>',
 		esc_url( home_url() ),
-		esc_url( get_site_icon_url( 32, includes_url( 'images/w-logo-blue.png' ) ) ),
-		esc_url( get_site_icon_url( 64, includes_url( 'images/w-logo-blue.png' ) ) ),
+		esc_url( get_site_icon_url( 32, assets_url( '/images/w-logo-blue.png' ) ) ),
+		esc_url( get_site_icon_url( 64, assets_url( '/images/w-logo-blue.png' ) ) ),
 		esc_html( get_bloginfo( 'name' ) )
 	);
 

@@ -206,7 +206,7 @@
                     </label>
                     <a class="float-right font-size-13 text-muted" href="<?php echo esc_url( gc_lostpassword_url() ); ?>"><?php _e( '忘记密码？' ); ?></a>
                     <div class="input-affix m-b-10">
-                        <input type="password" class="form-control" name="pwd" id="user_pass" size="20" <?php echo $aria_describedby_error; ?> placeholder="<?php _e( '请输入您的密码' ); ?>" value="<?php echo esc_attr( $user_pass ); ?>" aria-label="<?php esc_attr_e( '显示密码' ); ?>"/>
+                        <input type="password" class="form-control" name="pwd" id="user_pass" size="20" <?php echo $aria_describedby_error; ?> placeholder="<?php _e( '请输入您的密码' ); ?>" value="" aria-label="<?php esc_attr_e( '显示密码' ); ?>"/>
                         <i class="suffix-icon anticon anticon-eye gc-hide-pw pointer"></i>
                     </div>
                 </div>

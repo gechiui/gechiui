@@ -87,7 +87,7 @@ class GC_Widget_RSS extends GC_Widget {
 		if ( $title ) {
 			$feed_link = '';
 			$feed_url  = strip_tags( $url );
-			$feed_icon = includes_url( 'images/rss.png' );
+			$feed_icon = assets_url( '/images/rss.png' );
 			$feed_link = sprintf(
 				'<a class="rsswidget rss-widget-feed" href="%1$s"><img class="rss-widget-icon" style="border:0" width="14" height="14" src="%2$s" alt="%3$s"%4$s /></a> ',
 				esc_url( $feed_url ),

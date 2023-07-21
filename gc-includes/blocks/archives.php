@@ -114,7 +114,7 @@ function render_block_core_archives( $attributes ) {
  */
 function register_block_core_archives() {
 	register_block_type_from_metadata(
-		__DIR__ . '/archives',
+		ABSPATH . 'assets/blocks/archives',
 		array(
 			'render_callback' => 'render_block_core_archives',
 		)

@@ -90,7 +90,7 @@ function register_core_block_types_from_metadata() {
 
 	foreach ( $block_folders as $block_folder ) {
 		register_block_type(
-			ABSPATH . GCINC . '/blocks/' . $block_folder
+			ABSPATH . 'assets/blocks/' . $block_folder
 		);
 	}
 }

@@ -92,7 +92,7 @@ function render_block_core_query_pagination_numbers( $attributes, $content, $blo
  */
 function register_block_core_query_pagination_numbers() {
 	register_block_type_from_metadata(
-		__DIR__ . '/query-pagination-numbers',
+		ABSPATH . 'assets/blocks/query-pagination-numbers',
 		array(
 			'render_callback' => 'render_block_core_query_pagination_numbers',
 		)
