@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customize Color Control class.
- *
- *
  *
  * @see GC_Customize_Control
  */
@@ -32,6 +29,7 @@ class GC_Customize_Color_Control extends GC_Customize_Control {
 	/**
 	 * Mode.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	public $mode = 'full';
@@ -39,6 +37,7 @@ class GC_Customize_Color_Control extends GC_Customize_Control {
 	/**
 	 * Constructor.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @see GC_Customize_Control::__construct()
 	 *
@@ -56,6 +55,7 @@ class GC_Customize_Color_Control extends GC_Customize_Control {
 	/**
 	 * Enqueue scripts/styles for the color picker.
 	 *
+	 * @since 3.4.0
 	 */
 	public function enqueue() {
 		gc_enqueue_script( 'gc-color-picker' );
@@ -65,6 +65,7 @@ class GC_Customize_Color_Control extends GC_Customize_Control {
 	/**
 	 * Refresh the parameters passed to the JavaScript via JSON.
 	 *
+	 * @since 3.4.0
 	 * @uses GC_Customize_Control::to_json()
 	 */
 	public function to_json() {
@@ -77,12 +78,14 @@ class GC_Customize_Color_Control extends GC_Customize_Control {
 	/**
 	 * Don't render the control content from PHP, as it's rendered via JS on load.
 	 *
+	 * @since 3.4.0
 	 */
 	public function render_content() {}
 
 	/**
 	 * Render a JS template for the content of the color picker control.
 	 *
+	 * @since 4.1.0
 	 */
 	public function content_template() {
 		?>

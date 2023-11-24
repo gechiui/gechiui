@@ -4,19 +4,20 @@
  *
  * @package GeChiUI
  * @subpackage Session
- *
  */
 
 /**
  * Abstract class for managing user session tokens.
  *
- *
+ * @since 4.0.0
  */
+#[AllowDynamicProperties]
 abstract class GC_Session_Tokens {
 
 	/**
 	 * User ID.
 	 *
+	 * @since 4.0.0
 	 * @var int User ID.
 	 */
 	protected $user_id;
@@ -24,6 +25,7 @@ abstract class GC_Session_Tokens {
 	/**
 	 * Protected constructor. Use the `get_instance()` method to get the instance.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param int $user_id User whose session to manage.
 	 */
@@ -37,6 +39,7 @@ abstract class GC_Session_Tokens {
 	 * This method contains a {@see 'session_token_manager'} filter, allowing a plugin to swap out
 	 * the session manager for a subclass of `GC_Session_Tokens`.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param int $user_id User whose session to manage.
 	 * @return GC_Session_Tokens The session object, which is by default an instance of
@@ -46,6 +49,7 @@ abstract class GC_Session_Tokens {
 		/**
 		 * Filters the class name for the session token manager.
 		 *
+		 * @since 4.0.0
 		 *
 		 * @param string $session Name of class to use as the manager.
 		 *                        Default 'GC_User_Meta_Session_Tokens'.
@@ -57,6 +61,7 @@ abstract class GC_Session_Tokens {
 	/**
 	 * Hashes the given session token for storage.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $token Session token to hash.
 	 * @return string A hash of the session token (a verifier).
@@ -73,6 +78,7 @@ abstract class GC_Session_Tokens {
 	/**
 	 * Retrieves a user's session for the given token.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $token Session token.
 	 * @return array|null The session, or null if it does not exist.
@@ -87,6 +93,7 @@ abstract class GC_Session_Tokens {
 	 *
 	 * Checks that the given token is present and hasn't expired.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $token Token to verify.
 	 * @return bool Whether the token is valid for the user.
@@ -107,6 +114,7 @@ abstract class GC_Session_Tokens {
 	 * expiration time (and potentially other session information via the
 	 * {@see 'attach_session_information'} filter).
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param int $expiration Session expiration timestamp.
 	 * @return string Session token.
@@ -117,6 +125,7 @@ abstract class GC_Session_Tokens {
 		 *
 		 * Can be used to attach further information to a session.
 		 *
+		 * @since 4.0.0
 		 *
 		 * @param array $session Array of extra data.
 		 * @param int   $user_id User ID.
@@ -147,6 +156,7 @@ abstract class GC_Session_Tokens {
 	/**
 	 * Updates the data for the session with the given token.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $token Session token to update.
 	 * @param array  $session Session information.
@@ -159,6 +169,7 @@ abstract class GC_Session_Tokens {
 	/**
 	 * Destroys the session with the given token.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $token Session token to destroy.
 	 */
@@ -170,6 +181,7 @@ abstract class GC_Session_Tokens {
 	/**
 	 * Destroys all sessions for this user except the one with the given token (presumably the one in use).
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $token_to_keep Session token to keep.
 	 */
@@ -186,6 +198,7 @@ abstract class GC_Session_Tokens {
 	/**
 	 * Determines whether a session is still valid, based on its expiration timestamp.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param array $session Session to check.
 	 * @return bool Whether session is valid.
@@ -197,6 +210,7 @@ abstract class GC_Session_Tokens {
 	/**
 	 * Destroys all sessions for a user.
 	 *
+	 * @since 4.0.0
 	 */
 	final public function destroy_all() {
 		$this->destroy_all_sessions();
@@ -205,6 +219,7 @@ abstract class GC_Session_Tokens {
 	/**
 	 * Destroys all sessions for all users.
 	 *
+	 * @since 4.0.0
 	 */
 	final public static function destroy_all_for_all_users() {
 		/** This filter is documented in gc-includes/class-gc-session-tokens.php */
@@ -215,6 +230,7 @@ abstract class GC_Session_Tokens {
 	/**
 	 * Retrieves all sessions for a user.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @return array Sessions for a user.
 	 */
@@ -225,6 +241,7 @@ abstract class GC_Session_Tokens {
 	/**
 	 * Retrieves all sessions of the user.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @return array Sessions of the user.
 	 */
@@ -233,6 +250,7 @@ abstract class GC_Session_Tokens {
 	/**
 	 * Retrieves a session based on its verifier (token hash).
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $verifier Verifier for the session to retrieve.
 	 * @return array|null The session, or null if it does not exist.
@@ -244,6 +262,7 @@ abstract class GC_Session_Tokens {
 	 *
 	 * Omitting the second argument destroys the session.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $verifier Verifier for the session to update.
 	 * @param array  $session  Optional. Session. Omitting this argument destroys the session.
@@ -253,6 +272,7 @@ abstract class GC_Session_Tokens {
 	/**
 	 * Destroys all sessions for this user, except the single session with the given verifier.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $verifier Verifier of the session to keep.
 	 */
@@ -261,12 +281,14 @@ abstract class GC_Session_Tokens {
 	/**
 	 * Destroys all sessions for the user.
 	 *
+	 * @since 4.0.0
 	 */
 	abstract protected function destroy_all_sessions();
 
 	/**
 	 * Destroys all sessions for all users.
 	 *
+	 * @since 4.0.0
 	 */
 	public static function drop_sessions() {}
 }

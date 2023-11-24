@@ -7,7 +7,6 @@
  *
  * @package GeChiUI
  * @subpackage Theme_Compat
- *
  */
 ?>
 <div class="gc-embed">

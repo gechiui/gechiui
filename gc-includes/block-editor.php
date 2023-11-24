@@ -4,13 +4,14 @@
  *
  * @package GeChiUI
  * @subpackage Editor
- *
+ * @since 5.8.0
  */
 
 /**
  * Returns the list of default categories for block types.
  *
- *
+ * @since 5.8.0
+ * @since 6.3.0 Reusable Blocks renamed to Patterns.
  *
  * @return array[] Array of categories for block types.
  */
@@ -48,7 +49,7 @@ function get_default_block_categories() {
 		),
 		array(
 			'slug'  => 'reusable',
-			'title' => _x( '可重用区块', 'block category' ),
+			'title' => _x( '样板', 'block category' ),
 			'icon'  => null,
 		),
 	);
@@ -57,8 +58,8 @@ function get_default_block_categories() {
 /**
  * Returns all the categories for block types that will be shown in the block editor.
  *
- *
- *
+ * @since 5.0.0
+ * @since 5.8.0 It is possible to pass the block editor context as param.
  *
  * @param GC_Post|GC_Block_Editor_Context $post_or_block_editor_context The current post object or
  *                                                                      the block editor context.
@@ -77,6 +78,7 @@ function get_block_categories( $post_or_block_editor_context ) {
 	/**
 	 * Filters the default array of categories for block types.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param array[]                 $block_categories     Array of categories for block types.
 	 * @param GC_Block_Editor_Context $block_editor_context The current block editor context.
@@ -89,6 +91,7 @@ function get_block_categories( $post_or_block_editor_context ) {
 		/**
 		 * Filters the default array of categories for block types.
 		 *
+		 * @since 5.0.0
 		 * @deprecated 5.8.0 Use the {@see 'block_categories_all'} filter instead.
 		 *
 		 * @param array[] $block_categories Array of categories for block types.
@@ -103,11 +106,11 @@ function get_block_categories( $post_or_block_editor_context ) {
 /**
  * Gets the list of allowed block types to use in the block editor.
  *
- *
+ * @since 5.8.0
  *
  * @param GC_Block_Editor_Context $block_editor_context The current block editor context.
  *
- * @return bool|array Array of block type slugs, or boolean to enable/disable all.
+ * @return bool|string[] Array of block type slugs, or boolean to enable/disable all.
  */
 function get_allowed_block_types( $block_editor_context ) {
 	$allowed_block_types = true;
@@ -115,8 +118,9 @@ function get_allowed_block_types( $block_editor_context ) {
 	/**
 	 * Filters the allowed block types for all editor types.
 	 *
+	 * @since 5.8.0
 	 *
-	 * @param bool|array              $allowed_block_types  Array of block type slugs, or boolean to enable/disable all.
+	 * @param bool|string[]           $allowed_block_types  Array of block type slugs, or boolean to enable/disable all.
 	 *                                                      Default true (all registered block types supported).
 	 * @param GC_Block_Editor_Context $block_editor_context The current block editor context.
 	 */
@@ -128,11 +132,12 @@ function get_allowed_block_types( $block_editor_context ) {
 		/**
 		 * Filters the allowed block types for the editor.
 		 *
+		 * @since 5.0.0
 		 * @deprecated 5.8.0 Use the {@see 'allowed_block_types_all'} filter instead.
 		 *
-		 * @param bool|array $allowed_block_types Array of block type slugs, or boolean to enable/disable all.
-		 *                                        Default true (all registered block types supported)
-		 * @param GC_Post    $post                The post resource data.
+		 * @param bool|string[] $allowed_block_types Array of block type slugs, or boolean to enable/disable all.
+		 *                                           Default true (all registered block types supported)
+		 * @param GC_Post       $post                The post resource data.
 		 */
 		$allowed_block_types = apply_filters_deprecated( 'allowed_block_types', array( $allowed_block_types, $post ), '5.8.0', 'allowed_block_types_all' );
 	}
@@ -143,15 +148,20 @@ function get_allowed_block_types( $block_editor_context ) {
 /**
  * Returns the default block editor settings.
  *
- *
+ * @since 5.8.0
  *
  * @return array The default block editor settings.
  */
 function get_default_block_editor_settings() {
 	// Media settings.
-	$max_upload_size = gc_max_upload_size();
-	if ( ! $max_upload_size ) {
-		$max_upload_size = 0;
+
+	// gc_max_upload_size() can be expensive, so only call it when relevant for the current user.
+	$max_upload_size = 0;
+	if ( current_user_can( 'upload_files' ) ) {
+		$max_upload_size = gc_max_upload_size();
+		if ( ! $max_upload_size ) {
+			$max_upload_size = 0;
+		}
 	}
 
 	/** This filter is documented in gc-admin/includes/media.php */
@@ -161,7 +171,7 @@ function get_default_block_editor_settings() {
 			'thumbnail' => __( '缩略图' ),
 			'medium'    => __( '中等' ),
 			'large'     => __( '大' ),
-			'full'      => __( '全尺寸' ),
+			'full'      => __( '实际大小' ),
 		)
 	);
 
@@ -187,13 +197,18 @@ function get_default_block_editor_settings() {
 
 	// These styles are used if the "no theme styles" options is triggered or on
 	// themes without their own editor styles.
-	$default_editor_styles_file = ABSPATH . '/assets/css/dist/block-editor/default-editor-styles.css';
-	if ( file_exists( $default_editor_styles_file ) ) {
+	$default_editor_styles_file = ABSPATH . GCINC . '/css/dist/block-editor/default-editor-styles.css';
+
+	static $default_editor_styles_file_contents = false;
+	if ( ! $default_editor_styles_file_contents && file_exists( $default_editor_styles_file ) ) {
+		$default_editor_styles_file_contents = file_get_contents( $default_editor_styles_file );
+	}
+
+	$default_editor_styles = array();
+	if ( $default_editor_styles_file_contents ) {
 		$default_editor_styles = array(
-			array( 'css' => file_get_contents( $default_editor_styles_file ) ),
+			array( 'css' => $default_editor_styles_file_contents ),
 		);
-	} else {
-		$default_editor_styles = array();
 	}
 
 	$editor_settings = array(
@@ -202,12 +217,6 @@ function get_default_block_editor_settings() {
 		'allowedMimeTypes'                 => get_allowed_mime_types(),
 		'defaultEditorStyles'              => $default_editor_styles,
 		'blockCategories'                  => get_default_block_categories(),
-		'disableCustomColors'              => get_theme_support( 'disable-custom-colors' ),
-		'disableCustomFontSizes'           => get_theme_support( 'disable-custom-font-sizes' ),
-		'disableCustomGradients'           => get_theme_support( 'disable-custom-gradients' ),
-		'enableCustomLineHeight'           => get_theme_support( 'custom-line-height' ),
-		'enableCustomSpacing'              => get_theme_support( 'custom-spacing' ),
-		'enableCustomUnits'                => get_theme_support( 'custom-units' ),
 		'isRTL'                            => is_rtl(),
 		'imageDefaultSize'                 => $image_default_size,
 		'imageDimensions'                  => $image_dimensions,
@@ -218,20 +227,9 @@ function get_default_block_editor_settings() {
 		'__unstableGalleryWithImageBlocks' => true,
 	);
 
-	// Theme settings.
-	$color_palette = current( (array) get_theme_support( 'editor-color-palette' ) );
-	if ( false !== $color_palette ) {
-		$editor_settings['colors'] = $color_palette;
-	}
-
-	$font_sizes = current( (array) get_theme_support( 'editor-font-sizes' ) );
-	if ( false !== $font_sizes ) {
-		$editor_settings['fontSizes'] = $font_sizes;
-	}
-
-	$gradient_presets = current( (array) get_theme_support( 'editor-gradient-presets' ) );
-	if ( false !== $gradient_presets ) {
-		$editor_settings['gradients'] = $gradient_presets;
+	$theme_settings = get_classic_theme_supports_block_editor_settings();
+	foreach ( $theme_settings as $key => $value ) {
+		$editor_settings[ $key ] = $value;
 	}
 
 	return $editor_settings;
@@ -241,7 +239,7 @@ function get_default_block_editor_settings() {
  * Returns the block editor settings needed to use the Legacy Widget block which
  * is not registered by default.
  *
- *
+ * @since 5.8.0
  *
  * @return array Settings to be used with get_block_editor_settings().
  */
@@ -254,6 +252,7 @@ function get_legacy_widget_block_editor_settings() {
 	 *
 	 * Returning an empty array will make all widgets available.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param string[] $widgets An array of excluded widget-type IDs.
 	 */
@@ -283,9 +282,192 @@ function get_legacy_widget_block_editor_settings() {
 }
 
 /**
+ * Collect the block editor assets that need to be loaded into the editor's iframe.
+ *
+ * @since 6.0.0
+ * @access private
+ *
+ * @global string     $pagenow    The filename of the current screen.
+ * @global GC_Styles  $gc_styles  The GC_Styles current instance.
+ * @global GC_Scripts $gc_scripts The GC_Scripts current instance.
+ *
+ * @return array {
+ *     The block editor assets.
+ *
+ *     @type string|false $styles  String containing the HTML for styles.
+ *     @type string|false $scripts String containing the HTML for scripts.
+ * }
+ */
+function _gc_get_iframed_editor_assets() {
+	global $gc_styles, $gc_scripts, $pagenow;
+
+	// Keep track of the styles and scripts instance to restore later.
+	$current_gc_styles  = $gc_styles;
+	$current_gc_scripts = $gc_scripts;
+
+	// Create new instances to collect the assets.
+	$gc_styles  = new GC_Styles();
+	$gc_scripts = new GC_Scripts();
+
+	/*
+	 * Register all currently registered styles and scripts. The actions that
+	 * follow enqueue assets, but don't necessarily register them.
+	 */
+	$gc_styles->registered  = $current_gc_styles->registered;
+	$gc_scripts->registered = $current_gc_scripts->registered;
+
+	/*
+	 * We generally do not need reset styles for the iframed editor.
+	 * However, if it's a classic theme, margins will be added to every block,
+	 * which is reset specifically for list items, so classic themes rely on
+	 * these reset styles.
+	 */
+	$gc_styles->done =
+		gc_theme_has_theme_json() ? array( 'gc-reset-editor-styles' ) : array();
+
+	gc_enqueue_script( 'gc-polyfill' );
+	// Enqueue the `editorStyle` handles for all core block, and dependencies.
+	gc_enqueue_style( 'gc-edit-blocks' );
+
+	if ( 'site-editor.php' === $pagenow ) {
+		gc_enqueue_style( 'gc-edit-site' );
+	}
+
+	if ( current_theme_supports( 'gc-block-styles' ) ) {
+		gc_enqueue_style( 'gc-block-library-theme' );
+	}
+
+	/*
+	 * We don't want to load EDITOR scripts in the iframe, only enqueue
+	 * front-end assets for the content.
+	 */
+	add_filter( 'should_load_block_editor_scripts_and_styles', '__return_false' );
+	do_action( 'enqueue_block_assets' );
+	remove_filter( 'should_load_block_editor_scripts_and_styles', '__return_false' );
+
+	$block_registry = GC_Block_Type_Registry::get_instance();
+
+	/*
+	 * Additionally, do enqueue `editorStyle` assets for all blocks, which
+	 * contains editor-only styling for blocks (editor content).
+	 */
+	foreach ( $block_registry->get_all_registered() as $block_type ) {
+		if ( isset( $block_type->editor_style_handles ) && is_array( $block_type->editor_style_handles ) ) {
+			foreach ( $block_type->editor_style_handles as $style_handle ) {
+				gc_enqueue_style( $style_handle );
+			}
+		}
+	}
+
+	ob_start();
+	gc_print_styles();
+	$styles = ob_get_clean();
+
+	ob_start();
+	gc_print_head_scripts();
+	gc_print_footer_scripts();
+	$scripts = ob_get_clean();
+
+	// Restore the original instances.
+	$gc_styles  = $current_gc_styles;
+	$gc_scripts = $current_gc_scripts;
+
+	return array(
+		'styles'  => $styles,
+		'scripts' => $scripts,
+	);
+}
+
+/**
+ * Finds the first occurrence of a specific block in an array of blocks.
+ *
+ * @since 6.3.0
+ *
+ * @param array  $blocks     Array of blocks.
+ * @param string $block_name Name of the block to find.
+ * @return array Found block, or empty array if none found.
+ */
+function gc_get_first_block( $blocks, $block_name ) {
+	foreach ( $blocks as $block ) {
+		if ( $block_name === $block['blockName'] ) {
+			return $block;
+		}
+		if ( ! empty( $block['innerBlocks'] ) ) {
+			$found_block = gc_get_first_block( $block['innerBlocks'], $block_name );
+
+			if ( ! empty( $found_block ) ) {
+				return $found_block;
+			}
+		}
+	}
+
+	return array();
+}
+
+/**
+ * Retrieves Post Content block attributes from the current post template.
+ *
+ * @since 6.3.0
+ * @access private
+ *
+ * @global int $post_ID
+ *
+ * @return array Post Content block attributes or empty array if they don't exist.
+ */
+function gc_get_post_content_block_attributes() {
+	global $post_ID;
+
+	$is_block_theme = gc_is_block_theme();
+
+	if ( ! $is_block_theme || ! $post_ID ) {
+		return array();
+	}
+
+	$template_slug = get_page_template_slug( $post_ID );
+
+	if ( ! $template_slug ) {
+		$post_slug      = 'singular';
+		$page_slug      = 'singular';
+		$template_types = get_block_templates();
+
+		foreach ( $template_types as $template_type ) {
+			if ( 'page' === $template_type->slug ) {
+				$page_slug = 'page';
+			}
+			if ( 'single' === $template_type->slug ) {
+				$post_slug = 'single';
+			}
+		}
+
+		$what_post_type = get_post_type( $post_ID );
+		switch ( $what_post_type ) {
+			case 'page':
+				$template_slug = $page_slug;
+				break;
+			default:
+				$template_slug = $post_slug;
+				break;
+		}
+	}
+
+	$current_template = get_block_templates( array( 'slug__in' => array( $template_slug ) ) );
+
+	if ( ! empty( $current_template ) ) {
+		$template_blocks    = parse_blocks( $current_template[0]->content );
+		$post_content_block = gc_get_first_block( $template_blocks, 'core/post-content' );
+
+		if ( ! empty( $post_content_block['attrs'] ) ) {
+			return $post_content_block['attrs'];
+		}
+	}
+
+	return array();
+}
+
+/**
  * Returns the contextualized block editor settings for a selected editor context.
  *
- *
+ * @since 5.8.0
  *
  * @param array                   $custom_settings      Custom settings to use with the given editor type.
  * @param GC_Block_Editor_Context $block_editor_context The current block editor context.
@@ -307,10 +489,12 @@ function get_block_editor_settings( array $custom_settings, $block_editor_contex
 		array(
 			'css'            => 'variables',
 			'__unstableType' => 'presets',
+			'isGlobalStyles' => true,
 		),
 		array(
 			'css'            => 'presets',
 			'__unstableType' => 'presets',
+			'isGlobalStyles' => true,
 		),
 	);
 	foreach ( $presets as $preset_style ) {
@@ -321,10 +505,33 @@ function get_block_editor_settings( array $custom_settings, $block_editor_contex
 		}
 	}
 
-	if ( GC_Theme_JSON_Resolver::theme_has_support() ) {
+	if ( gc_theme_has_theme_json() ) {
 		$block_classes = array(
 			'css'            => 'styles',
 			'__unstableType' => 'theme',
+			'isGlobalStyles' => true,
+		);
+		$actual_css    = gc_get_global_stylesheet( array( $block_classes['css'] ) );
+		if ( '' !== $actual_css ) {
+			$block_classes['css'] = $actual_css;
+			$global_styles[]      = $block_classes;
+		}
+
+		/*
+		 * Add the custom CSS as a separate stylesheet so any invalid CSS
+		 * entered by users does not break other global styles.
+		 */
+		$global_styles[] = array(
+			'css'            => gc_get_global_styles_custom_css(),
+			'__unstableType' => 'user',
+			'isGlobalStyles' => true,
+		);
+	} else {
+		// If there is no `theme.json` file, ensure base layout styles are still available.
+		$block_classes = array(
+			'css'            => 'base-layout-styles',
+			'__unstableType' => 'base-layout',
+			'isGlobalStyles' => true,
 		);
 		$actual_css    = gc_get_global_stylesheet( array( $block_classes['css'] ) );
 		if ( '' !== $actual_css ) {
@@ -332,6 +539,7 @@ function get_block_editor_settings( array $custom_settings, $block_editor_contex
 			$global_styles[]      = $block_classes;
 		}
 	}
+
 	$editor_settings['styles'] = array_merge( $global_styles, get_block_editor_theme_styles() );
 
 	$editor_settings['__experimentalFeatures'] = gc_get_global_settings();
@@ -387,10 +595,53 @@ function get_block_editor_settings( array $custom_settings, $block_editor_contex
 		$editor_settings['enableCustomSpacing'] = $editor_settings['__experimentalFeatures']['spacing']['padding'];
 		unset( $editor_settings['__experimentalFeatures']['spacing']['padding'] );
 	}
+	if ( isset( $editor_settings['__experimentalFeatures']['spacing']['customSpacingSize'] ) ) {
+		$editor_settings['disableCustomSpacingSizes'] = ! $editor_settings['__experimentalFeatures']['spacing']['customSpacingSize'];
+		unset( $editor_settings['__experimentalFeatures']['spacing']['customSpacingSize'] );
+	}
+
+	if ( isset( $editor_settings['__experimentalFeatures']['spacing']['spacingSizes'] ) ) {
+		$spacing_sizes_by_origin         = $editor_settings['__experimentalFeatures']['spacing']['spacingSizes'];
+		$editor_settings['spacingSizes'] = isset( $spacing_sizes_by_origin['custom'] ) ?
+			$spacing_sizes_by_origin['custom'] : (
+				isset( $spacing_sizes_by_origin['theme'] ) ?
+					$spacing_sizes_by_origin['theme'] :
+					$spacing_sizes_by_origin['default']
+			);
+	}
+
+	$editor_settings['__unstableResolvedAssets']         = _gc_get_iframed_editor_assets();
+	$editor_settings['__unstableIsBlockBasedTheme']      = gc_is_block_theme();
+	$editor_settings['localAutosaveInterval']            = 15;
+	$editor_settings['disableLayoutStyles']              = current_theme_supports( 'disable-layout-styles' );
+	$editor_settings['__experimentalDiscussionSettings'] = array(
+		'commentOrder'         => get_option( 'comment_order' ),
+		'commentsPerPage'      => get_option( 'comments_per_page' ),
+		'defaultCommentsPage'  => get_option( 'default_comments_page' ),
+		'pageComments'         => get_option( 'page_comments' ),
+		'threadComments'       => get_option( 'thread_comments' ),
+		'threadCommentsDepth'  => get_option( 'thread_comments_depth' ),
+		'defaultCommentStatus' => get_option( 'default_comment_status' ),
+		'avatarURL'            => get_avatar_url(
+			'',
+			array(
+				'size'          => 96,
+				'force_default' => true,
+				'default'       => get_option( 'avatar_default' ),
+			)
+		),
+	);
+
+	$post_content_block_attributes = gc_get_post_content_block_attributes();
+
+	if ( ! empty( $post_content_block_attributes ) ) {
+		$editor_settings['postContentAttributes'] = $post_content_block_attributes;
+	}
 
 	/**
 	 * Filters the settings to pass to the block editor for all editor type.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param array                   $editor_settings      Default editor settings.
 	 * @param GC_Block_Editor_Context $block_editor_context The current block editor context.
@@ -403,6 +654,7 @@ function get_block_editor_settings( array $custom_settings, $block_editor_contex
 		/**
 		 * Filters the settings to pass to the block editor.
 		 *
+		 * @since 5.0.0
 		 * @deprecated 5.8.0 Use the {@see 'block_editor_settings_all'} filter instead.
 		 *
 		 * @param array   $editor_settings Default editor settings.
@@ -418,16 +670,14 @@ function get_block_editor_settings( array $custom_settings, $block_editor_contex
  * Preloads common data used with the block editor by specifying an array of
  * REST API paths that will be preloaded for a given block editor context.
  *
- *
+ * @since 5.8.0
  *
  * @global GC_Post    $post       Global post object.
  * @global GC_Scripts $gc_scripts The GC_Scripts object for printing scripts.
  * @global GC_Styles  $gc_styles  The GC_Styles object for printing styles.
  *
- * @param string[]                $preload_paths        List of paths to preload.
+ * @param (string|string[])[]     $preload_paths        List of paths to preload.
  * @param GC_Block_Editor_Context $block_editor_context The current block editor context.
- *
- * @return void
  */
 function block_editor_rest_api_preload( array $preload_paths, $block_editor_context ) {
 	global $post, $gc_scripts, $gc_styles;
@@ -435,8 +685,9 @@ function block_editor_rest_api_preload( array $preload_paths, $block_editor_cont
 	/**
 	 * Filters the array of REST API paths that will be used to preloaded common data for the block editor.
 	 *
+	 * @since 5.8.0
 	 *
-	 * @param string[]                $preload_paths        Array of paths to preload.
+	 * @param (string|string[])[]     $preload_paths        Array of paths to preload.
 	 * @param GC_Block_Editor_Context $block_editor_context The current block editor context.
 	 */
 	$preload_paths = apply_filters( 'block_editor_rest_api_preload_paths', $preload_paths, $block_editor_context );
@@ -449,10 +700,11 @@ function block_editor_rest_api_preload( array $preload_paths, $block_editor_cont
 		 *
 		 * Preload common data by specifying an array of REST API paths that will be preloaded.
 		 *
+		 * @since 5.0.0
 		 * @deprecated 5.8.0 Use the {@see 'block_editor_rest_api_preload_paths'} filter instead.
 		 *
-		 * @param string[] $preload_paths Array of paths to preload.
-		 * @param GC_Post  $selected_post Post being edited.
+		 * @param (string|string[])[] $preload_paths Array of paths to preload.
+		 * @param GC_Post             $selected_post Post being edited.
 		 */
 		$preload_paths = apply_filters_deprecated( 'block_editor_preload_paths', array( $preload_paths, $selected_post ), '5.8.0', 'block_editor_rest_api_preload_paths' );
 	}
@@ -509,7 +761,7 @@ function block_editor_rest_api_preload( array $preload_paths, $block_editor_cont
 /**
  * Creates an array of theme styles to load into the block editor.
  *
- *
+ * @since 5.8.0
  *
  * @global array $editor_styles
  *
@@ -528,6 +780,7 @@ function get_block_editor_theme_styles() {
 					$styles[] = array(
 						'css'            => gc_remote_retrieve_body( $response ),
 						'__unstableType' => 'theme',
+						'isGlobalStyles' => false,
 					);
 				}
 			} else {
@@ -537,6 +790,7 @@ function get_block_editor_theme_styles() {
 						'css'            => file_get_contents( $file ),
 						'baseURL'        => get_theme_file_uri( $style ),
 						'__unstableType' => 'theme',
+						'isGlobalStyles' => false,
 					);
 				}
 			}
@@ -544,4 +798,41 @@ function get_block_editor_theme_styles() {
 	}
 
 	return $styles;
+}
+
+/**
+ * Returns the classic theme supports settings for block editor.
+ *
+ * @since 6.2.0
+ *
+ * @return array The classic theme supports settings.
+ */
+function get_classic_theme_supports_block_editor_settings() {
+	$theme_settings = array(
+		'disableCustomColors'    => get_theme_support( 'disable-custom-colors' ),
+		'disableCustomFontSizes' => get_theme_support( 'disable-custom-font-sizes' ),
+		'disableCustomGradients' => get_theme_support( 'disable-custom-gradients' ),
+		'disableLayoutStyles'    => get_theme_support( 'disable-layout-styles' ),
+		'enableCustomLineHeight' => get_theme_support( 'custom-line-height' ),
+		'enableCustomSpacing'    => get_theme_support( 'custom-spacing' ),
+		'enableCustomUnits'      => get_theme_support( 'custom-units' ),
+	);
+
+	// Theme settings.
+	$color_palette = current( (array) get_theme_support( 'editor-color-palette' ) );
+	if ( false !== $color_palette ) {
+		$theme_settings['colors'] = $color_palette;
+	}
+
+	$font_sizes = current( (array) get_theme_support( 'editor-font-sizes' ) );
+	if ( false !== $font_sizes ) {
+		$theme_settings['fontSizes'] = $font_sizes;
+	}
+
+	$gradient_presets = current( (array) get_theme_support( 'editor-gradient-presets' ) );
+	if ( false !== $gradient_presets ) {
+		$theme_settings['gradients'] = $gradient_presets;
+	}
+
+	return $theme_settings;
 }

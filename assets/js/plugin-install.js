@@ -1,7 +1,7 @@
 /**
  * @file Functionality for the plugin install screens.
  *
- * @output gc-admin/js/plugin-install.js
+ * @output assets/js/plugin-install.js
  */
 
 /* global tb_click, tb_remove, tb_position */
@@ -159,7 +159,7 @@ jQuery( function( $ ) {
 		var title = $( this ).data( 'title' ) ?
 			gc.i18n.sprintf(
 				// translators: %s: Plugin name.
-				gc.i18n.__( '插件：%s' ),
+				gc.i18n.__( '插件： %s' ),
 				$( this ).data( 'title' )
 			) :
 			gc.i18n.__( '插件详情' );
@@ -207,7 +207,7 @@ jQuery( function( $ ) {
 	});
 
 	/*
-	 * When a user presses the "Upload Plugin" button, show the upload form in place
+	 * When a user presses the "上传插件" button, show the upload form in place
 	 * rather than sending them to the devoted upload plugin page.
 	 * The `?tab=upload` page still exists for no-js support and for plugins that
 	 * might access it directly. When we're in this page, let the link behave

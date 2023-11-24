@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Upgrader
- *
  */
 
 /**
@@ -12,9 +11,7 @@
  *
  * This skin is designed to be used when no output is intended, all output
  * is captured and stored for the caller to process and log/email/discard.
- *
- *
- *
+ * Moved to its own file from gc-admin/includes/class-gc-upgrader-skins.php.
  *
  * @see Bulk_Upgrader_Skin
  */
@@ -25,6 +22,8 @@ class Automatic_Upgrader_Skin extends GC_Upgrader_Skin {
 	 * Determines whether the upgrader needs FTP/SSH details in order to connect
 	 * to the filesystem.
 	 *
+	 * @since 3.7.0
+	 * @since 4.6.0 The `$context` parameter default changed from `false` to an empty string.
 	 *
 	 * @see request_filesystem_credentials()
 	 *
@@ -52,6 +51,7 @@ class Automatic_Upgrader_Skin extends GC_Upgrader_Skin {
 	/**
 	 * Retrieves the upgrade messages.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @return string[] Messages during an upgrade.
 	 */
@@ -62,6 +62,8 @@ class Automatic_Upgrader_Skin extends GC_Upgrader_Skin {
 	/**
 	 * Stores a message about the upgrade.
 	 *
+	 * @since 3.7.0
+	 * @since 5.9.0 Renamed `$data` to `$feedback` for PHP 8 named parameter support.
 	 *
 	 * @param string|array|GC_Error $feedback Message data.
 	 * @param mixed                 ...$args  Optional text replacements.
@@ -79,7 +81,7 @@ class Automatic_Upgrader_Skin extends GC_Upgrader_Skin {
 			$string = $this->upgrader->strings[ $string ];
 		}
 
-		if ( strpos( $string, '%' ) !== false ) {
+		if ( str_contains( $string, '%' ) ) {
 			if ( ! empty( $args ) ) {
 				$string = vsprintf( $string, $args );
 			}
@@ -110,6 +112,7 @@ class Automatic_Upgrader_Skin extends GC_Upgrader_Skin {
 	/**
 	 * Creates a new output buffer.
 	 *
+	 * @since 3.7.0
 	 */
 	public function header() {
 		ob_start();
@@ -118,6 +121,7 @@ class Automatic_Upgrader_Skin extends GC_Upgrader_Skin {
 	/**
 	 * Retrieves the buffered content, deletes the buffer, and processes the output.
 	 *
+	 * @since 3.7.0
 	 */
 	public function footer() {
 		$output = ob_get_clean();

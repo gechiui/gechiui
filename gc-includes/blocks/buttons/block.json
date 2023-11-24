@@ -1,0 +1,45 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/buttons",
+	"title": "多个按钮",
+	"category": "design",
+	"description": "使用一组按钮式的链接来提示访客进行操作。",
+	"keywords": [ "link" ],
+	"textdomain": "default",
+	"supports": {
+		"anchor": true,
+		"align": [ "wide", "full" ],
+		"html": false,
+		"__experimentalExposeControlsToChildren": true,
+		"spacing": {
+			"blockGap": true,
+			"margin": [ "top", "bottom" ],
+			"__experimentalDefaultControls": {
+				"blockGap": true
+			}
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalTextTransform": true,
+			"__experimentalTextDecoration": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		},
+		"layout": {
+			"allowSwitching": false,
+			"allowInheriting": false,
+			"default": {
+				"type": "flex"
+			}
+		}
+	},
+	"editorStyle": "gc-block-buttons-editor",
+	"style": "gc-block-buttons"
+}

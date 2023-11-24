@@ -71,7 +71,7 @@ if ( get_user_setting( 'uploader' ) || isset( $_GET['browser-uploader'] ) ) {
 }
 ?>
 <div class="wrap">
-	<h1><?php echo esc_html( $title ); ?></h1>
+	<div class="page-header"><h2 class="header-title"><?php echo esc_html( $title ); ?></h2></div>
 
 	<form enctype="multipart/form-data" method="post" action="<?php echo esc_url( admin_url( 'media-new.php' ) ); ?>" class="<?php echo esc_attr( $form_class ); ?>" id="file-form">
 

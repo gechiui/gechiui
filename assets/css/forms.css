@@ -1,149 +1,4 @@
-@charset "UTF-8";
 /* Include margin and padding in the width calculation of input and textarea. */
-input,
-select,
-textarea,
-button {
-  box-sizing: border-box;
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-}
-
-textarea,
-input {
-  font-size: 14px;
-}
-
-textarea {
-  overflow: auto;
-  padding: 2px 6px;
-  /* inherits font size 14px */
-  line-height: 1.42857143;
-  /* 20px */
-  resize: vertical;
-}
-
-label {
-  cursor: pointer;
-}
-
-input,
-select {
-  margin: 0 1px;
-}
-
-textarea.code {
-  padding: 4px 6px 1px;
-}
-
-input[type=text],
-input[type=password],
-input[type=color],
-input[type=date],
-input[type=datetime],
-input[type=datetime-local],
-input[type=email],
-input[type=month],
-input[type=number],
-input[type=search],
-input[type=tel],
-input[type=time],
-input[type=url],
-input[type=week],
-select,
-textarea {
-  box-shadow: 0 0 0 transparent;
-  border-radius: 4px;
-  border: 1px solid #8c8f94;
-  background-color: #fff;
-  color: #2c3338;
-}
-
-input[type=text],
-input[type=password],
-input[type=date],
-input[type=datetime],
-input[type=datetime-local],
-input[type=email],
-input[type=month],
-input[type=number],
-input[type=search],
-input[type=tel],
-input[type=time],
-input[type=url],
-input[type=week] {
-  padding: 0 8px;
-  /* inherits font size 14px */
-  line-height: 2;
-  /* 28px */
-  /* Only necessary for IE11 */
-  min-height: 30px;
-}
-
-::-webkit-datetime-edit {
-  /* inherits font size 14px */
-  line-height: 1.85714286;
-  /* 26px */
-}
-
-input[type=text]:focus,
-input[type=password]:focus,
-input[type=color]:focus,
-input[type=date]:focus,
-input[type=datetime]:focus,
-input[type=datetime-local]:focus,
-input[type=email]:focus,
-input[type=month]:focus,
-input[type=number]:focus,
-input[type=search]:focus,
-input[type=tel]:focus,
-input[type=time]:focus,
-input[type=url]:focus,
-input[type=week]:focus,
-input[type=checkbox]:focus,
-input[type=radio]:focus,
-select:focus,
-textarea:focus {
-  border-color: #2271b1;
-  box-shadow: 0 0 0 1px #2271b1;
-  /* Only visible in Windows High Contrast mode */
-  outline: 2px solid transparent;
-}
-
-/* rtl:ignore */
-input[type=email],
-input[type=url] {
-  direction: ltr;
-}
-
-input[type=checkbox],
-input[type=radio] {
-  border: 1px solid #8c8f94;
-  border-radius: 4px;
-  background: #fff;
-  color: #50575e;
-  clear: none;
-  cursor: pointer;
-  display: inline-block;
-  line-height: 0;
-  height: 1rem;
-  margin: -0.25rem 0.25rem 0 0;
-  outline: 0;
-  padding: 0 !important;
-  text-align: center;
-  vertical-align: middle;
-  width: 1rem;
-  min-width: 1rem;
-  -webkit-appearance: none;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-  transition: 0.05s border-color ease-in-out;
-}
-
-input[type=radio]:checked + label:before {
-  color: #8c8f94;
-}
-
 .gc-core-ui input[type=reset]:hover,
 .gc-core-ui input[type=reset]:active {
   color: #135e96;
@@ -163,50 +18,10 @@ td > input[type=checkbox],
   margin-top: -2px;
 }
 
-input[type=radio] {
-  border-radius: 50%;
-  margin-right: 0.25rem;
-  /* 10px not sure if still necessary, comes from the MP6 redesign in r26072 */
-  line-height: 0.71428571;
-}
-
-input[type=checkbox]:checked::before,
-input[type=radio]:checked::before {
-  float: left;
-  display: inline-block;
-  vertical-align: middle;
-  width: 1rem;
-  speak: never;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-input[type=checkbox]:checked::before {
-  /* Use the "Yes" SVG Dashicon */
-  content: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2020%2020%27%3E%3Cpath%20d%3D%27M14.83%204.89l1.34.94-5.81%208.38H9.02L5.78%209.67l1.34-1.25%202.57%202.4z%27%20fill%3D%27%233582c4%27%2F%3E%3C%2Fsvg%3E");
-  margin: -0.1875rem 0 0 -0.25rem;
-  height: 1.3125rem;
-  width: 1.3125rem;
-}
-
-input[type=radio]:checked::before {
-  content: "";
-  border-radius: 50%;
-  width: 0.5rem;
-  /* 8px */
-  height: 0.5rem;
-  /* 8px */
-  margin: 0.1875rem;
-  /* 3px */
-  background-color: #3582c4;
-  /* 16px not sure if still necessary, comes from the MP6 redesign in r26072 */
-  line-height: 1.14285714;
-}
-
 @-moz-document url-prefix() {
   input[type=checkbox],
-input[type=radio],
-.form-table input.tog {
+  input[type=radio],
+  .form-table input.tog {
     margin-bottom: -1px;
   }
 }
@@ -222,13 +37,6 @@ input[type=search]::-webkit-search-decoration {
 .gc-admin input[type=file] {
   padding: 3px 0;
   cursor: pointer;
-}
-
-input.readonly,
-input[readonly],
-textarea.readonly,
-textarea[readonly] {
-  background-color: #f0f0f1;
 }
 
 ::-webkit-input-placeholder {
@@ -279,46 +87,13 @@ textarea[readonly] {
   color: #646970;
 }
 
-input:disabled,
-input.disabled,
-select:disabled,
-select.disabled,
-textarea:disabled,
-textarea.disabled {
-  background: rgba(255, 255, 255, 0.5);
-  border-color: rgba(220, 220, 222, 0.75);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
-  color: rgba(44, 51, 56, 0.5);
-}
-
-input[type=file]:disabled,
-input[type=file].disabled,
-input[type=range]:disabled,
-input[type=range].disabled {
-  background: none;
-  box-shadow: none;
-  cursor: default;
-}
-
-input[type=checkbox]:disabled,
-input[type=checkbox].disabled,
-input[type=radio]:disabled,
-input[type=radio].disabled,
-input[type=checkbox]:disabled:checked:before,
-input[type=checkbox].disabled:checked:before,
-input[type=radio]:disabled:checked:before,
-input[type=radio].disabled:checked:before {
-  opacity: 0.7;
-}
-
 /*------------------------------------------------------------------------------
   2.0 - Forms
 ------------------------------------------------------------------------------*/
 /* Select styles are based on the default button in buttons.css */
 .gc-core-ui select {
   font-size: 14px;
-  line-height: 2;
-  /* 28px */
+  line-height: 2; /* 28px */
   color: #2c3338;
   border-color: #8c8f94;
   box-shadow: none;
@@ -466,7 +241,7 @@ textarea.large-text {
 }
 
 .regular-text {
-  width: 25em;
+  width: 350px;
 }
 
 input.small-text {
@@ -498,7 +273,7 @@ input[type=number].tiny-text {
   margin: 0 8px 0 0;
 }
 
-/* 辅助批量操作控件需要JS */
+/* @since 5.7.0 secondary bulk action controls require JS. */
 .no-js label[for=bulk-action-selector-bottom],
 .no-js select#bulk-action-selector-bottom,
 .no-js input#doaction2,
@@ -516,16 +291,6 @@ input[type=number].tiny-text {
 
 #timezone_string option {
   margin-left: 1em;
-}
-
-.gc-hide-pw > .dashicons,
-.gc-cancel-pw > .dashicons {
-  position: relative;
-  top: 3px;
-  width: 1.25rem;
-  height: 1.25rem;
-  top: 0.25rem;
-  font-size: 20px;
 }
 
 .gc-cancel-pw .dashicons-no {
@@ -553,10 +318,67 @@ fieldset label,
 
 .gc-generate-pw {
   margin-top: 1em;
+  position: relative;
+}
+
+.gc-pwd button {
+  height: min-content;
+}
+
+.gc-pwd button.pwd-toggle .dashicons {
+  position: relative;
+  top: 0.25rem;
 }
 
 .gc-pwd {
   margin-top: 1em;
+  position: relative;
+}
+
+.mailserver-pass-wrap .gc-pwd {
+  display: inline-block;
+  margin-top: 0;
+}
+
+/* rtl:ignore */
+#mailserver_pass {
+  padding-right: 2.5rem;
+}
+
+/* rtl:ignore */
+.mailserver-pass-wrap .button.gc-hide-pw {
+  background: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
+  font-size: 14px;
+  line-height: 2;
+  width: 2.5rem;
+  min-width: 40px;
+  margin: 0;
+  padding: 0 9px;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.mailserver-pass-wrap .button.gc-hide-pw:hover {
+  background: transparent;
+  border-color: transparent;
+}
+
+.mailserver-pass-wrap .button.gc-hide-pw:focus {
+  background: transparent;
+  border-color: #3582c4;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px #3582c4;
+  /* Only visible in Windows High Contrast mode */
+  outline: 2px solid transparent;
+}
+
+.mailserver-pass-wrap .button.gc-hide-pw:active {
+  background: transparent;
+  box-shadow: none;
+  transform: none;
 }
 
 #misc-publishing-actions label {
@@ -570,7 +392,7 @@ fieldset label,
   margin: -1px 1px 5px;
   padding: 3px 5px;
   text-align: center;
-  width: 25em;
+  width: 350px;
   box-sizing: border-box;
   opacity: 0;
 }
@@ -597,6 +419,10 @@ fieldset label,
   background-color: #b8e6bf;
   border-color: #68de7c;
   opacity: 1;
+}
+
+.password-input-wrapper {
+  display: inline-block;
 }
 
 .password-input-wrapper input {
@@ -677,7 +503,7 @@ input[type=text].ui-autocomplete-loading,
 input[type=email].ui-autocomplete-loading {
   background-image: url(../images/loading.gif);
   background-repeat: no-repeat;
-  background-position: right center;
+  background-position: right 5px center;
   visibility: visible;
 }
 
@@ -781,6 +607,12 @@ ul#add-to-blog-users {
 
 .form-table p.timezone-info {
   margin: 1em 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#local-time {
+  margin-top: 0.5em;
 }
 
 .form-table td fieldset label {
@@ -841,7 +673,7 @@ table.form-table td .updated p {
 
 #adduser .form-field input,
 #createuser .form-field input {
-  width: 25em;
+  width: 350px;
 }
 
 .color-option {
@@ -874,7 +706,7 @@ table.form-table td .updated p {
 }
 
 .create-appkey .form-field {
-  max-width: 25em;
+  max-width: 350px;
 }
 
 .create-appkey label {
@@ -890,6 +722,7 @@ table.form-table td .updated p {
 #appkeys-section .notice {
   margin-top: 20px;
   margin-bottom: 0;
+  word-wrap: break-word;
 }
 
 .appkey-display input.code {
@@ -1050,16 +883,49 @@ table.form-table td .updated p {
 }
 
 .settings-php .language-install-spinner,
-.options-general-php .language-install-spinner {
+.options-general-php .language-install-spinner,
+.user-edit-php .language-install-spinner,
+.profile-php .language-install-spinner {
   display: inline-block;
   float: none;
   margin: -3px 5px 0;
   vertical-align: middle;
 }
 
+.form-table.permalink-structure .available-structure-tags {
+  margin-top: 8px;
+}
+
+.form-table.permalink-structure .available-structure-tags ul {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 8px 0 0;
+}
+
 .form-table.permalink-structure .available-structure-tags li {
-  float: left;
-  margin-right: 5px;
+  margin: 6px 5px 0 0;
+}
+
+.form-table.permalink-structure .available-structure-tags li:last-child {
+  margin-right: 0;
+}
+
+.form-table.permalink-structure .structure-selection .row {
+  margin-bottom: 16px;
+}
+
+.form-table.permalink-structure .structure-selection .row > div {
+  max-width: calc(100% - 24px);
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.form-table.permalink-structure .structure-selection .row label {
+  font-weight: 600;
+}
+
+.form-table.permalink-structure .structure-selection .row p {
+  margin-top: 0;
 }
 
 /*------------------------------------------------------------------------------
@@ -1070,7 +936,7 @@ table.form-table td .updated p {
 }
 
 .form-field #site-address {
-  max-width: 25em;
+  max-width: 350px;
 }
 
 .form-field #domain {
@@ -1082,7 +948,7 @@ table.form-table td .updated p {
 .form-field #path,
 .form-field #blog_registered,
 .form-field #blog_last_updated {
-  max-width: 25em;
+  max-width: 350px;
 }
 
 .form-field #path {
@@ -1092,6 +958,11 @@ table.form-table td .updated p {
 #search-users,
 #search-sites {
   max-width: 60%;
+}
+
+.configuration-rules-label {
+  font-weight: 600;
+  margin-bottom: 4px;
 }
 
 /*------------------------------------------------------------------------------
@@ -1226,10 +1097,6 @@ table.form-table td .updated p {
   margin: 0 1px 0 6px;
 }
 
-.tools-privacy-policy-page select {
-  margin: 0 1px 0.5em 6px;
-}
-
 .tools-privacy-edit {
   margin: 1.5em 0;
 }
@@ -1244,11 +1111,6 @@ table.form-table td .updated p {
 
 .privacy_requests .column-type {
   text-align: center;
-}
-
-.privacy_requests thead td:first-child,
-.privacy_requests tfoot td:first-child {
-  border-left: 4px solid #fff;
 }
 
 .privacy_requests tbody th {
@@ -1358,64 +1220,36 @@ table.form-table td .updated p {
   textarea {
     -webkit-appearance: none;
   }
-
   input[type=text],
-input[type=password],
-input[type=date],
-input[type=datetime],
-input[type=datetime-local],
-input[type=email],
-input[type=month],
-input[type=number],
-input[type=search],
-input[type=tel],
-input[type=time],
-input[type=url],
-input[type=week] {
+  input[type=password],
+  input[type=date],
+  input[type=datetime],
+  input[type=datetime-local],
+  input[type=email],
+  input[type=month],
+  input[type=number],
+  input[type=search],
+  input[type=tel],
+  input[type=time],
+  input[type=url],
+  input[type=week] {
     -webkit-appearance: none;
     padding: 3px 10px;
     /* Only necessary for IE11 */
     min-height: 40px;
   }
-
   ::-webkit-datetime-edit {
-    line-height: 1.875;
-    /* 30px */
+    line-height: 1.875; /* 30px */
   }
-
-  input[type=checkbox],
-.widefat th input[type=checkbox],
-.widefat thead td input[type=checkbox],
-.widefat tfoot td input[type=checkbox] {
-    -webkit-appearance: none;
-  }
-
-  .widefat th input[type=checkbox],
-.widefat thead td input[type=checkbox],
-.widefat tfoot td input[type=checkbox] {
-    margin-bottom: 8px;
-  }
-
-  input[type=checkbox]:checked:before,
-.widefat th input[type=checkbox]:before,
-.widefat thead td input[type=checkbox]:before,
-.widefat tfoot td input[type=checkbox]:before {
-    width: 1.875rem;
-    height: 1.875rem;
-    margin: -0.1875rem -0.3125rem;
-  }
-
   input[type=radio],
-input[type=checkbox] {
+  input[type=checkbox] {
     height: 1.5625rem;
     width: 1.5625rem;
   }
-
   .gc-admin p input[type=checkbox],
-.gc-admin p input[type=radio] {
+  .gc-admin p input[type=radio] {
     margin-top: -0.1875rem;
   }
-
   input[type=radio]:checked:before {
     vertical-align: middle;
     width: 0.5625rem;
@@ -1423,193 +1257,157 @@ input[type=checkbox] {
     margin: 0.4375rem;
     line-height: 0.76190476;
   }
-
   .gc-upload-form input[type=submit] {
     margin-top: 10px;
   }
-
   .gc-core-ui select,
-.gc-admin .form-table select {
+  .gc-admin .form-table select {
     min-height: 40px;
     font-size: 16px;
-    line-height: 1.625;
-    /* 26px */
+    line-height: 1.625; /* 26px */
     padding: 5px 24px 5px 8px;
   }
-
   .gc-admin .button-cancel {
     margin-bottom: 0;
     padding: 2px 0;
     font-size: 14px;
     vertical-align: middle;
   }
-
   #adduser .form-field input,
-#createuser .form-field input {
+  #createuser .form-field input {
     width: 100%;
   }
-
   .form-table {
     box-sizing: border-box;
   }
-
   .form-table th,
-.form-table td,
-.label-responsive {
+  .form-table td,
+  .label-responsive {
     display: block;
     width: auto;
     vertical-align: middle;
   }
-
   .label-responsive {
     margin: 0.5em 0;
   }
-
   .export-filters li {
     margin-bottom: 0;
   }
-
   .form-table .color-palette td {
     display: table-cell;
     width: 15px;
   }
-
   .form-table table.color-palette {
     margin-right: 10px;
   }
-
   textarea,
-input {
+  input {
     font-size: 16px;
   }
-
   .form-table td input[type=text],
-.form-table td input[type=email],
-.form-table td input[type=password],
-.form-table td select,
-.form-table td textarea,
-.form-table span.description,
-#profile-page .form-table textarea {
+  .form-table td input[type=email],
+  .form-table td input[type=password],
+  .form-table td select,
+  .form-table td textarea,
+  .form-table span.description,
+  #profile-page .form-table textarea {
     width: 100%;
     display: block;
     max-width: none;
     box-sizing: border-box;
   }
-
   .form-table .form-required.form-invalid td:after {
     float: right;
     margin: -30px 3px 0 0;
   }
-
   input[type=text].small-text,
-input[type=search].small-text,
-input[type=password].small-text,
-input[type=number].small-text,
-input[type=number].small-text,
-.form-table input[type=text].small-text {
+  input[type=search].small-text,
+  input[type=password].small-text,
+  input[type=number].small-text,
+  input[type=number].small-text,
+  .form-table input[type=text].small-text {
     width: auto;
-    max-width: 4.375em;
-    /* 70px, enough for 4 digits to fit comfortably */
+    max-width: 4.375em; /* 70px, enough for 4 digits to fit comfortably */
     display: inline;
     padding: 3px 6px;
     margin: 0 3px;
   }
-
-  .form-table input[type=text]#mailserver_port.small-text {
-    margin-top: 3px;
+  .form-table .regular-text ~ input[type=text].small-text {
+    margin-top: 5px;
   }
-
   #pass-strength-result {
     width: 100%;
     box-sizing: border-box;
     padding: 8px;
   }
-
+  .password-input-wrapper {
+    display: block;
+  }
   p.search-box {
     float: none;
-    position: absolute;
-    bottom: 0;
-    width: 98%;
-    height: 90px;
+    width: 100%;
     margin-bottom: 20px;
+    display: flex;
   }
-
   p.search-box input[name=s] {
     float: none;
     width: 100%;
     margin-bottom: 10px;
     vertical-align: middle;
   }
-
   p.search-box input[type=submit] {
     margin-bottom: 10px;
   }
-
   .form-table span.description {
     display: inline;
     padding: 4px 0 0;
     line-height: 1.4;
     font-size: 14px;
   }
-
   .form-table th {
     padding: 10px 0 0;
     border-bottom: 0;
   }
-
   .form-table td {
     margin-bottom: 0;
     padding: 4px 0 6px;
   }
-
   .form-table.permalink-structure td code {
-    margin-left: 32px;
     display: inline-block;
   }
-
-  .form-table.permalink-structure td input[type=text] {
-    margin-left: 32px;
-    margin-top: 4px;
-    width: 96%;
+  .form-table.permalink-structure .structure-selection {
+    margin-top: 8px;
   }
-
+  .form-table.permalink-structure .structure-selection .row > div {
+    max-width: calc(100% - 36px);
+    width: 100%;
+  }
+  .form-table.permalink-structure td input[type=text] {
+    margin-top: 4px;
+  }
   .form-table input.regular-text {
     width: 100%;
   }
-
   .form-table label {
     font-size: 14px;
   }
-
   .background-position-control .button-group > label {
     font-size: 0;
   }
-
   .form-table fieldset label {
     display: block;
   }
-
-  #utc-time,
-#local-time {
-    display: block;
-    float: none;
-    margin-top: 0.5em;
-  }
-
   .form-field #domain {
     max-width: none;
   }
-
   /* New Password */
   .gc-pwd {
     position: relative;
   }
-
   /* Needs higher specificity than normal input type text and password. */
   #profile-page .form-table #pass1 {
     padding-right: 90px;
   }
-
   .gc-pwd button.button {
     background: transparent;
     border: 1px solid transparent;
@@ -1625,88 +1423,82 @@ input[type=number].small-text,
     min-width: 40px;
     min-height: 40px;
   }
-
   .gc-pwd button.gc-hide-pw {
     right: 2.5rem;
   }
-
+  body.user-new-php .gc-pwd button.gc-hide-pw {
+    right: 0;
+  }
   .gc-pwd button.button:hover,
-.gc-pwd button.button:focus {
+  .gc-pwd button.button:focus {
     background: transparent;
   }
-
   .gc-pwd button.button:active {
     background: transparent;
     box-shadow: none;
     transform: none;
   }
-
   .gc-pwd .button .text {
     display: none;
   }
-
   .gc-pwd [type=text],
-.gc-pwd [type=password] {
+  .gc-pwd [type=password] {
     line-height: 2;
     padding-right: 5rem;
   }
-
+  body.user-new-php .gc-pwd [type=text],
+  body.user-new-php .gc-pwd [type=password] {
+    padding-right: 2.5rem;
+  }
   .gc-cancel-pw .dashicons-no {
     display: inline-block;
   }
-
+  .mailserver-pass-wrap .gc-pwd {
+    display: block;
+  }
+  /* rtl:ignore */
+  #mailserver_pass {
+    padding-left: 10px;
+  }
   .options-general-php input[type=text].small-text {
     max-width: 6.25em;
     margin: 0;
   }
-
   /* Privacy Policy settings screen */
   .tools-privacy-policy-page form.gc-create-privacy-page {
     margin-bottom: 1em;
   }
-
   .tools-privacy-policy-page input#set-page,
-.tools-privacy-policy-page select {
+  .tools-privacy-policy-page select {
     margin: 10px 0 0;
   }
-
   .tools-privacy-policy-page .gc-create-privacy-page span {
     display: block;
     margin-bottom: 1em;
   }
-
   .tools-privacy-policy-page .gc-create-privacy-page .button {
     margin-left: 0;
   }
-
   .gc-list-table.privacy_requests tr:not(.inline-edit-row):not(.no-items) td.column-primary:not(.check-column) {
     display: table-cell;
   }
-
-  .gc-list-table.privacy_requests.widefat th input,
-.gc-list-table.privacy_requests.widefat thead td input {
-    margin-left: 5px;
-  }
-
   .gc-privacy-request-form-field input[type=text] {
     width: 100%;
     margin-bottom: 10px;
     vertical-align: middle;
   }
-
   .regular-text {
     max-width: 100%;
   }
 }
 @media only screen and (max-width: 768px) {
   .form-field input[type=text],
-.form-field input[type=email],
-.form-field input[type=password],
-.form-field select,
-.form-field textarea {
+  .form-field input[type=email],
+  .form-field input[type=password],
+  .form-field select,
+  .form-field textarea {
     width: 99%;
   }
-
   .form-wrap .form-field {
     padding: 0;
   }
@@ -1714,7 +1506,7 @@ input[type=number].small-text,
 @media only screen and (max-height: 480px), screen and (max-width: 450px) {
   /* Request Credentials / File Editor Warning */
   .request-filesystem-credentials-dialog .notification-dialog,
-.file-editor-warning .notification-dialog {
+  .file-editor-warning .notification-dialog {
     width: 100%;
     height: 100%;
     max-height: 100%;

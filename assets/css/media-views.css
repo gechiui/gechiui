@@ -98,6 +98,7 @@
   color: #2c3338;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   font-size: 13px;
+  line-height: 1.38461538;
 }
 
 .media-frame input[type=text],
@@ -115,8 +116,7 @@
 .media-frame input[type=week] {
   padding: 0 8px;
   /* inherits font size 13px */
-  line-height: 2.15384615;
-  /* 28px */
+  line-height: 2.15384615; /* 28px */
 }
 
 /* Search field in the Media Library toolbar */
@@ -279,10 +279,6 @@
   width: calc(48% - 12px);
 }
 
-.media-modal-content .attachments-browser .search {
-  width: 100%;
-}
-
 /* higher specificity */
 .gc-core-ui .media-modal-icon {
   background-image: url(../images/uploader-icons.png);
@@ -369,7 +365,7 @@
 }
 
 .media-sidebar h2,
-.image-details h2:not(.media-attachments-filter-heading) {
+.image-details .media-embed h2 {
   position: relative;
   font-weight: 600;
   text-transform: uppercase;
@@ -526,6 +522,13 @@
 .compat-item .field textarea {
   height: 62px;
   resize: vertical;
+}
+
+.media-sidebar .alt-text textarea,
+.attachment-details .alt-text textarea,
+.compat-item .alt-text textarea,
+.alt-text textarea {
+  height: 50px;
 }
 
 .compat-item {
@@ -893,8 +896,6 @@
 
 .media-frame select.attachment-filters:last-of-type {
   margin-right: 0;
-  width: auto;
-  max-width: 100%;
 }
 
 /**
@@ -913,7 +914,7 @@
   max-width: 100%;
 }
 
-.media-frame .media-search-input-label {
+.media-modal .media-frame .media-search-input-label {
   position: absolute;
   left: 0;
   top: 10px;
@@ -1196,6 +1197,7 @@
 .mode-grid .attachments-browser .media-toolbar-primary {
   display: flex;
   align-items: center;
+  column-gap: 0.5rem;
 }
 
 .mode-grid .attachments-browser .media-toolbar-mode-select .media-toolbar-primary {
@@ -1466,15 +1468,13 @@
 .uploader-window {
   position: fixed;
   z-index: 250000;
-  opacity: 0;
-  /* Only the inline uploader is animated with JS, the editor one isn't */
+  opacity: 0; /* Only the inline uploader is animated with JS, the editor one isn't */
   transition: opacity 250ms;
 }
 
 .gc-editor-wrap .uploader-editor {
   position: absolute;
-  z-index: 99998;
-  /* under the toolbar */
+  z-index: 99998; /* under the toolbar */
   background: rgba(140, 143, 148, 0.9);
 }
 
@@ -1934,32 +1934,7 @@
 
 .media-modal .imgedit-wrap .imgedit-panel-content {
   padding: 16px 16px 0;
-  position: absolute;
-  top: 0;
-  right: 282px;
-  bottom: 0;
-  left: 0;
-  overflow: auto;
-}
-
-/*
- * Implementation of bottom padding in overflow content differs across browsers.
- * We need a different method. See https://github.com/w3c/csswg-drafts/issues/129
- */
-.media-modal .imgedit-wrap .imgedit-submit {
-  margin-bottom: 16px;
-}
-
-.media-modal .imgedit-wrap .imgedit-settings {
-  background: #f6f7f7;
-  border-left: 1px solid #dcdcde;
-  padding: 20px 16px 0;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 250px;
-  overflow: auto;
+  overflow: visible;
 }
 
 /*
@@ -1973,20 +1948,15 @@
 .media-modal .imgedit-group {
   background: none;
   border: none;
-  border-bottom: 1px solid #dcdcde;
   box-shadow: none;
   margin: 0;
-  margin-bottom: 16px;
   padding: 0;
-  padding-bottom: 16px;
-  position: relative;
-  /* RTL fix, #GC29352 */
+  position: relative; /* RTL fix, #GC29352 */
 }
 
-.media-modal .imgedit-group:last-of-type {
-  border: none;
-  margin: 0;
-  padding: 0;
+.media-modal .imgedit-group.imgedit-panel-active {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
 }
 
 .media-modal .imgedit-group-top {
@@ -2055,8 +2025,7 @@
 
 .media-modal .imgedit-wrap div.updated,
 .media-modal .imgedit-wrap .notice {
-  margin: 0;
-  margin-bottom: 16px;
+  margin: 0 16px;
 }
 
 /**
@@ -2074,18 +2043,15 @@
 
 .media-frame .embed-url input {
   font-size: 18px;
-  line-height: 1.22222222;
-  /* 22px */
-  padding: 12px 40px 12px 14px;
-  /* right padding to leave room for the spinner */
+  line-height: 1.22222222; /* 22px */
+  padding: 12px 40px 12px 14px; /* right padding to leave room for the spinner */
   width: 100%;
   min-width: 200px;
   box-shadow: inset 2px 2px 4px -2px rgba(0, 0, 0, 0.1);
 }
 
 .media-frame .embed-url input::-ms-clear {
-  display: none;
-  /* the "x" in IE 11 conflicts with the spinner */
+  display: none; /* the "x" in IE 11 conflicts with the spinner */
 }
 
 .media-frame .embed-url .spinner {
@@ -2384,10 +2350,8 @@
 }
 
 .media-embed .setting span {
-  display: block;
-  /* Back-compat for pre-5.3 */
-  width: 200px;
-  /* Back-compat for pre-5.3 */
+  display: block; /* Back-compat for pre-5.3 */
+  width: 200px; /* Back-compat for pre-5.3 */
 }
 
 .image-details .embed-media-settings .setting span,
@@ -2464,49 +2428,40 @@
   .media-modal .media-frame-title {
     height: 40px;
   }
-
   .media-modal .media-frame-title h1 {
     line-height: 2.22222222;
     font-size: 18px;
   }
-
   .media-modal-close {
     width: 42px;
     height: 42px;
   }
-
   /* Drop-down menu */
   .media-frame .media-frame-title {
     position: static;
     padding: 0 44px;
     text-align: center;
   }
-
   .media-frame:not(.hide-menu) .media-frame-router,
-.media-frame:not(.hide-menu) .media-frame-content,
-.media-frame:not(.hide-menu) .media-frame-toolbar {
+  .media-frame:not(.hide-menu) .media-frame-content,
+  .media-frame:not(.hide-menu) .media-frame-toolbar {
     left: 0;
   }
-
   .media-frame:not(.hide-menu) .media-frame-router {
     /* 40 title + (40 - 6) menu toggle button + 6 spacing */
     top: 80px;
   }
-
   .media-frame:not(.hide-menu) .media-frame-content {
     /* 80 + room for the tabs */
     top: 114px;
   }
-
   .media-frame.hide-router .media-frame-content {
     top: 80px;
   }
-
   .media-frame:not(.hide-menu) .media-frame-menu {
     position: static;
     width: 0;
   }
-
   .media-frame:not(.hide-menu) .media-menu {
     display: none;
     width: auto;
@@ -2521,20 +2476,16 @@
     padding: 5px 0;
     border: 1px solid #c3c4c7;
   }
-
   .media-frame:not(.hide-menu) .media-menu.visible {
     display: block;
   }
-
   .media-frame:not(.hide-menu) .media-menu > a {
     padding: 12px 16px;
     font-size: 16px;
   }
-
   .media-frame:not(.hide-menu) .media-menu .separator {
     margin: 5px 10px;
   }
-
   /* Visually hide the menu heading keeping it available to assistive technologies. */
   .media-frame-menu-heading {
     clip: rect(1px, 1px, 1px, 1px);
@@ -2546,7 +2497,6 @@
     width: 1px;
     word-wrap: normal !important;
   }
-
   /* Reveal the menu toggle button. */
   .gc-core-ui .media-frame:not(.hide-menu) .button.media-frame-menu-toggle {
     display: inline-flex;
@@ -2565,260 +2515,225 @@
     /* Modern browsers */
     min-height: 40px;
   }
-
   .gc-core-ui .button.media-frame-menu-toggle:hover,
-.gc-core-ui .button.media-frame-menu-toggle:active {
+  .gc-core-ui .button.media-frame-menu-toggle:active {
     background: transparent;
     transform: none;
   }
-
   .gc-core-ui .button.media-frame-menu-toggle:focus {
     /* Only visible in Windows High Contrast mode */
     outline: 1px solid transparent;
   }
-
   /* End drop-down menu */
   .media-sidebar {
     width: 230px;
   }
-
   .attachments-browser .attachments,
-.attachments-browser .uploader-inline,
-.attachments-browser .media-toolbar,
-.attachments-browser .attachments-wrapper,
-.attachments-browser.has-load-more .attachments-wrapper {
+  .attachments-browser .uploader-inline,
+  .attachments-browser .media-toolbar,
+  .attachments-browser .attachments-wrapper,
+  .attachments-browser.has-load-more .attachments-wrapper {
     right: 262px;
   }
-
+  .attachments-browser .media-toolbar {
+    height: 82px;
+  }
+  .attachments-browser .attachments,
+  .attachments-browser .uploader-inline,
+  .media-frame-content .attachments-browser .attachments-wrapper {
+    top: 82px;
+  }
   .media-sidebar .setting,
-.attachment-details .setting {
+  .attachment-details .setting {
     margin: 6px 0;
   }
-
   .media-sidebar .setting input,
-.media-sidebar .setting textarea,
-.media-sidebar .setting .name,
-.attachment-details .setting input,
-.attachment-details .setting textarea,
-.attachment-details .setting .name,
-.compat-item label span {
+  .media-sidebar .setting textarea,
+  .media-sidebar .setting .name,
+  .attachment-details .setting input,
+  .attachment-details .setting textarea,
+  .attachment-details .setting .name,
+  .compat-item label span {
     float: none;
     display: inline-block;
   }
-
   .media-sidebar .setting span,
-.attachment-details .setting span,
-.media-sidebar .checkbox-label-inline {
+  .attachment-details .setting span,
+  .media-sidebar .checkbox-label-inline {
     float: none;
   }
-
   .media-sidebar .setting .select-label-inline {
     display: inline;
   }
-
   .media-sidebar .setting .name,
-.media-sidebar .checkbox-label-inline,
-.attachment-details .setting .name,
-.compat-item label span {
+  .media-sidebar .checkbox-label-inline,
+  .attachment-details .setting .name,
+  .compat-item label span {
     text-align: inherit;
     min-height: 16px;
     margin: 0;
     padding: 8px 2px 2px;
   }
-
   /* Needs high specificity. */
   .media-sidebar .setting .copy-to-clipboard-container,
-.attachment-details .attachment-info .copy-to-clipboard-container {
+  .attachment-details .attachment-info .copy-to-clipboard-container {
     margin-left: 0;
     padding-top: 0;
   }
-
   .media-sidebar .setting .copy-attachment-url,
-.attachment-details .attachment-info .copy-attachment-url {
+  .attachment-details .attachment-info .copy-attachment-url {
     margin: 0 1px;
   }
-
   .media-sidebar .setting .value,
-.attachment-details .setting .value {
+  .attachment-details .setting .value {
     float: none;
     width: auto;
   }
-
   .media-sidebar .setting input[type=text],
-.media-sidebar .setting input[type=password],
-.media-sidebar .setting input[type=email],
-.media-sidebar .setting input[type=number],
-.media-sidebar .setting input[type=search],
-.media-sidebar .setting input[type=tel],
-.media-sidebar .setting input[type=url],
-.media-sidebar .setting textarea,
-.media-sidebar .setting select,
-.attachment-details .setting input[type=text],
-.attachment-details .setting input[type=password],
-.attachment-details .setting input[type=email],
-.attachment-details .setting input[type=number],
-.attachment-details .setting input[type=search],
-.attachment-details .setting input[type=tel],
-.attachment-details .setting input[type=url],
-.attachment-details .setting textarea,
-.attachment-details .setting select,
-.attachment-details .setting + .description {
+  .media-sidebar .setting input[type=password],
+  .media-sidebar .setting input[type=email],
+  .media-sidebar .setting input[type=number],
+  .media-sidebar .setting input[type=search],
+  .media-sidebar .setting input[type=tel],
+  .media-sidebar .setting input[type=url],
+  .media-sidebar .setting textarea,
+  .media-sidebar .setting select,
+  .attachment-details .setting input[type=text],
+  .attachment-details .setting input[type=password],
+  .attachment-details .setting input[type=email],
+  .attachment-details .setting input[type=number],
+  .attachment-details .setting input[type=search],
+  .attachment-details .setting input[type=tel],
+  .attachment-details .setting input[type=url],
+  .attachment-details .setting textarea,
+  .attachment-details .setting select,
+  .attachment-details .setting + .description {
     float: none;
     width: 98%;
     max-width: none;
     height: auto;
   }
-
   .media-frame .media-toolbar input[type=search] {
-    line-height: 2.25;
-    /* 36px */
+    line-height: 2.25; /* 36px */
   }
-
   .media-sidebar .setting select.columns,
-.attachment-details .setting select.columns {
+  .attachment-details .setting select.columns {
     width: auto;
   }
-
   .media-frame input,
-.media-frame textarea,
-.media-frame .search {
+  .media-frame textarea,
+  .media-frame .search {
     padding: 3px 6px;
   }
-
   .gc-admin .media-frame select {
     min-height: 40px;
     font-size: 16px;
     line-height: 1.625;
     padding: 5px 24px 5px 8px;
   }
-
   .image-details .column-image {
     width: 30%;
     left: 70%;
   }
-
   .image-details .column-settings {
     width: 70%;
   }
-
   .image-details .media-modal {
     left: 30px;
     right: 30px;
   }
-
   .image-details .embed-media-settings .setting,
-.image-details .embed-media-settings .setting-group {
+  .image-details .embed-media-settings .setting-group {
     margin: 20px;
   }
-
   .image-details .embed-media-settings .setting span,
-.image-details .embed-media-settings .setting .name {
+  .image-details .embed-media-settings .setting .name {
     float: none;
     text-align: left;
     width: 100%;
     margin-bottom: 4px;
     margin-left: 0;
   }
-
   .media-modal .legend-inline {
     position: static;
     transform: none;
     margin-left: 0;
     margin-bottom: 6px;
   }
-
   .image-details .embed-media-settings .setting-group .setting {
     margin-bottom: 0;
   }
-
   .image-details .embed-media-settings .setting input.link-to-custom,
-.image-details .embed-media-settings .setting input[type=text],
-.image-details .embed-media-settings .setting textarea {
+  .image-details .embed-media-settings .setting input[type=text],
+  .image-details .embed-media-settings .setting textarea {
     width: 100%;
     margin-left: 0;
   }
-
   .image-details .embed-media-settings .setting.has-description {
     margin-bottom: 5px;
   }
-
   .image-details .description {
     width: auto;
     margin: 0 20px;
   }
-
   .image-details .embed-media-settings .custom-size {
     margin-left: 20px;
   }
-
   .collection-settings .setting input[type=checkbox] {
     float: none;
     margin-top: 0;
   }
-
   .media-selection {
     min-width: 120px;
   }
-
   .media-selection:after {
     background: none;
   }
-
   .media-selection .attachments {
     display: none;
   }
-
   .media-modal .attachments-browser .media-toolbar .search {
     max-width: 100%;
     height: auto;
     float: right;
   }
-
   .media-modal .attachments-browser .media-toolbar .attachment-filters {
     height: auto;
   }
-
   /* Text inputs need to be 16px, or they force zooming on iOS */
   .media-frame input[type=text],
-.media-frame input[type=password],
-.media-frame input[type=number],
-.media-frame input[type=search],
-.media-frame input[type=email],
-.media-frame input[type=url],
-.media-frame textarea,
-.media-frame select {
+  .media-frame input[type=password],
+  .media-frame input[type=number],
+  .media-frame input[type=search],
+  .media-frame input[type=email],
+  .media-frame input[type=url],
+  .media-frame textarea,
+  .media-frame select {
     font-size: 16px;
+    line-height: 1.5;
   }
-
   .media-frame .media-toolbar input[type=search] {
-    line-height: 2.3755;
-    /* 38px */
+    line-height: 2.3755; /* 38px */
   }
-
   .media-modal .media-toolbar .spinner {
     margin-bottom: 10px;
   }
 }
 @media screen and (max-width: 782px) {
-  .attachments-browser .media-toolbar {
-    height: 82px;
+  .imgedit-panel-content {
+    grid-template-columns: auto;
   }
-
-  .attachments-browser .attachments,
-.attachments-browser .uploader-inline {
-    top: 82px;
-  }
-
   .media-frame-toolbar .media-toolbar {
     bottom: -54px;
   }
-
   .mode-grid .attachments-browser .media-toolbar-primary {
-    display: block;
+    display: flex;
   }
-
+  .mode-grid .attachments-browser .media-toolbar-primary input[type=search] {
+    width: 100%;
+  }
   .media-sidebar .copy-to-clipboard-container .success,
-.attachment-details .copy-to-clipboard-container .success {
+  .attachment-details .copy-to-clipboard-container .success {
     font-size: 14px;
     line-height: 2.71428571;
   }
@@ -2827,18 +2742,16 @@
 @media only screen and (max-width: 640px), screen and (max-height: 400px) {
   /* Full-bleed modal */
   .media-modal,
-.image-details .media-modal {
+  .image-details .media-modal {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
   }
-
   .media-modal-backdrop {
     position: fixed;
   }
-
   .media-sidebar {
     z-index: 1900;
     max-width: 70%;
@@ -2846,44 +2759,33 @@
     box-sizing: border-box;
     padding-bottom: 0;
   }
-
   .media-sidebar.visible {
     bottom: 0;
   }
-
   .attachments-browser .attachments,
-.attachments-browser .uploader-inline,
-.attachments-browser .media-toolbar,
-.media-frame-content .attachments-browser .attachments-wrapper {
+  .attachments-browser .uploader-inline,
+  .attachments-browser .media-toolbar,
+  .media-frame-content .attachments-browser .attachments-wrapper {
     right: 0;
   }
-
-  .attachments-browser .attachments-wrapper {
-    padding-top: 12px;
-  }
-
   .image-details .media-frame-title {
     display: block;
     top: 0;
     font-size: 14px;
   }
-
   .image-details .column-image,
-.image-details .column-settings {
+  .image-details .column-settings {
     width: 100%;
     position: relative;
     left: 0;
   }
-
   .image-details .column-settings {
     padding: 4px 0;
   }
-
   /* Media tabs on the top */
   .media-frame-content .media-toolbar .instructions {
     display: none;
   }
-
   /* Change margin direction on load more button in responsive views. */
   .load-more-wrapper .load-more-jump {
     margin: 12px 0 0;
@@ -2891,11 +2793,10 @@
 }
 @media only screen and (min-width: 901px) and (max-height: 400px) {
   .media-menu,
-.media-frame:not(.hide-menu) .media-menu {
+  .media-frame:not(.hide-menu) .media-menu {
     top: 0;
     padding-top: 44px;
   }
-
   /* Change margin direction on load more button in responsive views. */
   .load-more-wrapper .load-more-jump {
     margin: 12px 0 0;
@@ -2909,12 +2810,11 @@
 /**
  * HiDPI Displays
  */
-@media print, (-webkit-min-device-pixel-ratio: 1.25), (min-resolution: 120dpi) {
+@media print, (min-resolution: 120dpi) {
   .gc-core-ui .media-modal-icon {
     background-image: url(../images/uploader-icons-2x.png);
     background-size: 134px 15px;
   }
-
   .media-frame .spinner {
     background-image: url(../images/spinner-2x.gif);
   }

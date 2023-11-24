@@ -13,10 +13,14 @@
  * @return string Returns the block content with received rss items.
  */
 function render_block_core_rss( $attributes ) {
+	if ( in_array( untrailingslashit( $attributes['feedURL'] ), array( site_url(), home_url() ), true ) ) {
+		return '<div class="components-placeholder"><div class="notice notice-error">' . __( '不支持添加 RSS 源到系统主页，因为这样会导致循环并拖慢系统运行速度。 请尝试使用其他区块，例如<strong>最新文章</strong>区块来列出此系统的文章。' ) . '</div></div>';
+	}
+
 	$rss = fetch_feed( $attributes['feedURL'] );
 
 	if ( is_gc_error( $rss ) ) {
-		return '<div class="components-placeholder"><div class="notice notice-error"><strong>' . __( 'RSS错误：' ) . '</strong> ' . $rss->get_error_message() . '</div></div>';
+		return '<div class="components-placeholder"><div class="notice notice-error"><strong>' . __( 'RSS错误：' ) . '</strong> ' . esc_html( $rss->get_error_message() ) . '</div></div>';
 	}
 
 	if ( ! $rss->get_item_quantity() ) {
@@ -44,8 +48,8 @@ function render_block_core_rss( $attributes ) {
 			if ( $date ) {
 				$date = sprintf(
 					'<time datetime="%1$s" class="gc-block-rss__item-publish-date">%2$s</time> ',
-					date_i18n( get_option( 'c' ), $date ),
-					date_i18n( get_option( 'date_format' ), $date )
+					esc_attr( date_i18n( 'c', $date ) ),
+					esc_attr( date_i18n( get_option( 'date_format' ), $date ) )
 				);
 			}
 		}
@@ -83,10 +87,19 @@ function render_block_core_rss( $attributes ) {
 	if ( isset( $attributes['blockLayout'] ) && 'grid' === $attributes['blockLayout'] ) {
 		$classnames[] = 'is-grid';
 	}
-
 	if ( isset( $attributes['columns'] ) && 'grid' === $attributes['blockLayout'] ) {
 		$classnames[] = 'columns-' . $attributes['columns'];
 	}
+	if ( $attributes['displayDate'] ) {
+		$classnames[] = 'has-dates';
+	}
+	if ( $attributes['displayAuthor'] ) {
+		$classnames[] = 'has-authors';
+	}
+	if ( $attributes['displayExcerpt'] ) {
+		$classnames[] = 'has-excerpts';
+	}
+
 	$wrapper_attributes = get_block_wrapper_attributes( array( 'class' => implode( ' ', $classnames ) ) );
 
 	return sprintf( '<ul %s>%s</ul>', $wrapper_attributes, $list_items );
@@ -97,7 +110,7 @@ function render_block_core_rss( $attributes ) {
  */
 function register_block_core_rss() {
 	register_block_type_from_metadata(
-		ABSPATH . 'assets/blocks/rss',
+		__DIR__ . '/rss',
 		array(
 			'render_callback' => 'render_block_core_rss',
 		)

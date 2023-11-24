@@ -294,7 +294,7 @@ if ( 'post' === $post_type ) {
 			'id'      => 'overview',
 			'title'   => __( '概述' ),
 			'content' =>
-					'<p>' . __( '页面和文章类似——它们都有标题、正文以及附带的相关信息；但与文章不同的是，它们类似永久的文章，而往往不像一般的博客文章那样，随着时间流逝逐渐淡出人们的视线。页面不属于任何一个分类，亦不能拥有标签，但是页面之间可以有层级关系。您可将一个页面附属在另一个“父级页面”之下，构建一个页面群组。' ) . '</p>',
+					'<p>' . __( '页面和文章类似——它们都有标题、正文以及附带的相关信息；但与文章不同的是，它们类似永久的文章，而往往不像一般的文章那样，随着时间流逝逐渐淡出人们的视线。页面不属于任何一个分类，亦不能拥有标签，但是页面之间可以有层级关系。您可将一个页面附属在另一个“父级页面”之下，构建一个页面群组。' ) . '</p>',
 		)
 	);
 	get_current_screen()->add_help_tab(
@@ -386,7 +386,6 @@ $bulk_messages['gc_block'] = array(
  * By default, custom post types use the messages for the 'post' post type.
  *
  *
- *
  * @param array[] $bulk_messages Arrays of messages, each keyed by the corresponding post type. Messages are
  *                               keyed with 'updated', 'locked', 'deleted', 'trashed', and 'untrashed'.
  * @param int[]   $bulk_counts   Array of item counts for each message, used to build internationalized strings.
@@ -394,68 +393,59 @@ $bulk_messages['gc_block'] = array(
 $bulk_messages = apply_filters( 'bulk_post_updated_messages', $bulk_messages, $bulk_counts );
 $bulk_counts   = array_filter( $bulk_counts );
 
-require_once ABSPATH . 'gc-admin/admin-header.php';
-?>
-<div class="wrap">
-<h1 class="gc-heading-inline">
-<?php
-echo esc_html( $post_type_object->labels->name );
-?>
-</h1>
-
-<?php
-if ( current_user_can( $post_type_object->cap->create_posts ) ) {
-	echo ' <a href="' . esc_url( admin_url( $post_new_file ) ) . '" class="page-title-action">' . esc_html( $post_type_object->labels->add_new ) . '</a>';
-}
-
-if ( isset( $_REQUEST['s'] ) && strlen( $_REQUEST['s'] ) ) {
-	echo '<span class="subtitle">';
-	printf(
-		/* translators: %s: Search query. */
-		__( '搜索结果：%s' ),
-		'<strong>' . get_search_query() . '</strong>'
-	);
-	echo '</span>';
-}
-?>
-
-<hr class="gc-header-end">
-
-<?php
 // If we have a bulk message to issue:
-$messages = array();
 foreach ( $bulk_counts as $message => $count ) {
 	if ( isset( $bulk_messages[ $post_type ][ $message ] ) ) {
-		$messages[] = sprintf( $bulk_messages[ $post_type ][ $message ], number_format_i18n( $count ) );
+		$message = sprintf( $bulk_messages[ $post_type ][ $message ], number_format_i18n( $count ) );
+		add_settings_error( 'general', 'settings_updated', $message, 'success' );
 	} elseif ( isset( $bulk_messages['post'][ $message ] ) ) {
-		$messages[] = sprintf( $bulk_messages['post'][ $message ], number_format_i18n( $count ) );
+		$message = sprintf( $bulk_messages['post'][ $message ], number_format_i18n( $count ) );
+		add_settings_error( 'general', 'settings_updated', $message, 'success' );
 	}
 
 	if ( 'trashed' === $message && isset( $_REQUEST['ids'] ) ) {
 		$ids        = preg_replace( '/[^0-9,]/', '', $_REQUEST['ids'] );
-		$messages[] = '<a href="' . esc_url( gc_nonce_url( "edit.php?post_type=$post_type&doaction=undo&action=untrash&ids=$ids", 'bulk-posts' ) ) . '">' . __( '撤销' ) . '</a>';
+		$message = '<a href="' . esc_url( gc_nonce_url( "edit.php?post_type=$post_type&doaction=undo&action=untrash&ids=$ids", 'bulk-posts' ) ) . '">' . __( '撤销' ) . '</a>';
+		add_settings_error( 'general', 'settings_updated', $message, 'success' );
 	}
 
 	if ( 'untrashed' === $message && isset( $_REQUEST['ids'] ) ) {
 		$ids = explode( ',', $_REQUEST['ids'] );
 
 		if ( 1 === count( $ids ) && current_user_can( 'edit_post', $ids[0] ) ) {
-			$messages[] = sprintf(
+			$message = sprintf(
 				'<a href="%1$s">%2$s</a>',
 				esc_url( get_edit_post_link( $ids[0] ) ),
 				esc_html( get_post_type_object( get_post_type( $ids[0] ) )->labels->edit_item )
 			);
+			add_settings_error( 'general', 'settings_updated', $message, 'success' );
 		}
 	}
 }
 
-if ( $messages ) {
-	echo '<div id="message" class="updated notice is-dismissible"><p>' . implode( ' ', $messages ) . '</p></div>';
-}
-unset( $messages );
-
 $_SERVER['REQUEST_URI'] = remove_query_arg( array( 'locked', 'skipped', 'updated', 'deleted', 'trashed', 'untrashed' ), $_SERVER['REQUEST_URI'] );
+
+require_once ABSPATH . 'gc-admin/admin-header.php';
 ?>
+<div class="wrap">
+	<div class="page-header">
+		<h2 class="header-title"><?php echo esc_html( $post_type_object->labels->name ); ?></h2>
+		<?php
+		if ( current_user_can( $post_type_object->cap->create_posts ) ) {
+			echo ' <a href="' . esc_url( admin_url( $post_new_file ) ) . '" class="btn btn-primary btn-tone btn-sm">' . esc_html( $post_type_object->labels->add_new ) . '</a>';
+		}
+		
+		if ( isset( $_REQUEST['s'] ) && strlen( $_REQUEST['s'] ) ) {
+			echo '<span class="subtitle">';
+			printf(
+				/* translators: %s: Search query. */
+				__( '搜索词：%s' ),
+				'<strong>' . get_search_query() . '</strong>'
+			);
+			echo '</span>';
+		}
+		?>
+</div>
 
 <?php $gc_list_table->views(); ?>
 

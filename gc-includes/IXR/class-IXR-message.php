@@ -5,7 +5,6 @@
  *
  * @package IXR
  *
- *
  */
 class IXR_Message
 {
@@ -79,7 +78,7 @@ class IXR_Message
             /**
              * Filters the number of elements to parse in an XML-RPC response.
              *
-           
+             * @since 4.0.0
              *
              * @param int $element_limit Default elements limit.
              */
@@ -103,7 +102,7 @@ class IXR_Message
         /**
          * Filters the chunk size that can be used to parse an XML-RPC response message.
          *
-       
+         * @since 4.4.0
          *
          * @param int $chunk_size Chunk size to parse in bytes.
          */
@@ -144,7 +143,7 @@ class IXR_Message
     function tag_open($parser, $tag, $attr)
     {
         $this->_currentTagContents = '';
-        $this->currentTag = $tag;
+        $this->_currentTag = $tag;
         switch($tag) {
             case 'methodCall':
             case 'methodResponse':

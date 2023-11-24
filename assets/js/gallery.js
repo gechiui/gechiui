@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/gallery.js
+ * @output assets/js/gallery.js
  */
 
 /* global unescape, getUserSetting, setUserSetting, gcgallery, tinymce */

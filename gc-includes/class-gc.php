@@ -3,14 +3,15 @@
  * GeChiUI environment setup class.
  *
  * @package GeChiUI
- *
  */
+#[AllowDynamicProperties]
 class GC {
 	/**
 	 * Public query variables.
 	 *
 	 * Long list of public query variables.
 	 *
+	 * @since 2.0.0
 	 * @var string[]
 	 */
 	public $public_query_vars = array( 'm', 'p', 'posts', 'w', 'cat', 'withcomments', 'withoutcomments', 's', 'search', 'exact', 'sentence', 'calendar', 'page', 'paged', 'more', 'tb', 'pb', 'author', 'order', 'orderby', 'year', 'monthnum', 'day', 'hour', 'minute', 'second', 'name', 'category_name', 'tag', 'feed', 'author_name', 'pagename', 'page_id', 'error', 'attachment', 'attachment_id', 'subpost', 'subpost_id', 'preview', 'robots', 'favicon', 'taxonomy', 'term', 'cpage', 'post_type', 'embed' );
@@ -20,6 +21,7 @@ class GC {
 	 *
 	 * Long list of private query variables.
 	 *
+	 * @since 2.0.0
 	 * @var string[]
 	 */
 	public $private_query_vars = array( 'offset', 'posts_per_page', 'posts_per_archive_page', 'showposts', 'nopaging', 'post_type', 'post_status', 'category__in', 'category__not_in', 'category__and', 'tag__in', 'tag__not_in', 'tag__and', 'tag_slug__in', 'tag_slug__and', 'tag_id', 'post_mime_type', 'perm', 'comments_per_page', 'post__in', 'post__not_in', 'post_parent', 'post_parent__in', 'post_parent__not_in', 'title', 'fields' );
@@ -34,41 +36,47 @@ class GC {
 	/**
 	 * Query variables for setting up the GeChiUI Query Loop.
 	 *
+	 * @since 2.0.0
 	 * @var array
 	 */
-	public $query_vars;
+	public $query_vars = array();
 
 	/**
 	 * String parsed to set the query variables.
 	 *
+	 * @since 2.0.0
 	 * @var string
 	 */
-	public $query_string;
+	public $query_string = '';
 
 	/**
 	 * The request path, e.g. 2015/05/06.
 	 *
+	 * @since 2.0.0
 	 * @var string
 	 */
-	public $request;
+	public $request = '';
 
 	/**
 	 * Rewrite rule the request matched.
 	 *
+	 * @since 2.0.0
 	 * @var string
 	 */
-	public $matched_rule;
+	public $matched_rule = '';
 
 	/**
 	 * Rewrite query the request matched.
 	 *
+	 * @since 2.0.0
 	 * @var string
 	 */
-	public $matched_query;
+	public $matched_query = '';
 
 	/**
 	 * Whether already did the permalink.
 	 *
+	 * @since 2.0.0
 	 * @var bool
 	 */
 	public $did_permalink = false;
@@ -88,6 +96,7 @@ class GC {
 	/**
 	 * Removes a query variable from a list of public query variables.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param string $name Query variable name.
 	 */
@@ -98,6 +107,7 @@ class GC {
 	/**
 	 * Sets the value of a query variable.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param string $key   Query variable name.
 	 * @param mixed  $value Query variable value.
@@ -112,10 +122,13 @@ class GC {
 	 * Sets up the query variables based on the request. There are also many
 	 * filters and actions that can be used to further manipulate the result.
 	 *
+	 * @since 2.0.0
+	 * @since 6.0.0 A return value was added.
 	 *
 	 * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
 	 *
 	 * @param array|string $extra_query_vars Set the extra query variables.
+	 * @return bool Whether the request was parsed.
 	 */
 	public function parse_request( $extra_query_vars = '' ) {
 		global $gc_rewrite;
@@ -123,13 +136,14 @@ class GC {
 		/**
 		 * Filters whether to parse the request.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @param bool         $bool             Whether or not to parse the request. Default true.
 		 * @param GC           $gc               Current GeChiUI environment instance.
 		 * @param array|string $extra_query_vars Extra passed query variables.
 		 */
 		if ( ! apply_filters( 'do_parse_request', true, $this, $extra_query_vars ) ) {
-			return;
+			return false;
 		}
 
 		$this->query_vars     = array();
@@ -183,8 +197,7 @@ class GC {
 				$self     = trim( $self, '/' );
 			}
 
-			// The requested permalink is in $pathinfo for path info requests and
-			// $req_uri for other requests.
+			// The requested permalink is in $pathinfo for path info requests and $req_uri for other requests.
 			if ( ! empty( $pathinfo ) && ! preg_match( '|^.*' . $gc_rewrite->index . '$|', $pathinfo ) ) {
 				$requested_path = $pathinfo;
 			} else {
@@ -210,7 +223,7 @@ class GC {
 			} else {
 				foreach ( (array) $rewrite as $match => $query ) {
 					// If the requested file is the anchor of the match, prepend it to the path info.
-					if ( ! empty( $requested_file ) && strpos( $match, $requested_file ) === 0 && $requested_file != $requested_path ) {
+					if ( ! empty( $requested_file ) && str_starts_with( $match, $requested_file ) && $requested_file != $requested_path ) {
 						$request_match = $requested_file . '/' . $requested_path;
 					}
 
@@ -238,7 +251,7 @@ class GC {
 				}
 			}
 
-			if ( isset( $this->matched_rule ) ) {
+			if ( ! empty( $this->matched_rule ) ) {
 				// Trim the query of everything up to the '?'.
 				$query = preg_replace( '!^.+\?!', '', $query );
 
@@ -257,10 +270,10 @@ class GC {
 			}
 
 			// If req_uri is empty or if it is a request for ourself, unset error.
-			if ( empty( $requested_path ) || $requested_file == $self || strpos( $_SERVER['PHP_SELF'], 'gc-admin/' ) !== false ) {
+			if ( empty( $requested_path ) || $requested_file == $self || str_contains( $_SERVER['PHP_SELF'], 'gc-admin/' ) ) {
 				unset( $error, $_GET['error'] );
 
-				if ( isset( $perma_query_vars ) && strpos( $_SERVER['PHP_SELF'], 'gc-admin/' ) !== false ) {
+				if ( isset( $perma_query_vars ) && str_contains( $_SERVER['PHP_SELF'], 'gc-admin/' ) ) {
 					unset( $perma_query_vars );
 				}
 
@@ -275,6 +288,7 @@ class GC {
 		 * to executing the query. Needed to allow custom rewrite rules using your own arguments
 		 * to work, or any other custom query variables you want to be publicly available.
 		 *
+		 * @since 1.5.0
 		 *
 		 * @param string[] $public_query_vars The array of allowed query variable names.
 		 */
@@ -365,6 +379,7 @@ class GC {
 		/**
 		 * Filters the array of parsed query variables.
 		 *
+		 * @since 2.1.0
 		 *
 		 * @param array $query_vars The array of requested query variables.
 		 */
@@ -373,10 +388,13 @@ class GC {
 		/**
 		 * Fires once all query variables for the current request have been parsed.
 		 *
+		 * @since 2.1.0
 		 *
 		 * @param GC $gc Current GeChiUI environment instance (passed by reference).
 		 */
 		do_action_ref_array( 'parse_request', array( &$this ) );
+
+		return true;
 	}
 
 	/**
@@ -385,11 +403,19 @@ class GC {
 	 * Sets the Content-Type header. Sets the 'error' status (if passed) and optionally exits.
 	 * If showing a feed, it will also send Last-Modified, ETag, and 304 status if needed.
 	 *
+	 * @since 2.0.0
+	 * @since 4.4.0 `X-Pingback` header is added conditionally for single posts that allow pings.
+	 * @since 6.1.0 Runs after posts have been queried.
+	 *
+	 * @global GC_Query $gc_query GeChiUI Query object.
 	 */
 	public function send_headers() {
+		global $gc_query;
+
 		$headers       = array();
 		$status        = null;
 		$exit_required = false;
+		$date_format   = 'D, d M Y H:i:s';
 
 		if ( is_user_logged_in() ) {
 			$headers = array_merge( $headers, gc_get_nocache_headers() );
@@ -397,7 +423,7 @@ class GC {
 			// Unmoderated comments are only visible for 10 minutes via the moderation hash.
 			$expires = 10 * MINUTE_IN_SECONDS;
 
-			$headers['Expires']       = gmdate( 'D, d M Y H:i:s', time() + $expires );
+			$headers['Expires']       = gmdate( $date_format, time() + $expires );
 			$headers['Cache-Control'] = sprintf(
 				'max-age=%d, must-revalidate',
 				$expires
@@ -425,7 +451,7 @@ class GC {
 
 			// We're showing a feed, so GC is indeed the only thing that last changed.
 			if ( ! empty( $this->query_vars['withcomments'] )
-				|| false !== strpos( $this->query_vars['feed'], 'comments-' )
+				|| str_contains( $this->query_vars['feed'], 'comments-' )
 				|| ( empty( $this->query_vars['withoutcomments'] )
 					&& ( ! empty( $this->query_vars['p'] )
 						|| ! empty( $this->query_vars['name'] )
@@ -436,13 +462,19 @@ class GC {
 					)
 				)
 			) {
-				$gc_last_modified = mysql2date( 'D, d M Y H:i:s', get_lastcommentmodified( 'GMT' ), false );
+				$gc_last_modified_post    = mysql2date( $date_format, get_lastpostmodified( 'GMT' ), false );
+				$gc_last_modified_comment = mysql2date( $date_format, get_lastcommentmodified( 'GMT' ), false );
+				if ( strtotime( $gc_last_modified_post ) > strtotime( $gc_last_modified_comment ) ) {
+					$gc_last_modified = $gc_last_modified_post;
+				} else {
+					$gc_last_modified = $gc_last_modified_comment;
+				}
 			} else {
-				$gc_last_modified = mysql2date( 'D, d M Y H:i:s', get_lastpostmodified( 'GMT' ), false );
+				$gc_last_modified = mysql2date( $date_format, get_lastpostmodified( 'GMT' ), false );
 			}
 
 			if ( ! $gc_last_modified ) {
-				$gc_last_modified = gmdate( 'D, d M Y H:i:s' );
+				$gc_last_modified = gmdate( $date_format );
 			}
 
 			$gc_last_modified .= ' GMT';
@@ -473,9 +505,19 @@ class GC {
 			}
 		}
 
+		if ( is_singular() ) {
+			$post = isset( $gc_query->post ) ? $gc_query->post : null;
+
+			// Only set X-Pingback for single posts that allow pings.
+			if ( $post && pings_open( $post ) ) {
+				$headers['X-Pingback'] = get_bloginfo( 'pingback_url', 'display' );
+			}
+		}
+
 		/**
 		 * Filters the HTTP headers before they're sent to the browser.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param string[] $headers Associative array of headers to be sent.
 		 * @param GC       $gc      Current GeChiUI environment instance.
@@ -508,6 +550,7 @@ class GC {
 		/**
 		 * Fires once the requested HTTP headers for caching, content type, etc. have been sent.
 		 *
+		 * @since 2.1.0
 		 *
 		 * @param GC $gc Current GeChiUI environment instance (passed by reference).
 		 */
@@ -520,6 +563,7 @@ class GC {
 	 * The {@see 'query_string'} filter is deprecated, but still works. Plugins should
 	 * use the {@see 'request'} filter instead.
 	 *
+	 * @since 2.0.0
 	 */
 	public function build_query_string() {
 		$this->query_string = '';
@@ -537,7 +581,7 @@ class GC {
 			/**
 			 * Filters the query string before parsing.
 			 *
-		
+			 * @since 1.5.0
 			 * @deprecated 2.1.0 Use {@see 'query_vars'} or {@see 'request'} filters instead.
 			 *
 			 * @param string $query_string The query string to modify.
@@ -559,6 +603,7 @@ class GC {
 	 * be taken when naming global variables that might interfere with the
 	 * GeChiUI environment.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @global GC_Query     $gc_query     GeChiUI Query object.
 	 * @global string       $query_string Query string for the loop.
@@ -595,6 +640,7 @@ class GC {
 	/**
 	 * Set up the current user.
 	 *
+	 * @since 2.0.0
 	 */
 	public function init() {
 		gc_get_current_user();
@@ -603,6 +649,7 @@ class GC {
 	/**
 	 * Set up the Loop based on the query variables.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @global GC_Query $gc_the_query GeChiUI Query object.
 	 */
@@ -625,6 +672,7 @@ class GC {
 	 * By inspecting the result of querying posts, seemingly successful requests can be switched to
 	 * a 404 so that canonical redirection logic can kick in.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @global GC_Query $gc_query GeChiUI Query object.
 	 */
@@ -637,6 +685,7 @@ class GC {
 		 * Returning a non-false value from the filter will short-circuit the handling
 		 * and return early.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @param bool     $preempt  Whether to short-circuit default header status handling. Default false.
 		 * @param GC_Query $gc_query GeChiUI Query object.
@@ -662,17 +711,12 @@ class GC {
 
 			if ( is_singular() ) {
 				$post = isset( $gc_query->post ) ? $gc_query->post : null;
-
-				// Only set X-Pingback for single posts that allow pings.
-				if ( $post && pings_open( $post ) && ! headers_sent() ) {
-					header( 'X-Pingback: ' . get_bloginfo( 'pingback_url', 'display' ) );
-				}
+				$next = '<!--nextpage-->';
 
 				// Check for paged content that exceeds the max number of pages.
-				$next = '<!--nextpage-->';
 				if ( $post && ! empty( $this->query_vars['page'] ) ) {
 					// Check if content is actually intended to be paged.
-					if ( false !== strpos( $post->post_content, $next ) ) {
+					if ( str_contains( $post->post_content, $next ) ) {
 						$page          = trim( $this->query_vars['page'], '/' );
 						$content_found = (int) $page <= ( substr_count( $post->post_content, $next ) + 1 );
 					} else {
@@ -722,20 +766,27 @@ class GC {
 	 * allows for accessing the properties and methods to further manipulate the
 	 * object.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string|array $query_args Passed to parse_request().
 	 */
 	public function main( $query_args = '' ) {
 		$this->init();
-		$this->parse_request( $query_args );
+
+		$parsed = $this->parse_request( $query_args );
+
+		if ( $parsed ) {
+			$this->query_posts();
+			$this->handle_404();
+			$this->register_globals();
+		}
+
 		$this->send_headers();
-		$this->query_posts();
-		$this->handle_404();
-		$this->register_globals();
 
 		/**
 		 * Fires once the GeChiUI environment has been set up.
 		 *
+		 * @since 2.1.0
 		 *
 		 * @param GC $gc Current GeChiUI environment instance (passed by reference).
 		 */

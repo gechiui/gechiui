@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/customize-controls.js
+ * @output assets/js/customize-controls.js
  */
 
 /* global _gcCustomizeHeader, _gcCustomizeBackground, _gcMediaViewsL10n, MediaElementPlayer, console, confirm */
@@ -17,6 +17,7 @@
 		/**
 		 * Whether the notification should show a loading spinner.
 		 *
+		 * @since 4.9.0
 		 * @var {boolean}
 		 */
 		loading: false,
@@ -27,6 +28,7 @@
 		 * @constructs gc.customize.OverlayNotification
 		 * @augments   gc.customize.Notification
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {string} code - Code.
 		 * @param {Object} params - Params.
@@ -43,6 +45,7 @@
 		/**
 		 * Render notification.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @return {jQuery} Notification container.
 		 */
@@ -55,6 +58,7 @@
 		/**
 		 * Stop propagation on escape key presses, but also dismiss notification if it is dismissible.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {jQuery.Event} event - Event.
 		 * @return {void}
@@ -75,6 +79,7 @@
 		/**
 		 * Whether the alternative style should be used.
 		 *
+		 * @since 4.9.0
 		 * @type {boolean}
 		 */
 		alt: false,
@@ -82,6 +87,7 @@
 		/**
 		 * The default constructor for items of the collection.
 		 *
+		 * @since 4.9.0
 		 * @type {object}
 		 */
 		defaultConstructor: api.Notification,
@@ -89,6 +95,7 @@
 		/**
 		 * A collection of observable notifications.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @constructs gc.customize.Notifications
 		 * @augments   gc.customize.Values
@@ -122,6 +129,7 @@
 		/**
 		 * Get the number of notifications added.
 		 *
+		 * @since 4.9.0
 		 * @return {number} Count of notifications.
 		 */
 		count: function() {
@@ -131,6 +139,7 @@
 		/**
 		 * Add notification to the collection.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {string|gc.customize.Notification} notification - Notification object to add. Alternatively code may be supplied, and in that case the second notificationObject argument must be supplied.
 		 * @param {gc.customize.Notification} [notificationObject] - Notification to add when first argument is the code string.
@@ -155,6 +164,7 @@
 		/**
 		 * Add notification to the collection.
 		 *
+		 * @since 4.9.0
 		 * @param {string} code - Notification code to remove.
 		 * @return {api.Notification} Added instance (or existing instance if it was already added).
 		 */
@@ -169,6 +179,7 @@
 		 *
 		 * Notifications may be sorted by type followed by added time.
 		 *
+		 * @since 4.9.0
 		 * @param {Object}  args - Args.
 		 * @param {boolean} [args.sort=false] - Whether to return the notifications sorted.
 		 * @return {Array.<gc.customize.Notification>} Notifications.
@@ -205,6 +216,7 @@
 		/**
 		 * Render notifications area.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		render: function() {
@@ -295,6 +307,7 @@
 		/**
 		 * Constrain focus on focus container.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {jQuery.Event} event - Event.
 		 * @return {void}
@@ -332,6 +345,7 @@
 		/**
 		 * Default params.
 		 *
+		 * @since 4.9.0
 		 * @var {object}
 		 */
 		defaults: {
@@ -350,6 +364,7 @@
 		 * @constructs gc.customize.Setting
 		 * @augments   gc.customize.Value
 		 *
+		 * @since 3.4.0
 		 *
 		 * @param {string}  id                          - The setting ID.
 		 * @param {*}       value                       - The initial value of the setting.
@@ -386,6 +401,7 @@
 		 * fails to match the origin window, so using try/catch around the
 		 * previewer.send() call to then fallback to refresh will not work.
 		 *
+		 * @since 3.4.0
 		 * @access public
 		 *
 		 * @return {void}
@@ -408,6 +424,7 @@
 		/**
 		 * Find controls associated with this setting.
 		 *
+		 * @since 4.6.0
 		 * @return {gc.customize.Control[]} Controls associated with setting.
 		 */
 		findControls: function() {
@@ -428,6 +445,7 @@
 	 *
 	 * @alias gc.customize._latestRevision
 	 *
+	 * @since 4.7.0
 	 * @type {number}
 	 * @protected
 	 */
@@ -438,6 +456,7 @@
 	 *
 	 * @alias gc.customize._lastSavedRevision
 	 *
+	 * @since 4.7.0
 	 * @type {number}
 	 * @protected
 	 */
@@ -448,6 +467,7 @@
 	 *
 	 * @alias gc.customize._latestSettingRevisions
 	 *
+	 * @since 4.7.0
 	 * @type {object}
 	 * @protected
 	 */
@@ -478,6 +498,7 @@
 	 *
 	 * @alias gc.customize.dirtyValues
 	 *
+	 * @since 4.7.0
 	 * @access public
 	 *
 	 * @param {Object} [options] Options.
@@ -510,6 +531,7 @@
 	 *
 	 * @alias gc.customize.requestChangesetUpdate
 	 *
+	 * @since 4.7.0
 	 * @access public
 	 *
 	 * @param {Object}  [changes] - Mapping of setting IDs to setting params each normally including a value property, or mapping to null.
@@ -647,6 +669,7 @@
 	 *
 	 * @alias gc.customize.utils.bubbleChildValueChanges
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param {gc.customize.Class} instance
 	 * @param {Array}              properties  The names of the Value instances to watch.
@@ -666,6 +689,7 @@
 	 *
 	 * @alias gc.customize~focus
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param {Object}   [params]
 	 * @param {Function} [params.completeCallback]
@@ -726,6 +750,7 @@
 	 *
 	 * @alias gc.customize.utils.prioritySort
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param {(gc.customize.Panel|gc.customize.Section|gc.customize.Control)} a
 	 * @param {(gc.customize.Panel|gc.customize.Section|gc.customize.Control)} b
@@ -744,6 +769,7 @@
 	 *
 	 * @alias gc.customize.utils.isKeydownButNotEnterEvent
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param {jQuery.Event} event
 	 * @return {boolean}
@@ -757,6 +783,7 @@
 	 *
 	 * @alias gc.customize.utils.areElementListsEqual
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param {Array|jQuery} listA
 	 * @param {Array|jQuery} listB
@@ -784,6 +811,7 @@
 	 *
 	 * @alias gc.customize.utils.highlightButton
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param {jQuery} button - The element to highlight.
 	 * @param {Object} [options] - Options.
@@ -838,6 +866,7 @@
 	 *
 	 * @alias gc.customize.utils.getCurrentTimestamp
 	 *
+	 * @since 4.9.0
 	 *
 	 * @return {number} Current timestamp.
 	 */
@@ -856,6 +885,7 @@
 	 *
 	 * @alias gc.customize.utils.getRemainingTime
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param {string|number|Date} datetime - Date time or timestamp of the future date.
 	 * @return {number} remainingTime - Remaining time in milliseconds.
@@ -878,6 +908,7 @@
 	/**
 	 * Return browser supported `transitionend` event name.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @ignore
 	 *
@@ -922,6 +953,7 @@
 		 * @constructs gc.customize~Container
 		 * @augments   gc.customize.Class
 		 *
+		 * @since 4.1.0
 		 *
 		 * @borrows gc.customize~focus as focus
 		 *
@@ -1000,6 +1032,7 @@
 		/**
 		 * Get the element that will contain the notifications.
 		 *
+		 * @since 4.9.0
 		 * @return {jQuery} Notification container element.
 		 */
 		getNotificationsContainerElement: function() {
@@ -1010,6 +1043,7 @@
 		/**
 		 * Set up notifications.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		setupNotifications: function() {
@@ -1028,6 +1062,7 @@
 		},
 
 		/**
+		 * @since 4.1.0
 		 *
 		 * @abstract
 		 */
@@ -1036,6 +1071,7 @@
 		/**
 		 * Get the child models associated with this parent, sorting them by their priority Value.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param {string} parentType
 		 * @param {string} childType
@@ -1056,6 +1092,7 @@
 		/**
 		 * To override by subclass, to return whether the container has active children.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @abstract
 		 */
@@ -1070,6 +1107,7 @@
 		 *
 		 * To override by subclass, update the container's UI to reflect the provided active state.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param {boolean}  active - The active state to transiution to.
 		 * @param {Object}   [args] - Args.
@@ -1132,6 +1170,7 @@
 		},
 
 		/**
+		 * @since 4.1.0
 		 *
 		 * @param {boolean} active
 		 * @param {Object}  [params]
@@ -1236,6 +1275,7 @@
 		/**
 		 * Animate container state change if transitions are supported by the browser.
 		 *
+		 * @since 4.7.0
 		 * @private
 		 *
 		 * @param {function} completeCallback Function to be called after transition is completed.
@@ -1311,6 +1351,7 @@
 		/**
 		 * Return the container html, generated from its JS template, if it exists.
 		 *
+		 * @since 4.3.0
 		 */
 		getContainer: function () {
 			var template,
@@ -1341,6 +1382,7 @@
 		 * the container. Such non-sliding pane custom sections also need to override the `onChangeExpanded`
 		 * method to handle animating the panel/section into and out of view.
 		 *
+		 * @since 4.7.0
 		 * @access public
 		 *
 		 * @return {jQuery} Detached content element.
@@ -1385,6 +1427,7 @@
 		 * @constructs gc.customize.Section
 		 * @augments   gc.customize~Container
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param {string}  id - The ID for the section.
 		 * @param {Object}  options - Options.
@@ -1432,6 +1475,7 @@
 		/**
 		 * Embed the container in the DOM when any parent panel is ready.
 		 *
+		 * @since 4.1.0
 		 */
 		embed: function () {
 			var inject,
@@ -1476,6 +1520,7 @@
 		/**
 		 * Add behaviors for the accordion section.
 		 *
+		 * @since 4.1.0
 		 */
 		attachEvents: function () {
 			var meta, content, section = this;
@@ -1519,6 +1564,7 @@
 		/**
 		 * Return whether this section has any active controls.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {boolean}
 		 */
@@ -1537,6 +1583,7 @@
 		/**
 		 * Get the controls that are associated with this section, sorted by their priority Value.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {Array}
 		 */
@@ -1547,6 +1594,7 @@
 		/**
 		 * Update UI to reflect expanded state.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param {boolean} expanded
 		 * @param {Object}  args
@@ -1667,6 +1715,7 @@
 		 * @constructs gc.customize.ThemesSection
 		 * @augments   gc.customize.Section
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {string} id - ID.
 		 * @param {Object} options - Options.
@@ -1686,6 +1735,7 @@
 		 *
 		 * Insert the section before the themes container. Assume that a themes section is within a panel, but not necessarily the themes panel.
 		 *
+		 * @since 4.9.0
 		 */
 		embed: function() {
 			var inject,
@@ -1716,6 +1766,7 @@
 		/**
 		 * Set up.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @return {void}
 		 */
@@ -1767,6 +1818,7 @@
 		 * use the section's own active state instead. This prevents empty search
 		 * results for theme sections from causing the section to become inactive.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @return {boolean}
 		 */
@@ -1777,6 +1829,7 @@
 		/**
 		 * Attach events.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @return {void}
 		 */
@@ -1917,6 +1970,7 @@
 		/**
 		 * Update UI to reflect expanded state
 		 *
+		 * @since 4.2.0
 		 *
 		 * @param {boolean}  expanded
 		 * @param {Object}   args
@@ -2010,6 +2064,7 @@
 		/**
 		 * Return the section's content element without detaching from the parent.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @return {jQuery}
 		 */
@@ -2020,6 +2075,7 @@
 		/**
 		 * Load theme data via Ajax and add themes to the section as controls.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @return {void}
 		 */
@@ -2130,6 +2186,7 @@
 		/**
 		 * Loads controls into the section from data received from loadThemes().
 		 *
+		 * @since 4.9.0
 		 * @param {Array}  themes - Array of theme data to create controls with.
 		 * @param {number} page   - Page of results being loaded.
 		 * @return {void}
@@ -2160,6 +2217,7 @@
 		/**
 		 * Determines whether more themes should be loaded, and loads them.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		loadMore: function() {
@@ -2181,6 +2239,7 @@
 		/**
 		 * Event handler for search input that filters visible controls.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {string} term - The raw search input value.
 		 * @return {void}
@@ -2224,6 +2283,7 @@
 		/**
 		 * Event handler for search input that determines if the terms have changed and loads new controls as needed.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {gc.customize.ThemesSection} section - The current theme section, passed through the debouncer.
 		 * @return {void}
@@ -2241,6 +2301,7 @@
 		/**
 		 * Check for filters checked in the feature filter list and initialize a new query.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @return {void}
 		 */
@@ -2281,6 +2342,7 @@
 		/**
 		 * Reset the current query and load new results.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {string} newTerm - New term.
 		 * @param {Array} newTags - New tags.
@@ -2315,6 +2377,7 @@
 		/**
 		 * Render control's screenshot if the control comes into view.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @return {void}
 		 */
@@ -2368,6 +2431,7 @@
 		/**
 		 * Get visible count.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @return {number} Visible count.
 		 */
@@ -2378,6 +2442,7 @@
 		/**
 		 * Update the number of themes in the section.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @return {void}
 		 */
@@ -2407,6 +2472,7 @@
 		/**
 		 * Advance the modal to the next theme.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @return {void}
 		 */
@@ -2422,6 +2488,7 @@
 		/**
 		 * Get the next theme model.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @return {gc.customize.ThemeControl|boolean} Next theme.
 		 */
@@ -2444,6 +2511,7 @@
 		/**
 		 * Advance the modal to the previous theme.
 		 *
+		 * @since 4.2.0
 		 * @return {void}
 		 */
 		previousTheme: function () {
@@ -2458,6 +2526,7 @@
 		/**
 		 * Get the previous theme model.
 		 *
+		 * @since 4.2.0
 		 * @return {gc.customize.ThemeControl|boolean} Previous theme.
 		 */
 		getPreviousTheme: function () {
@@ -2479,6 +2548,7 @@
 		/**
 		 * Disable buttons when we're viewing the first or last theme.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @return {void}
 		 */
@@ -2494,6 +2564,7 @@
 		/**
 		 * Load theme preview.
 		 *
+		 * @since 4.7.0
 		 * @access public
 		 *
 		 * @deprecated
@@ -2507,6 +2578,7 @@
 		/**
 		 * Render & show the theme details for a given theme model.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @param {Object} theme - Theme.
 		 * @param {Function} [callback] - Callback once the details have been shown.
@@ -2543,6 +2615,7 @@
 		/**
 		 * Close the theme details modal.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @return {void}
 		 */
@@ -2556,6 +2629,7 @@
 		/**
 		 * Keep tab focus within the theme details modal.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @param {jQuery} el - Element to contain focus.
 		 * @return {void}
@@ -2597,6 +2671,7 @@
 		 * @constructs gc.customize.OuterSection
 		 * @augments   gc.customize.Section
 		 *
+		 * @since 4.9.0
 		 *
 		 * @return {void}
 		 */
@@ -2611,6 +2686,7 @@
 		 * Overrides api.Section.prototype.onChangeExpanded to prevent collapse/expand effect
 		 * on other sections and panels.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {boolean}  expanded - The expanded state to transition to.
 		 * @param {Object}   [args] - Args.
@@ -2704,6 +2780,7 @@
 		 * @constructs gc.customize.Panel
 		 * @augments   gc.customize~Container
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param {string}  id - The ID for the panel.
 		 * @param {Object}  options - Object containing one property: params.
@@ -2741,6 +2818,7 @@
 		/**
 		 * Embed the container in the DOM when any parent panel is ready.
 		 *
+		 * @since 4.1.0
 		 */
 		embed: function () {
 			var panel = this,
@@ -2759,6 +2837,7 @@
 		},
 
 		/**
+		 * @since 4.1.0
 		 */
 		attachEvents: function () {
 			var meta, panel = this;
@@ -2815,6 +2894,7 @@
 		/**
 		 * Get the sections that are associated with this panel, sorted by their priority Value.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {Array}
 		 */
@@ -2825,6 +2905,7 @@
 		/**
 		 * Return whether this panel has any active sections.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {boolean} Whether contextually active.
 		 */
@@ -2843,6 +2924,7 @@
 		/**
 		 * Update UI to reflect expanded state.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param {boolean}  expanded
 		 * @param {Object}   args
@@ -2941,6 +3023,7 @@
 		 *
 		 * The panel's container must already exist in the DOM.
 		 *
+		 * @since 4.3.0
 		 */
 		renderContent: function () {
 			var template,
@@ -2971,6 +3054,7 @@
 		 * @constructs gc.customize.ThemesPanel
 		 * @augments   gc.customize.Panel
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {string} id - The ID for the panel.
 		 * @param {Object} options - Options.
@@ -2985,6 +3069,7 @@
 		/**
 		 * Determine whether a given theme can be switched to, or in general.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {string} [slug] - Theme slug.
 		 * @return {boolean} Whether the theme can be switched to.
@@ -2999,6 +3084,7 @@
 		/**
 		 * Attach events.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		attachEvents: function() {
@@ -3066,6 +3152,7 @@
 		/**
 		 * Update UI to reflect expanded state
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {boolean}  expanded - Expanded state.
 		 * @param {Object}   args - Args.
@@ -3120,6 +3207,7 @@
 		/**
 		 * Install a theme via gc.updates.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {jQuery.Event} event - Event.
 		 * @return {jQuery.promise} Promise.
@@ -3224,6 +3312,7 @@
 		/**
 		 * Load theme preview.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {string} themeId Theme ID.
 		 * @return {jQuery.promise} Promise.
@@ -3299,6 +3388,7 @@
 		/**
 		 * Update a theme via gc.updates.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {jQuery.Event} event - Event.
 		 * @return {void}
@@ -3328,6 +3418,7 @@
 		/**
 		 * Delete a theme via gc.updates.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {jQuery.Event} event - Event.
 		 * @return {void}
@@ -3386,6 +3477,7 @@
 		/**
 		 * Default params.
 		 *
+		 * @since 4.9.0
 		 * @var {object}
 		 */
 		defaults: {
@@ -3564,6 +3656,7 @@
 		/**
 		 * Link elements between settings and inputs.
 		 *
+		 * @since 4.7.0
 		 * @access public
 		 *
 		 * @return {void}
@@ -3671,6 +3764,7 @@
 		 * Injects the notification container for existing controls that lack the necessary container,
 		 * including special handling for nav menu items and widgets.
 		 *
+		 * @since 4.6.0
 		 * @return {jQuery} Setting validation message element.
 		 */
 		getNotificationsContainerElement: function() {
@@ -3701,6 +3795,7 @@
 		/**
 		 * Set up notifications.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		setupNotifications: function() {
@@ -3764,6 +3859,7 @@
 		 * of rendering notifications.
 		 *
 		 * @deprecated in favor of `control.notifications.render()`
+		 * @since 4.6.0
 		 * @this {gc.customize.Control}
 		 */
 		renderNotifications: function() {
@@ -3823,6 +3919,7 @@
 		 * This does not change the active state, it merely handles the behavior
 		 * for when it does change.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param {boolean}  active
 		 * @param {Object}   args
@@ -3918,6 +4015,7 @@
 		 *
 		 * The control's container must already exist in the DOM.
 		 *
+		 * @since 4.1.0
 		 */
 		renderContent: function () {
 			var control = this, template, standardTypes, templateId, sectionId;
@@ -3974,6 +4072,7 @@
 		/**
 		 * Add a new page to a dropdown-pages control reusing menus code for this.
 		 *
+		 * @since 4.7.0
 		 * @access private
 		 *
 		 * @return {void}
@@ -4379,6 +4478,7 @@
 	/**
 	 * A control for positioning a background image.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @class    gc.customize.BackgroundPositionControl
 	 * @augments gc.customize.Control
@@ -4388,6 +4488,7 @@
 		/**
 		 * Set up control UI once embedded in DOM and settings are created.
 		 *
+		 * @since 4.7.0
 		 * @access public
 		 */
 		ready: function() {
@@ -4779,6 +4880,7 @@
 		 * Returns a new instance of api.HeaderTool.ImageModel based on the currently
 		 * saved header image (if any).
 		 *
+		 * @since 4.2.0
 		 *
 		 * @return {Object} Options
 		 */
@@ -5012,6 +5114,7 @@
 		screenshotRendered: false,
 
 		/**
+		 * @since 4.2.0
 		 */
 		ready: function() {
 			var control = this, panel = api.panel( 'themes' );
@@ -5079,6 +5182,7 @@
 		/**
 		 * Show or hide the theme based on the presence of the term in the title, description, tags, and author.
 		 *
+		 * @since 4.2.0
 		 * @param {Array} terms - An array of terms to search for.
 		 * @return {boolean} Whether a theme control was activated or not.
 		 */
@@ -5130,6 +5234,7 @@
 		/**
 		 * Rerender the theme from its JS template with the installed type.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @return {void}
 		 */
@@ -5149,6 +5254,7 @@
 	/**
 	 * Class gc.customize.CodeEditorControl
 	 *
+	 * @since 4.9.0
 	 *
 	 * @class    gc.customize.CodeEditorControl
 	 * @augments gc.customize.Control
@@ -5158,6 +5264,7 @@
 		/**
 		 * Initialize.
 		 *
+		 * @since 4.9.0
 		 * @param {string} id      - Unique identifier for the control instance.
 		 * @param {Object} options - Options hash for the control instance.
 		 * @return {void}
@@ -5194,6 +5301,7 @@
 		/**
 		 * Initialize the editor when the containing section is ready and expanded.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		ready: function() {
@@ -5225,6 +5333,7 @@
 		/**
 		 * Initialize editor.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		initEditor: function() {
@@ -5273,6 +5382,7 @@
 		/**
 		 * Make sure editor gets focused when control is focused.
 		 *
+		 * @since 4.9.0
 		 * @param {Object}   [params] - Focus params.
 		 * @param {Function} [params.completeCallback] - Function to call when expansion is complete.
 		 * @return {void}
@@ -5294,6 +5404,7 @@
 		/**
 		 * Initialize syntax-highlighting editor.
 		 *
+		 * @since 4.9.0
 		 * @param {Object} codeEditorSettings - Code editor settings.
 		 * @return {void}
 		 */
@@ -5353,6 +5464,7 @@
 		/**
 		 * Handle tabbing to the field after the editor.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		onTabNext: function onTabNext() {
@@ -5370,6 +5482,7 @@
 		/**
 		 * Handle tabbing to the field before the editor.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		onTabPrevious: function onTabPrevious() {
@@ -5387,6 +5500,7 @@
 		/**
 		 * Update error notice.
 		 *
+		 * @since 4.9.0
 		 * @param {Array} errorAnnotations - Error annotations.
 		 * @return {void}
 		 */
@@ -5410,6 +5524,7 @@
 		/**
 		 * Initialize plain-textarea editor when syntax highlighting is disabled.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		initPlainTextareaEditor: function() {
@@ -5460,6 +5575,7 @@
 	/**
 	 * Class gc.customize.DateTimeControl.
 	 *
+	 * @since 4.9.0
 	 * @class    gc.customize.DateTimeControl
 	 * @augments gc.customize.Control
 	 */
@@ -5468,6 +5584,7 @@
 		/**
 		 * Initialize behaviors.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		ready: function ready() {
@@ -5527,6 +5644,7 @@
 		/**
 		 * Parse datetime string.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {string} datetime - Date/Time string. Accepts Y-m-d[ H:i[:s]] format.
 		 * @return {Object|null} Returns object containing date components or null if parse error.
@@ -5566,6 +5684,7 @@
 		/**
 		 * Validates if input components have valid date and time.
 		 *
+		 * @since 4.9.0
 		 * @return {boolean} If date input fields has error.
 		 */
 		validateInputs: function validateInputs() {
@@ -5619,6 +5738,7 @@
 		/**
 		 * Updates number of days according to the month and year selected.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		updateDaysForMonth: function updateDaysForMonth() {
@@ -5641,6 +5761,7 @@
 		/**
 		 * Populate setting value from the inputs.
 		 *
+		 * @since 4.9.0
 		 * @return {boolean} If setting updated.
 		 */
 		populateSetting: function populateSetting() {
@@ -5658,6 +5779,7 @@
 		/**
 		 * Converts input values to string in Y-m-d H:i:s format.
 		 *
+		 * @since 4.9.0
 		 * @return {string} Date string.
 		 */
 		convertInputDateToString: function convertInputDateToString() {
@@ -5700,6 +5822,7 @@
 		/**
 		 * Check if the date is in the future.
 		 *
+		 * @since 4.9.0
 		 * @return {boolean} True if future date.
 		 */
 		isFutureDate: function isFutureDate() {
@@ -5710,6 +5833,7 @@
 		/**
 		 * Convert hour in twelve hour format to twenty four hour format.
 		 *
+		 * @since 4.9.0
 		 * @param {string} hourInTwelveHourFormat - Hour in twelve hour format.
 		 * @param {string} meridian - Either 'am' or 'pm'.
 		 * @return {string} Hour in twenty four hour format.
@@ -5736,6 +5860,7 @@
 		/**
 		 * Populates date inputs in date fields.
 		 *
+		 * @since 4.9.0
 		 * @return {boolean} Whether the inputs were populated.
 		 */
 		populateDateInputs: function populateDateInputs() {
@@ -5778,6 +5903,7 @@
 		/**
 		 * Toggle future date notification for date control.
 		 *
+		 * @since 4.9.0
 		 * @param {boolean} notify Add or remove the notification.
 		 * @return {gc.customize.DateTimeControl}
 		 */
@@ -5803,6 +5929,7 @@
 	/**
 	 * Class PreviewLinkControl.
 	 *
+	 * @since 4.9.0
 	 * @class    gc.customize.PreviewLinkControl
 	 * @augments gc.customize.Control
 	 */
@@ -5815,6 +5942,7 @@
 		/**
 		 * Initialize behaviors.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		ready: function ready() {
@@ -5881,6 +6009,7 @@
 		/**
 		 * Updates Preview Link
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		updatePreviewLink: function updatePreviewLink() {
@@ -5897,6 +6026,7 @@
 		/**
 		 * Toggles save notification.
 		 *
+		 * @since 4.9.0
 		 * @param {boolean} notify Add or remove notification.
 		 * @return {void}
 		 */
@@ -5936,6 +6066,7 @@
 	 *
 	 * @alias gc.customize.control
 	 *
+	 * @since 3.4.0
 	 *
 	 * @type {Function}
 	 * @param {...string} ids - One or more ids for controls to obtain.
@@ -5997,6 +6128,7 @@
 	 *
 	 * @alias gc.customize.section
 	 *
+	 * @since 3.4.0
 	 *
 	 * @type {Function}
 	 * @param {...string} ids - One or more ids for sections to obtain.
@@ -6031,6 +6163,7 @@
 	 *
 	 * @alias gc.customize.panel
 	 *
+	 * @since 4.0.0
 	 *
 	 * @type {Function}
 	 * @param {...string} ids - One or more ids for panels to obtain.
@@ -6065,6 +6198,7 @@
 	 *
 	 * @alias gc.customize.notifications
 	 *
+	 * @since 4.9.0
 	 *
 	 * @type {Function}
 	 * @param {...string} codes - One or more codes for notifications to obtain.
@@ -6324,6 +6458,7 @@
 	 *
 	 * @alias gc.customize.setDocumentTitle
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param {string} documentTitle
 	 */
@@ -6492,6 +6627,7 @@
 		/**
 		 * Handle the preview receiving the ready message.
 		 *
+		 * @since 4.7.0
 		 * @access public
 		 *
 		 * @param {Object} data - Data from preview.
@@ -6566,6 +6702,7 @@
 		 *
 		 * If a message is not received in the allotted time then the iframe will be set back to the last known valid URL.
 		 *
+		 * @since 4.7.0
 		 * @access public
 		 *
 		 * @return {void}
@@ -6627,6 +6764,7 @@
 		/**
 		 * Refresh the preview seamlessly.
 		 *
+		 * @since 3.4.0
 		 * @access public
 		 *
 		 * @return {void}
@@ -6797,6 +6935,7 @@
 	 *
 	 * @alias gc.customize._handleSettingValidities
 	 *
+	 * @since 4.6.0
 	 * @private
 	 *
 	 * @param {Object}  args
@@ -6873,6 +7012,7 @@
 	 *
 	 * @alias gc.customize.findControlsForSettings
 	 *
+	 * @since 4.6.0
 	 * @param {string[]} settingIds Setting IDs.
 	 * @return {Object<string, gc.customize.Control>} Mapping setting ids to arrays of controls.
 	 */
@@ -6895,6 +7035,7 @@
 	 *
 	 * @alias gc.customize.reflowPaneContents
 	 *
+	 * @since 4.1.0
 	 */
 	api.reflowPaneContents = _.bind( function () {
 
@@ -7277,8 +7418,8 @@
 			/**
 			 * Build the query to send along with the Preview request.
 			 *
-		
-		
+			 * @since 3.4.0
+			 * @since 4.7.0 Added options param.
 			 * @access public
 			 *
 			 * @param {Object}  [options] Options.
@@ -7316,8 +7457,8 @@
 			 * A revision will be made for the changeset post if revisions support
 			 * has been added to the post type.
 			 *
-		
-		
+			 * @since 3.4.0
+			 * @since 4.7.0 Added args param and return value.
 			 *
 			 * @param {Object} [args] Args.
 			 * @param {string} [args.status=publish] Status.
@@ -7594,7 +7735,7 @@
 			 *
 			 * Revert the Customizer to its previously-published state.
 			 *
-		
+			 * @since 4.9.0
 			 *
 			 * @return {jQuery.promise} Promise.
 			 */
@@ -7661,7 +7802,7 @@
 			/**
 			 * Builds the front preview url with the current state of customizer.
 			 *
-		
+			 * @since 4.9
 			 *
 			 * @return {string} Preview url.
 			 */
@@ -7929,7 +8070,7 @@
 			/**
 			 * Populate URL with UUID via `history.replaceState()`.
 			 *
-		
+			 * @since 4.7.0
 			 * @access private
 			 *
 			 * @param {boolean} isIncluded Is UUID included.
@@ -7972,6 +8113,7 @@
 		/**
 		 * Handles lock notice and take over request.
 		 *
+		 * @since 4.9.0
 		 */
 		( function checkAndDisplayLockNotice() {
 
@@ -7997,7 +8139,7 @@
 				 * @constructs gc.customize~LockedNotification
 				 * @augments   gc.customize.OverlayNotification
 				 *
-			
+				 * @since 4.9.0
 				 *
 				 * @param {string} [code] - Code.
 				 * @param {Object} [params] - Params.
@@ -8021,7 +8163,7 @@
 				/**
 				 * Render notification.
 				 *
-			
+				 * @since 4.9.0
 				 *
 				 * @return {jQuery} Notification container.
 				 */
@@ -8087,7 +8229,7 @@
 			/**
 			 * Start lock.
 			 *
-		
+			 * @since 4.9.0
 			 *
 			 * @param {Object} [args] - Args.
 			 * @param {Object} [args.lockUser] - Lock user data.
@@ -8193,6 +8335,33 @@
 			}
 
 			/**
+			 * Displays a Site Editor notification when a block theme is activated.
+			 *
+			 * @since 4.9.0
+			 *
+			 * @param {string} [notification] - A notification to display.
+			 * @return {void}
+			 */
+			function addSiteEditorNotification( notification ) {
+				api.notifications.add( new api.Notification( 'site_editor_block_theme_notice', {
+					message: notification,
+					type: 'info',
+					dismissible: false,
+					render: function() {
+						var notification = api.Notification.prototype.render.call( this ),
+							button = notification.find( 'button.switch-to-editor' );
+
+						button.on( 'click', function( event ) {
+							event.preventDefault();
+							location.assign( button.data( 'action' ) );
+						} );
+
+						return notification;
+					}
+				} ) );
+			}
+
+			/**
 			 * Dismiss autosave.
 			 *
 			 * @return {void}
@@ -8265,6 +8434,10 @@
 			}
 			if ( api.settings.changeset.latestAutoDraftUuid || api.settings.changeset.hasAutosaveRevision ) {
 				addAutosaveRestoreNotification();
+			}
+			var shouldDisplayBlockThemeNotification = !! parseInt( $( '#customize-info' ).data( 'block-theme' ), 10 );
+			if (shouldDisplayBlockThemeNotification) {
+				addSiteEditorNotification( api.l10n.blockThemeNotification );
 			}
 		})();
 
@@ -8395,7 +8568,7 @@
 			/**
 			 * Determine which panel or section is currently expanded.
 			 *
-		
+			 * @since 4.7.0
 			 * @access private
 			 *
 			 * @param {gc.customize.Panel|gc.customize.Section} container Construct.
@@ -8508,7 +8681,7 @@
 			/**
 			 * Update active header height.
 			 *
-		
+			 * @since 4.7.0
 			 * @access private
 			 *
 			 * @return {void}
@@ -8520,7 +8693,7 @@
 			/**
 			 * Reposition header on throttled `scroll` event.
 			 *
-		
+			 * @since 4.7.0
 			 * @access private
 			 *
 			 * @param {Object} header - Header.
@@ -9123,7 +9296,7 @@
 			/**
 			 * Request changeset update and then re-schedule the next changeset update time.
 			 *
-		
+			 * @since 4.7.0
 			 * @private
 			 */
 			updateChangesetWithReschedule = function() {
@@ -9139,7 +9312,7 @@
 			/**
 			 * Schedule changeset update.
 			 *
-		
+			 * @since 4.7.0
 			 * @private
 			 */
 			scheduleChangesetUpdate = function() {

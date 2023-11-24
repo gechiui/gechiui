@@ -168,7 +168,7 @@ if ( $viewable ) {
 
 $scheduled_date = sprintf(
 	/* translators: Publish box date string. 1: Date, 2: Time. */
-	__( '%1$s %2$s' ),
+	__( '%2$s, %1$s' ),
 	/* translators: Publish box date format, see https://www.php.net/manual/datetime.format.php */
 	date_i18n( _x( 'Y年n月j日', 'publish box date format' ), strtotime( $post->post_date ) ),
 	/* translators: Publish box time format, see https://www.php.net/manual/datetime.format.php */
@@ -209,7 +209,6 @@ $messages['attachment'] = array_fill( 1, 10, __( '媒体文件已更新。' ) );
 
 /**
  * Filters the post updated messages.
- *
  *
  *
  * @param array[] $messages Post updated messages. For defaults see `$messages` declarations above.
@@ -318,7 +317,7 @@ if ( 'post' === $post_type ) {
 			'<p>' . __( '<a href="https://www.gechiui.com/support/">支持</a>' ) . '</p>'
 	);
 } elseif ( 'page' === $post_type ) {
-	$about_pages = '<p>' . __( '页面和文章类似——它们都有标题、正文以及附带的相关信息；但与文章不同的是，它们类似永久的文章，而往往不像一般的博客文章那样，随着时间流逝逐渐淡出人们的视线。页面不属于任何一个分类，亦不能拥有标签，但是页面之间可以有层级关系。您可将一个页面附属在另一个“父级页面”之下，构建一个页面群组。' ) . '</p>' .
+	$about_pages = '<p>' . __( '页面和文章类似——它们都有标题、正文以及附带的相关信息；但与文章不同的是，它们类似永久的文章，而往往不像一般的文章那样，随着时间流逝逐渐淡出人们的视线。页面不属于任何一个分类，亦不能拥有标签，但是页面之间可以有层级关系。您可将一个页面附属在另一个“父级页面”之下，构建一个页面群组。' ) . '</p>' .
 		'<p>' . __( '创建一个页面与创建一篇文章非常类似，画面亦可使用相同的方式来自定义，包括拖曳、显示选项页以及展开/折叠模块。这个画面也有免打扰写作模式，于可视化及文本方式均可通过全屏按钮调出。页面编辑器与文章编辑器大同小异，差别在于页面有它自己的属性模块。' ) . '</p>';
 
 	get_current_screen()->add_help_tab(
@@ -357,7 +356,7 @@ if ( 'post' === $post_type ) {
 
 if ( 'post' === $post_type || 'page' === $post_type ) {
 	$inserting_media  = '<p>' . __( '您可以通过点击“添加媒体”按钮上传或插入多媒体文件（图片、音频、文档等）。您可以从已经上传到媒体库的文件中选择，并直接插入文章，或者上传新的文件，然后再插入。要创建相册，选择要添加的图片，并点击“创建新相册”按钮。' ) . '</p>';
-	$inserting_media .= '<p>' . __( '您也可以从许多知名网站（如Twitter、YouTube、Flickr）嵌入媒体内容，只需将媒体URL粘贴在您文章或页面中的单独一行即可。<a href="https://www.gechiui.com/support/embeds/">了解更多关于嵌入的信息</a>。' ) . '</p>';
+	$inserting_media .= '<p>' . __( '您也可以从许多知名网站（如抖音、优酷）嵌入媒体内容，只需将媒体URL粘贴在您文章或页面中的单独一行即可。<a href="https://www.gechiui.com/support/embeds/">了解更多关于嵌入的信息</a>。' ) . '</p>';
 
 	get_current_screen()->add_help_tab(
 		array(
@@ -396,7 +395,7 @@ if ( 'post' === $post_type ) {
 		)
 	);
 
-	$discussion_settings  = '<p>' . __( '<strong>发送Trackback</strong>——Trackback是通知旧博客系统您已链接至它们的一种方式。请输入您所希望发送Trackback的URL。如果您链接到的是其他GeChiUI站点，则无须填写此栏，这些站点将自动通过Pingback方式通知。' ) . '</p>';
+	$discussion_settings  = '<p>' . __( '<strong>发送Trackback</strong>——Trackback是通知旧GC系统您已链接至它们的一种方式。请输入您所希望发送Trackback的URL。如果您链接到的是其他GeChiUI系统，则无须填写此栏，这些系统将自动通过Pingback方式通知。' ) . '</p>';
 	$discussion_settings .= '<p>' . __( '<strong>讨论</strong>——您可以开启或关闭评论和ping功能。若该篇文章有评论，您可以在这里浏览、审核评论。' ) . '</p>';
 
 	get_current_screen()->add_help_tab(
@@ -420,30 +419,25 @@ if ( 'post' === $post_type ) {
 	);
 }
 
+if ( $notice ) {
+	add_settings_error( 'general', 'notice', $notice, 'warning' );
+}
+if ( $message ) {
+	add_settings_error( 'general', 'message', $message, 'success' );
+}
 require_once ABSPATH . 'gc-admin/admin-header.php';
 ?>
 
 <div class="wrap">
-<h1 class="gc-heading-inline">
-<?php
-echo esc_html( $title );
-?>
-</h1>
+	<div class="page-header">
+		<h2 class="header-title"><?php echo esc_html( $title ); ?></h2>
+		<?php
+		if ( isset( $post_new_file ) && current_user_can( $post_type_object->cap->create_posts ) ) {
+			echo ' <a href="' . esc_url( admin_url( $post_new_file ) ) . '" class="btn btn-primary btn-tone btn-sm">' . esc_html( $post_type_object->labels->add_new ) . '</a>';
+		}
+		?>
+	</div>
 
-<?php
-if ( isset( $post_new_file ) && current_user_can( $post_type_object->cap->create_posts ) ) {
-	echo ' <a href="' . esc_url( admin_url( $post_new_file ) ) . '" class="page-title-action">' . esc_html( $post_type_object->labels->add_new ) . '</a>';
-}
-?>
-
-<hr class="gc-header-end">
-
-<?php if ( $notice ) : ?>
-<div id="notice" class="notice notice-warning"><p id="has-newer-autosave"><?php echo $notice; ?></p></div>
-<?php endif; ?>
-<?php if ( $message ) : ?>
-<div id="message" class="updated notice notice-success is-dismissible"><p><?php echo $message; ?></p></div>
-<?php endif; ?>
 <div id="lost-connection-notice" class="error hidden">
 	<p><span class="spinner"></span> <?php _e( '<strong>连接丢失。</strong>保存已被禁用，直到您重新连接。' ); ?>
 	<span class="hide-if-no-sessionstorage"><?php _e( '我们正在您的浏览器中备份此文章，以防不测。' ); ?></span>
@@ -453,7 +447,6 @@ if ( isset( $post_new_file ) && current_user_can( $post_type_object->cap->create
 <?php
 /**
  * Fires inside the post editor form tag.
- *
  *
  *
  * @param GC_Post $post Post object.
@@ -490,7 +483,6 @@ gc_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false );
  * Fires at the beginning of the edit form.
  *
  * At this point, the required hidden fields and nonces have already been output.
- *
  *
  *
  * @param GC_Post $post Post object.
@@ -538,7 +530,7 @@ do_action( 'edit_form_top', $post );
 
 			if ( ! empty( $shortlink ) && $shortlink !== $permalink && home_url( '?page_id=' . $post->ID ) !== $permalink ) {
 				$sample_permalink_html .= '<input id="shortlink" type="hidden" value="' . esc_attr( $shortlink ) . '" />' .
-					'<button type="button" class="button button-small" onclick="prompt(&#39;URL:&#39;, jQuery(\'#shortlink\').val());">' .
+					'<button type="button" class="btn btn-primary btn-tone btn-sm" onclick="prompt(&#39;URL:&#39;, jQuery(\'#shortlink\').val());">' .
 					__( '获取短链接地址' ) .
 					'</button>';
 			}
@@ -569,7 +561,6 @@ endif;
 }
 /**
  * Fires after the title field.
- *
  *
  *
  * @param GC_Post $post Post object.
@@ -639,7 +630,6 @@ if ( post_type_supports( $post_type, 'editor' ) ) {
  * Fires after the content editor.
  *
  *
- *
  * @param GC_Post $post Post object.
  */
 do_action( 'edit_form_after_editor', $post );
@@ -707,7 +697,6 @@ do_meta_boxes( null, 'advanced', $post );
 <?php
 /**
  * Fires after all meta box sections have been output, before the closing #post-body div.
- *
  *
  *
  * @param GC_Post $post Post object.

@@ -65,7 +65,6 @@
 		/**
 		 * Filters the login redirect URL.
 		 *
-		 *
 		 * @param string           $redirect_to           The redirect destination URL.
 		 * @param string           $requested_redirect_to The requested redirect destination URL passed as a parameter.
 		 * @param GC_User|GC_Error $user                  GC_User object if login was successful, GC_Error object otherwise.
@@ -114,7 +113,6 @@
 
 		/**
 		 * Filters the login page errors.
-		 *
 		 *
 		 * @param GC_Error $errors      GC Error object.
 		 * @param string   $redirect_to Redirect destination URL.
@@ -220,7 +218,6 @@
 
 		/**
 		 * Filters whether to print the call to `gc_attempt_focus()` on the login screen.
-		 *
 		 *
 		 * @param bool $print Whether to print the function call. Default true.
 		 */

@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class used to implement the Navigation Menu widget.
- *
- *
  *
  * @see GC_Widget
  */
@@ -62,6 +59,7 @@ class GC_Nav_Menu_Widget extends GC_Widget {
 		/**
 		 * Filters the HTML format of widgets with navigation links.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param string $format The type of markup to use in widgets with navigation links.
 		 *                       Accepts 'html5', 'xhtml'.
@@ -90,6 +88,8 @@ class GC_Nav_Menu_Widget extends GC_Widget {
 		/**
 		 * Filters the arguments for the Navigation Menu widget.
 		 *
+		 * @since 4.2.0
+		 * @since 4.4.0 Added the `$instance` parameter.
 		 *
 		 * @param array   $nav_menu_args {
 		 *     An array of arguments passed to gc_nav_menu() to retrieve a navigation menu.
@@ -164,8 +164,12 @@ class GC_Nav_Menu_Widget extends GC_Widget {
 				$url = admin_url( 'nav-menus.php' );
 			}
 
-			/* translators: %s: URL to create a new menu. */
-			printf( __( '尚无导航菜单。<a href="%s">创建一些</a>。' ), esc_attr( $url ) );
+			printf(
+				/* translators: %s: URL to create a new menu. */
+				__( '尚无导航菜单。<a href="%s">创建一些</a>。' ),
+				// The URL can be a `javascript:` link, so esc_attr() is used here instead of esc_url().
+				esc_attr( $url )
+			);
 			?>
 		</p>
 		<div class="nav-menu-widget-form-controls" <?php echo $empty_menus_style; ?>>
@@ -186,7 +190,7 @@ class GC_Nav_Menu_Widget extends GC_Widget {
 			</p>
 			<?php if ( $gc_customize instanceof GC_Customize_Manager ) : ?>
 				<p class="edit-selected-nav-menu" style="<?php echo $nav_menu_style; ?>">
-					<button type="button" class="button"><?php _e( '编辑菜单' ); ?></button>
+					<button type="button" class="btn btn-primary btn-tone btn-sm"><?php _e( '编辑菜单' ); ?></button>
 				</p>
 			<?php endif; ?>
 		</div>

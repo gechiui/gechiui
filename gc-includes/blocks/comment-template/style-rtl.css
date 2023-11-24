@@ -1,0 +1,28 @@
+.gc-block-comment-template{
+  box-sizing:border-box;
+  list-style:none;
+  margin-bottom:0;
+  max-width:100%;
+  padding:0;
+}
+.gc-block-comment-template li{
+  clear:both;
+}
+.gc-block-comment-template ol{
+  list-style:none;
+  margin-bottom:0;
+  max-width:100%;
+  padding-right:2rem;
+}
+.gc-block-comment-template.alignleft{
+  float:right;
+}
+.gc-block-comment-template.aligncenter{
+  margin-left:auto;
+  margin-right:auto;
+  width:-moz-fit-content;
+  width:fit-content;
+}
+.gc-block-comment-template.alignright{
+  float:left;
+}

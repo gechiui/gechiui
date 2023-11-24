@@ -28,7 +28,7 @@ function render_block_core_widget_group( $attributes, $content, $block ) {
 	$html = '';
 
 	if ( ! empty( $attributes['title'] ) ) {
-		$html .= $before_title . $attributes['title'] . $after_title;
+		$html .= $before_title . esc_html( $attributes['title'] ) . $after_title;
 	}
 
 	$html .= '<div class="gc-widget-group__inner-blocks">';
@@ -45,7 +45,7 @@ function render_block_core_widget_group( $attributes, $content, $block ) {
  */
 function register_block_core_widget_group() {
 	register_block_type_from_metadata(
-		ABSPATH . 'assets/blocks/widget-group',
+		__DIR__ . '/widget-group',
 		array(
 			'render_callback' => 'render_block_core_widget_group',
 		)

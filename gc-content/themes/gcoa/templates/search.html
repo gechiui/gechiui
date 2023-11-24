@@ -1,67 +1,39 @@
-<!-- search.html -->
-<div class="app">
-	<div class="layout">
-		<!-- gc:template-part {"slug":"header","tagName":"div","align":"wide"} /-->
-		<!-- Page Container START -->
-        <div class="page-container">
-        	<div class="main-content">
-        		<div class="page-header">
-                    <h2 class="header-title">搜索</h2>
-                </div>
-                <form role="search" method="get" action="/">
-                    <div class="d-flex align-items-center container col-md-3 m-b-10">
-                        <div class="input-affix m-r-10">
-                            <i class="prefix-icon anticon anticon-search"></i>
-                            <input type="text" class="form-control" value="<!-- gc:search-key /-->" placeholder="搜索">
-                        </div>
-                        <button class="btn btn-icon btn-default">
-                            <i class="anticon anticon-reload"></i>
-                        </button>
-                    </div>
-                </form>
-                
-
-                <!-- gc:query {"query":{"perPage":10,"pages":0,"offset":0,"postType":"post","categoryIds":[],"tagIds":[],"order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":true},"layout":{"inherit":true},"tagName":"main"} -->
-				<div class="container">
-				<!-- gc:post-template {"align":"wide"} -->
-                
-    				<!-- gc:group {"layout":{"inherit":true}} -->
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <a href="<!-- gc:post-url /-->">
-                                    	<h4 class="m-b-10"><!-- gc:gcoa-post-title /--></h4>
-                                        <div class="d-flex align-items-center m-t-5 m-b-15">
-                                            <div class="m-l-10">
-                                                <span class="text-gray font-weight-semibold"><!-- gc:gcoa-post-author /--></span>
-                                                <span class="m-h-5 text-gray">|</span>
-                                                <span class="text-gray"><!-- gc:post-date /--></span>
-                                            </div>
-                                        </div>
-                                        <p class="m-b-20"><!-- gc:post-excerpt /--></p>
-                                    </a>
-    							</div>
-                            </div>
-                        </div>
-                    </div>
-    				<!-- /gc:group -->
-                
-				<!-- /gc:post-template -->
-
-                <div class="m-t-30">
-                    <nav>
-                        <ul class="pagination justify-content-center">
-                            <!-- gc:query-pagination-numbers /-->
-                        </ul>
-                    </nav>
-                </div>
-				</div>
-				<!-- /gc:query -->
-
-			</div>
-			<!-- gc:template-part {"slug":"footer","tagName":"footer"} /-->
-		</div>
-        <!-- Page Container END -->
-	</div>
+<!-- gc:group {"className":"page-header","layout":{"inherit":true}} -->
+<div class="gc-block-group page-header">
+    <!-- gc:query-title {"level":2,"type":"search","align":"wide","className":"header-title"} /-->
 </div>
+<!-- /gc:group -->
+<!-- gc:html -->
+<form role="search" method="get" action="/">
+    <div class="d-flex align-items-center container col-md-3 m-b-10">
+        <div class="input-affix m-r-10">
+            <i class="prefix-icon anticon anticon-search"></i>
+            <input type="text" class="form-control" value="<!-- gc:search-key /-->" placeholder="搜索">
+        </div>
+        <button class="btn btn-icon btn-default">
+            <i class="anticon anticon-reload"></i>
+        </button>
+    </div>
+</form>
+<!-- /gc:html -->
+
+<!-- gc:query {"query":{"perPage":10,"pages":0,"offset":0,"postType":"post","categoryIds":[],"tagIds":[],"order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":true},"layout":{"inherit":true},"className":"gc-block-query"} -->
+<div class="gc-block-query container">
+    <!-- gc:post-template {"align":"wide"} -->
+
+    	<!-- gc:pattern {"slug":"gcoa/hidden-postlist-card"} /-->
+
+    <!-- /gc:post-template -->
+    <!-- gc:query-no-results -->
+
+        <!-- gc:pattern {"slug":"gcoa/hidden-no-results-content"} /-->
+
+    <!-- /gc:query-no-results -->
+
+    <!-- gc:group {"className":"m-t-30","layout":{"inherit":true}} -->
+    <div class="gc-block-group m-t-30">
+        <!-- gc:query-pagination-numbers /-->
+    </div>
+    <!-- /gc:group -->
+</div>
+<!-- /gc:query -->

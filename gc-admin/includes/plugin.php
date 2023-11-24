@@ -42,9 +42,8 @@
  * the file. This is not checked however and the file is only opened for
  * reading.
  *
- *
- *
- *
+ * @since 5.3.0 Added support for `Requires at least` and `Requires PHP` headers.
+ * @since 5.8.0 Added support for `Update URI` header.
  *
  * @param string $plugin_file Absolute path to the main plugin file.
  * @param bool   $markup      Optional. If the returned data should have HTML markup applied.
@@ -61,9 +60,9 @@
  *     @type string $AuthorURI   Plugin author's website address (if set).
  *     @type string $TextDomain  Plugin textdomain.
  *     @type string $DomainPath  Plugin's relative directory path to .mo files.
- *     @type bool   $Network     插件是否只能在站点网络中启用。
- *     @type string $RequiresGC  最低要求的GeChiUI版本。
- *     @type string $RequiresPHP 最低要求的PHP版本。
+ *     @type bool   $Network     Whether the plugin can only be activated network-wide.
+ *     @type string $RequiresGC  Minimum required version of GeChiUI.
+ *     @type string $RequiresPHP Minimum required version of PHP.
  *     @type string $UpdateURI   ID of the plugin for update purposes, should be a URI.
  *     @type string $Title       Title of the plugin and link to the plugin's site (if set).
  *     @type string $AuthorName  Plugin author's name.
@@ -75,7 +74,7 @@ function get_plugin_data( $plugin_file, $markup = true, $translate = true ) {
 		'Name'        => 'Plugin Name',
 		'PluginURI'   => 'Plugin URI',
 		'Version'     => 'Version',
-		'description' => 'description',
+		'Description' => 'Description',
 		'Author'      => 'Author',
 		'AuthorURI'   => 'Author URI',
 		'TextDomain'  => 'Text Domain',
@@ -102,7 +101,7 @@ function get_plugin_data( $plugin_file, $markup = true, $translate = true ) {
 	// If no text domain is defined fall back to the plugin slug.
 	if ( ! $plugin_data['TextDomain'] ) {
 		$plugin_slug = dirname( plugin_basename( $plugin_file ) );
-		if ( '.' !== $plugin_slug && false === strpos( $plugin_slug, '/' ) ) {
+		if ( '.' !== $plugin_slug && ! str_contains( $plugin_slug, '/' ) ) {
 			$plugin_data['TextDomain'] = $plugin_slug;
 		}
 	}
@@ -120,14 +119,14 @@ function get_plugin_data( $plugin_file, $markup = true, $translate = true ) {
 /**
  * Sanitizes plugin data, optionally adds markup, optionally translates.
  *
- *
+ * @since 2.7.0
  *
  * @see get_plugin_data()
  *
  * @access private
  *
  * @param string $plugin_file Path to the main plugin file.
- * @param array  $plugin_data An array of plugin data. See `get_plugin_data()`.
+ * @param array  $plugin_data An array of plugin data. See get_plugin_data().
  * @param bool   $markup      Optional. If the returned data should have HTML markup applied.
  *                            Default true.
  * @param bool   $translate   Optional. If the returned data should be translated. Default true.
@@ -154,9 +153,11 @@ function _get_plugin_data_markup_translate( $plugin_file, $plugin_data, $markup 
 			$textdomain = 'default';
 		}
 		if ( $textdomain ) {
-			foreach ( array( 'Name', 'PluginURI', 'description', 'Author', 'AuthorURI', 'Version' ) as $field ) {
-				// phpcs:ignore GeChiUI.GC.I18n.LowLevelTranslationFunction,GeChiUI.GC.I18n.NonSingularStringLiteralText,GeChiUI.GC.I18n.NonSingularStringLiteralDomain
-				$plugin_data[ $field ] = translate( $plugin_data[ $field ], $textdomain );
+			foreach ( array( 'Name', 'PluginURI', 'Description', 'Author', 'AuthorURI', 'Version' ) as $field ) {
+				if ( ! empty( $plugin_data[ $field ] ) ) {
+					// phpcs:ignore GeChiUI.GC.I18n.LowLevelTranslationFunction,GeChiUI.GC.I18n.NonSingularStringLiteralText,GeChiUI.GC.I18n.NonSingularStringLiteralDomain
+					$plugin_data[ $field ] = translate( $plugin_data[ $field ], $textdomain );
+				}
 			}
 		}
 	}
@@ -176,12 +177,14 @@ function _get_plugin_data_markup_translate( $plugin_file, $plugin_data, $markup 
 		'title' => true,
 	);
 
-	// Name is marked up inside <a> tags. Don't allow these.
-	// Author is too, but some plugins have used <a> here (omitting Author URI).
+	/*
+	 * Name is marked up inside <a> tags. Don't allow these.
+	 * Author is too, but some plugins have used <a> here (omitting Author URI).
+	 */
 	$plugin_data['Name']   = gc_kses( $plugin_data['Name'], $allowed_tags_in_links );
 	$plugin_data['Author'] = gc_kses( $plugin_data['Author'], $allowed_tags );
 
-	$plugin_data['description'] = gc_kses( $plugin_data['description'], $allowed_tags );
+	$plugin_data['Description'] = gc_kses( $plugin_data['Description'], $allowed_tags );
 	$plugin_data['Version']     = gc_kses( $plugin_data['Version'], $allowed_tags );
 
 	$plugin_data['PluginURI'] = esc_url( $plugin_data['PluginURI'] );
@@ -200,10 +203,10 @@ function _get_plugin_data_markup_translate( $plugin_file, $plugin_data, $markup 
 			$plugin_data['Author'] = '<a href="' . $plugin_data['AuthorURI'] . '">' . $plugin_data['Author'] . '</a>';
 		}
 
-		$plugin_data['description'] = gctexturize( $plugin_data['description'] );
+		$plugin_data['Description'] = gctexturize( $plugin_data['Description'] );
 
 		if ( $plugin_data['Author'] ) {
-			$plugin_data['description'] .= sprintf(
+			$plugin_data['Description'] .= sprintf(
 				/* translators: %s: Plugin author. */
 				' <cite>' . __( '作者%s。' ) . '</cite>',
 				$plugin_data['Author']
@@ -215,9 +218,7 @@ function _get_plugin_data_markup_translate( $plugin_file, $plugin_data, $markup 
 }
 
 /**
- * Get a list of a plugin's files.
- *
- *
+ * Gets a list of a plugin's files.
  *
  * @param string $plugin Path to the plugin file relative to the plugins directory.
  * @return string[] Array of file names relative to the plugin root.
@@ -233,6 +234,7 @@ function get_plugin_files( $plugin ) {
 		/**
 		 * Filters the array of excluded directories and files while scanning the folder.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param string[] $exclusions Array of excluded directories and files.
 		 */
@@ -249,7 +251,7 @@ function get_plugin_files( $plugin ) {
 }
 
 /**
- * Check the plugins directory and retrieve all plugin files with plugin data.
+ * Checks the plugins directory and retrieve all plugin files with plugin data.
  *
  * GeChiUI only supports plugin files in the base plugins directory
  * (gc-content/plugins) and in one directory above the plugins directory
@@ -263,10 +265,8 @@ function get_plugin_files( $plugin ) {
  * be split for maintainability. Keep everything in one file for extreme
  * optimization purposes.
  *
- *
- *
  * @param string $plugin_folder Optional. Relative path to single plugin folder.
- * @return array[] Array of arrays of plugin data, keyed by plugin file name. See `get_plugin_data()`.
+ * @return array[] Array of arrays of plugin data, keyed by plugin file name. See get_plugin_data().
  */
 function get_plugins( $plugin_folder = '' ) {
 
@@ -291,7 +291,7 @@ function get_plugins( $plugin_folder = '' ) {
 
 	if ( $plugins_dir ) {
 		while ( ( $file = readdir( $plugins_dir ) ) !== false ) {
-			if ( '.' === substr( $file, 0, 1 ) ) {
+			if ( str_starts_with( $file, '.' ) ) {
 				continue;
 			}
 
@@ -300,11 +300,11 @@ function get_plugins( $plugin_folder = '' ) {
 
 				if ( $plugins_subdir ) {
 					while ( ( $subfile = readdir( $plugins_subdir ) ) !== false ) {
-						if ( '.' === substr( $subfile, 0, 1 ) ) {
+						if ( str_starts_with( $subfile, '.' ) ) {
 							continue;
 						}
 
-						if ( '.php' === substr( $subfile, -4 ) ) {
+						if ( str_ends_with( $subfile, '.php' ) ) {
 							$plugin_files[] = "$file/$subfile";
 						}
 					}
@@ -312,7 +312,7 @@ function get_plugins( $plugin_folder = '' ) {
 					closedir( $plugins_subdir );
 				}
 			} else {
-				if ( '.php' === substr( $file, -4 ) ) {
+				if ( str_ends_with( $file, '.php' ) ) {
 					$plugin_files[] = $file;
 				}
 			}
@@ -349,12 +349,11 @@ function get_plugins( $plugin_folder = '' ) {
 }
 
 /**
- * Check the mu-plugins directory and retrieve all mu-plugin files with any plugin data.
+ * Checks the mu-plugins directory and retrieve all mu-plugin files with any plugin data.
  *
  * GeChiUI only includes mu-plugin files in the base mu-plugins directory (gc-content/mu-plugins).
  *
- *
- * @return array[] Array of arrays of mu-plugin data, keyed by plugin file name. See `get_plugin_data()`.
+ * @return array[] Array of arrays of mu-plugin data, keyed by plugin file name. See get_plugin_data().
  */
 function get_mu_plugins() {
 	$gc_plugins   = array();
@@ -368,7 +367,7 @@ function get_mu_plugins() {
 	$plugins_dir = @opendir( GCMU_PLUGIN_DIR );
 	if ( $plugins_dir ) {
 		while ( ( $file = readdir( $plugins_dir ) ) !== false ) {
-			if ( '.php' === substr( $file, -4 ) ) {
+			if ( str_ends_with( $file, '.php' ) ) {
 				$plugin_files[] = $file;
 			}
 		}
@@ -408,9 +407,7 @@ function get_mu_plugins() {
 }
 
 /**
- * Callback to sort array by a 'Name' key.
- *
- *
+ * Declares a callback to sort array by a 'Name' key.
  *
  * @access private
  *
@@ -423,10 +420,9 @@ function _sort_uname_callback( $a, $b ) {
 }
 
 /**
- * Check the gc-content directory and retrieve all drop-ins with any plugin data.
+ * Checks the gc-content directory and retrieve all drop-ins with any plugin data.
  *
- *
- * @return array[] Array of arrays of dropin plugin data, keyed by plugin file name. See `get_plugin_data()`.
+ * @return array[] Array of arrays of dropin plugin data, keyed by plugin file name. See get_plugin_data().
  */
 function get_dropins() {
 	$dropins      = array();
@@ -477,7 +473,6 @@ function get_dropins() {
  *
  * Includes Multisite drop-ins only when is_multisite()
  *
- *
  * @return array[] Key is file name. The value is an array, with the first value the
  *  purpose of the drop-in and the second value the name of the constant that must be
  *  true for the drop-in to be used, or true if no constant is required.
@@ -495,10 +490,10 @@ function _get_dropins() {
 	);
 
 	if ( is_multisite() ) {
-		$dropins['sunrise.php']        = array( __( '在多站点加载前运行。' ), 'SUNRISE' ); // SUNRISE
-		$dropins['blog-deleted.php']   = array( __( '自定义“站点已删除”提示消息。' ), true );   // Auto on deleted blog.
-		$dropins['blog-inactive.php']  = array( __( '自定义“站点未激活”消息。' ), true );  // Auto on inactive blog.
-		$dropins['blog-suspended.php'] = array( __( '自定义“站点挂起”消息。' ), true ); // Auto on archived or spammed blog.
+		$dropins['sunrise.php']        = array( __( '在多系统加载前运行。' ), 'SUNRISE' ); // SUNRISE
+		$dropins['blog-deleted.php']   = array( __( '自定义“系统已删除”提示消息。' ), true );   // Auto on deleted blog.
+		$dropins['blog-inactive.php']  = array( __( '自定义“系统未激活”消息。' ), true );  // Auto on inactive blog.
+		$dropins['blog-suspended.php'] = array( __( '自定义“系统挂起”消息。' ), true ); // Auto on archived or spammed blog.
 	}
 
 	return $dropins;
@@ -516,8 +511,6 @@ function _get_dropins() {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @param string $plugin Path to the plugin file relative to the plugins directory.
  * @return bool True, if in the active plugins list. False, not in the list.
  */
@@ -533,8 +526,6 @@ function is_plugin_active( $plugin ) {
  * For more information on this and similar theme functions, check out
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- *
- *
  *
  * @see is_plugin_active()
  *
@@ -556,8 +547,6 @@ function is_plugin_inactive( $plugin ) {
  * For more information on this and similar theme functions, check out
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- *
- *
  *
  * @param string $plugin Path to the plugin file relative to the plugins directory.
  * @return bool True if active for the network, otherwise false.
@@ -581,8 +570,6 @@ function is_plugin_active_for_network( $plugin ) {
  * when Multisite is not enabled.
  *
  * Checks for "Site Wide Only: true" for backward compatibility.
- *
- *
  *
  * @param string $plugin Path to the plugin file relative to the plugins directory.
  * @return bool True if plugin is network only, false otherwise.
@@ -613,8 +600,7 @@ function is_network_only_plugin( $plugin ) {
  * If any errors are found or text is outputted, then it will be captured to
  * ensure that the success redirection will update the error redirection.
  *
- *
- *
+ * @since 5.2.0 Test for GeChiUI version and PHP version compatibility.
  *
  * @param string $plugin       Path to the plugin file relative to the plugins directory.
  * @param string $redirect     Optional. URL to redirect to.
@@ -664,7 +650,7 @@ function activate_plugin( $plugin, $redirect = '', $network_wide = false, $silen
 			 * If a plugin is silently activated (such as during an update),
 			 * this hook does not fire.
 			 *
-		
+			 * @since 2.9.0
 			 *
 			 * @param string $plugin       Path to the plugin file relative to the plugins directory.
 			 * @param bool   $network_wide Whether to enable the plugin for all sites in the network
@@ -680,7 +666,7 @@ function activate_plugin( $plugin, $redirect = '', $network_wide = false, $silen
 			 *
 			 * If a plugin is silently activated (such as during an update), this hook does not fire.
 			 *
-		
+			 * @since 2.0.0
 			 *
 			 * @param bool $network_wide Whether to enable the plugin for all sites in the network
 			 *                           or just the current site. Multisite only. Default false.
@@ -706,7 +692,7 @@ function activate_plugin( $plugin, $redirect = '', $network_wide = false, $silen
 			 * If a plugin is silently activated (such as during an update),
 			 * this hook does not fire.
 			 *
-		
+			 * @since 2.9.0
 			 *
 			 * @param string $plugin       Path to the plugin file relative to the plugins directory.
 			 * @param bool   $network_wide Whether to enable the plugin for all sites in the network
@@ -727,12 +713,10 @@ function activate_plugin( $plugin, $redirect = '', $network_wide = false, $silen
 }
 
 /**
- * Deactivate a single plugin or multiple plugins.
+ * Deactivates a single plugin or multiple plugins.
  *
  * The deactivation hook is disabled by the plugin upgrader by using the $silent
  * parameter.
- *
- *
  *
  * @param string|string[] $plugins      Single plugin or list of plugins to deactivate.
  * @param bool            $silent       Prevent calling deactivation hooks. Default false.
@@ -763,7 +747,7 @@ function deactivate_plugins( $plugins, $silent = false, $network_wide = null ) {
 			 * If a plugin is silently deactivated (such as during an update),
 			 * this hook does not fire.
 			 *
-		
+			 * @since 2.9.0
 			 *
 			 * @param string $plugin               Path to the plugin file relative to the plugins directory.
 			 * @param bool   $network_deactivating Whether the plugin is deactivated for all sites in the network
@@ -803,7 +787,7 @@ function deactivate_plugins( $plugins, $silent = false, $network_wide = null ) {
 			 *
 			 * If a plugin is silently deactivated (such as during an update), this hook does not fire.
 			 *
-		
+			 * @since 2.0.0
 			 *
 			 * @param bool $network_deactivating Whether the plugin is deactivated for all sites in the network
 			 *                                   or just the current site. Multisite only. Default false.
@@ -816,7 +800,7 @@ function deactivate_plugins( $plugins, $silent = false, $network_wide = null ) {
 			 * If a plugin is silently deactivated (such as during an update),
 			 * this hook does not fire.
 			 *
-		
+			 * @since 2.9.0
 			 *
 			 * @param string $plugin               Path to the plugin file relative to the plugins directory.
 			 * @param bool   $network_deactivating Whether the plugin is deactivated for all sites in the network
@@ -835,14 +819,12 @@ function deactivate_plugins( $plugins, $silent = false, $network_wide = null ) {
 }
 
 /**
- * Activate multiple plugins.
+ * Activates multiple plugins.
  *
  * When GC_Error is returned, it does not mean that one of the plugins had
  * errors. It means that one or more of the plugin file paths were invalid.
  *
  * The execution will be halted as soon as one of the plugins has an error.
- *
- *
  *
  * @param string|string[] $plugins      Single plugin or list of plugins to activate.
  * @param string          $redirect     Redirect to page after successful activation.
@@ -875,9 +857,7 @@ function activate_plugins( $plugins, $redirect = '', $network_wide = false, $sil
 }
 
 /**
- * Remove directory and files of a plugin for a list of plugins.
- *
- *
+ * Removes directory and files of a plugin for a list of plugins.
  *
  * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
  *
@@ -940,7 +920,7 @@ function delete_plugins( $plugins, $deprecated = '' ) {
 	// Get the base plugin folder.
 	$plugins_dir = $gc_filesystem->gc_plugins_dir();
 	if ( empty( $plugins_dir ) ) {
-		return new GC_Error( 'fs_no_plugins_dir', __( '无法找到GeChiUI插件目录。' ) );
+		return new GC_Error( 'fs_no_plugins_dir', __( '无法找到 GeChiUI 插件目录。' ) );
 	}
 
 	$plugins_dir = trailingslashit( $plugins_dir );
@@ -958,6 +938,7 @@ function delete_plugins( $plugins, $deprecated = '' ) {
 		/**
 		 * Fires immediately before a plugin deletion attempt.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
 		 */
@@ -965,8 +946,10 @@ function delete_plugins( $plugins, $deprecated = '' ) {
 
 		$this_plugin_dir = trailingslashit( dirname( $plugins_dir . $plugin_file ) );
 
-		// If plugin is in its own directory, recursively delete the directory.
-		// Base check on if plugin includes directory separator AND that it's not the root plugin folder.
+		/*
+		 * If plugin is in its own directory, recursively delete the directory.
+		 * Base check on if plugin includes directory separator AND that it's not the root plugin folder.
+		 */
 		if ( strpos( $plugin_file, '/' ) && $this_plugin_dir !== $plugins_dir ) {
 			$deleted = $gc_filesystem->delete( $this_plugin_dir, true );
 		} else {
@@ -976,6 +959,7 @@ function delete_plugins( $plugins, $deprecated = '' ) {
 		/**
 		 * Fires immediately after a plugin deletion attempt.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
 		 * @param bool   $deleted     Whether the plugin deletion was successful.
@@ -1028,7 +1012,7 @@ function delete_plugins( $plugins, $deprecated = '' ) {
 			$message = __( '未能完整移除插件%s。' );
 		} else {
 			/* translators: %s: Comma-separated list of plugin filenames. */
-			$message = __( '未能完整移除插件%s。' );
+			$message = __( '未能完整移除插件 %s。' );
 		}
 
 		return new GC_Error( 'could_not_remove_plugin', sprintf( $message, implode( ', ', $errors ) ) );
@@ -1038,11 +1022,10 @@ function delete_plugins( $plugins, $deprecated = '' ) {
 }
 
 /**
- * Validate active plugins
+ * Validates active plugins.
  *
  * Validate all active plugins, deactivates invalid and
  * returns an array of deactivated ones.
- *
  *
  * @return GC_Error[] Array of plugin errors keyed by plugin file name.
  */
@@ -1077,11 +1060,9 @@ function validate_active_plugins() {
 }
 
 /**
- * Validate the plugin path.
+ * Validates the plugin path.
  *
  * Checks that the main plugin file exists and is a valid plugin. See validate_file().
- *
- *
  *
  * @param string $plugin Path to the plugin file relative to the plugins directory.
  * @return int|GC_Error 0 on success, GC_Error on failure.
@@ -1107,10 +1088,10 @@ function validate_plugin( $plugin ) {
  * Uses the information from `Requires at least` and `Requires PHP` headers
  * defined in the plugin's main PHP file.
  *
- *
- *
+ * @since 5.2.0
+ * @since 5.3.0 Added support for reading the headers from the plugin's
  *              main PHP file, with `readme.txt` as a fallback.
- *
+ * @since 5.8.0 Removed support for using `readme.txt` as a fallback.
  *
  * @param string $plugin Path to the plugin file relative to the plugins directory.
  * @return true|GC_Error True if requirements are met, GC_Error on failure.
@@ -1145,7 +1126,7 @@ function validate_plugin_requirements( $plugin ) {
 				/* translators: 1: Current GeChiUI version, 2: Current PHP version, 3: Plugin name, 4: Required GeChiUI version, 5: Required PHP version. */
 				_x( '<strong>错误：</strong>当前GeChiUI版本（%1$s）和PHP版本（%2$s）未能达到%3$s的最低版本要求。此插件需要GeChiUI %4$s和PHP %5$s。', 'plugin' ),
 				get_bloginfo( 'version' ),
-				phpversion(),
+				PHP_VERSION,
 				$plugin_headers['Name'],
 				$requirements['requires'],
 				$requirements['requires_php']
@@ -1157,7 +1138,7 @@ function validate_plugin_requirements( $plugin ) {
 			'<p>' . sprintf(
 				/* translators: 1: Current PHP version, 2: Plugin name, 3: Required PHP version. */
 				_x( '<strong>错误：</strong>当前PHP版本（%1$s）未能达到%2$s的最低版本要求。此插件需要PHP %3$s。', 'plugin' ),
-				phpversion(),
+				PHP_VERSION,
 				$plugin_headers['Name'],
 				$requirements['requires_php']
 			) . $php_update_message . '</p>'
@@ -1179,9 +1160,9 @@ function validate_plugin_requirements( $plugin ) {
 }
 
 /**
- * Whether the plugin can be uninstalled.
+ * Determines whether the plugin can be uninstalled.
  *
- *
+ * @since 2.7.0
  *
  * @param string $plugin Path to the plugin file relative to the plugins directory.
  * @return bool Whether plugin can be uninstalled.
@@ -1198,11 +1179,11 @@ function is_uninstallable_plugin( $plugin ) {
 }
 
 /**
- * Uninstall a single plugin.
+ * Uninstalls a single plugin.
  *
  * Calls the uninstall hook, if it is available.
  *
- *
+ * @since 2.7.0
  *
  * @param string $plugin Path to the plugin file relative to the plugins directory.
  * @return true|void True if a plugin's uninstall.php file has been found and included.
@@ -1216,6 +1197,7 @@ function uninstall_plugin( $plugin ) {
 	/**
 	 * Fires in uninstall_plugin() immediately before the plugin is uninstalled.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param string $plugin                Path to the plugin file relative to the plugins directory.
 	 * @param array  $uninstallable_plugins Uninstallable plugins.
@@ -1272,30 +1254,28 @@ function uninstall_plugin( $plugin ) {
  * The function which is hooked in to handle the output of the page must check
  * that the user has the required capability as well.
  *
- *
- *
  * @global array $menu
  * @global array $admin_page_hooks
  * @global array $_registered_pages
  * @global array $_parent_pages
  *
- * @param string   $page_title The text to be displayed in the title tags of the page when the menu is selected.
- * @param string   $menu_title The text to be used for the menu.
- * @param string   $capability The capability required for this menu to be displayed to the user.
- * @param string   $menu_slug  The slug name to refer to this menu by. Should be unique for this menu page and only
- *                             include lowercase alphanumeric, dashes, and underscores characters to be compatible
- *                             with sanitize_key().
- * @param callable $function   Optional. The function to be called to output the content for this page.
- * @param string   $icon_url   Optional. The URL to the icon to be used for this menu.
- *                             * Pass a base64-encoded SVG using a data URI, which will be colored to match
- *                               the color scheme. This should begin with 'data:image/svg+xml;base64,'.
- *                             * Pass the name of a Dashicons helper class to use a font icon,
- *                               e.g. 'dashicons-chart-pie'.
- *                             * Pass 'none' to leave div.gc-menu-image empty so an icon can be added via CSS.
- * @param int      $position   Optional. The position in the menu order this item should appear.
+ * @param string    $page_title The text to be displayed in the title tags of the page when the menu is selected.
+ * @param string    $menu_title The text to be used for the menu.
+ * @param string    $capability The capability required for this menu to be displayed to the user.
+ * @param string    $menu_slug  The slug name to refer to this menu by. Should be unique for this menu page and only
+ *                              include lowercase alphanumeric, dashes, and underscores characters to be compatible
+ *                              with sanitize_key().
+ * @param callable  $callback   Optional. The function to be called to output the content for this page.
+ * @param string    $icon_url   Optional. The URL to the icon to be used for this menu.
+ *                              * Pass a base64-encoded SVG using a data URI, which will be colored to match
+ *                                the color scheme. This should begin with 'data:image/svg+xml;base64,'.
+ *                              * Pass the name of a Dashicons helper class to use a font icon,
+ *                                e.g. 'dashicons-chart-pie'.
+ *                              * Pass 'none' to leave div.gc-menu-image empty so an icon can be added via CSS.
+ * @param int|float $position   Optional. The position in the menu order this item should appear.
  * @return string The resulting page's hook_suffix.
  */
-function add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $icon_url = '', $position = null ) {
+function add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $callback = '', $icon_url = '', $position = null ) {
 	global $menu, $admin_page_hooks, $_registered_pages, $_parent_pages;
 
 	$menu_slug = plugin_basename( $menu_slug );
@@ -1304,8 +1284,8 @@ function add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $func
 
 	$hookname = get_plugin_page_hookname( $menu_slug, '' );
 
-	if ( ! empty( $function ) && ! empty( $hookname ) && current_user_can( $capability ) ) {
-		add_action( $hookname, $function );
+	if ( ! empty( $callback ) && ! empty( $hookname ) && current_user_can( $capability ) ) {
+		add_action( $hookname, $callback );
 	}
 
 	if ( empty( $icon_url ) ) {
@@ -1318,27 +1298,35 @@ function add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $func
 
 	$new_menu = array( $menu_title, $capability, $menu_slug, $page_title, 'menu-top ' . $icon_class . $hookname, $hookname, $icon_url );
 
-	if ( null === $position ) {
+	if ( null !== $position && ! is_numeric( $position ) ) {
+		_doing_it_wrong(
+			__FUNCTION__,
+			sprintf(
+				/* translators: %s: add_menu_page() */
+				__( '传递给 %s 的第七个参数应表示为菜单位置的整数。' ),
+				'<code>add_menu_page()</code>'
+			),
+			'6.0.0'
+		);
+		$position = null;
+	}
+
+	if ( null === $position || ! is_numeric( $position ) ) {
 		$menu[] = $new_menu;
-	} elseif ( isset( $menu[ "$position" ] ) ) {
-		$position            = $position + substr( base_convert( md5( $menu_slug . $menu_title ), 16, 10 ), -5 ) * 0.00001;
-		$menu[ "$position" ] = $new_menu;
+	} elseif ( isset( $menu[ (string) $position ] ) ) {
+		$collision_avoider = base_convert( substr( md5( $menu_slug . $menu_title ), -4 ), 16, 10 ) * 0.00001;
+		$position          = (string) ( $position + $collision_avoider );
+		$menu[ $position ] = $new_menu;
 	} else {
-		if ( ! is_int( $position ) ) {
-			_doing_it_wrong(
-				__FUNCTION__,
-				sprintf(
-					/* translators: %s: add_menu_page() */
-					__( '传给%s的第七个参数应该是代表菜单位置的整数。' ),
-					'<code>add_menu_page()</code>'
-				),
-				'6.0.0'
-			);
-			// If the position is not a string (i.e. float), convert it to string.
-			if ( ! is_string( $position ) ) {
-				$position = (string) $position;
-			}
-		}
+		/*
+		 * Cast menu position to a string.
+		 *
+		 * This allows for floats to be passed as the position. PHP will normally cast a float to an
+		 * integer value, this ensures the float retains its mantissa (positive fractional part).
+		 *
+		 * A string containing an integer value, eg "10", is treated as a numeric index.
+		 */
+		$position          = (string) $position;
 		$menu[ $position ] = $new_menu;
 	}
 
@@ -1359,8 +1347,7 @@ function add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $func
  * The function which is hooked in to handle the output of the page must check
  * that the user has the required capability as well.
  *
- *
- *
+ * @since 5.3.0 Added the `$position` parameter.
  *
  * @global array $submenu
  * @global array $menu
@@ -1369,20 +1356,20 @@ function add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $func
  * @global array $_registered_pages
  * @global array $_parent_pages
  *
- * @param string   $parent_slug The slug name for the parent menu (or the file name of a standard
- *                              GeChiUI admin page).
- * @param string   $page_title  The text to be displayed in the title tags of the page when the menu
- *                              is selected.
- * @param string   $menu_title  The text to be used for the menu.
- * @param string   $capability  The capability required for this menu to be displayed to the user.
- * @param string   $menu_slug   The slug name to refer to this menu by. Should be unique for this menu
- *                              and only include lowercase alphanumeric, dashes, and underscores characters
- *                              to be compatible with sanitize_key().
- * @param callable $function    Optional. The function to be called to output the content for this page.
- * @param int      $position    Optional. The position in the menu order this item should appear.
+ * @param string    $parent_slug The slug name for the parent menu (or the file name of a standard
+ *                               GeChiUI admin page).
+ * @param string    $page_title  The text to be displayed in the title tags of the page when the menu
+ *                               is selected.
+ * @param string    $menu_title  The text to be used for the menu.
+ * @param string    $capability  The capability required for this menu to be displayed to the user.
+ * @param string    $menu_slug   The slug name to refer to this menu by. Should be unique for this menu
+ *                               and only include lowercase alphanumeric, dashes, and underscores characters
+ *                               to be compatible with sanitize_key().
+ * @param callable  $callback    Optional. The function to be called to output the content for this page.
+ * @param int|float $position    Optional. The position in the menu order this item should appear.
  * @return string|false The resulting page's hook_suffix, or false if the user does not have the capability required.
  */
-function add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function = '', $position = null ) {
+function add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $callback = '', $position = null ) {
 	global $submenu, $menu, $_gc_real_parent_file, $_gc_submenu_nopriv,
 		$_registered_pages, $_parent_pages;
 
@@ -1413,49 +1400,50 @@ function add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, 
 	}
 
 	$new_sub_menu = array( $menu_title, $capability, $menu_slug, $page_title );
-	if ( ! is_int( $position ) ) {
-		if ( null !== $position ) {
-			_doing_it_wrong(
-				__FUNCTION__,
-				sprintf(
-					/* translators: %s: add_submenu_page() */
-					__( '传给%s的第七个参数应该是代表菜单位置的整数。' ),
-					'<code>add_submenu_page()</code>'
-				),
-				'5.3.0'
-			);
-		}
 
+	if ( null !== $position && ! is_numeric( $position ) ) {
+		_doing_it_wrong(
+			__FUNCTION__,
+			sprintf(
+				/* translators: %s: add_submenu_page() */
+				__( '传递给 %s 的第七个参数应表示为菜单位置的整数。' ),
+				'<code>add_submenu_page()</code>'
+			),
+			'5.3.0'
+		);
+		$position = null;
+	}
+
+	if (
+		null === $position ||
+		( ! isset( $submenu[ $parent_slug ] ) || $position >= count( $submenu[ $parent_slug ] ) )
+	) {
 		$submenu[ $parent_slug ][] = $new_sub_menu;
 	} else {
-		// Append the submenu if the parent item is not present in the submenu,
-		// or if position is equal or higher than the number of items in the array.
-		if ( ! isset( $submenu[ $parent_slug ] ) || $position >= count( $submenu[ $parent_slug ] ) ) {
-			$submenu[ $parent_slug ][] = $new_sub_menu;
+		// Test for a negative position.
+		$position = max( $position, 0 );
+		if ( 0 === $position ) {
+			// For negative or `0` positions, prepend the submenu.
+			array_unshift( $submenu[ $parent_slug ], $new_sub_menu );
 		} else {
-			// Test for a negative position.
-			$position = max( $position, 0 );
-			if ( 0 === $position ) {
-				// For negative or `0` positions, prepend the submenu.
-				array_unshift( $submenu[ $parent_slug ], $new_sub_menu );
-			} else {
-				// Grab all of the items before the insertion point.
-				$before_items = array_slice( $submenu[ $parent_slug ], 0, $position, true );
-				// Grab all of the items after the insertion point.
-				$after_items = array_slice( $submenu[ $parent_slug ], $position, null, true );
-				// Add the new item.
-				$before_items[] = $new_sub_menu;
-				// Merge the items.
-				$submenu[ $parent_slug ] = array_merge( $before_items, $after_items );
-			}
+			$position = absint( $position );
+			// Grab all of the items before the insertion point.
+			$before_items = array_slice( $submenu[ $parent_slug ], 0, $position, true );
+			// Grab all of the items after the insertion point.
+			$after_items = array_slice( $submenu[ $parent_slug ], $position, null, true );
+			// Add the new item.
+			$before_items[] = $new_sub_menu;
+			// Merge the items.
+			$submenu[ $parent_slug ] = array_merge( $before_items, $after_items );
 		}
 	}
+
 	// Sort the parent array.
 	ksort( $submenu[ $parent_slug ] );
 
 	$hookname = get_plugin_page_hookname( $menu_slug, $parent_slug );
-	if ( ! empty( $function ) && ! empty( $hookname ) ) {
-		add_action( $hookname, $function );
+	if ( ! empty( $callback ) && ! empty( $hookname ) ) {
+		add_action( $hookname, $callback );
 	}
 
 	$_registered_pages[ $hookname ] = true;
@@ -1483,19 +1471,18 @@ function add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, 
  * The function which is hooked in to handle the output of the page must check
  * that the user has the required capability as well.
  *
- *
- *
+ * @since 5.3.0 Added the `$position` parameter.
  *
  * @param string   $page_title The text to be displayed in the title tags of the page when the menu is selected.
  * @param string   $menu_title The text to be used for the menu.
  * @param string   $capability The capability required for this menu to be displayed to the user.
  * @param string   $menu_slug  The slug name to refer to this menu by (should be unique for this menu).
- * @param callable $function   Optional. The function to be called to output the content for this page.
+ * @param callable $callback   Optional. The function to be called to output the content for this page.
  * @param int      $position   Optional. The position in the menu order this item should appear.
  * @return string|false The resulting page's hook_suffix, or false if the user does not have the capability required.
  */
-function add_management_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $position = null ) {
-	return add_submenu_page( 'tools.php', $page_title, $menu_title, $capability, $menu_slug, $function, $position );
+function add_management_page( $page_title, $menu_title, $capability, $menu_slug, $callback = '', $position = null ) {
+	return add_submenu_page( 'tools.php', $page_title, $menu_title, $capability, $menu_slug, $callback, $position );
 }
 
 /**
@@ -1507,19 +1494,18 @@ function add_management_page( $page_title, $menu_title, $capability, $menu_slug,
  * The function which is hooked in to handle the output of the page must check
  * that the user has the required capability as well.
  *
- *
- *
+ * @since 5.3.0 Added the `$position` parameter.
  *
  * @param string   $page_title The text to be displayed in the title tags of the page when the menu is selected.
  * @param string   $menu_title The text to be used for the menu.
  * @param string   $capability The capability required for this menu to be displayed to the user.
  * @param string   $menu_slug  The slug name to refer to this menu by (should be unique for this menu).
- * @param callable $function   Optional. The function to be called to output the content for this page.
+ * @param callable $callback   Optional. The function to be called to output the content for this page.
  * @param int      $position   Optional. The position in the menu order this item should appear.
  * @return string|false The resulting page's hook_suffix, or false if the user does not have the capability required.
  */
-function add_options_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $position = null ) {
-	return add_submenu_page( 'options-general.php', $page_title, $menu_title, $capability, $menu_slug, $function, $position );
+function add_options_page( $page_title, $menu_title, $capability, $menu_slug, $callback = '', $position = null ) {
+	return add_submenu_page( 'options-general.php', $page_title, $menu_title, $capability, $menu_slug, $callback, $position );
 }
 
 /**
@@ -1531,19 +1517,18 @@ function add_options_page( $page_title, $menu_title, $capability, $menu_slug, $f
  * The function which is hooked in to handle the output of the page must check
  * that the user has the required capability as well.
  *
- *
- *
+ * @since 5.3.0 Added the `$position` parameter.
  *
  * @param string   $page_title The text to be displayed in the title tags of the page when the menu is selected.
  * @param string   $menu_title The text to be used for the menu.
  * @param string   $capability The capability required for this menu to be displayed to the user.
  * @param string   $menu_slug  The slug name to refer to this menu by (should be unique for this menu).
- * @param callable $function   Optional. The function to be called to output the content for this page.
+ * @param callable $callback   Optional. The function to be called to output the content for this page.
  * @param int      $position   Optional. The position in the menu order this item should appear.
  * @return string|false The resulting page's hook_suffix, or false if the user does not have the capability required.
  */
-function add_theme_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $position = null ) {
-	return add_submenu_page( 'themes.php', $page_title, $menu_title, $capability, $menu_slug, $function, $position );
+function add_theme_page( $page_title, $menu_title, $capability, $menu_slug, $callback = '', $position = null ) {
+	return add_submenu_page( 'themes.php', $page_title, $menu_title, $capability, $menu_slug, $callback, $position );
 }
 
 /**
@@ -1555,19 +1540,18 @@ function add_theme_page( $page_title, $menu_title, $capability, $menu_slug, $fun
  * The function which is hooked in to handle the output of the page must check
  * that the user has the required capability as well.
  *
- *
- *
+ * @since 5.3.0 Added the `$position` parameter.
  *
  * @param string   $page_title The text to be displayed in the title tags of the page when the menu is selected.
  * @param string   $menu_title The text to be used for the menu.
  * @param string   $capability The capability required for this menu to be displayed to the user.
  * @param string   $menu_slug  The slug name to refer to this menu by (should be unique for this menu).
- * @param callable $function   Optional. The function to be called to output the content for this page.
+ * @param callable $callback   Optional. The function to be called to output the content for this page.
  * @param int      $position   Optional. The position in the menu order this item should appear.
  * @return string|false The resulting page's hook_suffix, or false if the user does not have the capability required.
  */
-function add_plugins_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $position = null ) {
-	return add_submenu_page( 'plugins.php', $page_title, $menu_title, $capability, $menu_slug, $function, $position );
+function add_plugins_page( $page_title, $menu_title, $capability, $menu_slug, $callback = '', $position = null ) {
+	return add_submenu_page( 'plugins.php', $page_title, $menu_title, $capability, $menu_slug, $callback, $position );
 }
 
 /**
@@ -1579,24 +1563,24 @@ function add_plugins_page( $page_title, $menu_title, $capability, $menu_slug, $f
  * The function which is hooked in to handle the output of the page must check
  * that the user has the required capability as well.
  *
- *
- *
+ * @since 2.1.3
+ * @since 5.3.0 Added the `$position` parameter.
  *
  * @param string   $page_title The text to be displayed in the title tags of the page when the menu is selected.
  * @param string   $menu_title The text to be used for the menu.
  * @param string   $capability The capability required for this menu to be displayed to the user.
  * @param string   $menu_slug  The slug name to refer to this menu by (should be unique for this menu).
- * @param callable $function   Optional. The function to be called to output the content for this page.
+ * @param callable $callback   Optional. The function to be called to output the content for this page.
  * @param int      $position   Optional. The position in the menu order this item should appear.
  * @return string|false The resulting page's hook_suffix, or false if the user does not have the capability required.
  */
-function add_users_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $position = null ) {
+function add_users_page( $page_title, $menu_title, $capability, $menu_slug, $callback = '', $position = null ) {
 	if ( current_user_can( 'edit_users' ) ) {
 		$parent = 'users.php';
 	} else {
 		$parent = 'profile.php';
 	}
-	return add_submenu_page( $parent, $page_title, $menu_title, $capability, $menu_slug, $function, $position );
+	return add_submenu_page( $parent, $page_title, $menu_title, $capability, $menu_slug, $callback, $position );
 }
 
 /**
@@ -1608,19 +1592,19 @@ function add_users_page( $page_title, $menu_title, $capability, $menu_slug, $fun
  * The function which is hooked in to handle the output of the page must check
  * that the user has the required capability as well.
  *
- *
- *
+ * @since 2.7.0
+ * @since 5.3.0 Added the `$position` parameter.
  *
  * @param string   $page_title The text to be displayed in the title tags of the page when the menu is selected.
  * @param string   $menu_title The text to be used for the menu.
  * @param string   $capability The capability required for this menu to be displayed to the user.
  * @param string   $menu_slug  The slug name to refer to this menu by (should be unique for this menu).
- * @param callable $function   Optional. The function to be called to output the content for this page.
+ * @param callable $callback   Optional. The function to be called to output the content for this page.
  * @param int      $position   Optional. The position in the menu order this item should appear.
  * @return string|false The resulting page's hook_suffix, or false if the user does not have the capability required.
  */
-function add_dashboard_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $position = null ) {
-	return add_submenu_page( 'index.php', $page_title, $menu_title, $capability, $menu_slug, $function, $position );
+function add_dashboard_page( $page_title, $menu_title, $capability, $menu_slug, $callback = '', $position = null ) {
+	return add_submenu_page( 'index.php', $page_title, $menu_title, $capability, $menu_slug, $callback, $position );
 }
 
 /**
@@ -1632,19 +1616,19 @@ function add_dashboard_page( $page_title, $menu_title, $capability, $menu_slug, 
  * The function which is hooked in to handle the output of the page must check
  * that the user has the required capability as well.
  *
- *
- *
+ * @since 2.7.0
+ * @since 5.3.0 Added the `$position` parameter.
  *
  * @param string   $page_title The text to be displayed in the title tags of the page when the menu is selected.
  * @param string   $menu_title The text to be used for the menu.
  * @param string   $capability The capability required for this menu to be displayed to the user.
  * @param string   $menu_slug  The slug name to refer to this menu by (should be unique for this menu).
- * @param callable $function   Optional. The function to be called to output the content for this page.
+ * @param callable $callback   Optional. The function to be called to output the content for this page.
  * @param int      $position   Optional. The position in the menu order this item should appear.
  * @return string|false The resulting page's hook_suffix, or false if the user does not have the capability required.
  */
-function add_posts_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $position = null ) {
-	return add_submenu_page( 'edit.php', $page_title, $menu_title, $capability, $menu_slug, $function, $position );
+function add_posts_page( $page_title, $menu_title, $capability, $menu_slug, $callback = '', $position = null ) {
+	return add_submenu_page( 'edit.php', $page_title, $menu_title, $capability, $menu_slug, $callback, $position );
 }
 
 /**
@@ -1656,19 +1640,19 @@ function add_posts_page( $page_title, $menu_title, $capability, $menu_slug, $fun
  * The function which is hooked in to handle the output of the page must check
  * that the user has the required capability as well.
  *
- *
- *
+ * @since 2.7.0
+ * @since 5.3.0 Added the `$position` parameter.
  *
  * @param string   $page_title The text to be displayed in the title tags of the page when the menu is selected.
  * @param string   $menu_title The text to be used for the menu.
  * @param string   $capability The capability required for this menu to be displayed to the user.
  * @param string   $menu_slug  The slug name to refer to this menu by (should be unique for this menu).
- * @param callable $function   Optional. The function to be called to output the content for this page.
+ * @param callable $callback   Optional. The function to be called to output the content for this page.
  * @param int      $position   Optional. The position in the menu order this item should appear.
  * @return string|false The resulting page's hook_suffix, or false if the user does not have the capability required.
  */
-function add_media_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $position = null ) {
-	return add_submenu_page( 'upload.php', $page_title, $menu_title, $capability, $menu_slug, $function, $position );
+function add_media_page( $page_title, $menu_title, $capability, $menu_slug, $callback = '', $position = null ) {
+	return add_submenu_page( 'upload.php', $page_title, $menu_title, $capability, $menu_slug, $callback, $position );
 }
 
 /**
@@ -1680,19 +1664,19 @@ function add_media_page( $page_title, $menu_title, $capability, $menu_slug, $fun
  * The function which is hooked in to handle the output of the page must check
  * that the user has the required capability as well.
  *
- *
- *
+ * @since 2.7.0
+ * @since 5.3.0 Added the `$position` parameter.
  *
  * @param string   $page_title The text to be displayed in the title tags of the page when the menu is selected.
  * @param string   $menu_title The text to be used for the menu.
  * @param string   $capability The capability required for this menu to be displayed to the user.
  * @param string   $menu_slug  The slug name to refer to this menu by (should be unique for this menu).
- * @param callable $function   Optional. The function to be called to output the content for this page.
+ * @param callable $callback   Optional. The function to be called to output the content for this page.
  * @param int      $position   Optional. The position in the menu order this item should appear.
  * @return string|false The resulting page's hook_suffix, or false if the user does not have the capability required.
  */
-function add_links_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $position = null ) {
-	return add_submenu_page( 'link-manager.php', $page_title, $menu_title, $capability, $menu_slug, $function, $position );
+function add_links_page( $page_title, $menu_title, $capability, $menu_slug, $callback = '', $position = null ) {
+	return add_submenu_page( 'link-manager.php', $page_title, $menu_title, $capability, $menu_slug, $callback, $position );
 }
 
 /**
@@ -1704,19 +1688,19 @@ function add_links_page( $page_title, $menu_title, $capability, $menu_slug, $fun
  * The function which is hooked in to handle the output of the page must check
  * that the user has the required capability as well.
  *
- *
- *
+ * @since 2.7.0
+ * @since 5.3.0 Added the `$position` parameter.
  *
  * @param string   $page_title The text to be displayed in the title tags of the page when the menu is selected.
  * @param string   $menu_title The text to be used for the menu.
  * @param string   $capability The capability required for this menu to be displayed to the user.
  * @param string   $menu_slug  The slug name to refer to this menu by (should be unique for this menu).
- * @param callable $function   Optional. The function to be called to output the content for this page.
+ * @param callable $callback   Optional. The function to be called to output the content for this page.
  * @param int      $position   Optional. The position in the menu order this item should appear.
  * @return string|false The resulting page's hook_suffix, or false if the user does not have the capability required.
  */
-function add_pages_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $position = null ) {
-	return add_submenu_page( 'edit.php?post_type=page', $page_title, $menu_title, $capability, $menu_slug, $function, $position );
+function add_pages_page( $page_title, $menu_title, $capability, $menu_slug, $callback = '', $position = null ) {
+	return add_submenu_page( 'edit.php?post_type=page', $page_title, $menu_title, $capability, $menu_slug, $callback, $position );
 }
 
 /**
@@ -1728,19 +1712,19 @@ function add_pages_page( $page_title, $menu_title, $capability, $menu_slug, $fun
  * The function which is hooked in to handle the output of the page must check
  * that the user has the required capability as well.
  *
- *
- *
+ * @since 2.7.0
+ * @since 5.3.0 Added the `$position` parameter.
  *
  * @param string   $page_title The text to be displayed in the title tags of the page when the menu is selected.
  * @param string   $menu_title The text to be used for the menu.
  * @param string   $capability The capability required for this menu to be displayed to the user.
  * @param string   $menu_slug  The slug name to refer to this menu by (should be unique for this menu).
- * @param callable $function   Optional. The function to be called to output the content for this page.
+ * @param callable $callback   Optional. The function to be called to output the content for this page.
  * @param int      $position   Optional. The position in the menu order this item should appear.
  * @return string|false The resulting page's hook_suffix, or false if the user does not have the capability required.
  */
-function add_comments_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $position = null ) {
-	return add_submenu_page( 'edit-comments.php', $page_title, $menu_title, $capability, $menu_slug, $function, $position );
+function add_comments_page( $page_title, $menu_title, $capability, $menu_slug, $callback = '', $position = null ) {
+	return add_submenu_page( 'edit-comments.php', $page_title, $menu_title, $capability, $menu_slug, $callback, $position );
 }
 
 /**
@@ -1750,8 +1734,6 @@ function add_comments_page( $page_title, $menu_title, $capability, $menu_slug, $
  *
  *  - `remove_menu_page( 'tools.php' )`
  *  - `remove_menu_page( 'plugin_menu_slug' )`
- *
- *
  *
  * @global array $menu
  *
@@ -1779,8 +1761,6 @@ function remove_menu_page( $menu_slug ) {
  *  - `remove_submenu_page( 'themes.php', 'nav-menus.php' )`
  *  - `remove_submenu_page( 'tools.php', 'plugin_submenu_slug' )`
  *  - `remove_submenu_page( 'plugin_menu_slug', 'plugin_submenu_slug' )`
- *
- *
  *
  * @global array $submenu
  *
@@ -1810,15 +1790,13 @@ function remove_submenu_page( $menu_slug, $submenu_slug ) {
  *
  * If the slug hasn't been registered properly, no URL will be returned.
  *
- *
- *
  * @global array $_parent_pages
  *
  * @param string $menu_slug The slug name to refer to this menu by (should be unique for this menu).
- * @param bool   $echo      Whether or not to echo the URL. Default true.
+ * @param bool   $display   Optional. Whether or not to display the URL. Default true.
  * @return string The menu page URL.
  */
-function menu_page_url( $menu_slug, $echo = true ) {
+function menu_page_url( $menu_slug, $display = true ) {
 	global $_parent_pages;
 
 	if ( isset( $_parent_pages[ $menu_slug ] ) ) {
@@ -1835,7 +1813,7 @@ function menu_page_url( $menu_slug, $echo = true ) {
 
 	$url = esc_url( $url );
 
-	if ( $echo ) {
+	if ( $display ) {
 		echo $url;
 	}
 
@@ -1848,32 +1826,30 @@ function menu_page_url( $menu_slug, $echo = true ) {
 /**
  * Gets the parent file of the current admin page.
  *
- *
- *
  * @global string $parent_file
  * @global array  $menu
  * @global array  $submenu
- * @global string $pagenow
- * @global string $typenow
+ * @global string $pagenow              The filename of the current screen.
+ * @global string $typenow              The post type of the current screen.
  * @global string $plugin_page
  * @global array  $_gc_real_parent_file
  * @global array  $_gc_menu_nopriv
  * @global array  $_gc_submenu_nopriv
  *
- * @param string $parent The slug name for the parent menu (or the file name of a standard
- *                       GeChiUI admin page). Default empty string.
+ * @param string $parent_page Optional. The slug name for the parent menu (or the file name
+ *                            of a standard GeChiUI admin page). Default empty string.
  * @return string The parent file of the current admin page.
  */
-function get_admin_page_parent( $parent = '' ) {
+function get_admin_page_parent( $parent_page = '' ) {
 	global $parent_file, $menu, $submenu, $pagenow, $typenow,
 		$plugin_page, $_gc_real_parent_file, $_gc_menu_nopriv, $_gc_submenu_nopriv;
 
-	if ( ! empty( $parent ) && 'admin.php' !== $parent ) {
-		if ( isset( $_gc_real_parent_file[ $parent ] ) ) {
-			$parent = $_gc_real_parent_file[ $parent ];
+	if ( ! empty( $parent_page ) && 'admin.php' !== $parent_page ) {
+		if ( isset( $_gc_real_parent_file[ $parent_page ] ) ) {
+			$parent_page = $_gc_real_parent_file[ $parent_page ];
 		}
 
-		return $parent;
+		return $parent_page;
 	}
 
 	if ( 'admin.php' === $pagenow && isset( $plugin_page ) ) {
@@ -1909,23 +1885,23 @@ function get_admin_page_parent( $parent = '' ) {
 		return $parent_file;
 	}
 
-	foreach ( array_keys( (array) $submenu ) as $parent ) {
-		foreach ( $submenu[ $parent ] as $submenu_array ) {
-			if ( isset( $_gc_real_parent_file[ $parent ] ) ) {
-				$parent = $_gc_real_parent_file[ $parent ];
+	foreach ( array_keys( (array) $submenu ) as $parent_page ) {
+		foreach ( $submenu[ $parent_page ] as $submenu_array ) {
+			if ( isset( $_gc_real_parent_file[ $parent_page ] ) ) {
+				$parent_page = $_gc_real_parent_file[ $parent_page ];
 			}
 
 			if ( ! empty( $typenow ) && "$pagenow?post_type=$typenow" === $submenu_array[2] ) {
-				$parent_file = $parent;
-				return $parent;
+				$parent_file = $parent_page;
+				return $parent_page;
 			} elseif ( empty( $typenow ) && $pagenow === $submenu_array[2]
-				&& ( empty( $parent_file ) || false === strpos( $parent_file, '?' ) )
+				&& ( empty( $parent_file ) || ! str_contains( $parent_file, '?' ) )
 			) {
-				$parent_file = $parent;
-				return $parent;
+				$parent_file = $parent_page;
+				return $parent_page;
 			} elseif ( isset( $plugin_page ) && $plugin_page === $submenu_array[2] ) {
-				$parent_file = $parent;
-				return $parent;
+				$parent_file = $parent_page;
+				return $parent_page;
 			}
 		}
 	}
@@ -1939,19 +1915,17 @@ function get_admin_page_parent( $parent = '' ) {
 /**
  * Gets the title of the current admin page.
  *
- *
- *
  * @global string $title
- * @global array $menu
- * @global array $submenu
- * @global string $pagenow
+ * @global array  $menu
+ * @global array  $submenu
+ * @global string $pagenow     The filename of the current screen.
+ * @global string $typenow     The post type of the current screen.
  * @global string $plugin_page
- * @global string $typenow
  *
  * @return string The title of the current admin page.
  */
 function get_admin_page_title() {
-	global $title, $menu, $submenu, $pagenow, $plugin_page, $typenow;
+	global $title, $menu, $submenu, $pagenow, $typenow, $plugin_page;
 
 	if ( ! empty( $title ) ) {
 		return $title;
@@ -2025,8 +1999,6 @@ function get_admin_page_title() {
 /**
  * Gets the hook attached to the administrative page of a plugin.
  *
- *
- *
  * @param string $plugin_page The slug name of the plugin page.
  * @param string $parent_page The slug name for the parent menu (or the file name of a standard
  *                            GeChiUI admin page).
@@ -2043,8 +2015,6 @@ function get_plugin_page_hook( $plugin_page, $parent_page ) {
 
 /**
  * Gets the hook name for the administrative page of a plugin.
- *
- *
  *
  * @global array $admin_page_hooks
  *
@@ -2077,9 +2047,7 @@ function get_plugin_page_hookname( $plugin_page, $parent_page ) {
 /**
  * Determines whether the current user can access the current admin page.
  *
- *
- *
- * @global string $pagenow
+ * @global string $pagenow            The filename of the current screen.
  * @global array  $menu
  * @global array  $submenu
  * @global array  $_gc_menu_nopriv
@@ -2167,9 +2135,9 @@ function user_can_access_admin_page() {
  *
  * See the {@see 'allowed_options'} filter.
  *
- *
- *
- *              请考虑编写更具包容性的代码。
+ * @since 2.7.0
+ * @since 5.5.0 `$new_whitelist_options` was renamed to `$new_allowed_options`.
+ *              Please consider writing more inclusive code.
  *
  * @global array $new_allowed_options
  *
@@ -2189,7 +2157,7 @@ function option_update_filter( $options ) {
 /**
  * Adds an array of options to the list of allowed options.
  *
- *
+ * @since 5.5.0
  *
  * @global array $allowed_options
  *
@@ -2224,7 +2192,7 @@ function add_allowed_options( $new_options, $options = '' ) {
 /**
  * Removes a list of options from the allowed options list.
  *
- *
+ * @since 5.5.0
  *
  * @global array $allowed_options
  *
@@ -2254,9 +2222,9 @@ function remove_allowed_options( $del_options, $options = '' ) {
 }
 
 /**
- * Output nonce, action, and option_page fields for a settings page.
+ * Outputs nonce, action, and option_page fields for a settings page.
  *
- *
+ * @since 2.7.0
  *
  * @param string $option_group A settings group name. This should match the group name
  *                             used in register_setting().
@@ -2270,8 +2238,6 @@ function settings_fields( $option_group ) {
 /**
  * Clears the plugins cache used by get_plugins() and by default, the plugin updates cache.
  *
- *
- *
  * @param bool $clear_update_cache Whether to clear the plugin updates cache. Default true.
  */
 function gc_clean_plugins_cache( $clear_update_cache = true ) {
@@ -2282,10 +2248,8 @@ function gc_clean_plugins_cache( $clear_update_cache = true ) {
 }
 
 /**
- * Load a given plugin attempt to generate errors.
- *
- *
- *
+ * Loads a given plugin attempt to generate errors.
+ * Function was moved into the `gc-admin/includes/plugin.php` file.
  *
  * @param string $plugin Path to the plugin file relative to the plugins directory.
  */
@@ -2299,7 +2263,7 @@ function plugin_sandbox_scrape( $plugin ) {
 }
 
 /**
- * Helper function for adding content to the Privacy Policy Guide.
+ * Declares a helper function for adding content to the Privacy Policy Guide.
  *
  * Plugins and themes should suggest text for inclusion in the site's privacy policy.
  * The suggested text should contain information about any functionality that affects user privacy,
@@ -2317,8 +2281,6 @@ function plugin_sandbox_scrape( $plugin ) {
  * from the clipboard when the section content is copied.
  *
  * Intended for use with the `'admin_init'` action.
- *
- *
  *
  * @param string $plugin_name The name of the plugin or theme that is suggesting content
  *                            for the site's privacy policy.
@@ -2364,7 +2326,7 @@ function gc_add_privacy_policy_content( $plugin_name, $policy_text ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
+ * @since 5.2.0
  *
  * @param string $plugin Path to the plugin file relative to the plugins directory.
  * @return bool True, if in the list of paused plugins. False, if not in the list.
@@ -2386,7 +2348,7 @@ function is_plugin_paused( $plugin ) {
 /**
  * Gets the error that was recorded for a paused plugin.
  *
- *
+ * @since 5.2.0
  *
  * @param string $plugin Path to the plugin file relative to the plugins directory.
  * @return array|false Array of error information as returned by `error_get_last()`,
@@ -2416,7 +2378,7 @@ function gc_get_plugin_error( $plugin ) {
  * include the plugin file. If the plugin fails, then the redirection will not
  * be overwritten with the success message and the plugin will not be resumed.
  *
- *
+ * @since 5.2.0
  *
  * @param string $plugin   Single plugin to resume.
  * @param string $redirect Optional. URL to redirect to. Default empty string.
@@ -2460,9 +2422,9 @@ function resume_plugin( $plugin, $redirect = '' ) {
 /**
  * Renders an admin notice in case some plugins have been paused due to errors.
  *
+ * @since 5.2.0
  *
- *
- * @global string $pagenow
+ * @global string $pagenow The filename of the current screen.
  */
 function paused_plugins_notice() {
 	if ( 'plugins.php' === $GLOBALS['pagenow'] ) {
@@ -2477,13 +2439,14 @@ function paused_plugins_notice() {
 		return;
 	}
 
-	printf(
-		'<div class="notice notice-error"><p><strong>%s</strong><br>%s</p><p><a href="%s">%s</a></p></div>',
+	$message = sprintf(
+		'<strong>%s</strong><br>%s<a href="%s">%s</a>',
 		__( '一个或多个插件未能正确加载。' ),
 		__( '您可以在插件页面获取更多信息及做出修改。' ),
 		esc_url( admin_url( 'plugins.php?plugin_status=paused' ) ),
 		__( '转到“插件”页面' )
 	);
+	echo setting_error( $message, 'danger' );
 }
 
 /**
@@ -2492,11 +2455,11 @@ function paused_plugins_notice() {
  * Displays an admin notice in case a plugin has been deactivated during an
  * upgrade due to incompatibility with the current version of GeChiUI.
  *
- *
+ * @since 5.8.0
  * @access private
  *
- * @global string $pagenow
- * @global string $gc_version
+ * @global string $pagenow    The filename of the current screen.
+ * @global string $gc_version The GeChiUI version string.
  */
 function deactivated_plugins_notice() {
 	if ( 'plugins.php' === $GLOBALS['pagenow'] ) {
@@ -2551,8 +2514,8 @@ function deactivated_plugins_notice() {
 			);
 		}
 
-		printf(
-			'<div class="notice notice-warning"><p><strong>%s</strong><br>%s</p><p><a href="%s">%s</a></p></div>',
+		$message = sprintf(
+			'<strong>%s</strong><br>%s<a href="%s">%s</a>',
 			sprintf(
 				/* translators: %s: Name of deactivated plugin. */
 				__( '%s 插件在 GeChiUI 的升级过程中被禁用。' ),
@@ -2562,6 +2525,8 @@ function deactivated_plugins_notice() {
 			esc_url( admin_url( 'plugins.php?plugin_status=inactive' ) ),
 			__( '转到“插件”页面' )
 		);
+
+		echo setting_error( $message, 'warning' );
 	}
 
 	// Empty the options.

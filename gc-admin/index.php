@@ -34,7 +34,7 @@ $title       = __( '仪表盘' );
 $parent_file = 'index.php';
 
 $help  = '<p>' . __( '欢迎来到您的 GeChiUI 仪表盘！' ) . '</p>';
-$help .= '<p>' . __( '仪表盘是您每次登录站点时最先看到的界面。 您可以在这里找到所有的 GeChiUI 工具。 若您需要帮助，只需单击界面标题上方的“帮助”标签即可。' ) . '</p>';
+$help .= '<p>' . __( '仪表盘是您每次登录系统时最先看到的界面。 您可以在这里找到所有的 GeChiUI 工具。 若您需要帮助，只需单击界面标题上方的“帮助”标签即可。' ) . '</p>';
 
 $screen = get_current_screen();
 
@@ -49,7 +49,7 @@ $screen->add_help_tab(
 // Help tabs.
 
 $help  = '<p>' . __( '左侧的导航菜单提供了所有GeChiUI管理页面的链接。将鼠标移至菜单项目上，子菜单将显示出来。您可以使用最下方的“收起菜单”箭头来收起菜单，菜单项将以小图标的形式显示。' ) . '</p>';
-$help .= '<p>' . __( '上方“工具栏”上的链接将仪表盘和站点前端连接起来，默认在站点的所有页面显示，提供您的个人资料信息及有用的GeChiUI信息。' ) . '</p>';
+$help .= '<p>' . __( '上方“工具栏”上的链接将仪表盘和系统前端连接起来，默认在系统的所有页面显示，提供您的个人资料信息及有用的GeChiUI信息。' ) . '</p>';
 
 $screen->add_help_tab(
 	array(
@@ -75,15 +75,15 @@ $screen->add_help_tab(
 $help = '<p>' . __( '仪表盘中的模块有：' ) . '</p>';
 
 if ( current_user_can( 'edit_theme_options' ) ) {
-	$help .= '<p>' . __( '<strong>欢迎</strong>——显示配置新站点的实用功能。' ) . '</p>';
+	$help .= '<p>' . __( '<strong>欢迎</strong>——显示配置新系统的实用功能。' ) . '</p>';
 }
 
 if ( current_user_can( 'view_site_health_checks' ) ) {
-	$help .= '<p>' . __( '<strong>站点健康状态</strong>——告知您所需解决的任何潜在问题，以便改善您网站的性能及安全性。' ) . '</p>';
+	$help .= '<p>' . __( '<strong>系统健康状态</strong>——告知您所需解决的任何潜在问题，以便改善您系统的性能及安全性。' ) . '</p>';
 }
 
 if ( current_user_can( 'edit_posts' ) ) {
-	$help .= '<p>' . __( '<strong>概览</strong>——显示您站点上的内容概况，以及主题与GeChiUI程序的版本信息。' ) . '</p>';
+	$help .= '<p>' . __( '<strong>概览</strong>——显示您系统上的内容概况，以及主题与GeChiUI程序的版本信息。' ) . '</p>';
 }
 
 $help .= '<p>' . __( '<strong>动态</strong>——显示即将发布的计划文章、最新发布的文章以及您文章的最新评论，并让您对其进行审阅。' ) . '</p>';
@@ -138,10 +138,10 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 ?>
 
 <div class="wrap">
-	<h1><?php echo esc_html( $title ); ?></h1>
+	<div class="page-header"><h2 class="header-title"><?php echo esc_html( $title ); ?></h2></div>
 
 	<?php
-	if ( ! empty( $_GET['admin_email_remind_later'] ) ) :
+	if ( ! empty( $_GET['admin_email_remind_later'] ) ) {
 		/** This filter is documented in gc-login.php */
 		$remind_interval = (int) apply_filters( 'admin_email_remind_interval', 3 * DAY_IN_SECONDS );
 		$postponed_time  = get_option( 'admin_email_lifespan' );
@@ -153,50 +153,16 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 		$time_passed = time() - ( $postponed_time - $remind_interval );
 
 		// Only show the dashboard notice if it's been less than a minute since the message was postponed.
-		if ( $time_passed < MINUTE_IN_SECONDS ) :
-			?>
-		<div class="notice notice-success is-dismissible">
-			<p>
-				<?php
-				printf(
+		if ( $time_passed < MINUTE_IN_SECONDS ) {
+			$message = sprintf(
 					/* translators: %s: Human-readable time interval. */
 					__( '管理员邮件验证页面将会在%s之后重新显示。' ),
 					human_time_diff( time() + $remind_interval )
 				);
-				?>
-			</p>
-		</div>
-		<?php endif; ?>
-	<?php endif; ?>
-
-<?php
-if ( has_action( 'welcome_panel' ) && current_user_can( 'edit_theme_options' ) ) :
-	$classes = 'welcome-panel';
-
-	$option = (int) get_user_meta( get_current_user_id(), 'show_welcome_panel', true );
-	// 0 = hide, 1 = toggled to show or single site creator, 2 = multisite site owner.
-	$hide = ( 0 === $option || ( 2 === $option && gc_get_current_user()->user_email !== get_option( 'admin_email' ) ) );
-	if ( $hide ) {
-		$classes .= ' hidden';
+			echo setting_error($message, 'success');
+		 }
 	}
 	?>
-
-	<div id="welcome-panel" class="<?php echo esc_attr( $classes ); ?>">
-		<?php gc_nonce_field( 'welcome-panel-nonce', 'welcomepanelnonce', false ); ?>
-		<a class="welcome-panel-close" href="<?php echo esc_url( admin_url( '?welcome=0' ) ); ?>" aria-label="<?php esc_attr_e( '关闭欢迎面板' ); ?>"><?php _e( '不再显示' ); ?></a>
-		<?php
-		/**
-		 * Add content to the welcome panel on the admin dashboard.
-		 *
-		 * To remove the default welcome panel, use remove_action():
-		 *
-		 *     remove_action( 'welcome_panel', 'gc_welcome_panel' );
-		 *
-		 */
-		do_action( 'welcome_panel' );
-		?>
-	</div>
-<?php endif; ?>
 
 	<div id="dashboard-widgets-wrap">
 	<?php gc_dashboard(); ?>

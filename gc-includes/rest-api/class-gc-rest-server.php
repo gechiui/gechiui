@@ -4,19 +4,19 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core class used to implement the GeChiUI REST API server.
  *
- *
  */
+#[AllowDynamicProperties]
 class GC_REST_Server {
 
 	/**
 	 * Alias for GET transport method.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	const READABLE = 'GET';
@@ -24,6 +24,7 @@ class GC_REST_Server {
 	/**
 	 * Alias for POST transport method.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	const CREATABLE = 'POST';
@@ -31,6 +32,7 @@ class GC_REST_Server {
 	/**
 	 * Alias for POST, PUT, PATCH transport methods together.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	const EDITABLE = 'POST, PUT, PATCH';
@@ -38,6 +40,7 @@ class GC_REST_Server {
 	/**
 	 * Alias for DELETE transport method.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	const DELETABLE = 'DELETE';
@@ -45,6 +48,7 @@ class GC_REST_Server {
 	/**
 	 * Alias for GET, POST, PUT, PATCH & DELETE transport methods together.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	const ALLMETHODS = 'GET, POST, PUT, PATCH, DELETE';
@@ -52,6 +56,7 @@ class GC_REST_Server {
 	/**
 	 * Namespaces registered to the server.
 	 *
+	 * @since 4.4.0
 	 * @var array
 	 */
 	protected $namespaces = array();
@@ -59,6 +64,7 @@ class GC_REST_Server {
 	/**
 	 * Endpoints registered to the server.
 	 *
+	 * @since 4.4.0
 	 * @var array
 	 */
 	protected $endpoints = array();
@@ -66,6 +72,7 @@ class GC_REST_Server {
 	/**
 	 * Options defined for the routes.
 	 *
+	 * @since 4.4.0
 	 * @var array
 	 */
 	protected $route_options = array();
@@ -73,6 +80,7 @@ class GC_REST_Server {
 	/**
 	 * Caches embedded requests.
 	 *
+	 * @since 5.4.0
 	 * @var array
 	 */
 	protected $embed_cache = array();
@@ -80,6 +88,7 @@ class GC_REST_Server {
 	/**
 	 * Instantiates the REST server.
 	 *
+	 * @since 4.4.0
 	 */
 	public function __construct() {
 		$this->endpoints = array(
@@ -145,9 +154,10 @@ class GC_REST_Server {
 	/**
 	 * Checks the authentication headers if supplied.
 	 *
+	 * @since 4.4.0
 	 *
-	 * @return GC_Error|null GC_Error indicates unsuccessful login, null indicates successful
-	 *                       or no authentication provided
+	 * @return GC_Error|null|true GC_Error indicates unsuccessful login, null indicates successful
+	 *                            or no authentication provided
 	 */
 	public function check_authentication() {
 		/**
@@ -169,6 +179,7 @@ class GC_REST_Server {
 		 * data should be used). A callback can return `true` to indicate that
 		 * the authentication method was used, and it succeeded.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param GC_Error|null|true $errors GC_Error if authentication error, null if authentication
 		 *                                   method wasn't used, true if authentication succeeded.
@@ -180,9 +191,11 @@ class GC_REST_Server {
 	 * Converts an error to a response object.
 	 *
 	 * This iterates over all error codes and messages to change it into a flat
-	 * array. This enables simpler client behaviour, as it is represented as a
+	 * array. This enables simpler client behavior, as it is represented as a
 	 * list in JSON rather than an object/map.
 	 *
+	 * @since 4.4.0
+	 * @since 5.7.0 Converted to a wrapper of {@see rest_convert_error_to_response()}.
 	 *
 	 * @param GC_Error $error GC_Error instance.
 	 * @return GC_REST_Response List of associative arrays with code and message keys.
@@ -199,6 +212,7 @@ class GC_REST_Server {
 	 * should instead return a GC_Error with the data set to an array that includes
 	 * a 'status' key, with the value being the HTTP status to send.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $code    GC_Error-style code.
 	 * @param string $message Human-readable message.
@@ -216,11 +230,39 @@ class GC_REST_Server {
 	}
 
 	/**
+	 * Gets the encoding options passed to {@see gc_json_encode}.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param \GC_REST_Request $request The current request object.
+	 *
+	 * @return int The JSON encode options.
+	 */
+	protected function get_json_encode_options( GC_REST_Request $request ) {
+		$options = 0;
+
+		if ( $request->has_param( '_pretty' ) ) {
+			$options |= JSON_PRETTY_PRINT;
+		}
+
+		/**
+		 * Filters the JSON encoding options used to send the REST API response.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param int $options             JSON encoding options {@see json_encode()}.
+		 * @param GC_REST_Request $request Current request object.
+		 */
+		return apply_filters( 'rest_json_encode_options', $options, $request );
+	}
+
+	/**
 	 * Handles serving a REST API request.
 	 *
 	 * Matches the current server URI to a route and runs the first matching
 	 * callback then outputs a JSON representation of the returned value.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @see GC_REST_Server::dispatch()
 	 *
@@ -251,6 +293,7 @@ class GC_REST_Server {
 		/**
 		 * Filters whether JSONP is enabled for the REST API.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param bool $jsonp_enabled Whether JSONP is enabled. Default true.
 		 */
@@ -267,7 +310,7 @@ class GC_REST_Server {
 
 		$api_root = get_rest_url();
 		if ( ! empty( $api_root ) ) {
-			$this->send_header( 'Link', '<' . esc_url_raw( $api_root ) . '>; rel="https://api.w.org/"' );
+			$this->send_header( 'Link', '<' . sanitize_url( $api_root ) . '>; rel="https://api.w.org/"' );
 		}
 
 		/*
@@ -276,44 +319,11 @@ class GC_REST_Server {
 		 * https://miki.it/blog/2014/7/8/abusing-jsonp-with-rosetta-flash/
 		 */
 		$this->send_header( 'X-Content-Type-Options', 'nosniff' );
-		$expose_headers = array( 'X-GC-Total', 'X-GC-TotalPages', 'Link' );
-
-		/**
-		 * Filters the list of response headers that are exposed to REST API CORS requests.
-		 *
-		 *
-		 * @param string[] $expose_headers The list of response headers to expose.
-		 */
-		$expose_headers = apply_filters( 'rest_exposed_cors_headers', $expose_headers );
-
-		$this->send_header( 'Access-Control-Expose-Headers', implode( ', ', $expose_headers ) );
-
-		$allow_headers = array(
-			'Authorization',
-			'X-GC-Nonce',
-			'Content-Disposition',
-			'Content-MD5',
-			'Content-Type',
-		);
-
-		/**
-		 * Filters the list of request headers that are allowed for REST API CORS requests.
-		 *
-		 * The allowed headers are passed to the browser to specify which
-		 * headers can be passed to the REST API. By default, we allow the
-		 * Content-* headers needed to upload files to the media endpoints.
-		 * As well as the Authorization and Nonce headers for allowing authentication.
-		 *
-		 *
-		 * @param string[] $allow_headers The list of request headers to allow.
-		 */
-		$allow_headers = apply_filters( 'rest_allowed_cors_headers', $allow_headers );
-
-		$this->send_header( 'Access-Control-Allow-Headers', implode( ', ', $allow_headers ) );
 
 		/**
 		 * Filters whether to send nocache headers on a REST API request.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param bool $rest_send_nocache_headers Whether to send no-cache headers.
 		 */
@@ -331,6 +341,7 @@ class GC_REST_Server {
 		/**
 		 * Filters whether the REST API is enabled.
 		 *
+		 * @since 4.4.0
 		 * @deprecated 4.7.0 Use the {@see 'rest_authentication_errors'} filter to
 		 *                   restrict access to the REST API.
 		 *
@@ -350,7 +361,7 @@ class GC_REST_Server {
 
 		if ( $jsonp_callback ) {
 			if ( ! $jsonp_enabled ) {
-				echo $this->json_error( 'rest_callback_disabled', __( '此站点已禁用JSONP支持。' ), 400 );
+				echo $this->json_error( 'rest_callback_disabled', __( '此系统已禁用JSONP支持。' ), 400 );
 				return false;
 			}
 
@@ -387,6 +398,47 @@ class GC_REST_Server {
 			$request->set_method( $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] );
 		}
 
+		$expose_headers = array( 'X-GC-Total', 'X-GC-TotalPages', 'Link' );
+
+		/**
+		 * Filters the list of response headers that are exposed to REST API CORS requests.
+		 *
+		 * @since 5.5.0
+		 * @since 6.3.0 The `$request` parameter was added.
+		 *
+		 * @param string[]        $expose_headers The list of response headers to expose.
+		 * @param GC_REST_Request $request        The request in context.
+		 */
+		$expose_headers = apply_filters( 'rest_exposed_cors_headers', $expose_headers, $request );
+
+		$this->send_header( 'Access-Control-Expose-Headers', implode( ', ', $expose_headers ) );
+
+		$allow_headers = array(
+			'Authorization',
+			'X-GC-Nonce',
+			'Content-Disposition',
+			'Content-MD5',
+			'Content-Type',
+		);
+
+		/**
+		 * Filters the list of request headers that are allowed for REST API CORS requests.
+		 *
+		 * The allowed headers are passed to the browser to specify which
+		 * headers can be passed to the REST API. By default, we allow the
+		 * Content-* headers needed to upload files to the media endpoints.
+		 * As well as the Authorization and Nonce headers for allowing authentication.
+		 *
+		 * @since 5.5.0
+		 * @since 6.3.0 The `$request` parameter was added.
+		 *
+		 * @param string[]        $allow_headers The list of request headers to allow.
+		 * @param GC_REST_Request $request       The request in context.
+		 */
+		$allow_headers = apply_filters( 'rest_allowed_cors_headers', $allow_headers, $request );
+
+		$this->send_header( 'Access-Control-Allow-Headers', implode( ', ', $allow_headers ) );
+
 		$result = $this->check_authentication();
 
 		if ( ! is_gc_error( $result ) ) {
@@ -406,6 +458,8 @@ class GC_REST_Server {
 		 *
 		 * Allows modification of the response before returning.
 		 *
+		 * @since 4.4.0
+		 * @since 4.5.0 Applied to embedded responses.
 		 *
 		 * @param GC_HTTP_Response $result  Result to send to the client. Usually a `GC_REST_Response`.
 		 * @param GC_REST_Server   $server  Server instance.
@@ -415,7 +469,8 @@ class GC_REST_Server {
 
 		// Wrap the response in an envelope if asked for.
 		if ( isset( $_GET['_envelope'] ) ) {
-			$result = $this->envelope_response( $result, isset( $_GET['_embed'] ) );
+			$embed  = isset( $_GET['_embed'] ) ? rest_parse_embed_param( $_GET['_embed'] ) : false;
+			$result = $this->envelope_response( $result, $embed );
 		}
 
 		// Send extra data from response objects.
@@ -431,6 +486,7 @@ class GC_REST_Server {
 		 * Allow sending the request manually - by returning true, the API result
 		 * will not be sent to the client.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param bool             $served  Whether the request has already been served.
 		 *                                           Default false.
@@ -455,7 +511,7 @@ class GC_REST_Server {
 			 * Allows modification of the response data after inserting
 			 * embedded data (if any) and before echoing the response data.
 			 *
-		
+			 * @since 4.8.1
 			 *
 			 * @param array            $result  Response data to send to the client.
 			 * @param GC_REST_Server   $server  Server instance.
@@ -468,7 +524,7 @@ class GC_REST_Server {
 				return null;
 			}
 
-			$result = gc_json_encode( $result );
+			$result = gc_json_encode( $result, $this->get_json_encode_options( $request ) );
 
 			$json_error_message = $this->get_json_last_error();
 
@@ -481,7 +537,7 @@ class GC_REST_Server {
 				);
 
 				$result = $this->error_to_response( $json_error_obj );
-				$result = gc_json_encode( $result->data );
+				$result = gc_json_encode( $result->data, $this->get_json_encode_options( $request ) );
 			}
 
 			if ( $jsonp_callback ) {
@@ -499,6 +555,8 @@ class GC_REST_Server {
 	/**
 	 * Converts a response to data to send.
 	 *
+	 * @since 4.4.0
+	 * @since 5.4.0 The `$embed` parameter can now contain a list of link relations to include.
 	 *
 	 * @param GC_REST_Response $response Response object.
 	 * @param bool|string[]    $embed    Whether to embed all links, a filtered list of link relations, or no links.
@@ -540,6 +598,7 @@ class GC_REST_Server {
 	 * Extracts the links from a response into a structured hash, suitable for
 	 * direct output.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param GC_REST_Response $response Response to extract links from.
 	 * @return array Map of link relation to list of link hashes.
@@ -572,6 +631,7 @@ class GC_REST_Server {
 	 * Extracts the links from a response into a structured hash, suitable for
 	 * direct output.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param GC_REST_Response $response Response to extract links from.
 	 * @return array Map of link relation to list of link hashes.
@@ -591,7 +651,7 @@ class GC_REST_Server {
 			// Convert $rel URIs to their compact versions if they exist.
 			foreach ( $curies as $curie ) {
 				$href_prefix = substr( $curie['href'], 0, strpos( $curie['href'], '{rel}' ) );
-				if ( strpos( $rel, $href_prefix ) !== 0 ) {
+				if ( ! str_starts_with( $rel, $href_prefix ) ) {
 					continue;
 				}
 
@@ -619,6 +679,8 @@ class GC_REST_Server {
 	/**
 	 * Embeds the links from the data into the request.
 	 *
+	 * @since 4.4.0
+	 * @since 5.4.0 The `$embed` parameter can now contain a list of link relations to include.
 	 *
 	 * @param array         $data  Data from the request.
 	 * @param bool|string[] $embed Whether to embed all links or a filtered list of link relations.
@@ -637,8 +699,10 @@ class GC_REST_Server {
 		$embedded = array();
 
 		foreach ( $data['_links'] as $rel => $links ) {
-			// If a list of relations was specified, and the link relation
-			// is not in the list of allowed relations, don't process the link.
+			/*
+			 * If a list of relations was specified, and the link relation
+			 * is not in the list of allowed relations, don't process the link.
+			 */
 			if ( is_array( $embed ) && ! in_array( $rel, $embed, true ) ) {
 				continue;
 			}
@@ -699,9 +763,11 @@ class GC_REST_Server {
 	 * compatibility issues. Essentially, it converts the full HTTP response to
 	 * data instead.
 	 *
+	 * @since 4.4.0
+	 * @since 6.0.0 The `$embed` parameter can now contain a list of link relations to include.
 	 *
 	 * @param GC_REST_Response $response Response object.
-	 * @param bool             $embed    Whether links should be embedded.
+	 * @param bool|string[]    $embed    Whether to embed all links, a filtered list of link relations, or no links.
 	 * @return GC_REST_Response New response with wrapped data
 	 */
 	public function envelope_response( $response, $embed ) {
@@ -714,6 +780,7 @@ class GC_REST_Server {
 		/**
 		 * Filters the enveloped form of a REST API response.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param array            $envelope {
 		 *     Envelope data.
@@ -733,27 +800,28 @@ class GC_REST_Server {
 	/**
 	 * Registers a route to the server.
 	 *
+	 * @since 4.4.0
 	 *
-	 * @param string $namespace  Namespace.
-	 * @param string $route      The REST route.
-	 * @param array  $route_args Route arguments.
-	 * @param bool   $override   Optional. Whether the route should be overridden if it already exists.
-	 *                           Default false.
+	 * @param string $route_namespace Namespace.
+	 * @param string $route           The REST route.
+	 * @param array  $route_args      Route arguments.
+	 * @param bool   $override        Optional. Whether the route should be overridden if it already exists.
+	 *                                Default false.
 	 */
-	public function register_route( $namespace, $route, $route_args, $override = false ) {
-		if ( ! isset( $this->namespaces[ $namespace ] ) ) {
-			$this->namespaces[ $namespace ] = array();
+	public function register_route( $route_namespace, $route, $route_args, $override = false ) {
+		if ( ! isset( $this->namespaces[ $route_namespace ] ) ) {
+			$this->namespaces[ $route_namespace ] = array();
 
 			$this->register_route(
-				$namespace,
-				'/' . $namespace,
+				$route_namespace,
+				'/' . $route_namespace,
 				array(
 					array(
 						'methods'  => self::READABLE,
 						'callback' => array( $this, 'get_namespace_index' ),
 						'args'     => array(
 							'namespace' => array(
-								'default' => $namespace,
+								'default' => $route_namespace,
 							),
 							'context'   => array(
 								'default' => 'view',
@@ -765,8 +833,9 @@ class GC_REST_Server {
 		}
 
 		// Associative to avoid double-registration.
-		$this->namespaces[ $namespace ][ $route ] = true;
-		$route_args['namespace']                  = $namespace;
+		$this->namespaces[ $route_namespace ][ $route ] = true;
+
+		$route_args['namespace'] = $route_namespace;
 
 		if ( $override || empty( $this->endpoints[ $route ] ) ) {
 			$this->endpoints[ $route ] = $route_args;
@@ -790,21 +859,24 @@ class GC_REST_Server {
 	 * Note that the path regexes (array keys) must have @ escaped, as this is
 	 * used as the delimiter with preg_match()
 	 *
+	 * @since 4.4.0
+	 * @since 5.4.0 Added `$route_namespace` parameter.
 	 *
-	 * @param string $namespace Optionally, only return routes in the given namespace.
+	 * @param string $route_namespace Optionally, only return routes in the given namespace.
 	 * @return array `'/path/regex' => array( $callback, $bitmask )` or
 	 *               `'/path/regex' => array( array( $callback, $bitmask ), ...)`.
 	 */
-	public function get_routes( $namespace = '' ) {
+	public function get_routes( $route_namespace = '' ) {
 		$endpoints = $this->endpoints;
 
-		if ( $namespace ) {
-			$endpoints = gc_list_filter( $endpoints, array( 'namespace' => $namespace ) );
+		if ( $route_namespace ) {
+			$endpoints = gc_list_filter( $endpoints, array( 'namespace' => $route_namespace ) );
 		}
 
 		/**
 		 * Filters the array of available REST API endpoints.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param array $endpoints The available endpoints. An array of matching regex patterns, each mapped
 		 *                         to an array of callbacks for the endpoint. These take the format
@@ -868,6 +940,7 @@ class GC_REST_Server {
 	/**
 	 * Retrieves namespaces registered on the server.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return string[] List of registered namespaces.
 	 */
@@ -878,6 +951,7 @@ class GC_REST_Server {
 	/**
 	 * Retrieves specified options for a route.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $route Route pattern to fetch options for.
 	 * @return array|null Data as an associative array if found, or null if not found.
@@ -893,6 +967,7 @@ class GC_REST_Server {
 	/**
 	 * Matches the request to a callback and call it.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param GC_REST_Request $request Request to attempt dispatching.
 	 * @return GC_REST_Response Response returned by the callback.
@@ -904,6 +979,7 @@ class GC_REST_Server {
 		 * Allow hijacking the request before dispatching by returning a non-empty. The returned value
 		 * will be used to serve the request instead.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param mixed           $result  Response to replace the requested version with. Can be anything
 		 *                                 a normal endpoint can return, or null to not hijack the request.
@@ -913,6 +989,15 @@ class GC_REST_Server {
 		$result = apply_filters( 'rest_pre_dispatch', null, $this, $request );
 
 		if ( ! empty( $result ) ) {
+
+			// Normalize to either GC_Error or GC_REST_Response...
+			$result = rest_ensure_response( $result );
+
+			// ...then convert GC_Error across.
+			if ( is_gc_error( $result ) ) {
+				$result = $this->error_to_response( $result );
+			}
+
 			return $result;
 		}
 
@@ -952,6 +1037,7 @@ class GC_REST_Server {
 	 * Matches a request object to its handler.
 	 *
 	 * @access private
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request The request object.
 	 * @return array|GC_Error The route and request handler on success or a GC_Error instance if no handler was found.
@@ -963,7 +1049,7 @@ class GC_REST_Server {
 		$with_namespace = array();
 
 		foreach ( $this->get_namespaces() as $namespace ) {
-			if ( 0 === strpos( trailingslashit( ltrim( $path, '/' ) ), $namespace ) ) {
+			if ( str_starts_with( trailingslashit( ltrim( $path, '/' ) ), $namespace ) ) {
 				$with_namespace[] = $this->get_routes( $namespace );
 			}
 		}
@@ -1034,6 +1120,7 @@ class GC_REST_Server {
 	 * Dispatches the request to the callback handler.
 	 *
 	 * @access private
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request  The request object.
 	 * @param string          $route    The matched route regex.
@@ -1052,6 +1139,7 @@ class GC_REST_Server {
 		 * Note that this filter will not be called for requests that
 		 * fail to authenticate or match to a registered route.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_REST_Response|GC_HTTP_Response|GC_Error|mixed $response Result to send to the client.
 		 *                                                                   Usually a GC_REST_Response or GC_Error.
@@ -1081,8 +1169,8 @@ class GC_REST_Server {
 			 *
 			 * Allow plugins to override dispatching the request.
 			 *
-		
-		
+			 * @since 4.4.0
+			 * @since 4.5.0 Added `$route` and `$handler` parameters.
 			 *
 			 * @param mixed           $dispatch_result Dispatch result, will be used if not empty.
 			 * @param GC_REST_Request $request         Request used to generate the response.
@@ -1113,6 +1201,7 @@ class GC_REST_Server {
 		 * Note that an endpoint's `permission_callback` can still be
 		 * called after this filter - see `rest_send_allow_header()`.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_REST_Response|GC_HTTP_Response|GC_Error|mixed $response Result to send to the client.
 		 *                                                                   Usually a GC_REST_Response or GC_Error.
@@ -1139,6 +1228,7 @@ class GC_REST_Server {
 	 * Strings to be translated will be in format like
 	 * "Encoding error: Maximum stack depth exceeded".
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return false|string Boolean false or string error message.
 	 */
@@ -1157,6 +1247,7 @@ class GC_REST_Server {
 	 *
 	 * This endpoint describes the capabilities of the site.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $request {
 	 *     Request.
@@ -1192,15 +1283,19 @@ class GC_REST_Server {
 		 * about supported authentication schemes, supported namespaces, routes
 		 * available on the API, and a small amount of data about the site.
 		 *
+		 * @since 4.4.0
+		 * @since 6.0.0 Added `$request` parameter.
 		 *
 		 * @param GC_REST_Response $response Response data.
+		 * @param GC_REST_Request  $request  Request data.
 		 */
-		return apply_filters( 'rest_index', $response );
+		return apply_filters( 'rest_index', $response, $request );
 	}
 
 	/**
 	 * Adds a link to the active theme for users who have proper permissions.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param GC_REST_Response $response REST API response.
 	 */
@@ -1232,6 +1327,7 @@ class GC_REST_Server {
 	 * This is used for fetching this information when user has no rights
 	 * to update settings.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Response $response REST API response.
 	 */
@@ -1247,6 +1343,7 @@ class GC_REST_Server {
 	 * This is used for fetching this information when user has no rights
 	 * to update settings.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Response $response REST API response.
 	 */
@@ -1254,6 +1351,8 @@ class GC_REST_Server {
 		$site_icon_id = get_option( 'site_icon', 0 );
 
 		$this->add_image_to_index( $response, $site_icon_id, 'site_icon' );
+
+		$response->data['site_icon_url'] = get_site_icon_url();
 	}
 
 	/**
@@ -1261,6 +1360,7 @@ class GC_REST_Server {
 	 * This is used for fetching this information when user has no rights
 	 * to update settings.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Response $response REST API response.
 	 * @param int              $image_id Image attachment ID.
@@ -1283,6 +1383,7 @@ class GC_REST_Server {
 	/**
 	 * Retrieves the index for a namespace.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param GC_REST_Request $request REST request instance.
 	 * @return GC_REST_Response|GC_Error GC_REST_Response instance if the index was found,
@@ -1317,6 +1418,7 @@ class GC_REST_Server {
 		 * This typically is just the route data for the namespace, but you can
 		 * add any data you'd like here.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param GC_REST_Response $response Response data.
 		 * @param GC_REST_Request  $request  Request data. The namespace is passed as the 'namespace' parameter.
@@ -1327,6 +1429,7 @@ class GC_REST_Server {
 	/**
 	 * Retrieves the publicly-visible data for routes.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array  $routes  Routes to get data for.
 	 * @param string $context Optional. Context for data. Accepts 'view' or 'help'. Default 'view'.
@@ -1345,7 +1448,7 @@ class GC_REST_Server {
 			/**
 			 * Filters the publicly-visible data for a single REST API route.
 			 *
-		
+			 * @since 4.4.0
 			 *
 			 * @param array $data Publicly-visible data for the route.
 			 */
@@ -1359,6 +1462,7 @@ class GC_REST_Server {
 		 * developers to investigate the site and find out how to use it. It
 		 * acts as a form of self-documentation.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param array[] $available Route data to expose in indexes, keyed by route.
 		 * @param array   $routes    Internal route data as an associative array.
@@ -1369,6 +1473,7 @@ class GC_REST_Server {
 	/**
 	 * Retrieves publicly-visible data for the route.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $route     Route to get data for.
 	 * @param array  $callbacks Callbacks to convert to data.
@@ -1423,6 +1528,11 @@ class GC_REST_Server {
 				$endpoint_data['args'] = array();
 
 				foreach ( $callback['args'] as $key => $opts ) {
+					if ( is_string( $opts ) ) {
+						$opts = array( $opts => 0 );
+					} elseif ( ! is_array( $opts ) ) {
+						$opts = array();
+					}
 					$arg_data             = array_intersect_key( $opts, $allowed_schema_keywords );
 					$arg_data['required'] = ! empty( $opts['required'] );
 
@@ -1433,7 +1543,7 @@ class GC_REST_Server {
 			$data['endpoints'][] = $endpoint_data;
 
 			// For non-variable routes, generate links.
-			if ( strpos( $route, '{' ) === false ) {
+			if ( ! str_contains( $route, '{' ) ) {
 				$data['_links'] = array(
 					'self' => array(
 						array(
@@ -1455,6 +1565,7 @@ class GC_REST_Server {
 	/**
 	 * Gets the maximum number of requests that can be included in a batch.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @return int The maximum requests.
 	 */
@@ -1462,6 +1573,7 @@ class GC_REST_Server {
 		/**
 		 * Filters the maximum number of REST API requests that can be included in a batch.
 		 *
+		 * @since 5.6.0
 		 *
 		 * @param int $max_size The maximum size.
 		 */
@@ -1471,6 +1583,7 @@ class GC_REST_Server {
 	/**
 	 * Serves the batch/v1 request.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $batch_request The batch request object.
 	 * @return GC_REST_Response The generated response object.
@@ -1626,6 +1739,7 @@ class GC_REST_Server {
 	/**
 	 * Sends an HTTP status code.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param int $code HTTP status.
 	 */
@@ -1636,6 +1750,7 @@ class GC_REST_Server {
 	/**
 	 * Sends an HTTP header.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $key Header key.
 	 * @param string $value Header value.
@@ -1655,6 +1770,7 @@ class GC_REST_Server {
 	/**
 	 * Sends multiple HTTP headers.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $headers Map of header name to header value.
 	 */
@@ -1667,6 +1783,7 @@ class GC_REST_Server {
 	/**
 	 * Removes an HTTP header from the current response.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param string $key Header key.
 	 */
@@ -1677,6 +1794,7 @@ class GC_REST_Server {
 	/**
 	 * Retrieves the raw request entity (body).
 	 *
+	 * @since 4.4.0
 	 *
 	 * @global string $HTTP_RAW_POST_DATA Raw post data.
 	 *
@@ -1698,6 +1816,7 @@ class GC_REST_Server {
 	/**
 	 * Extracts headers from a PHP-style $_SERVER array.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $server Associative array similar to `$_SERVER`.
 	 * @return array Headers extracted from the input.
@@ -1713,7 +1832,7 @@ class GC_REST_Server {
 		);
 
 		foreach ( $server as $key => $value ) {
-			if ( strpos( $key, 'HTTP_' ) === 0 ) {
+			if ( str_starts_with( $key, 'HTTP_' ) ) {
 				$headers[ substr( $key, 5 ) ] = $value;
 			} elseif ( 'REDIRECT_HTTP_AUTHORIZATION' === $key && empty( $server['HTTP_AUTHORIZATION'] ) ) {
 				/*

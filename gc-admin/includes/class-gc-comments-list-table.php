@@ -4,14 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Core class used to implement displaying comments in a list table.
- *
- *
- * @access private
  *
  * @see GC_List_Table
  */
@@ -139,21 +135,23 @@ class GC_Comments_List_Table extends GC_List_Table {
 		);
 
 		$args = array(
-			'status'    => isset( $status_map[ $comment_status ] ) ? $status_map[ $comment_status ] : $comment_status,
-			'search'    => $search,
-			'user_id'   => $user_id,
-			'offset'    => $start,
-			'number'    => $number,
-			'post_id'   => $post_id,
-			'type'      => $comment_type,
-			'orderby'   => $orderby,
-			'order'     => $order,
-			'post_type' => $post_type,
+			'status'                    => isset( $status_map[ $comment_status ] ) ? $status_map[ $comment_status ] : $comment_status,
+			'search'                    => $search,
+			'user_id'                   => $user_id,
+			'offset'                    => $start,
+			'number'                    => $number,
+			'post_id'                   => $post_id,
+			'type'                      => $comment_type,
+			'orderby'                   => $orderby,
+			'order'                     => $order,
+			'post_type'                 => $post_type,
+			'update_comment_post_cache' => true,
 		);
 
 		/**
 		 * Filters the arguments for the comment query in the comments list table.
 		 *
+		 * @since 5.1.0
 		 *
 		 * @param array $args An array of get_comments() arguments.
 		 */
@@ -162,8 +160,6 @@ class GC_Comments_List_Table extends GC_List_Table {
 		$_comments = get_comments( $args );
 
 		if ( is_array( $_comments ) ) {
-			update_comment_cache( $_comments );
-
 			$this->items       = array_slice( $_comments, 0, $comments_per_page );
 			$this->extra_items = array_slice( $_comments, $comments_per_page );
 
@@ -201,6 +197,7 @@ class GC_Comments_List_Table extends GC_List_Table {
 		/**
 		 * Filters the number of comments listed per page in the comments list table.
 		 *
+		 * @since 2.6.0
 		 *
 		 * @param int    $comments_per_page The number of comments to list per page.
 		 * @param string $comment_status    The comment status name. Default 'All'.
@@ -289,12 +286,6 @@ class GC_Comments_List_Table extends GC_List_Table {
 		}
 
 		foreach ( $stati as $status => $label ) {
-			$current_link_attributes = '';
-
-			if ( $status === $comment_status ) {
-				$current_link_attributes = ' class="current" aria-current="page"';
-			}
-
 			if ( 'mine' === $status ) {
 				$current_user_id    = get_current_user_id();
 				$num_comments->mine = get_comments(
@@ -325,24 +316,30 @@ class GC_Comments_List_Table extends GC_List_Table {
 				$link = add_query_arg( 's', esc_attr( gc_unslash( $_REQUEST['s'] ) ), $link );
 			*/
 
-			$status_links[ $status ] = "<a href='$link'$current_link_attributes>" . sprintf(
-				translate_nooped_plural( $label, $num_comments->$status ),
-				sprintf(
-					'<span class="%s-count">%s</span>',
-					( 'moderated' === $status ) ? 'pending' : $status,
-					number_format_i18n( $num_comments->$status )
-				)
-			) . '</a>';
+			$status_links[ $status ] = array(
+				'url'     => esc_url( $link ),
+				'label'   => sprintf(
+					translate_nooped_plural( $label, $num_comments->$status ),
+					sprintf(
+						'<span class="%s-count">%s</span>',
+						( 'moderated' === $status ) ? 'pending' : $status,
+						number_format_i18n( $num_comments->$status )
+					)
+				),
+				'current' => $status === $comment_status,
+			);
 		}
 
 		/**
 		 * Filters the comment status links.
 		 *
+		 * @since 2.5.0
+		 * @since 5.1.0 The 'Mine' link was added.
 		 *
 		 * @param string[] $status_links An associative array of fully-formed comment status links. Includes 'All', 'Mine',
 		 *                              'Pending', 'Approved', 'Spam', and 'Trash'.
 		 */
-		return apply_filters( 'comment_status_links', $status_links );
+		return apply_filters( 'comment_status_links', $this->get_views_links( $status_links ) );
 	}
 
 	/**
@@ -406,7 +403,7 @@ class GC_Comments_List_Table extends GC_List_Table {
 			/**
 			 * Fires just before the Filter submit button for comment types.
 			 *
-		
+			 * @since 3.5.0
 			 */
 			do_action( 'restrict_manage_comments' );
 
@@ -423,12 +420,14 @@ class GC_Comments_List_Table extends GC_List_Table {
 		) {
 			gc_nonce_field( 'bulk-destroy', '_destroy_nonce' );
 			$title = ( 'spam' === $comment_status ) ? esc_attr__( '清空垃圾' ) : esc_attr__( '清空回收站' );
-			submit_button( $title, 'apply', 'delete_all', false );
+			submit_button( $title, '', 'delete_all', false );
 		}
 
 		/**
 		 * Fires after the Filter submit button for comment types.
 		 *
+		 * @since 2.5.0
+		 * @since 5.6.0 The `$which` parameter was added.
 		 *
 		 * @param string $comment_status The comment status name. Default 'All'.
 		 * @param string $which          The location of the extra table nav markup: 'top' or 'bottom'.
@@ -452,7 +451,7 @@ class GC_Comments_List_Table extends GC_List_Table {
 	/**
 	 * @global int $post_id
 	 *
-	 * @return array
+	 * @return string[] Array of column titles keyed by their column name.
 	 */
 	public function get_columns() {
 		global $post_id;
@@ -479,6 +478,8 @@ class GC_Comments_List_Table extends GC_List_Table {
 	/**
 	 * Displays a comment type drop-down for filtering on the Comments list table.
 	 *
+	 * @since 5.5.0
+	 * @since 5.6.0 Renamed from `comment_status_dropdown()` to `comment_type_dropdown()`.
 	 *
 	 * @param string $comment_type The current comment type slug.
 	 */
@@ -486,19 +487,22 @@ class GC_Comments_List_Table extends GC_List_Table {
 		/**
 		 * Filters the comment types shown in the drop-down menu on the Comments list table.
 		 *
-		 *
 		 * @param string[] $comment_types Array of comment type labels keyed by their name.
 		 */
 		$comment_types = apply_filters(
 			'admin_comment_types_dropdown',
 			array(
 				'comment' => __( '评论' ),
-				'pings'   => __( 'Ping通告' ),
+				'pings'   => __( 'Ping 通告' ),
 			)
 		);
 
 		if ( $comment_types && is_array( $comment_types ) ) {
-			printf( '<label class="screen-reader-text" for="filter-by-comment-type">%s</label>', __( '按评论类型筛选' ) );
+			printf(
+				'<label class="screen-reader-text" for="filter-by-comment-type">%s</label>',
+				/* translators: Hidden accessibility text. */
+				__( '按评论类型筛选' )
+			);
 
 			echo '<select id="filter-by-comment-type" name="comment_type">';
 
@@ -529,15 +533,16 @@ class GC_Comments_List_Table extends GC_List_Table {
 	 */
 	protected function get_sortable_columns() {
 		return array(
-			'author'   => 'comment_author',
-			'response' => 'comment_post_ID',
+			'author'   => array( 'comment_author', false, __( '作者' ), __( '表格按评论作者排序。' ) ),
+			'response' => array( 'comment_post_ID', false, _x( '回应给', 'column name' ), __( '表格按回复文章排序。' ) ),
 			'date'     => 'comment_date',
 		);
 	}
 
 	/**
-	 * Get the name of the default primary column.
+	 * Gets the name of the default primary column.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @return string Name of the default primary column, in this case, 'comment'.
 	 */
@@ -567,6 +572,17 @@ class GC_Comments_List_Table extends GC_List_Table {
 
 		?>
 <table class="gc-list-table <?php echo implode( ' ', $this->get_table_classes() ); ?>">
+		<?php
+		if ( ! isset( $_GET['orderby'] ) ) {
+			// In the initial view, Comments are ordered by comment's date but there's no column for that.
+			echo '<caption class="screen-reader-text">' .
+			/* translators: Hidden accessibility text. */
+			__( '按评论日期降序排列。' ) .
+			'</caption>';
+		} else {
+			$this->print_table_description();
+		}
+		?>
 	<thead>
 	<tr>
 		<?php $this->print_column_headers(); ?>
@@ -635,8 +651,10 @@ class GC_Comments_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Generate and display row actions links.
+	 * Generates and displays row actions links.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$comment` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @global string $comment_status Status for the current listed comments.
 	 *
@@ -662,7 +680,7 @@ class GC_Comments_List_Table extends GC_List_Table {
 		$comment            = $item;
 		$the_comment_status = gc_get_comment_status( $comment );
 
-		$out = '';
+		$output = '';
 
 		$del_nonce     = esc_html( '_gcnonce=' . gc_create_nonce( "delete-comment_$comment->comment_ID" ) );
 		$approve_nonce = esc_html( '_gcnonce=' . gc_create_nonce( "approve-comment_$comment->comment_ID" ) );
@@ -771,7 +789,7 @@ class GC_Comments_List_Table extends GC_List_Table {
 				$trash_url,
 				"delete:the-comment-list:comment-{$comment->comment_ID}::trash=1",
 				esc_attr__( '将此评论移至回收站' ),
-				_x( '移至回收站', 'verb' )
+				_x( '回收站', 'verb' )
 			);
 		}
 
@@ -817,7 +835,7 @@ class GC_Comments_List_Table extends GC_List_Table {
 			$always_visible = true;
 		}
 
-		$out .= '<div class="' . ( $always_visible ? 'row-actions visible' : 'row-actions' ) . '">';
+		$output .= '<div class="' . ( $always_visible ? 'row-actions visible' : 'row-actions' ) . '">';
 
 		$i = 0;
 
@@ -827,9 +845,9 @@ class GC_Comments_List_Table extends GC_List_Table {
 			if ( ( ( 'approve' === $action || 'unapprove' === $action ) && 2 === $i )
 				|| 1 === $i
 			) {
-				$sep = '';
+				$separator = '';
 			} else {
-				$sep = ' | ';
+				$separator = ' | ';
 			}
 
 			// Reply and quickedit need a hide-if-no-js span when not added with Ajax.
@@ -845,17 +863,21 @@ class GC_Comments_List_Table extends GC_List_Table {
 				}
 			}
 
-			$out .= "<span class='$action'>$sep$link</span>";
+			$output .= "<span class='$action'>{$separator}{$link}</span>";
 		}
 
-		$out .= '</div>';
+		$output .= '</div>';
 
-		$out .= '<button type="button" class="toggle-row"><span class="screen-reader-text">' . __( '显示详情' ) . '</span></button>';
+		$output .= '<button type="button" class="toggle-row"><span class="screen-reader-text">' .
+			/* translators: Hidden accessibility text. */
+			__( '显示详情' ) .
+		'</span></button>';
 
-		return $out;
+		return $output;
 	}
 
 	/**
+	 * @since 5.9.0 Renamed `$comment` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Comment $item The comment object.
 	 */
@@ -865,7 +887,14 @@ class GC_Comments_List_Table extends GC_List_Table {
 
 		if ( $this->user_can ) {
 			?>
-		<label class="screen-reader-text" for="cb-select-<?php echo $comment->comment_ID; ?>"><?php _e( '选择评论' ); ?></label>
+		<label class="label-covers-full-cell" for="cb-select-<?php echo $comment->comment_ID; ?>">
+			<span class="screen-reader-text">
+			<?php
+			/* translators: Hidden accessibility text. */
+			_e( '选择评论' );
+			?>
+			</span>
+		</label>
 		<input id="cb-select-<?php echo $comment->comment_ID; ?>" type="checkbox" name="delete_comments[]" value="<?php echo $comment->comment_ID; ?>" />
 			<?php
 		}
@@ -901,9 +930,9 @@ class GC_Comments_List_Table extends GC_List_Table {
 			?>
 		<div id="inline-<?php echo $comment->comment_ID; ?>" class="hidden">
 			<textarea class="comment" rows="1" cols="1"><?php echo esc_textarea( $comment_content ); ?></textarea>
-			<div class="author-email"><?php echo esc_attr( $comment->comment_author_email ); ?></div>
-			<div class="author"><?php echo esc_attr( $comment->comment_author ); ?></div>
-			<div class="author-url"><?php echo esc_attr( $comment->comment_author_url ); ?></div>
+			<div class="author-email"><?php echo esc_html( $comment->comment_author_email ); ?></div>
+			<div class="author"><?php echo esc_html( $comment->comment_author ); ?></div>
+			<div class="author-url"><?php echo esc_url( $comment->comment_author_url ); ?></div>
 			<div class="comment_status"><?php echo $comment->comment_approved; ?></div>
 		</div>
 			<?php
@@ -979,7 +1008,7 @@ class GC_Comments_List_Table extends GC_List_Table {
 			/* translators: Comment date format. See https://www.php.net/manual/datetime.format.php */
 			get_comment_date( __( 'Y-m-d' ), $comment ),
 			/* translators: Comment time format. See https://www.php.net/manual/datetime.format.php */
-			get_comment_date( __( 'ag:i' ), $comment )
+			get_comment_date( __( 'H:i' ), $comment )
 		);
 
 		echo '<div class="submitted-on">';
@@ -1044,6 +1073,7 @@ class GC_Comments_List_Table extends GC_List_Table {
 	}
 
 	/**
+	 * @since 5.9.0 Renamed `$comment` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Comment $item        The comment object.
 	 * @param string     $column_name The custom column's name.
@@ -1052,6 +1082,7 @@ class GC_Comments_List_Table extends GC_List_Table {
 		/**
 		 * Fires when the default column output is displayed for a single row.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param string $column_name The custom column's name.
 		 * @param string $comment_id  The comment ID as a numeric string.

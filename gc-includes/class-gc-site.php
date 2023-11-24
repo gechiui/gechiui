@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Multisite
- *
  */
 
 /**
@@ -13,8 +12,6 @@
  * This class is used during load to populate the `$current_blog` global and
  * setup the current site.
  *
- *
- *
  * @property int    $id
  * @property int    $network_id
  * @property string $blogname
@@ -22,6 +19,7 @@
  * @property int    $post_count
  * @property string $home
  */
+#[AllowDynamicProperties]
 final class GC_Site {
 
 	/**
@@ -31,6 +29,7 @@ final class GC_Site {
 	 *
 	 * A numeric string, for compatibility reasons.
 	 *
+	 * @since 4.5.0
 	 * @var string
 	 */
 	public $blog_id;
@@ -38,6 +37,7 @@ final class GC_Site {
 	/**
 	 * Domain of the site.
 	 *
+	 * @since 4.5.0
 	 * @var string
 	 */
 	public $domain = '';
@@ -45,6 +45,7 @@ final class GC_Site {
 	/**
 	 * Path of the site.
 	 *
+	 * @since 4.5.0
 	 * @var string
 	 */
 	public $path = '';
@@ -57,6 +58,7 @@ final class GC_Site {
 	 *
 	 * A numeric string, for compatibility reasons.
 	 *
+	 * @since 4.5.0
 	 * @var string
 	 */
 	public $site_id = '0';
@@ -64,6 +66,7 @@ final class GC_Site {
 	/**
 	 * The date and time on which the site was created or registered.
 	 *
+	 * @since 4.5.0
 	 * @var string Date in MySQL's datetime format.
 	 */
 	public $registered = '0000-00-00 00:00:00';
@@ -71,6 +74,7 @@ final class GC_Site {
 	/**
 	 * The date and time on which site settings were last updated.
 	 *
+	 * @since 4.5.0
 	 * @var string Date in MySQL's datetime format.
 	 */
 	public $last_updated = '0000-00-00 00:00:00';
@@ -80,6 +84,7 @@ final class GC_Site {
 	 *
 	 * A numeric string, for compatibility reasons.
 	 *
+	 * @since 4.5.0
 	 * @var string
 	 */
 	public $public = '1';
@@ -89,6 +94,7 @@ final class GC_Site {
 	 *
 	 * A numeric string, for compatibility reasons.
 	 *
+	 * @since 4.5.0
 	 * @var string
 	 */
 	public $archived = '0';
@@ -101,6 +107,7 @@ final class GC_Site {
 	 *
 	 * A numeric string, for compatibility reasons.
 	 *
+	 * @since 4.5.0
 	 * @var string
 	 */
 	public $mature = '0';
@@ -110,6 +117,7 @@ final class GC_Site {
 	 *
 	 * A numeric string, for compatibility reasons.
 	 *
+	 * @since 4.5.0
 	 * @var string
 	 */
 	public $spam = '0';
@@ -119,6 +127,7 @@ final class GC_Site {
 	 *
 	 * A numeric string, for compatibility reasons.
 	 *
+	 * @since 4.5.0
 	 * @var string
 	 */
 	public $deleted = '0';
@@ -128,6 +137,7 @@ final class GC_Site {
 	 *
 	 * A numeric string, for compatibility reasons.
 	 *
+	 * @since 4.5.0
 	 * @var string
 	 */
 	public $lang_id = '0';
@@ -135,6 +145,7 @@ final class GC_Site {
 	/**
 	 * Retrieves a site from the database by its ID.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -174,6 +185,7 @@ final class GC_Site {
 	 * Will populate object properties from the object provided and assign other
 	 * default properties based on that information.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param GC_Site|object $site A site object.
 	 */
@@ -186,6 +198,7 @@ final class GC_Site {
 	/**
 	 * Converts an object to array.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @return array Object as array.
 	 */
@@ -199,6 +212,7 @@ final class GC_Site {
 	 * Allows current multisite naming conventions when getting properties.
 	 * Allows access to extended site properties.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string $key Property to get.
 	 * @return mixed Value of the property. Null if not available.
@@ -233,6 +247,7 @@ final class GC_Site {
 	 * Allows current multisite naming conventions when checking for properties.
 	 * Checks for extended site properties.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string $key Property to check if set.
 	 * @return bool Whether the property is set.
@@ -269,6 +284,7 @@ final class GC_Site {
 	 *
 	 * Allows current multisite naming conventions while setting properties.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string $key   Property to set.
 	 * @param mixed  $value Value to assign to the property.
@@ -291,6 +307,7 @@ final class GC_Site {
 	 *
 	 * This method is used internally to lazy-load the extended properties of a site.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @see GC_Site::__get()
 	 *
@@ -322,6 +339,7 @@ final class GC_Site {
 		/**
 		 * Filters a site's extended properties.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param stdClass $details The site details.
 		 */

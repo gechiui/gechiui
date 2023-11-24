@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core class used to managed terms associated with a taxonomy via the REST API.
- *
- *
  *
  * @see GC_REST_Controller
  */
@@ -19,6 +16,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Taxonomy key.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	protected $taxonomy;
@@ -26,6 +24,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Instance of a term meta fields object.
 	 *
+	 * @since 4.7.0
 	 * @var GC_REST_Term_Meta_Fields
 	 */
 	protected $meta;
@@ -33,6 +32,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Column to have the terms be sorted by.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	protected $sort_column;
@@ -40,6 +40,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Number of terms that were found.
 	 *
+	 * @since 4.7.0
 	 * @var int
 	 */
 	protected $total_terms;
@@ -47,6 +48,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Whether the controller supports batching.
 	 *
+	 * @since 5.9.0
 	 * @var array
 	 */
 	protected $allow_batch = array( 'v1' => true );
@@ -54,6 +56,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string $taxonomy Taxonomy key.
 	 */
@@ -69,6 +72,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the routes for terms.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @see register_rest_route()
 	 */
@@ -138,8 +142,38 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	}
 
 	/**
+	 * Checks if the terms for a post can be read.
+	 *
+	 * @since 6.0.3
+	 *
+	 * @param GC_Post         $post    Post object.
+	 * @param GC_REST_Request $request Full details about the request.
+	 * @return bool Whether the terms for the post can be read.
+	 */
+	public function check_read_terms_permission_for_post( $post, $request ) {
+		// If the requested post isn't associated with this taxonomy, deny access.
+		if ( ! is_object_in_taxonomy( $post->post_type, $this->taxonomy ) ) {
+			return false;
+		}
+
+		// Grant access if the post is publicly viewable.
+		if ( is_post_publicly_viewable( $post ) ) {
+			return true;
+		}
+
+		// Otherwise grant access if the post is readable by the logged in user.
+		if ( current_user_can( 'read_post', $post->ID ) ) {
+			return true;
+		}
+
+		// Otherwise, deny access.
+		return false;
+	}
+
+	/**
 	 * Checks if a request has access to read terms in the specified taxonomy.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, otherwise false or GC_Error object.
@@ -159,12 +193,37 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 			);
 		}
 
+		if ( ! empty( $request['post'] ) ) {
+			$post = get_post( $request['post'] );
+
+			if ( ! $post ) {
+				return new GC_Error(
+					'rest_post_invalid_id',
+					__( '文章ID无效。' ),
+					array(
+						'status' => 400,
+					)
+				);
+			}
+
+			if ( ! $this->check_read_terms_permission_for_post( $post, $request ) ) {
+				return new GC_Error(
+					'rest_forbidden_context',
+					__( '抱歉，您不能查看这篇文章的项目。' ),
+					array(
+						'status' => rest_authorization_required_code(),
+					)
+				);
+			}
+		}
+
 		return true;
 	}
 
 	/**
 	 * Retrieves terms associated with a taxonomy.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -246,6 +305,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 		 * Enables adding extra arguments or setting defaults for a terms
 		 * collection request.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @link https://developer.gechiui.com/reference/functions/get_terms/
 		 *
@@ -293,7 +353,10 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 
 		$response->header( 'X-GC-TotalPages', (int) $max_pages );
 
-		$base = add_query_arg( urlencode_deep( $request->get_query_params() ), rest_url( $this->namespace . '/' . $this->rest_base ) );
+		$request_params = $request->get_query_params();
+		$collection_url = rest_url( rest_get_route_for_taxonomy_items( $this->taxonomy ) );
+		$base           = add_query_arg( urlencode_deep( $request_params ), $collection_url );
+
 		if ( $page > 1 ) {
 			$prev_page = $page - 1;
 
@@ -317,6 +380,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Get the term, if the ID is valid.
 	 *
+	 * @since 4.7.2
 	 *
 	 * @param int $id Supplied ID.
 	 * @return GC_Term|GC_Error Term object if ID is valid, GC_Error otherwise.
@@ -347,6 +411,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a request has access to read or edit the specified term.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access for the item, otherwise false or GC_Error object.
@@ -372,6 +437,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Gets a single term from a taxonomy.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -390,6 +456,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a request has access to create a term.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to create items, false or GC_Error object otherwise.
@@ -419,6 +486,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Creates a single term in a taxonomy.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -479,6 +547,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 		 *  - `rest_insert_category`
 		 *  - `rest_insert_post_tag`
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_Term         $term     Inserted or updated term object.
 		 * @param GC_REST_Request $request  Request object.
@@ -513,6 +582,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 		 *  - `rest_after_insert_category`
 		 *  - `rest_after_insert_post_tag`
 		 *
+		 * @since 5.0.0
 		 *
 		 * @param GC_Term         $term     Inserted or updated term object.
 		 * @param GC_REST_Request $request  Request object.
@@ -532,6 +602,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a request has access to update the specified term.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to update the item, false or GC_Error object otherwise.
@@ -557,6 +628,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Updates a single term from a taxonomy.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -631,6 +703,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a request has access to delete the specified term.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to delete the item, otherwise false or GC_Error object.
@@ -656,6 +729,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Deletes a single term from a taxonomy.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -710,6 +784,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 		 *  - `rest_delete_category`
 		 *  - `rest_delete_post_tag`
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_Term          $term     The deleted term.
 		 * @param GC_REST_Response $response The response data.
@@ -723,12 +798,13 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a single term for create or update.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Request object.
 	 * @return object Term object.
 	 */
 	public function prepare_item_for_database( $request ) {
-		$prepared_term = new stdClass;
+		$prepared_term = new stdClass();
 
 		$schema = $this->get_item_schema();
 		if ( isset( $request['name'] ) && ! empty( $schema['properties']['name'] ) ) {
@@ -772,6 +848,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 		 *  - `rest_pre_insert_category`
 		 *  - `rest_pre_insert_post_tag`
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param object          $prepared_term Term object.
 		 * @param GC_REST_Request $request       Request object.
@@ -782,6 +859,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a single term output for response.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_Term         $item    Term object.
 	 * @param GC_REST_Request $request Request object.
@@ -834,7 +912,9 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 
 		$response = rest_ensure_response( $data );
 
-		$response->add_links( $this->prepare_links( $item ) );
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$response->add_links( $this->prepare_links( $item ) );
+		}
 
 		/**
 		 * Filters the term data for a REST API response.
@@ -848,6 +928,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 		 *
 		 * Allows modification of the term data right before it is returned.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_REST_Response  $response  The response object.
 		 * @param GC_Term           $item      The original term object.
@@ -859,18 +940,18 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares links for the request.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_Term $term Term object.
 	 * @return array Links for the given term.
 	 */
 	protected function prepare_links( $term ) {
-		$base  = $this->namespace . '/' . $this->rest_base;
 		$links = array(
 			'self'       => array(
-				'href' => rest_url( trailingslashit( $base ) . $term->term_id ),
+				'href' => rest_url( rest_get_route_for_term( $term ) ),
 			),
 			'collection' => array(
-				'href' => rest_url( $base ),
+				'href' => rest_url( rest_get_route_for_taxonomy_items( $this->taxonomy ) ),
 			),
 			'about'      => array(
 				'href' => rest_url( sprintf( 'gc/v2/taxonomies/%s', $this->taxonomy ) ),
@@ -882,7 +963,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 
 			if ( $parent_term ) {
 				$links['up'] = array(
-					'href'       => rest_url( trailingslashit( $base ) . $parent_term->term_id ),
+					'href'       => rest_url( rest_get_route_for_term( $parent_term ) ),
 					'embeddable' => true,
 				);
 			}
@@ -918,6 +999,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the term's schema, conforming to JSON Schema.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Item schema data.
 	 */
@@ -1002,6 +1084,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the query params for collections.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Collection parameters.
 	 */
@@ -1099,6 +1182,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 		 * collection parameter to an internal GC_Term_Query parameter.  Use the
 		 * `rest_{$this->taxonomy}_query` filter to set GC_Term_Query parameters.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param array       $query_params JSON Schema-formatted collection parameters.
 		 * @param GC_Taxonomy $taxonomy     Taxonomy object.
@@ -1109,6 +1193,7 @@ class GC_REST_Terms_Controller extends GC_REST_Controller {
 	/**
 	 * Checks that the taxonomy is valid.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string $taxonomy Taxonomy to check.
 	 * @return bool Whether the taxonomy is allowed for REST management.

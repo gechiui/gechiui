@@ -1,7 +1,7 @@
 /**
  * Interactions used by the Site Health modules in GeChiUI.
  *
- * @output gc-admin/js/site-health.js
+ * @output assets/js/site-health.js
  */
 
 /* global ajaxurl, ClipboardJS, SiteHealth, gc */
@@ -15,6 +15,8 @@ jQuery( function( $ ) {
 		isStatusTab = $( '.health-check-body.health-check-status-tab' ).length,
 		isDebugTab = $( '.health-check-body.health-check-debug-tab' ).length,
 		pathsSizesSection = $( '#health-check-accordion-block-gc-paths-sizes' ),
+		menuCounterWrapper = $( '#adminmenu .site-health-counter' ),
+		menuCounter = $( '#adminmenu .site-health-counter .count' ),
 		successTimeout;
 
 	// Debug information copy section.
@@ -34,14 +36,10 @@ jQuery( function( $ ) {
 		// Hide success visual feedback after 3 seconds since last success.
 		successTimeout = setTimeout( function() {
 			successElement.addClass( 'hidden' );
-			// Remove the visually hidden textarea so that it isn't perceived by assistive technologies.
-			if ( clipboard.clipboardAction.fakeElem && clipboard.clipboardAction.removeFake ) {
-				clipboard.clipboardAction.removeFake();
-			}
 		}, 3000 );
 
 		// Handle success audible feedback.
-		gc.a11y.speak( __( '站点信息已被复制到您的剪贴板。' ) );
+		gc.a11y.speak( __( '信息已复制到剪贴板。' ) );
 	} );
 
 	// Accordion handling in various areas.
@@ -69,6 +67,7 @@ jQuery( function( $ ) {
 	/**
 	 * Validates the Site Health test result format.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param {Object} issue
 	 *
@@ -119,6 +118,7 @@ jQuery( function( $ ) {
 	/**
 	 * Appends a new issue to the issue list.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param {Object} issue The issue data.
 	 */
@@ -166,12 +166,26 @@ jQuery( function( $ ) {
 			$( '.site-health-issue-count-title', issueWrapper ).html( heading );
 		}
 
+		menuCounter.text( SiteHealth.site_status.issues.critical );
+
+		if ( 0 < parseInt( SiteHealth.site_status.issues.critical, 0 ) ) {
+			$( '#health-check-issues-critical' ).removeClass( 'hidden' );
+
+			menuCounterWrapper.removeClass( 'count-0' );
+		} else {
+			menuCounterWrapper.addClass( 'count-0' );
+		}
+		if ( 0 < parseInt( SiteHealth.site_status.issues.recommended, 0 ) ) {
+			$( '#health-check-issues-recommended' ).removeClass( 'hidden' );
+		}
+
 		$( '.issues', '#health-check-issues-' + issue.status ).append( template( issue ) );
 	}
 
 	/**
 	 * Updates site health status indicator as asynchronous tests are run and returned.
 	 *
+	 * @since 5.2.0
 	 */
 	function recalculateProgression() {
 		var r, c, pct;
@@ -207,24 +221,16 @@ jQuery( function( $ ) {
 
 		$circle.css( { strokeDashoffset: pct } );
 
-		if ( 1 > parseInt( SiteHealth.site_status.issues.critical, 0 ) ) {
-			$( '#health-check-issues-critical' ).addClass( 'hidden' );
-		}
-
-		if ( 1 > parseInt( SiteHealth.site_status.issues.recommended, 0 ) ) {
-			$( '#health-check-issues-recommended' ).addClass( 'hidden' );
-		}
-
 		if ( 80 <= val && 0 === parseInt( SiteHealth.site_status.issues.critical, 0 ) ) {
 			$wrapper.addClass( 'green' ).removeClass( 'orange' );
 
 			$progressLabel.text( __( '良好' ) );
-			gc.a11y.speak( __( '所有站点健康检查都已完成运行。您的站点看起来不错，您可以在此页查看结果。' ) );
+			gc.a11y.speak( __( '所有系统健康测试都已完成运行。你的系统看起来不错，结果可以在页面上查看。' ) );
 		} else {
 			$wrapper.addClass( 'orange' ).removeClass( 'green' );
 
 			$progressLabel.text( __( '有待改进' ) );
-			gc.a11y.speak( __( '所有站点健康检查都已完成运行。有一些项目需要您的注意，您可以在此页查看结果。' ) );
+			gc.a11y.speak( __( '所有系统健康测试都已完成运行。有些项目需要解决，结果现在可以在页面上查看。' ) );
 		}
 
 		if ( isStatusTab ) {
@@ -247,6 +253,7 @@ jQuery( function( $ ) {
 	/**
 	 * Queues the next asynchronous test when we're ready to run it.
 	 *
+	 * @since 5.2.0
 	 */
 	function maybeRunNextAsyncTest() {
 		var doCalculation = true;
@@ -281,7 +288,7 @@ jQuery( function( $ ) {
 							if ( 'undefined' !== typeof( response.responseJSON ) && 'undefined' !== typeof( response.responseJSON.message ) ) {
 								description = response.responseJSON.message;
 							} else {
-								description = __( '无详细资料可用' );
+								description = __( '没有可用的详细信息' );
 							}
 
 							addFailedSiteHealthCheckNotice( this.url, description );
@@ -302,7 +309,7 @@ jQuery( function( $ ) {
 						if ( 'undefined' !== typeof( response.responseJSON ) && 'undefined' !== typeof( response.responseJSON.message ) ) {
 							description = response.responseJSON.message;
 						} else {
-							description = __( '无详细资料可用' );
+							description = __( '没有可用的详细信息' );
 						}
 
 						addFailedSiteHealthCheckNotice( this.url, description );
@@ -323,6 +330,7 @@ jQuery( function( $ ) {
 	/**
 	 * Add the details of a failed asynchronous test to the list of test results.
 	 *
+	 * @since 5.6.0
 	 */
 	function addFailedSiteHealthCheckNotice( url, description ) {
 		var issue;
@@ -371,7 +379,7 @@ jQuery( function( $ ) {
 
 		// After 3 seconds announce that we're still waiting for directory sizes.
 		var timeout = window.setTimeout( function() {
-			gc.a11y.speak( __( '请稍候…' ) );
+			gc.a11y.speak( __( '请稍等...' ) );
 		}, 3000 );
 
 		gc.apiRequest( {
@@ -397,7 +405,7 @@ jQuery( function( $ ) {
 				}
 
 				window.setTimeout( function() {
-					gc.a11y.speak( __( '所有站点健康检查都已完成运行。' ) );
+					gc.a11y.speak( __( '所有系统健康测试都已完成运行。' ) );
 				}, delay );
 			} else {
 				// Cancel the announcement.

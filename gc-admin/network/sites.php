@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Multisite
- *
  */
 
 /** Load GeChiUI Administration Bootstrap */
@@ -18,7 +17,7 @@ $gc_list_table = _get_list_table( 'GC_MS_Sites_List_Table' );
 $pagenum       = $gc_list_table->get_pagenum();
 
 // Used in the HTML title tag.
-$title       = __( '站点' );
+$title       = __( '多系统' );
 $parent_file = 'sites.php';
 
 add_screen_option( 'per_page' );
@@ -28,29 +27,28 @@ get_current_screen()->add_help_tab(
 		'id'      => 'overview',
 		'title'   => __( '概述' ),
 		'content' =>
-			'<p>' . __( '“添加新站点”链接将带您到添加新站点的页面。在这里，您可以通过名称、ID或IP地址搜索某站点。在显示选项中，您可修改每页显示的站点数目。' ) . '</p>' .
-			'<p>' . __( '这是本站点网络中所有站点的列表。您可通过点击列表上方的按钮，在“列表视图”和“摘要视图”模式间切换。' ) . '</p>' .
-			'<p>' . __( '将鼠标移至站点上方，会出现7个选项（主站点则出现3个）：' ) . '</p>' .
-			'<ul><li>' . __( '“编辑”链接，带您前往“编辑站点”页面。' ) . '</li>' .
-			'<li>' . __( '点击“仪表盘”链接，则自动跳转至该站点的仪表盘。' ) . '</li>' .
-			'<li>' . __( '点击“禁用”、“存档”或“垃圾站点”链接，则自动跳转至相应的确认页面。这些操作是可逆的。' ) . '</li>' .
-			'<li>' . __( '“删除”是个永久性的操作，站点将在确认后删除。' ) . '</li>' .
-			'<li>' . __( '点击“访问”可转到该站点的前端。' ) . '</li></ul>' .
-			'<p>' . __( '站点ID是内部使用的，不会在站点前端显示给用户或访客。' ) . '</p>' .
+			'<p>' . __( '“添加新系统”链接将带您到添加新系统的页面。在这里，您可以通过名称、ID或IP地址搜索某系统。在显示选项中，您可修改每页显示的系统数目。' ) . '</p>' .
+			'<p>' . __( '这是本SaaS平台中所有系统的列表。您可通过点击列表上方的按钮，在“列表视图”和“摘要视图”模式间切换。' ) . '</p>' .
+			'<p>' . __( '将鼠标移至系统上方，会出现7个选项（主系统则出现3个）：' ) . '</p>' .
+			'<ul><li>' . __( '“编辑”链接，带您前往“编辑系统”页面。' ) . '</li>' .
+			'<li>' . __( '点击“仪表盘”链接，则自动跳转至该系统的仪表盘。' ) . '</li>' .
+			'<li>' . __( '点击“禁用”、“存档”或“垃圾系统”链接，则自动跳转至相应的确认页面。这些操作是可逆的。' ) . '</li>' .
+			'<li>' . __( '“删除”是个永久性的操作，系统将在确认后删除。' ) . '</li>' .
+			'<li>' . __( '点击“访问”可转到该系统的前端。' ) . '</li></ul>' .
+			'<p>' . __( '系统ID是内部使用的，不会在系统前端显示给用户或访客。' ) . '</p>' .
 			'<p>' . __( '点击粗体的标题可对列表进行重新排序。' ) . '</p>',
 	)
 );
 
 get_current_screen()->set_help_sidebar(
 	'<p><strong>' . __( '更多信息：' ) . '</strong></p>' .
-	'<p>' . __( '<a href="https://www.gechiui.com/support/network-admin-sites-screen/">站点管理文档</a>' ) . '</p>' .
-	'<p>' . __( '<a href="https://www.gechiui.com/support/forum/issues/multisite/">支持论坛</a>' ) . '</p>'
+	'<p>' . __( '<a href="https://www.gechiui.com/support/network-admin-sites-screen/">SaaS管理文档</a>' ) . '</p>'
 );
 
 get_current_screen()->set_screen_reader_content(
 	array(
-		'heading_pagination' => __( '站点列表导航' ),
-		'heading_list'       => __( '站点列表' ),
+		'heading_pagination' => __( 'SaaS列表导航' ),
+		'heading_list'       => __( 'SaaS列表' ),
 	)
 );
 
@@ -63,23 +61,23 @@ if ( isset( $_GET['action'] ) ) {
 	// A list of valid actions and their associated messaging for confirmation output.
 	$manage_actions = array(
 		/* translators: %s: Site URL. */
-		'activateblog'   => __( '您将要激活站点%s。' ),
+		'activateblog'   => __( '您将要激活系统%s。' ),
 		/* translators: %s: Site URL. */
-		'deactivateblog' => __( '您将要禁用站点%s。' ),
+		'deactivateblog' => __( '您将要禁用系统%s。' ),
 		/* translators: %s: Site URL. */
-		'unarchiveblog'  => __( '您将要取消存档站点%s。' ),
+		'unarchiveblog'  => __( '您将要取消存档系统%s。' ),
 		/* translators: %s: Site URL. */
-		'archiveblog'    => __( '您将要存档站点%s。' ),
+		'archiveblog'    => __( '您将要存档系统%s。' ),
 		/* translators: %s: Site URL. */
-		'unspamblog'     => __( '您将要将站点%s标记为非垃圾。' ),
+		'unspamblog'     => __( '您将要将系统%s标记为非垃圾。' ),
 		/* translators: %s: Site URL. */
-		'spamblog'       => __( '您将要将站点%s标记为垃圾。' ),
+		'spamblog'       => __( '您将要将系统%s标记为垃圾。' ),
 		/* translators: %s: Site URL. */
-		'deleteblog'     => __( '您将要删除站点%s。' ),
+		'deleteblog'     => __( '您将要删除系统%s。' ),
 		/* translators: %s: Site URL. */
-		'unmatureblog'   => __( '您将要将站点%s标记为成人网站。' ),
+		'unmatureblog'   => __( '您将要将系统%s标记为成人系统。' ),
 		/* translators: %s: Site URL. */
-		'matureblog'     => __( '您将要将站点%s标记为非成人网站。' ),
+		'matureblog'     => __( '您将要将系统%s标记为非成人系统。' ),
 	);
 
 	if ( 'confirm' === $_GET['action'] ) {
@@ -102,8 +100,8 @@ if ( isset( $_GET['action'] ) ) {
 			header( 'Content-Type: text/html; charset=utf-8' );
 		}
 
-		if ( get_network()->site_id == $id ) {
-			gc_die( __( '抱歉，您不能修改此站点。' ) );
+		if ( is_main_site( $id ) ) {
+			gc_die( __( '抱歉，您不能修改此系统。' ) );
 		}
 
 		$site_details = get_site( $id );
@@ -112,7 +110,7 @@ if ( isset( $_GET['action'] ) ) {
 		require_once ABSPATH . 'gc-admin/admin-header.php';
 		?>
 			<div class="wrap">
-				<h1><?php _e( '确认您的操作' ); ?></h1>
+				<div class="page-header"><h2 class="header-title"><?php _e( '确认您的操作' ); ?></h2></div>
 				<form action="sites.php?action=<?php echo esc_attr( $site_action ); ?>" method="post">
 					<input type="hidden" name="action" value="<?php echo esc_attr( $site_action ); ?>" />
 					<input type="hidden" name="id" value="<?php echo esc_attr( $id ); ?>" />
@@ -142,7 +140,7 @@ if ( isset( $_GET['action'] ) ) {
 			}
 
 			$updated_action = 'not_deleted';
-			if ( '0' != $id && get_network()->site_id != $id && current_user_can( 'delete_site', $id ) ) {
+			if ( 0 !== $id && ! is_main_site( $id ) && current_user_can( 'delete_site', $id ) ) {
 				gcmu_delete_blog( $id, true );
 				$updated_action = 'delete';
 			}
@@ -154,7 +152,7 @@ if ( isset( $_GET['action'] ) ) {
 			foreach ( (array) $_POST['site_ids'] as $site_id ) {
 				$site_id = (int) $site_id;
 
-				if ( get_network()->site_id == $site_id ) {
+				if ( is_main_site( $site_id ) ) {
 					continue;
 				}
 
@@ -165,7 +163,7 @@ if ( isset( $_GET['action'] ) ) {
 					gc_die(
 						sprintf(
 							/* translators: %s: Site URL. */
-							__( '抱歉，您不能删除站点%s。' ),
+							__( '抱歉，您不能删除系统%s。' ),
 							$site_address
 						),
 						403
@@ -181,28 +179,32 @@ if ( isset( $_GET['action'] ) ) {
 			if ( isset( $_POST['action'] ) && isset( $_POST['allblogs'] ) ) {
 				$doaction = $_POST['action'];
 
-				foreach ( (array) $_POST['allblogs'] as $key => $val ) {
-					if ( '0' != $val && get_network()->site_id != $val ) {
+				foreach ( (array) $_POST['allblogs'] as $site_id ) {
+					$site_id = (int) $site_id;
+
+					if ( 0 !== $site_id && ! is_main_site( $site_id ) ) {
 						switch ( $doaction ) {
 							case 'delete':
 								require_once ABSPATH . 'gc-admin/admin-header.php';
 								?>
 								<div class="wrap">
-									<h1><?php _e( '确认您的操作' ); ?></h1>
+									<div class="page-header"><h2 class="header-title"><?php _e( '确认您的操作' ); ?></h2></div>
 									<form action="sites.php?action=delete_sites" method="post">
 										<input type="hidden" name="action" value="delete_sites" />
 										<input type="hidden" name="_gc_http_referer" value="<?php echo esc_attr( gc_get_referer() ); ?>" />
 										<?php gc_nonce_field( 'ms-delete-sites', '_gcnonce', false ); ?>
-										<p><?php _e( '您将要删除以下站点：' ); ?></p>
+										<p><?php _e( '您将要删除以下系统：' ); ?></p>
 										<ul class="ul-disc">
 											<?php
 											foreach ( $_POST['allblogs'] as $site_id ) :
+												$site_id = (int) $site_id;
+
 												$site         = get_site( $site_id );
 												$site_address = untrailingslashit( $site->domain . $site->path );
 												?>
 												<li>
 													<?php echo $site_address; ?>
-													<input type="hidden" name="site_ids[]" value="<?php echo (int) $site_id; ?>" />
+													<input type="hidden" name="site_ids[]" value="<?php echo esc_attr( $site_id ); ?>" />
 												</li>
 											<?php endforeach; ?>
 										</ul>
@@ -217,11 +219,11 @@ if ( isset( $_GET['action'] ) ) {
 							case 'spam':
 							case 'notspam':
 								$updated_action = ( 'spam' === $doaction ) ? 'all_spam' : 'all_notspam';
-								update_blog_status( $val, 'spam', ( 'spam' === $doaction ) ? '1' : '0' );
+								update_blog_status( $site_id, 'spam', ( 'spam' === $doaction ) ? '1' : '0' );
 								break;
 						}
 					} else {
-						gc_die( __( '抱歉，您不能修改此站点。' ) );
+						gc_die( __( '抱歉，您不能修改此系统。' ) );
 					}
 				}
 
@@ -259,7 +261,7 @@ if ( isset( $_GET['action'] ) ) {
 			/**
 			 * Fires after a network site is activated.
 			 *
-			 * @since MU
+			 * @since MU (3.0.0)
 			 *
 			 * @param int $id The ID of the activated site.
 			 */
@@ -270,7 +272,7 @@ if ( isset( $_GET['action'] ) ) {
 			/**
 			 * Fires before a network site is deactivated.
 			 *
-			 * @since MU
+			 * @since MU (3.0.0)
 			 *
 			 * @param int $id The ID of the site being deactivated.
 			 */
@@ -300,43 +302,43 @@ if ( isset( $_GET['action'] ) ) {
 	}
 }
 
-$msg = '';
+
 if ( isset( $_GET['updated'] ) ) {
 	$action = $_GET['updated'];
-
+	$msg = '';
 	switch ( $action ) {
 		case 'all_notspam':
-			$msg = __( '多个站点已被从垃圾站点列表中移除。' );
+			$msg = __( '多个系统已被从垃圾系统列表中移除。' );
 			break;
 		case 'all_spam':
-			$msg = __( '多个站点已被标记为垃圾站点。' );
+			$msg = __( '多个系统已被标记为垃圾系统。' );
 			break;
 		case 'all_delete':
-			$msg = __( '多个站点已被删除。' );
+			$msg = __( '多个系统已被删除。' );
 			break;
 		case 'delete':
-			$msg = __( '站点已被删除。' );
+			$msg = __( '系统已被删除。' );
 			break;
 		case 'not_deleted':
-			$msg = __( '抱歉，您不能删除该站点。' );
+			$msg = __( '抱歉，您不能删除该系统。' );
 			break;
 		case 'archiveblog':
-			$msg = __( '站点已被存档。' );
+			$msg = __( '系统已被存档。' );
 			break;
 		case 'unarchiveblog':
-			$msg = __( '站点未被存档。' );
+			$msg = __( '系统未被存档。' );
 			break;
 		case 'activateblog':
-			$msg = __( '站点已激活。' );
+			$msg = __( '系统已激活。' );
 			break;
 		case 'deactivateblog':
-			$msg = __( '站点已禁用。' );
+			$msg = __( '系统已禁用。' );
 			break;
 		case 'unspamblog':
-			$msg = __( '站点已被从垃圾站点列表中移除。' );
+			$msg = __( '系统已被从垃圾系统列表中移除。' );
 			break;
 		case 'spamblog':
-			$msg = __( '站点已被标记为垃圾站点。' );
+			$msg = __( '系统已被标记为垃圾系统。' );
 			break;
 		default:
 			/**
@@ -345,7 +347,7 @@ if ( isset( $_GET['updated'] ) ) {
 			 * The dynamic portion of the hook name, `$action`, refers to the non-default
 			 * site update action.
 			 *
-		
+			 * @since 3.1.0
 			 *
 			 * @param string $msg The update message. Default 'Settings saved'.
 			 */
@@ -354,7 +356,7 @@ if ( isset( $_GET['updated'] ) ) {
 	}
 
 	if ( ! empty( $msg ) ) {
-		$msg = '<div id="message" class="updated notice is-dismissible"><p>' . $msg . '</p></div>';
+		add_settings_error( 'general', 'message', $msg, 'success' );
 	}
 }
 
@@ -364,32 +366,29 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 ?>
 
 <div class="wrap">
-<h1 class="gc-heading-inline"><?php _e( '站点' ); ?></h1>
-
-<?php if ( current_user_can( 'create_sites' ) ) : ?>
-	<a href="<?php echo esc_url( network_admin_url( 'site-new.php' ) ); ?>" class="page-title-action"><?php echo esc_html_x( '添加新站点', 'site' ); ?></a>
-<?php endif; ?>
+	<div class="page-header">
+		<h2 class="header-title"><?php esc_html_e( '多系统' ); ?></h2>
+		<?php if ( current_user_can( 'create_sites' ) ) : ?>
+			<a href="<?php echo esc_url( network_admin_url( 'site-new.php' ) ); ?>" class="btn btn-primary btn-tone btn-sm"><?php echo esc_html_x( '添加新系统', 'site' ); ?></a>
+		<?php endif; ?>
+	</div>
 
 <?php
 if ( isset( $_REQUEST['s'] ) && strlen( $_REQUEST['s'] ) ) {
 	echo '<span class="subtitle">';
 	printf(
 		/* translators: %s: Search query. */
-		__( '搜索结果：%s' ),
+		__( '搜索词：%s' ),
 		'<strong>' . esc_html( $s ) . '</strong>'
 	);
 	echo '</span>';
 }
 ?>
 
-<hr class="gc-header-end">
-
 <?php $gc_list_table->views(); ?>
 
-<?php echo $msg; ?>
-
 <form method="get" id="ms-search" class="gc-clearfix">
-<?php $gc_list_table->search_box( __( '搜索站点' ), 'site' ); ?>
+<?php $gc_list_table->search_box( __( '搜索系统' ), 'site' ); ?>
 <input type="hidden" name="action" value="blogs" />
 </form>
 

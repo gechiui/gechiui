@@ -4,13 +4,12 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customizer section representing widget area (sidebar).
  *
- *
+ * @since 4.1.0
  *
  * @see GC_Customize_Section
  */
@@ -19,6 +18,7 @@ class GC_Customize_Sidebar_Section extends GC_Customize_Section {
 	/**
 	 * Type of this section.
 	 *
+	 * @since 4.1.0
 	 * @var string
 	 */
 	public $type = 'sidebar';
@@ -26,6 +26,7 @@ class GC_Customize_Sidebar_Section extends GC_Customize_Section {
 	/**
 	 * Unique identifier.
 	 *
+	 * @since 4.1.0
 	 * @var string
 	 */
 	public $sidebar_id;
@@ -33,6 +34,7 @@ class GC_Customize_Sidebar_Section extends GC_Customize_Section {
 	/**
 	 * Gather the parameters passed to client JavaScript via JSON.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return array The array to be exported to the client as JSON.
 	 */
@@ -45,6 +47,7 @@ class GC_Customize_Sidebar_Section extends GC_Customize_Section {
 	/**
 	 * Whether the current sidebar is rendered on the page.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return bool Whether sidebar is rendered.
 	 */

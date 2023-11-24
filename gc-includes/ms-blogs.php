@@ -5,16 +5,16 @@
  *
  * @package GeChiUI
  * @subpackage Multisite
- * @since MU
+ * @since MU (3.0.0)
  */
 
 require_once ABSPATH . GCINC . '/ms-site.php';
 require_once ABSPATH . GCINC . '/ms-network.php';
 
 /**
- * Update the last_updated field for the current site.
+ * Updates the last_updated field for the current site.
  *
- * @since MU
+ * @since MU (3.0.0)
  */
 function gcmu_update_blogs_date() {
 	$site_id = get_current_blog_id();
@@ -23,7 +23,7 @@ function gcmu_update_blogs_date() {
 	/**
 	 * Fires after the blog details are updated.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param int $blog_id Site ID.
 	 */
@@ -31,12 +31,12 @@ function gcmu_update_blogs_date() {
 }
 
 /**
- * Get a full blog URL, given a blog ID.
+ * Gets a full site URL, given a site ID.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
- * @param int $blog_id Blog ID.
- * @return string Full URL of the blog if found. Empty string if not.
+ * @param int $blog_id Site ID.
+ * @return string Full site URL if found. Empty string if not.
  */
 function get_blogaddress_by_id( $blog_id ) {
 	$bloginfo = get_site( (int) $blog_id );
@@ -52,11 +52,11 @@ function get_blogaddress_by_id( $blog_id ) {
 }
 
 /**
- * Get a full blog URL, given a blog name.
+ * Gets a full site URL, given a site name.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
- * @param string $blogname The (subdomain or directory) name
+ * @param string $blogname Name of the subdomain or directory.
  * @return string
  */
 function get_blogaddress_by_name( $blogname ) {
@@ -75,10 +75,9 @@ function get_blogaddress_by_name( $blogname ) {
 }
 
 /**
- * Retrieves a sites ID given its (subdomain or directory) slug.
+ * Retrieves a site's ID given its (subdomain or directory) slug.
  *
- * @since MU
- *
+ * @since MU (3.0.0) Converted to use `get_sites()`.
  *
  * @param string $slug A site's slug.
  * @return int|null The site ID, or null if no site is found for the given slug.
@@ -113,14 +112,14 @@ function get_id_from_blogname( $slug ) {
 }
 
 /**
- * Retrieve the details for a blog from the blogs table and blog options.
+ * Retrieves the details for a blog from the blogs table and blog options.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param int|string|array $fields  Optional. A blog ID, a blog slug, or an array of fields to query against.
- *                                  If not specified the current blog ID is used.
+ *                                  Defaults to the current blog ID.
  * @param bool             $get_all Whether to retrieve all details or only the details in the blogs table.
  *                                  Default is true.
  * @return GC_Site|false Blog details on success. False on failure.
@@ -137,7 +136,7 @@ function get_blog_details( $fields = null, $get_all = true ) {
 			if ( false !== $blog ) {
 				return $blog;
 			}
-			if ( 'www.' === substr( $fields['domain'], 0, 4 ) ) {
+			if ( str_starts_with( $fields['domain'], 'www.' ) ) {
 				$nowww = substr( $fields['domain'], 4 );
 				$blog  = $gcdb->get_row( $gcdb->prepare( "SELECT * FROM $gcdb->blogs WHERE domain IN (%s,%s) AND path = %s ORDER BY CHAR_LENGTH(domain) DESC", $nowww, $fields['domain'], $fields['path'] ) );
 			} else {
@@ -155,7 +154,7 @@ function get_blog_details( $fields = null, $get_all = true ) {
 			if ( false !== $blog ) {
 				return $blog;
 			}
-			if ( 'www.' === substr( $fields['domain'], 0, 4 ) ) {
+			if ( str_starts_with( $fields['domain'], 'www.' ) ) {
 				$nowww = substr( $fields['domain'], 4 );
 				$blog  = $gcdb->get_row( $gcdb->prepare( "SELECT * FROM $gcdb->blogs WHERE domain IN (%s,%s) ORDER BY CHAR_LENGTH(domain) DESC", $nowww, $fields['domain'] ) );
 			} else {
@@ -257,7 +256,7 @@ function get_blog_details( $fields = null, $get_all = true ) {
 	/**
 	 * Filters a blog's details.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 * @deprecated 4.7.0 Use {@see 'site_details'} instead.
 	 *
 	 * @param GC_Site $details The blog details.
@@ -273,9 +272,9 @@ function get_blog_details( $fields = null, $get_all = true ) {
 }
 
 /**
- * Clear the blog details cache.
+ * Clears the blog details cache.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param int $blog_id Optional. Blog ID. Defaults to current blog.
  */
@@ -289,9 +288,9 @@ function refresh_blog_details( $blog_id = 0 ) {
 }
 
 /**
- * Update the details for a blog. Updates the blogs table for a given blog ID.
+ * Updates the details for a blog and the blogs table for a given blog ID.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -322,7 +321,7 @@ function update_blog_details( $blog_id, $details = array() ) {
 /**
  * Cleans the site details cache for a site.
  *
- *
+ * @since 4.7.4
  *
  * @param int $site_id Optional. Site ID. Default is the current site ID.
  */
@@ -337,7 +336,7 @@ function clean_site_details_cache( $site_id = 0 ) {
 }
 
 /**
- * Retrieve option value for a given blog id based on name of option.
+ * Retrieves option value for a given blog id based on name of option.
  *
  * If the option does not exist or does not have a value, then the return value
  * will be false. This is useful to check whether you need to install an option
@@ -346,14 +345,14 @@ function clean_site_details_cache( $site_id = 0 ) {
  *
  * If the option was serialized then it will be unserialized when it is returned.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
- * @param int    $id      A blog ID. Can be null to refer to the current blog.
- * @param string $option  Name of option to retrieve. Expected to not be SQL-escaped.
- * @param mixed  $default Optional. Default value to return if the option does not exist.
+ * @param int    $id            A blog ID. Can be null to refer to the current blog.
+ * @param string $option        Name of option to retrieve. Expected to not be SQL-escaped.
+ * @param mixed  $default_value Optional. Default value to return if the option does not exist.
  * @return mixed Value set for the option.
  */
-function get_blog_option( $id, $option, $default = false ) {
+function get_blog_option( $id, $option, $default_value = false ) {
 	$id = (int) $id;
 
 	if ( empty( $id ) ) {
@@ -361,11 +360,11 @@ function get_blog_option( $id, $option, $default = false ) {
 	}
 
 	if ( get_current_blog_id() == $id ) {
-		return get_option( $option, $default );
+		return get_option( $option, $default_value );
 	}
 
 	switch_to_blog( $id );
-	$value = get_option( $option, $default );
+	$value = get_option( $option, $default_value );
 	restore_current_blog();
 
 	/**
@@ -373,6 +372,7 @@ function get_blog_option( $id, $option, $default = false ) {
 	 *
 	 * The dynamic portion of the hook name, `$option`, refers to the blog option name.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param string  $value The option value.
 	 * @param int     $id    Blog ID.
@@ -381,7 +381,7 @@ function get_blog_option( $id, $option, $default = false ) {
 }
 
 /**
- * Add a new option for a given blog ID.
+ * Adds a new option for a given blog ID.
  *
  * You do not need to serialize values. If the value needs to be serialized, then
  * it will be serialized before it is inserted into the database. Remember,
@@ -392,11 +392,11 @@ function get_blog_option( $id, $option, $default = false ) {
  * aren't adding a protected GeChiUI option. Care should be taken to not name
  * options the same as the ones which are protected.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param int    $id     A blog ID. Can be null to refer to the current blog.
  * @param string $option Name of option to add. Expected to not be SQL-escaped.
- * @param mixed  $value  Optional. Option value, can be anything. Expected to not be SQL-escaped.
+ * @param mixed  $value  Option value, can be anything. Expected to not be SQL-escaped.
  * @return bool True if the option was added, false otherwise.
  */
 function add_blog_option( $id, $option, $value ) {
@@ -418,9 +418,9 @@ function add_blog_option( $id, $option, $value ) {
 }
 
 /**
- * Removes option by name for a given blog ID. Prevents removal of protected GeChiUI options.
+ * Removes an option by name for a given blog ID. Prevents removal of protected GeChiUI options.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param int    $id     A blog ID. Can be null to refer to the current blog.
  * @param string $option Name of option to remove. Expected to not be SQL-escaped.
@@ -445,9 +445,9 @@ function delete_blog_option( $id, $option ) {
 }
 
 /**
- * Update an option for a particular blog.
+ * Updates an option for a particular blog.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param int    $id         The blog ID.
  * @param string $option     The option key.
@@ -474,7 +474,7 @@ function update_blog_option( $id, $option, $value, $deprecated = null ) {
 }
 
 /**
- * Switch the current blog.
+ * Switches the current blog.
  *
  * This function is useful if you need to pull posts, or other information,
  * from other blogs. You can switch back afterwards using restore_current_blog().
@@ -483,7 +483,7 @@ function update_blog_option( $id, $option, $value, $deprecated = null ) {
  *  - plugins. See #14941
  *
  * @see restore_current_blog()
- * @since MU
+ * @since MU (3.0.0)
  *
  * @global gcdb            $gcdb               GeChiUI database abstraction object.
  * @global int             $blog_id
@@ -515,7 +515,8 @@ function switch_to_blog( $new_blog_id, $deprecated = null ) {
 		/**
 		 * Fires when the blog is switched.
 		 *
-		 * @since MU
+		 * @since MU (3.0.0)
+		 * @since 5.4.0 The `$context` parameter was added.
 		 *
 		 * @param int    $new_blog_id  New blog ID.
 		 * @param int    $prev_blog_id Previous blog ID.
@@ -550,10 +551,32 @@ function switch_to_blog( $new_blog_id, $deprecated = null ) {
 			if ( is_array( $global_groups ) ) {
 				gc_cache_add_global_groups( $global_groups );
 			} else {
-				gc_cache_add_global_groups( array( 'users', 'userlogins', 'usermeta', 'user_meta', 'useremail', 'userslugs', 'site-transient', 'site-options', 'blog-lookup', 'blog-details', 'rss', 'global-posts', 'blog-id-cache', 'networks', 'sites', 'site-details', 'blog_meta' ) );
+				gc_cache_add_global_groups(
+					array(
+						'blog-details',
+						'blog-id-cache',
+						'blog-lookup',
+						'blog_meta',
+						'global-posts',
+						'networks',
+						'network-queries',
+						'sites',
+						'site-details',
+						'site-options',
+						'site-queries',
+						'site-transient',
+						'rss',
+						'users',
+						'user-queries',
+						'user_meta',
+						'useremail',
+						'userlogins',
+						'userslugs',
+					)
+				);
 			}
 
-			gc_cache_add_non_persistent_groups( array( 'counts', 'plugins' ) );
+			gc_cache_add_non_persistent_groups( array( 'counts', 'plugins', 'theme_json' ) );
 		}
 	}
 
@@ -566,10 +589,10 @@ function switch_to_blog( $new_blog_id, $deprecated = null ) {
 }
 
 /**
- * Restore the current blog, after calling switch_to_blog().
+ * Restores the current blog, after calling switch_to_blog().
  *
  * @see switch_to_blog()
- * @since MU
+ * @since MU (3.0.0)
  *
  * @global gcdb            $gcdb               GeChiUI database abstraction object.
  * @global array           $_gc_switched_stack
@@ -621,10 +644,32 @@ function restore_current_blog() {
 			if ( is_array( $global_groups ) ) {
 				gc_cache_add_global_groups( $global_groups );
 			} else {
-				gc_cache_add_global_groups( array( 'users', 'userlogins', 'usermeta', 'user_meta', 'useremail', 'userslugs', 'site-transient', 'site-options', 'blog-lookup', 'blog-details', 'rss', 'global-posts', 'blog-id-cache', 'networks', 'sites', 'site-details', 'blog_meta' ) );
+				gc_cache_add_global_groups(
+					array(
+						'blog-details',
+						'blog-id-cache',
+						'blog-lookup',
+						'blog_meta',
+						'global-posts',
+						'networks',
+						'network-queries',
+						'sites',
+						'site-details',
+						'site-options',
+						'site-queries',
+						'site-transient',
+						'rss',
+						'users',
+						'user-queries',
+						'user_meta',
+						'useremail',
+						'userlogins',
+						'userslugs',
+					)
+				);
 			}
 
-			gc_cache_add_non_persistent_groups( array( 'counts', 'plugins' ) );
+			gc_cache_add_non_persistent_groups( array( 'counts', 'plugins', 'theme_json' ) );
 		}
 	}
 
@@ -639,8 +684,6 @@ function restore_current_blog() {
 
 /**
  * Switches the initialized roles and current user capabilities to another site.
- *
- *
  *
  * @param int $new_site_id New site ID.
  * @param int $old_site_id Old site ID.
@@ -659,9 +702,7 @@ function gc_switch_roles_and_user( $new_site_id, $old_site_id ) {
 }
 
 /**
- * Determines if switch_to_blog() is in effect
- *
- *
+ * Determines if switch_to_blog() is in effect.
  *
  * @global array $_gc_switched_stack
  *
@@ -672,9 +713,9 @@ function ms_is_switched() {
 }
 
 /**
- * Check if a particular blog is archived.
+ * Checks if a particular blog is archived.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param int $id Blog ID.
  * @return string Whether the blog is archived or not.
@@ -684,9 +725,9 @@ function is_archived( $id ) {
 }
 
 /**
- * Update the 'archived' status of a particular blog.
+ * Updates the 'archived' status of a particular blog.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param int    $id       Blog ID.
  * @param string $archived The new status.
@@ -698,10 +739,10 @@ function update_archived( $id, $archived ) {
 }
 
 /**
- * Update a blog details field.
+ * Updates a blog details field.
  *
- * @since MU
- *
+ * @since MU (3.0.0)
+ * @since 5.1.0 Use gc_update_site() internally.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -739,9 +780,9 @@ function update_blog_status( $blog_id, $pref, $value, $deprecated = null ) {
 }
 
 /**
- * Get a blog details field.
+ * Gets a blog details field.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -761,9 +802,9 @@ function get_blog_status( $id, $pref ) {
 }
 
 /**
- * Get a list of most recently updated blogs.
+ * Gets a list of most recently updated blogs.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -786,8 +827,6 @@ function get_last_updated( $deprecated = '', $start = 0, $quantity = 40 ) {
 /**
  * Handler for updating the site's last updated date when a post is published or
  * an already published post is changed.
- *
- *
  *
  * @param string  $new_status The new post status.
  * @param string  $old_status The old post status.
@@ -812,8 +851,6 @@ function _update_blog_date_on_post_publish( $new_status, $old_status, $post ) {
  * Handler for updating the current site's last updated date when a published
  * post is deleted.
  *
- *
- *
  * @param int $post_id Post ID
  */
 function _update_blog_date_on_post_delete( $post_id ) {
@@ -834,13 +871,13 @@ function _update_blog_date_on_post_delete( $post_id ) {
 /**
  * Handler for updating the current site's posts count when a post is deleted.
  *
+ * @since 4.0.0
+ * @since 6.2.0 Added the `$post` parameter.
  *
- *
- * @param int $post_id Post ID.
+ * @param int     $post_id Post ID.
+ * @param GC_Post $post    Post object.
  */
-function _update_posts_count_on_delete( $post_id ) {
-	$post = get_post( $post_id );
-
+function _update_posts_count_on_delete( $post_id, $post ) {
 	if ( ! $post || 'publish' !== $post->post_status || 'post' !== $post->post_type ) {
 		return;
 	}
@@ -851,8 +888,7 @@ function _update_posts_count_on_delete( $post_id ) {
 /**
  * Handler for updating the current site's posts count when a post status changes.
  *
- *
- *
+ * @since 4.0.0 Added the `$post` parameter.
  *
  * @param string  $new_status The status the post is changing to.
  * @param string  $old_status The status the post is changing from.
@@ -875,9 +911,9 @@ function _update_posts_count_on_transition_post_status( $new_status, $old_status
 }
 
 /**
- * Count number of sites grouped by site status.
+ * Counts number of sites grouped by site status.
  *
- *
+ * @since 5.3.0
  *
  * @param int $network_id Optional. The network to get counts for. Default is the current network ID.
  * @return int[] {

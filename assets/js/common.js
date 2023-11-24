@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/common.js
+ * @output assets/js/common.js
  */
 
 /* global setUserSetting, ajaxurl, alert, confirm, pagenow */
@@ -22,7 +22,7 @@
 /**
  * Throws an error for a deprecated property.
  *
- *
+ * @since 5.5.1
  *
  * @param {string} propName    The property that was used.
  * @param {string} version     The version of GeChiUI that deprecated the property.
@@ -34,7 +34,7 @@ function deprecatedProperty( propName, version, replacement ) {
 	if ( 'undefined' !== typeof replacement ) {
 		message = sprintf(
 			/* translators: 1: Deprecated property name, 2: Version number, 3: Alternative property name. */
-			__( '%1$s自版本%2$s起已弃用！请改用%3$s。' ),
+			__( '自%2$s版本以来，已弃用%1$s！请改用%3$s。' ),
 			propName,
 			version,
 			replacement
@@ -42,7 +42,7 @@ function deprecatedProperty( propName, version, replacement ) {
 	} else {
 		message = sprintf(
 			/* translators: 1: Deprecated property name, 2: Version number. */
-			__( '%1$s自%2$s版本开始已弃用，没有替代方案。' ),
+			__( '%1$s已弃用，因为%2$s版本没有可用的替代方案。' ),
 			propName,
 			version
 		);
@@ -54,8 +54,8 @@ function deprecatedProperty( propName, version, replacement ) {
 /**
  * Deprecate all properties on an object.
  *
- *
- *
+ * @since 5.5.1
+ * @since 5.6.0 Added the `version` parameter.
  *
  * @param {string} name       The name of the object, i.e. commonL10n.
  * @param {object} l10nObject The object to deprecate the properties on.
@@ -91,7 +91,7 @@ window.gc.deprecateL10nObject = deprecateL10nObject;
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 2.6.0
  * @deprecated 5.5.0
  */
 window.commonL10n = window.commonL10n || {
@@ -106,7 +106,7 @@ window.commonL10n = deprecateL10nObject( 'commonL10n', window.commonL10n, '5.5.0
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 3.3.0
  * @deprecated 5.5.0
  */
 window.gcPointerL10n = window.gcPointerL10n || {
@@ -118,7 +118,7 @@ window.gcPointerL10n = deprecateL10nObject( 'gcPointerL10n', window.gcPointerL10
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 4.3.0
  * @deprecated 5.5.0
  */
 window.userProfileL10n = window.userProfileL10n || {
@@ -136,7 +136,7 @@ window.userProfileL10n = deprecateL10nObject( 'userProfileL10n', window.userProf
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 4.9.6
  * @deprecated 5.5.0
  */
 window.privacyToolsL10n = window.privacyToolsL10n || {
@@ -155,7 +155,7 @@ window.privacyToolsL10n = deprecateL10nObject( 'privacyToolsL10n', window.privac
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 3.6.0
  * @deprecated 5.5.0
  */
 window.authcheckL10n = {
@@ -167,7 +167,7 @@ window.authcheckL10n = window.authcheckL10n || deprecateL10nObject( 'authcheckL1
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 2.8.0
  * @deprecated 5.5.0
  */
 window.tagsl10n = {
@@ -180,7 +180,7 @@ window.tagsl10n = window.tagsl10n || deprecateL10nObject( 'tagsl10n', window.tag
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 2.5.0
  * @deprecated 5.5.0
  */
 window.adminCommentsL10n = window.adminCommentsL10n || {
@@ -205,7 +205,7 @@ window.adminCommentsL10n = deprecateL10nObject( 'adminCommentsL10n', window.admi
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 2.5.0
  * @deprecated 5.5.0
  */
 window.tagsSuggestL10n = window.tagsSuggestL10n || {
@@ -221,7 +221,7 @@ window.tagsSuggestL10n = deprecateL10nObject( 'tagsSuggestL10n', window.tagsSugg
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 3.5.0
  * @deprecated 5.5.0
  */
 window.gcColorPickerL10n = window.gcColorPickerL10n || {
@@ -238,7 +238,7 @@ window.gcColorPickerL10n = deprecateL10nObject( 'gcColorPickerL10n', window.gcCo
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 2.7.0
  * @deprecated 5.5.0
  */
 window.attachMediaBoxL10n = window.attachMediaBoxL10n || {
@@ -250,7 +250,7 @@ window.attachMediaBoxL10n = deprecateL10nObject( 'attachMediaBoxL10n', window.at
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 2.5.0
  * @deprecated 5.5.0
  */
 window.postL10n = window.postL10n || {
@@ -283,7 +283,7 @@ window.postL10n = deprecateL10nObject( 'postL10n', window.postL10n, '5.5.0' );
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 2.7.0
  * @deprecated 5.5.0
  */
 window.inlineEditL10n = window.inlineEditL10n || {
@@ -299,7 +299,7 @@ window.inlineEditL10n = deprecateL10nObject( 'inlineEditL10n', window.inlineEdit
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 2.7.0
  * @deprecated 5.5.0
  */
 window.plugininstallL10n = window.plugininstallL10n || {
@@ -313,7 +313,7 @@ window.plugininstallL10n = deprecateL10nObject( 'plugininstallL10n', window.plug
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 3.0.0
  * @deprecated 5.5.0
  */
 window.navMenuL10n = window.navMenuL10n || {
@@ -328,7 +328,7 @@ window.navMenuL10n = deprecateL10nObject( 'navMenuL10n', window.navMenuL10n, '5.
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 2.5.0
  * @deprecated 5.5.0
  */
 window.commentL10n = window.commentL10n || {
@@ -341,7 +341,7 @@ window.commentL10n = deprecateL10nObject( 'commentL10n', window.commentL10n, '5.
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 2.9.0
  * @deprecated 5.5.0
  */
 window.setPostThumbnailL10n = window.setPostThumbnailL10n || {
@@ -356,7 +356,7 @@ window.setPostThumbnailL10n = deprecateL10nObject( 'setPostThumbnailL10n', windo
 /**
  * Removed in 3.3.0, needed for back-compatibility.
  *
- *
+ * @since 2.7.0
  * @deprecated 3.3.0
  */
 window.adminMenu = {
@@ -376,6 +376,7 @@ window.columns = {
 	 * Binds an onClick event to the checkboxes to show or hide the table columns
 	 * based on their toggled state. And persists the toggled state.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @return {void}
 	 */
@@ -397,6 +398,7 @@ window.columns = {
 	 *
 	 * Saves whether the columns should be shown or hidden on a page.
 	 *
+	 * @since 3.0.0
 	 *
 	 * @return {void}
 	 */
@@ -413,6 +415,7 @@ window.columns = {
 	/**
 	 * Makes a column visible and adjusts the column span for the table.
 	 *
+	 * @since 3.0.0
 	 * @param {string} column The column name.
 	 *
 	 * @return {void}
@@ -425,6 +428,7 @@ window.columns = {
 	/**
 	 * Hides a column and adjusts the column span for the table.
 	 *
+	 * @since 3.0.0
 	 * @param {string} column The column name.
 	 *
 	 * @return {void}
@@ -437,6 +441,7 @@ window.columns = {
 	/**
 	 * Gets all hidden columns.
 	 *
+	 * @since 3.0.0
 	 *
 	 * @return {string} The hidden column names separated by a comma.
 	 */
@@ -449,6 +454,7 @@ window.columns = {
 	/**
 	 * Gets the checked column toggles from the screen options.
 	 *
+	 * @since 3.0.0
 	 *
 	 * @return {string} String containing the checked column names.
 	 */
@@ -464,6 +470,7 @@ window.columns = {
 	/**
 	 * Adjusts the column span for the table.
 	 *
+	 * @since 3.1.0
 	 *
 	 * @param {number} diff The modifier for the column span.
 	 */
@@ -481,7 +488,7 @@ $( function() { columns.init(); } );
 /**
  * Validates that the required form fields are not empty.
  *
- *
+ * @since 2.9.0
  *
  * @param {jQuery} form The form to validate.
  *
@@ -501,7 +508,7 @@ window.validateForm = function( form ) {
 /**
  * Shows message pop-up notice or confirmation message.
  *
- *
+ * @since 2.7.0
  *
  * @type {{warn: showNotice.warn, note: showNotice.note}}
  *
@@ -512,11 +519,12 @@ window.showNotice = {
 	/**
 	 * Shows a delete confirmation pop-up message.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @return {boolean} Returns true if the message is confirmed.
 	 */
 	warn : function() {
-		if ( confirm( __( '您将要从站点中永久删除这些项。\n此操作无法撤消。\n\'取消\' 停止, \'确定\' 删除。' ) ) ) {
+		if ( confirm( __( '您将要从系统中永久删除这些项目。\n此操作无法撤消。\n“取消”可停止，“确定”可删除。' ) ) ) {
 			return true;
 		}
 
@@ -526,6 +534,7 @@ window.showNotice = {
 	/**
 	 * Shows an alert message.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param text The text to display in the message.
 	 */
@@ -537,7 +546,7 @@ window.showNotice = {
 /**
  * Represents the functions for the meta screen options panel.
  *
- *
+ * @since 3.2.0
  *
  * @type {{element: null, toggles: null, page: null, init: screenMeta.init,
  *         toggleEvent: screenMeta.toggleEvent, open: screenMeta.open,
@@ -553,6 +562,7 @@ window.screenMeta = {
 	/**
 	 * Initializes the screen meta options panel.
 	 *
+	 * @since 3.2.0
 	 *
 	 * @return {void}
 	 */
@@ -567,6 +577,7 @@ window.screenMeta = {
 	/**
 	 * Toggles the screen meta options panel.
 	 *
+	 * @since 3.2.0
 	 *
 	 * @return {void}
 	 */
@@ -585,6 +596,7 @@ window.screenMeta = {
 	/**
 	 * Opens the screen meta options panel.
 	 *
+	 * @since 3.2.0
 	 *
 	 * @param {jQuery} panel  The screen meta options panel div.
 	 * @param {jQuery} button The toggle button.
@@ -600,11 +612,12 @@ window.screenMeta = {
 		/**
 		 * Sets the focus to the meta options panel and adds the necessary CSS classes.
 		 *
+		 * @since 3.2.0
 		 *
 		 * @return {void}
 		 */
 		panel.slideDown( 'fast', function() {
-			panel.trigger( 'focus' );
+			panel.removeClass( 'hidden' ).trigger( 'focus' );
 			button.addClass( 'screen-meta-active' ).attr( 'aria-expanded', true );
 		});
 
@@ -614,6 +627,7 @@ window.screenMeta = {
 	/**
 	 * Closes the screen meta options panel.
 	 *
+	 * @since 3.2.0
 	 *
 	 * @param {jQuery} panel  The screen meta options panel div.
 	 * @param {jQuery} button The toggle button.
@@ -624,6 +638,7 @@ window.screenMeta = {
 		/**
 		 * Hides the screen meta options panel.
 		 *
+		 * @since 3.2.0
 		 *
 		 * @return {void}
 		 */
@@ -631,6 +646,7 @@ window.screenMeta = {
 			button.removeClass( 'screen-meta-active' ).attr( 'aria-expanded', false );
 			$('.screen-meta-toggle').css('visibility', '');
 			panel.parent().hide();
+			panel.addClass( 'hidden' );
 		});
 
 		$document.trigger( 'screen:options:close' );
@@ -736,8 +752,14 @@ $availableStructureTags.on( 'click', function() {
 	    selectionStart          = $permalinkStructure[ 0 ].selectionStart,
 	    selectionEnd            = $permalinkStructure[ 0 ].selectionEnd,
 	    textToAppend            = $( this ).text().trim(),
-	    textToAnnounce          = $( this ).attr( 'data-added' ),
+	    textToAnnounce,
 	    newSelectionStart;
+
+	if ( $( this ).hasClass( 'active' ) ) {
+		textToAnnounce = $( this ).attr( 'data-removed' );
+	} else {
+		textToAnnounce = $( this ).attr( 'data-added' );
+	}
 
 	// Remove structure tag if already part of the structure.
 	if ( -1 !== permalinkStructureValue.indexOf( textToAppend ) ) {
@@ -868,6 +890,7 @@ $( function() {
 	/**
 	 * Handles the `aria-haspopup` attribute on the current menu item when it has a submenu.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return {void}
 	 */
@@ -888,6 +911,7 @@ $( function() {
 	/**
 	 * Ensures an admin submenu is within the visual viewport.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param {jQuery} $menuItem The parent menu item containing the submenu.
 	 *
@@ -914,7 +938,7 @@ $( function() {
 			adjustment = maxtop;
 		}
 
-		if ( adjustment > 1 ) {
+		if ( adjustment > 1 && $('#gc-admin-bar-menu-toggle').is(':hidden') ) {
 			$submenu.css( 'margin-top', '-' + adjustment + 'px' );
 		} else {
 			$submenu.css( 'margin-top', '' );
@@ -1068,6 +1092,7 @@ $( function() {
 	/**
 	 * Makes notices dismissible.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return {void}
 	 */
@@ -1128,7 +1153,7 @@ $( function() {
 		}
 		lastClicked = this;
 
-		// Toggle the "Select all" checkboxes depending if the other ones are all checked or not.
+		// Toggle the "全选" checkboxes depending if the other ones are all checked or not.
 		var unchecked = $(this).closest('tbody').find(':checkbox').filter(':visible:enabled').not(':checked');
 
 		/**
@@ -1214,6 +1239,7 @@ $( function() {
 		/**
 		 * Updates the primary selector when the secondary selector is changed.
 		 *
+		 * @since 5.7.0
 		 *
 		 * @return {void}
 		 */
@@ -1225,6 +1251,7 @@ $( function() {
 		/**
 		 * Updates the secondary selector when the primary selector is changed.
 		 *
+		 * @since 5.7.0
 		 *
 		 * @return {void}
 		 */
@@ -1236,6 +1263,7 @@ $( function() {
 		/**
 		 * Triggers the primary submit when then secondary submit is clicked.
 		 *
+		 * @since 5.7.0
 		 *
 		 * @return {void}
 		 */
@@ -1248,7 +1276,7 @@ $( function() {
 		bottomSubmit.on('click', triggerSubmitClick);
 	}
 
-	// Marry the secondary "Bulk actions" controls to the primary controls:
+	// Marry the secondary "批量操作" controls to the primary controls:
 	marryControls( $('#bulk-action-selector-top'), $('#doaction'), $('#bulk-action-selector-bottom'), $('#doaction2') );
 
 	// Marry the secondary "Change role to" controls to the primary controls:
@@ -1379,8 +1407,8 @@ $( function() {
 	 * @return {void}
  	 */
 	$('#contextual-help-link, #show-settings-link').on( 'focus.scroll-into-view', function(e){
-		if ( e.target.scrollIntoView )
-			e.target.scrollIntoView(false);
+		if ( e.target.scrollIntoViewIfNeeded )
+			e.target.scrollIntoViewIfNeeded(false);
 	});
 
 	/**
@@ -1401,6 +1429,7 @@ $( function() {
 		/**
 		 * Determines if any data is entered in any file upload input.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @return {void}
 		 */
@@ -1422,6 +1451,7 @@ $( function() {
 	 *
 	 * @param {Event} event Event data.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return {void}
 	 */
@@ -1564,6 +1594,7 @@ $( function() {
 	/**
 	 * Determines the height of certain elements.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return {void}
 	 */
@@ -1579,6 +1610,7 @@ $( function() {
 	/**
 	 * Unpins the menu.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return {void}
 	 */
@@ -1598,6 +1630,7 @@ $( function() {
 	/**
 	 * Pins and unpins the menu when applicable.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return {void}
 	 */
@@ -1626,6 +1659,7 @@ $( function() {
 	/**
 	 * Changes the sortables and responsiveness of metaboxes.
 	 *
+	 * @since 3.8.0
 	 *
 	 * @return {void}
 	 */
@@ -1634,6 +1668,7 @@ $( function() {
 		/**
 		 * Initializes the gcResponsive object.
 		 *
+		 * @since 3.8.0
 		 *
 		 * @return {void}
 		 */
@@ -1667,6 +1702,25 @@ $( function() {
 				}
 			} );
 
+			// Close sidebar when focus moves outside of toggle and sidebar.
+			$( '#gc-admin-bar-menu-toggle, #adminmenumain' ).on( 'focusout', function() {
+				var focusIsInToggle, focusIsInSidebar;
+
+				if ( ! $gcwrap.hasClass( 'gc-responsive-open' ) || ! document.hasFocus() ) {
+					return;
+				}
+				// A brief delay is required to allow focus to switch to another element.
+				setTimeout( function() {
+					focusIsInToggle  = $.contains( $( '#gc-admin-bar-menu-toggle' )[0], $( ':focus' )[0] );
+					focusIsInSidebar = $.contains( $( '#adminmenumain' )[0], $( ':focus' )[0] );
+
+					if ( ! focusIsInToggle && ! focusIsInSidebar ) {
+						$( '#gc-admin-bar-menu-toggle' ).trigger( 'click.gc-responsive' );
+					}
+				}, 10 );
+			} );
+
+
 			// Add menu events.
 			$adminmenu.on( 'click.gc-responsive', 'li.gc-has-submenu > a', function( event ) {
 				if ( ! $adminmenu.data('gc-responsive') ) {
@@ -1674,6 +1728,7 @@ $( function() {
 				}
 
 				$( this ).parent( 'li' ).toggleClass( 'selected' );
+				$( this ).trigger( 'focus' );
 				event.preventDefault();
 			});
 
@@ -1691,6 +1746,7 @@ $( function() {
 		/**
 		 * Disable sortables if there is only one metabox, or the screen is in one column mode. Otherwise, enable sortables.
 		 *
+		 * @since 5.3.0
 		 *
 		 * @return {void}
 		 */
@@ -1713,6 +1769,7 @@ $( function() {
 		 * Pins and unpins the menu and adds the auto-fold class to the body.
 		 * Makes the admin menu responsive and disables the metabox sortables.
 		 *
+		 * @since 3.8.0
 		 *
 		 * @return {void}
 		 */
@@ -1733,6 +1790,7 @@ $( function() {
 		 * Pin and unpin the menu.
 		 * Removes the responsiveness of the admin menu and enables the metabox sortables.
 		 *
+		 * @since 3.8.0
 		 *
 		 * @return {void}
 		 */
@@ -1746,6 +1804,7 @@ $( function() {
 		/**
 		 * Sets the responsiveness and enables the overlay based on the viewport width.
 		 *
+		 * @since 3.8.0
 		 *
 		 * @return {void}
 		 */
@@ -1781,6 +1840,7 @@ $( function() {
 		/**
 		 * Inserts a responsive overlay and toggles the window.
 		 *
+		 * @since 3.8.0
 		 *
 		 * @return {void}
 		 */
@@ -1803,6 +1863,7 @@ $( function() {
 		/**
 		 * Disables the responsive overlay and removes the overlay.
 		 *
+		 * @since 3.8.0
 		 *
 		 * @return {void}
 		 */
@@ -1814,6 +1875,7 @@ $( function() {
 		/**
 		 * Disables sortables.
 		 *
+		 * @since 3.8.0
 		 *
 		 * @return {void}
 		 */
@@ -1829,6 +1891,7 @@ $( function() {
 		/**
 		 * Enables sortables.
 		 *
+		 * @since 3.8.0
 		 *
 		 * @return {void}
 		 */
@@ -1845,6 +1908,7 @@ $( function() {
 	/**
 	 * Add an ARIA role `button` to elements that behave like UI controls when JavaScript is on.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @return {void}
 	 */
@@ -1859,6 +1923,7 @@ $( function() {
 	/**
 	 * Get the viewport width.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return {number|boolean} The current viewport width or false if the
 	 *                          browser doesn't support innerWidth (IE < 9).
@@ -1880,6 +1945,7 @@ $( function() {
 	 * Sets the global variable `menuState` and triggers a custom event passing
 	 * the current menu state.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return {void}
 	 */
@@ -1907,6 +1973,7 @@ $( function() {
 	 * `aria-label` attributes of the button to give feedback to assistive
 	 * technologies. In the responsive view, the button is always hidden.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return {void}
 	 */
@@ -1966,7 +2033,7 @@ $( function() {
  * On the "Update plugin/theme from uploaded zip" screen, once the upload has expired,
  * hides the "使用“上传的插件版本”代替“当前的插件版本”。" button and displays a warning.
  *
- *
+ * @since 5.5.0
  */
 $( function( $ ) {
 	var $overwrite, $warning;
@@ -2002,6 +2069,7 @@ $( function( $ ) {
 	/**
 	 * Triggers the GC window-resize event.
 	 *
+	 * @since 3.8.0
 	 *
 	 * @return {void}
 	 */
@@ -2012,6 +2080,7 @@ $( function( $ ) {
 	/**
 	 * Fires the trigger event again after 200 ms.
 	 *
+	 * @since 3.8.0
 	 *
 	 * @return {void}
 	 */

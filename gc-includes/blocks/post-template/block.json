@@ -1,0 +1,55 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/post-template",
+	"title": "文章模板",
+	"category": "theme",
+	"parent": [ "core/query" ],
+	"description": "包含用于呈现文章的区块元素，如标题、日期、特色图片、内容或摘要等。",
+	"textdomain": "default",
+	"usesContext": [
+		"queryId",
+		"query",
+		"queryContext",
+		"displayLayout",
+		"templateSlug",
+		"previewPostType"
+	],
+	"supports": {
+		"reusable": false,
+		"html": false,
+		"align": [ "wide", "full" ],
+		"layout": true,
+		"color": {
+			"gradients": true,
+			"link": true,
+			"__experimentalDefaultControls": {
+				"background": true,
+				"text": true
+			}
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalTextTransform": true,
+			"__experimentalTextDecoration": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		},
+		"spacing": {
+			"blockGap": {
+				"__experimentalDefault": "1.25em"
+			},
+			"__experimentalDefaultControls": {
+				"blockGap": true
+			}
+		}
+	},
+	"style": "gc-block-post-template",
+	"editorStyle": "gc-block-post-template-editor"
+}

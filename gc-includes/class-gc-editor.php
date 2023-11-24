@@ -4,10 +4,10 @@
  *
  * @package GeChiUI
  *
- *
  * Private, not included by default. See gc_editor() in gc-includes/general-template.php.
  */
 
+#[AllowDynamicProperties]
 final class _GC_Editors {
 	public static $mce_locale;
 
@@ -70,6 +70,7 @@ final class _GC_Editors {
 		/**
 		 * Filters the gc_editor() settings.
 		 *
+		 * @since 4.0.0
 		 *
 		 * @see _GC_Editors::parse_settings()
 		 *
@@ -103,7 +104,7 @@ final class _GC_Editors {
 		self::$this_tinymce = ( $set['tinymce'] && user_can_richedit() );
 
 		if ( self::$this_tinymce ) {
-			if ( false !== strpos( $editor_id, '[' ) ) {
+			if ( str_contains( $editor_id, '[' ) ) {
 				self::$this_tinymce = false;
 				_deprecated_argument( 'gc_editor()', '3.9.0', 'TinyMCE editor IDs cannot have brackets.' );
 			}
@@ -186,7 +187,7 @@ final class _GC_Editors {
 				$buttons .= '<button type="button" id="' . $editor_id_attr . '-tmce" class="gc-switch-editor switch-tmce"' .
 					' data-gc-editor-id="' . $editor_id_attr . '">' . _x( '可视化', 'Name for the Visual editor tab' ) . "</button>\n";
 				$buttons .= '<button type="button" id="' . $editor_id_attr . '-html" class="gc-switch-editor switch-html"' .
-					' data-gc-editor-id="' . $editor_id_attr . '">' . _x( '文本', 'Name for the Text editor tab (formerly HTML)' ) . "</button>\n";
+					' data-gc-editor-id="' . $editor_id_attr . '">' . _x( '文字', 'Name for the Text editor tab (formerly HTML)' ) . "</button>\n";
 			} else {
 				$default_editor = 'tinymce';
 			}
@@ -225,7 +226,7 @@ final class _GC_Editors {
 				/**
 				 * Fires after the default media button(s) are displayed.
 				 *
-			
+				 * @since 2.5.0
 				 *
 				 * @param string $editor_id Unique editor identifier, e.g. 'content'.
 				 */
@@ -252,6 +253,7 @@ final class _GC_Editors {
 		/**
 		 * Filters the HTML markup output that displays the editor.
 		 *
+		 * @since 2.1.0
 		 *
 		 * @param string $output Editor's HTML markup.
 		 */
@@ -271,6 +273,7 @@ final class _GC_Editors {
 		/**
 		 * Filters the default editor content.
 		 *
+		 * @since 2.1.0
 		 *
 		 * @param string $content        Default editor content.
 		 * @param string $default_editor The default editor for the current user.
@@ -322,36 +325,36 @@ final class _GC_Editors {
 
 		if ( self::$this_quicktags ) {
 
-			$qtInit = array(
+			$qt_init = array(
 				'id'      => $editor_id,
 				'buttons' => '',
 			);
 
 			if ( is_array( $set['quicktags'] ) ) {
-				$qtInit = array_merge( $qtInit, $set['quicktags'] );
+				$qt_init = array_merge( $qt_init, $set['quicktags'] );
 			}
 
-			if ( empty( $qtInit['buttons'] ) ) {
-				$qtInit['buttons'] = 'strong,em,link,block,del,ins,img,ul,ol,li,code,more,close';
+			if ( empty( $qt_init['buttons'] ) ) {
+				$qt_init['buttons'] = 'strong,em,link,block,del,ins,img,ul,ol,li,code,more,close';
 			}
 
 			if ( $set['_content_editor_dfw'] ) {
-				$qtInit['buttons'] .= ',dfw';
+				$qt_init['buttons'] .= ',dfw';
 			}
 
 			/**
 			 * Filters the Quicktags settings.
 			 *
-		
+			 * @since 3.3.0
 			 *
-			 * @param array  $qtInit    Quicktags settings.
+			 * @param array  $qt_init   Quicktags settings.
 			 * @param string $editor_id Unique editor identifier, e.g. 'content'.
 			 */
-			$qtInit = apply_filters( 'quicktags_settings', $qtInit, $editor_id );
+			$qt_init = apply_filters( 'quicktags_settings', $qt_init, $editor_id );
 
-			self::$qt_settings[ $editor_id ] = $qtInit;
+			self::$qt_settings[ $editor_id ] = $qt_init;
 
-			self::$qt_buttons = array_merge( self::$qt_buttons, explode( ',', $qtInit['buttons'] ) );
+			self::$qt_buttons = array_merge( self::$qt_buttons, explode( ',', $qt_init['buttons'] ) );
 		}
 
 		if ( self::$this_tinymce ) {
@@ -366,8 +369,8 @@ final class _GC_Editors {
 					/**
 					 * Filters the list of teenyMCE plugins.
 					 *
-				
-				
+					 * @since 2.7.0
+					 * @since 3.3.0 The `$editor_id` parameter was added.
 					 *
 					 * @param array  $plugins   An array of teenyMCE plugins.
 					 * @param string $editor_id Unique editor identifier, e.g. 'content'.
@@ -400,8 +403,8 @@ final class _GC_Editors {
 					 * If the external plugin adds a button, it should be added with
 					 * one of the 'mce_buttons' filters.
 					 *
-				
-				
+					 * @since 2.5.0
+					 * @since 5.3.0 The `$editor_id` parameter was added.
 					 *
 					 * @param array  $external_plugins An array of external TinyMCE plugins.
 					 * @param string $editor_id        Unique editor identifier, e.g. 'content'. Accepts 'classic-block'
@@ -440,8 +443,8 @@ final class _GC_Editors {
 					 * The filter specifies which of the default plugins included
 					 * in GeChiUI should be added to the TinyMCE instance.
 					 *
-				
-				
+					 * @since 3.3.0
+					 * @since 5.3.0 The `$editor_id` parameter was added.
 					 *
 					 * @param array  $plugins   An array of default TinyMCE plugins.
 					 * @param string $editor_id Unique editor identifier, e.g. 'content'. Accepts 'classic-block'
@@ -451,8 +454,10 @@ final class _GC_Editors {
 
 					$key = array_search( 'spellchecker', $plugins, true );
 					if ( false !== $key ) {
-						// Remove 'spellchecker' from the internal plugins if added with 'tiny_mce_plugins' filter to prevent errors.
-						// It can be added with 'mce_external_plugins'.
+						/*
+						 * Remove 'spellchecker' from the internal plugins if added with 'tiny_mce_plugins' filter to prevent errors.
+						 * It can be added with 'mce_external_plugins'.
+						 */
 						unset( $plugins[ $key ] );
 					}
 
@@ -467,8 +472,8 @@ final class _GC_Editors {
 						 * The language file should follow the same format as gc_mce_translation(),
 						 * and should define a variable ($strings) that holds all translated strings.
 						 *
-					
-					
+						 * @since 2.5.0
+						 * @since 5.3.0 The `$editor_id` parameter was added.
 						 *
 						 * @param array  $translations Translations for external TinyMCE plugins.
 						 * @param string $editor_id    Unique editor identifier, e.g. 'content'.
@@ -502,9 +507,13 @@ final class _GC_Editors {
 							// Try to load langs/[locale].js and langs/[locale]_dlg.js.
 							if ( ! in_array( $name, $loaded_langs, true ) ) {
 								$path = str_replace( content_url(), '', $plugurl );
-								$path = GC_CONTENT_DIR . $path . '/langs/';
+								$path = realpath( GC_CONTENT_DIR . $path . '/langs/' );
 
-								$path = trailingslashit( realpath( $path ) );
+								if ( ! $path ) {
+									continue;
+								}
+
+								$path = trailingslashit( $path );
 
 								if ( @is_file( $path . $mce_locale . '.js' ) ) {
 									$strings .= @file_get_contents( $path . $mce_locale . '.js' ) . "\n";
@@ -564,7 +573,7 @@ final class _GC_Editors {
 					if ( ! empty( $editor_styles ) ) {
 						// Force urlencoding of commas.
 						foreach ( $editor_styles as $key => $url ) {
-							if ( strpos( $url, ',' ) !== false ) {
+							if ( str_contains( $url, ',' ) ) {
 								$editor_styles[ $key ] = str_replace( ',', '%2C', $url );
 							}
 						}
@@ -576,7 +585,7 @@ final class _GC_Editors {
 				/**
 				 * Filters the comma-delimited list of stylesheets to load in TinyMCE.
 				 *
-			
+				 * @since 2.1.0
 				 *
 				 * @param string $stylesheets Comma-delimited list of stylesheets.
 				 */
@@ -612,8 +621,8 @@ final class _GC_Editors {
 				/**
 				 * Filters the list of teenyMCE buttons (Text tab).
 				 *
-			
-			
+				 * @since 2.7.0
+				 * @since 3.3.0 The `$editor_id` parameter was added.
 				 *
 				 * @param array  $mce_buttons An array of teenyMCE buttons.
 				 * @param string $editor_id   Unique editor identifier, e.g. 'content'.
@@ -653,8 +662,8 @@ final class _GC_Editors {
 				/**
 				 * Filters the first-row list of TinyMCE buttons (Visual tab).
 				 *
-			
-			
+				 * @since 2.0.0
+				 * @since 3.3.0 The `$editor_id` parameter was added.
 				 *
 				 * @param array  $mce_buttons First-row list of buttons.
 				 * @param string $editor_id   Unique editor identifier, e.g. 'content'. Accepts 'classic-block'
@@ -682,8 +691,8 @@ final class _GC_Editors {
 				/**
 				 * Filters the second-row list of TinyMCE buttons (Visual tab).
 				 *
-			
-			
+				 * @since 2.0.0
+				 * @since 3.3.0 The `$editor_id` parameter was added.
 				 *
 				 * @param array  $mce_buttons_2 Second-row list of buttons.
 				 * @param string $editor_id     Unique editor identifier, e.g. 'content'. Accepts 'classic-block'
@@ -694,8 +703,8 @@ final class _GC_Editors {
 				/**
 				 * Filters the third-row list of TinyMCE buttons (Visual tab).
 				 *
-			
-			
+				 * @since 2.0.0
+				 * @since 3.3.0 The `$editor_id` parameter was added.
 				 *
 				 * @param array  $mce_buttons_3 Third-row list of buttons.
 				 * @param string $editor_id     Unique editor identifier, e.g. 'content'. Accepts 'classic-block'
@@ -706,8 +715,8 @@ final class _GC_Editors {
 				/**
 				 * Filters the fourth-row list of TinyMCE buttons (Visual tab).
 				 *
-			
-			
+				 * @since 2.5.0
+				 * @since 3.3.0 The `$editor_id` parameter was added.
 				 *
 				 * @param array  $mce_buttons_4 Fourth-row list of buttons.
 				 * @param string $editor_id     Unique editor identifier, e.g. 'content'. Accepts 'classic-block'
@@ -746,7 +755,7 @@ final class _GC_Editors {
 				unset( $set['tinymce']['body_class'] );
 			}
 
-			$mceInit = array(
+			$mce_init = array(
 				'selector'          => "#$editor_id",
 				'gcautop'           => (bool) $set['gcautop'],
 				'indent'            => ! $set['gcautop'],
@@ -759,10 +768,10 @@ final class _GC_Editors {
 			);
 
 			// Merge with the first part of the init array.
-			$mceInit = array_merge( self::$first_init, $mceInit );
+			$mce_init = array_merge( self::$first_init, $mce_init );
 
 			if ( is_array( $set['tinymce'] ) ) {
-				$mceInit = array_merge( $mceInit, $set['tinymce'] );
+				$mce_init = array_merge( $mce_init, $set['tinymce'] );
 			}
 
 			/*
@@ -778,34 +787,34 @@ final class _GC_Editors {
 				/**
 				 * Filters the teenyMCE config before init.
 				 *
-			
-			
+				 * @since 2.7.0
+				 * @since 3.3.0 The `$editor_id` parameter was added.
 				 *
-				 * @param array  $mceInit   An array with teenyMCE config.
+				 * @param array  $mce_init  An array with teenyMCE config.
 				 * @param string $editor_id Unique editor identifier, e.g. 'content'.
 				 */
-				$mceInit = apply_filters( 'teeny_mce_before_init', $mceInit, $editor_id );
+				$mce_init = apply_filters( 'teeny_mce_before_init', $mce_init, $editor_id );
 			} else {
 
 				/**
 				 * Filters the TinyMCE config before init.
 				 *
-			
-			
+				 * @since 2.5.0
+				 * @since 3.3.0 The `$editor_id` parameter was added.
 				 *
-				 * @param array  $mceInit   An array with TinyMCE config.
+				 * @param array  $mce_init  An array with TinyMCE config.
 				 * @param string $editor_id Unique editor identifier, e.g. 'content'. Accepts 'classic-block'
 				 *                          when called from block editor's Classic block.
 				 */
-				$mceInit = apply_filters( 'tiny_mce_before_init', $mceInit, $editor_id );
+				$mce_init = apply_filters( 'tiny_mce_before_init', $mce_init, $editor_id );
 			}
 
-			if ( empty( $mceInit['toolbar3'] ) && ! empty( $mceInit['toolbar4'] ) ) {
-				$mceInit['toolbar3'] = $mceInit['toolbar4'];
-				$mceInit['toolbar4'] = '';
+			if ( empty( $mce_init['toolbar3'] ) && ! empty( $mce_init['toolbar4'] ) ) {
+				$mce_init['toolbar3'] = $mce_init['toolbar4'];
+				$mce_init['toolbar4'] = '';
 			}
 
-			self::$mce_settings[ $editor_id ] = $mceInit;
+			self::$mce_settings[ $editor_id ] = $mce_init;
 		} // End if self::$this_tinymce.
 	}
 
@@ -866,6 +875,7 @@ final class _GC_Editors {
 		/**
 		 * Fires when scripts and styles are enqueued for the editor.
 		 *
+		 * @since 3.9.0
 		 *
 		 * @param array $to_load An array containing boolean values whether TinyMCE
 		 *                       and Quicktags are being loaded.
@@ -883,6 +893,7 @@ final class _GC_Editors {
 	 * Enqueue all editor scripts.
 	 * For use when the editor is going to be initialized after page load.
 	 *
+	 * @since 4.8.0
 	 */
 	public static function enqueue_default_editor() {
 		// We are past the point where scripts can be enqueued properly.
@@ -908,6 +919,7 @@ final class _GC_Editors {
 	 * Print (output) all editor scripts and default settings.
 	 * For use when the editor is going to be initialized after page load.
 	 *
+	 * @since 4.8.0
 	 */
 	public static function print_default_editor_scripts() {
 		$user_can_richedit = user_can_richedit();
@@ -996,6 +1008,7 @@ final class _GC_Editors {
 		 * Fires when the editor scripts are loaded for later initialization,
 		 * after all scripts and settings are printed.
 		 *
+		 * @since 4.8.0
 		 */
 		do_action( 'print_default_editor_scripts' );
 
@@ -1005,13 +1018,14 @@ final class _GC_Editors {
 	/**
 	 * Returns the TinyMCE locale.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @return string
 	 */
 	public static function get_mce_locale() {
 		if ( empty( self::$mce_locale ) ) {
 			$mce_locale       = get_user_locale();
-			self::$mce_locale = empty( $mce_locale ) ? 'zh_CN' : strtolower( substr( $mce_locale, 0, 2 ) ); // ISO 639-1.
+			self::$mce_locale = empty( $mce_locale ) ? 'en' : strtolower( substr( $mce_locale, 0, 2 ) ); // ISO 639-1.
 		}
 
 		return self::$mce_locale;
@@ -1020,12 +1034,13 @@ final class _GC_Editors {
 	/**
 	 * Returns the TinyMCE base URL.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @return string
 	 */
 	public static function get_baseurl() {
 		if ( empty( self::$baseurl ) ) {
-			self::$baseurl =  assets_url( '/vendors/tinymce' );
+			self::$baseurl = assets_url( 'vendors/tinymce' );
 		}
 
 		return self::$baseurl;
@@ -1035,6 +1050,7 @@ final class _GC_Editors {
 	 * Returns the default TinyMCE settings.
 	 * Doesn't include plugins, buttons, editor selector.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @global string $tinymce_version
 	 *
@@ -1097,13 +1113,14 @@ final class _GC_Editors {
 		$version = 'ver=' . get_bloginfo( 'version' );
 
 		// Default stylesheets.
-		$settings['content_css'] = assets_url( "/css/dashicons$suffix.css?$version" ) . ',' .
-		assets_url( "/vendors/tinymce/skins/gechiui/gc-content.css?$version" );
+		$settings['content_css'] = assets_url( "css/dashicons$suffix.css?$version" ) . ',' .
+			assets_url( "vendors/tinymce/skins/gechiui/gc-content.css?$version" );
 
 		return $settings;
 	}
 
 	/**
+	 * @since 4.7.0
 	 *
 	 * @return array
 	 */
@@ -1112,7 +1129,7 @@ final class _GC_Editors {
 			self::$translation = array(
 				// Default TinyMCE strings.
 				'新文档'                         => __( '新文档' ),
-				'Formats'                              => _x( '格式', 'TinyMCE' ),
+				'Formats'                              => _x( '形式', 'TinyMCE' ),
 
 				'Headings'                             => _x( '标题', 'TinyMCE' ),
 				'一级标题'                            => array( __( '一级标题' ), 'access1' ),
@@ -1123,19 +1140,19 @@ final class _GC_Editors {
 				'六级标题'                            => array( __( '六级标题' ), 'access6' ),
 
 				/* translators: Block tags. */
-				'Blocks'                               => _x( '块', 'TinyMCE' ),
-				'段落'                            => array( __( '段落' ), 'access7' ),
-				'段落引用'                           => array( __( '段落引用' ), 'accessQ' ),
+				'Blocks'                               => _x( '区块', 'TinyMCE' ),
+				'Paragraph'                            => array( __( '段落' ), 'access7' ),
+				'Blockquote'                           => array( __( '段落引用' ), 'accessQ' ),
 				'Div'                                  => _x( 'Div', 'HTML tag' ),
 				'Pre'                                  => _x( 'Pre', 'HTML tag' ),
-				'预格式'                         => _x( '预格式', 'HTML tag' ),
+				'Preformatted'                         => _x( '预格式', 'HTML tag' ),
 				'Address'                              => _x( '地址', 'HTML tag' ),
 
 				'Inline'                               => _x( '行内', 'HTML elements' ),
-				'下划线'                            => array( __( '下划线' ), 'metaU' ),
-				'删除线'                        => array( __( '删除线' ), 'accessD' ),
-				'下标'                            => __( '下标' ),
-				'上标'                          => __( '上标' ),
+				'Underline'                            => array( __( '下划线' ), 'metaU' ),
+				'Strikethrough'                        => array( __( '删除线' ), 'accessD' ),
+				'Subscript'                            => __( '下标' ),
+				'Superscript'                          => __( '上标' ),
 				'清除格式'                     => __( '清除格式' ),
 				'Bold'                                 => array( __( '粗体' ), 'metaB' ),
 				'Italic'                               => array( __( '斜体' ), 'metaI' ),
@@ -1189,7 +1206,7 @@ final class _GC_Editors {
 				'Title'                                => __( '标题' ),
 				'Keywords'                             => __( '关键字' ),
 				'Encoding'                             => __( '编码' ),
-				'description'                          => __( '描述' ),
+				'Description'                          => __( '描述' ),
 				'Author'                               => __( '作者' ),
 
 				// Media, image plugins.
@@ -1201,11 +1218,11 @@ final class _GC_Editors {
 				'Border'                               => __( '边框' ),
 				'保持长宽比'                => __( '保持长宽比' ),
 				'垂直间隔'                       => __( '垂直间隔' ),
-				'图片说明'                    => __( '图片说明' ),
+				'图片描述'                    => __( '图片描述' ),
 				'Style'                                => __( '样式' ),
-				'尺寸'                           => __( '尺寸' ),
+				'Dimensions'                           => __( '尺寸' ),
 				'插入图片'                         => __( '插入图片' ),
-				'日期/时间'                            => __( '日期/时间' ),
+				'Date/time'                            => __( '日期/时间' ),
 				'插入日期、时间'                     => __( '插入日期、时间' ),
 				'目录'                    => __( '目录' ),
 				'Insert/Edit code sample'              => __( '插入/编辑代码片段' ),
@@ -1222,14 +1239,14 @@ final class _GC_Editors {
 				'特殊字符'                    => __( '特殊字符' ),
 				'从右到左'                        => _x( '从右到左', 'editor button' ),
 				'从左到右'                        => _x( '从左到右', 'editor button' ),
-				'表情符号'                            => __( '表情符号' ),
+				'Emoticons'                            => __( '表情符号' ),
 				'不间断空格'                    => __( '不间断空格' ),
 				'分页符'                           => __( '分页符' ),
 				'粘贴为文本'                        => __( '粘贴为文本' ),
 				'Preview'                              => __( '预览' ),
 				'Print'                                => __( '打印' ),
 				'Save'                                 => __( '保存' ),
-				'全屏'                           => __( '全屏' ),
+				'Fullscreen'                           => __( '全屏' ),
 				'水平线'                      => __( '水平线' ),
 				'水平间隔'                     => __( '水平间隔' ),
 				'恢复上一草稿'                   => __( '恢复上一草稿' ),
@@ -1250,8 +1267,8 @@ final class _GC_Editors {
 
 				'Color'                                => __( '颜色' ),
 				'自定义颜色'                         => __( '自定义颜色' ),
-				'自定义…'                            => _x( '自定义…', 'label for custom color' ), // No ellipsis.
-				'No color'                             => __( '无颜色' ),
+				'Custom...'                            => _x( '自定义...' , 'label for custom color' ), // No ellipsis.
+				'无颜色'                             => __( '无颜色' ),
 				'R'                                    => _x( 'R', 'Short for red in RGB' ),
 				'G'                                    => _x( 'G', 'Short for green in RGB' ),
 				'B'                                    => _x( 'B', 'Short for blue in RGB' ),
@@ -1259,7 +1276,7 @@ final class _GC_Editors {
 				// Spelling, search/replace plugins.
 				'无法找到指定的字符串。' => __( '无法找到指定的字符串。' ),
 				'Replace'                              => _x( '替换', 'find/replace' ),
-				'Next'                                 => _x( '下一个', 'find/replace' ),
+				'Next'                                 => _x( '下一步', 'find/replace' ),
 				/* translators: Previous. */
 				'Prev'                                 => _x( '上一个', 'find/replace' ),
 				'匹配整词'                          => _x( '匹配整词', 'find/replace' ),
@@ -1284,13 +1301,13 @@ final class _GC_Editors {
 
 				'Row'                                  => __( '行' ),
 				'Rows'                                 => __( '行' ),
-				'Column'                               => __( '单衣栏目' ),
+				'Column'                               => __( '栏目' ),
 				'Cols'                                 => __( '栏目' ),
 				'Cell'                                 => _x( '单元格', 'table cell' ),
 				'表头单元格'                          => __( '表头单元格' ),
-				'Header'                               => _x( '表头', 'table header' ),
+				'Header'                               => _x( '页眉', 'table header' ),
 				'Body'                                 => _x( '主体', 'table body' ),
-				'Footer'                               => _x( '注脚', 'table footer' ),
+				'Footer'                               => _x( '页脚', 'table footer' ),
 
 				'在上方插入行'                    => __( '在上方插入行' ),
 				'在下方插入行'                     => __( '在下方插入行' ),
@@ -1308,27 +1325,27 @@ final class _GC_Editors {
 				'Height'                               => __( '高度' ),
 				'Width'                                => __( '宽度' ),
 				'Caption'                              => __( '说明文字' ),
-				'对齐方式'                            => __( '对齐方式' ),
-				'H Align'                              => _x( '横向对齐', 'horizontal table cell alignment' ),
+				'Alignment'                            => __( '对齐方式' ),
+				'横向对齐'                              => _x( '横向对齐', 'horizontal table cell alignment' ),
 				'Left'                                 => __( '左' ),
 				'Center'                               => __( '中' ),
 				'Right'                                => __( '右' ),
 				'None'                                 => _x( '无', 'table cell alignment attribute' ),
-				'V Align'                              => _x( '纵向对齐', 'vertical table cell alignment' ),
+				'纵向对齐'                              => _x( '纵向对齐', 'vertical table cell alignment' ),
 				'Top'                                  => __( '顶部' ),
 				'Middle'                               => __( '中部' ),
 				'Bottom'                               => __( '底部' ),
 
 				'行组'                            => __( '行组' ),
 				'栏目组合'                         => __( '栏目组合' ),
-				'Row type'                             => __( '行类型' ),
+				'行类型'                             => __( '行类型' ),
 				'单元格类型'                            => __( '单元格类型' ),
 				'单元格内边距'                         => __( '单元格内边距' ),
 				'单元格间距'                         => __( '单元格间距' ),
 				'Scope'                                => _x( '范围', 'table cell scope attribute' ),
 
-				'插入模板'                      => _x( '插入模板', 'TinyMCE' ),
-				'模板'                            => _x( '模板', 'TinyMCE' ),
+				'插入样板'                      => _x( '插入样板', 'TinyMCE' ),
+				'Templates'                            => _x( '样板', 'TinyMCE' ),
 
 				'背景颜色'                     => __( '背景颜色' ),
 				'文字颜色'                           => __( '文字颜色' ),
@@ -1339,7 +1356,7 @@ final class _GC_Editors {
 				'Words: {0}'                           => sprintf( __( '词数：%s' ), '{0}' ),
 				'当前处于纯文本粘贴模式，粘贴的内容将被视作纯文本。' =>
 					__( '当前处于纯文本粘贴模式，粘贴的内容将被视作纯文本。' ) . "\n\n" .
-					__( '如果您希望从Microsoft Word粘贴富文本内容，请将此选项关闭。编辑器将自动清理从Word粘贴来的文本。' ),
+					__( '如果您想从 Microsoft Word 粘贴内容并保持原样，请尝试关闭此选项，否则编辑器将自动清理从 Word 粘贴的文本。' ),
 				'Rich Text Area. Press ALT-F9 for menu. Press ALT-F10 for toolbar. Press ALT-0 for help' =>
 					__( '富文本区域。按Alt-Shift-H获取帮助。' ),
 				'富文本区域。按Control-Option-H获取帮助。' => __( '富文本区域。按Control-Option-H获取帮助。' ),
@@ -1361,7 +1378,7 @@ final class _GC_Editors {
 				'显示/隐藏工具栏'                       => array( __( '显示/隐藏工具栏' ), 'accessZ' ),
 				'插入“More”标签'                 => array( __( '插入“More”标签' ), 'accessT' ),
 				'插入分页标签'                => array( __( '插入分页标签' ), 'accessP' ),
-				'阅读更多…'                         => __( '阅读更多…' ), // Title on the placeholder inside the editor (no ellipsis).
+				'阅读更多...'                          => __( '阅读更多...'  ), // Title on the placeholder inside the editor (no ellipsis).
 				'免打扰写作模式'        => array( __( '免打扰写作模式' ), 'accessW' ),
 				'无对齐'                         => __( '无对齐' ), // Tooltip for the 'alignnone' button in the image toolbar.
 				'Remove'                               => __( '移除' ),       // Tooltip for the 'remove' button in the image toolbar.
@@ -1370,7 +1387,7 @@ final class _GC_Editors {
 				'Apply'                                => __( '应用' ),        // Tooltip for the 'apply' button in the inline link dialog.
 				'链接选项'                         => __( '链接选项' ), // Tooltip for the 'link options' button in the inline link dialog.
 				'Visual'                               => _x( '可视化', 'Name for the Visual editor tab' ),             // Editor switch tab label.
-				'Text'                                 => _x( '文本', 'Name for the Text editor tab (formerly HTML)' ), // Editor switch tab label.
+				'Text'                                 => _x( '文字', 'Name for the Text editor tab (formerly HTML)' ), // Editor switch tab label.
 				'添加媒体'                            => array( __( '添加媒体' ), 'accessM' ), // Tooltip for the '添加媒体' button in the block editor Classic block.
 
 				// Shortcuts help modal.
@@ -1401,28 +1418,6 @@ final class _GC_Editors {
 			);
 		}
 
-		/*
-		Imagetools plugin (not included):
-			'编辑图片' => __( '编辑图片' ),
-			'图片选项' => __( '图片选项' ),
-			'Back' => __( '返回' ),
-			'Invert' => __( 'Invert' ),
-			'Flip horizontally' => __( '水平翻转' ),
-			'Flip vertically' => __( '垂直翻转' ),
-			'Crop' => __( '裁剪' ),
-			'Orientation' => __( '方向' ),
-			'Resize' => __( 'Resize' ),
-			'Rotate clockwise' => __( '向右转' ),
-			'Rotate counterclockwise' => __( '向左转' ),
-			'Sharpen' => __( 'Sharpen' ),
-			'Brightness' => __( '亮度' ),
-			'Color levels' => __( 'Color levels' ),
-			'Contrast' => __( 'Contrast' ),
-			'Gamma' => __( 'Gamma' ),
-			'放大'  => __( '放大'  ),
-			'缩小'  => __( '缩小'  ),
-		*/
-
 		return self::$translation;
 	}
 
@@ -1433,7 +1428,7 @@ final class _GC_Editors {
 	 *
 	 * @param string $mce_locale The locale used for the editor.
 	 * @param bool   $json_only  Optional. Whether to include the JavaScript calls to tinymce.addI18n() and
-	 *                           tinymce.ScriptLoader.markDone().
+	 *                           tinymce.ScriptLoader.markDone(). Default false.
 	 * @return string Translation object, JSON encoded.
 	 */
 	public static function gc_mce_translation( $mce_locale = '', $json_only = false ) {
@@ -1452,6 +1447,7 @@ final class _GC_Editors {
 		/**
 		 * Filters translated strings prepared for TinyMCE.
 		 *
+		 * @since 3.9.0
 		 *
 		 * @param array  $mce_translation Key/value pairs of strings.
 		 * @param string $mce_locale      Locale.
@@ -1465,7 +1461,7 @@ final class _GC_Editors {
 				continue;
 			}
 
-			if ( false !== strpos( $value, '&' ) ) {
+			if ( str_contains( $value, '&' ) ) {
 				$mce_translation[ $key ] = html_entity_decode( $value, ENT_QUOTES, 'UTF-8' );
 			}
 		}
@@ -1489,9 +1485,10 @@ final class _GC_Editors {
 	 * Force uncompressed TinyMCE when a custom theme has been defined.
 	 *
 	 * The compressed TinyMCE file cannot deal with custom themes, so this makes
-	 * sure that we use the uncompressed TinyMCE file if a theme is defined.
-	 * Even if we are on a production environment.
+	 * sure that GeChiUI uses the uncompressed TinyMCE file if a theme is defined.
+	 * Even if the website is running on a production environment.
 	 *
+	 * @since 5.0.0
 	 */
 	public static function force_uncompressed_tinymce() {
 		$has_custom_theme = false;
@@ -1515,6 +1512,7 @@ final class _GC_Editors {
 	/**
 	 * Print (output) the main TinyMCE scripts.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @global bool $concatenate_scripts
 	 */
@@ -1545,28 +1543,28 @@ final class _GC_Editors {
 	public static function editor_js() {
 		global $tinymce_version;
 
-		$tmce_on = ! empty( self::$mce_settings );
-		$mceInit = '';
-		$qtInit  = '';
+		$tmce_on  = ! empty( self::$mce_settings );
+		$mce_init = '';
+		$qt_init  = '';
 
 		if ( $tmce_on ) {
 			foreach ( self::$mce_settings as $editor_id => $init ) {
-				$options  = self::_parse_init( $init );
-				$mceInit .= "'$editor_id':{$options},";
+				$options   = self::_parse_init( $init );
+				$mce_init .= "'$editor_id':{$options},";
 			}
-			$mceInit = '{' . trim( $mceInit, ',' ) . '}';
+			$mce_init = '{' . trim( $mce_init, ',' ) . '}';
 		} else {
-			$mceInit = '{}';
+			$mce_init = '{}';
 		}
 
 		if ( ! empty( self::$qt_settings ) ) {
 			foreach ( self::$qt_settings as $editor_id => $init ) {
-				$options = self::_parse_init( $init );
-				$qtInit .= "'$editor_id':{$options},";
+				$options  = self::_parse_init( $init );
+				$qt_init .= "'$editor_id':{$options},";
 			}
-			$qtInit = '{' . trim( $qtInit, ',' ) . '}';
+			$qt_init = '{' . trim( $qt_init, ',' ) . '}';
 		} else {
-			$qtInit = '{}';
+			$qt_init = '{}';
 		}
 
 		$ref = array(
@@ -1582,6 +1580,7 @@ final class _GC_Editors {
 		/**
 		 * Fires immediately before the TinyMCE settings are printed.
 		 *
+		 * @since 3.2.0
 		 *
 		 * @param array $mce_settings TinyMCE settings array.
 		 */
@@ -1599,8 +1598,8 @@ final class _GC_Editors {
 			}
 
 			?>
-			mceInit: <?php echo $mceInit; ?>,
-			qtInit: <?php echo $qtInit; ?>,
+			mceInit: <?php echo $mce_init; ?>,
+			qtInit: <?php echo $qt_init; ?>,
 			ref: <?php echo self::_parse_init( $ref ); ?>,
 			load_ext: function(url,lang){var sl=tinymce.ScriptLoader;sl.markDone(url+'/langs/'+lang+'.js');sl.markDone(url+'/langs/'+lang+'_dlg.js');}
 		};
@@ -1620,6 +1619,7 @@ final class _GC_Editors {
 		 * Fires after tinymce.js is loaded, but before any TinyMCE editor
 		 * instances are created.
 		 *
+		 * @since 3.9.0
 		 *
 		 * @param array $mce_settings TinyMCE settings array.
 		 */
@@ -1705,6 +1705,7 @@ final class _GC_Editors {
 		/**
 		 * Fires after any core TinyMCE editor instances are created.
 		 *
+		 * @since 3.2.0
 		 *
 		 * @param array $mce_settings TinyMCE settings array.
 		 */
@@ -1714,6 +1715,7 @@ final class _GC_Editors {
 	/**
 	 * Outputs the HTML for distraction-free writing mode.
 	 *
+	 * @since 3.2.0
 	 * @deprecated 4.3.0
 	 */
 	public static function gc_fullscreen_html() {
@@ -1724,8 +1726,23 @@ final class _GC_Editors {
 	 * Performs post queries for internal linking.
 	 *
 	 *
-	 * @param array $args Optional. Accepts 'pagenum' and 's' (search) arguments.
-	 * @return array|false Results.
+	 * @param array $args {
+	 *     Optional. Array of link query arguments.
+	 *
+	 *     @type int    $pagenum Page number. Default 1.
+	 *     @type string $s       Search keywords.
+	 * }
+	 * @return array|false $results {
+	 *     An array of associative arrays of query results, false if there are none.
+	 *
+	 *     @type array ...$0 {
+	 *         @type int    $ID        Post ID.
+	 *         @type string $title     The trimmed, escaped post title.
+	 *         @type string $permalink Post permalink.
+	 *         @type string $info      A 'Y/m/d'-formatted date for 'post' post type,
+	 *                                 the 'singular_name' post type label otherwise.
+	 *     }
+	 * }
 	 */
 	public static function gc_link_query( $args = array() ) {
 		$pts      = get_post_types( array( 'public' => true ), 'objects' );
@@ -1755,13 +1772,14 @@ final class _GC_Editors {
 		 *
 		 * @see GC_Query for a full list of arguments
 		 *
+		 * @since 3.7.0
 		 *
 		 * @param array $query An array of GC_Query arguments.
 		 */
 		$query = apply_filters( 'gc_link_query_args', $query );
 
 		// Do main query.
-		$get_posts = new GC_Query;
+		$get_posts = new GC_Query();
 		$posts     = $get_posts->query( $query );
 
 		// Build results.
@@ -1786,6 +1804,7 @@ final class _GC_Editors {
 		 *
 		 * Allows modification of the returned link query results.
 		 *
+		 * @since 3.7.0
 		 *
 		 * @see 'gc_link_query_args' filter
 		 *
@@ -1826,7 +1845,12 @@ final class _GC_Editors {
 		<form id="gc-link" tabindex="-1">
 		<?php gc_nonce_field( 'internal-linking', '_ajax_linking_nonce', false ); ?>
 		<h1 id="link-modal-title"><?php _e( '插入或编辑链接' ); ?></h1>
-		<button type="button" id="gc-link-close"><span class="screen-reader-text"><?php _e( '关闭' ); ?></span></button>
+		<button type="button" id="gc-link-close"><span class="screen-reader-text">
+			<?php
+			/* translators: Hidden accessibility text. */
+			_e( '关闭' );
+			?>
+		</span></button>
 		<div id="link-selector">
 			<div id="link-options">
 				<p class="howto" id="gclink-enter-url"><?php _e( '输入目标URL' ); ?></p>
@@ -1843,7 +1867,7 @@ final class _GC_Editors {
 					<input type="checkbox" id="gc-link-target" /> <?php _e( '在新标签页中打开链接' ); ?></label>
 				</div>
 			</div>
-			<p class="howto" id="gclink-link-existing-content"><?php _e( '或链接到站点中的内容' ); ?></p>
+			<p class="howto" id="gclink-link-existing-content"><?php _e( '或链接到系统中的内容' ); ?></p>
 			<div id="search-panel">
 				<div class="link-search-wrapper">
 					<label>
@@ -1861,7 +1885,12 @@ final class _GC_Editors {
 				<div id="most-recent-results" class="query-results" tabindex="0">
 					<div class="query-notice" id="query-notice-message">
 						<em class="query-notice-default"><?php _e( '未指定搜索条件。自动显示最近发布条目。' ); ?></em>
-						<em class="query-notice-hint screen-reader-text"><?php _e( '搜索或使用上下方向键来选择一项。' ); ?></em>
+						<em class="query-notice-hint screen-reader-text">
+							<?php
+							/* translators: Hidden accessibility text. */
+							_e( '搜索或使用上下方向键来选择一项。' );
+							?>
+						</em>
 					</div>
 					<ul></ul>
 					<div class="river-waiting">
@@ -1872,10 +1901,10 @@ final class _GC_Editors {
 		</div>
 		<div class="submitbox">
 			<div id="gc-link-cancel">
-				<button type="button" class="button"><?php _e( '取消' ); ?></button>
+				<button type="button" class="btn btn-primary btn-tone btn-sm"><?php _e( '取消' ); ?></button>
 			</div>
 			<div id="gc-link-update">
-				<input type="submit" value="<?php esc_attr_e( '添加链接' ); ?>" class="button button-primary" id="gc-link-submit" name="gc-link-submit">
+				<input type="submit" value="<?php esc_attr_e( '添加链接' ); ?>" class="btn btn-primary" id="gc-link-submit" name="gc-link-submit">
 			</div>
 		</div>
 		</form>

@@ -4,7 +4,7 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
+ * @since 4.3.0
  */
 
 // Bookmark hooks.
@@ -31,27 +31,39 @@ add_filter( 'async_upload_audio', 'get_media_item', 10, 2 );
 add_filter( 'async_upload_video', 'get_media_item', 10, 2 );
 add_filter( 'async_upload_file', 'get_media_item', 10, 2 );
 
-add_filter( 'attachment_fields_to_save', 'image_attachment_fields_to_save', 10, 2 );
-
 add_filter( 'media_upload_gallery', 'media_upload_gallery' );
 add_filter( 'media_upload_library', 'media_upload_library' );
 
 add_filter( 'media_upload_tabs', 'update_gallery_tab' );
 
+// Admin color schemes.
+// gongenlin 暂不提供配色方案功能
+// add_action( 'admin_init', 'register_admin_color_schemes', 1 );
+// add_action( 'admin_head', 'gc_color_scheme_settings' );
+// add_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );
+
 // Misc hooks.
 add_action( 'admin_init', 'gc_admin_headers' );
 add_action( 'login_init', 'gc_admin_headers' );
+add_action( 'admin_init', 'send_frame_options_header', 10, 0 );
 add_action( 'admin_head', 'gc_admin_canonical_url' );
-add_action( 'admin_head', 'gc_color_scheme_settings' );
 add_action( 'admin_head', 'gc_site_icon' );
 add_action( 'admin_head', 'gc_admin_viewport_meta' );
 add_action( 'customize_controls_head', 'gc_admin_viewport_meta' );
+add_filter( 'nav_menu_meta_box_object', '_gc_nav_menu_meta_box_object' );
 
 // Prerendering.
 if ( ! is_customize_preview() ) {
 	add_filter( 'admin_print_styles', 'gc_resource_hints', 1 );
 }
 
+add_action( 'admin_print_scripts', 'print_emoji_detection_script' );
+add_action( 'admin_print_scripts', 'print_head_scripts', 20 );
+add_action( 'admin_print_footer_scripts', '_gc_footer_scripts' );
+add_action( 'admin_print_styles', 'print_emoji_styles' );
+add_action( 'admin_print_styles', 'print_admin_styles', 20 );
+
+add_action( 'admin_print_scripts-index.php', 'gc_localize_community_events' );
 add_action( 'admin_print_scripts-post.php', 'gc_page_reload_on_back_button_js' );
 add_action( 'admin_print_scripts-post-new.php', 'gc_page_reload_on_back_button_js' );
 
@@ -68,9 +80,14 @@ add_filter( 'heartbeat_received', 'gc_refresh_post_lock', 10, 3 );
 add_filter( 'heartbeat_received', 'heartbeat_autosave', 500, 2 );
 
 add_filter( 'gc_refresh_nonces', 'gc_refresh_post_nonces', 10, 3 );
+add_filter( 'gc_refresh_nonces', 'gc_refresh_metabox_loader_nonces', 10, 2 );
 add_filter( 'gc_refresh_nonces', 'gc_refresh_heartbeat_nonces' );
 
 add_filter( 'heartbeat_settings', 'gc_heartbeat_set_suspension' );
+
+add_action( 'use_block_editor_for_post_type', '_disable_block_editor_for_navigation_post_type', 10, 2 );
+add_action( 'edit_form_after_title', '_disable_content_editor_for_navigation_post_type' );
+add_action( 'edit_form_after_editor', '_enable_content_editor_for_navigation_post_type' );
 
 // Nav Menu hooks.
 add_action( 'admin_head-nav-menus.php', '_gc_delete_orphaned_draft_menu_items' );
@@ -82,10 +99,11 @@ add_filter( 'allowed_options', 'option_update_filter' );
 add_action( 'install_plugins_featured', 'install_dashboard' );
 add_action( 'install_plugins_upload', 'install_plugins_upload' );
 add_action( 'install_plugins_search', 'display_plugins_table' );
+add_action( 'install_plugins_beta', 'display_plugins_table' );
+add_action( 'install_plugins_favorites', 'display_plugins_table' );
+add_action( 'install_plugins_pro', 'display_plugins_table' );
 add_action( 'install_plugins_free', 'display_plugins_table' );
 add_action( 'install_plugins_all', 'display_plugins_table' );
-add_action( 'install_plugins_new', 'display_plugins_table' );
-add_action( 'install_plugins_beta', 'display_plugins_table' );
 add_action( 'install_plugins_pre_plugin-information', 'install_plugin_information' );
 
 // Template hooks.
@@ -150,4 +168,3 @@ add_action( 'post_updated', array( 'GC_Privacy_Policy_Content', '_policy_page_up
 
 // Append '(Draft)' to draft page titles in the privacy page dropdown.
 add_filter( 'list_pages', '_gc_privacy_settings_filter_draft_page_titles', 10, 2 );
-

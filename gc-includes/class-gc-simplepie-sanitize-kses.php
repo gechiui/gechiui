@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Feed
- *
  */
 
 /**
@@ -13,10 +12,9 @@
  * Extends the SimplePie_Sanitize class to use KSES, because
  * we cannot universally count on DOMDocument being available.
  *
- *
- *
  * @see SimplePie_Sanitize
  */
+#[AllowDynamicProperties]
 class GC_SimplePie_Sanitize_KSES extends SimplePie_Sanitize {
 
 	/**
@@ -24,6 +22,7 @@ class GC_SimplePie_Sanitize_KSES extends SimplePie_Sanitize {
 	 *
 	 * Sanitizes the incoming data, to ensure that it matches the type of data expected, using KSES.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param mixed   $data The data that needs to be sanitized.
 	 * @param int     $type The type of data that it's supposed to be.

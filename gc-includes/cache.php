@@ -2,7 +2,7 @@
 /**
  * Object Cache API
  *
- * @link https://codex.gechiui.com/Class_Reference/GC_Object_Cache
+ * @link https://developer.gechiui.com/reference/classes/gc_object_cache/
  *
  * @package GeChiUI
  * @subpackage Cache
@@ -17,7 +17,7 @@ require_once ABSPATH . GCINC . '/class-gc-object-cache.php';
  * @global GC_Object_Cache $gc_object_cache
  */
 function gc_cache_init() {
-    $GLOBALS['gc_object_cache'] = new GC_Object_Cache();
+	$GLOBALS['gc_object_cache'] = new GC_Object_Cache();
 }
 
 /**
@@ -35,9 +35,9 @@ function gc_cache_init() {
  * @return bool True on success, false if cache key and group already exist.
  */
 function gc_cache_add( $key, $data, $group = '', $expire = 0 ) {
-    global $gc_object_cache;
+	global $gc_object_cache;
 
-    return $gc_object_cache->add( $key, $data, $group, (int) $expire );
+	return $gc_object_cache->add( $key, $data, $group, (int) $expire );
 }
 
 /**
@@ -56,9 +56,9 @@ function gc_cache_add( $key, $data, $group = '', $expire = 0 ) {
  *                true on success, or false if cache key and group already exist.
  */
 function gc_cache_add_multiple( array $data, $group = '', $expire = 0 ) {
-    global $gc_object_cache;
+	global $gc_object_cache;
 
-    return $gc_object_cache->add_multiple( $data, $group, $expire );
+	return $gc_object_cache->add_multiple( $data, $group, $expire );
 }
 
 /**
@@ -76,9 +76,9 @@ function gc_cache_add_multiple( array $data, $group = '', $expire = 0 ) {
  * @return bool True if contents were replaced, false if original value does not exist.
  */
 function gc_cache_replace( $key, $data, $group = '', $expire = 0 ) {
-    global $gc_object_cache;
+	global $gc_object_cache;
 
-    return $gc_object_cache->replace( $key, $data, $group, (int) $expire );
+	return $gc_object_cache->replace( $key, $data, $group, (int) $expire );
 }
 
 /**
@@ -98,9 +98,9 @@ function gc_cache_replace( $key, $data, $group = '', $expire = 0 ) {
  * @return bool True on success, false on failure.
  */
 function gc_cache_set( $key, $data, $group = '', $expire = 0 ) {
-    global $gc_object_cache;
+	global $gc_object_cache;
 
-    return $gc_object_cache->set( $key, $data, $group, (int) $expire );
+	return $gc_object_cache->set( $key, $data, $group, (int) $expire );
 }
 
 /**
@@ -119,9 +119,9 @@ function gc_cache_set( $key, $data, $group = '', $expire = 0 ) {
  *                true on success, or false on failure.
  */
 function gc_cache_set_multiple( array $data, $group = '', $expire = 0 ) {
-    global $gc_object_cache;
+	global $gc_object_cache;
 
-    return $gc_object_cache->set_multiple( $data, $group, $expire );
+	return $gc_object_cache->set_multiple( $data, $group, $expire );
 }
 
 /**
@@ -139,13 +139,15 @@ function gc_cache_set_multiple( array $data, $group = '', $expire = 0 ) {
  * @return mixed|false The cache contents on success, false on failure to retrieve contents.
  */
 function gc_cache_get( $key, $group = '', $force = false, &$found = null ) {
-    global $gc_object_cache;
+	global $gc_object_cache;
 
-    return $gc_object_cache->get( $key, $group, $force, $found );
+	return $gc_object_cache->get( $key, $group, $force, $found );
 }
 
 /**
  * Retrieves multiple values from the cache in one call.
+ *
+ * @since 5.5.0
  *
  * @see GC_Object_Cache::get_multiple()
  * @global GC_Object_Cache $gc_object_cache Object cache global instance.
@@ -158,9 +160,9 @@ function gc_cache_get( $key, $group = '', $force = false, &$found = null ) {
  *               the cache contents on success, or false on failure.
  */
 function gc_cache_get_multiple( $keys, $group = '', $force = false ) {
-    global $gc_object_cache;
+	global $gc_object_cache;
 
-    return $gc_object_cache->get_multiple( $keys, $group, $force );
+	return $gc_object_cache->get_multiple( $keys, $group, $force );
 }
 
 /**
@@ -174,9 +176,9 @@ function gc_cache_get_multiple( $keys, $group = '', $force = false ) {
  * @return bool True on successful removal, false on failure.
  */
 function gc_cache_delete( $key, $group = '' ) {
-    global $gc_object_cache;
+	global $gc_object_cache;
 
-    return $gc_object_cache->delete( $key, $group );
+	return $gc_object_cache->delete( $key, $group );
 }
 
 /**
@@ -193,9 +195,9 @@ function gc_cache_delete( $key, $group = '' ) {
  *                true on success, or false if the contents were not deleted.
  */
 function gc_cache_delete_multiple( array $keys, $group = '' ) {
-    global $gc_object_cache;
+	global $gc_object_cache;
 
-    return $gc_object_cache->delete_multiple( $keys, $group );
+	return $gc_object_cache->delete_multiple( $keys, $group );
 }
 
 /**
@@ -211,9 +213,9 @@ function gc_cache_delete_multiple( array $keys, $group = '' ) {
  * @return int|false The item's new value on success, false on failure.
  */
 function gc_cache_incr( $key, $offset = 1, $group = '' ) {
-    global $gc_object_cache;
+	global $gc_object_cache;
 
-    return $gc_object_cache->incr( $key, $offset, $group );
+	return $gc_object_cache->incr( $key, $offset, $group );
 }
 
 /**
@@ -229,9 +231,9 @@ function gc_cache_incr( $key, $offset = 1, $group = '' ) {
  * @return int|false The item's new value on success, false on failure.
  */
 function gc_cache_decr( $key, $offset = 1, $group = '' ) {
-    global $gc_object_cache;
+	global $gc_object_cache;
 
-    return $gc_object_cache->decr( $key, $offset, $group );
+	return $gc_object_cache->decr( $key, $offset, $group );
 }
 
 /**
@@ -243,9 +245,9 @@ function gc_cache_decr( $key, $offset = 1, $group = '' ) {
  * @return bool True on success, false on failure.
  */
 function gc_cache_flush() {
-    global $gc_object_cache;
+	global $gc_object_cache;
 
-    return $gc_object_cache->flush();
+	return $gc_object_cache->flush();
 }
 
 /**
@@ -258,22 +260,67 @@ function gc_cache_flush() {
  * @return bool True on success, false on failure.
  */
 function gc_cache_flush_runtime() {
-    return gc_cache_flush();
+	return gc_cache_flush();
+}
+
+/**
+ * Removes all cache items in a group, if the object cache implementation supports it.
+ *
+ * Before calling this function, always check for group flushing support using the
+ * `gc_cache_supports( 'flush_group' )` function.
+ *
+ * @since 6.1.0
+ *
+ * @see GC_Object_Cache::flush_group()
+ * @global GC_Object_Cache $gc_object_cache Object cache global instance.
+ *
+ * @param string $group Name of group to remove from cache.
+ * @return bool True if group was flushed, false otherwise.
+ */
+function gc_cache_flush_group( $group ) {
+	global $gc_object_cache;
+
+	return $gc_object_cache->flush_group( $group );
+}
+
+/**
+ * Determines whether the object cache implementation supports a particular feature.
+ *
+ * @since 6.1.0
+ *
+ * @param string $feature Name of the feature to check for. Possible values include:
+ *                        'add_multiple', 'set_multiple', 'get_multiple', 'delete_multiple',
+ *                        'flush_runtime', 'flush_group'.
+ * @return bool True if the feature is supported, false otherwise.
+ */
+function gc_cache_supports( $feature ) {
+	switch ( $feature ) {
+		case 'add_multiple':
+		case 'set_multiple':
+		case 'get_multiple':
+		case 'delete_multiple':
+		case 'flush_runtime':
+		case 'flush_group':
+			return true;
+
+		default:
+			return false;
+	}
 }
 
 /**
  * Closes the cache.
  *
- * This function has ceased to do anything since WordPress 2.5. The
+ * This function has ceased to do anything since GeChiUI 2.5. The
  * functionality was removed along with the rest of the persistent cache.
  *
  * This does not mean that plugins can't implement this function when they need
- * to make sure that the cache is cleaned up after WordPress no longer needs it.
+ * to make sure that the cache is cleaned up after GeChiUI no longer needs it.
  *
  * @return true Always returns true.
  */
 function gc_cache_close() {
-    return true;
+	return true;
 }
 
 /**
@@ -285,9 +332,9 @@ function gc_cache_close() {
  * @param string|string[] $groups A group or an array of groups to add.
  */
 function gc_cache_add_global_groups( $groups ) {
-    global $gc_object_cache;
+	global $gc_object_cache;
 
-    $gc_object_cache->add_global_groups( $groups );
+	$gc_object_cache->add_global_groups( $groups );
 }
 
 /**
@@ -296,7 +343,7 @@ function gc_cache_add_global_groups( $groups ) {
  * @param string|string[] $groups A group or an array of groups to add.
  */
 function gc_cache_add_non_persistent_groups( $groups ) {
-    // Default cache doesn't persist so nothing to do here.
+	// Default cache doesn't persist so nothing to do here.
 }
 
 /**
@@ -310,9 +357,9 @@ function gc_cache_add_non_persistent_groups( $groups ) {
  * @param int $blog_id Site ID.
  */
 function gc_cache_switch_to_blog( $blog_id ) {
-    global $gc_object_cache;
+	global $gc_object_cache;
 
-    $gc_object_cache->switch_to_blog( $blog_id );
+	$gc_object_cache->switch_to_blog( $blog_id );
 }
 
 /**
@@ -327,14 +374,15 @@ function gc_cache_switch_to_blog( $blog_id ) {
  * during unit tests, consider using gc_cache_init(). gc_cache_init() is not
  * recommended outside of unit tests as the performance penalty for using it is high.
  *
+ * @deprecated 3.5.0 Use gc_cache_switch_to_blog()
  * @see GC_Object_Cache::reset()
  *
  * @global GC_Object_Cache $gc_object_cache Object cache global instance.
  */
 function gc_cache_reset() {
-    _deprecated_function( __FUNCTION__, '3.5.0', 'gc_cache_switch_to_blog()' );
+	_deprecated_function( __FUNCTION__, '3.5.0', 'gc_cache_switch_to_blog()' );
 
-    global $gc_object_cache;
+	global $gc_object_cache;
 
-    $gc_object_cache->reset();
+	$gc_object_cache->reset();
 }

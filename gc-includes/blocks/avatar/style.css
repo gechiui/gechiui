@@ -1,0 +1,9 @@
+.gc-block-avatar{
+  line-height:0;
+}
+.gc-block-avatar,.gc-block-avatar img{
+  box-sizing:border-box;
+}
+.gc-block-avatar.aligncenter{
+  text-align:center;
+}

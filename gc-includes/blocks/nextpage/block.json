@@ -1,0 +1,17 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/nextpage",
+	"title": "分页符",
+	"category": "design",
+	"description": "将您的内容分成多个页面。",
+	"keywords": [ "下一页", "pagination" ],
+	"parent": [ "core/post-content" ],
+	"textdomain": "default",
+	"supports": {
+		"customClassName": false,
+		"className": false,
+		"html": false
+	},
+	"editorStyle": "gc-block-nextpage-editor"
+}

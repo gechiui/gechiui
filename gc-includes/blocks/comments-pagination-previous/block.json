@@ -1,0 +1,40 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/comments-pagination-previous",
+	"title": "评论上一页",
+	"category": "theme",
+	"parent": [ "core/comments-pagination" ],
+	"description": "显示上一页评论的页面链接。",
+	"textdomain": "default",
+	"attributes": {
+		"label": {
+			"type": "string"
+		}
+	},
+	"usesContext": [ "postId", "comments/paginationArrow" ],
+	"supports": {
+		"reusable": false,
+		"html": false,
+		"color": {
+			"gradients": true,
+			"text": false,
+			"__experimentalDefaultControls": {
+				"background": true
+			}
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalTextTransform": true,
+			"__experimentalTextDecoration": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		}
+	}
+}

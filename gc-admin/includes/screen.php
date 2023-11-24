@@ -9,7 +9,7 @@
 /**
  * Get the column headers for a screen
  *
- *
+ * @since 2.7.0
  *
  * @param string|GC_Screen $screen The screen you want the headers for
  * @return string[] The column header labels keyed by column ID.
@@ -30,6 +30,7 @@ function get_column_headers( $screen ) {
 		 * list table is edit-post, so the filter for that screen would be
 		 * manage_edit-post_columns.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param string[] $columns The column header labels keyed by column ID.
 		 */
@@ -42,7 +43,7 @@ function get_column_headers( $screen ) {
 /**
  * Get a list of hidden columns.
  *
- *
+ * @since 2.7.0
  *
  * @param string|GC_Screen $screen The screen you want the hidden columns for
  * @return string[] Array of IDs of hidden columns.
@@ -62,6 +63,7 @@ function get_hidden_columns( $screen ) {
 		/**
 		 * Filters the default list of hidden columns.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param string[]  $hidden Array of IDs of columns hidden by default.
 		 * @param GC_Screen $screen GC_Screen object of the current screen.
@@ -72,6 +74,8 @@ function get_hidden_columns( $screen ) {
 	/**
 	 * Filters the list of hidden columns.
 	 *
+	 * @since 4.4.0
+	 * @since 4.4.1 Added the `use_defaults` parameter.
 	 *
 	 * @param string[]  $hidden       Array of IDs of hidden columns.
 	 * @param GC_Screen $screen       GC_Screen object of the current screen.
@@ -83,7 +87,7 @@ function get_hidden_columns( $screen ) {
 /**
  * Prints the meta box preferences for screen meta.
  *
- *
+ * @since 2.7.0
  *
  * @global array $gc_meta_boxes
  *
@@ -140,7 +144,7 @@ function meta_box_prefs( $screen ) {
 /**
  * Gets an array of IDs of hidden meta boxes.
  *
- *
+ * @since 2.7.0
  *
  * @param string|GC_Screen $screen Screen identifier
  * @return string[] IDs of hidden meta boxes.
@@ -169,6 +173,7 @@ function get_hidden_meta_boxes( $screen ) {
 		/**
 		 * Filters the default list of hidden meta boxes.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param string[]  $hidden An array of IDs of meta boxes hidden by default.
 		 * @param GC_Screen $screen GC_Screen object of the current screen.
@@ -191,8 +196,6 @@ function get_hidden_meta_boxes( $screen ) {
 /**
  * Register and configure an admin screen option
  *
- *
- *
  * @param string $option An option name.
  * @param mixed  $args   Option-dependent arguments.
  */
@@ -208,8 +211,6 @@ function add_screen_option( $option, $args = array() ) {
 
 /**
  * Get the current screen object
- *
- *
  *
  * @global GC_Screen $current_screen GeChiUI current screen object.
  *
@@ -227,8 +228,6 @@ function get_current_screen() {
 
 /**
  * Set the current screen object
- *
- *
  *
  * @param string|GC_Screen $hook_name Optional. The hook name (also known as the hook suffix) used to determine the screen,
  *                                    or an existing screen object.

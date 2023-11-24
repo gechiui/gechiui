@@ -24,7 +24,6 @@
 		 * After firing this action hook the page will redirect to gc-login a callback
 		 * redirects or exits first.
 		 *
-		 *
 		 * @param int $request_id Request ID.
 		 */
 		do_action( 'user_request_action_confirmed', $request_id );

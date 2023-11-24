@@ -4,14 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Core class used to implement displaying users in a list table.
- *
- *
- * @access private
  *
  * @see GC_List_Table
  */
@@ -56,7 +52,7 @@ class GC_Users_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Check the current user's permissions.
+	 * Checks the current user's permissions.
 	 *
 	 *
 	 * @return bool
@@ -70,7 +66,7 @@ class GC_Users_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Prepare the users list for display.
+	 * Prepares the users list for display.
 	 *
 	 *
 	 * @global string $role
@@ -125,6 +121,7 @@ class GC_Users_List_Table extends GC_List_Table {
 		/**
 		 * Filters the query arguments used to retrieve users for the current users list table.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param array $args Arguments passed to GC_User_Query to retrieve items for the current
 		 *                    users list table.
@@ -145,7 +142,7 @@ class GC_Users_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Output 'no users' message.
+	 * Outputs 'no users' message.
 	 *
 	 */
 	public function no_items() {
@@ -153,7 +150,7 @@ class GC_Users_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Return an associative array listing all the views that can be used
+	 * Returns an associative array listing all the views that can be used
 	 * with this table.
 	 *
 	 * Provides a list of roles and user count for that role for easy
@@ -169,28 +166,32 @@ class GC_Users_List_Table extends GC_List_Table {
 
 		$gc_roles = gc_roles();
 
+		$count_users = ! gc_is_large_user_count();
+
 		if ( $this->is_site_users ) {
 			$url = 'site-users.php?id=' . $this->site_id;
-			switch_to_blog( $this->site_id );
-			$users_of_blog = count_users( 'time', $this->site_id );
-			restore_current_blog();
 		} else {
-			$url           = 'users.php';
-			$users_of_blog = count_users();
+			$url = 'users.php';
 		}
 
-		$total_users = $users_of_blog['total_users'];
-		$avail_roles =& $users_of_blog['avail_roles'];
-		unset( $users_of_blog );
+		$role_links  = array();
+		$avail_roles = array();
+		$all_text    = __( '全部' );
 
-		$current_link_attributes = empty( $role ) ? ' class="current" aria-current="page"' : '';
+		if ( $count_users ) {
+			if ( $this->is_site_users ) {
+				switch_to_blog( $this->site_id );
+				$users_of_blog = count_users( 'time', $this->site_id );
+				restore_current_blog();
+			} else {
+				$users_of_blog = count_users();
+			}
 
-		$role_links        = array();
-		$role_links['all'] = sprintf(
-			'<a href="%s"%s>%s</a>',
-			$url,
-			$current_link_attributes,
-			sprintf(
+			$total_users = $users_of_blog['total_users'];
+			$avail_roles =& $users_of_blog['avail_roles'];
+			unset( $users_of_blog );
+
+			$all_text = sprintf(
 				/* translators: %s: Number of users. */
 				_nx(
 					'全部<span class="count">（%s）</span>',
@@ -199,38 +200,38 @@ class GC_Users_List_Table extends GC_List_Table {
 					'users'
 				),
 				number_format_i18n( $total_users )
-			)
+			);
+		}
+
+		$role_links['all'] = array(
+			'url'     => $url,
+			'label'   => $all_text,
+			'current' => empty( $role ),
 		);
 
 		foreach ( $gc_roles->get_names() as $this_role => $name ) {
-			if ( ! isset( $avail_roles[ $this_role ] ) ) {
+			if ( $count_users && ! isset( $avail_roles[ $this_role ] ) ) {
 				continue;
 			}
 
-			$current_link_attributes = '';
-
-			if ( $this_role === $role ) {
-				$current_link_attributes = ' class="current" aria-current="page"';
+			$name = translate_user_role( $name );
+			if ( $count_users ) {
+				$name = sprintf(
+					/* translators: 1: User role name, 2: Number of users. */
+					__( '%1$s<span class="count">（%2$s）</span>' ),
+					$name,
+					number_format_i18n( $avail_roles[ $this_role ] )
+				);
 			}
 
-			$name = translate_user_role( $name );
-			$name = sprintf(
-				/* translators: 1: User role name, 2: Number of users. */
-				__( '%1$s<span class="count">（%2$s）</span>' ),
-				$name,
-				number_format_i18n( $avail_roles[ $this_role ] )
+			$role_links[ $this_role ] = array(
+				'url'     => esc_url( add_query_arg( 'role', $this_role, $url ) ),
+				'label'   => $name,
+				'current' => $this_role === $role,
 			);
-
-			$role_links[ $this_role ] = "<a href='" . esc_url( add_query_arg( 'role', $this_role, $url ) ) . "'$current_link_attributes>$name</a>";
 		}
 
 		if ( ! empty( $avail_roles['none'] ) ) {
-
-			$current_link_attributes = '';
-
-			if ( 'none' === $role ) {
-				$current_link_attributes = ' class="current" aria-current="page"';
-			}
 
 			$name = __( '无角色' );
 			$name = sprintf(
@@ -240,14 +241,18 @@ class GC_Users_List_Table extends GC_List_Table {
 				number_format_i18n( $avail_roles['none'] )
 			);
 
-			$role_links['none'] = "<a href='" . esc_url( add_query_arg( 'role', 'none', $url ) ) . "'$current_link_attributes>$name</a>";
+			$role_links['none'] = array(
+				'url'     => esc_url( add_query_arg( 'role', 'none', $url ) ),
+				'label'   => $name,
+				'current' => 'none' === $role,
+			);
 		}
 
-		return $role_links;
+		return $this->get_views_links( $role_links );
 	}
 
 	/**
-	 * Retrieve an associative array of bulk actions available on this table.
+	 * Retrieves an associative array of bulk actions available on this table.
 	 *
 	 *
 	 * @return array Array of bulk action labels keyed by their action.
@@ -274,7 +279,7 @@ class GC_Users_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Output the controls to allow user roles to be changed in bulk.
+	 * Outputs the controls to allow user roles to be changed in bulk.
 	 *
 	 *
 	 * @param string $which Whether this is being invoked above ("top")
@@ -286,11 +291,16 @@ class GC_Users_List_Table extends GC_List_Table {
 		?>
 	<div class="alignleft actions">
 		<?php if ( current_user_can( 'promote_users' ) && $this->has_items() ) : ?>
-		<label class="screen-reader-text" for="<?php echo $id; ?>"><?php _e( '将角色变更为&hellip;' ); ?></label>
+		<label class="screen-reader-text" for="<?php echo $id; ?>">
+			<?php
+			/* translators: Hidden accessibility text. */
+			_e( '将角色变更为&hellip;' );
+			?>
+		</label>
 		<select name="<?php echo $id; ?>" id="<?php echo $id; ?>">
 			<option value=""><?php _e( '将角色变更为&hellip;' ); ?></option>
 			<?php gc_dropdown_roles(); ?>
-			<option value="none"><?php _e( '—这个站点没有任何用户角色—' ); ?></option>
+			<option value="none"><?php _e( '—这个系统没有任何用户角色—' ); ?></option>
 		</select>
 			<?php
 			submit_button( __( '更改' ), '', $button_id, false );
@@ -300,6 +310,8 @@ class GC_Users_List_Table extends GC_List_Table {
 		 * Fires just before the closing div containing the bulk role-change controls
 		 * in the Users list table.
 		 *
+		 * @since 3.5.0
+		 * @since 4.6.0 The `$which` parameter was added.
 		 *
 		 * @param string $which The location of the extra table nav markup: 'top' or 'bottom'.
 		 */
@@ -311,6 +323,7 @@ class GC_Users_List_Table extends GC_List_Table {
 		 * Fires immediately following the closing "actions" div in the tablenav for the users
 		 * list table.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param string $which The location of the extra table nav markup: 'top' or 'bottom'.
 		 */
@@ -318,7 +331,7 @@ class GC_Users_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Capture the bulk action required, and return it.
+	 * Captures the bulk action required, and return it.
 	 *
 	 * Overridden from the base class implementation to capture
 	 * the role change drop-down.
@@ -327,7 +340,7 @@ class GC_Users_List_Table extends GC_List_Table {
 	 * @return string The bulk action required.
 	 */
 	public function current_action() {
-		if ( isset( $_REQUEST['changeit'] ) && ! empty( $_REQUEST['new_role'] ) ) {
+		if ( isset( $_REQUEST['changeit'] ) ) {
 			return 'promote';
 		}
 
@@ -335,45 +348,45 @@ class GC_Users_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Get a list of columns for the list table.
+	 * Gets a list of columns for the list table.
 	 *
 	 *
 	 * @return string[] Array of column titles keyed by their column name.
 	 */
 	public function get_columns() {
-		$c = array(
+		$columns = array(
 			'cb'       => '<input type="checkbox" />',
 			'username' => __( '用户名' ),
-			'name'     => __( '显示名称' ),
+			'name'     => __( '名称' ),
 			'email'    => __( '电子邮箱' ),
 			'role'     => __( '角色' ),
 			'posts'    => _x( '文章', 'post type general name' ),
 		);
 
 		if ( $this->is_site_users ) {
-			unset( $c['posts'] );
+			unset( $columns['posts'] );
 		}
 
-		return $c;
+		return $columns;
 	}
 
 	/**
-	 * Get a list of sortable columns for the list table.
+	 * Gets a list of sortable columns for the list table.
 	 *
 	 *
 	 * @return array Array of sortable columns.
 	 */
 	protected function get_sortable_columns() {
-		$c = array(
-			'username' => 'login',
-			'email'    => 'email',
+		$columns = array(
+			'username' => array( 'login', false, __( '用户名' ), __( '表格按用户名排序。' ), 'asc' ),
+			'email'    => array( 'email', false, __( '邮箱' ), __( '表格通过邮箱地址排序。' ) ),
 		);
 
-		return $c;
+		return $columns;
 	}
 
 	/**
-	 * Generate the list table rows.
+	 * Generates the list table rows.
 	 *
 	 */
 	public function display_rows() {
@@ -388,8 +401,10 @@ class GC_Users_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Generate HTML for a single row on the users.php admin panel.
+	 * Generates HTML for a single row on the users.php admin panel.
 	 *
+	 * @since 4.2.0 The `$style` parameter was deprecated.
+	 * @since 4.4.0 The `$role` parameter was deprecated.
 	 *
 	 * @param GC_User $user_object The current user object.
 	 * @param string  $style       Deprecated. Not used.
@@ -470,6 +485,7 @@ class GC_Users_List_Table extends GC_List_Table {
 			// Add a link to send the user a reset password link by email.
 			if ( get_current_user_id() !== $user_object->ID
 				&& current_user_can( 'edit_user', $user_object->ID )
+				&& true === gc_is_password_reset_allowed_for_user( $user_object )
 			) {
 				$actions['resetpassword'] = "<a class='resetpassword' href='" . gc_nonce_url( "users.php?action=resetpassword&amp;users=$user_object->ID", 'bulk-users' ) . "'>" . __( '发送密码重置邮件' ) . '</a>';
 			}
@@ -477,7 +493,7 @@ class GC_Users_List_Table extends GC_List_Table {
 			/**
 			 * Filters the action links displayed under each user in the Users list table.
 			 *
-		
+			 * @since 2.8.0
 			 *
 			 * @param string[] $actions     An array of action links to be displayed.
 			 *                              Default 'Edit', 'Delete' for single site, and
@@ -491,10 +507,10 @@ class GC_Users_List_Table extends GC_List_Table {
 
 			// Set up the checkbox (because the user is editable, otherwise it's empty).
 			$checkbox = sprintf(
-				'<label class="screen-reader-text" for="user_%1$s">%2$s</label>' .
+				'<label class="label-covers-full-cell" for="user_%1$s"><span class="screen-reader-text">%2$s</span></label>' .
 				'<input type="checkbox" name="users[]" id="user_%1$s" class="%3$s" value="%1$s" />',
 				$user_object->ID,
-				/* translators: %s: User login. */
+				/* translators: Hidden accessibility text. %s: User login. */
 				sprintf( __( '选择%s' ), $user_object->user_login ),
 				$role_classes
 			);
@@ -508,7 +524,7 @@ class GC_Users_List_Table extends GC_List_Table {
 		// Comma-separated list of user roles.
 		$roles_list = implode( ', ', $user_roles );
 
-		$r = "<tr id='user-$user_object->ID'>";
+		$row = "<tr id='user-$user_object->ID'>";
 
 		list( $columns, $hidden, $sortable, $primary ) = $this->get_column_info();
 
@@ -530,76 +546,83 @@ class GC_Users_List_Table extends GC_List_Table {
 			$attributes = "class='$classes' $data";
 
 			if ( 'cb' === $column_name ) {
-				$r .= "<th scope='row' class='check-column'>$checkbox</th>";
+				$row .= "<th scope='row' class='check-column'>$checkbox</th>";
 			} else {
-				$r .= "<td $attributes>";
+				$row .= "<td $attributes>";
 				switch ( $column_name ) {
 					case 'username':
-						$r .= "$avatar $edit";
+						$row .= "$avatar $edit";
 						break;
 					case 'name':
 						if ( $user_object->first_name && $user_object->last_name ) {
-							$r .= "$user_object->first_name $user_object->last_name";
+							$row .= sprintf(
+								/* translators: 1: User's first name, 2: Last name. */
+								_x( '%2$s, %1$s', 'Display name based on first name and last name' ),
+								$user_object->first_name,
+								$user_object->last_name
+							);
 						} elseif ( $user_object->first_name ) {
-							$r .= $user_object->first_name;
+							$row .= $user_object->first_name;
 						} elseif ( $user_object->last_name ) {
-							$r .= $user_object->last_name;
+							$row .= $user_object->last_name;
 						} else {
-							$r .= sprintf(
+							$row .= sprintf(
 								'<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">%s</span>',
+								/* translators: Hidden accessibility text. */
 								_x( '未知', 'name' )
 							);
 						}
 						break;
 					case 'email':
-						$r .= "<a href='" . esc_url( "mailto:$email" ) . "'>$email</a>";
+						$row .= "<a href='" . esc_url( "mailto:$email" ) . "'>$email</a>";
 						break;
 					case 'role':
-						$r .= esc_html( $roles_list );
+						$row .= esc_html( $roles_list );
 						break;
 					case 'posts':
 						if ( $numposts > 0 ) {
-							$r .= sprintf(
+							$row .= sprintf(
 								'<a href="%s" class="edit"><span aria-hidden="true">%s</span><span class="screen-reader-text">%s</span></a>',
 								"edit.php?author={$user_object->ID}",
 								$numposts,
 								sprintf(
-									/* translators: %s: Number of posts. */
+									/* translators: Hidden accessibility text. %s: Number of posts. */
 									_n( '此作者有%s篇文章', '此作者有%s篇文章', $numposts ),
 									number_format_i18n( $numposts )
 								)
 							);
 						} else {
-							$r .= 0;
+							$row .= 0;
 						}
 						break;
 					default:
 						/**
 						 * Filters the display output of custom columns in the Users list table.
 						 *
-					
+						 * @since 2.8.0
 						 *
 						 * @param string $output      Custom column output. Default empty.
 						 * @param string $column_name Column name.
 						 * @param int    $user_id     ID of the currently-listed user.
 						 */
-						$r .= apply_filters( 'manage_users_custom_column', '', $column_name, $user_object->ID );
+						$row .= apply_filters( 'manage_users_custom_column', '', $column_name, $user_object->ID );
 				}
 
 				if ( $primary === $column_name ) {
-					$r .= $this->row_actions( $actions );
+					$row .= $this->row_actions( $actions );
 				}
-				$r .= '</td>';
+				$row .= '</td>';
 			}
 		}
-		$r .= '</tr>';
+		$row .= '</tr>';
 
-		return $r;
+		return $row;
 	}
 
 	/**
 	 * Gets the name of the default primary column.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @return string Name of the default primary column, in this case, 'username'.
 	 */
@@ -610,6 +633,7 @@ class GC_Users_List_Table extends GC_List_Table {
 	/**
 	 * Returns an array of translated user role names for a given user object.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param GC_User $user_object The GC_User object.
 	 * @return string[] An array of user role names keyed by role.
@@ -632,6 +656,7 @@ class GC_Users_List_Table extends GC_List_Table {
 		/**
 		 * Filters the returned array of translated role names for a user.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param string[] $role_list   An array of translated user role names keyed by role.
 		 * @param GC_User  $user_object A GC_User object.

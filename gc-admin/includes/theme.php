@@ -7,9 +7,7 @@
  */
 
 /**
- * Remove a theme
- *
- *
+ * Removes a theme.
  *
  * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
  *
@@ -75,6 +73,7 @@ function delete_theme( $stylesheet, $redirect = '' ) {
 	/**
 	 * Fires immediately before a theme deletion attempt.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param string $stylesheet Stylesheet of the theme to delete.
 	 */
@@ -87,6 +86,7 @@ function delete_theme( $stylesheet, $redirect = '' ) {
 	/**
 	 * Fires immediately after a theme deletion attempt.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param string $stylesheet Stylesheet of the theme to delete.
 	 * @param bool   $deleted    Whether the theme deletion was successful.
@@ -131,12 +131,10 @@ function delete_theme( $stylesheet, $redirect = '' ) {
 
 /**
  * Gets the page templates available in this theme.
- *
- *
- *
+ * Added the `$post_type` parameter.
  *
  * @param GC_Post|null $post      Optional. The post being edited, provided for context.
- * @param string       $post_type Optional. 要获取模板的文章类型。 Default 'page'.
+ * @param string       $post_type Optional. Post type to get the templates for. Default 'page'.
  * @return string[] Array of template file names keyed by the template header name.
  */
 function get_page_templates( $post = null, $post_type = 'page' ) {
@@ -145,7 +143,6 @@ function get_page_templates( $post = null, $post_type = 'page' ) {
 
 /**
  * Tidies a filename for url display by the theme file editor.
- *
  *
  * @access private
  *
@@ -162,7 +159,7 @@ function _get_template_edit_filename( $fullpath, $containingfolder ) {
  *
  * Will display link, if there is an update available.
  *
- *
+ * @since 2.7.0
  *
  * @see get_theme_update_available()
  *
@@ -173,11 +170,11 @@ function theme_update_available( $theme ) {
 }
 
 /**
- * Retrieve the update link if there is a theme update available.
+ * Retrieves the update link if there is a theme update available.
  *
  * Will return a link if there is an update available.
  *
- *
+ * @since 3.8.0
  *
  * @param GC_Theme $theme GC_Theme object.
  * @return string|false HTML for the update link, or false if invalid info was passed.
@@ -269,34 +266,27 @@ function get_theme_update_available( $theme ) {
 }
 
 /**
- * Retrieve list of GeChiUI theme features (aka theme tags).
- *
- *
- *
- *              '全宽模板', and '文章形式' features.
- *
- *
- *
+ * Retrieves list of GeChiUI theme features (aka theme tags).
+ * Added 'Gray' color and '页眉特色图片', '特色图片',
+ *              '全宽模板', and '文章形式' features. Added 'Flexible Header' feature.
+ * @since 3.8.0 Renamed 'Width' filter to 'Layout'.
+ * @since 3.8.0 Renamed 'Fixed Width' and 'Flexible Width' options
  *              to '固定布局' and '流动布局'.
- *
- *
- *
- *
- *              Removed '固定布局', '流动布局', and '响应式布局' options.
- *
- *              Removed 'Blavatar' feature.
- *
- *              'Holiday', 'News', '摄影', and '作品集' subjects.
- *              Removed '摄影博客' and 'Seasonal' subjects.
- *
- *              to 'Subject', 'Features', 'Layout'.
- *
+ * @since 3.8.0 Added '无障碍友好' feature and '响应式布局' option.
+ * @since 3.9.0 Combined 'Layout' and 'Columns' filters. Removed 'Colors' filter. Added '网格布局' option.
+ *              Removed '固定布局', '流动布局', and '响应式布局' options. Added '自定义 logo' and '页脚小工具' features.
+ *              Removed 'Blavatar' feature. Added 'Blog', 'E-Commerce', 'Education', 'Entertainment', '食品和饮料',
+ *              'Holiday', 'News', 'Photography', and 'Portfolio' subjects.
+ *              Removed 'Photoblogging' and 'Seasonal' subjects. Reordered the filters from 'Layout', 'Features', 'Subject'
+ *              to 'Subject', 'Features', 'Layout'. Removed 'BuddyPress', 'Custom Menu', 'Flexible Header',
  *              'Front Page Posting', 'Microformats', 'RTL Language Support',
  *              'Threaded Comments', and 'Translation Ready' features.
- *
- *              and '全站编辑' features.
- *
- *
+ * @since 5.5.0 Added '区块编辑器样板', '区块编辑器样式',
+ *              and 'Full Site Editing' features.
+ * @since 5.5.0 Added '宽幅区块' layout option.
+ * @since 5.8.1 Added '模板编辑' feature.
+ * @since 6.1.1 Replaced 'Full Site Editing' feature name with '系统编辑器'.
+ * @since 6.2.0 Added '样式变体' feature.
  *
  * @param bool $api Optional. Whether try to fetch tags from the www.GeChiUI.com API. Defaults to true.
  * @return array Array of features keyed by category with translations keyed by slug.
@@ -307,10 +297,10 @@ function get_theme_feature_list( $api = true ) {
 
 		__( '主题' )  => array(
 			'blog'           => __( '博客' ),
-			'e-commerce'     => __( '电商' ),
+			'e-commerce'     => __( '电子商务' ),
 			'education'      => __( '教育' ),
 			'entertainment'  => __( '娱乐' ),
-			'food-and-drink' => __( '食物' ),
+			'food-and-drink' => __( '食品和饮料' ),
 			'holiday'        => __( '节日' ),
 			'news'           => __( '新闻' ),
 			'photography'    => __( '摄影' ),
@@ -323,24 +313,25 @@ function get_theme_feature_list( $api = true ) {
 			'block-styles'          => __( '区块编辑器样式' ),
 			'custom-background'     => __( '自定义背景' ),
 			'custom-colors'         => __( '自定义颜色' ),
-			'custom-header'         => __( '自定义顶部' ),
+			'custom-header'         => __( '自定义页眉' ),
 			'custom-logo'           => __( '自定义 logo' ),
 			'editor-style'          => __( '编辑器样式支持' ),
 			'featured-image-header' => __( '页眉特色图片' ),
 			'featured-images'       => __( '特色图片' ),
 			'footer-widgets'        => __( '页脚小工具' ),
-			'full-site-editing'     => __( '全站编辑' ),
+			'full-site-editing'     => __( '系统编辑器' ),
 			'full-width-template'   => __( '全宽模板' ),
 			'post-formats'          => __( '文章形式' ),
 			'sticky-post'           => __( '文章置顶' ),
+			'style-variations'      => __( '样式变体' ),
 			'template-editing'      => __( '模板编辑' ),
 			'theme-options'         => __( '主题选项' ),
 		),
 
 		__( '布局' )   => array(
 			'grid-layout'   => __( '网格布局' ),
-			'one-column'    => __( '一栏' ),
-			'two-columns'   => __( '两栏' ),
+			'one-column'    => __( '单栏' ),
+			'two-columns'   => __( '双栏' ),
 			'three-columns' => __( '三栏' ),
 			'four-columns'  => __( '四栏' ),
 			'left-sidebar'  => __( '边栏在左侧' ),
@@ -435,12 +426,10 @@ function get_theme_feature_list( $api = true ) {
  * | `$locale`          | Yes            |  Yes                | No         | No               |
  * | `$fields`          | Yes            |  Yes                | No         | No               |
  *
- *
- *
  * @param string       $action API action to perform: 'query_themes', 'theme_information',
  *                             'hot_tags' or 'feature_list'.
  * @param array|object $args   {
- *     Optional. Array or object of arguments to serialize for the Themes API.
+ *     Optional. Array or object of arguments to serialize for the Themes API. Default empty array.
  *
  *     @type string  $slug     The theme slug. Default empty.
  *     @type int     $per_page Number of themes per page. Default 24.
@@ -548,6 +537,7 @@ function themes_api( $action, $args = array() ) {
 		}
 
 		$http_args = array(
+			'timeout'    => 15,
 			'user-agent' => 'GeChiUI/' . $gc_version . '; ' . home_url( '/' ),
 		);
 		$request   = gc_remote_get( $url, $http_args );
@@ -626,9 +616,9 @@ function themes_api( $action, $args = array() ) {
 }
 
 /**
- * Prepare themes for JavaScript.
+ * Prepares themes for JavaScript.
  *
- *
+ * @since 3.8.0
  *
  * @param GC_Theme[] $themes Optional. Array of theme objects to prepare.
  *                           Defaults to all allowed themes.
@@ -644,6 +634,7 @@ function gc_prepare_themes_for_js( $themes = null ) {
 	 * Passing a non-empty array will result in gc_prepare_themes_for_js() returning
 	 * early with that value instead.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param array           $prepared_themes An associative array of theme data. Default empty array.
 	 * @param GC_Theme[]|null $themes          An array of theme objects to prepare, if any.
@@ -701,16 +692,21 @@ function gc_prepare_themes_for_js( $themes = null ) {
 		$is_block_theme         = $theme->is_block_theme();
 
 		if ( $is_block_theme && $can_edit_theme_options ) {
-			$customize_action = esc_url( admin_url( 'site-editor.php' ) );
+			$customize_action = admin_url( 'site-editor.php' );
+			if ( $current_theme !== $slug ) {
+				$customize_action = add_query_arg( 'gc_theme_preview', $slug, $customize_action );
+			}
 		} elseif ( ! $is_block_theme && $can_customize && $can_edit_theme_options ) {
-			$customize_action = esc_url(
-				add_query_arg(
-					array(
-						'return' => urlencode( esc_url_raw( remove_query_arg( gc_removable_query_args(), gc_unslash( $_SERVER['REQUEST_URI'] ) ) ) ),
-					),
-					gc_customize_url( $slug )
-				)
+			$customize_action = gc_customize_url( $slug );
+		}
+		if ( null !== $customize_action ) {
+			$customize_action = add_query_arg(
+				array(
+					'return' => urlencode( sanitize_url( remove_query_arg( gc_removable_query_args(), gc_unslash( $_SERVER['REQUEST_URI'] ) ) ) ),
+				),
+				$customize_action
 			);
+			$customize_action = esc_url( $customize_action );
 		}
 
 		$update_requires_gc  = isset( $updates[ $slug ]['requires'] ) ? $updates[ $slug ]['requires'] : null;
@@ -747,7 +743,7 @@ function gc_prepare_themes_for_js( $themes = null ) {
 			'id'             => $slug,
 			'name'           => $theme->display( 'Name' ),
 			'screenshot'     => array( $theme->get_screenshot() ), // @todo Multiple screenshots.
-			'description'    => $theme->display( 'description' ),
+			'description'    => $theme->display( 'Description' ),
 			'author'         => $theme->display( 'Author', false, true ),
 			'authorAndUri'   => $theme->display( 'Author' ),
 			'tags'           => $theme->display( 'Tags' ),
@@ -790,6 +786,7 @@ function gc_prepare_themes_for_js( $themes = null ) {
 	 *
 	 * Could be useful for changing the order, which is by name by default.
 	 *
+	 * @since 3.8.0
 	 *
 	 * @param array $prepared_themes Array of theme data.
 	 */
@@ -799,8 +796,7 @@ function gc_prepare_themes_for_js( $themes = null ) {
 }
 
 /**
- * Print JS templates for the theme-browsing UI in the Customizer.
- *
+ * Prints JS templates for the theme-browsing UI in the Customizer.
  *
  */
 function customize_themes_print_templates() {
@@ -809,14 +805,29 @@ function customize_themes_print_templates() {
 		<div class="theme-backdrop"></div>
 		<div class="theme-wrap gc-clearfix" role="document">
 			<div class="theme-header">
-				<button type="button" class="left dashicons dashicons-no"><span class="screen-reader-text"><?php _e( '显示上一个主题' ); ?></span></button>
-				<button type="button" class="right dashicons dashicons-no"><span class="screen-reader-text"><?php _e( '显示下一个主题' ); ?></span></button>
-				<button type="button" class="close dashicons dashicons-no"><span class="screen-reader-text"><?php _e( '关闭详情对话框' ); ?></span></button>
+				<button type="button" class="left dashicons dashicons-no"><span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '显示上一个主题' );
+					?>
+				</span></button>
+				<button type="button" class="right dashicons dashicons-no"><span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '显示下一个主题' );
+					?>
+				</span></button>
+				<button type="button" class="close dashicons dashicons-no"><span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '关闭详情对话框' );
+					?>
+				</span></button>
 			</div>
 			<div class="theme-about gc-clearfix">
 				<div class="theme-screenshots">
 				<# if ( data.screenshot && data.screenshot[0] ) { #>
-					<div class="screenshot"><img src="{{ data.screenshot[0] }}" alt="" /></div>
+					<div class="screenshot"><img src="{{ data.screenshot[0] }}?ver={{ data.version }}" alt="" /></div>
 				<# } else { #>
 					<div class="screenshot blank"></div>
 				<# } #>
@@ -848,7 +859,7 @@ function customize_themes_print_templates() {
 									'%1$s <span class="screen-reader-text">%2$s</span>',
 									/* translators: %s: Number of ratings. */
 									sprintf( __( '（%s个评级）' ), '{{ data.num_ratings }}' ),
-									/* translators: Accessibility text. */
+									/* translators: Hidden accessibility text. */
 									__( '（在新窗口中打开）' )
 								);
 								?>
@@ -858,19 +869,19 @@ function customize_themes_print_templates() {
 
 					<# if ( data.hasUpdate ) { #>
 						<# if ( data.updateResponse.compatibleGC && data.updateResponse.compatiblePHP ) { #>
-							<div class="notice notice-warning notice-alt notice-large" data-slug="{{ data.id }}">
+							<div class="alert alert-warning notice-alt notice-large" data-slug="{{ data.id }}">
 								<h3 class="notice-title"><?php _e( '更新可用' ); ?></h3>
 								{{{ data.update }}}
 							</div>
 						<# } else { #>
-							<div class="notice notice-error notice-alt notice-large" data-slug="{{ data.id }}">
+							<div class="alert alert-danger notice-alt notice-large" data-slug="{{ data.id }}">
 								<h3 class="notice-title"><?php _e( '更新不兼容' ); ?></h3>
 								<p>
 									<# if ( ! data.updateResponse.compatibleGC && ! data.updateResponse.compatiblePHP ) { #>
 										<?php
 										printf(
 											/* translators: %s: Theme name. */
-											__( '%s的新版本可用，但无法在您安装版本的GeChiUI和PHP上工作。' ),
+											__( '%s 有新版本可用，但与您当前使用的 GeChiUI 和 PHP 版本不兼容。' ),
 											'{{{ data.name }}}'
 										);
 										if ( current_user_can( 'update_core' ) && current_user_can( 'update_php' ) ) {
@@ -900,7 +911,7 @@ function customize_themes_print_templates() {
 										<?php
 										printf(
 											/* translators: %s: Theme name. */
-											__( '%s的新版本可用，但无法在您安装版本的GeChiUI和PHP上工作。' ),
+											__( '%s 有新版本可用，但与您当前使用的 GeChiUI 版本不兼容。' ),
 											'{{{ data.name }}}'
 										);
 										if ( current_user_can( 'update_core' ) ) {
@@ -915,7 +926,7 @@ function customize_themes_print_templates() {
 										<?php
 										printf(
 											/* translators: %s: Theme name. */
-											__( '%s的新版本可用，但无法在您安装版本的GeChiUI和PHP上工作。' ),
+											__( '%s 有新版本可用，但与您当前使用的 PHP 版本不兼容。' ),
 											'{{{ data.name }}}'
 										);
 										if ( current_user_can( 'update_php' ) ) {
@@ -946,10 +957,10 @@ function customize_themes_print_templates() {
 					<# } #>
 
 					<# if ( ! data.compatibleGC || ! data.compatiblePHP ) { #>
-						<div class="notice notice-error notice-alt notice-large"><p>
+						<div class="alert alert-danger notice-alt notice-large"><p>
 							<# if ( ! data.compatibleGC && ! data.compatiblePHP ) { #>
 								<?php
-								_e( '此主题不能与您的GeChiUI和PHP版本一同工作。' );
+								_e( '此主题未适配您当前的 GeChiUI 和 PHP 版本。' );
 								if ( current_user_can( 'update_core' ) && current_user_can( 'update_php' ) ) {
 									printf(
 										/* translators: 1: URL to GeChiUI Updates screen, 2: URL to Update PHP page. */
@@ -975,7 +986,7 @@ function customize_themes_print_templates() {
 								?>
 							<# } else if ( ! data.compatibleGC ) { #>
 								<?php
-								_e( '此主题未适配当前GeChiUI版本。' );
+								_e( '此主题未适配您当前的 GeChiUI 版本。' );
 								if ( current_user_can( 'update_core' ) ) {
 									printf(
 										/* translators: %s: URL to GeChiUI Updates screen. */
@@ -986,7 +997,7 @@ function customize_themes_print_templates() {
 								?>
 							<# } else if ( ! data.compatiblePHP ) { #>
 								<?php
-								_e( '此主题未适配当前PHP版本。' );
+								_e( '此主题未适配您当前的 PHP 版本。' );
 								if ( current_user_can( 'update_php' ) ) {
 									printf(
 										/* translators: %s: URL to Update PHP page. */
@@ -999,7 +1010,7 @@ function customize_themes_print_templates() {
 							<# } #>
 						</p></div>
 					<# } else if ( ! data.active && data.blockTheme ) { #>
-						<div class="notice notice-error notice-alt notice-large"><p>
+						<div class="alert alert-danger notice-alt notice-large"><p>
 						<?php
 							_e( '此主题不支持自定义。' );
 						?>
@@ -1007,7 +1018,7 @@ function customize_themes_print_templates() {
 							<?php
 							printf(
 								/* translators: %s: URL to the themes page (also it activates the theme). */
-								' ' . __( '但您也可以<a href="%s">启用此主题</a>，并使用站点编辑器对其进行自定义。' ),
+								' ' . __( '但您也可以<a href="%s">启用此主题</a>，并使用系统编辑器对其进行自定义。' ),
 								'{{{ data.actions.activate }}}'
 							);
 							?>
@@ -1025,7 +1036,7 @@ function customize_themes_print_templates() {
 
 			<div class="theme-actions">
 				<# if ( data.active ) { #>
-					<button type="button" class="button button-primary customize-theme"><?php _e( '自定义' ); ?></button>
+					<button type="button" class="btn btn-primary customize-theme"><?php _e( '自定义' ); ?></button>
 				<# } else if ( 'installed' === data.type ) { #>
 					<?php if ( current_user_can( 'delete_themes' ) ) { ?>
 						<# if ( data.actions && data.actions['delete'] ) { #>
@@ -1036,25 +1047,25 @@ function customize_themes_print_templates() {
 					<# if ( data.blockTheme ) { #>
 						<?php
 							/* translators: %s: Theme name. */
-							$aria_label = sprintf( _x( '启用%s', 'theme' ), '{{ data.name }}' );
+							$aria_label = sprintf( _x( '启用 %s', 'theme' ), '{{ data.name }}' );
 						?>
 						<# if ( data.compatibleGC && data.compatiblePHP && data.actions.activate ) { #>
-							<a href="{{{ data.actions.activate }}}" class="button button-primary activate" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _e( '启用' ); ?></a>
+							<a href="{{{ data.actions.activate }}}" class="btn btn-primary activate" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _e( '启用' ); ?></a>
 						<# } #>
 					<# } else { #>
 						<# if ( data.compatibleGC && data.compatiblePHP ) { #>
-							<button type="button" class="button button-primary preview-theme" data-slug="{{ data.id }}"><?php _e( '实时预览' ); ?></button>
+							<button type="button" class="btn btn-primary preview-theme" data-slug="{{ data.id }}"><?php _e( '实时预览' ); ?></button>
 						<# } else { #>
-							<button class="button button-primary disabled"><?php _e( '实时预览' ); ?></button>
+							<button class="btn btn-primary disabled"><?php _e( '实时预览' ); ?></button>
 						<# } #>
 					<# } #>
 				<# } else { #>
 					<# if ( data.compatibleGC && data.compatiblePHP ) { #>
 						<button type="button" class="button theme-install" data-slug="{{ data.id }}"><?php _e( '安装' ); ?></button>
-						<button type="button" class="button button-primary theme-install preview" data-slug="{{ data.id }}"><?php _e( '安装并预览' ); ?></button>
+						<button type="button" class="btn btn-primary theme-install preview" data-slug="{{ data.id }}"><?php _e( '安装并预览' ); ?></button>
 					<# } else { #>
 						<button type="button" class="button disabled"><?php _ex( '无法安装', 'theme' ); ?></button>
-						<button type="button" class="button button-primary disabled"><?php _e( '安装并预览' ); ?></button>
+						<button type="button" class="btn btn-primary disabled"><?php _e( '安装并预览' ); ?></button>
 					<# } #>
 				<# } #>
 			</div>
@@ -1071,7 +1082,7 @@ function customize_themes_print_templates() {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
+ * @since 5.2.0
  *
  * @param string $theme Path to the theme directory relative to the themes directory.
  * @return bool True, if in the list of paused themes. False, not in the list.
@@ -1091,7 +1102,7 @@ function is_theme_paused( $theme ) {
 /**
  * Gets the error that was recorded for a paused theme.
  *
- *
+ * @since 5.2.0
  *
  * @param string $theme Path to the theme directory relative to the themes
  *                      directory.
@@ -1120,7 +1131,7 @@ function gc_get_theme_error( $theme ) {
  * include the file. If the theme fails, then the redirection will not be overwritten
  * with the success message and the theme will not be resumed.
  *
- *
+ * @since 5.2.0
  *
  * @param string $theme    Single theme to resume.
  * @param string $redirect Optional. URL to redirect to. Default empty string.
@@ -1136,9 +1147,9 @@ function resume_theme( $theme, $redirect = '' ) {
 	 */
 	if ( ! empty( $redirect ) ) {
 		$functions_path = '';
-		if ( strpos( STYLESHEETPATH, $extension ) ) {
+		if ( str_contains( STYLESHEETPATH, $extension ) ) {
 			$functions_path = STYLESHEETPATH . '/functions.php';
-		} elseif ( strpos( TEMPLATEPATH, $extension ) ) {
+		} elseif ( str_contains( TEMPLATEPATH, $extension ) ) {
 			$functions_path = TEMPLATEPATH . '/functions.php';
 		}
 
@@ -1176,9 +1187,9 @@ function resume_theme( $theme, $redirect = '' ) {
 /**
  * Renders an admin notice in case some themes have been paused due to errors.
  *
+ * @since 5.2.0
  *
- *
- * @global string $pagenow
+ * @global string $pagenow The filename of the current screen.
  */
 function paused_themes_notice() {
 	if ( 'themes.php' === $GLOBALS['pagenow'] ) {
@@ -1194,7 +1205,7 @@ function paused_themes_notice() {
 	}
 
 	printf(
-		'<div class="notice notice-error"><p><strong>%s</strong><br>%s</p><p><a href="%s">%s</a></p></div>',
+		'<div class="alert alert-danger"><p><strong>%s</strong><br>%s</p><p><a href="%s">%s</a></p></div>',
 		__( '一个或多个主题未能成功加载。' ),
 		__( '您可以在主题页面获取更多信息及做出修改。' ),
 		esc_url( admin_url( 'themes.php' ) ),

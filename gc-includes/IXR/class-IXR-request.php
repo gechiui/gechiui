@@ -4,7 +4,6 @@
  * IXR_Request
  *
  * @package IXR
- *
  */
 class IXR_Request
 {

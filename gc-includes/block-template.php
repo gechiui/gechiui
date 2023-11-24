@@ -6,47 +6,35 @@
  */
 
 /**
- * Adds necessary filters to use 'gc_template' posts instead of theme template files.
+ * Adds necessary hooks to resolve '_gc-find-template' requests.
  *
  * @access private
- *
+ * @since 5.9.0
  */
 function _add_template_loader_filters() {
-	if ( ! current_theme_supports( 'block-templates' ) ) {
-		return;
-	}
-
-	$template_types = array_keys( get_default_block_template_types() );
-	foreach ( $template_types as $template_type ) {
-		// Skip 'embed' for now because it is not a regular template type.
-		if ( 'embed' === $template_type ) {
-			continue;
-		}
-		add_filter( str_replace( '-', '', $template_type ) . '_template', 'locate_block_template', 20, 3 );
-	}
-
-	// Request to resolve a template.
-	if ( isset( $_GET['_gc-find-template'] ) ) {
-		add_filter( 'pre_get_posts', '_resolve_template_for_new_post' );
+	if ( isset( $_GET['_gc-find-template'] ) && current_theme_supports( 'block-templates' ) ) {
+		add_action( 'pre_get_posts', '_resolve_template_for_new_post' );
 	}
 }
 
 /**
- * Find a block template with equal or higher specificity than a given PHP template file.
+ * Finds a block template with equal or higher specificity than a given PHP template file.
  *
  * Internally, this communicates the block content that needs to be used by the template canvas through a global variable.
  *
- *
+ * @since 5.8.0
+ * @since 6.3.0 Added `$_gc_current_template_id` global for editing of current template directly from the admin bar.
  *
  * @global string $_gc_current_template_content
+ * @global string $_gc_current_template_id
  *
  * @param string   $template  Path to the template. See locate_template().
  * @param string   $type      Sanitized filename without extension.
  * @param string[] $templates A list of template candidates, in descending order of priority.
- * @return string The path to the Full Site Editing template canvas file, or the fallback PHP template.
+ * @return string The path to the Site Editor template canvas file, or the fallback PHP template.
  */
 function locate_block_template( $template, $type, array $templates ) {
-	global $_gc_current_template_content;
+	global $_gc_current_template_content, $_gc_current_template_id;
 
 	if ( ! current_theme_supports( 'block-templates' ) ) {
 		return $template;
@@ -78,6 +66,8 @@ function locate_block_template( $template, $type, array $templates ) {
 	$block_template = resolve_block_template( $type, $templates, $template );
 
 	if ( $block_template ) {
+		$_gc_current_template_id = $block_template->id;
+
 		if ( empty( $block_template->content ) && is_user_logged_in() ) {
 			$_gc_current_template_content =
 			sprintf(
@@ -118,11 +108,11 @@ function locate_block_template( $template, $type, array $templates ) {
 }
 
 /**
- * Return the correct 'gc_template' to render for the request template type.
+ * Returns the correct 'gc_template' to render for the request template type.
  *
  * @access private
- *
- *
+ * @since 5.8.0
+ * @since 5.9.0 Added the `$fallback_template` parameter.
  *
  * @param string   $template_type      The current template type.
  * @param string[] $template_hierarchy The current template hierarchy, ordered by priority.
@@ -145,7 +135,6 @@ function resolve_block_template( $template_type, $template_hierarchy, $fallback_
 
 	// Find all potential templates 'gc_template' post matching the hierarchy.
 	$query     = array(
-		'theme'    => gc_get_theme()->get_stylesheet(),
 		'slug__in' => $slugs,
 	);
 	$templates = get_block_templates( $query );
@@ -166,8 +155,8 @@ function resolve_block_template( $template_type, $template_hierarchy, $fallback_
 
 	// Is the active theme a child theme, and is the PHP fallback template part of it?
 	if (
-		strpos( $fallback_template, $theme_base_path ) === 0 &&
-		strpos( $fallback_template, $parent_theme_base_path ) === false
+		str_starts_with( $fallback_template, $theme_base_path ) &&
+		! str_contains( $fallback_template, $parent_theme_base_path )
 	) {
 		$fallback_template_slug = substr(
 			$fallback_template,
@@ -205,7 +194,7 @@ function resolve_block_template( $template_type, $template_hierarchy, $fallback_
  * Displays title tag with content, regardless of whether theme has title-tag support.
  *
  * @access private
- *
+ * @since 5.8.0
  *
  * @see _gc_render_title_tag()
  */
@@ -217,7 +206,7 @@ function _block_template_render_title_tag() {
  * Returns the markup for the current template.
  *
  * @access private
- *
+ * @since 5.8.0
  *
  * @global string   $_gc_current_template_content
  * @global GC_Embed $gc_embed
@@ -237,12 +226,12 @@ function get_the_block_template_html() {
 
 	$content = $gc_embed->run_shortcode( $_gc_current_template_content );
 	$content = $gc_embed->autoembed( $content );
+	$content = shortcode_unautop( $content );
+	$content = do_shortcode( $content );
 	$content = do_blocks( $content );
 	$content = gctexturize( $content );
 	$content = convert_smilies( $content );
-	$content = shortcode_unautop( $content );
-	$content = gc_filter_content_tags( $content );
-	$content = do_shortcode( $content );
+	$content = gc_filter_content_tags( $content, 'template' );
 	$content = str_replace( ']]>', ']]&gt;', $content );
 
 	// Wrap block template in .gc-site-blocks to allow for specific descendant styles
@@ -256,7 +245,7 @@ function get_the_block_template_html() {
  * This is hooked into {@see 'gc_head'} to decouple its output from the default template canvas.
  *
  * @access private
- *
+ * @since 5.8.0
  */
 function _block_template_viewport_meta_tag() {
 	echo '<meta name="viewport" content="width=device-width, initial-scale=1" />' . "\n";
@@ -266,7 +255,7 @@ function _block_template_viewport_meta_tag() {
  * Strips .php or .html suffix from template file names.
  *
  * @access private
- *
+ * @since 5.8.0
  *
  * @param string $template_file Template file name.
  * @return string Template file name without extension.
@@ -279,7 +268,7 @@ function _strip_template_file_suffix( $template_file ) {
  * Removes post details from block context when rendering a block template.
  *
  * @access private
- *
+ * @since 5.8.0
  *
  * @param array $context Default context.
  *
@@ -307,11 +296,15 @@ function _block_template_render_without_post_block_context( $context ) {
  * return an auto-draft post for template resolution when editing a new post.
  *
  * @access private
- *
+ * @since 5.9.0
  *
  * @param GC_Query $gc_query Current GC_Query instance, passed by reference.
  */
 function _resolve_template_for_new_post( $gc_query ) {
+	if ( ! $gc_query->is_main_query() ) {
+		return;
+	}
+
 	remove_filter( 'pre_get_posts', '_resolve_template_for_new_post' );
 
 	// Pages.

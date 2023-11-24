@@ -4,7 +4,7 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
+ * @since 3.9.0
  */
 
 /**
@@ -12,10 +12,11 @@
  *
  * Implements widget management in the Customizer.
  *
- *
+ * @since 3.9.0
  *
  * @see GC_Customize_Manager
  */
+#[AllowDynamicProperties]
 final class GC_Customize_Widgets {
 
 	/**
@@ -68,6 +69,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Mapping of widget ID base to whether it supports selective refresh.
 	 *
+	 * @since 4.5.0
 	 * @var array
 	 */
 	protected $selective_refreshable_widgets;
@@ -75,6 +77,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Mapping of setting type to setting ID pattern.
 	 *
+	 * @since 4.2.0
 	 * @var array
 	 */
 	protected $setting_id_patterns = array(
@@ -127,6 +130,7 @@ final class GC_Customize_Widgets {
 	 * If the theme does not support the customize-selective-refresh-widgets feature,
 	 * then this will always return an empty array.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @global GC_Widget_Factory $gc_widget_factory
 	 *
@@ -150,6 +154,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Determines if a widget supports selective refresh.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param string $id_base Widget ID Base.
 	 * @return bool Whether the widget can be selective refreshed.
@@ -162,6 +167,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Retrieves the widget setting type given a setting ID.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param string $setting_id Setting ID.
 	 * @return string|void Setting type.
@@ -183,6 +189,7 @@ final class GC_Customize_Widgets {
 	 * Inspects the incoming customized data for any widget settings, and dynamically adds
 	 * them up-front so widgets will be initialized properly.
 	 *
+	 * @since 4.2.0
 	 */
 	public function register_settings() {
 		$widget_setting_ids   = array();
@@ -208,6 +215,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Determines the arguments for a dynamically-created setting.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param false|array $args       The arguments to the GC_Customize_Setting constructor.
 	 * @param string      $setting_id ID for dynamic setting, usually coming from `$_POST['customized']`.
@@ -224,13 +232,13 @@ final class GC_Customize_Widgets {
 	 * Retrieves an unslashed post value or return a default.
 	 *
 	 *
-	 * @param string $name    Post value.
-	 * @param mixed  $default Default post value.
+	 * @param string $name          Post value.
+	 * @param mixed  $default_value Default post value.
 	 * @return mixed Unslashed post value or default value.
 	 */
-	protected function get_post_value( $name, $default = null ) {
+	protected function get_post_value( $name, $default_value = null ) {
 		if ( ! isset( $_POST[ $name ] ) ) {
-			return $default;
+			return $default_value;
 		}
 
 		return gc_unslash( $_POST[ $name ] );
@@ -445,7 +453,7 @@ final class GC_Customize_Widgets {
 					/**
 					 * Filters Customizer widget section arguments for a given sidebar.
 					 *
-				
+					 * @since 3.9.0
 					 *
 					 * @param array      $section_args Array of Customizer widget section arguments.
 					 * @param string     $section_id   Customizer section ID.
@@ -528,6 +536,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Determines whether the widgets panel is active, based on whether there are sidebars registered.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @see GC_Customize_Panel::$active_callback
 	 *
@@ -583,6 +592,7 @@ final class GC_Customize_Widgets {
 		/**
 		 * Filters whether the given widget is considered "wide".
 		 *
+		 * @since 3.9.0
 		 *
 		 * @param bool   $is_wide   Whether the widget is wide, Default false.
 		 * @param string $widget_id Widget ID.
@@ -697,7 +707,7 @@ final class GC_Customize_Widgets {
 			array( '{description}', '{btn}' ),
 			array(
 				__( '选择将小工具移动到的区域：' ),
-				_x( '移动至', 'Move widget' ),
+				_x( '移动', 'Move widget' ),
 			),
 			'<div class="move-widget-area">
 				<p class="description">{description}</p>
@@ -718,7 +728,7 @@ final class GC_Customize_Widgets {
 		 */
 		$some_non_rendered_areas_messages    = array();
 		$some_non_rendered_areas_messages[1] = html_entity_decode(
-			__( '您的主题还有一个小工具区域不在这个页面上显示。' ),
+			__( '您的主题有 1 个其他小工具区，但此特定页面没有显示小工具区。' ),
 			ENT_QUOTES,
 			get_bloginfo( 'charset' )
 		);
@@ -728,8 +738,8 @@ final class GC_Customize_Widgets {
 				sprintf(
 					/* translators: %s: The number of other widget areas registered but not rendered. */
 					_n(
-						'您的主题还有%s个小工具区域不在这个页面上显示。',
-						'您的主题还有%s个小工具区域不在这个页面上显示。',
+						'您的主题有 %s 个其他小工具区，但此特定页面没有显示小工具区。',
+						'您的主题有 %s 个其他小工具区，但此特定页面没有显示小工具区。',
 						$non_rendered_count
 					),
 					number_format_i18n( $non_rendered_count )
@@ -742,7 +752,7 @@ final class GC_Customize_Widgets {
 		if ( 1 === $registered_sidebar_count ) {
 			$no_areas_shown_message = html_entity_decode(
 				sprintf(
-					__( '您的主题有一个小工具区域，但这个页面不显示小工具。' )
+					__( '您的主题有 1 个小工具区，但此特定页面没有显示小工具区。' )
 				),
 				ENT_QUOTES,
 				get_bloginfo( 'charset' )
@@ -752,8 +762,8 @@ final class GC_Customize_Widgets {
 				sprintf(
 					/* translators: %s: The total number of widget areas registered. */
 					_n(
-						'您的主题有%s个小工具区域，但这个页面不显示任何小工具。',
-						'您的主题有%s个小工具区域，但这个页面不显示任何小工具。',
+						'您的主题有 %s 个小工具区，但此特定页面没有显示小工具区。',
+						'您的主题有 %s 个小工具区，但此特定页面没有显示小工具区。',
 						$registered_sidebar_count
 					),
 					number_format_i18n( $registered_sidebar_count )
@@ -809,7 +819,11 @@ final class GC_Customize_Widgets {
 		 */
 
 		if ( gc_use_widgets_block_editor() ) {
-			$block_editor_context = new GC_Block_Editor_Context();
+			$block_editor_context = new GC_Block_Editor_Context(
+				array(
+					'name' => 'core/customize-widgets',
+				)
+			);
 
 			$editor_settings = get_block_editor_settings(
 				get_legacy_widget_block_editor_settings(),
@@ -856,7 +870,12 @@ final class GC_Customize_Widgets {
 		<div id="available-widgets">
 			<div class="customize-section-title">
 				<button class="customize-section-back" tabindex="-1">
-					<span class="screen-reader-text"><?php _e( '返回' ); ?></span>
+					<span class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( '返回' );
+						?>
+					</span>
 				</button>
 				<h3>
 					<span class="customize-action">
@@ -869,11 +888,26 @@ final class GC_Customize_Widgets {
 				</h3>
 			</div>
 			<div id="available-widgets-filter">
-				<label class="screen-reader-text" for="widgets-search"><?php _e( '搜索小工具' ); ?></label>
+				<label class="screen-reader-text" for="widgets-search">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '搜索小工具' );
+					?>
+				</label>
 				<input type="text" id="widgets-search" placeholder="<?php esc_attr_e( '搜索小工具&hellip;' ); ?>" aria-describedby="widgets-search-desc" />
 				<div class="search-icon" aria-hidden="true"></div>
-				<button type="button" class="clear-results"><span class="screen-reader-text"><?php _e( '清空结果' ); ?></span></button>
-				<p class="screen-reader-text" id="widgets-search-desc"><?php _e( '搜索结果会随着您的输入而不断更新。' ); ?></p>
+				<button type="button" class="clear-results"><span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '清空结果' );
+					?>
+				</span></button>
+				<p class="screen-reader-text" id="widgets-search-desc">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '搜索结果会随着您的输入而不断更新。' );
+					?>
+				</p>
 			</div>
 			<div id="available-widgets-list">
 			<?php foreach ( $this->get_available_widgets() as $available_widget ) : ?>
@@ -939,6 +973,7 @@ final class GC_Customize_Widgets {
 		/**
 		 * Filters the common arguments supplied when constructing a Customizer setting.
 		 *
+		 * @since 3.9.0
 		 *
 		 * @see GC_Customize_Setting
 		 *
@@ -1091,6 +1126,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Retrieves the widget control markup parts.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $args Widget control arguments.
 	 * @return array {
@@ -1132,6 +1168,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Refreshes the nonce for widget updates.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param array $nonces Array of nonces.
 	 * @return array Array of nonces.
@@ -1145,6 +1182,7 @@ final class GC_Customize_Widgets {
 	 * Tells the script loader to load the scripts and styles of custom blocks
 	 * if the widgets block editor is enabled.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param bool $is_block_editor_screen Current decision about loading block assets.
 	 * @return bool Filtered decision about loading block assets.
@@ -1214,7 +1252,7 @@ final class GC_Customize_Widgets {
 	public function export_preview_data() {
 		global $gc_registered_sidebars, $gc_registered_widgets;
 
-		$switched_locale = switch_to_locale( get_user_locale() );
+		$switched_locale = switch_to_user_locale( get_current_user_id() );
 
 		$l10n = array(
 			'widgetTooltip' => __( '要编辑此小工具，按住Shift并点击鼠标。' ),
@@ -1261,6 +1299,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Determine if a widget is rendered on the page.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $widget_id Widget ID to check.
 	 * @return bool Whether the widget is rendered.
@@ -1272,6 +1311,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Determines if a sidebar is rendered on the page.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $sidebar_id Sidebar ID to check.
 	 * @return bool Whether the sidebar is rendered.
@@ -1350,6 +1390,7 @@ final class GC_Customize_Widgets {
 	 * Unserialize the JS-instance for storing in the options. It's important that this filter
 	 * only get applied to an instance *once*.
 	 *
+	 * @since 5.8.0 Added the `$id_base` parameter.
 	 *
 	 * @global GC_Widget_Factory $gc_widget_factory
 	 *
@@ -1407,6 +1448,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Converts a widget instance into JSON-representable format.
 	 *
+	 * @since 5.8.0 Added the `$id_base` parameter.
 	 *
 	 * @global GC_Widget_Factory $gc_widget_factory
 	 *
@@ -1654,6 +1696,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Filters arguments for dynamic widget partials.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param array|false $partial_args Partial arguments.
 	 * @param string      $partial_id   Partial ID.
@@ -1686,6 +1729,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Adds hooks for selective refresh.
 	 *
+	 * @since 4.5.0
 	 */
 	public function selective_refresh_init() {
 		if ( ! current_theme_supports( 'customize-selective-refresh-widgets' ) ) {
@@ -1700,6 +1744,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Inject selective refresh data attributes into widget container elements.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param array $params {
 	 *     Dynamic sidebar params.
@@ -1761,6 +1806,7 @@ final class GC_Customize_Widgets {
 	 * This is used in the {@see 'filter_gc_kses_allowed_html'} filter to ensure that the
 	 * data-* attributes can be allowed.
 	 *
+	 * @since 4.5.0
 	 * @var array
 	 */
 	protected $before_widget_tags_seen = array();
@@ -1770,6 +1816,7 @@ final class GC_Customize_Widgets {
 	 *
 	 * This is needed in case the `$before_widget` is run through gc_kses() when printed.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param array $allowed_html Allowed HTML.
 	 * @return array (Maybe) modified allowed HTML.
@@ -1801,6 +1848,7 @@ final class GC_Customize_Widgets {
 	 *
 	 * This helps facilitate the uncommon scenario where a single sidebar is rendered multiple times on a template.
 	 *
+	 * @since 4.5.0
 	 * @var array
 	 */
 	protected $sidebar_instance_count = array();
@@ -1808,6 +1856,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * The current request's sidebar_instance_number context.
 	 *
+	 * @since 4.5.0
 	 * @var int|null
 	 */
 	protected $context_sidebar_instance_number;
@@ -1815,6 +1864,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Current sidebar ID being rendered.
 	 *
+	 * @since 4.5.0
 	 * @var array
 	 */
 	protected $current_dynamic_sidebar_id_stack = array();
@@ -1824,6 +1874,7 @@ final class GC_Customize_Widgets {
 	 *
 	 * Insert marker before widgets are rendered in a dynamic sidebar.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param int|string $index Index, name, or ID of the dynamic sidebar.
 	 */
@@ -1843,6 +1894,7 @@ final class GC_Customize_Widgets {
 	 *
 	 * Inserts a marker after widgets are rendered in a dynamic sidebar.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param int|string $index Index, name, or ID of the dynamic sidebar.
 	 */
@@ -1856,6 +1908,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Current sidebar being rendered.
 	 *
+	 * @since 4.5.0
 	 * @var string|null
 	 */
 	protected $rendering_widget_id;
@@ -1863,6 +1916,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Current widget being rendered.
 	 *
+	 * @since 4.5.0
 	 * @var string|null
 	 */
 	protected $rendering_sidebar_id;
@@ -1870,6 +1924,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Filters sidebars_widgets to ensure the currently-rendered widget is the only widget in the current sidebar.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param array $sidebars_widgets Sidebars widgets.
 	 * @return array Filtered sidebars widgets.
@@ -1882,6 +1937,7 @@ final class GC_Customize_Widgets {
 	/**
 	 * Renders a specific widget using the supplied sidebar arguments.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @see dynamic_sidebar()
 	 *
@@ -1959,7 +2015,7 @@ final class GC_Customize_Widgets {
 	 * @return bool Whether the option capture is ignored.
 	 */
 	protected function is_option_capture_ignored( $option_name ) {
-		return ( 0 === strpos( $option_name, '_transient_' ) );
+		return ( str_starts_with( $option_name, '_transient_' ) );
 	}
 
 	/**
@@ -1975,16 +2031,17 @@ final class GC_Customize_Widgets {
 	/**
 	 * Retrieves the option that was captured from being saved.
 	 *
+	 * @since 4.2.0
 	 *
-	 * @param string $option_name Option name.
-	 * @param mixed  $default     Optional. Default value to return if the option does not exist. Default false.
+	 * @param string $option_name   Option name.
+	 * @param mixed  $default_value Optional. Default value to return if the option does not exist. Default false.
 	 * @return mixed Value set for the option.
 	 */
-	protected function get_captured_option( $option_name, $default = false ) {
+	protected function get_captured_option( $option_name, $default_value = false ) {
 		if ( array_key_exists( $option_name, $this->_captured_options ) ) {
 			$value = $this->_captured_options[ $option_name ];
 		} else {
-			$value = $default;
+			$value = $default_value;
 		}
 		return $value;
 	}

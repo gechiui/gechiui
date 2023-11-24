@@ -6,18 +6,20 @@
  *
  * @package GeChiUI
  * @subpackage Sitemaps
- *
+ * @since 5.5.0
  */
 
 /**
  * Class GC_Sitemaps_Registry.
  *
- *
+ * @since 5.5.0
  */
+#[AllowDynamicProperties]
 class GC_Sitemaps_Registry {
 	/**
 	 * Registered sitemap providers.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @var GC_Sitemaps_Provider[] Array of registered sitemap providers.
 	 */
@@ -26,6 +28,7 @@ class GC_Sitemaps_Registry {
 	/**
 	 * Adds a new sitemap provider.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string               $name     Name of the sitemap provider.
 	 * @param GC_Sitemaps_Provider $provider Instance of a GC_Sitemaps_Provider.
@@ -39,6 +42,7 @@ class GC_Sitemaps_Registry {
 		/**
 		 * Filters the sitemap provider before it is added.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param GC_Sitemaps_Provider $provider Instance of a GC_Sitemaps_Provider.
 		 * @param string               $name     Name of the sitemap provider.
@@ -56,12 +60,13 @@ class GC_Sitemaps_Registry {
 	/**
 	 * Returns a single registered sitemap provider.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $name Sitemap provider name.
 	 * @return GC_Sitemaps_Provider|null Sitemap provider if it exists, null otherwise.
 	 */
 	public function get_provider( $name ) {
-		if ( ! isset( $this->providers[ $name ] ) ) {
+		if ( ! is_string( $name ) || ! isset( $this->providers[ $name ] ) ) {
 			return null;
 		}
 
@@ -71,6 +76,7 @@ class GC_Sitemaps_Registry {
 	/**
 	 * Returns all registered sitemap providers.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return GC_Sitemaps_Provider[] Array of sitemap providers.
 	 */

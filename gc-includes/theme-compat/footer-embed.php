@@ -7,12 +7,10 @@
  *
  * @package GeChiUI
  * @subpackage Theme_Compat
- *
  */
 
 /**
  * Prints scripts or data before the closing body tag in the embed template.
- *
  *
  */
 do_action( 'embed_footer' );

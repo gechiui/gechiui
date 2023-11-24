@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class used to implement a Tag cloud widget.
- *
- *
  *
  * @see GC_Widget
  */
@@ -59,9 +56,9 @@ class GC_Widget_Tag_Cloud extends GC_Widget {
 			/**
 			 * Filters the taxonomy used in the Tag Cloud widget.
 			 *
-		
-		
-		
+			 * @since 2.8.0
+			 * @since 3.0.0 Added taxonomy drop-down.
+			 * @since 4.9.0 Added the `$instance` parameter.
 			 *
 			 * @see gc_tag_cloud()
 			 *
@@ -201,6 +198,7 @@ class GC_Widget_Tag_Cloud extends GC_Widget {
 	/**
 	 * Retrieves the taxonomy for the current Tag cloud widget instance.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $instance Current settings.
 	 * @return string Name of the current taxonomy if set, otherwise 'post_tag'.

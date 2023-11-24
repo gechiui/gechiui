@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 $messages = array();
@@ -41,8 +40,6 @@ $messages['post_tag'] = array(
 
 /**
  * Filters the messages displayed when a tag is updated.
- *
- *
  *
  * @param array[] $messages Array of arrays of messages to be displayed, keyed by taxonomy name.
  */

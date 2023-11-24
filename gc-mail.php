@@ -24,7 +24,6 @@ if ( 'mail.example.com' === $mailserver_url || empty( $mailserver_url ) ) {
 /**
  * Fires to allow a plugin to do a complete takeover of Post by Email.
  *
- *
  */
 do_action( 'gc-mail.php' ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 
@@ -65,6 +64,9 @@ if ( 0 === $count ) {
 	gc_die( __( '没有发现新邮件。' ) );
 }
 
+// Always run as an unauthenticated user.
+gc_set_current_user( 0 );
+
 for ( $i = 1; $i <= $count; $i++ ) {
 
 	$message = $pop3->get( $i );
@@ -104,7 +106,7 @@ for ( $i = 1; $i <= $count; $i++ ) {
 				$content_transfer_encoding = explode( ';', $content_transfer_encoding );
 				$content_transfer_encoding = $content_transfer_encoding[0];
 			}
-			if ( ( 'multipart/alternative' === $content_type ) && ( false !== strpos( $line, 'boundary="' ) ) && ( '' === $boundary ) ) {
+			if ( ( 'multipart/alternative' === $content_type ) && ( str_contains( $line, 'boundary="' ) ) && ( '' === $boundary ) ) {
 				$boundary = trim( $line );
 				$boundary = explode( '"', $boundary );
 				$boundary = $boundary[1];
@@ -134,8 +136,6 @@ for ( $i = 1; $i <= $count; $i++ ) {
 				}
 				$author = sanitize_email( $author );
 				if ( is_email( $author ) ) {
-					/* translators: %s: Post author email address. */
-					echo '<p>' . sprintf( __( '作者的电子邮箱为%s' ), $author ) . '</p>';
 					$userdata = get_user_by( 'email', $author );
 					if ( ! empty( $userdata ) ) {
 						$post_author  = $userdata->ID;
@@ -146,7 +146,7 @@ for ( $i = 1; $i <= $count; $i++ ) {
 
 			if ( preg_match( '/Date: /i', $line ) ) { // Of the form '20 Mar 2002 20:32:37 +0100'.
 				$ddate = str_replace( 'Date: ', '', trim( $line ) );
-				// Remove parenthesised timezone string if it exists, as this confuses strtotime().
+				// Remove parenthesized timezone string if it exists, as this confuses strtotime().
 				$ddate           = preg_replace( '!\s*\(.+\)\s*$!', '', $ddate );
 				$ddate_timestamp = strtotime( $ddate );
 				$post_date       = gmdate( 'Y-m-d H:i:s', $ddate_timestamp + $time_difference );
@@ -170,7 +170,7 @@ for ( $i = 1; $i <= $count; $i++ ) {
 		$content = explode( '--' . $boundary, $content );
 		$content = $content[2];
 
-		// Match case-insensitive content-transfer-encoding.
+		// Match case-insensitive Content-Transfer-Encoding.
 		if ( preg_match( '/Content-Transfer-Encoding: quoted-printable/i', $content, $delim ) ) {
 			$content = explode( $delim[0], $content );
 			$content = $content[1];
@@ -207,6 +207,7 @@ for ( $i = 1; $i <= $count; $i++ ) {
 	/**
 	 * Filters the content of the post submitted by email before saving.
 	 *
+	 * @since 1.2.0
 	 *
 	 * @param string $content The email content.
 	 */
@@ -228,7 +229,7 @@ for ( $i = 1; $i <= $count; $i++ ) {
 		echo "\n" . $post_ID->get_error_message();
 	}
 
-	// We couldn't post, for whatever reason. Better move forward to the next email.
+	// The post wasn't inserted or updated, for whatever reason. Better move forward to the next email.
 	if ( empty( $post_ID ) ) {
 		continue;
 	}
@@ -236,6 +237,7 @@ for ( $i = 1; $i <= $count; $i++ ) {
 	/**
 	 * Fires after a post submitted by email is published.
 	 *
+	 * @since 1.2.0
 	 *
 	 * @param int $post_ID The post ID.
 	 */

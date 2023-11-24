@@ -28,7 +28,7 @@
  *
  * Note: As of GeChiUI 2.8, this utilizes the PHP5+ function `stream_get_contents()`.
  *
- *
+ * @since 2.7.0
  *
  * @package GeChiUI
  * @subpackage Filesystem
@@ -36,16 +36,19 @@
 class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 
 	/**
+	 * @since 2.7.0
 	 * @var resource
 	 */
 	public $link = false;
 
 	/**
+	 * @since 2.7.0
 	 * @var resource
 	 */
 	public $sftp_link;
 
 	/**
+	 * @since 2.7.0
 	 * @var bool
 	 */
 	public $keys = false;
@@ -53,6 +56,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Constructor.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param array $opt
 	 */
@@ -62,7 +66,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 
 		// Check if possible to use ssh2 functions.
 		if ( ! extension_loaded( 'ssh2' ) ) {
-			$this->errors->add( 'no_ssh2_ext', __( 'PHP的ssh2扩展不可用' ) );
+			$this->errors->add( 'no_ssh2_ext', __( 'PHP 的 ssh2 扩展不可用' ) );
 			return;
 		}
 
@@ -74,7 +78,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 		}
 
 		if ( empty( $opt['hostname'] ) ) {
-			$this->errors->add( 'empty_hostname', __( 'SSH2主机名必填' ) );
+			$this->errors->add( 'empty_hostname', __( 'SSH2 主机名必填' ) );
 		} else {
 			$this->options['hostname'] = $opt['hostname'];
 		}
@@ -88,7 +92,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 
 			$this->keys = true;
 		} elseif ( empty( $opt['username'] ) ) {
-			$this->errors->add( 'empty_username', __( 'SSH2用户名必填' ) );
+			$this->errors->add( 'empty_username', __( 'SSH2 用户名必填' ) );
 		}
 
 		if ( ! empty( $opt['username'] ) ) {
@@ -98,7 +102,9 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 		if ( empty( $opt['password'] ) ) {
 			// Password can be blank if we are using keys.
 			if ( ! $this->keys ) {
-				$this->errors->add( 'empty_password', __( 'SSH2密码必填' ) );
+				$this->errors->add( 'empty_password', __( 'SSH2 密码必填' ) );
+			} else {
+				$this->options['password'] = null;
 			}
 		} else {
 			$this->options['password'] = $opt['password'];
@@ -108,6 +114,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Connects filesystem.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @return bool True on success, false on failure.
 	 */
@@ -123,7 +130,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 				'connect',
 				sprintf(
 					/* translators: %s: hostname:port */
-					__( '未能连接到SSH2服务器%s' ),
+					__( '未能连接到 SSH2 服务器 %s' ),
 					$this->options['hostname'] . ':' . $this->options['port']
 				)
 			);
@@ -137,7 +144,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 					'auth',
 					sprintf(
 						/* translators: %s: Username. */
-						__( '%s用户名和密码错误' ),
+						__( '%s 用户名和密码错误' ),
 						$this->options['username']
 					)
 				);
@@ -150,7 +157,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 					'auth',
 					sprintf(
 						/* translators: %s: Username. */
-						__( '%s的公匙和私钥不正确' ),
+						__( '%s 的公匙和私钥不正确' ),
 						$this->options['username']
 					)
 				);
@@ -185,6 +192,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	 * this, the path is converted to /./ which is semantically the same as /
 	 * See https://bugs.php.net/bug.php?id=64169 for more details.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $path The File/Directory path on the remote server to return
 	 * @return string The ssh2.sftp:// wrapped path to use.
@@ -198,6 +206,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	}
 
 	/**
+	 * @since 2.7.0
 	 *
 	 * @param string $command
 	 * @param bool   $returnbool
@@ -239,6 +248,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Reads entire file into a string.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $file Name of the file to read.
 	 * @return string|false Read data on success, false if no temporary file could be opened,
@@ -251,6 +261,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Reads entire file into an array.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $file Path to the file.
 	 * @return array|false File contents in an array on success, false on failure.
@@ -262,6 +273,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Writes a string to a file.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string    $file     Remote path to the file where to write the data.
 	 * @param string    $contents The data to write.
@@ -284,6 +296,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Gets the current working directory.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @return string|false The current working directory on success, false on failure.
 	 */
@@ -300,6 +313,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Changes current directory.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $dir The new current directory.
 	 * @return bool True on success, false on failure.
@@ -311,6 +325,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Changes the file group.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string     $file      Path to the file.
 	 * @param string|int $group     A group name or number.
@@ -333,6 +348,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Changes filesystem permissions.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string    $file      Path to the file.
 	 * @param int|false $mode      Optional. The permissions as octal number, usually 0644 for files,
@@ -366,6 +382,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Changes the owner of a file or directory.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string     $file      Path to the file or directory.
 	 * @param string|int $owner     A user name or number.
@@ -388,6 +405,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Gets the file owner.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $file Path to the file.
 	 * @return string|false Username of the owner on success, false on failure.
@@ -415,6 +433,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Gets the permissions of the specified file or filepath in their octal format.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $file Path to the file.
 	 * @return string Mode of the file (the last 3 digits).
@@ -426,6 +445,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Gets the file's group.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $file Path to the file.
 	 * @return string|false The group on success, false on failure.
@@ -453,6 +473,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Copies a file.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string    $source      Path to the source file.
 	 * @param string    $destination Path to the destination file.
@@ -477,19 +498,27 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	}
 
 	/**
-	 * Moves a file.
+	 * Moves a file or directory.
 	 *
+	 * After moving files or directories, OPcache will need to be invalidated.
 	 *
-	 * @param string $source      Path to the source file.
-	 * @param string $destination Path to the destination file.
-	 * @param bool   $overwrite   Optional. Whether to overwrite the destination file if it exists.
+	 * If moving a directory fails, `copy_dir()` can be used for a recursive copy.
+	 *
+	 * Use `move_dir()` for moving directories with OPcache invalidation and a
+	 * fallback to `copy_dir()`.
+	 *
+	 * @since 2.7.0
+	 *
+	 * @param string $source      Path to the source file or directory.
+	 * @param string $destination Path to the destination file or directory.
+	 * @param bool   $overwrite   Optional. Whether to overwrite the destination if it exists.
 	 *                            Default false.
 	 * @return bool True on success, false on failure.
 	 */
 	public function move( $source, $destination, $overwrite = false ) {
 		if ( $this->exists( $destination ) ) {
 			if ( $overwrite ) {
-				// We need to remove the destination file before we can rename the source.
+				// We need to remove the destination before we can rename the source.
 				$this->delete( $destination, false, 'f' );
 			} else {
 				// If we're not overwriting, the rename will fail, so return early.
@@ -503,6 +532,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Deletes a file or directory.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string       $file      Path to the file or directory.
 	 * @param bool         $recursive Optional. If set to true, deletes files and folders recursively.
@@ -534,17 +564,19 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Checks if a file or directory exists.
 	 *
+	 * @since 2.7.0
 	 *
-	 * @param string $file Path to file or directory.
-	 * @return bool Whether $file exists or not.
+	 * @param string $path Path to file or directory.
+	 * @return bool Whether $path exists or not.
 	 */
-	public function exists( $file ) {
-		return file_exists( $this->sftp_path( $file ) );
+	public function exists( $path ) {
+		return file_exists( $this->sftp_path( $path ) );
 	}
 
 	/**
 	 * Checks if resource is a file.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $file File path.
 	 * @return bool Whether $file is a file.
@@ -556,6 +588,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Checks if resource is a directory.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $path Directory path.
 	 * @return bool Whether $path is a directory.
@@ -567,6 +600,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Checks if a file is readable.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $file Path to file.
 	 * @return bool Whether $file is readable.
@@ -578,11 +612,12 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Checks if a file or directory is writable.
 	 *
+	 * @since 2.7.0
 	 *
-	 * @param string $file Path to file or directory.
-	 * @return bool Whether $file is writable.
+	 * @param string $path Path to file or directory.
+	 * @return bool Whether $path is writable.
 	 */
-	public function is_writable( $file ) {
+	public function is_writable( $path ) {
 		// PHP will base its writable checks on system_user === file_owner, not ssh_user === file_owner.
 		return true;
 	}
@@ -590,6 +625,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Gets the file's last access time.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $file Path to file.
 	 * @return int|false Unix timestamp representing last access time, false on failure.
@@ -601,6 +637,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Gets the file modification time.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $file Path to file.
 	 * @return int|false Unix timestamp representing modification time, false on failure.
@@ -612,6 +649,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Gets the file size (in bytes).
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $file Path to file.
 	 * @return int|false Size of the file in bytes on success, false on failure.
@@ -625,6 +663,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	 *
 	 * Note: Not implemented.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $file  Path to file.
 	 * @param int    $time  Optional. Modified time to set for file.
@@ -639,6 +678,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Creates a directory.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string           $path  Path for new directory.
 	 * @param int|false        $chmod Optional. The permissions as octal number (or false to skip chmod).
@@ -681,6 +721,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Deletes a directory.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $path      Path to directory.
 	 * @param bool   $recursive Optional. Whether to recursively remove files/directories.
@@ -694,6 +735,7 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	/**
 	 * Gets details for files in a directory or a specific file.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $path           Path to directory or file.
 	 * @param bool   $include_hidden Optional. Whether to include details of hidden ("." prefixed) files.
@@ -701,18 +743,28 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 	 * @param bool   $recursive      Optional. Whether to recursively include file details in nested directories.
 	 *                               Default false.
 	 * @return array|false {
-	 *     Array of files. False if unable to list directory contents.
+	 *     Array of arrays containing file information. False if unable to list directory contents.
 	 *
-	 *     @type string $name        Name of the file or directory.
-	 *     @type string $perms       *nix representation of permissions.
-	 *     @type string $permsn      Octal representation of permissions.
-	 *     @type string $owner       Owner name or ID.
-	 *     @type int    $size        Size of file in bytes.
-	 *     @type int    $lastmodunix Last modified unix timestamp.
-	 *     @type mixed  $lastmod     Last modified month (3 letter) and day (without leading 0).
-	 *     @type int    $time        Last modified time.
-	 *     @type string $type        Type of resource. 'f' for file, 'd' for directory.
-	 *     @type mixed  $files       If a directory and `$recursive` is true, contains another array of files.
+	 *     @type array $0... {
+	 *         Array of file information. Note that some elements may not be available on all filesystems.
+	 *
+	 *         @type string           $name        Name of the file or directory.
+	 *         @type string           $perms       *nix representation of permissions.
+	 *         @type string           $permsn      Octal representation of permissions.
+	 *         @type false            $number      File number. Always false in this context.
+	 *         @type string|false     $owner       Owner name or ID, or false if not available.
+	 *         @type string|false     $group       File permissions group, or false if not available.
+	 *         @type int|string|false $size        Size of file in bytes. May be a numeric string.
+	 *                                             False if not available.
+	 *         @type int|string|false $lastmodunix Last modified unix timestamp. May be a numeric string.
+	 *                                             False if not available.
+	 *         @type string|false     $lastmod     Last modified month (3 letters) and day (without leading 0), or
+	 *                                             false if not available.
+	 *         @type string|false     $time        Last modified time, or false if not available.
+	 *         @type string           $type        Type of resource. 'f' for file, 'd' for directory, 'l' for link.
+	 *         @type array|false      $files       If a directory and `$recursive` is true, contains another array of
+	 *                                             files. False if unable to list directory contents.
+	 *     }
 	 * }
 	 */
 	public function dirlist( $path, $include_hidden = true, $recursive = false ) {
@@ -734,6 +786,8 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 			return false;
 		}
 
+		$path = trailingslashit( $path );
+
 		while ( false !== ( $entry = $dir->read() ) ) {
 			$struc         = array();
 			$struc['name'] = $entry;
@@ -750,20 +804,20 @@ class GC_Filesystem_SSH2 extends GC_Filesystem_Base {
 				continue;
 			}
 
-			$struc['perms']       = $this->gethchmod( $path . '/' . $entry );
+			$struc['perms']       = $this->gethchmod( $path . $entry );
 			$struc['permsn']      = $this->getnumchmodfromh( $struc['perms'] );
 			$struc['number']      = false;
-			$struc['owner']       = $this->owner( $path . '/' . $entry );
-			$struc['group']       = $this->group( $path . '/' . $entry );
-			$struc['size']        = $this->size( $path . '/' . $entry );
-			$struc['lastmodunix'] = $this->mtime( $path . '/' . $entry );
+			$struc['owner']       = $this->owner( $path . $entry );
+			$struc['group']       = $this->group( $path . $entry );
+			$struc['size']        = $this->size( $path . $entry );
+			$struc['lastmodunix'] = $this->mtime( $path . $entry );
 			$struc['lastmod']     = gmdate( 'M j', $struc['lastmodunix'] );
 			$struc['time']        = gmdate( 'h:i:s', $struc['lastmodunix'] );
-			$struc['type']        = $this->is_dir( $path . '/' . $entry ) ? 'd' : 'f';
+			$struc['type']        = $this->is_dir( $path . $entry ) ? 'd' : 'f';
 
 			if ( 'd' === $struc['type'] ) {
 				if ( $recursive ) {
-					$struc['files'] = $this->dirlist( $path . '/' . $struc['name'], $include_hidden, $recursive );
+					$struc['files'] = $this->dirlist( $path . $struc['name'], $include_hidden, $recursive );
 				} else {
 					$struc['files'] = array();
 				}

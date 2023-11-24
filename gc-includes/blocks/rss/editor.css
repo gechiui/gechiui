@@ -1,0 +1,16 @@
+.gc-block-rss li a>div{
+  display:inline;
+}
+
+.gc-block-rss__placeholder-form>*{
+  margin-bottom:8px;
+}
+@media (min-width:782px){
+  .gc-block-rss__placeholder-form>*{
+    margin-bottom:0;
+  }
+}
+.gc-block-rss__placeholder-form .gc-block-rss__placeholder-input{
+  flex:1;
+  min-width:80%;
+}

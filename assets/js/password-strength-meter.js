@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/password-strength-meter.js
+ * @output assets/js/password-strength-meter.js
  */
 
 /* global zxcvbn */
@@ -12,6 +12,7 @@ window.gc = window.gc || {};
 	/**
 	 * Contains functions to determine the password strength.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @namespace
 	 */
@@ -21,6 +22,7 @@ window.gc = window.gc || {};
 		 *
 		 * Compares first password to the password confirmation.
 		 *
+		 * @since 3.7.0
 		 *
 		 * @param {string} password1       The subject password.
 		 * @param {Array}  disallowedList An array of words that will lower the entropy of
@@ -52,6 +54,7 @@ window.gc = window.gc || {};
 		 * password if they were used. The disallowedList is based on user input fields such
 		 * as username, first name, email etc.
 		 *
+		 * @since 3.7.0
 		 * @deprecated 5.5.0 Use {@see 'userInputDisallowedList()'} instead.
 		 *
 		 * @return {string[]} The array of words to be disallowed.
@@ -60,7 +63,7 @@ window.gc = window.gc || {};
 			window.console.log(
 				sprintf(
 					/* translators: 1: Deprecated function name, 2: Version number, 3: Alternative function name. */
-					__( '自%2$s版开始，%1$s已经淘汰，请改用%3$s。请考虑撰写更具兼容性的代码。' ),
+					__( '%1$s is deprecated since version %2$s! Use %3$s instead. Please consider writing more inclusive code.' ),
 					'gc.passwordStrength.userInputBlacklist()',
 					'5.5.0',
 					'gc.passwordStrength.userInputDisallowedList()'
@@ -77,6 +80,7 @@ window.gc = window.gc || {};
 		 * password if they were used. The disallowed list is based on user input fields such
 		 * as username, first name, email etc.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @return {string[]} The array of words to be disallowed.
 		 */
@@ -134,6 +138,7 @@ window.gc = window.gc || {};
 	/**
 	 * Password strength meter function.
 	 *
+	 * @since 2.5.0
 	 * @deprecated 3.7.0 Use gc.passwordStrength.meter instead.
 	 *
 	 * @global

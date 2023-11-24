@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/gc-api.js
+ * @output assets/js/gc-api.js
  */
 
 (function( window, undefined ) {
@@ -7,7 +7,7 @@
 	'use strict';
 
 	/**
-	 * Initialise the GC_API.
+	 * Initialize the GC_API.
 	 */
 	function GC_API() {
 		/** @namespace gc.api.models */

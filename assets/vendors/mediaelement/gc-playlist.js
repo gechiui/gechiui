@@ -80,13 +80,15 @@
 		},
 
 		renderCurrent : function () {
-			var dimensions, defaultImage = 'gc-includes/images/media/video.png';
+			var dimensions, defaultImage = 'assets/images/media/video.png';
 			if ( 'video' === this.data.type ) {
 				if ( this.data.images && this.current.get( 'image' ) && -1 === this.current.get( 'image' ).src.indexOf( defaultImage ) ) {
 					this.playerNode.attr( 'poster', this.current.get( 'image' ).src );
 				}
-				dimensions = this.current.get( 'dimensions' ).resized;
-				this.playerNode.attr( dimensions );
+				dimensions = this.current.get( 'dimensions' );
+				if ( dimensions && dimensions.resized ) {
+					this.playerNode.attr( dimensions.resized );
+				}
 			} else {
 				if ( ! this.data.images ) {
 					this.current.set( 'image', false );
@@ -176,6 +178,7 @@
 	 *
 	 * Only initializes new playlists not previously-initialized.
 	 *
+	 * @since 4.9.3
 	 * @return {void}
 	 */
 	function initialize() {
@@ -188,6 +191,7 @@
 	 * Expose the API publicly on window.gc.playlist.
 	 *
 	 * @namespace gc.playlist
+	 * @since 4.9.3
 	 * @type {object}
 	 */
 	window.gc.playlist = {

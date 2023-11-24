@@ -364,7 +364,7 @@ function gcFileExtensionError( up, file, message ) {
 /**
  * Copies the attachment URL to the clipboard.
  *
- *
+ * @since 5.8.0
  *
  * @param {MouseEvent} event A click event.
  *
@@ -399,7 +399,7 @@ jQuery( document ).ready( function( $ ) {
 	var tryAgainCount = {};
 	var tryAgain;
 
-	$( '.media-upload-form' ).bind( 'click.uploader', function( e ) {
+	$( '.media-upload-form' ).on( 'click.uploader', function( e ) {
 		var target = $( e.target ), tr, c;
 
 		if ( target.is( 'input[type="radio"]' ) ) { // Remember the last used image size and alignment.
@@ -557,7 +557,7 @@ jQuery( document ).ready( function( $ ) {
 	uploader_init = function() {
 		uploader = new plupload.Uploader( gcUploaderInit );
 
-		$( '#image_resize' ).bind( 'change', function() {
+		$( '#image_resize' ).on( 'change', function() {
 			var arg = $( this ).prop( 'checked' );
 
 			setResize( arg );

@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 abstract class GC_Privacy_Requests_Table extends GC_List_Table {
@@ -15,6 +14,7 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	 *
 	 * Example: 'export_personal_data'.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @var string $request_type Name of action.
 	 */
@@ -23,14 +23,16 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	/**
 	 * Post type to be used.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @var string $post_type The post type.
 	 */
 	protected $post_type = 'INVALID';
 
 	/**
-	 * Get columns to show in the list table.
+	 * Gets columns to show in the list table.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @return string[] Array of column titles keyed by their column name.
 	 */
@@ -46,8 +48,9 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Normalize the admin URL to the current page (by request_type).
+	 * Normalizes the admin URL to the current page (by request_type).
 	 *
+	 * @since 5.3.0
 	 *
 	 * @return string URL to the current admin page.
 	 */
@@ -62,16 +65,17 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Get a list of sortable columns.
+	 * Gets a list of sortable columns.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @return array Default sortable columns.
 	 */
 	protected function get_sortable_columns() {
 		/*
-		 * The initial sorting is by '已请求' (post_date) and descending.
-		 * With initial sorting, the first click on '已请求' should be ascending.
-		 * With '请求者' sorting active, the next click on '已请求' should be descending.
+		 * The initial sorting is by 'Requested' (post_date) and descending.
+		 * With initial sorting, the first click on 'Requested' should be ascending.
+		 * With 'Requester' sorting active, the next click on 'Requested' should be descending.
 		 */
 		$desc_first = isset( $_GET['orderby'] );
 
@@ -82,8 +86,9 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Default primary column.
+	 * Returns the default primary column.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @return string Default primary column name.
 	 */
@@ -92,8 +97,9 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Count number of requests for each status.
+	 * Counts the number of requests for each status.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -130,8 +136,9 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Get an associative array ( id => link ) with the list of views available on this table.
+	 * Gets an associative array ( id => link ) with the list of views available on this table.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @return string[] An array of HTML links keyed by their view.
 	 */
@@ -145,8 +152,7 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 		// Normalized admin URL.
 		$admin_url = $this->get_admin_url();
 
-		$current_link_attributes = empty( $current_status ) ? ' class="current" aria-current="page"' : '';
-		$status_label            = sprintf(
+		$status_label = sprintf(
 			/* translators: %s: Number of requests. */
 			_nx(
 				'全部<span class="count">（%s）</span>',
@@ -157,11 +163,10 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 			number_format_i18n( $total_requests )
 		);
 
-		$views['all'] = sprintf(
-			'<a href="%s"%s>%s</a>',
-			esc_url( $admin_url ),
-			$current_link_attributes,
-			$status_label
+		$views['all'] = array(
+			'url'     => esc_url( $admin_url ),
+			'label'   => $status_label,
+			'current' => empty( $current_status ),
 		);
 
 		foreach ( $statuses as $status => $label ) {
@@ -170,8 +175,7 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 				continue;
 			}
 
-			$current_link_attributes = $status === $current_status ? ' class="current" aria-current="page"' : '';
-			$total_status_requests   = absint( $counts->{$status} );
+			$total_status_requests = absint( $counts->{$status} );
 
 			if ( ! $total_status_requests ) {
 				continue;
@@ -184,20 +188,20 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 
 			$status_link = add_query_arg( 'filter-status', $status, $admin_url );
 
-			$views[ $status ] = sprintf(
-				'<a href="%s"%s>%s</a>',
-				esc_url( $status_link ),
-				$current_link_attributes,
-				$status_label
+			$views[ $status ] = array(
+				'url'     => esc_url( $status_link ),
+				'label'   => $status_label,
+				'current' => $status === $current_status,
 			);
 		}
 
-		return $views;
+		return $this->get_views_links( $views );
 	}
 
 	/**
-	 * Get bulk actions.
+	 * Gets bulk actions.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @return array Array of bulk action labels keyed by their action.
 	 */
@@ -212,6 +216,8 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	/**
 	 * Process bulk actions.
 	 *
+	 * @since 4.9.6
+	 * @since 5.6.0 Added support for the `complete` action.
 	 */
 	public function process_bulk_action() {
 		$action      = $this->current_action();
@@ -251,7 +257,7 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 							),
 							$failures
 						),
-						'error'
+						'danger'
 					);
 				}
 
@@ -321,7 +327,7 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 							),
 							$failures
 						),
-						'error'
+						'danger'
 					);
 				}
 
@@ -347,8 +353,10 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Prepare items to output.
+	 * Prepares items to output.
 	 *
+	 * @since 4.9.6
+	 * @since 5.1.0 Added support for column sorting.
 	 */
 	public function prepare_items() {
 		$this->items    = array();
@@ -398,19 +406,27 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Checkbox column.
+	 * Returns the markup for the Checkbox column.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param GC_User_Request $item Item being shown.
 	 * @return string Checkbox column markup.
 	 */
 	public function column_cb( $item ) {
-		return sprintf( '<input type="checkbox" name="request_id[]" value="%1$s" /><span class="spinner"></span>', esc_attr( $item->ID ) );
+		return sprintf(
+			'<label class="label-covers-full-cell" for="requester_%1$s"><span class="screen-reader-text">%2$s</span></label>' .
+			'<input type="checkbox" name="request_id[]" id="requester_%1$s" value="%1$s" /><span class="spinner"></span>',
+			esc_attr( $item->ID ),
+			/* translators: Hidden accessibility text. %s: Email address. */
+			sprintf( __( '选择%s' ), $item->email )
+		);
 	}
 
 	/**
 	 * Status column.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param GC_User_Request $item Item being shown.
 	 * @return string Status column markup.
@@ -445,8 +461,9 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Convert timestamp for display.
+	 * Converts a timestamp for display.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param int $timestamp Event timestamp.
 	 * @return string Human readable date.
@@ -467,8 +484,10 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Default column handler.
+	 * Handles the default column.
 	 *
+	 * @since 4.9.6
+	 * @since 5.7.0 Added `manage_{$this->screen->id}_custom_column` action.
 	 *
 	 * @param GC_User_Request $item        Item being shown.
 	 * @param string          $column_name Name of column being shown.
@@ -480,6 +499,7 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 		 * Custom columns are registered using the {@see 'manage_export-personal-data_columns'}
 		 * and the {@see 'manage_erase-personal-data_columns'} filters.
 		 *
+		 * @since 5.7.0
 		 *
 		 * @param string          $column_name The name of the column to display.
 		 * @param GC_User_Request $item        The item being shown.
@@ -488,8 +508,9 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Created timestamp column. Overridden by children.
+	 * Returns the markup for the Created timestamp column. Overridden by children.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param GC_User_Request $item Item being shown.
 	 * @return string Human readable date.
@@ -501,6 +522,7 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	/**
 	 * Actions column. Overridden by children.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param GC_User_Request $item Item being shown.
 	 * @return string Email column markup.
@@ -510,8 +532,9 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Next steps column. Overridden by children.
+	 * Returns the markup for the next steps column. Overridden by children.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param GC_User_Request $item Item being shown.
 	 */
@@ -520,6 +543,7 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	/**
 	 * Generates content for a single row of the table,
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param GC_User_Request $item The current item.
 	 */
@@ -532,8 +556,9 @@ abstract class GC_Privacy_Requests_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Embed scripts used to perform actions. Overridden by children.
+	 * Embeds scripts used to perform actions. Overridden by children.
 	 *
+	 * @since 4.9.6
 	 */
 	public function embed_scripts() {}
 }

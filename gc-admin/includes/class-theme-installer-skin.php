@@ -4,14 +4,11 @@
  *
  * @package GeChiUI
  * @subpackage Upgrader
- *
  */
 
 /**
  * Theme Installer Skin for the GeChiUI Theme Installer.
- *
- *
- *
+ * Moved to its own file from gc-admin/includes/class-gc-upgrader-skins.php.
  *
  * @see GC_Upgrader_Skin
  */
@@ -46,7 +43,7 @@ class Theme_Installer_Skin extends GC_Upgrader_Skin {
 	}
 
 	/**
-	 * Action to perform before installing a theme.
+	 * Performs an action before installing a theme.
 	 *
 	 */
 	public function before() {
@@ -62,9 +59,10 @@ class Theme_Installer_Skin extends GC_Upgrader_Skin {
 	/**
 	 * Hides the `process_failed` error when updating a theme by uploading a zip file.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_Error $gc_error GC_Error object.
-	 * @return bool
+	 * @return bool True if the error should be hidden, false otherwise.
 	 */
 	public function hide_process_failed( $gc_error ) {
 		if (
@@ -79,7 +77,7 @@ class Theme_Installer_Skin extends GC_Upgrader_Skin {
 	}
 
 	/**
-	 * Action to perform following a single theme install.
+	 * Performs an action following a single theme install.
 	 *
 	 */
 	public function after() {
@@ -112,7 +110,7 @@ class Theme_Installer_Skin extends GC_Upgrader_Skin {
 
 		$install_actions = array();
 
-		if ( current_user_can( 'edit_theme_options' ) && current_user_can( 'customize' ) ) {
+		if ( current_user_can( 'edit_theme_options' ) && current_user_can( 'customize' ) && ! $theme_info->is_block_theme() ) {
 			$customize_url = add_query_arg(
 				array(
 					'theme'  => urlencode( $stylesheet ),
@@ -126,7 +124,7 @@ class Theme_Installer_Skin extends GC_Upgrader_Skin {
 				'<span aria-hidden="true">%s</span><span class="screen-reader-text">%s</span></a>',
 				esc_url( $customize_url ),
 				__( '实时预览' ),
-				/* translators: %s: Theme name. */
+				/* translators: Hidden accessibility text. %s: Theme name. */
 				sprintf( __( '实时预览“%s”' ), $name )
 			);
 		}
@@ -136,7 +134,7 @@ class Theme_Installer_Skin extends GC_Upgrader_Skin {
 			'<span aria-hidden="true">%s</span><span class="screen-reader-text">%s</span></a>',
 			esc_url( $activate_link ),
 			__( '启用' ),
-			/* translators: %s: Theme name. */
+			/* translators: Hidden accessibility text. %s: Theme name. */
 			sprintf( _x( '启用“%s”', 'theme' ), $name )
 		);
 
@@ -144,7 +142,7 @@ class Theme_Installer_Skin extends GC_Upgrader_Skin {
 			$install_actions['network_enable'] = sprintf(
 				'<a href="%s" target="_parent">%s</a>',
 				esc_url( gc_nonce_url( 'themes.php?action=enable&amp;theme=' . urlencode( $stylesheet ), 'enable-theme_' . $stylesheet ) ),
-				__( '在站点网络中启用' )
+				__( '在SaaS平台中启用' )
 			);
 		}
 
@@ -171,6 +169,7 @@ class Theme_Installer_Skin extends GC_Upgrader_Skin {
 		/**
 		 * Filters the list of action links available following a single theme installation.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param string[] $install_actions Array of theme action links.
 		 * @param object   $api             Object containing www.GeChiUI.com API theme data.
@@ -184,8 +183,9 @@ class Theme_Installer_Skin extends GC_Upgrader_Skin {
 	}
 
 	/**
-	 * Check if the theme can be overwritten and output the HTML for overwriting a theme on upload.
+	 * Checks if the theme can be overwritten and outputs the HTML for overwriting a theme on upload.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return bool Whether the theme can be overwritten and HTML was outputted.
 	 */
@@ -275,6 +275,7 @@ class Theme_Installer_Skin extends GC_Upgrader_Skin {
 		/**
 		 * Filters the compare table output for overwriting a theme package on upload.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param string   $table              The output table with Name, Version, Author, RequiresGC, and RequiresPHP info.
 		 * @param GC_Theme $current_theme_data Active theme data.
@@ -295,7 +296,7 @@ class Theme_Installer_Skin extends GC_Upgrader_Skin {
 			$error = sprintf(
 				/* translators: 1: Current PHP version, 2: Version required by the uploaded theme. */
 				__( '您的服务器PHP版本为%1$s，然而上传的主题要求版本为%2$s。' ),
-				phpversion(),
+				PHP_VERSION,
 				$requires_php
 			);
 
@@ -321,7 +322,7 @@ class Theme_Installer_Skin extends GC_Upgrader_Skin {
 			if ( $this->is_downgrading ) {
 				$warning = sprintf(
 					/* translators: %s: Documentation URL. */
-					__( '您正在上传旧版本的活动主题。您可以继续安装旧版本，但请确保<a href="%s">备份数据库和文件</a>。' ),
+					__( '您正在上传当前主题的旧版本。您可以继续安装旧版本，但请务必先<a href="%s">备份您的数据库和文件</a>。' ),
 					__( 'https://www.gechiui.com/support/gechiui-backups/' )
 				);
 			} else {
@@ -337,9 +338,9 @@ class Theme_Installer_Skin extends GC_Upgrader_Skin {
 			$overwrite = $this->is_downgrading ? 'downgrade-theme' : 'update-theme';
 
 			$install_actions['overwrite_theme'] = sprintf(
-				'<a class="button button-primary update-from-upload-overwrite" href="%s" target="_parent">%s</a>',
+				'<a class="btn btn-primary update-from-upload-overwrite" href="%s" target="_parent">%s</a>',
 				gc_nonce_url( add_query_arg( 'overwrite', $overwrite, $this->url ), 'theme-upload' ),
-				_x( '已上传并启用', 'theme' )
+				_x( '使用上传的版本替换当前版本', 'theme' )
 			);
 		} else {
 			echo $blocked_message;
@@ -348,7 +349,7 @@ class Theme_Installer_Skin extends GC_Upgrader_Skin {
 		$cancel_url = add_query_arg( 'action', 'upload-theme-cancel-overwrite', $this->url );
 
 		$install_actions['themes_page'] = sprintf(
-			'<a class="button" href="%s" target="_parent">%s</a>',
+			'<a class="btn btn-primary btn-tone" href="%s" target="_parent">%s</a>',
 			gc_nonce_url( $cancel_url, 'theme-upload-cancel-overwrite' ),
 			__( '取消并返回' )
 		);
@@ -357,6 +358,7 @@ class Theme_Installer_Skin extends GC_Upgrader_Skin {
 		 * Filters the list of action links available following a single theme installation failure
 		 * when overwriting is allowed.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param string[] $install_actions Array of theme action links.
 		 * @param object   $api             Object containing www.GeChiUI.com API theme data.

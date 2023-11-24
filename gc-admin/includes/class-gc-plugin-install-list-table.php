@@ -107,6 +107,7 @@ class GC_Plugin_Install_List_Table extends GC_List_Table {
 		}
 
         $tabs['featured']     = _x( '特色', 'Plugin Installer' );
+        $tabs['pro']     = _x( '专业', 'Plugin Installer' );
         $tabs['free']     = _x( '免费', 'Plugin Installer' );
         $tabs['all']     = _x( '全部', 'Plugin Installer' );
 
@@ -121,8 +122,6 @@ class GC_Plugin_Install_List_Table extends GC_List_Table {
 		/**
 		 * Filters the tabs shown on the Add Plugins screen.
 		 *
-		 * @since 2.7.0
-		 *
 		 * @param string[] $tabs The tabs shown on the Add Plugins screen. Defaults include
 		 *                       'featured', 'free', 'all', and 'upload'.
 		 */
@@ -130,8 +129,6 @@ class GC_Plugin_Install_List_Table extends GC_List_Table {
 
 		/**
 		 * Filters tabs not associated with a menu item on the Add Plugins screen.
-		 *
-		 * @since 2.7.0
 		 *
 		 * @param string[] $nonmenu_tabs The tabs that don't have a menu item on the Add Plugins screen.
 		 */
@@ -255,7 +252,7 @@ class GC_Plugin_Install_List_Table extends GC_List_Table {
 	public function no_items() {
 		if ( isset( $this->error ) ) { ?>
 			<div class="inline error"><p><?php echo $this->error->get_error_message(); ?></p>
-				<p class="hide-if-no-js"><button class="button try-again"><?php _e( '重试' ); ?></button></p>
+				<p class="hide-if-no-js"><button class="btn btn-primary btn-tone btn-sm try-again"><?php _e( '重试' ); ?></button></p>
 			</div>
 		<?php } else { ?>
 			<div class="no-plugin-results"><?php _e( '未找到插件。试试其他搜索条件。' ); ?></div>
@@ -495,7 +492,7 @@ class GC_Plugin_Install_List_Table extends GC_List_Table {
 						if ( $status['url'] ) {
 							if ( $compatible_php && $compatible_gc ) {
                                  $action_links[] = sprintf(
-                                    '<a class="install-now button" data-slug="%s" href="%s" aria-label="%s" data-name="%s">%s</a>',
+                                    '<a class="btn btn-primary btn-tone install-now" data-slug="%s" href="%s" aria-label="%s" data-name="%s">%s</a>',
                                     esc_attr( $plugin['slug'] ),
                                     esc_url( $status['url'] ),
                                     /* translators: %s: Plugin name and version. */
@@ -505,7 +502,7 @@ class GC_Plugin_Install_List_Table extends GC_List_Table {
                                 );
 							} else {
 								$action_links[] = sprintf(
-									'<button type="button" class="button button-disabled" disabled="disabled">%s</button>',
+									'<button type="button" class="btn btn-primary btn-tone button-disabled" disabled="disabled">%s</button>',
 									_x( '未能安装', 'plugin' )
 								);
 							}
@@ -516,7 +513,7 @@ class GC_Plugin_Install_List_Table extends GC_List_Table {
 						if ( $status['url'] ) {
 							if ( $compatible_php && $compatible_gc ) {
 								$action_links[] = sprintf(
-									'<a class="update-now button aria-button-if-js" data-plugin="%s" data-slug="%s" href="%s" aria-label="%s" data-name="%s">%s</a>',
+									'<a class="btn btn-primary update-now aria-button-if-js" data-plugin="%s" data-slug="%s" href="%s" aria-label="%s" data-name="%s">%s</a>',
 									esc_attr( $status['file'] ),
 									esc_attr( $plugin['slug'] ),
 									esc_url( $status['url'] ),
@@ -527,7 +524,7 @@ class GC_Plugin_Install_List_Table extends GC_List_Table {
 								);
 							} else {
 								$action_links[] = sprintf(
-									'<button type="button" class="button button-disabled" disabled="disabled">%s</button>',
+									'<button type="button" class="btn btn-primary btn-tone button-disabled" disabled="disabled">%s</button>',
 									_x( '未能更新', 'plugin' )
 								);
 							}
@@ -538,7 +535,7 @@ class GC_Plugin_Install_List_Table extends GC_List_Table {
 					case 'newer_installed':
 						if ( is_plugin_active( $status['file'] ) ) {
 							$action_links[] = sprintf(
-								'<button type="button" class="button button-disabled" disabled="disabled">%s</button>',
+								'<button type="button" class="btn btn-primary btn-tone button-disabled" disabled="disabled">%s</button>',
 								_x( '已启用', 'plugin' )
 							);
 						} elseif ( current_user_can( 'activate_plugin', $status['file'] ) ) {
@@ -555,21 +552,21 @@ class GC_Plugin_Install_List_Table extends GC_List_Table {
 							);
 
 							if ( is_network_admin() ) {
-								$button_text = __( '在站点网络中启用' );
+								$button_text = __( '在SaaS平台中启用' );
 								/* translators: %s: Plugin name. */
-								$button_label = _x( '在站点网络中启用%s', 'plugin' );
+								$button_label = _x( '在SaaS平台中启用%s', 'plugin' );
 								$activate_url = add_query_arg( array( 'networkwide' => 1 ), $activate_url );
 							}
 
 							$action_links[] = sprintf(
-								'<a href="%1$s" class="button activate-now" aria-label="%2$s">%3$s</a>',
+								'<a href="%1$s" class="btn btn-primary btn-tone activate-now" aria-label="%2$s">%3$s</a>',
 								esc_url( $activate_url ),
 								esc_attr( sprintf( $button_label, $plugin['name'] ) ),
 								$button_text
 							);
 						} else {
 							$action_links[] = sprintf(
-								'<button type="button" class="button button-disabled" disabled="disabled">%s</button>',
+								'<button type="button" class="btn btn-primary btn-tone button-disabled" disabled="disabled">%s</button>',
 								_x( '已安装', 'plugin' )
 							);
 						}

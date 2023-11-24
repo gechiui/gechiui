@@ -4,21 +4,22 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
+ * @since 5.9.0
  */
 
 /**
  * Core class to access nav items via the REST API.
  *
- *
+ * @since 5.9.0
  *
  * @see GC_REST_Posts_Controller
  */
 class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 
 	/**
-	 * Get the nav menu item, if the ID is valid.
+	 * Gets the nav menu item, if the ID is valid.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param int $id Supplied ID.
 	 * @return object|GC_Error Post object if ID is valid, GC_Error otherwise.
@@ -35,6 +36,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Checks if a given request has access to read menu items.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -52,6 +54,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Checks if a given request has access to read a menu item if they have access to edit them.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return bool|GC_Error True if the request has read access for the item, GC_Error object otherwise.
@@ -71,6 +74,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 	 *
 	 * This allows for any user that can `edit_theme_options` or edit any REST API available post type.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return bool|GC_Error Whether the current user has permission.
@@ -100,9 +104,9 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Creates a single post.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
-	 *
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
 	 */
 	public function create_item( $request ) {
@@ -138,6 +142,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 		/**
 		 * Fires after a single menu item is created or updated via the REST API.
 		 *
+		 * @since 5.9.0
 		 *
 		 * @param object          $nav_menu_item Inserted or updated menu item object.
 		 * @param GC_REST_Request $request       Request object.
@@ -167,6 +172,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 		/**
 		 * Fires after a single menu item is completely created or updated via the REST API.
 		 *
+		 * @since 5.9.0
 		 *
 		 * @param object          $nav_menu_item Inserted or updated menu item object.
 		 * @param GC_REST_Request $request       Request object.
@@ -189,9 +195,9 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Updates a single nav menu item.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
-	 *
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
 	 */
 	public function update_item( $request ) {
@@ -263,6 +269,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Deletes a single menu item.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error True on success, or GC_Error object on failure.
@@ -298,6 +305,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 		/**
 		 * Fires immediately after a single menu item is deleted via the REST API.
 		 *
+		 * @since 5.9.0
 		 *
 		 * @param object          $nav_menu_item Inserted or updated menu item object.
 		 * @param GC_REST_Response $response The response data.
@@ -311,6 +319,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Prepares a single post for create or update.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Request object.
 	 *
@@ -338,6 +347,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 				'menu-item-target'      => $menu_item_obj->target,
 				'menu-item-classes'     => $menu_item_obj->classes,
 				// Stored in the database as a string.
+				'menu-item-xfn'         => explode( ' ', $menu_item_obj->xfn ),
 				'menu-item-status'      => $menu_item_obj->post_status,
 				'menu-id'               => $this->get_menu_id( $menu_item_db_id ),
 			);
@@ -356,6 +366,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 				'menu-item-attr-title'  => '',
 				'menu-item-target'      => '',
 				'menu-item-classes'     => array(),
+				'menu-item-xfn'         => array(),
 				'menu-item-status'      => 'publish',
 			);
 		}
@@ -372,6 +383,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 			'menu-item-attr-title'  => 'attr_title',
 			'menu-item-target'      => 'target',
 			'menu-item-classes'     => 'classes',
+			'menu-item-xfn'         => 'xfn',
 			'menu-item-status'      => 'status',
 		);
 
@@ -446,7 +458,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 		}
 
 		// The xfn and classes properties are arrays, but passed to gc_update_nav_menu_item as a string.
-		foreach ( array( 'menu-item-classes' ) as $key ) {
+		foreach ( array( 'menu-item-xfn', 'menu-item-classes' ) as $key ) {
 			$prepared_nav_item[ $key ] = implode( ' ', $prepared_nav_item[ $key ] );
 		}
 
@@ -460,6 +472,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 		/**
 		 * Filters a menu item before it is inserted via the REST API.
 		 *
+		 * @since 5.9.0
 		 *
 		 * @param object          $prepared_nav_item An object representing a single menu item prepared
 		 *                                           for inserting or updating the database.
@@ -471,8 +484,9 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Prepares a single post output for response.
 	 *
+	 * @since 5.9.0
 	 *
-	 * @param GC_Post          $item   Post object.
+	 * @param GC_Post         $item    Post object.
 	 * @param GC_REST_Request $request Request object.
 	 * @return GC_REST_Response Response object.
 	 */
@@ -558,6 +572,10 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 			$data['classes'] = (array) $menu_item->classes;
 		}
 
+		if ( rest_is_field_included( 'xfn', $fields ) ) {
+			$data['xfn'] = array_map( 'sanitize_html_class', explode( ' ', $menu_item->xfn ) );
+		}
+
 		if ( rest_is_field_included( 'invalid', $fields ) ) {
 			$data['invalid'] = (bool) $menu_item->_invalid;
 		}
@@ -592,22 +610,25 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 		// Wrap the data in a response object.
 		$response = rest_ensure_response( $data );
 
-		$links = $this->prepare_links( $item );
-		$response->add_links( $links );
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$links = $this->prepare_links( $item );
+			$response->add_links( $links );
 
-		if ( ! empty( $links['self']['href'] ) ) {
-			$actions = $this->get_available_actions( $item, $request );
+			if ( ! empty( $links['self']['href'] ) ) {
+				$actions = $this->get_available_actions( $item, $request );
 
-			$self = $links['self']['href'];
+				$self = $links['self']['href'];
 
-			foreach ( $actions as $rel ) {
-				$response->add_link( $rel, $self );
+				foreach ( $actions as $rel ) {
+					$response->add_link( $rel, $self );
+				}
 			}
 		}
 
 		/**
 		 * Filters the menu item data for a REST API response.
 		 *
+		 * @since 5.9.0
 		 *
 		 * @param GC_REST_Response $response  The response object.
 		 * @param object           $menu_item Menu item setup by {@see gc_setup_nav_menu_item()}.
@@ -619,6 +640,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Prepares links for the request.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_Post $post Post object.
 	 * @return array Links for the given post.
@@ -654,8 +676,9 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 	}
 
 	/**
-	 * Retrieve Link Description Objects that should be added to the Schema for the posts collection.
+	 * Retrieves Link Description Objects that should be added to the Schema for the posts collection.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @return array
 	 */
@@ -682,10 +705,15 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Retrieves the term's schema, conforming to JSON Schema.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @return array Item schema data.
 	 */
 	public function get_item_schema() {
+		if ( $this->schema ) {
+			return $this->add_additional_fields_schema( $this->schema );
+		}
+
 		$schema = array(
 			'$schema' => 'http://json-schema.org/draft-04/schema#',
 			'title'   => $this->post_type,
@@ -721,7 +749,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 		);
 
 		$schema['properties']['type_label'] = array(
-			'description' => __( '类型名称。' ),
+			'description' => __( '用于描述此类菜单项的单数标签。' ),
 			'type'        => 'string',
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'readonly'    => true,
@@ -768,7 +796,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 			),
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'arg_options' => array(
-				'sanitize_callback' => function ( $value ) {
+				'sanitize_callback' => static function ( $value ) {
 					return array_map( 'sanitize_html_class', gc_parse_list( $value ) );
 				},
 			),
@@ -818,13 +846,6 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 			),
 		);
 
-		$schema['properties']['type_label'] = array(
-			'description' => __( '用于描述此类菜单项的单数标签。' ),
-			'context'     => array( 'view', 'edit', 'embed' ),
-			'type'        => 'string',
-			'readonly'    => true,
-		);
-
 		$schema['properties']['url'] = array(
 			'description' => __( '该菜单项指向的URL。' ),
 			'type'        => 'string',
@@ -836,7 +857,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 						return true;
 					}
 
-					if ( esc_url_raw( $url ) ) {
+					if ( sanitize_url( $url ) ) {
 						return true;
 					}
 
@@ -844,6 +865,20 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 						'rest_invalid_url',
 						__( '无效URL。' )
 					);
+				},
+			),
+		);
+
+		$schema['properties']['xfn'] = array(
+			'description' => __( '该菜单项的链接中表示的XFN关系。' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'string',
+			),
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => static function ( $value ) {
+					return array_map( 'sanitize_html_class', gc_parse_list( $value ) );
 				},
 			),
 		);
@@ -883,12 +918,15 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 			$schema['links'] = $schema_links;
 		}
 
-		return $this->add_additional_fields_schema( $schema );
+		$this->schema = $schema;
+
+		return $this->add_additional_fields_schema( $this->schema );
 	}
 
 	/**
 	 * Retrieves the query params for the posts collection.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @return array Collection parameters.
 	 */
@@ -935,6 +973,7 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 	 * Determines the allowed query_vars for a get_items() response and prepares
 	 * them for GC_Query.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param array           $prepared_args Optional. Prepared GC_Query arguments. Default empty array.
 	 * @param GC_REST_Request $request       Optional. Full details about the request.
@@ -958,12 +997,15 @@ class GC_REST_Menu_Items_Controller extends GC_REST_Posts_Controller {
 			}
 		}
 
+		$query_args['update_menu_item_cache'] = true;
+
 		return $query_args;
 	}
 
 	/**
 	 * Gets the id of the menu that the given menu item belongs to.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param int $menu_item_id Menu item id.
 	 * @return int

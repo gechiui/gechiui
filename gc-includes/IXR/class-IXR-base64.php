@@ -4,7 +4,6 @@
  * IXR_Base64
  *
  * @package IXR
- *
  */
 class IXR_Base64
 {

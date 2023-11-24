@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core class for interacting with Site Health tests.
- *
- *
  *
  * @see GC_REST_Controller
  */
@@ -19,6 +16,7 @@ class GC_REST_Site_Health_Controller extends GC_REST_Controller {
 	/**
 	 * An instance of the site health class.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @var GC_Site_Health
 	 */
@@ -27,6 +25,7 @@ class GC_REST_Site_Health_Controller extends GC_REST_Controller {
 	/**
 	 * Site Health controller constructor.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_Site_Health $site_health An instance of the site health class.
 	 */
@@ -40,6 +39,8 @@ class GC_REST_Site_Health_Controller extends GC_REST_Controller {
 	/**
 	 * Registers API routes.
 	 *
+	 * @since 5.6.0
+	 * @since 6.1.0 Adds page-cache async test.
 	 *
 	 * @see register_rest_route()
 	 */
@@ -153,11 +154,30 @@ class GC_REST_Site_Health_Controller extends GC_REST_Controller {
 				},
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			sprintf(
+				'/%s/%s',
+				$this->rest_base,
+				'page-cache'
+			),
+			array(
+				array(
+					'methods'             => 'GET',
+					'callback'            => array( $this, 'test_page_cache' ),
+					'permission_callback' => function () {
+						return $this->validate_request_permission( 'view_site_health_checks' );
+					},
+				),
+			)
+		);
 	}
 
 	/**
 	 * Validates if the current user can request this REST endpoint.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param string $check The endpoint check being ran.
 	 * @return bool
@@ -168,6 +188,7 @@ class GC_REST_Site_Health_Controller extends GC_REST_Controller {
 		/**
 		 * Filters the capability needed to run a given Site Health check.
 		 *
+		 * @since 5.6.0
 		 *
 		 * @param string $default_capability The default capability required for this check.
 		 * @param string $check              The Site Health check being performed.
@@ -180,6 +201,7 @@ class GC_REST_Site_Health_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if background updates work as expected.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @return array
 	 */
@@ -191,6 +213,7 @@ class GC_REST_Site_Health_Controller extends GC_REST_Controller {
 	/**
 	 * Checks that the site can reach the www.GeChiUI.com API.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @return array
 	 */
@@ -202,6 +225,7 @@ class GC_REST_Site_Health_Controller extends GC_REST_Controller {
 	/**
 	 * Checks that loopbacks can be performed.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @return array
 	 */
@@ -213,6 +237,7 @@ class GC_REST_Site_Health_Controller extends GC_REST_Controller {
 	/**
 	 * Checks that the site's frontend can be accessed over HTTPS.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @return array
 	 */
@@ -224,6 +249,7 @@ class GC_REST_Site_Health_Controller extends GC_REST_Controller {
 	/**
 	 * Checks that the authorization header is valid.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @return array
 	 */
@@ -233,8 +259,21 @@ class GC_REST_Site_Health_Controller extends GC_REST_Controller {
 	}
 
 	/**
+	 * Checks that full page cache is active.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @return array The test result.
+	 */
+	public function test_page_cache() {
+		$this->load_admin_textdomain();
+		return $this->site_health->get_test_page_cache();
+	}
+
+	/**
 	 * Gets the current directory sizes for this install.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @return array|GC_Error
 	 */
@@ -288,18 +327,20 @@ class GC_REST_Site_Health_Controller extends GC_REST_Controller {
 	 * The {@see GC_Site_Health} class is defined in GC-Admin, while the REST API operates in a front-end context.
 	 * This means that the translations for Site Health won't be loaded by default in {@see load_default_textdomain()}.
 	 *
+	 * @since 5.6.0
 	 */
 	protected function load_admin_textdomain() {
 		// Accounts for inner REST API requests in the admin.
 		if ( ! is_admin() ) {
 			$locale = determine_locale();
-			load_textdomain( 'default', GC_LANG_DIR . "/admin-$locale.mo" );
+			load_textdomain( 'default', GC_LANG_DIR . "/admin-$locale.mo", $locale );
 		}
 	}
 
 	/**
 	 * Gets the schema for each site health test.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @return array The test schema.
 	 */

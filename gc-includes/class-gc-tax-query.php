@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Taxonomy
- *
  */
 
 /**
@@ -17,8 +16,8 @@
  * their results by object metadata, by generating `JOIN` and `WHERE` subclauses to be
  * attached to the primary SQL query string.
  *
- *
  */
+#[AllowDynamicProperties]
 class GC_Tax_Query {
 
 	/**
@@ -40,6 +39,7 @@ class GC_Tax_Query {
 	/**
 	 * Standard response when the query should not return any rows.
 	 *
+	 * @since 3.2.0
 	 * @var string
 	 */
 	private static $no_results = array(
@@ -50,6 +50,7 @@ class GC_Tax_Query {
 	/**
 	 * A flat list of table aliases used in the JOIN clauses.
 	 *
+	 * @since 4.1.0
 	 * @var array
 	 */
 	protected $table_aliases = array();
@@ -60,6 +61,7 @@ class GC_Tax_Query {
 	 * We store this data in a flat array because they are referenced in a
 	 * number of places by GC_Query.
 	 *
+	 * @since 4.1.0
 	 * @var array
 	 */
 	public $queried_terms = array();
@@ -67,6 +69,7 @@ class GC_Tax_Query {
 	/**
 	 * Database table that where the metadata's objects are stored (eg $gcdb->users).
 	 *
+	 * @since 4.1.0
 	 * @var string
 	 */
 	public $primary_table;
@@ -74,6 +77,7 @@ class GC_Tax_Query {
 	/**
 	 * Column in 'primary_table' that represents the ID of the object.
 	 *
+	 * @since 4.1.0
 	 * @var string
 	 */
 	public $primary_id_column;
@@ -81,6 +85,7 @@ class GC_Tax_Query {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.1.0 Added support for `$operator` 'NOT EXISTS' and 'EXISTS' values.
 	 *
 	 * @param array $tax_query {
 	 *     Array of taxonomy query clauses.
@@ -113,11 +118,12 @@ class GC_Tax_Query {
 	}
 
 	/**
-	 * Ensure the 'tax_query' argument passed to the class constructor is well-formed.
+	 * Ensures the 'tax_query' argument passed to the class constructor is well-formed.
 	 *
 	 * Ensures that each query-level clause has a 'relation' key, and that
 	 * each first-order clause contains all the necessary keys from `$defaults`.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param array $queries Array of queries clauses.
 	 * @return array Sanitized array of query clauses.
@@ -186,8 +192,9 @@ class GC_Tax_Query {
 	}
 
 	/**
-	 * Sanitize a 'relation' operator.
+	 * Sanitizes a 'relation' operator.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param string $relation Raw relation key from the query argument.
 	 * @return string Sanitized relation ('AND' or 'OR').
@@ -201,7 +208,7 @@ class GC_Tax_Query {
 	}
 
 	/**
-	 * Determine whether a clause is first-order.
+	 * Determines whether a clause is first-order.
 	 *
 	 * A "first-order" clause is one that contains any of the first-order
 	 * clause keys ('terms', 'taxonomy', 'include_children', 'field',
@@ -209,6 +216,7 @@ class GC_Tax_Query {
 	 * for backward compatibility. Any clause that doesn't meet this is
 	 * determined, by process of elimination, to be a higher-order query.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param array $query Tax query arguments.
 	 * @return bool Whether the query clause is a first-order clause.
@@ -238,11 +246,12 @@ class GC_Tax_Query {
 	}
 
 	/**
-	 * Generate SQL clauses to be appended to a main query.
+	 * Generates SQL clauses to be appended to a main query.
 	 *
 	 * Called by the public GC_Tax_Query::get_sql(), this method
 	 * is abstracted out to maintain parity with the other Query classes.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return string[] {
 	 *     Array containing JOIN and WHERE SQL clauses to append to the main query.
@@ -267,11 +276,12 @@ class GC_Tax_Query {
 	}
 
 	/**
-	 * Generate SQL clauses for a single query array.
+	 * Generates SQL clauses for a single query array.
 	 *
 	 * If nested subqueries are found, this method recurses the tree to
 	 * produce the properly nested SQL.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param array $query Query to parse (passed by reference).
 	 * @param int   $depth Optional. Number of tree levels deep we currently are.
@@ -350,18 +360,19 @@ class GC_Tax_Query {
 	}
 
 	/**
-	 * Generate SQL JOIN and WHERE clauses for a "first-order" query clause.
+	 * Generates SQL JOIN and WHERE clauses for a "first-order" query clause.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @global gcdb $gcdb The GeChiUI database abstraction object.
 	 *
 	 * @param array $clause       Query clause (passed by reference).
 	 * @param array $parent_query Parent query array.
-	 * @return string[] {
+	 * @return array {
 	 *     Array containing JOIN and WHERE SQL clauses to append to a first-order query.
 	 *
-	 *     @type string $join  SQL fragment to append to the main JOIN clause.
-	 *     @type string $where SQL fragment to append to the main WHERE clause.
+	 *     @type string[] $join  Array of SQL fragments to append to the main JOIN clause.
+	 *     @type string[] $where Array of SQL fragments to append to the main WHERE clause.
 	 * }
 	 */
 	public function get_sql_for_clause( &$clause, $parent_query ) {
@@ -449,13 +460,13 @@ class GC_Tax_Query {
 
 			$where = $gcdb->prepare(
 				"$operator (
-				SELECT 1
-				FROM $gcdb->term_relationships
-				INNER JOIN $gcdb->term_taxonomy
-				ON $gcdb->term_taxonomy.term_taxonomy_id = $gcdb->term_relationships.term_taxonomy_id
-				WHERE $gcdb->term_taxonomy.taxonomy = %s
-				AND $gcdb->term_relationships.object_id = $this->primary_table.$this->primary_id_column
-			)",
+					SELECT 1
+					FROM $gcdb->term_relationships
+					INNER JOIN $gcdb->term_taxonomy
+					ON $gcdb->term_taxonomy.term_taxonomy_id = $gcdb->term_relationships.term_taxonomy_id
+					WHERE $gcdb->term_taxonomy.taxonomy = %s
+					AND $gcdb->term_relationships.object_id = $this->primary_table.$this->primary_id_column
+				)",
 				$clause['taxonomy']
 			);
 
@@ -467,7 +478,7 @@ class GC_Tax_Query {
 	}
 
 	/**
-	 * Identify an existing table alias that is compatible with the current query clause.
+	 * Identifies an existing table alias that is compatible with the current query clause.
 	 *
 	 * We avoid unnecessary table joins by allowing each clause to look for
 	 * an existing table alias that is compatible with the query that it
@@ -479,6 +490,7 @@ class GC_Tax_Query {
 	 * join. In the case of GC_Tax_Query, this only applies to 'IN'
 	 * clauses that are connected by the relation 'OR'.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param array $clause       Query clause.
 	 * @param array $parent_query Parent query of $clause.
@@ -521,6 +533,7 @@ class GC_Tax_Query {
 	/**
 	 * Validates a single query.
 	 *
+	 * @since 3.2.0
 	 *
 	 * @param array $query The single query. Passed by reference.
 	 */
@@ -568,8 +581,7 @@ class GC_Tax_Query {
 	 * Operates on the `$query` object by reference. In the case of error,
 	 * `$query` is converted to a GC_Error object.
 	 *
-	 *
-	 * @global gcdb $gcdb The GeChiUI database abstraction object.
+	 * @since 3.2.0
 	 *
 	 * @param array  $query           The single query. Passed by reference.
 	 * @param string $resulting_field The resulting field. Accepts 'slug', 'name', 'term_taxonomy_id',
@@ -580,7 +592,7 @@ class GC_Tax_Query {
 			return;
 		}
 
-		if ( $query['field'] == $resulting_field ) {
+		if ( $query['field'] === $resulting_field ) {
 			return;
 		}
 
@@ -616,6 +628,10 @@ class GC_Tax_Query {
 			default:
 				$args['include'] = gc_parse_id_list( $terms );
 				break;
+		}
+
+		if ( ! is_taxonomy_hierarchical( $query['taxonomy'] ) ) {
+			$args['number'] = count( $terms );
 		}
 
 		$term_query = new GC_Term_Query();

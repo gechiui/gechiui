@@ -10,8 +10,6 @@
  *
  * @see gc_debug_mode()
  *
- * @since 3.0.0
- *
  * @global int    $blog_id    The current site ID.
  * @global string $gc_version The GeChiUI version string.
  */
@@ -77,17 +75,28 @@ function gc_initial_constants() {
 		define( 'GC_CONTENT_DIR', ABSPATH . 'gc-content' ); // No trailing slash, full paths only - GC_CONTENT_URL is defined further down.
 	}
 
+	/*
+	 * Add define( 'GC_DEVELOPMENT_MODE', 'core' ), or define( 'GC_DEVELOPMENT_MODE', 'plugin' ), or
+	 * define( 'GC_DEVELOPMENT_MODE', 'theme' ), or define( 'GC_DEVELOPMENT_MODE', 'all' ) to gc-config.php
+	 * to signify development mode for GeChiUI core, a plugin, a theme, or all three types respectively.
+	 */
+	if ( ! defined( 'GC_DEVELOPMENT_MODE' ) ) {
+		define( 'GC_DEVELOPMENT_MODE', '' );
+	}
+
 	// Add define( 'GC_DEBUG', true ); to gc-config.php to enable display of notices during development.
 	if ( ! defined( 'GC_DEBUG' ) ) {
-		if ( 'development' === gc_get_environment_type() ) {
+		if ( gc_get_development_mode() || 'development' === gc_get_environment_type() ) {
 			define( 'GC_DEBUG', true );
 		} else {
 			define( 'GC_DEBUG', false );
 		}
 	}
 
-	// Add define( 'GC_DEBUG_DISPLAY', null ); to gc-config.php to use the globally configured setting
-	// for 'display_errors' and not force errors to be displayed. Use false to force 'display_errors' off.
+	/*
+	 * Add define( 'GC_DEBUG_DISPLAY', null ); to gc-config.php to use the globally configured setting
+	 * for 'display_errors' and not force errors to be displayed. Use false to force 'display_errors' off.
+	 */
 	if ( ! defined( 'GC_DEBUG_DISPLAY' ) ) {
 		define( 'GC_DEBUG_DISPLAY', true );
 	}
@@ -101,11 +110,13 @@ function gc_initial_constants() {
 		define( 'GC_CACHE', false );
 	}
 
-	// Add define( 'SCRIPT_DEBUG', true ); to gc-config.php to enable loading of non-minified,
-	// non-concatenated scripts and stylesheets.
+	/*
+	 * Add define( 'SCRIPT_DEBUG', true ); to gc-config.php to enable loading of non-minified,
+	 * non-concatenated scripts and stylesheets.
+	 */
 	if ( ! defined( 'SCRIPT_DEBUG' ) ) {
 		if ( ! empty( $gc_version ) ) {
-			$develop_src = false !== strpos( $gc_version, '-src' );
+			$develop_src = str_contains( $gc_version, '-src' );
 		} else {
 			$develop_src = false;
 		}
@@ -154,7 +165,6 @@ function gc_initial_constants() {
  *
  * Defines must-use plugin directory constants, which may be overridden in the sunrise.php drop-in.
  *
- * @since 3.0.0
  */
 function gc_plugin_directory_constants() {
 	if ( ! defined( 'GC_CONTENT_URL' ) ) {
@@ -182,7 +192,6 @@ function gc_plugin_directory_constants() {
 	/**
 	 * Allows for the plugins directory to be moved from the default location.
 	 *
-	 * @since 2.1.0
 	 * @deprecated
 	 */
 	if ( ! defined( 'PLUGINDIR' ) ) {
@@ -192,7 +201,6 @@ function gc_plugin_directory_constants() {
 	/**
 	 * Allows for the mu-plugins directory to be moved from the default location.
 	 *
-	 * @since 2.8.0
 	 */
 	if ( ! defined( 'GCMU_PLUGIN_DIR' ) ) {
 		define( 'GCMU_PLUGIN_DIR', GC_CONTENT_DIR . '/mu-plugins' ); // Full path, no trailing slash.
@@ -201,7 +209,6 @@ function gc_plugin_directory_constants() {
 	/**
 	 * Allows for the mu-plugins directory to be moved from the default location.
 	 *
-	 * @since 2.8.0
 	 */
 	if ( ! defined( 'GCMU_PLUGIN_URL' ) ) {
 		define( 'GCMU_PLUGIN_URL', GC_CONTENT_URL . '/mu-plugins' ); // Full URL, no trailing slash.
@@ -210,7 +217,6 @@ function gc_plugin_directory_constants() {
 	/**
 	 * Allows for the mu-plugins directory to be moved from the default location.
 	 *
-	 * @since 2.8.0
 	 * @deprecated
 	 */
 	if ( ! defined( 'MUPLUGINDIR' ) ) {
@@ -223,7 +229,6 @@ function gc_plugin_directory_constants() {
  *
  * Defines constants after multisite is loaded.
  *
- * @since 3.0.0
  */
 function gc_cookie_constants() {
 	/**
@@ -255,7 +260,6 @@ function gc_cookie_constants() {
 	}
 
 	/**
-	 * @since 2.5.0
 	 */
 	if ( ! defined( 'AUTH_COOKIE' ) ) {
 		define( 'AUTH_COOKIE', 'gechiui_' . COOKIEHASH );
@@ -328,7 +332,6 @@ function gc_cookie_constants() {
 /**
  * Defines SSL-related GeChiUI constants.
  *
- * @since 3.0.0
  */
 function gc_ssl_constants() {
 	/**
@@ -355,11 +358,9 @@ function gc_ssl_constants() {
 /**
  * Defines functionality-related GeChiUI constants.
  *
- * @since 3.0.0
  */
 function gc_functionality_constants() {
 	/**
-	 * @since 2.5.0
 	 */
 	if ( ! defined( 'AUTOSAVE_INTERVAL' ) ) {
 		define( 'AUTOSAVE_INTERVAL', MINUTE_IN_SECONDS );
@@ -377,7 +378,6 @@ function gc_functionality_constants() {
 	}
 
 	/**
-	 * @since 3.3.0
 	 */
 	if ( ! defined( 'GC_CRON_LOCK_TIMEOUT' ) ) {
 		define( 'GC_CRON_LOCK_TIMEOUT', MINUTE_IN_SECONDS );
@@ -387,7 +387,6 @@ function gc_functionality_constants() {
 /**
  * Defines templating-related GeChiUI constants.
  *
- * @since 3.0.0
  */
 function gc_templating_constants() {
 	/**
@@ -400,7 +399,6 @@ function gc_templating_constants() {
 	/**
 	 * Filesystem path to the current active template stylesheet directory.
 	 *
-	 * @since 2.1.0
 	 */
 	define( 'STYLESHEETPATH', get_stylesheet_directory() );
 
@@ -409,7 +407,6 @@ function gc_templating_constants() {
 	 * Used as the default theme when installing new sites.
 	 * It will be used as the fallback if the active theme doesn't exist.
 	 *
-	 * @since 3.0.0
 	 *
 	 * @see GC_Theme::get_core_default_theme()
 	 */

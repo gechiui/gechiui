@@ -7,9 +7,7 @@
  */
 
 /**
- * Retrieve additional image sizes.
- *
- *
+ * Retrieves additional image sizes.
  *
  * @global array $_gc_additional_image_sizes
  *
@@ -26,7 +24,7 @@ function gc_get_additional_image_sizes() {
 }
 
 /**
- * Scale down the default size of an image.
+ * Scales down the default size of an image.
  *
  * This is so that the image is a better fit for the editor and theme.
  *
@@ -39,8 +37,6 @@ function gc_get_additional_image_sizes() {
  *
  * Finally, there is a filter named {@see 'editor_max_image_size'}, that will be
  * called on the calculated array for width and height, respectively.
- *
- *
  *
  * @global int $content_width
  *
@@ -135,7 +131,7 @@ function image_constrain_size_for_editor( $width, $height, $size = 'medium', $co
 }
 
 /**
- * Retrieve width and height attributes using given width and height values.
+ * Retrieves width and height attributes using given width and height values.
  *
  * Both attributes are required in the sense that both parameters must have a
  * value, but are optional in that if you set them to false or null, then they
@@ -144,8 +140,6 @@ function image_constrain_size_for_editor( $width, $height, $size = 'medium', $co
  * You can set the value using a string, but it will only take numeric values.
  * If you wish to put 'px' after the numbers, then it will be stripped out of
  * the return.
- *
- *
  *
  * @param int|string $width  Image width in pixels.
  * @param int|string $height Image height in pixels.
@@ -163,7 +157,7 @@ function image_hwstring( $width, $height ) {
 }
 
 /**
- * Scale an image to fit a particular size (such as 'thumb' or 'medium').
+ * Scales an image to fit a particular size (such as 'thumb' or 'medium').
  *
  * The URL might be the original image, or it might be a resized version. This
  * function won't create a new resized copy, it will just return an already
@@ -172,8 +166,6 @@ function image_hwstring( $width, $height ) {
  * A plugin may use the {@see 'image_downsize'} filter to hook into and offer image
  * resizing services for images. The hook must return an array with the same
  * elements that are normally returned from the function.
- *
- *
  *
  * @param int          $id   Attachment ID for image.
  * @param string|int[] $size Optional. Image size. Accepts any registered image size name, or an array
@@ -215,8 +207,10 @@ function image_downsize( $id, $size = 'medium' ) {
 	$is_intermediate  = false;
 	$img_url_basename = gc_basename( $img_url );
 
-	// If the file isn't an image, attempt to replace its URL with a rendered image from its meta.
-	// Otherwise, a non-image type could be returned.
+	/*
+	 * If the file isn't an image, attempt to replace its URL with a rendered image from its meta.
+	 * Otherwise, a non-image type could be returned.
+	 */
 	if ( ! $is_image ) {
 		if ( ! empty( $meta['sizes']['full'] ) ) {
 			$img_url          = str_replace( $img_url_basename, $meta['sizes']['full']['file'], $img_url );
@@ -236,20 +230,20 @@ function image_downsize( $id, $size = 'medium' ) {
 		$width           = $intermediate['width'];
 		$height          = $intermediate['height'];
 		$is_intermediate = true;
-	} elseif ( 'thumbnail' === $size ) {
+	} elseif ( 'thumbnail' === $size && ! empty( $meta['thumb'] ) && is_string( $meta['thumb'] ) ) {
 		// Fall back to the old thumbnail.
-		$thumb_file = gc_get_attachment_thumb_file( $id );
-		$info       = null;
+		$imagefile = get_attached_file( $id );
+		$thumbfile = str_replace( gc_basename( $imagefile ), gc_basename( $meta['thumb'] ), $imagefile );
 
-		if ( $thumb_file ) {
-			$info = gc_getimagesize( $thumb_file );
-		}
+		if ( file_exists( $thumbfile ) ) {
+			$info = gc_getimagesize( $thumbfile );
 
-		if ( $thumb_file && $info ) {
-			$img_url         = str_replace( $img_url_basename, gc_basename( $thumb_file ), $img_url );
-			$width           = $info[0];
-			$height          = $info[1];
-			$is_intermediate = true;
+			if ( $info ) {
+				$img_url         = str_replace( $img_url_basename, gc_basename( $thumbfile ), $img_url );
+				$width           = $info[0];
+				$height          = $info[1];
+				$is_intermediate = true;
+			}
 		}
 	}
 
@@ -270,9 +264,7 @@ function image_downsize( $id, $size = 'medium' ) {
 }
 
 /**
- * Register a new image size.
- *
- *
+ * Registers a new image size.
  *
  * @global array $_gc_additional_image_sizes Associative array of additional image sizes.
  *
@@ -297,9 +289,9 @@ function add_image_size( $name, $width = 0, $height = 0, $crop = false ) {
 }
 
 /**
- * Check if an image size exists.
+ * Checks if an image size exists.
  *
- *
+ * @since 3.9.0
  *
  * @param string $name The image size to check.
  * @return bool True if the image size exists, false if not.
@@ -310,9 +302,9 @@ function has_image_size( $name ) {
 }
 
 /**
- * Remove a new image size.
+ * Removes a new image size.
  *
- *
+ * @since 3.9.0
  *
  * @global array $_gc_additional_image_sizes
  *
@@ -332,8 +324,6 @@ function remove_image_size( $name ) {
 
 /**
  * Registers an image size for the post thumbnail.
- *
- *
  *
  * @see add_image_size() for details on cropping behavior.
  *
@@ -358,15 +348,13 @@ function set_post_thumbnail_size( $width = 0, $height = 0, $crop = false ) {
  * further manipulated by a plugin to change all attribute values and even HTML
  * content.
  *
- *
- *
  * @param int          $id    Attachment ID.
  * @param string       $alt   Image description for the alt attribute.
  * @param string       $title Image description for the title attribute.
  * @param string       $align Part of the class name for aligning the image.
  * @param string|int[] $size  Optional. Image size. Accepts any registered image size name, or an array of
  *                            width and height values in pixels (in that order). Default 'medium'.
- * @return string HTML IMG element for given image attachment
+ * @return string HTML IMG element for given image attachment?
  */
 function get_image_tag( $id, $alt, $title, $align, $size = 'medium' ) {
 
@@ -381,6 +369,7 @@ function get_image_tag( $id, $alt, $title, $align, $size = 'medium' ) {
 	/**
 	 * Filters the value of the attachment's image tag class attribute.
 	 *
+	 * @since 2.6.0
 	 *
 	 * @param string       $class CSS class name or space-separated list of classes.
 	 * @param int          $id    Attachment ID.
@@ -395,6 +384,7 @@ function get_image_tag( $id, $alt, $title, $align, $size = 'medium' ) {
 	/**
 	 * Filters the HTML content for the image tag.
 	 *
+	 * @since 2.6.0
 	 *
 	 * @param string       $html  HTML content for the image.
 	 * @param int          $id    Attachment ID.
@@ -412,8 +402,6 @@ function get_image_tag( $id, $alt, $title, $align, $size = 'medium' ) {
  *
  * If either width or height are empty, no constraint is applied on
  * that dimension.
- *
- *
  *
  * @param int $current_width  Current width of the image.
  * @param int $current_height Current height of the image.
@@ -483,6 +471,7 @@ function gc_constrain_dimensions( $current_width, $current_height, $max_width = 
 	/**
 	 * Filters dimensions to constrain down-sampled images to.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param int[] $dimensions     {
 	 *     An array of width and height values.
@@ -512,8 +501,6 @@ function gc_constrain_dimensions( $current_width, $current_height, $max_width = 
  *    Images will be cropped to the specified dimensions within the defined crop area.
  * 3. If true, images will be cropped to the specified dimensions using center positions.
  *
- *
- *
  * @param int        $orig_w Original width in pixels.
  * @param int        $orig_h Original height in pixels.
  * @param int        $dest_w New width in pixels.
@@ -538,6 +525,7 @@ function image_resize_dimensions( $orig_w, $orig_h, $dest_w, $dest_h, $crop = fa
 	 * Returning a non-null value from the filter will effectively short-circuit
 	 * image_resize_dimensions(), returning that value instead.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param null|mixed $null   Whether to preempt output of the resize dimensions.
 	 * @param int        $orig_w Original width in pixels.
@@ -633,6 +621,7 @@ function image_resize_dimensions( $orig_w, $orig_h, $dest_w, $dest_h, $crop = fa
 		 * Filters whether to proceed with making an image sub-size with identical dimensions
 		 * with the original/source image. Differences of 1px may be due to rounding and are ignored.
 		 *
+		 * @since 5.3.0
 		 *
 		 * @param bool $proceed The filtered value.
 		 * @param int  $orig_w  Original image width.
@@ -645,8 +634,10 @@ function image_resize_dimensions( $orig_w, $orig_h, $dest_w, $dest_h, $crop = fa
 		}
 	}
 
-	// The return array matches the parameters to imagecopyresampled().
-	// int dst_x, int dst_y, int src_x, int src_y, int dst_w, int dst_h, int src_w, int src_h
+	/*
+	 * The return array matches the parameters to imagecopyresampled().
+	 * int dst_x, int dst_y, int src_x, int src_y, int dst_w, int dst_h, int src_w, int src_h
+	 */
 	return array( 0, 0, (int) $s_x, (int) $s_y, (int) $new_w, (int) $new_h, (int) $crop_w, (int) $crop_h );
 }
 
@@ -656,8 +647,6 @@ function image_resize_dimensions( $orig_w, $orig_h, $dest_w, $dest_h, $crop = fa
  * The returned array has the file size, the image width, and image height. The
  * {@see 'image_make_intermediate_size'} filter can be used to hook in and change the
  * values of the returned array. The only parameter is the resized file path.
- *
- *
  *
  * @param string $file   File path.
  * @param int    $width  Image width.
@@ -686,8 +675,6 @@ function image_make_intermediate_size( $file, $width, $height, $crop = false ) {
 
 /**
  * Helper function to test if aspect ratios for two images match.
- *
- *
  *
  * @param int $source_width  Width of the first image in pixels.
  * @param int $source_height Height of the first image in pixels.
@@ -733,8 +720,6 @@ function gc_image_matches_ratio( $source_width, $source_height, $target_width, $
  * efficient than having to find the closest-sized image and then having the
  * browser scale down the image.
  *
- *
- *
  * @param int          $post_id Attachment ID.
  * @param string|int[] $size    Optional. Image size. Accepts any registered image size name, or an array
  *                              of width and height values in pixels (in that order). Default 'thumbnail'.
@@ -742,10 +727,10 @@ function gc_image_matches_ratio( $source_width, $source_height, $target_width, $
  *     Array of file relative path, width, and height on success. Additionally includes absolute
  *     path and URL if registered size is passed to `$size` parameter. False on failure.
  *
- *     @type string $file   Path of image relative to uploads directory.
+ *     @type string $file   Filename of image.
  *     @type int    $width  Width of image in pixels.
  *     @type int    $height Height of image in pixels.
- *     @type string $path   Absolute filesystem path of image.
+ *     @type string $path   Path of image relative to uploads directory.
  *     @type string $url    URL of image.
  * }
  */
@@ -829,6 +814,7 @@ function image_get_intermediate_size( $post_id, $size = 'thumbnail' ) {
 	/**
 	 * Filters the output of image_get_intermediate_size()
 	 *
+	 * @since 4.4.0
 	 *
 	 * @see image_get_intermediate_size()
 	 *
@@ -843,8 +829,6 @@ function image_get_intermediate_size( $post_id, $size = 'thumbnail' ) {
 
 /**
  * Gets the available intermediate image size names.
- *
- *
  *
  * @return string[] An array of image size names.
  */
@@ -869,7 +853,7 @@ function get_intermediate_image_sizes() {
 /**
  * Returns a normalized list of all currently registered image sub-sizes.
  *
- *
+ * @since 5.3.0
  * @uses gc_get_additional_image_sizes()
  * @uses get_intermediate_image_sizes()
  *
@@ -925,8 +909,6 @@ function gc_get_registered_image_subsizes() {
 /**
  * Retrieves an image to represent an attachment.
  *
- *
- *
  * @param int          $attachment_id Image attachment ID.
  * @param string|int[] $size          Optional. Image size. Accepts any registered image size name, or an array of
  *                                    width and height values in pixels (in that order). Default 'thumbnail'.
@@ -951,7 +933,7 @@ function gc_get_attachment_image_src( $attachment_id, $size = 'thumbnail', $icon
 
 			if ( $src ) {
 				/** This filter is documented in gc-includes/post.php */
-				$icon_dir = apply_filters( 'icon_dir', ABSPATH . '/assets/images/media' );
+				$icon_dir = apply_filters( 'icon_dir', ABSPATH  . '/assets/images/media' );
 
 				$src_file               = $icon_dir . '/' . gc_basename( $src );
 				list( $width, $height ) = gc_getimagesize( $src_file );
@@ -965,6 +947,7 @@ function gc_get_attachment_image_src( $attachment_id, $size = 'thumbnail', $icon
 	/**
 	 * Filters the attachment image source result.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param array|false  $image         {
 	 *     Array of image data, or boolean false if no image is available.
@@ -983,16 +966,15 @@ function gc_get_attachment_image_src( $attachment_id, $size = 'thumbnail', $icon
 }
 
 /**
- * Get an HTML img element representing an image attachment.
+ * Gets an HTML img element representing an image attachment.
  *
  * While `$size` will accept an array, it is better to register a size with
  * add_image_size() so that a cropped version is generated. It's much more
  * efficient than having to find the closest-sized image and then having the
  * browser scale down the image.
- *
- *
- *
- *
+ * The `$srcset` and `$sizes` attributes were added.
+ * @since 5.5.0 The `$loading` attribute was added.
+ * @since 6.1.0 The `$decoding` attribute was added.
  *
  * @param int          $attachment_id Image attachment ID.
  * @param string|int[] $size          Optional. Image size. Accepts any registered image size name, or an array
@@ -1001,16 +983,19 @@ function gc_get_attachment_image_src( $attachment_id, $size = 'thumbnail', $icon
  * @param string|array $attr {
  *     Optional. Attributes for the image markup.
  *
- *     @type string       $src     Image attachment URL.
- *     @type string       $class   CSS class name or space-separated list of classes.
- *                                 Default `attachment-$size_class size-$size_class`,
- *                                 where `$size_class` is the image size being requested.
- *     @type string       $alt     Image description for the alt attribute.
- *     @type string       $srcset  The 'srcset' attribute value.
- *     @type string       $sizes   The 'sizes' attribute value.
- *     @type string|false $loading The 'loading' attribute value. Passing a value of false
- *                                 will result in the attribute being omitted for the image.
- *                                 Defaults to 'lazy', depending on gc_lazy_loading_enabled().
+ *     @type string       $src      Image attachment URL.
+ *     @type string       $class    CSS class name or space-separated list of classes.
+ *                                  Default `attachment-$size_class size-$size_class`,
+ *                                  where `$size_class` is the image size being requested.
+ *     @type string       $alt      Image description for the alt attribute.
+ *     @type string       $srcset   The 'srcset' attribute value.
+ *     @type string       $sizes    The 'sizes' attribute value.
+ *     @type string|false $loading  The 'loading' attribute value. Passing a value of false
+ *                                  will result in the attribute being omitted for the image.
+ *                                  Defaults to 'lazy', depending on gc_lazy_loading_enabled().
+ *     @type string       $decoding The 'decoding' attribute value. Possible values are
+ *                                  'async' (default), 'sync', or 'auto'. Passing false or an empty
+ *                                  string will result in the attribute being omitted.
  * }
  * @return string HTML img element or empty string on failure.
  */
@@ -1030,22 +1015,50 @@ function gc_get_attachment_image( $attachment_id, $size = 'thumbnail', $icon = f
 		}
 
 		$default_attr = array(
-			'src'   => $src,
-			'class' => "attachment-$size_class size-$size_class",
-			'alt'   => trim( strip_tags( get_post_meta( $attachment_id, '_gc_attachment_image_alt', true ) ) ),
+			'src'      => $src,
+			'class'    => "attachment-$size_class size-$size_class",
+			'alt'      => trim( strip_tags( get_post_meta( $attachment_id, '_gc_attachment_image_alt', true ) ) ),
+			'decoding' => 'async',
 		);
 
-		// Add `loading` attribute.
-		if ( gc_lazy_loading_enabled( 'img', 'gc_get_attachment_image' ) ) {
-			$default_attr['loading'] = gc_get_loading_attr_default( 'gc_get_attachment_image' );
+		/**
+		 * Filters the context in which gc_get_attachment_image() is used.
+		 *
+		 * @since 6.3.0
+		 *
+		 * @param string $context The context. Default 'gc_get_attachment_image'.
+		 */
+		$context = apply_filters( 'gc_get_attachment_image_context', 'gc_get_attachment_image' );
+		$attr    = gc_parse_args( $attr, $default_attr );
+
+		$loading_attr              = $attr;
+		$loading_attr['width']     = $width;
+		$loading_attr['height']    = $height;
+		$loading_optimization_attr = gc_get_loading_optimization_attributes(
+			'img',
+			$loading_attr,
+			$context
+		);
+
+		// Add loading optimization attributes if not available.
+		$attr = array_merge( $attr, $loading_optimization_attr );
+
+		// Omit the `decoding` attribute if the value is invalid according to the spec.
+		if ( empty( $attr['decoding'] ) || ! in_array( $attr['decoding'], array( 'async', 'sync', 'auto' ), true ) ) {
+			unset( $attr['decoding'] );
 		}
 
-		$attr = gc_parse_args( $attr, $default_attr );
-
-		// If the default value of `lazy` for the `loading` attribute is overridden
-		// to omit the attribute for this image, ensure it is not included.
-		if ( array_key_exists( 'loading', $attr ) && ! $attr['loading'] ) {
+		/*
+		 * If the default value of `lazy` for the `loading` attribute is overridden
+		 * to omit the attribute for this image, ensure it is not included.
+		 */
+		if ( isset( $attr['loading'] ) && ! $attr['loading'] ) {
 			unset( $attr['loading'] );
+		}
+
+		// If the `fetchpriority` attribute is overridden and set to false or an empty string.
+		if ( isset( $attr['fetchpriority'] ) && ! $attr['fetchpriority'] ) {
+			unset( $attr['fetchpriority'] );
 		}
 
 		// Generate 'srcset' and 'sizes' if not already present.
@@ -1070,6 +1083,7 @@ function gc_get_attachment_image( $attachment_id, $size = 'thumbnail', $icon = f
 		/**
 		 * Filters the list of attachment image attributes.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param string[]     $attr       Array of attribute values for the image markup, keyed by attribute name.
 		 *                                 See gc_get_attachment_image().
@@ -1090,8 +1104,9 @@ function gc_get_attachment_image( $attachment_id, $size = 'thumbnail', $icon = f
 	}
 
 	/**
-	 * HTML img element representing an image attachment.
+	 * Filters the HTML img element representing an image attachment.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param string       $html          HTML img element or empty string on failure.
 	 * @param int          $attachment_id Image attachment ID.
@@ -1105,9 +1120,7 @@ function gc_get_attachment_image( $attachment_id, $size = 'thumbnail', $icon = f
 }
 
 /**
- * Get the URL of an image attachment.
- *
- *
+ * Gets the URL of an image attachment.
  *
  * @param int          $attachment_id Image attachment ID.
  * @param string|int[] $size          Optional. Image size. Accepts any registered image size name, or an array of
@@ -1122,9 +1135,9 @@ function gc_get_attachment_image_url( $attachment_id, $size = 'thumbnail', $icon
 }
 
 /**
- * Get the attachment path relative to the upload directory.
+ * Gets the attachment path relative to the upload directory.
  *
- *
+ * @since 4.4.1
  * @access private
  *
  * @param string $file Attachment file name.
@@ -1137,7 +1150,7 @@ function _gc_get_attachment_relative_path( $file ) {
 		return '';
 	}
 
-	if ( false !== strpos( $dirname, 'gc-content/uploads' ) ) {
+	if ( str_contains( $dirname, 'gc-content/uploads' ) ) {
 		// Get the directory name relative to the upload directory (back compat for pre-2.7 uploads).
 		$dirname = substr( $dirname, strpos( $dirname, 'gc-content/uploads' ) + 18 );
 		$dirname = ltrim( $dirname, '/' );
@@ -1147,10 +1160,9 @@ function _gc_get_attachment_relative_path( $file ) {
 }
 
 /**
- * Get the image size as array from its meta data.
+ * Gets the image size as array from its meta data.
  *
  * Used for responsive images.
- *
  *
  * @access private
  *
@@ -1181,8 +1193,6 @@ function _gc_get_image_size_from_meta( $size_name, $image_meta ) {
 
 /**
  * Retrieves the value for an image attachment's 'srcset' attribute.
- *
- *
  *
  * @see gc_calculate_image_srcset()
  *
@@ -1216,8 +1226,6 @@ function gc_get_attachment_image_srcset( $attachment_id, $size = 'medium', $imag
 /**
  * A helper function to calculate the image sources to include in a 'srcset' attribute.
  *
- *
- *
  * @param int[]  $size_array    {
  *     An array of width and height values.
  *
@@ -1231,8 +1239,9 @@ function gc_get_attachment_image_srcset( $attachment_id, $size = 'medium', $imag
  */
 function gc_calculate_image_srcset( $size_array, $image_src, $image_meta, $attachment_id = 0 ) {
 	/**
-	 * Let plugins pre-filter the image meta to be able to fix inconsistencies in the stored data.
+	 * Pre-filters the image meta to be able to fix inconsistencies in the stored data.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param array  $image_meta    The image meta data as returned by 'gc_get_attachment_metadata()'.
 	 * @param int[]  $size_array    {
@@ -1274,7 +1283,7 @@ function gc_calculate_image_srcset( $size_array, $image_src, $image_meta, $attac
 			'height' => $image_meta['height'],
 			'file'   => $image_basename,
 		);
-	} elseif ( strpos( $image_src, $image_meta['file'] ) ) {
+	} elseif ( str_contains( $image_src, $image_meta['file'] ) ) {
 		return false;
 	}
 
@@ -1292,7 +1301,7 @@ function gc_calculate_image_srcset( $size_array, $image_src, $image_meta, $attac
 	 * If currently on HTTPS, prefer HTTPS URLs when we know they're supported by the domain
 	 * (which is to say, when they share the domain name of the current request).
 	 */
-	if ( is_ssl() && 'https' !== substr( $image_baseurl, 0, 5 ) && parse_url( $image_baseurl, PHP_URL_HOST ) === $_SERVER['HTTP_HOST'] ) {
+	if ( is_ssl() && ! str_starts_with( $image_baseurl, 'https' ) && parse_url( $image_baseurl, PHP_URL_HOST ) === $_SERVER['HTTP_HOST'] ) {
 		$image_baseurl = set_url_scheme( $image_baseurl, 'https' );
 	}
 
@@ -1306,6 +1315,7 @@ function gc_calculate_image_srcset( $size_array, $image_src, $image_meta, $attac
 	/**
 	 * Filters the maximum image width to be included in a 'srcset' attribute.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param int   $max_width  The maximum image width to be included in the 'srcset'. Default '2048'.
 	 * @param int[] $size_array {
@@ -1340,7 +1350,7 @@ function gc_calculate_image_srcset( $size_array, $image_src, $image_meta, $attac
 		}
 
 		// If the file name is part of the `src`, we've confirmed a match.
-		if ( ! $src_matched && false !== strpos( $image_src, $dirname . $image['file'] ) ) {
+		if ( ! $src_matched && str_contains( $image_src, $dirname . $image['file'] ) ) {
 			$src_matched = true;
 			$is_src      = true;
 		}
@@ -1379,6 +1389,7 @@ function gc_calculate_image_srcset( $size_array, $image_src, $image_meta, $attac
 	/**
 	 * Filters an image's 'srcset' sources.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array  $sources {
 	 *     One or more arrays of source data to include in the 'srcset'.
@@ -1420,8 +1431,6 @@ function gc_calculate_image_srcset( $size_array, $image_src, $image_meta, $attac
 /**
  * Retrieves the value for an image attachment's 'sizes' attribute.
  *
- *
- *
  * @see gc_calculate_image_sizes()
  *
  * @param int          $attachment_id Image attachment ID.
@@ -1453,8 +1462,6 @@ function gc_get_attachment_image_sizes( $attachment_id, $size = 'medium', $image
 
 /**
  * Creates a 'sizes' attribute value for an image.
- *
- *
  *
  * @param string|int[] $size          Image size. Accepts any registered image size name, or an array of
  *                                    width and height values in pixels (in that order).
@@ -1493,6 +1500,7 @@ function gc_calculate_image_sizes( $size, $image_src = null, $image_meta = null,
 	/**
 	 * Filters the output of 'gc_calculate_image_sizes()'.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string       $sizes         A source size value for use in a 'sizes' attribute.
 	 * @param string|int[] $size          Requested image size. Can be any registered image size name, or
@@ -1512,7 +1520,7 @@ function gc_calculate_image_sizes( $size, $image_src = null, $image_meta = null,
  * attachment post IDs that are in post_content for the exported website may not match
  * the same attachments at the new website.
  *
- *
+ * @since 5.5.0
  *
  * @param string $image_location The full path or URI to the image file.
  * @param array  $image_meta     The attachment meta data as returned by 'gc_get_attachment_metadata()'.
@@ -1524,7 +1532,7 @@ function gc_image_file_matches_image_meta( $image_location, $image_meta, $attach
 
 	// Ensure the $image_meta is valid.
 	if ( isset( $image_meta['file'] ) && strlen( $image_meta['file'] ) > 4 ) {
-		// Remove quiery args if image URI.
+		// Remove query args in image URI.
 		list( $image_location ) = explode( '?', $image_location );
 
 		// Check if the relative image path from the image meta is at the end of $image_location.
@@ -1562,6 +1570,7 @@ function gc_image_file_matches_image_meta( $image_location, $image_meta, $attach
 	/**
 	 * Filters whether an image path or URI matches image meta.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param bool   $match          Whether the image relative path from the image meta
 	 *                               matches the end of the URI or path to the image file.
@@ -1575,7 +1584,7 @@ function gc_image_file_matches_image_meta( $image_location, $image_meta, $attach
 /**
  * Determines an image's width and height dimensions based on the source file.
  *
- *
+ * @since 5.5.0
  *
  * @param string $image_src     The image source file.
  * @param array  $image_meta    The image meta data as returned by 'gc_get_attachment_metadata()'.
@@ -1589,7 +1598,7 @@ function gc_image_src_get_dimensions( $image_src, $image_meta, $attachment_id = 
 	// Is it a full size image?
 	if (
 		isset( $image_meta['file'] ) &&
-		strpos( $image_src, gc_basename( $image_meta['file'] ) ) !== false
+		str_contains( $image_src, gc_basename( $image_meta['file'] ) )
 	) {
 		$dimensions = array(
 			(int) $image_meta['width'],
@@ -1615,6 +1624,7 @@ function gc_image_src_get_dimensions( $image_src, $image_meta, $attachment_id = 
 	/**
 	 * Filters the 'gc_image_src_get_dimensions' value.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param array|false $dimensions    Array with first element being the width
 	 *                                   and second element being the height, or
@@ -1629,8 +1639,6 @@ function gc_image_src_get_dimensions( $image_src, $image_meta, $attachment_id = 
 
 /**
  * Adds 'srcset' and 'sizes' attributes to an existing 'img' element.
- *
- *
  *
  * @see gc_calculate_image_srcset()
  * @see gc_calculate_image_sizes()
@@ -1656,7 +1664,7 @@ function gc_image_add_srcset_and_sizes( $image, $image_meta, $attachment_id ) {
 
 	// Bail early if an image has been inserted and later edited.
 	if ( preg_match( '/-e[0-9]{13}/', $image_meta['file'], $img_edit_hash ) &&
-		strpos( gc_basename( $image_src ), $img_edit_hash[0] ) === false ) {
+		 ! str_contains( gc_basename( $image_src ), $img_edit_hash[0] ) ) {
 
 		return $image;
 	}
@@ -1702,8 +1710,8 @@ function gc_image_add_srcset_and_sizes( $image, $image_meta, $attachment_id ) {
 /**
  * Determines whether to add the `loading` attribute to the specified tag in the specified context.
  *
- *
- *
+ * @since 5.5.0
+ * @since 5.7.0 Now returns `true` by default for `iframe` tags.
  *
  * @param string $tag_name The tag name.
  * @param string $context  Additional context, like the current filter name
@@ -1711,14 +1719,17 @@ function gc_image_add_srcset_and_sizes( $image, $image_meta, $attachment_id ) {
  * @return bool Whether to add the attribute.
  */
 function gc_lazy_loading_enabled( $tag_name, $context ) {
-	// By default add to all 'img' and 'iframe' tags.
-	// See https://html.spec.whatwg.org/multipage/embedded-content.html#attr-img-loading
-	// See https://html.spec.whatwg.org/multipage/iframe-embed-object.html#attr-iframe-loading
+	/*
+	 * By default add to all 'img' and 'iframe' tags.
+	 * See https://html.spec.whatwg.org/multipage/embedded-content.html#attr-img-loading
+	 * See https://html.spec.whatwg.org/multipage/iframe-embed-object.html#attr-iframe-loading
+	 */
 	$default = ( 'img' === $tag_name || 'iframe' === $tag_name );
 
 	/**
 	 * Filters whether to add the `loading` attribute to the specified tag in the specified context.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param bool   $default  Default value.
 	 * @param string $tag_name The tag name.
@@ -1737,12 +1748,12 @@ function gc_lazy_loading_enabled( $tag_name, $context ) {
  * as adding `loading` attributes to `iframe` HTML tags.
  * Future similar optimizations should be added/expected here.
  *
- *
- *
+ * @since 5.5.0
+ * @since 5.7.0 Now supports adding `loading` attributes to `iframe` tags.
  *
  * @see gc_img_tag_add_width_and_height_attr()
  * @see gc_img_tag_add_srcset_and_sizes_attr()
- * @see gc_img_tag_add_loading_attr()
+ * @see gc_img_tag_add_loading_optimization_attrs()
  * @see gc_iframe_tag_add_loading_attr()
  *
  * @param string $content The HTML content to be filtered.
@@ -1755,7 +1766,6 @@ function gc_filter_content_tags( $content, $context = null ) {
 		$context = current_filter();
 	}
 
-	$add_img_loading_attr    = gc_lazy_loading_enabled( 'img', $context );
 	$add_iframe_loading_attr = gc_lazy_loading_enabled( 'iframe', $context );
 
 	if ( ! preg_match_all( '/<(img|iframe)\s[^>]+>/', $content, $matches, PREG_SET_ORDER ) ) {
@@ -1777,8 +1787,10 @@ function gc_filter_content_tags( $content, $context = null ) {
 					$attachment_id = absint( $class_id[1] );
 
 					if ( $attachment_id ) {
-						// If exactly the same image tag is used more than once, overwrite it.
-						// All identical tags will be replaced later with 'str_replace()'.
+						/*
+						 * If exactly the same image tag is used more than once, overwrite it.
+						 * All identical tags will be replaced later with 'str_replace()'.
+						 */
 						$images[ $tag ] = $attachment_id;
 						break;
 					}
@@ -1810,18 +1822,21 @@ function gc_filter_content_tags( $content, $context = null ) {
 			$attachment_id  = $images[ $match[0] ];
 
 			// Add 'width' and 'height' attributes if applicable.
-			if ( $attachment_id > 0 && false === strpos( $filtered_image, ' width=' ) && false === strpos( $filtered_image, ' height=' ) ) {
+			if ( $attachment_id > 0 && ! str_contains( $filtered_image, ' width=' ) && ! str_contains( $filtered_image, ' height=' ) ) {
 				$filtered_image = gc_img_tag_add_width_and_height_attr( $filtered_image, $context, $attachment_id );
 			}
 
 			// Add 'srcset' and 'sizes' attributes if applicable.
-			if ( $attachment_id > 0 && false === strpos( $filtered_image, ' srcset=' ) ) {
+			if ( $attachment_id > 0 && ! str_contains( $filtered_image, ' srcset=' ) ) {
 				$filtered_image = gc_img_tag_add_srcset_and_sizes_attr( $filtered_image, $context, $attachment_id );
 			}
 
-			// Add 'loading' attribute if applicable.
-			if ( $add_img_loading_attr && false === strpos( $filtered_image, ' loading=' ) ) {
-				$filtered_image = gc_img_tag_add_loading_attr( $filtered_image, $context );
+			// Add loading optimization attributes if applicable.
+			$filtered_image = gc_img_tag_add_loading_optimization_attrs( $filtered_image, $context );
+
+			// Add 'decoding=async' attribute unless a 'decoding' attribute is already present.
+			if ( ! str_contains( $filtered_image, ' decoding=' ) ) {
+				$filtered_image = gc_img_tag_add_decoding_attr( $filtered_image, $context );
 			}
 
 			/**
@@ -1838,6 +1853,12 @@ function gc_filter_content_tags( $content, $context = null ) {
 			if ( $filtered_image !== $match[0] ) {
 				$content = str_replace( $match[0], $filtered_image, $content );
 			}
+
+			/*
+			 * Unset image lookup to not run the same logic again unnecessarily if the same image tag is used more than
+			 * once in the same blob of content.
+			 */
+			unset( $images[ $match[0] ] );
 		}
 
 		// Filter an iframe match.
@@ -1845,13 +1866,19 @@ function gc_filter_content_tags( $content, $context = null ) {
 			$filtered_iframe = $match[0];
 
 			// Add 'loading' attribute if applicable.
-			if ( $add_iframe_loading_attr && false === strpos( $filtered_iframe, ' loading=' ) ) {
+			if ( $add_iframe_loading_attr && ! str_contains( $filtered_iframe, ' loading=' ) ) {
 				$filtered_iframe = gc_iframe_tag_add_loading_attr( $filtered_iframe, $context );
 			}
 
 			if ( $filtered_iframe !== $match[0] ) {
 				$content = str_replace( $match[0], $filtered_iframe, $content );
 			}
+
+			/*
+			 * Unset iframe lookup to not run the same logic again unnecessarily if the same iframe tag is used more
+			 * than once in the same blob of content.
+			 */
+			unset( $iframes[ $match[0] ] );
 		}
 	}
 
@@ -1859,44 +1886,150 @@ function gc_filter_content_tags( $content, $context = null ) {
 }
 
 /**
- * Adds `loading` attribute to an `img` HTML tag.
+ * Adds optimization attributes to an `img` HTML tag.
  *
- *
+ * @since 6.3.0
  *
  * @param string $image   The HTML `img` tag where the attribute should be added.
  * @param string $context Additional context to pass to the filters.
- * @return string Converted `img` tag with `loading` attribute added.
+ * @return string Converted `img` tag with optimization attributes added.
  */
-function gc_img_tag_add_loading_attr( $image, $context ) {
-	// Get loading attribute value to use. This must occur before the conditional check below so that even images that
-	// are ineligible for being lazy-loaded are considered.
-	$value = gc_get_loading_attr_default( $context );
+function gc_img_tag_add_loading_optimization_attrs( $image, $context ) {
+	$width             = preg_match( '/ width=["\']([0-9]+)["\']/', $image, $match_width ) ? (int) $match_width[1] : null;
+	$height            = preg_match( '/ height=["\']([0-9]+)["\']/', $image, $match_height ) ? (int) $match_height[1] : null;
+	$loading_val       = preg_match( '/ loading=["\']([A-Za-z]+)["\']/', $image, $match_loading ) ? $match_loading[1] : null;
+	$fetchpriority_val = preg_match( '/ fetchpriority=["\']([A-Za-z]+)["\']/', $image, $match_fetchpriority ) ? $match_fetchpriority[1] : null;
 
-	// Images should have source and dimension attributes for the `loading` attribute to be added.
-	if ( false === strpos( $image, ' src="' ) || false === strpos( $image, ' width="' ) || false === strpos( $image, ' height="' ) ) {
+	/*
+	 * Get loading optimization attributes to use.
+	 * This must occur before the conditional check below so that even images
+	 * that are ineligible for being lazy-loaded are considered.
+	 */
+	$optimization_attrs = gc_get_loading_optimization_attributes(
+		'img',
+		array(
+			'width'         => $width,
+			'height'        => $height,
+			'loading'       => $loading_val,
+			'fetchpriority' => $fetchpriority_val,
+		),
+		$context
+	);
+
+	// Images should have source and dimension attributes for the loading optimization attributes to be added.
+	if ( ! str_contains( $image, ' src="' ) || ! str_contains( $image, ' width="' ) || ! str_contains( $image, ' height="' ) ) {
+		return $image;
+	}
+
+	// Retained for backward compatibility.
+	$loading_attrs_enabled = gc_lazy_loading_enabled( 'img', $context );
+
+	if ( empty( $loading_val ) && $loading_attrs_enabled ) {
+		/**
+		 * Filters the `loading` attribute value to add to an image. Default `lazy`.
+		 *
+		 * Returning `false` or an empty string will not add the attribute.
+		 * Returning `true` will add the default value.
+		 *
+		 * @since 5.5.0
+		 *
+		 * @param string|bool $value   The `loading` attribute value. Returning a falsey value will result in
+		 *                             the attribute being omitted for the image.
+		 * @param string      $image   The HTML `img` tag to be filtered.
+		 * @param string      $context Additional context about how the function was called or where the img tag is.
+		 */
+		$filtered_loading_attr = apply_filters(
+			'gc_img_tag_add_loading_attr',
+			isset( $optimization_attrs['loading'] ) ? $optimization_attrs['loading'] : false,
+			$image,
+			$context
+		);
+
+		// Validate the values after filtering.
+		if ( isset( $optimization_attrs['loading'] ) && ! $filtered_loading_attr ) {
+			// Unset `loading` attributes if `$filtered_loading_attr` is set to `false`.
+			unset( $optimization_attrs['loading'] );
+		} elseif ( in_array( $filtered_loading_attr, array( 'lazy', 'eager' ), true ) ) {
+			/*
+			 * If the filter changed the loading attribute to "lazy" when a fetchpriority attribute
+			 * with value "high" is already present, trigger a warning since those two attribute
+			 * values should be mutually exclusive.
+			 *
+			 * The same warning is present in `gc_get_loading_optimization_attributes()`, and here it
+			 * is only intended for the specific scenario where the above filtered caused the problem.
+			 */
+			if ( isset( $optimization_attrs['fetchpriority'] ) && 'high' === $optimization_attrs['fetchpriority'] &&
+				( isset( $optimization_attrs['loading'] ) ? $optimization_attrs['loading'] : false ) !== $filtered_loading_attr &&
+				'lazy' === $filtered_loading_attr
+			) {
+				_doing_it_wrong(
+					__FUNCTION__,
+					__( '图像不应延迟加载，同时标记为高优先级。' ),
+					'6.3.0'
+				);
+			}
+
+			// The filtered value will still be respected.
+			$optimization_attrs['loading'] = $filtered_loading_attr;
+		}
+
+		if ( ! empty( $optimization_attrs['loading'] ) ) {
+			$image = str_replace( '<img', '<img loading="' . esc_attr( $optimization_attrs['loading'] ) . '"', $image );
+		}
+	}
+
+	if ( empty( $fetchpriority_val ) && ! empty( $optimization_attrs['fetchpriority'] ) ) {
+		$image = str_replace( '<img', '<img fetchpriority="' . esc_attr( $optimization_attrs['fetchpriority'] ) . '"', $image );
+	}
+
+	return $image;
+}
+
+/**
+ * Adds `decoding` attribute to an `img` HTML tag.
+ *
+ * The `decoding` attribute allows developers to indicate whether the
+ * browser can decode the image off the main thread (`async`), on the
+ * main thread (`sync`) or as determined by the browser (`auto`).
+ *
+ * By default GeChiUI adds `decoding="async"` to images but developers
+ * can use the {@see 'gc_img_tag_add_decoding_attr'} filter to modify this
+ * to remove the attribute or set it to another accepted value.
+ *
+ * @since 6.1.0
+ *
+ * @param string $image   The HTML `img` tag where the attribute should be added.
+ * @param string $context Additional context to pass to the filters.
+ *
+ * @return string Converted `img` tag with `decoding` attribute added.
+ */
+function gc_img_tag_add_decoding_attr( $image, $context ) {
+	/*
+	 * Only apply the decoding attribute to images that have a src attribute that
+	 * starts with a double quote, ensuring escaped JSON is also excluded.
+	 */
+	if ( ! str_contains( $image, ' src="' ) ) {
 		return $image;
 	}
 
 	/**
-	 * Filters the `loading` attribute value to add to an image. Default `lazy`.
+	 * Filters the `decoding` attribute value to add to an image. Default `async`.
 	 *
-	 * Returning `false` or an empty string will not add the attribute.
-	 * Returning `true` will add the default value.
+	 * Returning a falsey value will omit the attribute.
 	 *
+	 * @since 6.1.0
 	 *
-	 * @param string|bool $value   The `loading` attribute value. Returning a falsey value will result in
-	 *                             the attribute being omitted for the image.
-	 * @param string      $image   The HTML `img` tag to be filtered.
-	 * @param string      $context Additional context about how the function was called or where the img tag is.
+	 * @param string|false|null $value   The `decoding` attribute value. Returning a falsey value
+	 *                                   will result in the attribute being omitted for the image.
+	 *                                   Otherwise, it may be: 'async' (default), 'sync', or 'auto'.
+	 * @param string            $image   The HTML `img` tag to be filtered.
+	 * @param string            $context Additional context about how the function was called
+	 *                                   or where the img tag is.
 	 */
-	$value = apply_filters( 'gc_img_tag_add_loading_attr', $value, $image, $context );
+	$value = apply_filters( 'gc_img_tag_add_decoding_attr', 'async', $image, $context );
 
-	if ( $value ) {
-		if ( ! in_array( $value, array( 'lazy', 'eager' ), true ) ) {
-			$value = 'lazy';
-		}
-
-		return str_replace( '<img', '<img loading="' . esc_attr( $value ) . '"', $image );
+	if ( in_array( $value, array( 'async', 'sync', 'auto' ), true ) ) {
+		$image = str_replace( '<img ', '<img decoding="' . esc_attr( $value ) . '" ', $image );
 	}
 
 	return $image;
@@ -1905,7 +2038,7 @@ function gc_img_tag_add_loading_attr( $image, $context ) {
 /**
  * Adds `width` and `height` attributes to an `img` HTML tag.
  *
- *
+ * @since 5.5.0
  *
  * @param string $image         The HTML `img` tag where the attribute should be added.
  * @param string $context       Additional context to pass to the filters.
@@ -1926,6 +2059,7 @@ function gc_img_tag_add_width_and_height_attr( $image, $context, $attachment_id 
 	 *
 	 * Returning anything else than `true` will not add the attributes.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param bool   $value         The filtered value, defaults to `true`.
 	 * @param string $image         The HTML `img` tag where the attribute should be added.
@@ -1950,7 +2084,7 @@ function gc_img_tag_add_width_and_height_attr( $image, $context, $attachment_id 
 /**
  * Adds `srcset` and `sizes` attributes to an existing `img` HTML tag.
  *
- *
+ * @since 5.5.0
  *
  * @param string $image         The HTML `img` tag where the attribute should be added.
  * @param string $context       Additional context to pass to the filters.
@@ -1963,6 +2097,7 @@ function gc_img_tag_add_srcset_and_sizes_attr( $image, $context, $attachment_id 
 	 *
 	 * Returning anything else than `true` will not add the attributes.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param bool   $value         The filtered value, defaults to `true`.
 	 * @param string $image         The HTML `img` tag where the attribute should be added.
@@ -1982,27 +2117,48 @@ function gc_img_tag_add_srcset_and_sizes_attr( $image, $context, $attachment_id 
 /**
  * Adds `loading` attribute to an `iframe` HTML tag.
  *
- *
+ * @since 5.7.0
  *
  * @param string $iframe  The HTML `iframe` tag where the attribute should be added.
  * @param string $context Additional context to pass to the filters.
  * @return string Converted `iframe` tag with `loading` attribute added.
  */
 function gc_iframe_tag_add_loading_attr( $iframe, $context ) {
-	// Iframes with fallback content (see `gc_filter_oembed_result()`) should not be lazy-loaded because they are
-	// visually hidden initially.
-	if ( false !== strpos( $iframe, ' data-secret="' ) ) {
+	/*
+	 * Iframes with fallback content (see `gc_filter_oembed_result()`) should not be lazy-loaded because they are
+	 * visually hidden initially.
+	 */
+	if ( str_contains( $iframe, ' data-secret="' ) ) {
 		return $iframe;
 	}
 
-	// Get loading attribute value to use. This must occur before the conditional check below so that even iframes that
-	// are ineligible for being lazy-loaded are considered.
-	$value = gc_get_loading_attr_default( $context );
+	/*
+	 * Get loading attribute value to use. This must occur before the conditional check below so that even iframes that
+	 * are ineligible for being lazy-loaded are considered.
+	 */
+	$optimization_attrs = gc_get_loading_optimization_attributes(
+		'iframe',
+		array(
+			/*
+			 * The concrete values for width and height are not important here for now
+			 * since fetchpriority is not yet supported for iframes.
+			 * TODO: Use GC_HTML_Tag_Processor to extract actual values once support is
+			 * added.
+			 */
+			'width'   => str_contains( $iframe, ' width="' ) ? 100 : null,
+			'height'  => str_contains( $iframe, ' height="' ) ? 100 : null,
+			// This function is never called when a 'loading' attribute is already present.
+			'loading' => null,
+		),
+		$context
+	);
 
 	// Iframes should have source and dimension attributes for the `loading` attribute to be added.
-	if ( false === strpos( $iframe, ' src="' ) || false === strpos( $iframe, ' width="' ) || false === strpos( $iframe, ' height="' ) ) {
+	if ( ! str_contains( $iframe, ' src="' ) || ! str_contains( $iframe, ' width="' ) || ! str_contains( $iframe, ' height="' ) ) {
 		return $iframe;
 	}
+
+	$value = isset( $optimization_attrs['loading'] ) ? $optimization_attrs['loading'] : false;
 
 	/**
 	 * Filters the `loading` attribute value to add to an iframe. Default `lazy`.
@@ -2010,6 +2166,7 @@ function gc_iframe_tag_add_loading_attr( $iframe, $context ) {
 	 * Returning `false` or an empty string will not add the attribute.
 	 * Returning `true` will add the default value.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param string|bool $value   The `loading` attribute value. Returning a falsey value will result in
 	 *                             the attribute being omitted for the iframe.
@@ -2037,7 +2194,6 @@ function gc_iframe_tag_add_loading_attr( $iframe, $context ) {
  *
  * @ignore
  *
- *
  * @param string[] $attr Array of thumbnail attributes including src, class, alt, title, keyed by attribute name.
  * @return string[] Modified array of attributes including the new 'gc-post-image' class.
  */
@@ -2052,7 +2208,6 @@ function _gc_post_thumbnail_class_filter( $attr ) {
  *
  * @ignore
  *
- *
  * @param string[] $attr Array of thumbnail attributes including src, class, alt, title, keyed by attribute name.
  */
 function _gc_post_thumbnail_class_filter_add( $attr ) {
@@ -2065,11 +2220,51 @@ function _gc_post_thumbnail_class_filter_add( $attr ) {
  *
  * @ignore
  *
- *
  * @param string[] $attr Array of thumbnail attributes including src, class, alt, title, keyed by attribute name.
  */
 function _gc_post_thumbnail_class_filter_remove( $attr ) {
 	remove_filter( 'gc_get_attachment_image_attributes', '_gc_post_thumbnail_class_filter' );
+}
+
+/**
+ * Overrides the context used in {@see gc_get_attachment_image()}. Internal use only.
+ *
+ * Uses the {@see 'begin_fetch_post_thumbnail_html'} and {@see 'end_fetch_post_thumbnail_html'}
+ * action hooks to dynamically add/remove itself so as to only filter post thumbnails.
+ *
+ * @ignore
+ * @since 6.3.0
+ * @access private
+ *
+ * @param string $context The context for rendering an attachment image.
+ * @return string Modified context set to 'the_post_thumbnail'.
+ */
+function _gc_post_thumbnail_context_filter( $context ) {
+	return 'the_post_thumbnail';
+}
+
+/**
+ * Adds the '_gc_post_thumbnail_context_filter' callback to the 'gc_get_attachment_image_context'
+ * filter hook. Internal use only.
+ *
+ * @ignore
+ * @since 6.3.0
+ * @access private
+ */
+function _gc_post_thumbnail_context_filter_add() {
+	add_filter( 'gc_get_attachment_image_context', '_gc_post_thumbnail_context_filter' );
+}
+
+/**
+ * Removes the '_gc_post_thumbnail_context_filter' callback from the 'gc_get_attachment_image_context'
+ * filter hook. Internal use only.
+ *
+ * @ignore
+ * @since 6.3.0
+ * @access private
+ */
+function _gc_post_thumbnail_context_filter_remove() {
+	remove_filter( 'gc_get_attachment_image_context', '_gc_post_thumbnail_context_filter' );
 }
 
 add_shortcode( 'gc_caption', 'img_caption_shortcode' );
@@ -2085,10 +2280,9 @@ add_shortcode( 'caption', 'img_caption_shortcode' );
  * The supported attributes for the shortcode are 'id', 'caption_id', 'align',
  * 'width', 'caption', and 'class'.
  *
- *
- *
- *
- *
+ * @since 3.9.0 The `class` attribute was added.
+ * @since 5.1.0 The `caption_id` attribute was added.
+ * @since 5.9.0 The `$content` parameter default value changed from `null` to `''`.
  *
  * @param array  $attr {
  *     Attributes of the caption shortcode.
@@ -2111,7 +2305,7 @@ function img_caption_shortcode( $attr, $content = '' ) {
 			$content         = $matches[1];
 			$attr['caption'] = trim( $matches[2] );
 		}
-	} elseif ( strpos( $attr['caption'], '<' ) !== false ) {
+	} elseif ( str_contains( $attr['caption'], '<' ) ) {
 		$attr['caption'] = gc_kses( $attr['caption'], 'post' );
 	}
 
@@ -2121,6 +2315,7 @@ function img_caption_shortcode( $attr, $content = '' ) {
 	 * If the filtered output isn't empty, it will be used instead of generating
 	 * the default caption template.
 	 *
+	 * @since 2.6.0
 	 *
 	 * @see img_caption_shortcode()
 	 *
@@ -2185,6 +2380,7 @@ function img_caption_shortcode( $attr, $content = '' ) {
 	 * By default, the caption is 10 pixels greater than the width of the image,
 	 * to prevent post content from running up against a floated image.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @see img_caption_shortcode()
 	 *
@@ -2240,8 +2436,18 @@ add_shortcode( 'gallery', 'gallery_shortcode' );
  *
  * This implements the functionality of the Gallery Shortcode for displaying
  * GeChiUI images on a post.
- *
- *
+ * Added the `$attr` parameter to set the shortcode output. New attributes included
+ *              such as `size`, `itemtag`, `icontag`, `captiontag`, and columns. Changed markup from
+ *              `div` tags to `dl`, `dt` and `dd` tags. Support more than one gallery on the
+ *              same page. Added support for `include` and `exclude` to shortcode. Use get_post() instead of global `$post`. Handle mapping of `ids` to `include`
+ *              and `orderby`. Added validation for tags used in gallery shortcode. Add orientation information to items. Introduced the `link` attribute.
+ * @since 3.9.0 `html5` gallery support, accepting 'itemtag', 'icontag', and 'captiontag' attributes.
+ * @since 4.0.0 Removed use of `extract()`.
+ * @since 4.1.0 Added attribute to `gc_get_attachment_link()` to output `aria-describedby`. Passed the shortcode instance ID to `post_gallery` and `post_playlist` filters. Standardized filter docs to match documentation standards for PHP.
+ * @since 5.1.0 Code cleanup for GCCS 1.0.0 coding standards.
+ * @since 5.3.0 Saved progress of intermediate image creation after upload.
+ * @since 5.5.0 Ensured that galleries can be output as a list of links in feeds. Replaced order-style PHP type conversion functions with typecasts. Fix logic for
+ *              an array of image dimensions.
  *
  * @param array $attr {
  *     Attributes of the gallery shortcode.
@@ -2287,6 +2493,7 @@ function gallery_shortcode( $attr ) {
 	 * If the filtered output isn't empty, it will be used instead of generating
 	 * the default gallery template.
 	 *
+	 * @since 4.2.0 The `$instance` parameter was added.
 	 *
 	 * @see gallery_shortcode()
 	 *
@@ -2505,7 +2712,7 @@ function gallery_shortcode( $attr ) {
 /**
  * Outputs the templates used by playlists.
  *
- *
+ * @since 3.9.0
  */
 function gc_underscore_playlist_templates() {
 	?>
@@ -2515,10 +2722,14 @@ function gc_underscore_playlist_templates() {
 	<# } #>
 	<div class="gc-playlist-caption">
 		<span class="gc-playlist-item-meta gc-playlist-item-title">
-		<?php
-			/* translators: %s: Playlist item title. */
-			printf( _x( '“%s”', 'playlist item title' ), '{{ data.title }}' );
-		?>
+			<# if ( data.meta.album || data.meta.artist ) { #>
+				<?php
+				/* translators: %s: Playlist item title. */
+				printf( _x( '“%s”', 'playlist item title' ), '{{ data.title }}' );
+				?>
+			<# } else { #>
+				{{ data.title }}
+			<# } #>
 		</span>
 		<# if ( data.meta.album ) { #><span class="gc-playlist-item-meta gc-playlist-item-album">{{ data.meta.album }}</span><# } #>
 		<# if ( data.meta.artist ) { #><span class="gc-playlist-item-meta gc-playlist-item-artist">{{ data.meta.artist }}</span><# } #>
@@ -2531,14 +2742,16 @@ function gc_underscore_playlist_templates() {
 			<# if ( data.caption ) { #>
 				{{ data.caption }}
 			<# } else { #>
-				<span class="gc-playlist-item-title">
-				<?php
-					/* translators: %s: Playlist item title. */
-					printf( _x( '“%s”', 'playlist item title' ), '{{{ data.title }}}' );
-				?>
-				</span>
 				<# if ( data.artists && data.meta.artist ) { #>
-				<span class="gc-playlist-item-artist"> &mdash; {{ data.meta.artist }}</span>
+					<span class="gc-playlist-item-title">
+						<?php
+						/* translators: %s: Playlist item title. */
+						printf( _x( '“%s”', 'playlist item title' ), '{{{ data.title }}}' );
+						?>
+					</span>
+					<span class="gc-playlist-item-artist"> &mdash; {{ data.meta.artist }}</span>
+				<# } else { #>
+					<span class="gc-playlist-item-title">{{{ data.title }}}</span>
 				<# } #>
 			<# } #>
 		</a>
@@ -2551,9 +2764,9 @@ function gc_underscore_playlist_templates() {
 }
 
 /**
- * Outputs and enqueue default scripts and styles for playlists.
+ * Outputs and enqueues default scripts and styles for playlists.
  *
- *
+ * @since 3.9.0
  *
  * @param string $type Type of playlist. Accepts 'audio' or 'video'.
  */
@@ -2573,7 +2786,7 @@ function gc_playlist_scripts( $type ) {
  * This implements the functionality of the playlist shortcode for displaying
  * a collection of GeChiUI audio or video files in a post.
  *
- *
+ * @since 3.9.0
  *
  * @global int $content_width
  *
@@ -2624,6 +2837,7 @@ function gc_playlist_shortcode( $attr ) {
 	 * Returning a non-empty value from the filter will short-circuit generation
 	 * of the default playlist output, returning the passed value instead.
 	 *
+	 * @since 4.2.0 The `$instance` parameter was added.
 	 *
 	 * @param string $output   Playlist output. Default empty.
 	 * @param array  $attr     An array of shortcode attributes.
@@ -2784,6 +2998,7 @@ function gc_playlist_shortcode( $attr ) {
 		/**
 		 * Prints and enqueues playlist scripts, styles, and JavaScript templates.
 		 *
+		 * @since 3.9.0
 		 *
 		 * @param string $type  Type of playlist. Possible values are 'audio' or 'video'.
 		 * @param string $style The 'theme' for the playlist. Core provides 'light' and 'dark'.
@@ -2823,8 +3038,6 @@ add_shortcode( 'playlist', 'gc_playlist_shortcode' );
 /**
  * Provides a No-JS Flash fallback as a last resort for audio / video.
  *
- *
- *
  * @param string $url The media element URL.
  * @return string Fallback HTML.
  */
@@ -2832,6 +3045,7 @@ function gc_mediaelement_fallback( $url ) {
 	/**
 	 * Filters the Mediaelement fallback output for no-JS.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param string $output Fallback output for no-JS.
 	 * @param string $url    Media file URL.
@@ -2842,14 +3056,13 @@ function gc_mediaelement_fallback( $url ) {
 /**
  * Returns a filtered list of supported audio formats.
  *
- *
- *
  * @return string[] Supported audio formats.
  */
 function gc_get_audio_extensions() {
 	/**
 	 * Filters the list of supported audio formats.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param string[] $extensions An array of supported audio formats. Defaults are
 	 *                            'mp3', 'ogg', 'flac', 'm4a', 'wav'.
@@ -2860,7 +3073,7 @@ function gc_get_audio_extensions() {
 /**
  * Returns useful keys to use to lookup data from an attachment's stored metadata.
  *
- *
+ * @since 3.9.0
  *
  * @param GC_Post $attachment The current attachment, provided for context.
  * @param string  $context    Optional. The context. Accepts 'edit', 'display'. Default 'display'.
@@ -2897,8 +3110,6 @@ function gc_get_attachment_id3_keys( $attachment, $context = 'display' ) {
  * This implements the functionality of the Audio Shortcode for displaying
  * GeChiUI mp3s in a post.
  *
- *
- *
  * @param array  $attr {
  *     Attributes of the audio shortcode.
  *
@@ -2923,6 +3134,7 @@ function gc_audio_shortcode( $attr, $content = '' ) {
 	 *
 	 * If the filtered output isn't empty, it will be used instead of generating the default audio template.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param string $html     Empty variable to be replaced with shortcode markup.
 	 * @param array  $attr     Attributes of the shortcode. @see gc_audio_shortcode()
@@ -2994,6 +3206,7 @@ function gc_audio_shortcode( $attr, $content = '' ) {
 	/**
 	 * Filters the media library used for the audio shortcode.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param string $library Media library used for the audio shortcode.
 	 */
@@ -3007,6 +3220,8 @@ function gc_audio_shortcode( $attr, $content = '' ) {
 	/**
 	 * Filters the class attribute for the audio shortcode output container.
 	 *
+	 * @since 3.6.0
+	 * @since 4.9.0 The `$atts` parameter was added.
 	 *
 	 * @param string $class CSS class or list of space-separated classes.
 	 * @param array  $atts  Array of audio shortcode attributes.
@@ -3067,6 +3282,7 @@ function gc_audio_shortcode( $attr, $content = '' ) {
 	/**
 	 * Filters the audio shortcode output.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param string $html    Audio shortcode HTML output.
 	 * @param array  $atts    Array of audio shortcode attributes.
@@ -3081,14 +3297,13 @@ add_shortcode( 'audio', 'gc_audio_shortcode' );
 /**
  * Returns a filtered list of supported video formats.
  *
- *
- *
  * @return string[] List of supported video formats.
  */
 function gc_get_video_extensions() {
 	/**
 	 * Filters the list of supported video formats.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param string[] $extensions An array of supported video formats. Defaults are
 	 *                             'mp4', 'm4v', 'webm', 'ogv', 'flv'.
@@ -3102,8 +3317,6 @@ function gc_get_video_extensions() {
  * This implements the functionality of the Video Shortcode for displaying
  * GeChiUI mp4s in a post.
  *
- *
- *
  * @global int $content_width
  *
  * @param array  $attr {
@@ -3115,6 +3328,7 @@ function gc_get_video_extensions() {
  *     @type string $poster   The 'poster' attribute for the `<video>` element. Default empty.
  *     @type string $loop     The 'loop' attribute for the `<video>` element. Default empty.
  *     @type string $autoplay The 'autoplay' attribute for the `<video>` element. Default empty.
+ *     @type string $muted    The 'muted' attribute for the `<video>` element. Default false.
  *     @type string $preload  The 'preload' attribute for the `<video>` element.
  *                            Default 'metadata'.
  *     @type string $class    The 'class' attribute for the `<video>` element.
@@ -3136,6 +3350,7 @@ function gc_video_shortcode( $attr, $content = '' ) {
 	 * If the filtered output isn't empty, it will be used instead of generating
 	 * the default video template.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @see gc_video_shortcode()
 	 *
@@ -3158,6 +3373,7 @@ function gc_video_shortcode( $attr, $content = '' ) {
 		'poster'   => '',
 		'loop'     => '',
 		'autoplay' => '',
+		'muted'    => 'false',
 		'preload'  => 'metadata',
 		'width'    => 640,
 		'height'   => 360,
@@ -3185,16 +3401,16 @@ function gc_video_shortcode( $attr, $content = '' ) {
 	}
 
 	$is_vimeo      = false;
-	$is_youtube    = false;
-	$yt_pattern    = '#^https?://(?:www\.)?(?:youtube\.com/watch|youtu\.be/)#';
+	$is_youku    = false;
+	$yt_pattern    = '#^https?://(?:www\.)?(?:youku\.com/watch|youtu\.be/)#';
 	$vimeo_pattern = '#^https?://(.+\.)?vimeo\.com/.*#';
 
 	$primary = false;
 	if ( ! empty( $atts['src'] ) ) {
 		$is_vimeo   = ( preg_match( $vimeo_pattern, $atts['src'] ) );
-		$is_youtube = ( preg_match( $yt_pattern, $atts['src'] ) );
+		$is_youku = ( preg_match( $yt_pattern, $atts['src'] ) );
 
-		if ( ! $is_youtube && ! $is_vimeo ) {
+		if ( ! $is_youku && ! $is_vimeo ) {
 			$type = gc_check_filetype( $atts['src'], gc_get_mime_types() );
 
 			if ( ! in_array( strtolower( $type['ext'] ), $default_types, true ) ) {
@@ -3237,6 +3453,7 @@ function gc_video_shortcode( $attr, $content = '' ) {
 	/**
 	 * Filters the media library used for the video shortcode.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param string $library Media library used for the video shortcode.
 	 */
@@ -3247,10 +3464,12 @@ function gc_video_shortcode( $attr, $content = '' ) {
 		gc_enqueue_script( 'mediaelement-vimeo' );
 	}
 
-	// MediaElement.js has issues with some URL formats for Vimeo and YouTube,
-	// so update the URL to prevent the ME.js player from breaking.
+	/*
+	 * MediaElement.js has issues with some URL formats for Vimeo and YouKu,
+	 * so update the URL to prevent the ME.js player from breaking.
+	 */
 	if ( 'mediaelement' === $library ) {
-		if ( $is_youtube ) {
+		if ( $is_youku ) {
 			// Remove `feature` query arg and force SSL - see #40866.
 			$atts['src'] = remove_query_arg( 'feature', $atts['src'] );
 			$atts['src'] = set_url_scheme( $atts['src'], 'https' );
@@ -3268,6 +3487,8 @@ function gc_video_shortcode( $attr, $content = '' ) {
 	/**
 	 * Filters the class attribute for the video shortcode output container.
 	 *
+	 * @since 3.6.0
+	 * @since 4.9.0 The `$atts` parameter was added.
 	 *
 	 * @param string $class CSS class or list of space-separated classes.
 	 * @param array  $atts  Array of video shortcode attributes.
@@ -3282,11 +3503,12 @@ function gc_video_shortcode( $attr, $content = '' ) {
 		'poster'   => esc_url( $atts['poster'] ),
 		'loop'     => gc_validate_boolean( $atts['loop'] ),
 		'autoplay' => gc_validate_boolean( $atts['autoplay'] ),
+		'muted'    => gc_validate_boolean( $atts['muted'] ),
 		'preload'  => $atts['preload'],
 	);
 
 	// These ones should just be omitted altogether if they are blank.
-	foreach ( array( 'poster', 'loop', 'autoplay', 'preload' ) as $a ) {
+	foreach ( array( 'poster', 'loop', 'autoplay', 'preload', 'muted' ) as $a ) {
 		if ( empty( $html_atts[ $a ] ) ) {
 			unset( $html_atts[ $a ] );
 		}
@@ -3313,8 +3535,8 @@ function gc_video_shortcode( $attr, $content = '' ) {
 			if ( empty( $fileurl ) ) {
 				$fileurl = $atts[ $fallback ];
 			}
-			if ( 'src' === $fallback && $is_youtube ) {
-				$type = array( 'type' => 'video/youtube' );
+			if ( 'src' === $fallback && $is_youku ) {
+				$type = array( 'type' => 'video/youku' );
 			} elseif ( 'src' === $fallback && $is_vimeo ) {
 				$type = array( 'type' => 'video/vimeo' );
 			} else {
@@ -3326,7 +3548,7 @@ function gc_video_shortcode( $attr, $content = '' ) {
 	}
 
 	if ( ! empty( $content ) ) {
-		if ( false !== strpos( $content, "\n" ) ) {
+		if ( str_contains( $content, "\n" ) ) {
 			$content = str_replace( array( "\r\n", "\n", "\t" ), '', $content );
 		}
 		$html .= trim( $content );
@@ -3346,6 +3568,7 @@ function gc_video_shortcode( $attr, $content = '' ) {
 	/**
 	 * Filters the output of the video shortcode.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param string $output  Video shortcode HTML output.
 	 * @param array  $atts    Array of video shortcode attributes.
@@ -3360,7 +3583,7 @@ add_shortcode( 'video', 'gc_video_shortcode' );
 /**
  * Gets the previous image link that has the same post parent.
  *
- *
+ * @since 5.8.0
  *
  * @see get_adjacent_image_link()
  *
@@ -3376,8 +3599,6 @@ function get_previous_image_link( $size = 'thumbnail', $text = false ) {
 /**
  * Displays previous image link that has the same post parent.
  *
- *
- *
  * @param string|int[] $size Optional. Image size. Accepts any registered image size name, or an array
  *                           of width and height values in pixels (in that order). Default 'thumbnail'.
  * @param string|false $text Optional. Link text. Default false.
@@ -3389,7 +3610,7 @@ function previous_image_link( $size = 'thumbnail', $text = false ) {
 /**
  * Gets the next image link that has the same post parent.
  *
- *
+ * @since 5.8.0
  *
  * @see get_adjacent_image_link()
  *
@@ -3405,8 +3626,6 @@ function get_next_image_link( $size = 'thumbnail', $text = false ) {
 /**
  * Displays next image link that has the same post parent.
  *
- *
- *
  * @param string|int[] $size Optional. Image size. Accepts any registered image size name, or an array
  *                           of width and height values in pixels (in that order). Default 'thumbnail'.
  * @param string|false $text Optional. Link text. Default false.
@@ -3420,7 +3639,7 @@ function next_image_link( $size = 'thumbnail', $text = false ) {
  *
  * Retrieves the current attachment object from the $post global.
  *
- *
+ * @since 5.8.0
  *
  * @param bool         $prev Optional. Whether to display the next (false) or previous (true) link. Default true.
  * @param string|int[] $size Optional. Image size. Accepts any registered image size name, or an array
@@ -3475,6 +3694,7 @@ function get_adjacent_image_link( $prev = true, $size = 'thumbnail', $text = fal
 	 *  - `next_image_link`
 	 *  - `previous_image_link`
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param string $output        Adjacent image HTML markup.
 	 * @param int    $attachment_id Attachment ID
@@ -3490,8 +3710,6 @@ function get_adjacent_image_link( $prev = true, $size = 'thumbnail', $text = fal
  *
  * Retrieves the current attachment object from the $post global.
  *
- *
- *
  * @param bool         $prev Optional. Whether to display the next (false) or previous (true) link. Default true.
  * @param string|int[] $size Optional. Image size. Accepts any registered image size name, or an array
  *                           of width and height values in pixels (in that order). Default 'thumbnail'.
@@ -3503,9 +3721,7 @@ function adjacent_image_link( $prev = true, $size = 'thumbnail', $text = false )
 
 /**
  * Retrieves taxonomies attached to given the attachment.
- *
- *
- *
+ * Introduced the `$output` parameter.
  *
  * @param int|array|object $attachment Attachment ID, data array, or data object.
  * @param string           $output     Output type. 'names' to return an array of taxonomy names,
@@ -3529,14 +3745,14 @@ function get_attachment_taxonomies( $attachment, $output = 'names' ) {
 
 	$objects = array( 'attachment' );
 
-	if ( false !== strpos( $filename, '.' ) ) {
+	if ( str_contains( $filename, '.' ) ) {
 		$objects[] = 'attachment:' . substr( $filename, strrpos( $filename, '.' ) + 1 );
 	}
 
 	if ( ! empty( $attachment->post_mime_type ) ) {
 		$objects[] = 'attachment:' . $attachment->post_mime_type;
 
-		if ( false !== strpos( $attachment->post_mime_type, '/' ) ) {
+		if ( str_contains( $attachment->post_mime_type, '/' ) ) {
 			foreach ( explode( '/', $attachment->post_mime_type ) as $token ) {
 				if ( ! empty( $token ) ) {
 					$objects[] = "attachment:$token";
@@ -3567,8 +3783,6 @@ function get_attachment_taxonomies( $attachment, $output = 'names' ) {
  *
  * Handles mime-type-specific taxonomies such as attachment:image and attachment:video.
  *
- *
- *
  * @see get_taxonomies()
  *
  * @param string $output Optional. The type of taxonomy output to return. Accepts 'names' or 'objects'.
@@ -3580,7 +3794,7 @@ function get_taxonomies_for_attachments( $output = 'names' ) {
 
 	foreach ( get_taxonomies( array(), 'objects' ) as $taxonomy ) {
 		foreach ( $taxonomy->object_type as $object_type ) {
-			if ( 'attachment' === $object_type || 0 === strpos( $object_type, 'attachment:' ) ) {
+			if ( 'attachment' === $object_type || str_starts_with( $object_type, 'attachment:' ) ) {
 				if ( 'names' === $output ) {
 					$taxonomies[] = $taxonomy->name;
 				} else {
@@ -3598,18 +3812,16 @@ function get_taxonomies_for_attachments( $output = 'names' ) {
  * Determines whether the value is an acceptable type for GD image functions.
  *
  * In PHP 8.0, the GD extension uses GdImage objects for its data structures.
- * This function checks if the passed value is either a resource of type `gd`
- * or a GdImage object instance. Any other type will return false.
- *
- *
+ * This function checks if the passed value is either a GdImage object instance
+ * or a resource of type `gd`. Any other type will return false.
  *
  * @param resource|GdImage|false $image A value to check the type for.
- * @return bool True if $image is either a GD image resource or GdImage instance,
+ * @return bool True if `$image` is either a GD image resource or a GdImage instance,
  *              false otherwise.
  */
 function is_gd_image( $image ) {
-	if ( is_resource( $image ) && 'gd' === get_resource_type( $image )
-		|| is_object( $image ) && $image instanceof GdImage
+	if ( $image instanceof GdImage
+		|| is_resource( $image ) && 'gd' === get_resource_type( $image )
 	) {
 		return true;
 	}
@@ -3618,11 +3830,9 @@ function is_gd_image( $image ) {
 }
 
 /**
- * Create new GD image resource with transparency support
+ * Creates a new GD image resource with transparency support.
  *
  * @todo Deprecate if possible.
- *
- *
  *
  * @param int $width  Image width in pixels.
  * @param int $height Image height in pixels.
@@ -3643,9 +3853,7 @@ function gc_imagecreatetruecolor( $width, $height ) {
 }
 
 /**
- * Based on a supplied width/height example, return the biggest possible dimensions based on the max width/height.
- *
- *
+ * Based on a supplied width/height example, returns the biggest possible dimensions based on the max width/height.
  *
  * @see gc_constrain_dimensions()
  *
@@ -3672,8 +3880,6 @@ function gc_expand_dimensions( $example_width, $example_height, $max_width, $max
 /**
  * Determines the maximum upload size allowed in php.ini.
  *
- *
- *
  * @return int Allowed upload size.
  */
 function gc_max_upload_size() {
@@ -3694,8 +3900,6 @@ function gc_max_upload_size() {
 /**
  * Returns a GC_Image_Editor instance and loads file into it.
  *
- *
- *
  * @param string $path Path to the file to load.
  * @param array  $args Optional. Additional arguments for retrieving the image editor.
  *                     Default empty array.
@@ -3705,13 +3909,25 @@ function gc_max_upload_size() {
 function gc_get_image_editor( $path, $args = array() ) {
 	$args['path'] = $path;
 
+	// If the mime type is not set in args, try to extract and set it from the file.
 	if ( ! isset( $args['mime_type'] ) ) {
 		$file_info = gc_check_filetype( $args['path'] );
 
-		// If $file_info['type'] is false, then we let the editor attempt to
-		// figure out the file type, rather than forcing a failure based on extension.
+		/*
+		 * If $file_info['type'] is false, then we let the editor attempt to
+		 * figure out the file type, rather than forcing a failure based on extension.
+		 */
 		if ( isset( $file_info ) && $file_info['type'] ) {
 			$args['mime_type'] = $file_info['type'];
+		}
+	}
+
+	// Check and set the output mime type mapped to the input type.
+	if ( isset( $args['mime_type'] ) ) {
+		/** This filter is documented in gc-includes/class-gc-image-editor.php */
+		$output_format = apply_filters( 'image_editor_output_format', array(), $path, $args['mime_type'] );
+		if ( isset( $output_format[ $args['mime_type'] ] ) ) {
+			$args['output_mime_type'] = $output_format[ $args['mime_type'] ];
 		}
 	}
 
@@ -3734,8 +3950,6 @@ function gc_get_image_editor( $path, $args = array() ) {
 /**
  * Tests whether there is an editor that supports a given mime type or methods.
  *
- *
- *
  * @param string|array $args Optional. Array of arguments to retrieve the image editor supports.
  *                           Default empty array.
  * @return bool True if an eligible editor is found; false otherwise.
@@ -3749,7 +3963,6 @@ function gc_image_editor_supports( $args = array() ) {
  *
  * @ignore
  *
- *
  * @param array $args Optional. Array of arguments for choosing a capable editor. Default empty array.
  * @return string|false Class name for the first editor that claims to support the request.
  *                      False if no editor claims to support the request.
@@ -3761,17 +3974,20 @@ function _gc_image_editor_choose( $args = array() ) {
 	/**
 	 * Filters the list of image editing library classes.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param string[] $image_editors Array of available image editor class names. Defaults are
 	 *                                'GC_Image_Editor_Imagick', 'GC_Image_Editor_GD'.
 	 */
 	$implementations = apply_filters( 'gc_image_editors', array( 'GC_Image_Editor_Imagick', 'GC_Image_Editor_GD' ) );
+	$supports_input  = false;
 
 	foreach ( $implementations as $implementation ) {
 		if ( ! call_user_func( array( $implementation, 'test' ), $args ) ) {
 			continue;
 		}
 
+		// Implementation should support the passed mime type.
 		if ( isset( $args['mime_type'] ) &&
 			! call_user_func(
 				array( $implementation, 'supports_mime_type' ),
@@ -3780,28 +3996,44 @@ function _gc_image_editor_choose( $args = array() ) {
 			continue;
 		}
 
+		// Implementation should support requested methods.
 		if ( isset( $args['methods'] ) &&
 			array_diff( $args['methods'], get_class_methods( $implementation ) ) ) {
 
 			continue;
 		}
 
+		// Implementation should ideally support the output mime type as well if set and different than the passed type.
+		if (
+			isset( $args['mime_type'] ) &&
+			isset( $args['output_mime_type'] ) &&
+			$args['mime_type'] !== $args['output_mime_type'] &&
+			! call_user_func( array( $implementation, 'supports_mime_type' ), $args['output_mime_type'] )
+		) {
+			/*
+			 * This implementation supports the imput type but not the output type.
+			 * Keep looking to see if we can find an implementation that supports both.
+			 */
+			$supports_input = $implementation;
+			continue;
+		}
+
+		// Favor the implementation that supports both input and output mime types.
 		return $implementation;
 	}
 
-	return false;
+	return $supports_input;
 }
 
 /**
  * Prints default Plupload arguments.
- *
  *
  */
 function gc_plupload_default_settings() {
 	$gc_scripts = gc_scripts();
 
 	$data = $gc_scripts->get_data( 'gc-plupload', 'data' );
-	if ( $data && false !== strpos( $data, '_gcPluploadSettings' ) ) {
+	if ( $data && str_contains( $data, '_gcPluploadSettings' ) ) {
 		return;
 	}
 
@@ -3830,9 +4062,10 @@ function gc_plupload_default_settings() {
 	 * but iOS 7.x has a bug that prevents uploading of videos when enabled.
 	 * See #29602.
 	 */
-	if ( gc_is_mobile() && strpos( $_SERVER['HTTP_USER_AGENT'], 'OS 7_' ) !== false &&
-		strpos( $_SERVER['HTTP_USER_AGENT'], 'like Mac OS X' ) !== false ) {
-
+	if ( gc_is_mobile()
+		&& str_contains( $_SERVER['HTTP_USER_AGENT'], 'OS 7_' )
+		&& str_contains( $_SERVER['HTTP_USER_AGENT'], 'like Mac OS X' )
+	) {
 		$defaults['multi_selection'] = false;
 	}
 
@@ -3844,6 +4077,7 @@ function gc_plupload_default_settings() {
 	/**
 	 * Filters the Plupload default settings.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param array $defaults Default Plupload settings array.
 	 */
@@ -3856,6 +4090,7 @@ function gc_plupload_default_settings() {
 	/**
 	 * Filters the Plupload default parameters.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param array $params Default Plupload parameters array.
 	 */
@@ -3887,8 +4122,6 @@ function gc_plupload_default_settings() {
  * Prepares an attachment post object for JS, where it is expected
  * to be JSON-encoded and fit into an Attachment model.
  *
- *
- *
  * @param int|GC_Post $attachment Attachment ID or object.
  * @return array|void {
  *     Array of attachment details, or void if the parameter does not correspond to an attachment.
@@ -3907,7 +4140,7 @@ function gc_plupload_default_settings() {
  *     @type string $filesizeHumanReadable Filesize of the attachment in human readable format (e.g. 1 MB).
  *     @type int    $filesizeInBytes       Filesize of the attachment in bytes.
  *     @type int    $height                If the attachment is an image, represents the height of the image in pixels.
- *     @type string $icon                  Icon URL of the attachment (e.g. /gc-includes/images/media/archive.png).
+ *     @type string $icon                  Icon URL of the attachment (e.g. /assets/images/media/archive.png).
  *     @type int    $id                    ID of the attachment.
  *     @type string $link                  URL to the attachment.
  *     @type int    $menuOrder             Menu order of the attachment post.
@@ -3944,7 +4177,7 @@ function gc_prepare_attachment_for_js( $attachment ) {
 	}
 
 	$meta = gc_get_attachment_metadata( $attachment->ID );
-	if ( false !== strpos( $attachment->post_mime_type, '/' ) ) {
+	if ( str_contains( $attachment->post_mime_type, '/' ) ) {
 		list( $type, $subtype ) = explode( '/', $attachment->post_mime_type );
 	} else {
 		list( $type, $subtype ) = array( $attachment->post_mime_type, '' );
@@ -4039,7 +4272,7 @@ function gc_prepare_attachment_for_js( $attachment ) {
 				'thumbnail' => __( '缩略图' ),
 				'medium'    => __( '中等' ),
 				'large'     => __( '大' ),
-				'full'      => __( '全尺寸' ),
+				'full'      => __( '实际大小' ),
 			)
 		);
 		unset( $possible_sizes['full'] );
@@ -4070,8 +4303,10 @@ function gc_prepare_attachment_for_js( $attachment ) {
 				// Nothing from the filter, so consult image metadata if we have it.
 				$size_meta = $meta['sizes'][ $size ];
 
-				// We have the actual image size, but might need to further constrain it if content_width is narrower.
-				// Thumbnail, medium, and full sizes are also checked against the site's height/width options.
+				/*
+				 * We have the actual image size, but might need to further constrain it if content_width is narrower.
+				 * Thumbnail, medium, and full sizes are also checked against the site's height/width options.
+				 */
 				list( $width, $height ) = image_constrain_size_for_editor( $size_meta['width'], $size_meta['height'], $size, 'edit' );
 
 				$sizes[ $size ] = array(
@@ -4163,6 +4398,7 @@ function gc_prepare_attachment_for_js( $attachment ) {
 	/**
 	 * Filters the attachment data prepared for JavaScript.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param array       $response   Array of prepared attachment data. @see gc_prepare_attachment_for_js().
 	 * @param GC_Post     $attachment Attachment object.
@@ -4175,8 +4411,6 @@ function gc_prepare_attachment_for_js( $attachment ) {
  * Enqueues all scripts, styles, settings, and templates necessary to use
  * all media JS APIs.
  *
- *
- *
  * @global int       $content_width
  * @global gcdb      $gcdb          GeChiUI database abstraction object.
  * @global GC_Locale $gc_locale     GeChiUI date and time locale object.
@@ -4184,7 +4418,7 @@ function gc_prepare_attachment_for_js( $attachment ) {
  * @param array $args {
  *     Arguments for enqueuing media scripts.
  *
- *     @type int|GC_Post $post A post object or ID.
+ *     @type int|GC_Post $post Post ID or post object.
  * }
  */
 function gc_enqueue_media( $args = array() ) {
@@ -4200,8 +4434,10 @@ function gc_enqueue_media( $args = array() ) {
 	);
 	$args     = gc_parse_args( $args, $defaults );
 
-	// We're going to pass the old thickbox media tabs to `media_upload_tabs`
-	// to ensure plugins will work. We will then unset those tabs.
+	/*
+	 * We're going to pass the old thickbox media tabs to `media_upload_tabs`
+	 * to ensure plugins will work. We will then unset those tabs.
+	 */
 	$tabs = array(
 		// handler action suffix => tab label
 		'type'     => '',
@@ -4241,6 +4477,8 @@ function gc_enqueue_media( $args = array() ) {
 	 * was the default behavior prior to version 4.8.0, but this query is
 	 * expensive for large media libraries.
 	 *
+	 * @since 4.7.4
+	 * @since 4.8.0 The filter's default value is `true` rather than `null`.
 	 *
 	 * @link https://core.trac.gechiui.com/ticket/31071
 	 *
@@ -4250,13 +4488,11 @@ function gc_enqueue_media( $args = array() ) {
 	$show_audio_playlist = apply_filters( 'media_library_show_audio_playlist', true );
 	if ( null === $show_audio_playlist ) {
 		$show_audio_playlist = $gcdb->get_var(
-			"
-			SELECT ID
+			"SELECT ID
 			FROM $gcdb->posts
 			WHERE post_type = 'attachment'
 			AND post_mime_type LIKE 'audio%'
-			LIMIT 1
-		"
+			LIMIT 1"
 		);
 	}
 
@@ -4269,6 +4505,8 @@ function gc_enqueue_media( $args = array() ) {
 	 * was the default behavior prior to version 4.8.0, but this query is
 	 * expensive for large media libraries.
 	 *
+	 * @since 4.7.4
+	 * @since 4.8.0 The filter's default value is `true` rather than `null`.
 	 *
 	 * @link https://core.trac.gechiui.com/ticket/31071
 	 *
@@ -4278,13 +4516,11 @@ function gc_enqueue_media( $args = array() ) {
 	$show_video_playlist = apply_filters( 'media_library_show_video_playlist', true );
 	if ( null === $show_video_playlist ) {
 		$show_video_playlist = $gcdb->get_var(
-			"
-			SELECT ID
+			"SELECT ID
 			FROM $gcdb->posts
 			WHERE post_type = 'attachment'
 			AND post_mime_type LIKE 'video%'
-			LIMIT 1
-		"
+			LIMIT 1"
 		);
 	}
 
@@ -4296,23 +4532,21 @@ function gc_enqueue_media( $args = array() ) {
 	 * expensive for large media libraries, so it may be desirable for sites to
 	 * override this behavior.
 	 *
+	 * @since 4.7.4
 	 *
 	 * @link https://core.trac.gechiui.com/ticket/31071
 	 *
-	 * @param array|null $months An array of objects with `month` and `year`
-	 *                           properties, or `null` (or any other non-array value)
-	 *                           for default behavior.
+	 * @param stdClass[]|null $months An array of objects with `month` and `year`
+	 *                                properties, or `null` for default behavior.
 	 */
 	$months = apply_filters( 'media_library_months_with_files', null );
 	if ( ! is_array( $months ) ) {
 		$months = $gcdb->get_results(
 			$gcdb->prepare(
-				"
-			SELECT DISTINCT YEAR( post_date ) AS year, MONTH( post_date ) AS month
-			FROM $gcdb->posts
-			WHERE post_type = %s
-			ORDER BY post_date DESC
-		",
+				"SELECT DISTINCT YEAR( post_date ) AS year, MONTH( post_date ) AS month
+				FROM $gcdb->posts
+				WHERE post_type = %s
+				ORDER BY post_date DESC",
 				'attachment'
 			)
 		);
@@ -4329,6 +4563,7 @@ function gc_enqueue_media( $args = array() ) {
 	/**
 	 * Filters whether the Media Library grid has infinite scrolling. Default `false`.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param bool $infinite Whether the Media Library grid has infinite scrolling.
 	 */
@@ -4341,7 +4576,8 @@ function gc_enqueue_media( $args = array() ) {
 		/** This filter is documented in gc-admin/includes/media.php */
 		'captions'          => ! apply_filters( 'disable_captions', '' ),
 		'nonce'             => array(
-			'sendToEditor' => gc_create_nonce( 'media-send-to-editor' ),
+			'sendToEditor'           => gc_create_nonce( 'media-send-to-editor' ),
+			'setAttachmentThumbnail' => gc_create_nonce( 'set-attachment-thumbnail' ),
 		),
 		'post'              => array(
 			'id' => 0,
@@ -4428,20 +4664,20 @@ function gc_enqueue_media( $args = array() ) {
 		'mine'                        => _x( '我的', 'media items' ),
 		'trash'                       => _x( '回收站', 'noun' ),
 		'uploadedToThisPost'          => $post_type_object->labels->uploaded_to_this_item,
-		'warnDelete'                  => __( "您将要从网站中永久删除此项目。\n此操作无法撤消。\n“取消”停止，“确定”删除。" ),
-		'warnBulkDelete'              => __( "您将要从站点中永久删除这些项目。\n此操作无法撤消。\n“取消”停止，“确定”删除。" ),
-		'warnBulkTrash'               => __( "你将要扔掉这些物品。\n“取消”停止，“确定”删除。" ),
+		'warnDelete'                  => __( "您即将从您的系统永久删除这个项目。\n此操作无法撤消。\n按“取消”可取消，按“确定”可确认删除。" ),
+		'warnBulkDelete'              => __( "您即将从您的系统永久删除这些项目。\n此操作无法撤消。\n按“取消”可取消，按“确定”可确认删除。" ),
+		'warnBulkTrash'               => __( "您将删除这些项目。\n点击“取消”停止，点击“确定”删除。" ),
 		'bulkSelect'                  => __( '批量选择' ),
 		'trashSelected'               => __( '移动至回收站' ),
 		'restoreSelected'             => __( '从回收站中恢复' ),
 		'deletePermanently'           => __( '永久删除' ),
-		'errorDeleting'               => __( '删除附件时出错。' ),
+		'errorDeleting'               => __( '删除附件时发生错误。' ),
 		'apply'                       => __( '应用' ),
 		'filterByDate'                => __( '按日期筛选' ),
 		'filterByType'                => __( '按类型筛选' ),
 		'searchLabel'                 => __( '搜索' ),
 		'searchMediaLabel'            => __( '搜索媒体' ),          // Backward compatibility pre-5.3.
-		'searchMediaPlaceholder'      => __( '搜索媒体项目…' ), // Placeholder (no ellipsis), backward compatibility pre-5.3.
+		'searchMediaPlaceholder'      => __( '搜索媒体项目...'  ), // Placeholder (no ellipsis), backward compatibility pre-5.3.
 		/* translators: %d: Number of attachments found in a search. */
 		'mediaFound'                  => __( '找到的媒体项目数量：%d' ),
 		'noMedia'                     => __( '未找到媒体项目。' ),
@@ -4526,6 +4762,7 @@ function gc_enqueue_media( $args = array() ) {
 	/**
 	 * Filters the media view settings.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param array   $settings List of media view settings.
 	 * @param GC_Post $post     Post object.
@@ -4535,6 +4772,7 @@ function gc_enqueue_media( $args = array() ) {
 	/**
 	 * Filters the media view strings.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param string[] $strings Array of media view strings keyed by the name they'll be referenced by in JavaScript.
 	 * @param GC_Post  $post    Post object.
@@ -4543,8 +4781,10 @@ function gc_enqueue_media( $args = array() ) {
 
 	$strings['settings'] = $settings;
 
-	// Ensure we enqueue media-editor first, that way media-views
-	// is registered internally before we try to localize it. See #24724.
+	/*
+	 * Ensure we enqueue media-editor first, that way media-views
+	 * is registered internally before we try to localize it. See #24724.
+	 */
 	gc_enqueue_script( 'media-editor' );
 	gc_localize_script( 'media-views', '_gcMediaViewsL10n', $strings );
 
@@ -4565,14 +4805,13 @@ function gc_enqueue_media( $args = array() ) {
 	/**
 	 * Fires at the conclusion of gc_enqueue_media().
 	 *
+	 * @since 3.5.0
 	 */
 	do_action( 'gc_enqueue_media' );
 }
 
 /**
  * Retrieves media attached to the passed post.
- *
- *
  *
  * @param string      $type Mime type.
  * @param int|GC_Post $post Optional. Post ID or GC_Post object. Default is global $post.
@@ -4597,6 +4836,7 @@ function get_attached_media( $type, $post = 0 ) {
 	/**
 	 * Filters arguments used to retrieve media attached to the given post.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param array   $args Post query arguments.
 	 * @param string  $type Mime type of the desired media.
@@ -4609,6 +4849,7 @@ function get_attached_media( $type, $post = 0 ) {
 	/**
 	 * Filters the list of media attached to the given post.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param GC_Post[] $children Array of media attached to the given post.
 	 * @param string    $type     Mime type of the media desired.
@@ -4618,9 +4859,7 @@ function get_attached_media( $type, $post = 0 ) {
 }
 
 /**
- * Check the content HTML for a audio, video, object, embed, or iframe tags.
- *
- *
+ * Checks the HTML content for an audio, video, object, embed, or iframe tags.
  *
  * @param string   $content A string of HTML which might contain media elements.
  * @param string[] $types   An array of media types: 'audio', 'video', 'object', 'embed', or 'iframe'.
@@ -4632,6 +4871,7 @@ function get_media_embedded_in_content( $content, $types = null ) {
 	/**
 	 * Filters the embedded media types that are allowed to be returned from the content blob.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param string[] $allowed_media_types An array of allowed media types. Default media types are
 	 *                                      'audio', 'video', 'object', 'embed', and 'iframe'.
@@ -4659,8 +4899,6 @@ function get_media_embedded_in_content( $content, $types = null ) {
 
 /**
  * Retrieves galleries from the passed post's content.
- *
- *
  *
  * @param int|GC_Post $post Post ID or object.
  * @param bool        $html Optional. Whether to return HTML or data in the array. Default true.
@@ -4811,6 +5049,7 @@ function get_post_galleries( $post, $html = true ) {
 	/**
 	 * Filters the list of all found galleries in the given post.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param array   $galleries Associative array of all found post galleries.
 	 * @param GC_Post $post      Post object.
@@ -4819,9 +5058,7 @@ function get_post_galleries( $post, $html = true ) {
 }
 
 /**
- * Check a specified post's content for gallery and, if present, return the first
- *
- *
+ * Checks a specified post's content for gallery and, if present, return the first
  *
  * @param int|GC_Post $post Optional. Post ID or GC_Post object. Default is global $post.
  * @param bool        $html Optional. Whether to return HTML or data. Default is true.
@@ -4834,6 +5071,7 @@ function get_post_gallery( $post = 0, $html = true ) {
 	/**
 	 * Filters the first-found post gallery.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param array       $gallery   The first-found post gallery.
 	 * @param int|GC_Post $post      Post ID or object.
@@ -4843,9 +5081,7 @@ function get_post_gallery( $post = 0, $html = true ) {
 }
 
 /**
- * Retrieve the image srcs from galleries from a post's content, if present
- *
- *
+ * Retrieves the image srcs from galleries from a post's content, if present.
  *
  * @see get_post_galleries()
  *
@@ -4859,9 +5095,7 @@ function get_post_galleries_images( $post = 0 ) {
 }
 
 /**
- * Checks a post's content for galleries and return the image srcs for the first found gallery
- *
- *
+ * Checks a post's content for galleries and return the image srcs for the first found gallery.
  *
  * @see get_post_gallery()
  *
@@ -4876,7 +5110,7 @@ function get_post_gallery_images( $post = 0 ) {
 /**
  * Maybe attempts to generate attachment metadata, if missing.
  *
- *
+ * @since 3.9.0
  *
  * @param GC_Post $attachment Attachment object.
  */
@@ -4904,7 +5138,7 @@ function gc_maybe_generate_attachment_metadata( $attachment ) {
 /**
  * Tries to convert an attachment URL into a post ID.
  *
- *
+ * @since 4.0.0
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -4925,7 +5159,7 @@ function attachment_url_to_postid( $url ) {
 		$path = str_replace( $image_path['scheme'], $site_url['scheme'], $path );
 	}
 
-	if ( 0 === strpos( $path, $dir['baseurl'] . '/' ) ) {
+	if ( str_starts_with( $path, $dir['baseurl'] . '/' ) ) {
 		$path = substr( $path, strlen( $dir['baseurl'] . '/' ) );
 	}
 
@@ -4954,6 +5188,7 @@ function attachment_url_to_postid( $url ) {
 	/**
 	 * Filters an attachment ID found by URL.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param int|null $post_id The post_id (if any) found by the function.
 	 * @param string   $url     The URL being looked up.
@@ -4964,14 +5199,14 @@ function attachment_url_to_postid( $url ) {
 /**
  * Returns the URLs for CSS files used in an iframe-sandbox'd TinyMCE media view.
  *
- *
+ * @since 4.0.0
  *
  * @return string[] The relevant CSS file URLs.
  */
 function gcview_media_sandbox_styles() {
 	$version        = 'ver=' . get_bloginfo( 'version' );
-	$mediaelement   = assets_url( "/js/mediaelement/mediaelementplayer-legacy.min.css?$version" );
-	$gcmediaelement = assets_url( "/js/mediaelement/gc-mediaelement.css?$version" );
+	$mediaelement   = assets_url( "js/mediaelement/mediaelementplayer-legacy.min.css?$version" );
+	$gcmediaelement = assets_url( "js/mediaelement/gc-mediaelement.css?$version" );
 
 	return array( $mediaelement, $gcmediaelement );
 }
@@ -4993,8 +5228,6 @@ function gc_register_media_personal_data_exporter( $exporters ) {
 
 /**
  * Finds and exports attachments associated with an email address.
- *
- *
  *
  * @param string $email_address The attachment owner email address.
  * @param int    $page          Attachment page.
@@ -5057,7 +5290,7 @@ function gc_media_personal_data_exporter( $email_address, $page = 1 ) {
 }
 
 /**
- * Add additional default image sub-sizes.
+ * Adds additional default image sub-sizes.
  *
  * These sizes are meant to enhance the way GeChiUI displays images on the front-end on larger,
  * high-density devices. They make it possible to generate more suitable `srcset` and `sizes` attributes
@@ -5066,7 +5299,7 @@ function gc_media_personal_data_exporter( $email_address, $page = 1 ) {
  * The sizes can be changed or removed by themes and plugins but that is not recommended.
  * The size "names" reflect the image dimensions, so changing the sizes would be quite misleading.
  *
- *
+ * @since 5.3.0
  * @access private
  */
 function _gc_add_additional_image_sizes() {
@@ -5079,7 +5312,7 @@ function _gc_add_additional_image_sizes() {
 /**
  * Callback to enable showing of the user error when uploading .heic images.
  *
- *
+ * @since 5.5.0
  *
  * @param array[] $plupload_settings The settings for Plupload.js.
  * @return array[] Modified settings for Plupload.js.
@@ -5092,8 +5325,8 @@ function gc_show_heic_upload_error( $plupload_settings ) {
 /**
  * Allows PHP's getimagesize() to be debuggable when necessary.
  *
- *
- *
+ * @since 5.7.0
+ * @since 5.8.0 Added support for WebP images.
  *
  * @param string $filename   The file path.
  * @param array  $image_info Optional. Extended image information (passed by reference).
@@ -5132,8 +5365,10 @@ function gc_getimagesize( $filename, array &$image_info = null ) {
 		return $info;
 	}
 
-	// For PHP versions that don't support WebP images,
-	// extract the image size info from the file headers.
+	/*
+	 * For PHP versions that don't support WebP images,
+	 * extract the image size info from the file headers.
+	 */
 	if ( 'image/webp' === gc_get_image_mime( $filename ) ) {
 		$webp_info = gc_get_webp_info( $filename );
 		$width     = $webp_info['width'];
@@ -5162,7 +5397,7 @@ function gc_getimagesize( $filename, array &$image_info = null ) {
 /**
  * Extracts meta information about a WebP file: width, height, and type.
  *
- *
+ * @since 5.8.0
  *
  * @param string $filename Path to a WebP file.
  * @return array {
@@ -5194,8 +5429,10 @@ function gc_get_webp_info( $filename ) {
 		return compact( 'width', 'height', 'type' );
 	}
 
-	// The headers are a little different for each of the three formats.
-	// Header values based on WebP docs, see https://developers.google.com/speed/webp/docs/riff_container.
+	/*
+	 * The headers are a little different for each of the three formats.
+	 * Header values based on WebP docs, see https://developers.google.com/speed/webp/docs/riff_container.
+	 */
 	switch ( substr( $magic, 12, 4 ) ) {
 		// Lossy WebP.
 		case 'VP8 ':
@@ -5227,56 +5464,182 @@ function gc_get_webp_info( $filename ) {
 }
 
 /**
- * Gets the default value to use for a `loading` attribute on an element.
+ * Gets loading optimization attributes.
  *
- * This function should only be called for a tag and context if lazy-loading is generally enabled.
+ * This function returns an array of attributes that should be merged into the given attributes array to optimize
+ * loading performance. Potential attributes returned by this function are:
+ * - `loading` attribute with a value of "lazy"
+ * - `fetchpriority` attribute with a value of "high"
  *
- * The function usually returns 'lazy', but uses certain heuristics to guess whether the current element is likely to
- * appear above the fold, in which case it returns a boolean `false`, which will lead to the `loading` attribute being
- * omitted on the element. The purpose of this refinement is to avoid lazy-loading elements that are within the initial
- * viewport, which can have a negative performance impact.
+ * If any of these attributes are already present in the given attributes, they will not be modified. Note that no
+ * element should have both `loading="lazy"` and `fetchpriority="high"`, so the function will trigger a warning in case
+ * both attributes are present with those values.
  *
- * Under the hood, the function uses {@see gc_increase_content_media_count()} every time it is called for an element
- * within the main content. If the element is the very first content element, the `loading` attribute will be omitted.
- * This default threshold of 1 content element to omit the `loading` attribute for can be customized using the
- * {@see 'gc_omit_loading_attr_threshold'} filter.
+ * @since 6.3.0
  *
+ * @global GC_Query $gc_query GeChiUI Query object.
  *
- *
- * @param string $context Context for the element for which the `loading` attribute value is requested.
- * @return string|bool The default `loading` attribute value. Either 'lazy', 'eager', or a boolean `false`, to indicate
- *                     that the `loading` attribute should be skipped.
+ * @param string $tag_name The tag name.
+ * @param array  $attr     Array of the attributes for the tag.
+ * @param string $context  Context for the element for which the loading optimization attribute is requested.
+ * @return array Loading optimization attributes.
  */
-function gc_get_loading_attr_default( $context ) {
-	// Only elements with 'the_content' or 'the_post_thumbnail' context have special handling.
-	if ( 'the_content' !== $context && 'the_post_thumbnail' !== $context ) {
-		return 'lazy';
+function gc_get_loading_optimization_attributes( $tag_name, $attr, $context ) {
+	global $gc_query;
+
+	/*
+	 * Closure for postprocessing logic.
+	 * It is here to avoid duplicate logic in many places below, without having
+	 * to introduce a very specific private global function.
+	 */
+	$postprocess = static function( $loading_attributes, $with_fetchpriority = false ) use ( $tag_name, $attr, $context ) {
+		// Potentially add `fetchpriority="high"`.
+		if ( $with_fetchpriority ) {
+			$loading_attributes = gc_maybe_add_fetchpriority_high_attr( $loading_attributes, $tag_name, $attr );
+		}
+		// Potentially strip `loading="lazy"` if the feature is disabled.
+		if ( isset( $loading_attributes['loading'] ) && ! gc_lazy_loading_enabled( $tag_name, $context ) ) {
+			unset( $loading_attributes['loading'] );
+		}
+		return $loading_attributes;
+	};
+	// Closure to increase media count for images with certain minimum threshold, mostly used for header images.
+	$maybe_increase_content_media_count = static function() use ( $attr ) {
+		/** This filter is documented in gc-includes/media.php */
+		$gc_min_priority_img_pixels = apply_filters( 'gc_min_priority_img_pixels', 50000 );
+		// Images with a certain minimum size in the header of the page are also counted towards the threshold.
+		if ( $gc_min_priority_img_pixels <= $attr['width'] * $attr['height'] ) {
+			gc_increase_content_media_count();
+		}
+	};
+
+	$loading_attrs = array();
+
+	/*
+	 * Skip lazy-loading for the overall block template, as it is handled more granularly.
+	 * The skip is also applicable for `fetchpriority`.
+	 */
+	if ( 'template' === $context ) {
+		return $loading_attrs;
 	}
 
-	// Only elements within the main query loop have special handling.
-	if ( is_admin() || ! in_the_loop() || ! is_main_query() ) {
-		return 'lazy';
+	// For now this function only supports images and iframes.
+	if ( 'img' !== $tag_name && 'iframe' !== $tag_name ) {
+		return $loading_attrs;
 	}
 
-	// Increase the counter since this is a main query content element.
-	$content_media_count = gc_increase_content_media_count();
-
-	// If the count so far is below the threshold, return `false` so that the `loading` attribute is omitted.
-	if ( $content_media_count <= gc_omit_loading_attr_threshold() ) {
-		return false;
+	// For any resources, width and height must be provided, to avoid layout shifts.
+	if ( ! isset( $attr['width'], $attr['height'] ) ) {
+		return $loading_attrs;
 	}
 
-	// For elements after the threshold, lazy-load them as usual.
-	return 'lazy';
+	if ( isset( $attr['loading'] ) ) {
+		/*
+		 * While any `loading` value could be set in `$loading_attrs`, for
+		 * consistency we only do it for `loading="lazy"` since that is the
+		 * only possible value that GeChiUI core would apply on its own.
+		 */
+		if ( 'lazy' === $attr['loading'] ) {
+			$loading_attrs['loading'] = 'lazy';
+			if ( isset( $attr['fetchpriority'] ) && 'high' === $attr['fetchpriority'] ) {
+				_doing_it_wrong(
+					__FUNCTION__,
+					__( '图像不应延迟加载，同时标记为高优先级。' ),
+					'6.3.0'
+				);
+			}
+		}
+
+		return $postprocess( $loading_attrs, true );
+	}
+
+	// An image with `fetchpriority="high"` cannot be assigned `loading="lazy"` at the same time.
+	if ( isset( $attr['fetchpriority'] ) && 'high' === $attr['fetchpriority'] ) {
+		return $postprocess( $loading_attrs, true );
+	}
+
+	/*
+	 * Do not lazy-load images in the header block template part, as they are likely above the fold.
+	 * For classic themes, this is handled in the condition below using the 'get_header' action.
+	 */
+	$header_area = GC_TEMPLATE_PART_AREA_HEADER;
+	if ( "template_part_{$header_area}" === $context ) {
+		// Increase media count if there are images in header above a certian minimum size threshold.
+		$maybe_increase_content_media_count();
+		return $postprocess( $loading_attrs, true );
+	}
+
+	// The custom header image is always expected to be in the header.
+	if ( 'get_header_image_tag' === $context ) {
+		// Increase media count if there are images in header above a certian minimum size threshold.
+		$maybe_increase_content_media_count();
+		return $postprocess( $loading_attrs, true );
+	}
+
+	// Special handling for programmatically created image tags.
+	if ( 'the_post_thumbnail' === $context || 'gc_get_attachment_image' === $context || 'widget_media_image' === $context ) {
+		/*
+		 * Skip programmatically created images within post content as they need to be handled together with the other
+		 * images within the post content.
+		 * Without this clause, they would already be considered below which skews the image count and can result in
+		 * the first post content image being lazy-loaded or an image further down the page being marked as a high
+		 * priority.
+		 */
+		if ( doing_filter( 'the_content' ) ) {
+			return $loading_attrs;
+		}
+
+		// Conditionally skip lazy-loading on images before the loop.
+		if (
+			// Only apply for main query but before the loop.
+			$gc_query->before_loop && $gc_query->is_main_query()
+			/*
+			 * Any image before the loop, but after the header has started should not be lazy-loaded,
+			 * except when the footer has already started which can happen when the current template
+			 * does not include any loop.
+			 */
+			&& did_action( 'get_header' ) && ! did_action( 'get_footer' )
+		) {
+			// Increase media count if there are images in header above a certian minimum size threshold.
+			$maybe_increase_content_media_count();
+			return $postprocess( $loading_attrs, true );
+		}
+	}
+
+	/*
+	 * The first elements in 'the_content' or 'the_post_thumbnail' should not be lazy-loaded,
+	 * as they are likely above the fold. Shortcodes are processed after content images, so if
+	 * thresholds haven't already been met, apply the same logic to those as well.
+	 */
+	if ( 'the_content' === $context || 'the_post_thumbnail' === $context || 'do_shortcode' === $context ) {
+		// Only elements within the main query loop have special handling.
+		if ( is_admin() || ! in_the_loop() || ! is_main_query() ) {
+			$loading_attrs['loading'] = 'lazy';
+			return $postprocess( $loading_attrs, false );
+		}
+
+		// Increase the counter since this is a main query content element.
+		$content_media_count = gc_increase_content_media_count();
+
+		// If the count so far is below the threshold, `loading` attribute is omitted.
+		if ( $content_media_count <= gc_omit_loading_attr_threshold() ) {
+			// The first largest image will still get `fetchpriority='high'`.
+			return $postprocess( $loading_attrs, true );
+		}
+	}
+
+	// Lazy-load by default for any unknown context.
+	$loading_attrs['loading'] = 'lazy';
+	return $postprocess( $loading_attrs, false );
 }
 
 /**
  * Gets the threshold for how many of the first content media elements to not lazy-load.
  *
- * This function runs the {@see 'gc_omit_loading_attr_threshold'} filter, which uses a default threshold value of 1.
+ * This function runs the {@see 'gc_omit_loading_attr_threshold'} filter, which uses a default threshold value of 3.
  * The filter is only run once per page load, unless the `$force` parameter is used.
  *
- *
+ * @since 5.9.0
  *
  * @param bool $force Optional. If set to true, the filter will be (re-)applied even if it already has been before.
  *                    Default false.
@@ -5293,10 +5656,12 @@ function gc_omit_loading_attr_threshold( $force = false ) {
 		 * For these first content media elements, the `loading` attribute will be omitted. By default, this is the case
 		 * for only the very first content media element.
 		 *
+		 * @since 5.9.0
+		 * @since 6.3.0 The default threshold was changed from 1 to 3.
 		 *
-		 * @param int $omit_threshold The number of media elements where the `loading` attribute will not be added. Default 1.
+		 * @param int $omit_threshold The number of media elements where the `loading` attribute will not be added. Default 3.
 		 */
-		$omit_threshold = apply_filters( 'gc_omit_loading_attr_threshold', 1 );
+		$omit_threshold = apply_filters( 'gc_omit_loading_attr_threshold', 3 );
 	}
 
 	return $omit_threshold;
@@ -5305,7 +5670,7 @@ function gc_omit_loading_attr_threshold( $force = false ) {
 /**
  * Increases an internal content media count variable.
  *
- *
+ * @since 5.9.0
  * @access private
  *
  * @param int $amount Optional. Amount to increase by. Default 1.
@@ -5317,4 +5682,77 @@ function gc_increase_content_media_count( $amount = 1 ) {
 	$content_media_count += $amount;
 
 	return $content_media_count;
+}
+
+/**
+ * Determines whether to add `fetchpriority='high'` to loading attributes.
+ *
+ * @since 6.3.0
+ * @access private
+ *
+ * @param array  $loading_attrs Array of the loading optimization attributes for the element.
+ * @param string $tag_name      The tag name.
+ * @param array  $attr          Array of the attributes for the element.
+ * @return array Updated loading optimization attributes for the element.
+ */
+function gc_maybe_add_fetchpriority_high_attr( $loading_attrs, $tag_name, $attr ) {
+	// For now, adding `fetchpriority="high"` is only supported for images.
+	if ( 'img' !== $tag_name ) {
+		return $loading_attrs;
+	}
+
+	if ( isset( $attr['fetchpriority'] ) ) {
+		/*
+		 * While any `fetchpriority` value could be set in `$loading_attrs`,
+		 * for consistency we only do it for `fetchpriority="high"` since that
+		 * is the only possible value that GeChiUI core would apply on its
+		 * own.
+		 */
+		if ( 'high' === $attr['fetchpriority'] ) {
+			$loading_attrs['fetchpriority'] = 'high';
+			gc_high_priority_element_flag( false );
+		}
+		return $loading_attrs;
+	}
+
+	// Lazy-loading and `fetchpriority="high"` are mutually exclusive.
+	if ( isset( $loading_attrs['loading'] ) && 'lazy' === $loading_attrs['loading'] ) {
+		return $loading_attrs;
+	}
+
+	if ( ! gc_high_priority_element_flag() ) {
+		return $loading_attrs;
+	}
+
+	/**
+	 * Filters the minimum square-pixels threshold for an image to be eligible as the high-priority image.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @param int $threshold Minimum square-pixels threshold. Default 50000.
+	 */
+	$gc_min_priority_img_pixels = apply_filters( 'gc_min_priority_img_pixels', 50000 );
+	if ( $gc_min_priority_img_pixels <= $attr['width'] * $attr['height'] ) {
+		$loading_attrs['fetchpriority'] = 'high';
+		gc_high_priority_element_flag( false );
+	}
+	return $loading_attrs;
+}
+
+/**
+ * Accesses a flag that indicates if an element is a possible candidate for `fetchpriority='high'`.
+ *
+ * @since 6.3.0
+ * @access private
+ *
+ * @param bool $value Optional. Used to change the static variable. Default null.
+ * @return bool Returns true if high-priority element was marked already, otherwise false.
+ */
+function gc_high_priority_element_flag( $value = null ) {
+	static $high_priority_element = true;
+
+	if ( is_bool( $value ) ) {
+		$high_priority_element = $value;
+	}
+	return $high_priority_element;
 }

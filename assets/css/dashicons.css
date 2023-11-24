@@ -16,7 +16,7 @@
 .dashicons-before:before {
   font-family: dashicons;
   display: inline-block;
-  line-height: 1;
+  line-height: 1.25;
   font-weight: 400;
   font-style: normal;
   speak: never;

@@ -23,14 +23,14 @@
  * @since 3.3.0
  *
  * @param int|GC_Post $post Optional. Post ID or GC_Post object. Default is global $post.
- * @return string The post title if set; "(no title)" if no title is set.
+ * @return string The post title if set; "（无标题）" if no title is set.
  */
 function gc_latest_comments_draft_or_post_title( $post = 0 ) {
 	$title = get_the_title( $post );
 	if ( empty( $title ) ) {
 		$title = __( '（无标题）' );
 	}
-	return esc_html( $title );
+	return $title;
 }
 
 /**
@@ -148,7 +148,7 @@ function render_block_core_latest_comments( $attributes = array() ) {
  */
 function register_block_core_latest_comments() {
 	register_block_type_from_metadata(
-		ABSPATH . 'assets/blocks/latest-comments',
+		__DIR__ . '/latest-comments',
 		array(
 			'render_callback' => 'render_block_core_latest_comments',
 		)

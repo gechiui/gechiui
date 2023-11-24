@@ -4,13 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
+ * @since 5.0.0
  */
 
 /**
  * Core class used to manage themes via the REST API.
  *
- *
+ * @since 5.0.0
  *
  * @see GC_REST_Controller
  */
@@ -25,6 +25,7 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 	/**
 	 * Constructor.
 	 *
+	 * @since 5.0.0
 	 */
 	public function __construct() {
 		$this->namespace = 'gc/v2';
@@ -34,6 +35,7 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the routes for themes.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @see register_rest_route()
 	 */
@@ -76,6 +78,7 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 	/**
 	 * Sanitize the stylesheet to decode endpoint.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param string $stylesheet The stylesheet name.
 	 * @return string Sanitized stylesheet.
@@ -87,6 +90,7 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to read the theme.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access for the item, otherwise GC_Error object.
@@ -111,6 +115,7 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to read the theme.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return bool|GC_Error True if the request has read access for the item, otherwise GC_Error object.
@@ -137,6 +142,7 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a theme can be read.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @return bool|GC_Error Whether the theme can be read.
 	 */
@@ -161,6 +167,7 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves a single theme.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -182,6 +189,7 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves a collection of themes.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -214,6 +222,8 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a single theme output for response.
 	 *
+	 * @since 5.0.0
+	 * @since 5.9.0 Renamed `$theme` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Theme        $item    Theme object.
 	 * @param GC_REST_Request $request Request object.
@@ -260,7 +270,7 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 		$rich_field_mappings = array(
 			'author'      => 'Author',
 			'author_uri'  => 'AuthorURI',
-			'description' => 'description',
+			'description' => 'Description',
 			'name'        => 'Name',
 			'tags'        => 'Tags',
 			'theme_uri'   => 'ThemeURI',
@@ -316,31 +326,23 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 			}
 		}
 
+		if ( rest_is_field_included( 'is_block_theme', $fields ) ) {
+			$data['is_block_theme'] = $theme->is_block_theme();
+		}
+
 		$data = $this->add_additional_fields_to_object( $data, $request );
 
 		// Wrap the data in a response object.
 		$response = rest_ensure_response( $data );
 
-		$response->add_links( $this->prepare_links( $theme ) );
-
-		if ( $theme->get_stylesheet() === gc_get_theme()->get_stylesheet() ) {
-			// This creates a record for the active theme if not existent.
-			$id = GC_Theme_JSON_Resolver::get_user_global_styles_post_id();
-		} else {
-			$user_cpt = GC_Theme_JSON_Resolver::get_user_data_from_gc_global_styles( $theme );
-			$id       = isset( $user_cpt['ID'] ) ? $user_cpt['ID'] : null;
-		}
-
-		if ( $id ) {
-			$response->add_link(
-				'https://api.w.org/user-global-styles',
-				rest_url( 'gc/v2/global-styles/' . $id )
-			);
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$response->add_links( $this->prepare_links( $theme ) );
 		}
 
 		/**
 		 * Filters theme data returned from the REST API.
 		 *
+		 * @since 5.0.0
 		 *
 		 * @param GC_REST_Response $response The response object.
 		 * @param GC_Theme         $theme    Theme object used to create response.
@@ -352,12 +354,13 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares links for the request.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param GC_Theme $theme Theme data.
 	 * @return array Links for the given block type.
 	 */
 	protected function prepare_links( $theme ) {
-		return array(
+		$links = array(
 			'self'       => array(
 				'href' => rest_url( sprintf( '%s/%s/%s', $this->namespace, $this->rest_base, $theme->get_stylesheet() ) ),
 			),
@@ -365,11 +368,28 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 				'href' => rest_url( sprintf( '%s/%s', $this->namespace, $this->rest_base ) ),
 			),
 		);
+
+		if ( $this->is_same_theme( $theme, gc_get_theme() ) ) {
+			// This creates a record for the active theme if not existent.
+			$id = GC_Theme_JSON_Resolver::get_user_global_styles_post_id();
+		} else {
+			$user_cpt = GC_Theme_JSON_Resolver::get_user_data_from_gc_global_styles( $theme );
+			$id       = isset( $user_cpt['ID'] ) ? $user_cpt['ID'] : null;
+		}
+
+		if ( $id ) {
+			$links['https://api.w.org/user-global-styles'] = array(
+				'href' => rest_url( 'gc/v2/global-styles/' . $id ),
+			);
+		}
+
+		return $links;
 	}
 
 	/**
 	 * Helper function to compare two themes.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param GC_Theme $theme_a First theme to compare.
 	 * @param GC_Theme $theme_b Second theme to compare.
@@ -382,6 +402,7 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares the theme support value for inclusion in the REST API response.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param mixed           $support The raw value from get_theme_support().
 	 * @param array           $args    The feature's registration args.
@@ -406,6 +427,7 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the theme's schema, conforming to JSON Schema.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @return array Item schema data.
 	 */
@@ -475,6 +497,11 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 							'type'        => 'string',
 						),
 					),
+				),
+				'is_block_theme' => array(
+					'description' => __( '主题是否是基于块（block-based）的主题。' ),
+					'type'        => 'boolean',
+					'readonly'    => true,
 				),
 				'name'           => array(
 					'description' => __( '主题名称。' ),
@@ -584,6 +611,7 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the search params for the themes collection.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @return array Collection parameters.
 	 */
@@ -602,6 +630,7 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 		/**
 		 * Filters REST API collection parameters for the themes controller.
 		 *
+		 * @since 5.0.0
 		 *
 		 * @param array $query_params JSON Schema-formatted collection parameters.
 		 */
@@ -611,6 +640,7 @@ class GC_REST_Themes_Controller extends GC_REST_Controller {
 	/**
 	 * Sanitizes and validates the list of theme status.
 	 *
+	 * @since 5.0.0
 	 * @deprecated 5.7.0
 	 *
 	 * @param string|array    $statuses  One or more theme statuses.

@@ -4,13 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
+ * @since 5.0.0
  */
 
 /**
  * Core class to search through all GeChiUI content via the REST API.
  *
- *
+ * @since 5.0.0
  *
  * @see GC_REST_Controller
  */
@@ -49,6 +49,7 @@ class GC_REST_Search_Controller extends GC_REST_Controller {
 	/**
 	 * Search handlers used by the controller.
 	 *
+	 * @since 5.0.0
 	 * @var GC_REST_Search_Handler[]
 	 */
 	protected $search_handlers = array();
@@ -56,6 +57,7 @@ class GC_REST_Search_Controller extends GC_REST_Controller {
 	/**
 	 * Constructor.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param array $search_handlers List of search handlers to use in the controller. Each search
 	 *                               handler instance must extend the `GC_REST_Search_Handler` class.
@@ -82,6 +84,7 @@ class GC_REST_Search_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the routes for the search controller.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @see register_rest_route()
 	 */
@@ -104,6 +107,7 @@ class GC_REST_Search_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to search content.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has search access, GC_Error object otherwise.
@@ -115,6 +119,7 @@ class GC_REST_Search_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves a collection of search results.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -179,6 +184,9 @@ class GC_REST_Search_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a single search result for response.
 	 *
+	 * @since 5.0.0
+	 * @since 5.6.0 The `$id` parameter can accept a string.
+	 * @since 5.9.0 Renamed `$id` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param int|string      $item    ID of the item to prepare.
 	 * @param GC_REST_Request $request Request object.
@@ -202,11 +210,13 @@ class GC_REST_Search_Controller extends GC_REST_Controller {
 
 		$response = rest_ensure_response( $data );
 
-		$links               = $handler->prepare_item_links( $item_id );
-		$links['collection'] = array(
-			'href' => rest_url( sprintf( '%s/%s', $this->namespace, $this->rest_base ) ),
-		);
-		$response->add_links( $links );
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$links               = $handler->prepare_item_links( $item_id );
+			$links['collection'] = array(
+				'href' => rest_url( sprintf( '%s/%s', $this->namespace, $this->rest_base ) ),
+			);
+			$response->add_links( $links );
+		}
 
 		return $response;
 	}
@@ -214,6 +224,7 @@ class GC_REST_Search_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the item schema, conforming to JSON Schema.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @return array Item schema data.
 	 */
@@ -282,6 +293,7 @@ class GC_REST_Search_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the query params for the search results collection.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @return array Collection parameters.
 	 */
@@ -319,17 +331,36 @@ class GC_REST_Search_Controller extends GC_REST_Controller {
 			'sanitize_callback' => array( $this, 'sanitize_subtypes' ),
 		);
 
+		$query_params['exclude'] = array(
+			'description' => __( '确保结果集排除指定ID。' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'integer',
+			),
+			'default'     => array(),
+		);
+
+		$query_params['include'] = array(
+			'description' => __( '将结果集限制为指定ID。' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'integer',
+			),
+			'default'     => array(),
+		);
+
 		return $query_params;
 	}
 
 	/**
 	 * Sanitizes the list of subtypes, to ensure only subtypes of the passed type are included.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param string|array    $subtypes  One or more subtypes.
 	 * @param GC_REST_Request $request   Full details about the request.
 	 * @param string          $parameter Parameter name.
-	 * @return array|GC_Error List of valid subtypes, or GC_Error object on failure.
+	 * @return string[]|GC_Error List of valid subtypes, or GC_Error object on failure.
 	 */
 	public function sanitize_subtypes( $subtypes, $request, $parameter ) {
 		$subtypes = gc_parse_slug_list( $subtypes );
@@ -355,6 +386,7 @@ class GC_REST_Search_Controller extends GC_REST_Controller {
 	/**
 	 * Gets the search handler to handle the current request.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Search_Handler|GC_Error Search handler for the request type, or GC_Error object on failure.

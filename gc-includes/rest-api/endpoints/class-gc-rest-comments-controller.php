@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core controller used to access comments via the REST API.
- *
- *
  *
  * @see GC_REST_Controller
  */
@@ -19,6 +16,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Instance of a comment meta fields object.
 	 *
+	 * @since 4.7.0
 	 * @var GC_REST_Comment_Meta_Fields
 	 */
 	protected $meta;
@@ -26,6 +24,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.7.0
 	 */
 	public function __construct() {
 		$this->namespace = 'gc/v2';
@@ -37,6 +36,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the routes for comments.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @see register_rest_route()
 	 */
@@ -114,6 +114,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to read comments.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, error object otherwise.
@@ -182,6 +183,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves a list of comment items.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or error object on failure.
@@ -239,6 +241,8 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 
 		$prepared_args['no_found_rows'] = false;
 
+		$prepared_args['update_comment_post_cache'] = true;
+
 		$prepared_args['date_query'] = array();
 
 		// Set before into date query. Date query must be specified as an array of an array.
@@ -258,6 +262,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 		/**
 		 * Filters GC_Comment_Query arguments when querying comments via the REST API.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @link https://developer.gechiui.com/reference/classes/gc_comment_query/
 		 *
@@ -266,7 +271,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 		 */
 		$prepared_args = apply_filters( 'rest_comment_query', $prepared_args, $request );
 
-		$query        = new GC_Comment_Query;
+		$query        = new GC_Comment_Query();
 		$query_result = $query->query( $prepared_args );
 
 		$comments = array();
@@ -287,7 +292,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 			// Out-of-bounds, run the query again without LIMIT for total count.
 			unset( $prepared_args['number'], $prepared_args['offset'] );
 
-			$query                  = new GC_Comment_Query;
+			$query                  = new GC_Comment_Query();
 			$prepared_args['count'] = true;
 
 			$total_comments = $query->query( $prepared_args );
@@ -324,6 +329,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Get the comment, if the ID is valid.
 	 *
+	 * @since 4.7.2
 	 *
 	 * @param int $id Supplied ID.
 	 * @return GC_Comment|GC_Error Comment object if ID is valid, GC_Error otherwise.
@@ -363,6 +369,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to read the comment.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access for the item, error object otherwise.
@@ -405,6 +412,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves a comment.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or error object on failure.
@@ -424,6 +432,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to create a comment.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to create items, error object otherwise.
@@ -443,7 +452,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 			 *
 			 * Enables creating comments for anonymous users.
 			 *
-		
+			 * @since 4.7.0
 			 *
 			 * @param bool $allow_anonymous Whether to allow anonymous comments to
 			 *                              be created. Default `false`.
@@ -547,6 +556,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Creates a comment.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or error object on failure.
@@ -674,6 +684,8 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 		 * Returning a GC_Error value from the filter will short-circuit insertion and allow
 		 * skipping further processing.
 		 *
+		 * @since 4.7.0
+		 * @since 4.8.0 `$prepared_comment` can now be a GC_Error to short-circuit insertion.
 		 *
 		 * @param array|GC_Error  $prepared_comment The prepared comment data for gc_insert_comment().
 		 * @param GC_REST_Request $request          Request used to insert the comment.
@@ -702,6 +714,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 		/**
 		 * Fires after a comment is created or updated via the REST API.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_Comment      $comment  Inserted or updated comment object.
 		 * @param GC_REST_Request $request  Request object.
@@ -732,6 +745,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 		/**
 		 * Fires completely after a comment is created or updated via the REST API.
 		 *
+		 * @since 5.0.0
 		 *
 		 * @param GC_Comment      $comment  Inserted or updated comment object.
 		 * @param GC_REST_Request $request  Request object.
@@ -752,6 +766,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given REST request has access to update a comment.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to update the item, error object otherwise.
@@ -776,6 +791,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Updates a comment.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or error object on failure.
@@ -900,6 +916,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to delete a comment.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to delete the item, error object otherwise.
@@ -923,6 +940,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Deletes a comment.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or error object on failure.
@@ -940,6 +958,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 		 *
 		 * Return false to disable trash support for the comment.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param bool       $supports_trash Whether the comment supports trashing.
 		 * @param GC_Comment $comment        The comment object being considered for trashing support.
@@ -993,6 +1012,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 		/**
 		 * Fires after a comment is deleted via the REST API.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_Comment       $comment  The deleted comment data.
 		 * @param GC_REST_Response $response The response returned from the API.
@@ -1006,6 +1026,8 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a single comment output for response.
 	 *
+	 * @since 4.7.0
+	 * @since 5.9.0 Renamed `$comment` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Comment      $item    Comment object.
 	 * @param GC_REST_Request $request Request object.
@@ -1096,13 +1118,16 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 		// Wrap the data in a response object.
 		$response = rest_ensure_response( $data );
 
-		$response->add_links( $this->prepare_links( $comment ) );
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$response->add_links( $this->prepare_links( $comment ) );
+		}
 
 		/**
 		 * Filters a comment returned from the REST API.
 		 *
 		 * Allows modification of the comment right before it is returned.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_REST_Response  $response The response object.
 		 * @param GC_Comment        $comment  The original comment object.
@@ -1114,6 +1139,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares links for the request.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_Comment $comment Comment object.
 	 * @return array Links for the given comment.
@@ -1171,7 +1197,8 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 			$rest_url = add_query_arg( $args, rest_url( $this->namespace . '/' . $this->rest_base ) );
 
 			$links['children'] = array(
-				'href' => $rest_url,
+				'href'       => $rest_url,
+				'embeddable' => true,
 			);
 		}
 
@@ -1181,6 +1208,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Prepends internal property prefix to query parameters to match our response fields.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string $query_param Query parameter.
 	 * @return string The normalized query parameter.
@@ -1212,6 +1240,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Checks comment_approved to set comment status for single comment output.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string|int $comment_approved comment status.
 	 * @return string Comment status.
@@ -1242,6 +1271,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a single comment to be inserted into the database.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Request object.
 	 * @return array|GC_Error Prepared comment, otherwise GC_Error object.
@@ -1329,6 +1359,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 		 *
 		 * Allows modification of the comment right after it is prepared for the database.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param array           $prepared_comment The prepared comment data for `gc_insert_comment`.
 		 * @param GC_REST_Request $request          The current request.
@@ -1339,6 +1370,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the comment's schema, conforming to JSON Schema.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array
 	 */
@@ -1424,7 +1456,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 					),
 				),
 				'date'              => array(
-					'description' => __( "评论发表的日期（站点时区）。" ),
+					'description' => __( "评论发表的日期（系统时区）。" ),
 					'type'        => 'string',
 					'format'      => 'date-time',
 					'context'     => array( 'view', 'edit', 'embed' ),
@@ -1505,6 +1537,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the query params for collections.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Comments collection parameters.
 	 */
@@ -1651,6 +1684,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 		 * collection parameter to an internal GC_Comment_Query parameter. Use the
 		 * `rest_comment_query` filter to set GC_Comment_Query parameters.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param array $query_params JSON Schema-formatted collection parameters.
 		 */
@@ -1660,6 +1694,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Sets the comment_status of a given comment object when creating or updating a comment.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string|int $new_status New comment status.
 	 * @param int        $comment_id Comment ID.
@@ -1707,6 +1742,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	 *
 	 * Correctly handles posts with the inherit status.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_Post         $post    Post object.
 	 * @param GC_REST_Request $request Request data to check.
@@ -1722,8 +1758,10 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 
 		$posts_controller = $post_type->get_rest_controller();
 
-		// Ensure the posts controller is specifically a GC_REST_Posts_Controller instance
-		// before using methods specific to that controller.
+		/*
+		 * Ensure the posts controller is specifically a GC_REST_Posts_Controller instance
+		 * before using methods specific to that controller.
+		 */
 		if ( ! $posts_controller instanceof GC_REST_Posts_Controller ) {
 			$posts_controller = new GC_REST_Posts_Controller( $post->post_type );
 		}
@@ -1755,6 +1793,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if the comment can be read.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_Comment      $comment Comment object.
 	 * @param GC_REST_Request $request Request data to check.
@@ -1788,6 +1827,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a comment can be edited or deleted.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_Comment $comment Comment object.
 	 * @return bool Whether the comment can be edited or deleted.
@@ -1811,6 +1851,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	 * author email address. Setting the comment author email to an empty
 	 * string is allowed when a comment is being updated.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string          $value   Author email value submitted.
 	 * @param GC_REST_Request $request Full details about the request.
@@ -1835,6 +1876,7 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 	/**
 	 * If empty comments are not allowed, checks if the provided comment content is not empty.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param array $prepared_comment The prepared comment data.
 	 * @return bool True if the content is allowed, false otherwise.
@@ -1844,11 +1886,11 @@ class GC_REST_Comments_Controller extends GC_REST_Controller {
 			$prepared_comment,
 			array(
 				'comment_post_ID'      => 0,
-				'comment_parent'       => 0,
-				'user_ID'              => 0,
 				'comment_author'       => null,
 				'comment_author_email' => null,
 				'comment_author_url'   => null,
+				'comment_parent'       => 0,
+				'user_id'              => 0,
 			)
 		);
 

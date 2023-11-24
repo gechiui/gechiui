@@ -12,14 +12,15 @@
  *
  * @link https://developer.gechiui.com/reference/classes/gc_query/
  *
- *
  */
+#[AllowDynamicProperties]
 class GC_Date_Query {
 	/**
 	 * Array of date queries.
 	 *
 	 * See GC_Date_Query::__construct() for information on date query arguments.
 	 *
+	 * @since 3.7.0
 	 * @var array
 	 */
 	public $queries = array();
@@ -27,6 +28,7 @@ class GC_Date_Query {
 	/**
 	 * The default relation between top-level queries. Can be either 'AND' or 'OR'.
 	 *
+	 * @since 3.7.0
 	 * @var string
 	 */
 	public $relation = 'AND';
@@ -34,6 +36,7 @@ class GC_Date_Query {
 	/**
 	 * The column to query against. Can be changed via the query arguments.
 	 *
+	 * @since 3.7.0
 	 * @var string
 	 */
 	public $column = 'post_date';
@@ -41,6 +44,7 @@ class GC_Date_Query {
 	/**
 	 * The value comparison operator. Can be changed via the query arguments.
 	 *
+	 * @since 3.7.0
 	 * @var string
 	 */
 	public $compare = '=';
@@ -48,6 +52,7 @@ class GC_Date_Query {
 	/**
 	 * Supported time-related parameter keys.
 	 *
+	 * @since 4.1.0
 	 * @var string[]
 	 */
 	public $time_keys = array( 'after', 'before', 'year', 'month', 'monthnum', 'week', 'w', 'dayofyear', 'day', 'dayofweek', 'dayofweek_iso', 'hour', 'minute', 'second' );
@@ -60,6 +65,9 @@ class GC_Date_Query {
 	 * 'compare'. When 'compare' is 'IN' or 'NOT IN', arrays are accepted; when 'compare' is 'BETWEEN' or 'NOT
 	 * BETWEEN', arrays of two valid values are required. See individual argument descriptions for accepted values.
 	 *
+	 * @since 3.7.0
+	 * @since 4.0.0 The $inclusive logic was updated to include all times within the date range.
+	 * @since 4.1.0 Introduced 'dayofweek_iso' time type parameter.
 	 *
 	 * @param array  $date_query {
 	 *     Array of date query clauses.
@@ -141,8 +149,8 @@ class GC_Date_Query {
 			return;
 		}
 
-		if ( isset( $date_query['relation'] ) && 'OR' === strtoupper( $date_query['relation'] ) ) {
-			$this->relation = 'OR';
+		if ( isset( $date_query['relation'] ) ) {
+			$this->relation = $this->sanitize_relation( $date_query['relation'] );
 		} else {
 			$this->relation = 'AND';
 		}
@@ -171,6 +179,7 @@ class GC_Date_Query {
 	 * Ensures that each query-level clause has a 'relation' key, and that
 	 * each first-order clause contains all the necessary keys from `$defaults`.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param array $queries
 	 * @param array $parent_query
@@ -210,6 +219,9 @@ class GC_Date_Query {
 			$this->validate_date_values( $queries );
 		}
 
+		// Sanitize the relation parameter.
+		$queries['relation'] = $this->sanitize_relation( $queries['relation'] );
+
 		foreach ( $queries as $key => $q ) {
 			if ( ! is_array( $q ) || in_array( $key, $this->time_keys, true ) ) {
 				// This is a first-order query. Trust the values and sanitize when building SQL.
@@ -224,11 +236,12 @@ class GC_Date_Query {
 	}
 
 	/**
-	 * Determine whether this is a first-order clause.
+	 * Determines whether this is a first-order clause.
 	 *
 	 * Checks to see if the current clause has any time-related keys.
 	 * If so, it's first-order.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param array $query Query clause.
 	 * @return bool True if this is a first-order clause.
@@ -241,6 +254,7 @@ class GC_Date_Query {
 	/**
 	 * Determines and validates what comparison operator to use.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param array $query A date query or a date subquery.
 	 * @return string The comparison operator.
@@ -262,9 +276,10 @@ class GC_Date_Query {
 	 * continue (though of course no items will be found for impossible dates).
 	 * This method only generates debug notices for these cases.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param array $date_query The date_query array.
-	 * @return bool  True if all values in the query are valid, false if one or more fail.
+	 * @return bool True if all values in the query are valid, false if one or more fail.
 	 */
 	public function validate_date_values( $date_query = array() ) {
 		if ( empty( $date_query ) ) {
@@ -455,6 +470,9 @@ class GC_Date_Query {
 	 * prepended. Prefixed column names (such as 'gc_posts.post_date') bypass this allowed
 	 * check, and are only sanitized to remove illegal characters.
 	 *
+	 * @since 3.7.0
+	 *
+	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
 	 * @param string $column The user-supplied column name.
 	 * @return string A validated column name value.
@@ -475,13 +493,13 @@ class GC_Date_Query {
 		);
 
 		// Attempt to detect a table prefix.
-		if ( false === strpos( $column, '.' ) ) {
+		if ( ! str_contains( $column, '.' ) ) {
 			/**
 			 * Filters the list of valid date query columns.
 			 *
-		
-		
-		
+			 * @since 3.7.0
+			 * @since 4.1.0 Added 'user_registered' to the default recognized columns.
+			 * @since 4.6.0 Added 'registered' and 'last_updated' to the default recognized columns.
 			 *
 			 * @param string[] $valid_columns An array of valid date query columns. Defaults
 			 *                                are 'post_date', 'post_date_gmt', 'post_modified',
@@ -526,8 +544,9 @@ class GC_Date_Query {
 	}
 
 	/**
-	 * Generate WHERE clause to be appended to a main query.
+	 * Generates WHERE clause to be appended to a main query.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @return string MySQL WHERE clause.
 	 */
@@ -539,6 +558,7 @@ class GC_Date_Query {
 		/**
 		 * Filters the date query WHERE clause.
 		 *
+		 * @since 3.7.0
 		 *
 		 * @param string        $where WHERE clause of the date query.
 		 * @param GC_Date_Query $query The GC_Date_Query instance.
@@ -547,11 +567,12 @@ class GC_Date_Query {
 	}
 
 	/**
-	 * Generate SQL clauses to be appended to a main query.
+	 * Generates SQL clauses to be appended to a main query.
 	 *
 	 * Called by the public GC_Date_Query::get_sql(), this method is abstracted
 	 * out to maintain parity with the other Query classes.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return string[] {
 	 *     Array containing JOIN and WHERE SQL clauses to append to the main query.
@@ -571,11 +592,12 @@ class GC_Date_Query {
 	}
 
 	/**
-	 * Generate SQL clauses for a single query array.
+	 * Generates SQL clauses for a single query array.
 	 *
 	 * If nested subqueries are found, this method recurses the tree to
 	 * produce the properly nested SQL.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param array $query Query to parse.
 	 * @param int   $depth Optional. Number of tree levels deep we currently are.
@@ -659,13 +681,14 @@ class GC_Date_Query {
 	 * A wrapper for get_sql_for_clause(), included here for backward
 	 * compatibility while retaining the naming convention across Query classes.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param array $query Date query arguments.
-	 * @return string[] {
+	 * @return array {
 	 *     Array containing JOIN and WHERE SQL clauses to append to the main query.
 	 *
-	 *     @type string $join  SQL fragment to append to the main JOIN clause.
-	 *     @type string $where SQL fragment to append to the main WHERE clause.
+	 *     @type string[] $join  Array of SQL fragments to append to the main JOIN clause.
+	 *     @type string[] $where Array of SQL fragments to append to the main WHERE clause.
 	 * }
 	 */
 	protected function get_sql_for_subquery( $query ) {
@@ -675,14 +698,17 @@ class GC_Date_Query {
 	/**
 	 * Turns a first-order date query into SQL for a WHERE clause.
 	 *
+	 * @since 4.1.0
+	 *
+	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
 	 * @param array $query        Date query clause.
 	 * @param array $parent_query Parent query of the current date query.
-	 * @return string[] {
+	 * @return array {
 	 *     Array containing JOIN and WHERE SQL clauses to append to the main query.
 	 *
-	 *     @type string $join  SQL fragment to append to the main JOIN clause.
-	 *     @type string $where SQL fragment to append to the main WHERE clause.
+	 *     @type string[] $join  Array of SQL fragments to append to the main JOIN clause.
+	 *     @type string[] $where Array of SQL fragments to append to the main WHERE clause.
 	 * }
 	 */
 	protected function get_sql_for_clause( $query, $parent_query ) {
@@ -777,6 +803,7 @@ class GC_Date_Query {
 	/**
 	 * Builds and validates a value string based on the comparison operator.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param string       $compare The compare operator to use.
 	 * @param string|array $value   The value.
@@ -836,13 +863,14 @@ class GC_Date_Query {
 	 * either the maximum or minimum values (controlled by the $default_to parameter). Alternatively you can
 	 * pass a string that will be passed to date_create().
 	 *
+	 * @since 3.7.0
 	 *
-	 * @param string|array $datetime       An array of parameters or a strotime() string
+	 * @param string|array $datetime       An array of parameters or a strotime() string.
 	 * @param bool         $default_to_max Whether to round up incomplete dates. Supported by values
 	 *                                     of $datetime that are arrays, or string values that are a
 	 *                                     subset of MySQL date format ('Y', 'Y-m', 'Y-m-d', 'Y-m-d H:i').
 	 *                                     Default: false.
-	 * @return string|false A MySQL format date/time or false on failure
+	 * @return string|false A MySQL format date/time or false on failure.
 	 */
 	public function build_mysql_datetime( $datetime, $default_to_max = false ) {
 		if ( ! is_array( $datetime ) ) {
@@ -934,6 +962,9 @@ class GC_Date_Query {
 	 * However if multiple values are passed, a pseudo-decimal time will be created
 	 * in order to be able to accurately compare against.
 	 *
+	 * @since 3.7.0
+	 *
+	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
 	 * @param string   $column  The column to query against. Needs to be pre-validated!
 	 * @param string   $compare The comparison operator. Needs to be pre-validated!
@@ -1017,5 +1048,21 @@ class GC_Date_Query {
 		}
 
 		return $gcdb->prepare( "DATE_FORMAT( $column, %s ) $compare %f", $format, $time );
+	}
+
+	/**
+	 * Sanitizes a 'relation' operator.
+	 *
+	 * @since 6.0.3
+	 *
+	 * @param string $relation Raw relation key from the query argument.
+	 * @return string Sanitized relation ('AND' or 'OR').
+	 */
+	public function sanitize_relation( $relation ) {
+		if ( 'OR' === strtoupper( $relation ) ) {
+			return 'OR';
+		} else {
+			return 'AND';
+		}
 	}
 }

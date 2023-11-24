@@ -14,8 +14,7 @@
 .customize-partial-edit-shortcut {
   position: absolute;
   float: left;
-  width: 1px;
-  /* required to have a size to be focusable in Safari */
+  width: 1px; /* required to have a size to be focusable in Safari */
   height: 1px;
   padding: 0;
   margin: -1px 0 0 -1px;
@@ -74,8 +73,7 @@
 }
 
 .customize-partial-edit-shortcut button:hover {
-  background: #4f94d4 !important;
-  /* matches primary buttons */
+  background: #4f94d4 !important; /* matches primary buttons */
 }
 
 .customize-partial-edit-shortcut button:focus {
@@ -151,13 +149,13 @@ body.customize-partial-edit-shortcuts-hidden .customize-partial-edit-shortcut bu
 }
 @media screen and (max-width: 800px) {
   .widget .customize-partial-edit-shortcut button,
-.customize-partial-edit-shortcut button {
+  .customize-partial-edit-shortcut button {
     left: -32px;
   }
 }
 @media screen and (max-width: 320px) {
   .widget .customize-partial-edit-shortcut button,
-.customize-partial-edit-shortcut button {
+  .customize-partial-edit-shortcut button {
     left: -30px;
   }
 }

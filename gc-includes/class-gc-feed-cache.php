@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Feed
- *
  * @deprecated 5.6.0
  */
 
@@ -18,10 +17,9 @@ _deprecated_file(
 /**
  * Core class used to implement a feed cache.
  *
- *
- *
  * @see SimplePie_Cache
  */
+#[AllowDynamicProperties]
 class GC_Feed_Cache extends SimplePie_Cache {
 
 	/**

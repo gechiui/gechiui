@@ -3,14 +3,15 @@
  * Error Protection API: GC_Recovery_Mode_Email_Link class
  *
  * @package GeChiUI
- *
+ * @since 5.2.0
  */
 
 /**
  * Core class used to send an email with a link to begin Recovery Mode.
  *
- *
+ * @since 5.2.0
  */
+#[AllowDynamicProperties]
 final class GC_Recovery_Mode_Email_Service {
 
 	const RATE_LIMIT_OPTION = 'recovery_mode_email_last_sent';
@@ -18,6 +19,7 @@ final class GC_Recovery_Mode_Email_Service {
 	/**
 	 * Service to generate recovery mode URLs.
 	 *
+	 * @since 5.2.0
 	 * @var GC_Recovery_Mode_Link_Service
 	 */
 	private $link_service;
@@ -25,6 +27,7 @@ final class GC_Recovery_Mode_Email_Service {
 	/**
 	 * GC_Recovery_Mode_Email_Service constructor.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param GC_Recovery_Mode_Link_Service $link_service
 	 */
@@ -35,9 +38,10 @@ final class GC_Recovery_Mode_Email_Service {
 	/**
 	 * Sends the recovery mode email if the rate limit has not been sent.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param int   $rate_limit Number of seconds before another email can be sent.
-	 * @param array $error      Error details from {@see error_get_last()}
+	 * @param array $error      Error details from `error_get_last()`.
 	 * @param array $extension {
 	 *     The extension that caused the error.
 	 *
@@ -84,6 +88,7 @@ final class GC_Recovery_Mode_Email_Service {
 	/**
 	 * Clears the rate limit, allowing a new recovery mode email to be sent immediately.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return bool True on success, false on failure.
 	 */
@@ -94,10 +99,16 @@ final class GC_Recovery_Mode_Email_Service {
 	/**
 	 * Sends the Recovery Mode email to the site admin email address.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param int   $rate_limit Number of seconds before another email can be sent.
-	 * @param array $error      Error details from {@see error_get_last()}
-	 * @param array $extension  Extension that caused the error.
+	 * @param array $error      Error details from `error_get_last()`.
+	 * @param array $extension {
+	 *     The extension that caused the error.
+	 *
+	 *     @type string $slug The extension slug. The directory of the plugin or theme.
+	 *     @type string $type The extension type. Either 'plugin' or 'theme'.
+	 * }
 	 * @return bool Whether the email was sent successfully.
 	 */
 	private function send_recovery_mode_email( $rate_limit, $error, $extension ) {
@@ -105,12 +116,7 @@ final class GC_Recovery_Mode_Email_Service {
 		$url      = $this->link_service->generate_url();
 		$blogname = gc_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 
-		$switched_locale = false;
-
-		// The switch_to_locale() function is loaded before it can actually be used.
-		if ( function_exists( 'switch_to_locale' ) && isset( $GLOBALS['gc_locale_switcher'] ) ) {
-			$switched_locale = switch_to_locale( get_locale() );
-		}
+		$switched_locale = switch_to_locale( get_locale() );
 
 		if ( $extension ) {
 			$cause   = $this->get_cause( $extension );
@@ -128,6 +134,7 @@ final class GC_Recovery_Mode_Email_Service {
 		/**
 		 * Filters the support message sent with the the fatal error protection email.
 		 *
+		 * @since 5.2.0
 		 *
 		 * @param string $message The Message to include in the email.
 		 */
@@ -136,6 +143,7 @@ final class GC_Recovery_Mode_Email_Service {
 		/**
 		 * Filters the debug information included in the fatal error protection email.
 		 *
+		 * @since 5.3.0
 		 *
 		 * @param array $message An associative array of debug information.
 		 */
@@ -143,21 +151,21 @@ final class GC_Recovery_Mode_Email_Service {
 
 		/* translators: Do not translate LINK, EXPIRES, CAUSE, DETAILS, SITEURL, PAGEURL, SUPPORT. DEBUG: those are placeholders. */
 		$message = __(
-			'您好：
+			'Howdy!
 
-GeChiUI从版本5.2开始，能够检测到您站点上的插件或主题造成了致命错误，并向您发送自动的通知邮件。
+GeChiUI has a built-in feature that detects when a plugin or theme causes a fatal error on your site, and notifies you with this automated email.
 ###CAUSE###
-首先，访问您的站点（###SITEURL### ）并查看有无可见的问题。然后，访问发生错误的页面（###PAGEURL### ）并查看有无问题。
+First, visit your website (###SITEURL###) and check for any visible issues. Next, visit the page where the error was caught (###PAGEURL###) and check for any visible issues.
 
 ###SUPPORT###
 
-如果您的站点看上去不正常，且您不能正常访问仪表盘，GeChiUI现在有了特殊的“恢复模式”，能够让您安全地登录仪表盘并检查问题。
+If your site appears broken and you can\'t access your dashboard normally, GeChiUI now has a special "recovery mode". This lets you safely login to your dashboard and investigate further.
 
 ###LINK###
 
-为了保障您的站点安全，此链接将在###EXPIRES###后过期。请不用担心，如果在此之后错误再度发生，我们将向您发送新的链接。
+To keep your site safe, this link will expire in ###EXPIRES###. Don\'t worry about that, though: a new link will be emailed to you if the error occurs again after it expires.
 
-在寻求关于此问题的帮助时，您可能需要提供以下信息：
+When seeking help with this issue, you may be asked for some of the following information:
 ###DEBUG###
 
 ###DETAILS###'
@@ -189,7 +197,7 @@ GeChiUI从版本5.2开始，能够检测到您站点上的插件或主题造成�
 		$email = array(
 			'to'          => $this->get_recovery_mode_email_address(),
 			/* translators: %s: Site title. */
-			'subject'     => __( '[%s] 您的站点正遇到技术问题' ),
+			'subject'     => __( '[%s] 您的系统正遇到技术问题' ),
 			'message'     => $message,
 			'headers'     => '',
 			'attachments' => '',
@@ -198,6 +206,8 @@ GeChiUI从版本5.2开始，能够检测到您站点上的插件或主题造成�
 		/**
 		 * Filters the contents of the Recovery Mode email.
 		 *
+		 * @since 5.2.0
+		 * @since 5.6.0 The `$email` argument includes the `attachments` key.
 		 *
 		 * @param array  $email {
 		 *     Used to build a call to gc_mail().
@@ -230,6 +240,7 @@ GeChiUI从版本5.2开始，能够检测到您站点上的插件或主题造成�
 	/**
 	 * Gets the email address to send the recovery mode link to.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return string Email address to send recovery mode link to.
 	 */
@@ -244,8 +255,14 @@ GeChiUI从版本5.2开始，能够检测到您站点上的插件或主题造成�
 	/**
 	 * Gets the description indicating the possible cause for the error.
 	 *
+	 * @since 5.2.0
 	 *
-	 * @param array $extension The extension that caused the error.
+	 * @param array $extension {
+	 *     The extension that caused the error.
+	 *
+	 *     @type string $slug The extension slug. The directory of the plugin or theme.
+	 *     @type string $type The extension type. Either 'plugin' or 'theme'.
+	 * }
 	 * @return string Message about which extension caused the error.
 	 */
 	private function get_cause( $extension ) {
@@ -275,8 +292,14 @@ GeChiUI从版本5.2开始，能够检测到您站点上的插件或主题造成�
 	/**
 	 * Return the details for a single plugin based on the extension data from an error.
 	 *
+	 * @since 5.3.0
 	 *
-	 * @param array $extension The extension that caused the error.
+	 * @param array $extension {
+	 *     The extension that caused the error.
+	 *
+	 *     @type string $slug The extension slug. The directory of the plugin or theme.
+	 *     @type string $type The extension type. Either 'plugin' or 'theme'.
+	 * }
 	 * @return array|false A plugin array {@see get_plugins()} or `false` if no plugin was found.
 	 */
 	private function get_plugin( $extension ) {
@@ -291,7 +314,7 @@ GeChiUI从版本5.2开始，能够检测到您站点上的插件或主题造成�
 			return $plugins[ "{$extension['slug']}/{$extension['slug']}.php" ];
 		} else {
 			foreach ( $plugins as $file => $plugin_data ) {
-				if ( 0 === strpos( $file, "{$extension['slug']}/" ) || $file === $extension['slug'] ) {
+				if ( str_starts_with( $file, "{$extension['slug']}/" ) || $file === $extension['slug'] ) {
 					return $plugin_data;
 				}
 			}
@@ -303,8 +326,14 @@ GeChiUI从版本5.2开始，能够检测到您站点上的插件或主题造成�
 	/**
 	 * Return debug information in an easy to manipulate format.
 	 *
+	 * @since 5.3.0
 	 *
-	 * @param array $extension The extension that caused the error.
+	 * @param array $extension {
+	 *     The extension that caused the error.
+	 *
+	 *     @type string $slug The extension slug. The directory of the plugin or theme.
+	 *     @type string $type The extension type. Either 'plugin' or 'theme'.
+	 * }
 	 * @return array An associative array of debug information.
 	 */
 	private function get_debug( $extension ) {
@@ -325,7 +354,7 @@ GeChiUI从版本5.2开始，能够检测到您站点上的插件或主题造成�
 			),
 			'theme' => sprintf(
 				/* translators: 1: Current active theme name. 2: Current active theme version. */
-				__( '启用主题: %1$s (版本 %2$s)' ),
+				__( '目前启用的主题：%1$s（%2$s 版本）' ),
 				$theme->get( 'Name' ),
 				$theme->get( 'Version' )
 			),

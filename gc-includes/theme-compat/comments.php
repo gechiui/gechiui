@@ -32,7 +32,7 @@ if ( post_password_required() ) { ?>
 <?php if ( have_comments() ) : ?>
 	<h3 id="comments">
 		<?php
-		if ( 1 == get_comments_number() ) {
+		if ( '1' === get_comments_number() ) {
 			printf(
 				/* translators: %s: Post title. */
 				__( '《%s》 有 1 条评论' ),

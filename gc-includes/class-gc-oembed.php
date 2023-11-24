@@ -14,13 +14,14 @@
 /**
  * Core class used to implement oEmbed functionality.
  *
- *
  */
+#[AllowDynamicProperties]
 class GC_oEmbed {
 
 	/**
 	 * A list of oEmbed providers.
 	 *
+	 * @since 2.9.0
 	 * @var array
 	 */
 	public $providers = array();
@@ -28,6 +29,7 @@ class GC_oEmbed {
 	/**
 	 * A list of an early oEmbed providers.
 	 *
+	 * @since 4.0.0
 	 * @var array
 	 */
 	public static $early_providers = array();
@@ -35,6 +37,7 @@ class GC_oEmbed {
 	/**
 	 * A list of private/protected methods, used for backward compatibility.
 	 *
+	 * @since 4.2.0
 	 * @var array
 	 */
 	private $compat_methods = array( '_fetch_with_format', '_parse_json', '_parse_xml', '_parse_xml_body' );
@@ -42,64 +45,70 @@ class GC_oEmbed {
 	/**
 	 * Constructor.
 	 *
+	 * @since 2.9.0
 	 */
 	public function __construct() {
 		$host      = urlencode( home_url() );
 		$providers = array(
-			'#https?://((m|www)\.)?youtube\.com/watch.*#i' => array( 'https://www.youtube.com/oembed', true ),
-			'#https?://((m|www)\.)?youtube\.com/playlist.*#i' => array( 'https://www.youtube.com/oembed', true ),
-			'#https?://youtu\.be/.*#i'                     => array( 'https://www.youtube.com/oembed', true ),
-			'#https?://(.+\.)?vimeo\.com/.*#i'             => array( 'https://vimeo.com/api/oembed.{format}', true ),
-			'#https?://(www\.)?dailymotion\.com/.*#i'      => array( 'https://www.dailymotion.com/services/oembed', true ),
-			'#https?://dai\.ly/.*#i'                       => array( 'https://www.dailymotion.com/services/oembed', true ),
-			'#https?://(www\.)?flickr\.com/.*#i'           => array( 'https://www.flickr.com/services/oembed/', true ),
-			'#https?://flic\.kr/.*#i'                      => array( 'https://www.flickr.com/services/oembed/', true ),
-			'#https?://(.+\.)?smugmug\.com/.*#i'           => array( 'https://api.smugmug.com/services/oembed/', true ),
-			'#https?://(www\.)?scribd\.com/(doc|document)/.*#i' => array( 'https://www.scribd.com/services/oembed', true ),
-			'#https?://gechiui\.tv/.*#i'                 => array( 'https://gechiui.tv/oembed/', true ),
-			'#https?://(.+\.)?polldaddy\.com/.*#i'         => array( 'https://api.crowdsignal.com/oembed', true ),
-			'#https?://poll\.fm/.*#i'                      => array( 'https://api.crowdsignal.com/oembed', true ),
-			'#https?://(.+\.)?survey\.fm/.*#i'             => array( 'https://api.crowdsignal.com/oembed', true ),
-			'#https?://(www\.)?twitter\.com/\w{1,15}/status(es)?/.*#i' => array( 'https://publish.twitter.com/oembed', true ),
-			'#https?://(www\.)?twitter\.com/\w{1,15}$#i'   => array( 'https://publish.twitter.com/oembed', true ),
-			'#https?://(www\.)?twitter\.com/\w{1,15}/likes$#i' => array( 'https://publish.twitter.com/oembed', true ),
-			'#https?://(www\.)?twitter\.com/\w{1,15}/lists/.*#i' => array( 'https://publish.twitter.com/oembed', true ),
-			'#https?://(www\.)?twitter\.com/\w{1,15}/timelines/.*#i' => array( 'https://publish.twitter.com/oembed', true ),
-			'#https?://(www\.)?twitter\.com/i/moments/.*#i' => array( 'https://publish.twitter.com/oembed', true ),
-			'#https?://(www\.)?soundcloud\.com/.*#i'       => array( 'https://soundcloud.com/oembed', true ),
-			'#https?://(.+?\.)?slideshare\.net/.*#i'       => array( 'https://www.slideshare.net/api/oembed/2', true ),
-			'#https?://(open|play)\.spotify\.com/.*#i'     => array( 'https://embed.spotify.com/oembed/', true ),
-			'#https?://(.+\.)?imgur\.com/.*#i'             => array( 'https://api.imgur.com/oembed', true ),
-			'#https?://(www\.)?meetu(\.ps|p\.com)/.*#i'    => array( 'https://api.meetup.com/oembed', true ),
-			'#https?://(www\.)?issuu\.com/.+/docs/.+#i'    => array( 'https://issuu.com/oembed_gc', true ),
-			'#https?://(www\.)?mixcloud\.com/.*#i'         => array( 'https://www.mixcloud.com/oembed', true ),
-			'#https?://(www\.|embed\.)?ted\.com/talks/.*#i' => array( 'https://www.ted.com/services/v1/oembed.{format}', true ),
-			'#https?://(www\.)?(animoto|video214)\.com/play/.*#i' => array( 'https://animoto.com/oembeds/create', true ),
-			'#https?://(.+)\.tumblr\.com/post/.*#i'        => array( 'https://www.tumblr.com/oembed/1.0', true ),
-			'#https?://(www\.)?kickstarter\.com/projects/.*#i' => array( 'https://www.kickstarter.com/services/oembed', true ),
-			'#https?://kck\.st/.*#i'                       => array( 'https://www.kickstarter.com/services/oembed', true ),
-			'#https?://cloudup\.com/.*#i'                  => array( 'https://cloudup.com/oembed', true ),
-			'#https?://(www\.)?reverbnation\.com/.*#i'     => array( 'https://www.reverbnation.com/oembed', true ),
-			'#https?://videopress\.com/v/.*#'              => array( 'https://public-api.gechiui.com/oembed/?for=' . $host, true ),
-			'#https?://(www\.)?reddit\.com/r/[^/]+/comments/.*#i' => array( 'https://www.reddit.com/oembed', true ),
-			'#https?://(www\.)?speakerdeck\.com/.*#i'      => array( 'https://speakerdeck.com/oembed.{format}', true ),
-			'#https?://(www\.)?screencast\.com/.*#i'       => array( 'https://api.screencast.com/external/oembed', true ),
-			'#https?://([a-z0-9-]+\.)?amazon\.(com|com\.mx|com\.br|ca)/.*#i' => array( 'https://read.amazon.com/kp/api/oembed', true ),
-			'#https?://([a-z0-9-]+\.)?amazon\.(co\.uk|de|fr|it|es|in|nl|ru)/.*#i' => array( 'https://read.amazon.co.uk/kp/api/oembed', true ),
-			'#https?://([a-z0-9-]+\.)?amazon\.(co\.jp|com\.au)/.*#i' => array( 'https://read.amazon.com.au/kp/api/oembed', true ),
-			'#https?://([a-z0-9-]+\.)?amazon\.cn/.*#i'     => array( 'https://read.amazon.cn/kp/api/oembed', true ),
-			'#https?://(www\.)?a\.co/.*#i'                 => array( 'https://read.amazon.com/kp/api/oembed', true ),
-			'#https?://(www\.)?amzn\.to/.*#i'              => array( 'https://read.amazon.com/kp/api/oembed', true ),
-			'#https?://(www\.)?amzn\.eu/.*#i'              => array( 'https://read.amazon.co.uk/kp/api/oembed', true ),
-			'#https?://(www\.)?amzn\.in/.*#i'              => array( 'https://read.amazon.in/kp/api/oembed', true ),
-			'#https?://(www\.)?amzn\.asia/.*#i'            => array( 'https://read.amazon.com.au/kp/api/oembed', true ),
-			'#https?://(www\.)?z\.cn/.*#i'                 => array( 'https://read.amazon.cn/kp/api/oembed', true ),
-			'#https?://www\.someecards\.com/.+-cards/.+#i' => array( 'https://www.someecards.com/v2/oembed/', true ),
-			'#https?://www\.someecards\.com/usercards/viewcard/.+#i' => array( 'https://www.someecards.com/v2/oembed/', true ),
-			'#https?://some\.ly\/.+#i'                     => array( 'https://www.someecards.com/v2/oembed/', true ),
-			'#https?://(www\.)?tiktok\.com/.*/video/.*#i'  => array( 'https://www.tiktok.com/oembed', true ),
-			'#https?://([a-z]{2}|www)\.pinterest\.com(\.(au|mx))?/.*#i' => array( 'https://www.pinterest.com/oembed.json', true ),
-			'#https?://(www\.)?wolframcloud\.com/obj/.+#i' => array( 'https://www.wolframcloud.com/oembed', true ),
+			'#https?://((m|www)\.)?youku\.com/watch.*#i' => array( 'https://player.youku.com/oembed', true ),
+			'#https?://((m|www)\.)?youku\.com/playlist.*#i' => array( 'https://player.youku.com/oembed', true ),
+			'#https?://((m|www)\.)?youku\.com/shorts/*#i' => array( 'https://player.youku.com/oembed', true ),
+			'#https?://((m|www)\.)?youku\.com/live/*#i'  => array( 'https://player.youku.com/oembed', true ),
+			// '#https?://youtu\.be/.*#i'                     => array( 'https://player.youku.com/oembed', true ),
+			// '#https?://(.+\.)?vimeo\.com/.*#i'             => array( 'https://vimeo.com/api/oembed.{format}', true ),
+			// '#https?://(www\.)?dailymotion\.com/.*#i'      => array( 'https://www.dailymotion.com/services/oembed', true ),
+			// '#https?://dai\.ly/.*#i'                       => array( 'https://www.dailymotion.com/services/oembed', true ),
+			// '#https?://(www\.)?flickr\.com/.*#i'           => array( 'https://www.flickr.com/services/oembed/', true ),
+			// '#https?://flic\.kr/.*#i'                      => array( 'https://www.flickr.com/services/oembed/', true ),
+			// '#https?://(.+\.)?smugmug\.com/.*#i'           => array( 'https://api.smugmug.com/services/oembed/', true ),
+			// '#https?://(www\.)?scribd\.com/(doc|document)/.*#i' => array( 'https://www.scribd.com/services/oembed', true ),
+			// '#https?://gechiui\.tv/.*#i'                 => array( 'https://gechiui.tv/oembed/', true ),
+			// '#https?://(.+\.)?crowdsignal\.net/.*#i'       => array( 'https://api.crowdsignal.com/oembed', true ),
+			// '#https?://(.+\.)?polldaddy\.com/.*#i'         => array( 'https://api.crowdsignal.com/oembed', true ),
+			// '#https?://poll\.fm/.*#i'                      => array( 'https://api.crowdsignal.com/oembed', true ),
+			// '#https?://(.+\.)?survey\.fm/.*#i'             => array( 'https://api.crowdsignal.com/oembed', true ),
+			// '#https?://(www\.)?twitter\.com/\w{1,15}/status(es)?/.*#i' => array( 'https://publish.twitter.com/oembed', true ),
+			// '#https?://(www\.)?twitter\.com/\w{1,15}$#i'   => array( 'https://publish.twitter.com/oembed', true ),
+			// '#https?://(www\.)?twitter\.com/\w{1,15}/likes$#i' => array( 'https://publish.twitter.com/oembed', true ),
+			// '#https?://(www\.)?twitter\.com/\w{1,15}/lists/.*#i' => array( 'https://publish.twitter.com/oembed', true ),
+			// '#https?://(www\.)?twitter\.com/\w{1,15}/timelines/.*#i' => array( 'https://publish.twitter.com/oembed', true ),
+			// '#https?://(www\.)?twitter\.com/i/moments/.*#i' => array( 'https://publish.twitter.com/oembed', true ),
+			// '#https?://(www\.)?soundcloud\.com/.*#i'       => array( 'https://soundcloud.com/oembed', true ),
+			// '#https?://(.+?\.)?slideshare\.net/.*#i'       => array( 'https://www.slideshare.net/api/oembed/2', true ),
+			// '#https?://(open|play)\.spotify\.com/.*#i'     => array( 'https://embed.spotify.com/oembed/', true ),
+			// '#https?://(.+\.)?imgur\.com/.*#i'             => array( 'https://api.imgur.com/oembed', true ),
+			// '#https?://(www\.)?issuu\.com/.+/docs/.+#i'    => array( 'https://issuu.com/oembed_gc', true ),
+			// '#https?://(www\.)?mixcloud\.com/.*#i'         => array( 'https://app.mixcloud.com/oembed/', true ),
+			// '#https?://(www\.|embed\.)?ted\.com/talks/.*#i' => array( 'https://www.ted.com/services/v1/oembed.{format}', true ),
+			// '#https?://(www\.)?(animoto|video214)\.com/play/.*#i' => array( 'https://animoto.com/oembeds/create', true ),
+			// '#https?://(.+)\.tumblr\.com/.*#i'             => array( 'https://www.tumblr.com/oembed/1.0', true ),
+			// '#https?://(www\.)?kickstarter\.com/projects/.*#i' => array( 'https://www.kickstarter.com/services/oembed', true ),
+			// '#https?://kck\.st/.*#i'                       => array( 'https://www.kickstarter.com/services/oembed', true ),
+			// '#https?://cloudup\.com/.*#i'                  => array( 'https://cloudup.com/oembed', true ),
+			// '#https?://(www\.)?reverbnation\.com/.*#i'     => array( 'https://www.reverbnation.com/oembed', true ),
+			// '#https?://videopress\.com/v/.*#'              => array( 'https://public-api.gechiui.com/oembed/?for=' . $host, true ),
+			// '#https?://(www\.)?reddit\.com/r/[^/]+/comments/.*#i' => array( 'https://www.reddit.com/oembed', true ),
+			// '#https?://(www\.)?speakerdeck\.com/.*#i'      => array( 'https://speakerdeck.com/oembed.{format}', true ),
+			// '#https?://(www\.)?screencast\.com/.*#i'       => array( 'https://api.screencast.com/external/oembed', true ),
+			// '#https?://([a-z0-9-]+\.)?amazon\.(com|com\.mx|com\.br|ca)/.*#i' => array( 'https://read.amazon.com/kp/api/oembed', true ),
+			// '#https?://([a-z0-9-]+\.)?amazon\.(co\.uk|de|fr|it|es|in|nl|ru)/.*#i' => array( 'https://read.amazon.co.uk/kp/api/oembed', true ),
+			// '#https?://([a-z0-9-]+\.)?amazon\.(co\.jp|com\.au)/.*#i' => array( 'https://read.amazon.com.au/kp/api/oembed', true ),
+			// '#https?://([a-z0-9-]+\.)?amazon\.cn/.*#i'     => array( 'https://read.amazon.cn/kp/api/oembed', true ),
+			// '#https?://(www\.)?a\.co/.*#i'                 => array( 'https://read.amazon.com/kp/api/oembed', true ),
+			// '#https?://(www\.)?amzn\.to/.*#i'              => array( 'https://read.amazon.com/kp/api/oembed', true ),
+			// '#https?://(www\.)?amzn\.eu/.*#i'              => array( 'https://read.amazon.co.uk/kp/api/oembed', true ),
+			// '#https?://(www\.)?amzn\.in/.*#i'              => array( 'https://read.amazon.in/kp/api/oembed', true ),
+			// '#https?://(www\.)?amzn\.asia/.*#i'            => array( 'https://read.amazon.com.au/kp/api/oembed', true ),
+			// '#https?://(www\.)?z\.cn/.*#i'                 => array( 'https://read.amazon.cn/kp/api/oembed', true ),
+			// '#https?://www\.someecards\.com/.+-cards/.+#i' => array( 'https://www.someecards.com/v2/oembed/', true ),
+			// '#https?://www\.someecards\.com/usercards/viewcard/.+#i' => array( 'https://www.someecards.com/v2/oembed/', true ),
+			// '#https?://some\.ly\/.+#i'                     => array( 'https://www.someecards.com/v2/oembed/', true ),
+			// '#https?://(www\.)?douyin\.com/video/.*#i'  => array( 'https://www.douyin.com/oembed', true ),
+			// '#https?://(www\.)?douyin\.com/@.*#i'          => array( 'https://www.douyin.com/oembed', true ),
+			// '#https?://([a-z]{2}|www)\.pinterest\.com(\.(au|mx))?/.*#i' => array( 'https://www.pinterest.com/oembed.json', true ),
+			// '#https?://(www\.)?wolframcloud\.com/obj/.+#i' => array( 'https://www.wolframcloud.com/oembed', true ),
+			// '#https?://pca\.st/.+#i'                       => array( 'https://pca.st/oembed.json', true ),
+			// '#https?://((play|www)\.)?anghami\.com/.*#i'   => array( 'https://api.anghami.com/rest/v1/oembed.view', true ),
 		);
 
 		if ( ! empty( self::$early_providers['add'] ) ) {
@@ -132,10 +141,10 @@ class GC_oEmbed {
 		 * | Scribd       | scribd.com                                | 2.9.0   |
 		 * | Vimeo        | vimeo.com                                 | 2.9.0   |
 		 * | GeChiUI.tv | gechiui.tv                              | 2.9.0   |
-		 * | YouTube      | youtube.com/watch                         | 2.9.0   |
+		 * | YouKu      | youku.com/watch                         | 2.9.0   |
 		 * | Crowdsignal  | polldaddy.com                             | 3.0.0   |
 		 * | SmugMug      | smugmug.com                               | 3.0.0   |
-		 * | YouTube      | youtu.be                                  | 3.0.0   |
+		 * | YouKu      | youtu.be                                  | 3.0.0   |
 		 * | Twitter      | twitter.com                               | 3.4.0   |
 		 * | Slideshare   | slideshare.net                            | 3.5.0   |
 		 * | SoundCloud   | soundcloud.com                            | 3.5.0   |
@@ -143,15 +152,13 @@ class GC_oEmbed {
 		 * | Flickr       | flic.kr                                   | 3.6.0   |
 		 * | Spotify      | spotify.com                               | 3.6.0   |
 		 * | Imgur        | imgur.com                                 | 3.9.0   |
-		 * | Meetup.com   | meetup.com                                | 3.9.0   |
-		 * | Meetup.com   | meetu.ps                                  | 3.9.0   |
 		 * | Animoto      | animoto.com                               | 4.0.0   |
 		 * | Animoto      | video214.com                              | 4.0.0   |
 		 * | Issuu        | issuu.com                                 | 4.0.0   |
 		 * | Mixcloud     | mixcloud.com                              | 4.0.0   |
 		 * | Crowdsignal  | poll.fm                                   | 4.0.0   |
 		 * | TED          | ted.com                                   | 4.0.0   |
-		 * | YouTube      | youtube.com/playlist                      | 4.0.0   |
+		 * | YouKu      | youku.com/playlist                      | 4.0.0   |
 		 * | Tumblr       | tumblr.com                                | 4.2.0   |
 		 * | Kickstarter  | kickstarter.com                           | 4.2.0   |
 		 * | Kickstarter  | kck.st                                    | 4.2.0   |
@@ -176,9 +183,12 @@ class GC_oEmbed {
 		 * | Someecards   | someecards.com                            | 4.9.0   |
 		 * | Someecards   | some.ly                                   | 4.9.0   |
 		 * | Crowdsignal  | survey.fm                                 | 5.1.0   |
-		 * | TikTok       | tiktok.com                                | 5.4.0   |
+		 * | 抖音         | douyin.com                                | 5.4.0   |
 		 * | Pinterest    | pinterest.com                             | 5.9.0   |
 		 * | WolframCloud | wolframcloud.com                          | 5.9.0   |
+		 * | Pocket Casts | pocketcasts.com                           | 6.1.0   |
+		 * | Crowdsignal  | crowdsignal.net                           | 6.2.0   |
+		 * | Anghami      | anghami.com                               | 6.3.0   |
 		 *
 		 * No longer supported providers:
 		 *
@@ -200,9 +210,10 @@ class GC_oEmbed {
 		 * | Instagram TV | instagram.com        | 5.1.0     | 5.5.2     |
 		 * | Instagram TV | instagr.am           | 5.1.0     | 5.5.2     |
 		 * | Facebook     | facebook.com         | 4.7.0     | 5.5.2     |
+		 * | Meetup.com   | meetup.com           | 3.9.0     | 6.0.1     |
+		 * | Meetup.com   | meetu.ps             | 3.9.0     | 6.0.1     |
 		 *
 		 * @see gc_oembed_add_provider()
-		 *
 		 *
 		 * @param array[] $providers An array of arrays containing data about popular oEmbed providers.
 		 */
@@ -215,6 +226,7 @@ class GC_oEmbed {
 	/**
 	 * Exposes private/protected methods for backward compatibility.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $name      Method to call.
 	 * @param array  $arguments Arguments to pass when calling.
@@ -224,12 +236,14 @@ class GC_oEmbed {
 		if ( in_array( $name, $this->compat_methods, true ) ) {
 			return $this->$name( ...$arguments );
 		}
+
 		return false;
 	}
 
 	/**
 	 * Takes a URL and returns the corresponding oEmbed provider's URL, if there is one.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @see GC_oEmbed::discover()
 	 *
@@ -282,6 +296,7 @@ class GC_oEmbed {
 	 *
 	 * The just-in-time addition is for the benefit of the {@see 'oembed_providers'} filter.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @see gc_oembed_add_provider()
 	 *
@@ -307,6 +322,7 @@ class GC_oEmbed {
 	 *
 	 * The just-in-time removal is for the benefit of the {@see 'oembed_providers'} filter.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @see gc_oembed_remove_provider()
 	 *
@@ -326,6 +342,7 @@ class GC_oEmbed {
 	 *
 	 * @see GC_oEmbed::fetch()
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param string       $url  The URL to the content that should be attempted to be embedded.
 	 * @param string|array $args Optional. Additional arguments for retrieving embed HTML.
@@ -356,6 +373,7 @@ class GC_oEmbed {
 	 * @see GC_oEmbed::fetch()
 	 * @see GC_oEmbed::data2html()
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param string       $url  The URL to the content that should be attempted to be embedded.
 	 * @param string|array $args Optional. Additional arguments for retrieving embed HTML.
@@ -373,6 +391,7 @@ class GC_oEmbed {
 		 * Returning a non-null value from the filter will effectively short-circuit retrieval
 		 * and return the passed value instead.
 		 *
+		 * @since 4.5.3
 		 *
 		 * @param null|string  $result The UNSANITIZED (and potentially unsafe) HTML that should be used to embed.
 		 *                             Default null to continue retrieving the result.
@@ -395,7 +414,6 @@ class GC_oEmbed {
 		/**
 		 * Filters the HTML returned by the oEmbed provider.
 		 *
-		 *
 		 * @param string|false $data The returned oEmbed HTML (false if unsafe).
 		 * @param string       $url  URL of the content to be embedded.
 		 * @param string|array $args Optional. Additional arguments for retrieving embed HTML.
@@ -407,6 +425,7 @@ class GC_oEmbed {
 	/**
 	 * Attempts to discover link tags at the given URL for an oEmbed provider.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param string $url The URL that should be inspected for discovery `<link>` tags.
 	 * @return string|false The oEmbed provider URL on success, false on failure.
@@ -420,6 +439,7 @@ class GC_oEmbed {
 		/**
 		 * Filters oEmbed remote get arguments.
 		 *
+		 * @since 4.0.0
 		 *
 		 * @see GC_Http::request()
 		 *
@@ -436,7 +456,7 @@ class GC_oEmbed {
 			/**
 			 * Filters the link types that contain oEmbed provider URLs.
 			 *
-		
+			 * @since 2.9.0
 			 *
 			 * @param string[] $format Array of oEmbed link types. Accepts 'application/json+oembed',
 			 *                         'text/xml+oembed', and 'application/xml+oembed' (incorrect,
@@ -493,8 +513,9 @@ class GC_oEmbed {
 	}
 
 	/**
-	 * Connects to a oEmbed provider and returns the result.
+	 * Connects to an oEmbed provider and returns the result.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param string       $provider The URL to the oEmbed provider.
 	 * @param string       $url      The URL to the content that is desired to be embedded.
@@ -513,6 +534,7 @@ class GC_oEmbed {
 		/**
 		 * Filters the oEmbed URL to be fetched.
 		 *
+		 * @since 4.9.0 The `dnt` (Do Not Track) query parameter was added to all oEmbed provider URLs.
 		 *
 		 * @param string $provider URL of the oEmbed provider.
 		 * @param string $url      URL of the content to be embedded.
@@ -526,8 +548,10 @@ class GC_oEmbed {
 			if ( is_gc_error( $result ) && 'not-implemented' === $result->get_error_code() ) {
 				continue;
 			}
+
 			return ( $result && ! is_gc_error( $result ) ) ? $result : false;
 		}
+
 		return false;
 	}
 
@@ -546,14 +570,18 @@ class GC_oEmbed {
 		$args = apply_filters( 'oembed_remote_get_args', array(), $provider_url_with_args );
 
 		$response = gc_safe_remote_get( $provider_url_with_args, $args );
-		if ( 501 == gc_remote_retrieve_response_code( $response ) ) {
+
+		if ( 501 === gc_remote_retrieve_response_code( $response ) ) {
 			return new GC_Error( 'not-implemented' );
 		}
+
 		$body = gc_remote_retrieve_body( $response );
 		if ( ! $body ) {
 			return false;
 		}
+
 		$parse_method = "_parse_$format";
+
 		return $this->$parse_method( $body );
 	}
 
@@ -566,6 +594,7 @@ class GC_oEmbed {
 	 */
 	private function _parse_json( $response_body ) {
 		$data = json_decode( trim( $response_body ) );
+
 		return ( $data && is_object( $data ) ) ? $data : false;
 	}
 
@@ -582,9 +611,10 @@ class GC_oEmbed {
 		}
 
 		if ( PHP_VERSION_ID < 80000 ) {
-			// This function has been deprecated in PHP 8.0 because in libxml 2.9.0, external entity loading
-			// is disabled by default, so this function is no longer needed to protect against XXE attacks.
-			// phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.libxml_disable_entity_loaderDeprecated
+			/*
+			 * This function has been deprecated in PHP 8.0 because in libxml 2.9.0, external entity loading
+			 * is disabled by default, so this function is no longer needed to protect against XXE attacks.
+			 */
 			$loader = libxml_disable_entity_loader( true );
 		}
 
@@ -605,6 +635,7 @@ class GC_oEmbed {
 	/**
 	 * Serves as a helper function for parsing an XML response body.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param string $response_body
 	 * @return stdClass|false
@@ -614,7 +645,7 @@ class GC_oEmbed {
 			return false;
 		}
 
-		$dom     = new DOMDocument;
+		$dom     = new DOMDocument();
 		$success = $dom->loadXML( $response_body );
 		if ( ! $success ) {
 			return false;
@@ -635,7 +666,7 @@ class GC_oEmbed {
 			return false;
 		}
 
-		$return = new stdClass;
+		$return = new stdClass();
 		foreach ( $xml as $key => $value ) {
 			$return->$key = (string) $value;
 		}
@@ -646,6 +677,7 @@ class GC_oEmbed {
 	/**
 	 * Converts a data object from GC_oEmbed::fetch() and returns the HTML.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param object $data A data object result from an oEmbed provider.
 	 * @param string $url  The URL to the content that is desired to be embedded.
@@ -693,7 +725,6 @@ class GC_oEmbed {
 		 *
 		 * Use this filter to add support for custom data types, or to filter the result.
 		 *
-		 *
 		 * @param string $return The returned oEmbed HTML.
 		 * @param object $data   A data object result from an oEmbed provider.
 		 * @param string $url    The URL of the content to be embedded.
@@ -704,6 +735,7 @@ class GC_oEmbed {
 	/**
 	 * Strips any new lines from the HTML.
 	 *
+	 * @since 2.9.0 as strip_scribd_newlines()
 	 *
 	 * @param string $html Existing HTML.
 	 * @param object $data Data object from GC_oEmbed::data2html()
@@ -711,7 +743,7 @@ class GC_oEmbed {
 	 * @return string Possibly modified $html
 	 */
 	public function _strip_newlines( $html, $data, $url ) {
-		if ( false === strpos( $html, "\n" ) ) {
+		if ( ! str_contains( $html, "\n" ) ) {
 			return $html;
 		}
 

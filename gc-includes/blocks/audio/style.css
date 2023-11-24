@@ -1,0 +1,11 @@
+.gc-block-audio{
+  box-sizing:border-box;
+}
+.gc-block-audio figcaption{
+  margin-bottom:1em;
+  margin-top:.5em;
+}
+.gc-block-audio audio{
+  min-width:300px;
+  width:100%;
+}

@@ -4,13 +4,12 @@
  *
  * @package GeChiUI
  * @subpackage Session
- *
  */
 
 /**
  * Meta-based user sessions token manager.
  *
- *
+ * @since 4.0.0
  *
  * @see GC_Session_Tokens
  */
@@ -19,6 +18,7 @@ class GC_User_Meta_Session_Tokens extends GC_Session_Tokens {
 	/**
 	 * Retrieves all sessions of the user.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @return array Sessions of the user.
 	 */
@@ -50,6 +50,7 @@ class GC_User_Meta_Session_Tokens extends GC_Session_Tokens {
 	/**
 	 * Retrieves a session based on its verifier (token hash).
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $verifier Verifier for the session to retrieve.
 	 * @return array|null The session, or null if it does not exist
@@ -67,6 +68,7 @@ class GC_User_Meta_Session_Tokens extends GC_Session_Tokens {
 	/**
 	 * Updates a session based on its verifier (token hash).
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $verifier Verifier for the session to update.
 	 * @param array  $session  Optional. Session. Omitting this argument destroys the session.
@@ -86,6 +88,7 @@ class GC_User_Meta_Session_Tokens extends GC_Session_Tokens {
 	/**
 	 * Updates the user's sessions in the usermeta table.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param array $sessions Sessions.
 	 */
@@ -100,6 +103,7 @@ class GC_User_Meta_Session_Tokens extends GC_Session_Tokens {
 	/**
 	 * Destroys all sessions for this user, except the single session with the given verifier.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $verifier Verifier of the session to keep.
 	 */
@@ -111,6 +115,7 @@ class GC_User_Meta_Session_Tokens extends GC_Session_Tokens {
 	/**
 	 * Destroys all session tokens for the user.
 	 *
+	 * @since 4.0.0
 	 */
 	protected function destroy_all_sessions() {
 		$this->update_sessions( array() );
@@ -119,6 +124,7 @@ class GC_User_Meta_Session_Tokens extends GC_Session_Tokens {
 	/**
 	 * Destroys all sessions for all users.
 	 *
+	 * @since 4.0.0
 	 */
 	public static function drop_sessions() {
 		delete_metadata( 'user', 0, 'session_tokens', false, true );

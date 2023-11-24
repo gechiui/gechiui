@@ -1,11 +1,12 @@
 <?php
+
 class GCOA_Entries_Single {
 
     public $process;
 
     public function __construct() {
-        $this->process = new \GCFormsApprovals\Process();
 
+        include_once( ABSPATH . 'gc-admin/includes/plugin.php' );
         require_once GCFORMS_PLUGIN_DIR . 'pro/includes/admin/entries/class-entries-single.php';
         $single = new \GCForms_Entries_Single();
         add_action( 'gcforms_entries_init', [ $single, 'process_note_add' ], 8, 1 );
@@ -66,7 +67,7 @@ class GCOA_Entries_Single {
                 )
             );
         }
-        return '
+        $html = '
     <div class="container">
         <div class="card">
             <div class="card-body">
@@ -104,22 +105,31 @@ class GCOA_Entries_Single {
             </div>
         </div>
         <div class="row">
-            <div class="col-md-8">
-                '. $this->details_fields( $entry, $form_data ) .'
-                '. $this->details_approvals( $entry, $form_data ) .'
-                '. $this->details_notes( $entry, $form_data ) .'
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5>操作</h5>
-                        '.$entry_delete_link.'
+            <div class="col-md-8">';
+        // 表单详情
+        $html .= $this->details_fields( $entry, $form_data );
+
+        // 审批流程
+        if ( is_plugin_active( 'gcforms-approvals/gcforms-approvals.php' ) ){
+            $this->process = new \GCFormsApprovals\Process();
+            $html .= $this->details_approvals( $entry, $form_data );
+        }
+
+        // 备注模块
+        $html .= $this->details_notes( $entry, $form_data );
+         $html .= '</div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>操作</h5>
+                            '.$entry_delete_link.'
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    ';
+        ';
+        return $html;
     }
 
     /**
@@ -319,7 +329,7 @@ class GCOA_Entries_Single {
                     </div>
                 </div>';
             // 对审批流进行逻辑判断
-            if( $approval['type'] == 'approval_pending' && $approval['user_id'] == get_currentuserinfo()->ID && gcforms_current_user_can( 'edit_entries_form_single', $form_id && $approval_meta_data['id'] = $approval['id'] ) ){
+            if( $approval['type'] == 'approval_pending' && $approval['user_id'] == get_currentuserinfo()->ID ){
                 // 待审批人呈现HTML
                 $str .= '
                     <form method="post">

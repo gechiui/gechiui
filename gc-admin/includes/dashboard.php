@@ -11,8 +11,6 @@
  *
  * Handles POST data, sets up filters.
  *
- *
- *
  * @global array $gc_registered_widgets
  * @global array $gc_registered_widget_controls
  * @global callable[] $gc_dashboard_control_callbacks
@@ -20,17 +18,18 @@
 function gc_dashboard_setup() {
 	global $gc_registered_widgets, $gc_registered_widget_controls, $gc_dashboard_control_callbacks;
 
-	$gc_dashboard_control_callbacks = array();
-	$screen                         = get_current_screen();
+	$screen = get_current_screen();
 
 	/* Register Widgets and Controls */
+	$gc_dashboard_control_callbacks = array();
 
-	$response = gc_check_browser_version();
+	// Browser version
+	$check_browser = gc_check_browser_version();
 
-	if ( $response && $response['upgrade'] ) {
+	if ( $check_browser && $check_browser['upgrade'] ) {
 		add_filter( 'postbox_classes_dashboard_dashboard_browser_nag', 'dashboard_browser_nag_class' );
 
-		if ( $response['insecure'] ) {
+		if ( $check_browser['insecure'] ) {
 			gc_add_dashboard_widget( 'dashboard_browser_nag', __( '您正在使用不安全的浏览器！' ), 'gc_dashboard_browser_nag' );
 		} else {
 			gc_add_dashboard_widget( 'dashboard_browser_nag', __( '您的浏览器版本很低！' ), 'gc_dashboard_browser_nag' );
@@ -38,14 +37,19 @@ function gc_dashboard_setup() {
 	}
 
 	// PHP Version.
-	$response = gc_check_php_version();
+	$check_php = gc_check_php_version();
 
-	if ( $response && isset( $response['is_acceptable'] ) && ! $response['is_acceptable']
-		&& current_user_can( 'update_php' )
-	) {
-		add_filter( 'postbox_classes_dashboard_dashboard_php_nag', 'dashboard_php_nag_class' );
+	if ( $check_php && current_user_can( 'update_php' ) ) {
+		// If "not acceptable" the widget will be shown.
+		if ( isset( $check_php['is_acceptable'] ) && ! $check_php['is_acceptable'] ) {
+			add_filter( 'postbox_classes_dashboard_dashboard_php_nag', 'dashboard_php_nag_class' );
 
-		gc_add_dashboard_widget( 'dashboard_php_nag', __( '建议更新PHP版本' ), 'gc_dashboard_php_nag' );
+			if ( $check_php['is_lower_than_future_minimum'] ) {
+				gc_add_dashboard_widget( 'dashboard_php_nag', __( '需要PHP更新' ), 'gc_dashboard_php_nag' );
+			} else {
+				gc_add_dashboard_widget( 'dashboard_php_nag', __( '建议PHP更新' ), 'gc_dashboard_php_nag' );
+			}
+		}
 	}
 
 	// Site Health.
@@ -59,7 +63,7 @@ function gc_dashboard_setup() {
 		gc_enqueue_style( 'site-health' );
 		gc_enqueue_script( 'site-health' );
 
-		gc_add_dashboard_widget( 'dashboard_site_health', __( '站点健康状态' ), 'gc_dashboard_site_health' );
+		gc_add_dashboard_widget( 'dashboard_site_health', __( '系统健康状态' ), 'gc_dashboard_site_health' );
 	}
 
 	// Right Now.
@@ -83,19 +87,21 @@ function gc_dashboard_setup() {
 	}
 
 	// GeChiUI Events and News.
-	gc_add_dashboard_widget( 'dashboard_primary', __( 'GeChiUI活动及新闻' ), 'gc_dashboard_events_news' );
+	gc_add_dashboard_widget( 'dashboard_primary', __( 'GeChiUI新闻' ), 'gc_dashboard_events_news' );
 
 	if ( is_network_admin() ) {
 
 		/**
 		 * Fires after core widgets for the Network Admin dashboard have been registered.
 		 *
+		 * @since 3.1.0
 		 */
 		do_action( 'gc_network_dashboard_setup' );
 
 		/**
 		 * Filters the list of widgets to load for the Network Admin dashboard.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param string[] $dashboard_widgets An array of dashboard widget IDs.
 		 */
@@ -105,12 +111,14 @@ function gc_dashboard_setup() {
 		/**
 		 * Fires after core widgets for the User Admin dashboard have been registered.
 		 *
+		 * @since 3.1.0
 		 */
 		do_action( 'gc_user_dashboard_setup' );
 
 		/**
 		 * Filters the list of widgets to load for the User Admin dashboard.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param string[] $dashboard_widgets An array of dashboard widget IDs.
 		 */
@@ -120,12 +128,14 @@ function gc_dashboard_setup() {
 		/**
 		 * Fires after core widgets for the admin dashboard have been registered.
 		 *
+		 * @since 2.5.0
 		 */
 		do_action( 'gc_dashboard_setup' );
 
 		/**
 		 * Filters the list of widgets to load for the admin dashboard.
 		 *
+		 * @since 2.5.0
 		 *
 		 * @param string[] $dashboard_widgets An array of dashboard widget IDs.
 		 */
@@ -156,8 +166,7 @@ function gc_dashboard_setup() {
 /**
  * Adds a new dashboard widget.
  *
- *
- *
+ * @since 2.7.0 The `$context` and `$priority` parameters were added.
  *
  * @global callable[] $gc_dashboard_control_callbacks
  *
@@ -226,7 +235,7 @@ function gc_add_dashboard_widget( $widget_id, $widget_name, $callback, $control_
  * Outputs controls for the current dashboard widget.
  *
  * @access private
- *
+ * @since 2.7.0
  *
  * @param mixed $dashboard
  * @param array $meta_box
@@ -242,7 +251,6 @@ function _gc_dashboard_control_callback( $dashboard, $meta_box ) {
 
 /**
  * Displays the dashboard.
- *
  *
  */
 function gc_dashboard() {
@@ -284,18 +292,11 @@ function gc_dashboard() {
  *
  * Formerly '概况'. A streamlined '概览' as of 3.8.
  *
- *
+ * @since 2.7.0
  */
 function gc_dashboard_right_now() {
-
 	?>
 	<div class="main">
-	<?php 	
-	/* 显示授权许可 */
-	if ( ! is_multisite() ){
-		echo get_pro_license_html();
-	}
-	?>
 	<ul>
 	<?php
 	// Posts and Pages.
@@ -350,6 +351,7 @@ function gc_dashboard_right_now() {
 	 * Prior to 3.8.0, the widget was named '概况'. Each element
 	 * is wrapped in list-item tags on output.
 	 *
+	 * @since 3.8.0
 	 *
 	 * @param string[] $items Array of extra '概览' widget items.
 	 */
@@ -375,6 +377,8 @@ function gc_dashboard_right_now() {
 		 *
 		 * Prior to 3.8.0, the widget was named '概况'.
 		 *
+		 * @since 3.0.0
+		 * @since 4.5.0 The default for `$title` was updated to an empty string.
 		 *
 		 * @param string $title Default attribute text.
 		 */
@@ -386,6 +390,7 @@ function gc_dashboard_right_now() {
 		 *
 		 * Prior to 3.8.0, the widget was named '概况'.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param string $content Default text.
 		 */
@@ -417,6 +422,7 @@ function gc_dashboard_right_now() {
 	 *
 	 * Prior to 3.8.0, the widget was named '概况'.
 	 *
+	 * @since 2.0.0
 	 */
 	do_action( 'activity_box_end' );
 
@@ -432,18 +438,12 @@ function gc_dashboard_right_now() {
 }
 
 /**
- * 版本 6.0.2
- * 修订，增加专业版显示与引导开通功能
  */
 function gc_network_dashboard_right_now() {
-		
-	/* 显示授权许可 */
-	echo get_pro_license_html();
-
 	$actions = array();
 
 	if ( current_user_can( 'create_sites' ) ) {
-		$actions['create-site'] = '<a href="' . network_admin_url( 'site-new.php' ) . '">' . __( '创建新站点' ) . '</a>';
+		$actions['create-site'] = '<a href="' . network_admin_url( 'site-new.php' ) . '">' . __( '创建新系统' ) . '</a>';
 	}
 	if ( current_user_can( 'create_users' ) ) {
 		$actions['create-user'] = '<a href="' . network_admin_url( 'user-new.php' ) . '">' . __( '创建新用户' ) . '</a>';
@@ -455,7 +455,7 @@ function gc_network_dashboard_right_now() {
 	/* translators: %s: Number of users on the network. */
 	$user_text = sprintf( _n( '%s个用户', '%s个用户', $c_users ), number_format_i18n( $c_users ) );
 	/* translators: %s: Number of sites on the network. */
-	$blog_text = sprintf( _n( '%s个站点', '%s个站点', $c_blogs ), number_format_i18n( $c_blogs ) );
+	$blog_text = sprintf( _n( '%s个系统', '%s个系统', $c_blogs ), number_format_i18n( $c_blogs ) );
 
 	/* translators: 1: Text indicating the number of sites on the network, 2: Text indicating the number of users on the network. */
 	$sentence = sprintf( __( '您有%1$s和%2$s。' ), $blog_text, $user_text );
@@ -479,14 +479,19 @@ function gc_network_dashboard_right_now() {
 		 * Fires in the Network Admin '概况' dashboard widget
 		 * just before the user and site search form fields.
 		 *
-		 * @since MU
+		 * @since MU (3.0.0)
 		 */
 		do_action( 'gcmuadminresult' );
 	?>
 
 	<form action="<?php echo esc_url( network_admin_url( 'users.php' ) ); ?>" method="get">
 		<p>
-			<label class="screen-reader-text" for="search-users"><?php _e( '搜索用户' ); ?></label>
+			<label class="screen-reader-text" for="search-users">
+				<?php
+				/* translators: Hidden accessibility text. */
+				_e( '搜索用户' );
+				?>
+			</label>
 			<input type="search" name="s" value="" size="30" autocomplete="off" id="search-users" />
 			<?php submit_button( __( '搜索用户' ), '', false, false, array( 'id' => 'submit_users' ) ); ?>
 		</p>
@@ -494,31 +499,36 @@ function gc_network_dashboard_right_now() {
 
 	<form action="<?php echo esc_url( network_admin_url( 'sites.php' ) ); ?>" method="get">
 		<p>
-			<label class="screen-reader-text" for="search-sites"><?php _e( '搜索站点' ); ?></label>
+			<label class="screen-reader-text" for="search-sites">
+				<?php
+				/* translators: Hidden accessibility text. */
+				_e( '搜索系统' );
+				?>
+			</label>
 			<input type="search" name="s" value="" size="30" autocomplete="off" id="search-sites" />
-			<?php submit_button( __( '搜索站点' ), '', false, false, array( 'id' => 'submit_sites' ) ); ?>
+			<?php submit_button( __( '搜索系统' ), '', false, false, array( 'id' => 'submit_sites' ) ); ?>
 		</p>
 	</form>
 	<?php
 	/**
 	 * Fires at the end of the '概况' widget in the Network Admin dashboard.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 */
 	do_action( 'mu_rightnow_end' );
 
 	/**
 	 * Fires at the end of the '概况' widget in the Network Admin dashboard.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 */
 	do_action( 'mu_activity_box_end' );
 }
 
 /**
- * The Quick Draft widget display and creation of drafts.
+ * Displays the Quick Draft widget.
  *
- *
+ * @since 3.8.0
  *
  * @global int $post_ID
  *
@@ -582,7 +592,7 @@ function gc_dashboard_quick_press( $error_msg = false ) {
 			<input type="hidden" name="post_ID" value="<?php echo $post_ID; ?>" />
 			<input type="hidden" name="post_type" value="post" />
 			<?php gc_nonce_field( 'add-post' ); ?>
-			<?php submit_button( __( '保存草稿' ), 'primary', 'save', false, array( 'id' => 'save-post' ) ); ?>
+			<?php submit_button( __( '保存草稿' ), 'primary sm', 'save', false, array( 'id' => 'save-post' ) ); ?>
 			<br class="clear" />
 		</p>
 
@@ -594,7 +604,7 @@ function gc_dashboard_quick_press( $error_msg = false ) {
 /**
  * Show recent drafts of the user on the dashboard.
  *
- *
+ * @since 2.7.0
  *
  * @param GC_Post[]|false $drafts Optional. Array of posts to display. Default false.
  */
@@ -612,6 +622,7 @@ function gc_dashboard_recent_drafts( $drafts = false ) {
 		/**
 		 * Filters the post query arguments for the 'Recent Drafts' dashboard widget.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param array $query_args The query arguments for the 'Recent Drafts' dashboard widget.
 		 */
@@ -649,7 +660,7 @@ function gc_dashboard_recent_drafts( $drafts = false ) {
 			'<div class="draft-title"><a href="%s" aria-label="%s">%s</a><time datetime="%s">%s</time></div>',
 			esc_url( $url ),
 			/* translators: %s: Post title. */
-			esc_attr( sprintf( __( '编辑“%s”' ), $title ) ),
+			esc_attr( sprintf( __( '编辑『%s』' ), $title ) ),
 			esc_html( $title ),
 			get_the_time( 'c', $draft ),
 			get_the_time( __( 'Y年n月j日' ), $draft )
@@ -671,7 +682,7 @@ function gc_dashboard_recent_drafts( $drafts = false ) {
  * Outputs a row for the Recent Comments widget.
  *
  * @access private
- *
+ * @since 2.7.0
  *
  * @global GC_Comment $comment Global comment object.
  *
@@ -684,7 +695,7 @@ function _gc_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 	if ( $comment->comment_post_ID > 0 ) {
 		$comment_post_title = _draft_or_post_title( $comment->comment_post_ID );
 		$comment_post_url   = get_the_permalink( $comment->comment_post_ID );
-		$comment_post_link  = "<a href='$comment_post_url'>$comment_post_title</a>";
+		$comment_post_link  = '<a href="' . esc_url( $comment_post_url ) . '">' . $comment_post_title . '</a>';
 	} else {
 		$comment_post_link = '';
 	}
@@ -766,7 +777,7 @@ function _gc_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 				$trash_url,
 				"delete:the-comment-list:comment-{$comment->comment_ID}::trash=1",
 				esc_attr__( '将此评论移至回收站' ),
-				_x( '移至回收站', 'verb' )
+				_x( '回收站', 'verb' )
 			);
 		}
 
@@ -781,9 +792,10 @@ function _gc_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 		 * Filters the action links displayed for each comment in the '近期评论'
 		 * dashboard widget.
 		 *
+		 * @since 2.6.0
 		 *
 		 * @param string[]   $actions An array of comment actions. Default actions include:
-		 *                            'Approve', '驳回', 'Edit', 'Reply', 'Spam',
+		 *                            'Approve', 'Unapprove', 'Edit', 'Reply', 'Spam',
 		 *                            'Delete', and 'Trash'.
 		 * @param GC_Comment $comment The comment object.
 		 */
@@ -797,9 +809,9 @@ function _gc_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 			if ( ( ( 'approve' === $action || 'unapprove' === $action ) && 2 === $i )
 				|| 1 === $i
 			) {
-				$sep = '';
+				$separator = '';
 			} else {
-				$sep = ' | ';
+				$separator = ' | ';
 			}
 
 			// Reply and quickedit need a hide-if-no-js span.
@@ -811,7 +823,7 @@ function _gc_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 				$action .= ' hidden';
 			}
 
-			$actions_string .= "<span class='$action'>$sep$link</span>";
+			$actions_string .= "<span class='$action'>{$separator}{$link}</span>";
 		}
 	}
 	?>
@@ -836,7 +848,7 @@ function _gc_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 				if ( $comment_post_link ) {
 					printf(
 						/* translators: 1: Comment author, 2: Post link, 3: Notification if the comment is pending. */
-						__( '由%1$s发表在《%2$s》%3$s' ),
+						__( '由 %1$s 发表在《%2$s》%3$s' ),
 						'<cite class="comment-author">' . get_comment_author_link( $comment ) . '</cite>',
 						$comment_post_link,
 						'<span class="approve">' . __( '[待审]' ) . '</span>'
@@ -881,7 +893,7 @@ function _gc_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 				} else {
 					printf(
 						/* translators: 1: Type of comment, 2: Notification if the comment is pending. */
-						_x( '%1$s%2$s', 'dashboard' ),
+						_x( '%2$s, %1$s', 'dashboard' ),
 						"<strong>$type</strong>",
 						'<span class="approve">' . __( '[待审]' ) . '</span>'
 					);
@@ -902,9 +914,11 @@ function _gc_dashboard_recent_comments_row( &$comment, $show_date = true ) {
 }
 
 /**
- * Callback function for Activity widget.
+ * Outputs the Activity widget.
  *
+ * Callback function for {@see 'dashboard_activity'}.
  *
+ * @since 3.8.0
  */
 function gc_dashboard_site_activity() {
 
@@ -943,7 +957,7 @@ function gc_dashboard_site_activity() {
 /**
  * Generates Publishing Soon and Recently Published sections.
  *
- *
+ * @since 3.8.0
  *
  * @param array $args {
  *     An array of query and display arguments.
@@ -964,13 +978,14 @@ function gc_dashboard_recent_posts( $args ) {
 		'order'          => $args['order'],
 		'posts_per_page' => (int) $args['max'],
 		'no_found_rows'  => true,
-		'cache_results'  => false,
+		'cache_results'  => true,
 		'perm'           => ( 'future' === $args['status'] ) ? 'editable' : 'readable',
 	);
 
 	/**
 	 * Filters the query arguments used for the Recent Posts widget.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param array $query_args The arguments passed to GC_Query to produce the list of posts.
 	 */
@@ -1014,10 +1029,10 @@ function gc_dashboard_recent_posts( $args ) {
 			printf(
 				'<li><span>%1$s</span> <a href="%2$s" aria-label="%3$s">%4$s</a></li>',
 				/* translators: 1: Relative date, 2: Time. */
-				sprintf( _x( '%1$s%2$s', 'dashboard' ), $relative, get_the_time() ),
+				sprintf( _x( '%1$s、%2$s', 'dashboard' ), $relative, get_the_time() ),
 				$recent_post_link,
 				/* translators: %s: Post title. */
-				esc_attr( sprintf( __( '编辑“%s”' ), $draft_or_post_title ) ),
+				esc_attr( sprintf( __( '编辑『%s』' ), $draft_or_post_title ) ),
 				$draft_or_post_title
 			);
 		}
@@ -1037,7 +1052,7 @@ function gc_dashboard_recent_posts( $args ) {
 /**
  * Show Comments section.
  *
- *
+ * @since 3.8.0
  *
  * @param int $total_items Optional. Number of comments to query. Default 5.
  * @return bool False if no comments were found. True otherwise.
@@ -1087,7 +1102,10 @@ function gc_dashboard_recent_comments( $total_items = 5 ) {
 		echo '</ul>';
 
 		if ( current_user_can( 'edit_posts' ) ) {
-			echo '<h3 class="screen-reader-text">' . __( '查看更多评论' ) . '</h3>';
+			echo '<h3 class="screen-reader-text">' .
+				/* translators: Hidden accessibility text. */
+				__( '查看更多评论' ) .
+			'</h3>';
 			_get_list_table( 'GC_Comments_List_Table' )->views();
 		}
 
@@ -1103,8 +1121,6 @@ function gc_dashboard_recent_comments( $total_items = 5 ) {
 
 /**
  * Display generic dashboard RSS widget feed.
- *
- *
  *
  * @param string $widget_id
  */
@@ -1123,8 +1139,7 @@ function gc_dashboard_rss_output( $widget_id ) {
  * echoes out output for this widget. If not cache, echo a "Loading..." stub
  * which is later replaced by Ajax call (see top of /gc-admin/index.php)
  *
- *
- *
+ * @since 5.3.0 Formalized the existing and already documented `...$args` parameter
  *              by adding it to the function signature.
  *
  * @param string   $widget_id  The widget ID.
@@ -1134,7 +1149,8 @@ function gc_dashboard_rss_output( $widget_id ) {
  * @return bool True on success, false on failure.
  */
 function gc_dashboard_cached_rss_widget( $widget_id, $callback, $check_urls = array(), ...$args ) {
-	$loading    = '<p class="widget-loading hide-if-no-js">' . __( '载入中&hellip;' ) . '</p><div class="hide-if-js notice notice-error inline"><p>' . __( '这个小工具需要JavaScript支持。' ) . '</p></div>';
+	$alert = setting_error( __( '这个小工具需要 JavaScript 支持。' ), 'hide-if-js danger inline' );
+	$loading    = '<p class="widget-loading hide-if-no-js">' . __( '载入中&hellip;' ) . '</p>' . $alert;
 	$doing_ajax = gc_doing_ajax();
 
 	if ( empty( $check_urls ) ) {
@@ -1180,8 +1196,6 @@ function gc_dashboard_cached_rss_widget( $widget_id, $callback, $check_urls = ar
 /**
  * Calls widget control callback.
  *
- *
- *
  * @global callable[] $gc_dashboard_control_callbacks
  *
  * @param int|false $widget_control_id Optional. Registered widget ID. Default false.
@@ -1205,12 +1219,9 @@ function gc_dashboard_trigger_widget_control( $widget_control_id = false ) {
 }
 
 /**
- * The RSS dashboard widget control.
+ * Sets up the RSS dashboard widget control and $args to be used as input to gc_widget_rss_form().
  *
- * Sets up $args to be used as input to gc_widget_rss_form(). Handles POST data
- * from RSS-type widgets.
- *
- *
+ * Handles POST data from RSS-type widgets.
  *
  * @param string $widget_id
  * @param array  $form_inputs
@@ -1261,7 +1272,6 @@ function gc_dashboard_rss_control( $widget_id, $form_inputs = array() ) {
 /**
  * Renders the Events and News dashboard widget.
  *
- *
  */
 function gc_dashboard_events_news() {
 	?>
@@ -1271,13 +1281,14 @@ function gc_dashboard_events_news() {
 	</div>
 
 	<p class="community-events-footer">
+
 		<?php
 			printf(
-				'<a href="%1$s" target="_blank">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
+				'<a href="%1$s" target="_blank">%2$s <span class="screen-reader-text"> %3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
 				/* translators: If a Rosetta site exists (e.g. https://es.gechiui.com/news/), then use that. Otherwise, leave untranslated. */
 				esc_url( _x( 'https://www.gechiui.com/news/', 'Events and News dashboard widget' ) ),
-				__( '新闻' ),
-				/* translators: Accessibility text. */
+				__( '更多' ),
+				/* translators: Hidden accessibility text. */
 				__( '（在新窗口中打开）' )
 			);
 		?>
@@ -1286,57 +1297,142 @@ function gc_dashboard_events_news() {
 	<?php
 }
 
+
 /**
  * Renders the events templates for the Event and News widget.
  *
- *
  */
-function gc_print_community_events_templates(){
+function gc_print_community_events_templates() {
+	?>
 
+	<script id="tmpl-community-events-attend-event-near" type="text/template">
+		<?php
+		printf(
+			/* translators: %s: The name of a city. */
+			__( '参加近期位于%s附近的活动。' ),
+			'<strong>{{ data.location.description }}</strong>'
+		);
+		?>
+	</script>
+
+	<script id="tmpl-community-events-could-not-locate" type="text/template">
+		<?php
+		printf(
+			/* translators: %s is the name of the city we couldn't locate.
+			 * Replace the examples with cities in your locale, but test
+			 * that they match the expected location before including them.
+			 * Use endonyms (native locale names) whenever possible.
+			 */
+			__( '系统无法找到城市名“%s”。请更换一个附近的城市名试试。例如：北京、杭州、厦门、成都、重庆。' ),
+			'<em>{{data.unknownCity}}</em>'
+		);
+		?>
+	</script>
+
+	<script id="tmpl-community-events-event-list" type="text/template">
+		<# _.each( data.events, function( event ) { #>
+			<li class="event event-{{ event.type }} gc-clearfix">
+				<div class="event-info">
+					<div class="dashicons event-icon" aria-hidden="true"></div>
+					<div class="event-info-inner">
+						<a class="event-title" href="{{ event.url }}">{{ event.title }}</a>
+						<span class="event-city">{{ event.location.location }}</span>
+					</div>
+				</div>
+
+				<div class="event-date-time">
+					<span class="event-date">{{ event.user_formatted_date }}</span>
+					<# if ( 'meetup' === event.type ) { #>
+						<span class="event-time">
+							{{ event.user_formatted_time }} {{ event.timeZoneAbbreviation }}
+						</span>
+					<# } #>
+				</div>
+			</li>
+		<# } ) #>
+
+		<# if ( data.events.length <= 2 ) { #>
+			<li class="event-none">
+				<?php
+				printf(
+					/* translators: %s: Localized meetup organization documentation URL. */
+					__( '想要更多活动吗？<a href="%s">帮助组织下一场活动</a>！' ),
+					__( 'https://make.gechiui.com/community/organize-event-landing-page/' )
+				);
+				?>
+			</li>
+		<# } #>
+
+	</script>
+
+	<script id="tmpl-community-events-no-upcoming-events" type="text/template">
+		<li class="event-none">
+			<# if ( data.location.description ) { #>
+				<?php
+				printf(
+					/* translators: 1: The city the user searched for, 2: Meetup organization documentation URL. */
+					__( '目前在 %1$s 附近没有安排任何活动。您想<a href="%2$s">组织一个 GeChiUI 活动</a>吗？' ),
+					'{{ data.location.description }}',
+					__( 'https://make.gechiui.com/community/handbook/meetup-organizer/welcome/' )
+				);
+				?>
+
+			<# } else { #>
+				<?php
+				printf(
+					/* translators: %s: Meetup organization documentation URL. */
+					__( '目前您附近没有安排任何活动。您想<a href="%s">组织一个 GeChiUI 活动</a>吗？' ),
+					__( 'https://make.gechiui.com/community/handbook/meetup-organizer/welcome/' )
+				);
+				?>
+			<# } #>
+		</li>
+	</script>
+	<?php
 }
 
 /**
- * 'GeChiUI活动及新闻' dashboard widget.
+ * 'GeChiUI新闻' dashboard widget.
  *
- *
- *
+ * @since 2.7.0 Removed popular plugins feed.
  */
 function gc_dashboard_primary() {
 	$feeds = array(
 		'news'   => array(
 
 			/**
-			 * Filters the primary link URL for the 'GeChiUI活动及新闻' dashboard widget.
+			 * Filters the primary link URL for the 'GeChiUI新闻' dashboard widget.
 			 *
-		
+			 * @since 2.5.0
 			 *
 			 * @param string $link The widget's primary link URL.
 			 */
 			'link'         => apply_filters( 'dashboard_primary_link', __( 'https://www.gechiui.com/news/' ) ),
 
 			/**
-			 * Filters the primary feed URL for the 'GeChiUI活动及新闻' dashboard widget.
+			 * Filters the primary feed URL for the 'GeChiUI新闻' dashboard widget.
 			 *
-		
+			 * @since 2.3.0
 			 *
 			 * @param string $url The widget's primary feed URL.
 			 */
 			'url'          => apply_filters( 'dashboard_primary_feed', __( 'https://www.gechiui.com/news/feed/' ) ),
 
 			/**
-			 * Filters the primary link title for the 'GeChiUI活动及新闻' dashboard widget.
+			 * Filters the primary link title for the 'GeChiUI新闻' dashboard widget.
 			 *
-		
+			 * @since 2.3.0
 			 *
 			 * @param string $title Title attribute for the widget's primary link.
 			 */
-			'title'        => apply_filters( 'dashboard_primary_title', __( 'GeChiUI 博客' ) ),
-			'items'        => 2,
+			'title'        => apply_filters( 'dashboard_primary_title', __( 'GeChiUI 系统' ) ),
+			'items'        => 5,
 			'show_summary' => 0,
 			'show_author'  => 0,
 			'show_date'    => 0,
 		),
-		//如果需要更过类型内容，可以在这里添加
+		// 如果需要更过类型内容，可以在这里添加
+		// gongenlin
 	);
 
 	gc_dashboard_cached_rss_widget( 'dashboard_primary', 'gc_dashboard_primary_output', $feeds );
@@ -1345,8 +1441,7 @@ function gc_dashboard_primary() {
 /**
  * Displays the GeChiUI events and news feeds.
  *
- *
- *
+ * @since 3.8.0 Removed popular plugins feed.
  *
  * @param string $widget_id Widget ID.
  * @param array  $feeds     Array of RSS feeds.
@@ -1364,8 +1459,6 @@ function gc_dashboard_primary_output( $widget_id, $feeds ) {
  * Displays file upload quota on dashboard.
  *
  * Runs on the {@see 'activity_box_end'} hook in gc_dashboard_right_now().
- *
- *
  *
  * @return true|void True if not multisite, user can't upload files, or the space check option is disabled.
  */
@@ -1401,9 +1494,10 @@ function gc_dashboard_quota() {
 				number_format_i18n( $quota )
 			);
 			printf(
-				'<a href="%1$s">%2$s <span class="screen-reader-text">(%3$s)</span></a>',
+				'<a href="%1$s">%2$s<span class="screen-reader-text"> (%3$s)</span></a>',
 				esc_url( admin_url( 'upload.php' ) ),
 				$text,
+				/* translators: Hidden accessibility text. */
 				__( '管理上传' )
 			);
 			?>
@@ -1416,9 +1510,10 @@ function gc_dashboard_quota() {
 				$percentused
 			);
 			printf(
-				'<a href="%1$s" class="musublink">%2$s <span class="screen-reader-text">(%3$s)</span></a>',
+				'<a href="%1$s" class="musublink">%2$s<span class="screen-reader-text"> (%3$s)</span></a>',
 				esc_url( admin_url( 'upload.php' ) ),
 				$text,
+				/* translators: Hidden accessibility text. */
 				__( '管理上传' )
 			);
 			?>
@@ -1431,8 +1526,7 @@ function gc_dashboard_quota() {
 /**
  * Displays the browser update nag.
  *
- *
- *
+ * @since 5.8.0 Added a special message for Internet Explorer users.
  *
  * @global bool $is_IE
  */
@@ -1444,7 +1538,7 @@ function gc_dashboard_browser_nag() {
 
 	if ( $response ) {
 		if ( $is_IE ) {
-			$msg = __( 'Internet Explorer 并不能为您带来最佳的 GeChiUI 体验。请换用 Microsoft Edge 或其他更新的浏览器以发挥您站点的最大效益。' );
+			$msg = __( 'Internet Explorer 并不能为您带来最佳的 GeChiUI 体验。请换用 Microsoft Edge 或其他更新的浏览器以发挥您系统的最大效益。' );
 		} elseif ( $response['insecure'] ) {
 			$msg = sprintf(
 				/* translators: %s: Browser name and link. */
@@ -1463,7 +1557,7 @@ function gc_dashboard_browser_nag() {
 		if ( ! empty( $response['img_src'] ) ) {
 			$img_src = ( is_ssl() && ! empty( $response['img_src_ssl'] ) ) ? $response['img_src_ssl'] : $response['img_src'];
 
-			$notice           .= '<div class="alignright browser-icon"><img src="' . esc_attr( $img_src ) . '" alt="" /></div>';
+			$notice           .= '<div class="alignright browser-icon"><img src="' . esc_url( $img_src ) . '" alt="" /></div>';
 			$browser_nag_class = ' has-browser-icon';
 		}
 		$notice .= "<p class='browser-update-nag{$browser_nag_class}'>{$msg}</p>";
@@ -1498,18 +1592,17 @@ function gc_dashboard_browser_nag() {
 	/**
 	 * Filters the notice output for the 'Browse Happy' nag meta box.
 	 *
+	 * @since 3.2.0
 	 *
 	 * @param string      $notice   The notice content.
 	 * @param array|false $response An array containing web browser information, or
-	 *                              false on failure. See `gc_check_browser_version()`.
+	 *                              false on failure. See gc_check_browser_version().
 	 */
 	echo apply_filters( 'browse-happy-notice', $notice, $response ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 }
 
 /**
  * Adds an additional class to the browser nag if the current version is insecure.
- *
- *
  *
  * @param string[] $classes Array of meta box classes.
  * @return string[] Modified array of meta box classes.
@@ -1526,8 +1619,6 @@ function dashboard_browser_nag_class( $classes ) {
 
 /**
  * Checks if the user needs a browser update.
- *
- *
  *
  * @return array|false Array of browser data on success, false on failure.
  */
@@ -1587,7 +1678,7 @@ function gc_check_browser_version() {
 /**
  * Displays the PHP update nag.
  *
- *
+ * @since 5.1.0
  */
 function gc_dashboard_php_nag() {
 	$response = gc_check_php_version();
@@ -1597,39 +1688,58 @@ function gc_dashboard_php_nag() {
 	}
 
 	if ( isset( $response['is_secure'] ) && ! $response['is_secure'] ) {
-		$msg = sprintf(
+		// The `is_secure` array key name doesn't actually imply this is a secure version of PHP. It only means it receives security updates.
+
+		if ( $response['is_lower_than_future_minimum'] ) {
+			$message = sprintf(
+				/* translators: %s: The server PHP version. */
+				__( '您的系统正在运行过时版本的 PHP （%s），其无法接收安全更新，而且很快将不被 GeChiUI 所支持。请确保尽快更新您服务器上的 PHP。否则您将无法升级 GeChiUI。' ),
+				PHP_VERSION
+			);
+		} else {
+			$message = sprintf(
+				/* translators: %s: The server PHP version. */
+				__( '您的系统正在运行过时版本的 PHP （%s），其无法接收安全更新，且应当被升级。' ),
+				PHP_VERSION
+			);
+		}
+	} elseif ( $response['is_lower_than_future_minimum'] ) {
+		$message = sprintf(
 			/* translators: %s: The server PHP version. */
-			__( '您的站点正在运行不安全的PHP版本（%s），应当进行更新。' ),
+			__( '您的系统正在运行过时版本的PHP （%s），其很快将不被 GeChiUI 所支持。请确保尽快更新您服务器上的 PHP。否则您将无法升级 GeChiUI。' ),
 			PHP_VERSION
 		);
 	} else {
-		$msg = sprintf(
+		$message = sprintf(
 			/* translators: %s: The server PHP version. */
-			__( '您的站点正在运行过时的PHP版本（%s），应当进行更新。' ),
+			__( '您的系统正在运行过时的 PHP 版本（%s），应当进行更新。' ),
 			PHP_VERSION
 		);
 	}
 	?>
-	<p><?php echo $msg; ?></p>
+	<p class="bigger-bolder-text"><?php echo $message; ?></p>
 
-	<h3><?php _e( '什么是PHP？为什么它影响我的站点？' ); ?></h3>
+	<p><?php _e( '什么是PHP？为什么它影响我的系统？' ); ?></p>
 	<p>
+		<?php _e( 'PHP 是用于搭建 GeChiUI 的编程语言之一。较新版本的 PHP 能接受定期安全更新，也能提升您系统的性能。' ); ?>
 		<?php
-		printf(
-			/* translators: %s: The minimum recommended PHP version. */
-			__( 'PHP是用以构建及维护GeChiUI的程序语言。较新版本的PHP在设计时以更好的性能表现为前提，所以使用最新的PHP版本会为您的站点带来更好的性能表现。推荐的最低PHP版本是%s。' ),
-			$response ? $response['recommended_version'] : ''
-		);
+		if ( ! empty( $response['recommended_version'] ) ) {
+			printf(
+				/* translators: %s: The minimum recommended PHP version. */
+				__( 'PHP 的最低建议版本为 %s。' ),
+				$response['recommended_version']
+			);
+		}
 		?>
 	</p>
 
 	<p class="button-container">
 		<?php
 		printf(
-			'<a class="button button-primary" href="%1$s" target="_blank" rel="noopener">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
+			'<a class="btn btn-primary" href="%1$s" target="_blank" rel="noopener">%2$s<span class="screen-reader-text"> %3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
 			esc_url( gc_get_update_php_url() ),
 			__( '查阅如何更新PHP' ),
-			/* translators: Accessibility text. */
+			/* translators: Hidden accessibility text. */
 			__( '（在新窗口中打开）' )
 		);
 		?>
@@ -1643,7 +1753,7 @@ function gc_dashboard_php_nag() {
 /**
  * Adds an additional class to the PHP nag if the current version is insecure.
  *
- *
+ * @since 5.1.0
  *
  * @param string[] $classes Array of meta box classes.
  * @return string[] Modified array of meta box classes.
@@ -1651,8 +1761,14 @@ function gc_dashboard_php_nag() {
 function dashboard_php_nag_class( $classes ) {
 	$response = gc_check_php_version();
 
-	if ( $response && isset( $response['is_secure'] ) && ! $response['is_secure'] ) {
-		$classes[] = 'php-insecure';
+	if ( ! $response ) {
+		return $classes;
+	}
+
+	if ( isset( $response['is_secure'] ) && ! $response['is_secure'] ) {
+		$classes[] = 'php-no-security-updates';
+	} elseif ( $response['is_lower_than_future_minimum'] ) {
+		$classes[] = 'php-version-lower-than-future-minimum';
 	}
 
 	return $classes;
@@ -1661,7 +1777,7 @@ function dashboard_php_nag_class( $classes ) {
 /**
  * Displays the Site Health Status widget.
  *
- *
+ * @since 5.4.0
  */
 function gc_dashboard_site_health() {
 	$get_issues = get_transient( 'health-check-site-status-result' );
@@ -1685,16 +1801,16 @@ function gc_dashboard_site_health() {
 	<div class="health-check-widget">
 		<div class="health-check-widget-title-section site-health-progress-wrapper loading hide-if-no-js">
 			<div class="site-health-progress">
-				<svg role="img" aria-hidden="true" focusable="false" width="100%" height="100%" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg">
+				<svg aria-hidden="true" focusable="false" width="100%" height="100%" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg">
 					<circle r="90" cx="100" cy="100" fill="transparent" stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
 					<circle id="bar" r="90" cx="100" cy="100" fill="transparent" stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
 				</svg>
 			</div>
 			<div class="site-health-progress-label">
 				<?php if ( false === $get_issues ) : ?>
-					<?php _e( '尚无信息…' ); ?>
+					<?php _e( '尚无信息...'  ); ?>
 				<?php else : ?>
-					<?php _e( '结果载入中…' ); ?>
+					<?php _e( '结果载入中...'  ); ?>
 				<?php endif; ?>
 			</div>
 		</div>
@@ -1705,7 +1821,7 @@ function gc_dashboard_site_health() {
 					<?php
 					printf(
 						/* translators: %s: URL to Site Health screen. */
-						__( '站点健康检查会自动定期运行来取得有关您站点的信息。您也可以<a href="%s">访问站点健康页面</a>来取得有关您站点的信息。' ),
+						__( '系统健康检查会自动定期运行来取得有关您系统的信息。您也可以<a href="%s">访问系统健康页面</a>来取得有关您系统的信息。' ),
 						esc_url( admin_url( 'site-health.php' ) )
 					);
 					?>
@@ -1713,15 +1829,15 @@ function gc_dashboard_site_health() {
 			<?php else : ?>
 				<p>
 					<?php if ( $issues_total <= 0 ) : ?>
-						<?php _e( '好样的！您的站点通过了所有健康检查。' ); ?>
+						<?php _e( '好样的！您的系统通过了所有健康检查。' ); ?>
 					<?php elseif ( 1 === (int) $issue_counts['critical'] ) : ?>
-						<?php _e( '您的站点存在关键问题，您应立即解决以提高其性能和安全性。' ); ?>
+						<?php _e( '您的系统存在关键问题，您应立即解决以提高其性能和安全性。' ); ?>
 					<?php elseif ( $issue_counts['critical'] > 1 ) : ?>
-						<?php _e( '您的站点有应当立即处理关键问题，这些问题影响您的站点的性能与安全性。' ); ?>
+						<?php _e( '您的系统有应当立即处理关键问题，这些问题影响您的系统的性能与安全性。' ); ?>
 					<?php elseif ( 1 === (int) $issue_counts['recommended'] ) : ?>
-						<?php _e( '您的站点健康状况看起来不错，但您仍可以做一些事情来提高其性能和安全性。' ); ?>
+						<?php _e( '您的系统健康状况看起来不错，但您仍可以做一些事情来提高其性能和安全性。' ); ?>
 					<?php else : ?>
-						<?php _e( '您的站点健康没有什么问题，但您仍可以做一些事情来改进您的站点的性能与安全性。' ); ?>
+						<?php _e( '您的系统健康没有什么问题，但您仍可以做一些事情来改进您的系统的性能与安全性。' ); ?>
 					<?php endif; ?>
 				</p>
 			<?php endif; ?>
@@ -1732,8 +1848,8 @@ function gc_dashboard_site_health() {
 					printf(
 						/* translators: 1: Number of issues. 2: URL to Site Health screen. */
 						_n(
-							'看看<a href="%2$s">站点健康界面</a>上的<strong>%1$d个项目</strong>。',
-							'看看<a href="%2$s">站点健康界面</a>上的<strong>%1$d个项目</strong>。',
+							'看看<a href="%2$s">系统健康界面</a>上的<strong>%1$d个项目</strong>。',
+							'看看<a href="%2$s">系统健康界面</a>上的<strong>%1$d个项目</strong>。',
 							$issues_total
 						),
 						$issues_total,
@@ -1749,75 +1865,10 @@ function gc_dashboard_site_health() {
 }
 
 /**
- * Empty function usable by plugins to output empty dashboard widget (to be populated later by JS).
+ * Outputs empty dashboard widget to be populated by JS later.
  *
+ * Usable by plugins.
  *
  */
 function gc_dashboard_empty() {}
 
-/**
- * Displays a welcome panel to introduce users to GeChiUI.
- *
- *
- *
- */
-function gc_welcome_panel() {
-	list( $display_version ) = explode( '-', get_bloginfo( 'version' ) );
-	$can_customize           = current_user_can( 'customize' );
-	$is_block_theme          = gc_is_block_theme();
-	?>
-	<div class="welcome-panel-content">
-	<div class="welcome-panel-header">
-		<h2><?php _e( '欢迎使用GeChiUI！' ); ?></h2>
-		<p>
-			<a href="<?php echo esc_url( admin_url( 'about.php' ) ); ?>">
-			<?php
-				/* translators: %s: Current GeChiUI version. */
-				printf( __( '详细了解 %s 版本。' ), $display_version );
-			?>
-			</a>
-		</p>
-	</div>
-	<div class="welcome-panel-column-container">
-		<div class="welcome-panel-column">
-			<div class="welcome-panel-icon-pages"></div>
-			<div class="welcome-panel-column-content">
-				<h3><?php _e( '使用区块和区块样板创作丰富的内容' ); ?></h3>
-				<p class="m-t-10"><?php _e( '区块样板是预先配置好的区块布局。通过区块样板获得灵感或在极短时间内创建新页面。' ); ?></p>
-				<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=page' ) ); ?>"><?php _e( '添加新页面' ); ?></a>
-			</div>
-		</div>
-		<div class="welcome-panel-column">
-			<div class="welcome-panel-icon-layout"></div>
-			<div class="welcome-panel-column-content">
-			<?php if ( $is_block_theme ) : ?>
-				<h3><?php _e( '使用区块主题定制整个站点' ); ?></h3>
-				<p class="m-t-10"><?php _e( '上至页眉下至页脚，整个站点都可通过区块获区块样板进行设计。' ); ?></p>
-				<a href="<?php echo esc_url( admin_url( 'site-editor.php' ) ); ?>"><?php _e( '打开站点编辑器' ); ?></a>
-			<?php else : ?>
-				<h3><?php _e( '开始定制' ); ?></h3>
-				<p class="m-t-10"><?php _e( '在定制器中配置您站点的 logo、标题、菜单等。' ); ?></p>
-				<?php if ( $can_customize ) : ?>
-					<a class="load-customize hide-if-no-customize" href="<?php echo gc_customize_url(); ?>"><?php _e( '打开外观定制器' ); ?></a>
-				<?php endif; ?>
-			<?php endif; ?>
-			</div>
-		</div>
-		<div class="welcome-panel-column">
-			<div class="welcome-panel-icon-styles"></div>
-			<div class="welcome-panel-column-content">
-			<?php if ( $is_block_theme ) : ?>
-				<h3><?php _e( '使用样式变更站点的外观和风格' ); ?></h3>
-				<p class="m-t-10"><?php _e( '调整站点或赋予全新外观！ -使用新的调色盘或字体发挥创意！' ); ?></p>
-				<a href="<?php echo esc_url( admin_url( 'site-editor.php?styles=open' ) ); ?>"><?php _e( '编辑样式' ); ?></a>
-			<?php else : ?>
-				<h3><?php _e( '探索构建站点的新方式' ); ?></h3>
-				<p class="m-t-10"><?php _e( '全新的 GeChiUI 主题，可让您按需使用区块和区块样板来构建站点。' ); ?></p>
-				<a href="<?php echo esc_url( __( 'https://www.gechiui.com/support/block-themes/' ) ); ?>"><?php _e( '了解区块主题' ); ?></a>
-			<?php endif; ?>
-			</div>
-		</div>
-	</div>
-	</div>
-	<?php
-}

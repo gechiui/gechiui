@@ -4,21 +4,20 @@
  *
  * @package GeChiUI
  *
- *
  */
 
 /**
  * Class encapsulating and implementing Block Supports.
  *
- *
- *
  * @access private
  */
+#[AllowDynamicProperties]
 class GC_Block_Supports {
 
 	/**
 	 * Config.
 	 *
+	 * @since 5.6.0
 	 * @var array
 	 */
 	private $block_supports = array();
@@ -26,6 +25,7 @@ class GC_Block_Supports {
 	/**
 	 * Tracks the current block to be rendered.
 	 *
+	 * @since 5.6.0
 	 * @var array
 	 */
 	public static $block_to_render = null;
@@ -33,6 +33,7 @@ class GC_Block_Supports {
 	/**
 	 * Container for the main instance of the class.
 	 *
+	 * @since 5.6.0
 	 * @var GC_Block_Supports|null
 	 */
 	private static $instance = null;
@@ -42,6 +43,7 @@ class GC_Block_Supports {
 	 *
 	 * The instance will be created if it does not exist yet.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @return GC_Block_Supports The main instance.
 	 */
@@ -56,6 +58,7 @@ class GC_Block_Supports {
 	/**
 	 * Initializes the block supports. It registers the block supports block attributes.
 	 *
+	 * @since 5.6.0
 	 */
 	public static function init() {
 		$instance = self::get_instance();
@@ -65,6 +68,9 @@ class GC_Block_Supports {
 	/**
 	 * Registers a block support.
 	 *
+	 * @since 5.6.0
+	 *
+	 * @link https://developer.gechiui.com/block-editor/reference-guides/block-api/block-supports/
 	 *
 	 * @param string $block_support_name   Block support name.
 	 * @param array  $block_support_config Array containing the properties of the block support.
@@ -80,12 +86,12 @@ class GC_Block_Supports {
 	 * Generates an array of HTML attributes, such as classes, by applying to
 	 * the given block all of the features that the block supports.
 	 *
+	 * @since 5.6.0
 	 *
-	 * @return string[] Array of HTML attributes.
+	 * @return string[] Array of HTML attribute values keyed by their name.
 	 */
 	public function apply_block_supports() {
-		$block_attributes = self::$block_to_render['attrs'];
-		$block_type       = GC_Block_Type_Registry::get_instance()->get_registered(
+		$block_type = GC_Block_Type_Registry::get_instance()->get_registered(
 			self::$block_to_render['blockName']
 		);
 
@@ -93,6 +99,10 @@ class GC_Block_Supports {
 		if ( ! $block_type || empty( $block_type ) ) {
 			return array();
 		}
+
+		$block_attributes = array_key_exists( 'attrs', self::$block_to_render )
+			? self::$block_to_render['attrs']
+			: array();
 
 		$output = array();
 		foreach ( $this->block_supports as $block_support_config ) {
@@ -123,6 +133,7 @@ class GC_Block_Supports {
 	/**
 	 * Registers the block attributes required by the different block supports.
 	 *
+	 * @since 5.6.0
 	 */
 	private function register_attributes() {
 		$block_registry         = GC_Block_Type_Registry::get_instance();
@@ -153,8 +164,6 @@ class GC_Block_Supports {
  * Generates a string of attributes by applying to the current block being
  * rendered all of the features that the block supports.
  *
- *
- *
  * @param string[] $extra_attributes Optional. Array of extra attributes to render on the block wrapper.
  * @return string String of HTML attributes.
  */
@@ -167,7 +176,7 @@ function get_block_wrapper_attributes( $extra_attributes = array() ) {
 
 	// This is hardcoded on purpose.
 	// We only support a fixed list of attributes.
-	$attributes_to_merge = array( 'style', 'class' );
+	$attributes_to_merge = array( 'style', 'class', 'id' );
 	$attributes          = array();
 	foreach ( $attributes_to_merge as $attribute_name ) {
 		if ( empty( $new_attributes[ $attribute_name ] ) && empty( $extra_attributes[ $attribute_name ] ) ) {

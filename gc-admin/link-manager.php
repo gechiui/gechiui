@@ -9,7 +9,7 @@
 /** Load GeChiUI Administration Bootstrap */
 require_once __DIR__ . '/admin.php';
 if ( ! current_user_can( 'manage_links' ) ) {
-	gc_die( __( '抱歉，您不能在此站点上编辑链接。' ) );
+	gc_die( __( '抱歉，您不能在此系统上编辑链接。' ) );
 }
 
 $gc_list_table = _get_list_table( 'GC_Links_List_Table' );
@@ -58,7 +58,7 @@ get_current_screen()->add_help_tab(
 		'content' =>
 			'<p>' . sprintf(
 				/* translators: %s: URL to Widgets screen. */
-				__( '您可以在这里添加在您站点中显示的链接（通常在<a href="%s">小工具</a>中显示）。我们预置了几个链接至GeChiUI社区的链接作为例子。' ),
+				__( '您可以在这里添加在您系统中显示的链接（通常在<a href="%s">小工具</a>中显示）。我们预置了几个链接至GeChiUI社区的链接作为例子。' ),
 				'widgets.php'
 			) . '</p>' .
 			'<p>' . __( '可以使用“链接分类”来组织链接。链接分类和文章分类不大相同。' ) . '</p>' .
@@ -86,45 +86,35 @@ get_current_screen()->set_screen_reader_content(
 	)
 );
 
+if ( isset( $_REQUEST['deleted'] ) ) {
+	$deleted = (int) $_REQUEST['deleted'];
+	$message = sprintf( _n( '已删除%s个链接。', '已删除%s个链接。', $deleted ), $deleted );
+	add_settings_error( 'general', 'settings_updated', $message, 'success' );
+	$_SERVER['REQUEST_URI'] = remove_query_arg( array( 'deleted' ), $_SERVER['REQUEST_URI'] );
+}
+
 require_once ABSPATH . 'gc-admin/admin-header.php';
 
 if ( ! current_user_can( 'manage_links' ) ) {
-	gc_die( __( '抱歉，您不能在此站点上编辑链接。' ) );
+	gc_die( __( '抱歉，您不能在此系统上编辑链接。' ) );
 }
 
 ?>
 
 <div class="wrap nosubsub">
-<h1 class="gc-heading-inline">
-<?php
-echo esc_html( $title );
-?>
-</h1>
-
-<a href="link-add.php" class="page-title-action"><?php echo esc_html_x( '添加新链接', 'link' ); ?></a>
-
+	<div class="page-header">
+		<h2 class="header-title"><?php echo esc_html( $title ); ?></h2>
+		<a href="link-add.php" class="btn btn-primary btn-tone btn-sm"><?php echo esc_html_x( '添加新链接', 'link' ); ?></a>
+	</div>
 <?php
 if ( isset( $_REQUEST['s'] ) && strlen( $_REQUEST['s'] ) ) {
 	echo '<span class="subtitle">';
 	printf(
 		/* translators: %s: Search query. */
-		__( '搜索结果：%s' ),
+		__( '搜索词：%s' ),
 		'<strong>' . esc_html( gc_unslash( $_REQUEST['s'] ) ) . '</strong>'
 	);
 	echo '</span>';
-}
-?>
-
-<hr class="gc-header-end">
-
-<?php
-if ( isset( $_REQUEST['deleted'] ) ) {
-	echo '<div id="message" class="updated notice is-dismissible"><p>';
-	$deleted = (int) $_REQUEST['deleted'];
-	/* translators: %s: Number of links. */
-	printf( _n( '已删除%s个链接。', '已删除%s个链接。', $deleted ), $deleted );
-	echo '</p></div>';
-	$_SERVER['REQUEST_URI'] = remove_query_arg( array( 'deleted' ), $_SERVER['REQUEST_URI'] );
 }
 ?>
 

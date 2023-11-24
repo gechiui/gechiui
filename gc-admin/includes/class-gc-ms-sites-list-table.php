@@ -4,14 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Core class used to implement displaying sites in a list table for the network admin.
- *
- *
- * @access private
  *
  * @see GC_List_Table
  */
@@ -20,6 +16,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 	/**
 	 * Site status list.
 	 *
+	 * @since 4.3.0
 	 * @var array
 	 */
 	public $status_list;
@@ -79,7 +76,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 
 		$s    = isset( $_REQUEST['s'] ) ? gc_unslash( trim( $_REQUEST['s'] ) ) : '';
 		$wild = '';
-		if ( false !== strpos( $s, '*' ) ) {
+		if ( str_contains( $s, '*' ) ) {
 			$wild = '*';
 			$s    = trim( $s, '*' );
 		}
@@ -107,12 +104,17 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 
 		if ( empty( $s ) ) {
 			// Nothing to do.
-		} elseif ( preg_match( '/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/', $s ) ||
-					preg_match( '/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.?$/', $s ) ||
-					preg_match( '/^[0-9]{1,3}\.[0-9]{1,3}\.?$/', $s ) ||
-					preg_match( '/^[0-9]{1,3}\.$/', $s ) ) {
+		} elseif ( preg_match( '/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/', $s )
+			|| preg_match( '/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.?$/', $s )
+			|| preg_match( '/^[0-9]{1,3}\.[0-9]{1,3}\.?$/', $s )
+			|| preg_match( '/^[0-9]{1,3}\.$/', $s )
+		) {
 			// IPv4 address.
-			$sql          = $gcdb->prepare( "SELECT blog_id FROM {$gcdb->registration_log} WHERE {$gcdb->registration_log}.IP LIKE %s", $gcdb->esc_like( $s ) . ( ! empty( $wild ) ? '%' : '' ) );
+			$sql = $gcdb->prepare(
+				"SELECT blog_id FROM {$gcdb->registration_log} WHERE {$gcdb->registration_log}.IP LIKE %s",
+				$gcdb->esc_like( $s ) . ( ! empty( $wild ) ? '%' : '' )
+			);
+
 			$reg_blog_ids = $gcdb->get_col( $sql );
 
 			if ( $reg_blog_ids ) {
@@ -166,6 +168,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 		/**
 		 * Filters the arguments for the site query in the sites list table.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param array $args An array of get_sites() arguments.
 		 */
@@ -200,12 +203,13 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 	/**
 	 */
 	public function no_items() {
-		_e( '未找到站点。' );
+		_e( '未找到系统。' );
 	}
 
 	/**
 	 * Gets links to filter sites by status.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @return array
 	 */
@@ -257,23 +261,23 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 		$url              = 'sites.php';
 
 		foreach ( $statuses as $status => $label_count ) {
-			$current_link_attributes = $requested_status === $status || ( '' === $requested_status && 'all' === $status )
-				? ' class="current" aria-current="page"'
-				: '';
 			if ( (int) $counts[ $status ] > 0 ) {
-				$label    = sprintf( translate_nooped_plural( $label_count, $counts[ $status ] ), number_format_i18n( $counts[ $status ] ) );
+				$label = sprintf(
+					translate_nooped_plural( $label_count, $counts[ $status ] ),
+					number_format_i18n( $counts[ $status ] )
+				);
+
 				$full_url = 'all' === $status ? $url : add_query_arg( 'status', $status, $url );
 
-				$view_links[ $status ] = sprintf(
-					'<a href="%1$s"%2$s>%3$s</a>',
-					esc_url( $full_url ),
-					$current_link_attributes,
-					$label
+				$view_links[ $status ] = array(
+					'url'     => esc_url( $full_url ),
+					'label'   => $label,
+					'current' => $requested_status === $status || ( '' === $requested_status && 'all' === $status ),
 				);
 			}
 		}
 
-		return $view_links;
+		return $this->get_views_links( $view_links );
 	}
 
 	/**
@@ -285,7 +289,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 			$actions['delete'] = __( '删除' );
 		}
 		$actions['spam']    = _x( '标记为垃圾评论', 'site' );
-		$actions['notspam'] = _x( '标记为非垃圾站点', 'site' );
+		$actions['notspam'] = _x( '不是垃圾评论', 'site' );
 
 		return $actions;
 	}
@@ -306,8 +310,9 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Extra controls to be displayed between bulk actions and pagination.
+	 * Displays extra controls between bulk actions and pagination.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @param string $which The location of the extra table nav markup: 'top' or 'bottom'.
 	 */
@@ -321,7 +326,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 			/**
 			 * Fires before the Filter button on the MS sites list table.
 			 *
-		
+			 * @since 5.3.0
 			 *
 			 * @param string $which The location of the extra table nav markup: 'top' or 'bottom'.
 			 */
@@ -341,6 +346,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 		 * Fires immediately following the closing "actions" div in the tablenav for the
 		 * MS sites list table.
 		 *
+		 * @since 5.3.0
 		 *
 		 * @param string $which The location of the extra table nav markup: 'top' or 'bottom'.
 		 */
@@ -348,7 +354,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * @return array
+	 * @return string[] Array of column titles keyed by their column name.
 	 */
 	public function get_columns() {
 		$sites_columns = array(
@@ -366,7 +372,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 		/**
 		 * Filters the displayed site columns in Sites list table.
 		 *
-		 * @since MU
+		 * @since MU (3.0.0)
 		 *
 		 * @param string[] $sites_columns An array of displayed site columns. Default 'cb',
 		 *                               'blogname', 'lastupdated', 'registered', 'users'.
@@ -378,16 +384,27 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 	 * @return array
 	 */
 	protected function get_sortable_columns() {
+
+		if ( is_subdomain_install() ) {
+			$abbr = __( '您的域名' );
+			$blogname_orderby_text = __( '表按系统域名排序。' );
+		} else {
+			$abbr = __( '标签层级' );
+			$blogname_orderby_text = __( '表按系统路径排序。' );
+		}
+
 		return array(
-			'blogname'    => 'blogname',
-			'lastupdated' => 'lastupdated',
-			'registered'  => 'blog_id',
+			'blogname'    => array( 'blogname', false, $abbr, $blogname_orderby_text ),
+			'lastupdated' => array( 'lastupdated', true, __( '上次更新' ), __( '表按上次更新顺序排序。' ) ),
+			'registered'  => array( 'blog_id', true, _x( '已注册', 'site' ), __( '表按系统注册日期排序。' ), 'desc' ),
 		);
 	}
 
 	/**
 	 * Handles the checkbox column output.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$blog` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param array $item Current site.
 	 */
@@ -398,13 +415,16 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 		if ( ! is_main_site( $blog['blog_id'] ) ) :
 			$blogname = untrailingslashit( $blog['domain'] . $blog['path'] );
 			?>
-			<label class="screen-reader-text" for="blog_<?php echo $blog['blog_id']; ?>">
+			<label class="label-covers-full-cell" for="blog_<?php echo $blog['blog_id']; ?>">
+				<span class="screen-reader-text">
 				<?php
 				/* translators: %s: Site URL. */
 				printf( __( '选择%s' ), $blogname );
 				?>
+				</span>
 			</label>
-			<input type="checkbox" id="blog_<?php echo $blog['blog_id']; ?>" name="allblogs[]" value="<?php echo esc_attr( $blog['blog_id'] ); ?>" />
+			<input type="checkbox" id="blog_<?php echo $blog['blog_id']; ?>" name="allblogs[]"
+				value="<?php echo esc_attr( $blog['blog_id'] ); ?>" />
 			<?php
 		endif;
 	}
@@ -412,6 +432,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 	/**
 	 * Handles the ID column output.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $blog Current site.
 	 */
@@ -422,6 +443,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 	/**
 	 * Handles the site name column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @global string $mode List table view mode.
 	 *
@@ -434,8 +456,15 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 
 		?>
 		<strong>
-			<a href="<?php echo esc_url( network_admin_url( 'site-info.php?id=' . $blog['blog_id'] ) ); ?>" class="edit"><?php echo $blogname; ?></a>
-			<?php $this->site_states( $blog ); ?>
+			<?php
+			printf(
+				'<a href="%1$s" class="edit">%2$s</a>',
+				esc_url( network_admin_url( 'site-info.php?id=' . $blog['blog_id'] ) ),
+				$blogname
+			);
+
+			$this->site_states( $blog );
+			?>
 		</strong>
 		<?php
 		if ( 'list' !== $mode ) {
@@ -455,6 +484,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 	/**
 	 * Handles the lastupdated column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @global string $mode List table view mode.
 	 *
@@ -469,12 +499,17 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 			$date = __( 'Y/m/d g:i:s a' );
 		}
 
-		echo ( '0000-00-00 00:00:00' === $blog['last_updated'] ) ? __( '从未' ) : mysql2date( $date, $blog['last_updated'] );
+		if ( '0000-00-00 00:00:00' === $blog['last_updated'] ) {
+			_e( '从未' );
+		} else {
+			echo mysql2date( $date, $blog['last_updated'] );
+		}
 	}
 
 	/**
 	 * Handles the registered column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @global string $mode List table view mode.
 	 *
@@ -499,6 +534,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 	/**
 	 * Handles the users column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param array $blog Current site.
 	 */
@@ -518,7 +554,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 		}
 
 		printf(
-			'<a href="%s">%s</a>',
+			'<a href="%1$s">%2$s</a>',
 			esc_url( network_admin_url( 'site-users.php?id=' . $blog['blog_id'] ) ),
 			number_format_i18n( $user_count )
 		);
@@ -527,6 +563,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 	/**
 	 * Handles the plugins column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param array $blog Current site.
 	 */
@@ -537,7 +574,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 			 *
 			 * By default this column is hidden unless something is hooked to the action.
 			 *
-			 * @since MU
+			 * @since MU (3.0.0)
 			 *
 			 * @param int $blog_id The site ID.
 			 */
@@ -548,6 +585,8 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 	/**
 	 * Handles output for the default column.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$blog` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param array  $item        Current site.
 	 * @param string $column_name Current column name.
@@ -556,6 +595,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 		/**
 		 * Fires for each registered custom column in the Sites list table.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param string $column_name The name of the column to display.
 		 * @param int    $blog_id     The site ID.
@@ -573,7 +613,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 			reset( $this->status_list );
 
 			foreach ( $this->status_list as $status => $col ) {
-				if ( 1 == $blog[ $status ] ) {
+				if ( '1' === $blog[ $status ] ) {
 					$class = " class='{$col[0]}'";
 				}
 			}
@@ -587,8 +627,9 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Maybe output comma-separated site states.
+	 * Determines whether to output comma-separated site states.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @param array $site
 	 */
@@ -599,14 +640,14 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 		$_site = GC_Site::get_instance( $site['blog_id'] );
 
 		if ( is_main_site( $_site->id ) ) {
-			$site_states['main'] = __( '主站点' );
+			$site_states['main'] = __( '主系统' );
 		}
 
 		reset( $this->status_list );
 
 		$site_status = isset( $_REQUEST['status'] ) ? gc_unslash( trim( $_REQUEST['status'] ) ) : '';
 		foreach ( $this->status_list as $status => $col ) {
-			if ( ( 1 === (int) $_site->{$status} ) && ( $site_status !== $status ) ) {
+			if ( '1' === $_site->{$status} && $site_status !== $status ) {
 				$site_states[ $col[0] ] = $col[1];
 			}
 		}
@@ -614,6 +655,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 		/**
 		 * Filters the default site display states for items in the Sites list table.
 		 *
+		 * @since 5.3.0
 		 *
 		 * @param string[] $site_states An array of site states. Default 'Main',
 		 *                              'Archived', 'Mature', 'Spam', 'Deleted'.
@@ -631,9 +673,9 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 			foreach ( $site_states as $state ) {
 				++$i;
 
-				$sep = ( $i < $state_count ) ? ', ' : '';
+				$separator = ( $i < $state_count ) ? ', ' : '';
 
-				echo "<span class='post-state'>{$state}{$sep}</span>";
+				echo "<span class='post-state'>{$state}{$separator}</span>";
 			}
 		}
 	}
@@ -641,6 +683,7 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 	/**
 	 * Gets the name of the default primary column.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @return string Name of the default primary column, in this case, 'blogname'.
 	 */
@@ -651,6 +694,8 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 	/**
 	 * Generates and displays row action links.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$blog` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param array  $item        Site being acted upon.
 	 * @param string $column_name Current column name.
@@ -681,42 +726,120 @@ class GC_MS_Sites_List_Table extends GC_List_Table {
 			'visit'      => '',
 		);
 
-		$actions['edit']    = '<a href="' . esc_url( network_admin_url( 'site-info.php?id=' . $blog['blog_id'] ) ) . '">' . __( '编辑' ) . '</a>';
-		$actions['backend'] = "<a href='" . esc_url( get_admin_url( $blog['blog_id'] ) ) . "' class='edit'>" . __( '仪表盘' ) . '</a>';
-		if ( get_network()->site_id != $blog['blog_id'] ) {
-			if ( '1' == $blog['deleted'] ) {
-				$actions['activate'] = '<a href="' . esc_url( gc_nonce_url( network_admin_url( 'sites.php?action=confirm&amp;action2=activateblog&amp;id=' . $blog['blog_id'] ), 'activateblog_' . $blog['blog_id'] ) ) . '">' . __( '启用' ) . '</a>';
+		$actions['edit'] = sprintf(
+			'<a href="%1$s">%2$s</a>',
+			esc_url( network_admin_url( 'site-info.php?id=' . $blog['blog_id'] ) ),
+			__( '编辑' )
+		);
+
+		$actions['backend'] = sprintf(
+			'<a href="%1$s" class="edit">%2$s</a>',
+			esc_url( get_admin_url( $blog['blog_id'] ) ),
+			__( '仪表盘' )
+		);
+
+		if ( ! is_main_site( $blog['blog_id'] ) ) {
+			if ( '1' === $blog['deleted'] ) {
+				$actions['activate'] = sprintf(
+					'<a href="%1$s">%2$s</a>',
+					esc_url(
+						gc_nonce_url(
+							network_admin_url( 'sites.php?action=confirm&amp;action2=activateblog&amp;id=' . $blog['blog_id'] ),
+							'activateblog_' . $blog['blog_id']
+						)
+					),
+					__( '启用' )
+				);
 			} else {
-				$actions['deactivate'] = '<a href="' . esc_url( gc_nonce_url( network_admin_url( 'sites.php?action=confirm&amp;action2=deactivateblog&amp;id=' . $blog['blog_id'] ), 'deactivateblog_' . $blog['blog_id'] ) ) . '">' . __( '禁用' ) . '</a>';
+				$actions['deactivate'] = sprintf(
+					'<a href="%1$s">%2$s</a>',
+					esc_url(
+						gc_nonce_url(
+							network_admin_url( 'sites.php?action=confirm&amp;action2=deactivateblog&amp;id=' . $blog['blog_id'] ),
+							'deactivateblog_' . $blog['blog_id']
+						)
+					),
+					__( '禁用' )
+				);
 			}
 
-			if ( '1' == $blog['archived'] ) {
-				$actions['unarchive'] = '<a href="' . esc_url( gc_nonce_url( network_admin_url( 'sites.php?action=confirm&amp;action2=unarchiveblog&amp;id=' . $blog['blog_id'] ), 'unarchiveblog_' . $blog['blog_id'] ) ) . '">' . __( '取消存档' ) . '</a>';
+			if ( '1' === $blog['archived'] ) {
+				$actions['unarchive'] = sprintf(
+					'<a href="%1$s">%2$s</a>',
+					esc_url(
+						gc_nonce_url(
+							network_admin_url( 'sites.php?action=confirm&amp;action2=unarchiveblog&amp;id=' . $blog['blog_id'] ),
+							'unarchiveblog_' . $blog['blog_id']
+						)
+					),
+					__( '取消存档' )
+				);
 			} else {
-				$actions['archive'] = '<a href="' . esc_url( gc_nonce_url( network_admin_url( 'sites.php?action=confirm&amp;action2=archiveblog&amp;id=' . $blog['blog_id'] ), 'archiveblog_' . $blog['blog_id'] ) ) . '">' . _x( '存档', 'verb; site' ) . '</a>';
+				$actions['archive'] = sprintf(
+					'<a href="%1$s">%2$s</a>',
+					esc_url(
+						gc_nonce_url(
+							network_admin_url( 'sites.php?action=confirm&amp;action2=archiveblog&amp;id=' . $blog['blog_id'] ),
+							'archiveblog_' . $blog['blog_id']
+						)
+					),
+					_x( '存档', 'verb; site' )
+				);
 			}
 
-			if ( '1' == $blog['spam'] ) {
-				$actions['unspam'] = '<a href="' . esc_url( gc_nonce_url( network_admin_url( 'sites.php?action=confirm&amp;action2=unspamblog&amp;id=' . $blog['blog_id'] ), 'unspamblog_' . $blog['blog_id'] ) ) . '">' . _x( '非垃圾站点', 'site' ) . '</a>';
+			if ( '1' === $blog['spam'] ) {
+				$actions['unspam'] = sprintf(
+					'<a href="%1$s">%2$s</a>',
+					esc_url(
+						gc_nonce_url(
+							network_admin_url( 'sites.php?action=confirm&amp;action2=unspamblog&amp;id=' . $blog['blog_id'] ),
+							'unspamblog_' . $blog['blog_id']
+						)
+					),
+					_x( '不是垃圾评论', 'site' )
+				);
 			} else {
-				$actions['spam'] = '<a href="' . esc_url( gc_nonce_url( network_admin_url( 'sites.php?action=confirm&amp;action2=spamblog&amp;id=' . $blog['blog_id'] ), 'spamblog_' . $blog['blog_id'] ) ) . '">' . _x( '垃圾', 'site' ) . '</a>';
+				$actions['spam'] = sprintf(
+					'<a href="%1$s">%2$s</a>',
+					esc_url(
+						gc_nonce_url(
+							network_admin_url( 'sites.php?action=confirm&amp;action2=spamblog&amp;id=' . $blog['blog_id'] ),
+							'spamblog_' . $blog['blog_id']
+						)
+					),
+					_x( '垃圾', 'site' )
+				);
 			}
 
 			if ( current_user_can( 'delete_site', $blog['blog_id'] ) ) {
-				$actions['delete'] = '<a href="' . esc_url( gc_nonce_url( network_admin_url( 'sites.php?action=confirm&amp;action2=deleteblog&amp;id=' . $blog['blog_id'] ), 'deleteblog_' . $blog['blog_id'] ) ) . '">' . __( '删除' ) . '</a>';
+				$actions['delete'] = sprintf(
+					'<a href="%1$s">%2$s</a>',
+					esc_url(
+						gc_nonce_url(
+							network_admin_url( 'sites.php?action=confirm&amp;action2=deleteblog&amp;id=' . $blog['blog_id'] ),
+							'deleteblog_' . $blog['blog_id']
+						)
+					),
+					__( '删除' )
+				);
 			}
 		}
 
-		$actions['visit'] = "<a href='" . esc_url( get_home_url( $blog['blog_id'], '/' ) ) . "' rel='bookmark'>" . __( '访问' ) . '</a>';
+		$actions['visit'] = sprintf(
+			'<a href="%1$s" rel="bookmark">%2$s</a>',
+			esc_url( get_home_url( $blog['blog_id'], '/' ) ),
+			__( '访问' )
+		);
 
 		/**
 		 * Filters the action links displayed for each site in the Sites list table.
 		 *
-		 * The 'Edit', '仪表盘', 'Delete', and 'Visit' links are displayed by
+		 * The 'Edit', 'Dashboard', 'Delete', and 'Visit' links are displayed by
 		 * default for each site. The site's status determines whether to show the
-		 * 'Activate' or '禁用' link, '取消存档' or 'Archive' links, and
-		 * 'Not Spam' or 'Spam' link for each site.
+		 * 'Activate' or 'Deactivate' link, 'Unarchive' or 'Archive' links, and
+		 * '不是垃圾评论' or 'Spam' link for each site.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param string[] $actions  An array of action links to be displayed.
 		 * @param int      $blog_id  The site ID.

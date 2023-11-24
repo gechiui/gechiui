@@ -16,6 +16,7 @@ if ( ! function_exists( 'gc_set_current_user' ) ) :
 	 * the signed in user. Therefore, it opens the ability to edit and perform
 	 * actions on users who aren't signed in.
 	 *
+	 * @since 2.0.3
 	 *
 	 * @global GC_User $current_user The current user object which holds the user data.
 	 *
@@ -42,6 +43,7 @@ if ( ! function_exists( 'gc_set_current_user' ) ) :
 		/**
 		 * Fires after the current user is set.
 		 *
+		 * @since 2.0.1
 		 */
 		do_action( 'set_current_user' );
 
@@ -51,12 +53,13 @@ endif;
 
 if ( ! function_exists( 'gc_get_current_user' ) ) :
 	/**
-	 * Retrieve the current user object.
+	 * Retrieves the current user object.
 	 *
 	 * Will set the current user, if the current user is not set. The current user
 	 * will be set to the logged-in person. If no user is logged-in, then it will
 	 * set the current user to 0, which is invalid and won't have any permissions.
 	 *
+	 * @since 2.0.3
 	 *
 	 * @see _gc_get_current_user()
 	 * @global GC_User $current_user Checks if the current user is set.
@@ -70,8 +73,9 @@ endif;
 
 if ( ! function_exists( 'get_userdata' ) ) :
 	/**
-	 * Retrieve user info by user ID.
+	 * Retrieves user info by user ID.
 	 *
+	 * @since 0.71
 	 *
 	 * @param int $user_id User ID
 	 * @return GC_User|false GC_User object on success, false on failure.
@@ -83,8 +87,9 @@ endif;
 
 if ( ! function_exists( 'get_user_by' ) ) :
 	/**
-	 * Retrieve user info by a given field
+	 * Retrieves user info by a given field.
 	 *
+	 * @since 4.4.0 Added 'ID' as an alias of 'id' for the `$field` parameter.
 	 *
 	 * @global GC_User $current_user The current user object which holds the user data.
 	 *
@@ -93,19 +98,13 @@ if ( ! function_exists( 'get_user_by' ) ) :
 	 * @return GC_User|false GC_User object on success, false on failure.
 	 */
 	function get_user_by( $field, $value ) {
-		global $current_user;
-
 		$userdata = GC_User::get_data_by( $field, $value );
 
 		if ( ! $userdata ) {
 			return false;
 		}
 
-		if ( $current_user instanceof GC_User && $current_user->ID === (int) $userdata->ID ) {
-			return $current_user;
-		}
-
-		$user = new GC_User;
+		$user = new GC_User();
 		$user->init( $userdata );
 
 		return $user;
@@ -114,15 +113,17 @@ endif;
 
 if ( ! function_exists( 'cache_users' ) ) :
 	/**
-	 * Retrieve info for user lists to prevent multiple queries by get_userdata()
+	 * Retrieves info for user lists to prevent multiple queries by get_userdata().
 	 *
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
-	 * @param array $user_ids User ID numbers list
+	 * @param int[] $user_ids User ID numbers list
 	 */
 	function cache_users( $user_ids ) {
 		global $gcdb;
+
+		update_meta_cache( 'user', $user_ids );
 
 		$clean = _get_non_cached_ids( $user_ids, 'users' );
 
@@ -134,12 +135,9 @@ if ( ! function_exists( 'cache_users' ) ) :
 
 		$users = $gcdb->get_results( "SELECT * FROM $gcdb->users WHERE ID IN ($list)" );
 
-		$ids = array();
 		foreach ( $users as $user ) {
 			update_user_caches( $user );
-			$ids[] = $user->ID;
 		}
-		update_meta_cache( 'user', $ids );
 	}
 endif;
 
@@ -158,6 +156,8 @@ if ( ! function_exists( 'gc_mail' ) ) :
 	 * The default charset is based on the charset used on the blog. The charset can
 	 * be set using the {@see 'gc_mail_charset'} filter.
 	 *
+	 * @since 1.2.1
+	 * @since 5.5.0 is_email() is used for email validation,
 	 *              instead of PHPMailer's default validator.
 	 *
 	 * @global PHPMailer\PHPMailer\PHPMailer $phpmailer
@@ -175,6 +175,7 @@ if ( ! function_exists( 'gc_mail' ) ) :
 		/**
 		 * Filters the gc_mail() arguments.
 		 *
+		 * @since 2.2.0
 		 *
 		 * @param array $args {
 		 *     Array of the `gc_mail()` arguments.
@@ -195,6 +196,7 @@ if ( ! function_exists( 'gc_mail' ) ) :
 		 * that value instead. A boolean return value should be used to indicate whether
 		 * the email was successfully sent.
 		 *
+		 * @since 5.7.0
 		 *
 		 * @param null|bool $return Short-circuit return value.
 		 * @param array     $atts {
@@ -263,8 +265,10 @@ if ( ! function_exists( 'gc_mail' ) ) :
 			$headers = array();
 		} else {
 			if ( ! is_array( $headers ) ) {
-				// Explode the headers out, so this function can take
-				// both string headers and an array of headers.
+				/*
+				 * Explode the headers out, so this function can take
+				 * both string headers and an array of headers.
+				 */
 				$tempheaders = explode( "\n", str_replace( "\r\n", "\n", $headers ) );
 			} else {
 				$tempheaders = $headers;
@@ -275,7 +279,7 @@ if ( ! function_exists( 'gc_mail' ) ) :
 			if ( ! empty( $tempheaders ) ) {
 				// Iterate through the raw headers.
 				foreach ( (array) $tempheaders as $header ) {
-					if ( strpos( $header, ':' ) === false ) {
+					if ( ! str_contains( $header, ':' ) ) {
 						if ( false !== stripos( $header, 'boundary=' ) ) {
 							$parts    = preg_split( '/boundary=/i', trim( $header ) );
 							$boundary = trim( str_replace( array( "'", '"' ), '', $parts[1] ) );
@@ -296,7 +300,7 @@ if ( ! function_exists( 'gc_mail' ) ) :
 							if ( false !== $bracket_pos ) {
 								// Text before the bracketed email is the "From" name.
 								if ( $bracket_pos > 0 ) {
-									$from_name = substr( $content, 0, $bracket_pos - 1 );
+									$from_name = substr( $content, 0, $bracket_pos );
 									$from_name = str_replace( '"', '', $from_name );
 									$from_name = trim( $from_name );
 								}
@@ -311,7 +315,7 @@ if ( ! function_exists( 'gc_mail' ) ) :
 							}
 							break;
 						case 'content-type':
-							if ( strpos( $content, ';' ) !== false ) {
+							if ( str_contains( $content, ';' ) ) {
 								list( $type, $charset_content ) = explode( ';', $content );
 								$content_type                   = trim( $type );
 								if ( false !== stripos( $charset_content, 'charset=' ) ) {
@@ -349,6 +353,8 @@ if ( ! function_exists( 'gc_mail' ) ) :
 		$phpmailer->clearAttachments();
 		$phpmailer->clearCustomHeaders();
 		$phpmailer->clearReplyTos();
+		$phpmailer->Body    = '';
+		$phpmailer->AltBody = '';
 
 		// Set "From" name and email.
 
@@ -366,17 +372,22 @@ if ( ! function_exists( 'gc_mail' ) ) :
 		 */
 		if ( ! isset( $from_email ) ) {
 			// Get the site domain and get rid of www.
-			$sitename = gc_parse_url( network_home_url(), PHP_URL_HOST );
-			if ( 'www.' === substr( $sitename, 0, 4 ) ) {
-				$sitename = substr( $sitename, 4 );
-			}
+			$sitename   = gc_parse_url( network_home_url(), PHP_URL_HOST );
+			$from_email = 'gechiui@';
 
-			$from_email = 'gechiui@' . $sitename;
+			if ( null !== $sitename ) {
+				if ( str_starts_with( $sitename, 'www.' ) ) {
+					$sitename = substr( $sitename, 4 );
+				}
+
+				$from_email .= $sitename;
+			}
 		}
 
 		/**
 		 * Filters the email address to send from.
 		 *
+		 * @since 2.2.0
 		 *
 		 * @param string $from_email Email address to send from.
 		 */
@@ -385,6 +396,7 @@ if ( ! function_exists( 'gc_mail' ) ) :
 		/**
 		 * Filters the name to associate with the "from" email address.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @param string $from_name Name associated with the "from" email address.
 		 */
@@ -420,7 +432,7 @@ if ( ! function_exists( 'gc_mail' ) ) :
 					$recipient_name = '';
 
 					if ( preg_match( '/(.*)<(.+)>/', $address, $matches ) ) {
-						if ( count( $matches ) == 3 ) {
+						if ( count( $matches ) === 3 ) {
 							$recipient_name = $matches[1];
 							$address        = $matches[2];
 						}
@@ -451,7 +463,7 @@ if ( ! function_exists( 'gc_mail' ) ) :
 
 		// Set Content-Type and charset.
 
-		// If we don't have a content-type from the input headers.
+		// If we don't have a Content-Type from the input headers.
 		if ( ! isset( $content_type ) ) {
 			$content_type = 'text/plain';
 		}
@@ -459,6 +471,7 @@ if ( ! function_exists( 'gc_mail' ) ) :
 		/**
 		 * Filters the gc_mail() content type.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @param string $content_type Default gc_mail() content type.
 		 */
@@ -479,6 +492,7 @@ if ( ! function_exists( 'gc_mail' ) ) :
 		/**
 		 * Filters the default gc_mail() charset.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @param string $charset Default email charset.
 		 */
@@ -503,9 +517,11 @@ if ( ! function_exists( 'gc_mail' ) ) :
 		}
 
 		if ( ! empty( $attachments ) ) {
-			foreach ( $attachments as $attachment ) {
+			foreach ( $attachments as $filename => $attachment ) {
+				$filename = is_string( $filename ) ? $filename : '';
+
 				try {
-					$phpmailer->addAttachment( $attachment );
+					$phpmailer->addAttachment( $attachment, $filename );
 				} catch ( PHPMailer\PHPMailer\Exception $e ) {
 					continue;
 				}
@@ -515,6 +531,7 @@ if ( ! function_exists( 'gc_mail' ) ) :
 		/**
 		 * Fires after PHPMailer is initialized.
 		 *
+		 * @since 2.2.0
 		 *
 		 * @param PHPMailer $phpmailer The PHPMailer instance (passed by reference).
 		 */
@@ -527,15 +544,23 @@ if ( ! function_exists( 'gc_mail' ) ) :
 			$send = $phpmailer->send();
 
 			/**
-			 * Fires after PHPMailer has successfully sent a mail.
+			 * Fires after PHPMailer has successfully sent an email.
 			 *
-			 * The firing of this action does not necessarily mean that the recipient received the
+			 * The firing of this action does not necessarily mean that the recipient(s) received the
 			 * email successfully. It only means that the `send` method above was able to
 			 * process the request without any errors.
 			 *
-		
+			 * @since 5.9.0
 			 *
-			 * @param array $mail_data An array containing the mail recipient, subject, message, headers, and attachments.
+			 * @param array $mail_data {
+			 *     An array containing the email recipient(s), subject, message, headers, and attachments.
+			 *
+			 *     @type string[] $to          Email addresses to send message.
+			 *     @type string   $subject     Email subject.
+			 *     @type string   $message     Message contents.
+			 *     @type string[] $headers     Additional headers.
+			 *     @type string[] $attachments Paths to files to attach.
+			 * }
 			 */
 			do_action( 'gc_mail_succeeded', $mail_data );
 
@@ -546,7 +571,7 @@ if ( ! function_exists( 'gc_mail' ) ) :
 			/**
 			 * Fires after a PHPMailer\PHPMailer\Exception is caught.
 			 *
-		
+			 * @since 4.4.0
 			 *
 			 * @param GC_Error $error A GC_Error object with the PHPMailer\PHPMailer\Exception message, and an array
 			 *                        containing the mail recipient, subject, message, headers, and attachments.
@@ -560,8 +585,9 @@ endif;
 
 if ( ! function_exists( 'gc_authenticate' ) ) :
 	/**
-	 * Authenticate a user, confirming the login credentials are valid.
+	 * Authenticates a user, confirming the login credentials are valid.
 	 *
+	 * @since 4.5.0 `$username` now accepts an email address.
 	 *
 	 * @param string $username User's username or email address.
 	 * @param string $password User's password.
@@ -578,18 +604,22 @@ if ( ! function_exists( 'gc_authenticate' ) ) :
 		 * A GC_User object is returned if the credentials authenticate a user.
 		 * GC_Error or null otherwise.
 		 *
+		 * @since 2.8.0
+		 * @since 4.5.0 `$username` now accepts an email address.
 		 *
 		 * @param null|GC_User|GC_Error $user     GC_User if the user is authenticated.
 		 *                                        GC_Error or null otherwise.
 		 * @param string                $username Username or email address.
-		 * @param string                $password User password
+		 * @param string                $password User password.
 		 */
 		$user = apply_filters( 'authenticate', null, $username, $password );
 
 		if ( null == $user ) {
-			// TODO: What should the error message be? (Or would these even happen?)
-			// Only needed if all authentication handlers fail to return anything.
-			$user = new GC_Error( 'authentication_failed', __( '<strong>错误</strong>：用户名、电子邮箱无效或密码错误。' ) );
+			/*
+			 * TODO: What should the error message be? (Or would these even happen?)
+			 * Only needed if all authentication handlers fail to return anything.
+			 */
+			$user = new GC_Error( 'authentication_failed', __( '<strong>错误：</strong>用户名、电子邮箱无效或密码错误。' ) );
 		}
 
 		$ignore_codes = array( 'empty_username', 'empty_password' );
@@ -600,9 +630,9 @@ if ( ! function_exists( 'gc_authenticate' ) ) :
 			/**
 			 * Fires after a user login has failed.
 			 *
-		
-		
-		
+			 * @since 2.5.0
+			 * @since 4.5.0 The value of `$username` can now be an email address.
+			 * @since 5.4.0 The `$error` parameter was added.
 			 *
 			 * @param string   $username Username or email address.
 			 * @param GC_Error $error    A GC_Error object with the authentication failure details.
@@ -614,34 +644,9 @@ if ( ! function_exists( 'gc_authenticate' ) ) :
 	}
 endif;
 
-if ( ! function_exists( 'gc_authenticate_mobile' ) ) :
-	/**
-	 * 手机号+验证码登录
-	 */
-	function gc_authenticate_mobile( $user_mobile, $sms_code ) {
-        
-		$user_mobile = sanitize_user( $user_mobile );
-		$sms_code = trim( $sms_code );
-		$user = apply_filters( 'authenticate_mobile', null, $user_mobile, $sms_code );
-        
-		if ( null == $user ) {
-			$user = new GC_Error( 'authentication_failed', '<strong>Error</strong>：Invalid mobile number or incorrect password.' );
-		}
-
-		$ignore_codes = array( 'empty_usermobile', 'empty_smscode' );
-
-		if ( is_gc_error( $user ) && ! in_array( $user->get_error_code(), $ignore_codes, true ) ) {
-			$error = $user;
-			do_action( 'gc_login_failed', $user_mobile, $error );
-		}
-
-		return $user;
-	}
-endif;
-
 if ( ! function_exists( 'gc_logout' ) ) :
 	/**
-	 * Log the current user out.
+	 * Logs the current user out.
 	 *
 	 */
 	function gc_logout() {
@@ -654,6 +659,8 @@ if ( ! function_exists( 'gc_logout' ) ) :
 		/**
 		 * Fires after a user is logged out.
 		 *
+		 * @since 1.5.0
+		 * @since 5.5.0 Added the `$user_id` parameter.
 		 *
 		 * @param int $user_id ID of the user that was logged out.
 		 */
@@ -684,7 +691,7 @@ if ( ! function_exists( 'gc_validate_auth_cookie' ) ) :
 			/**
 			 * Fires if an authentication cookie is malformed.
 			 *
-		
+			 * @since 2.7.0
 			 *
 			 * @param string $cookie Malformed auth cookie.
 			 * @param string $scheme Authentication scheme. Values include 'auth', 'secure_auth',
@@ -711,9 +718,18 @@ if ( ! function_exists( 'gc_validate_auth_cookie' ) ) :
 			/**
 			 * Fires once an authentication cookie has expired.
 			 *
-		
+			 * @since 2.7.0
 			 *
-			 * @param string[] $cookie_elements An array of data for the authentication cookie.
+			 * @param string[] $cookie_elements {
+			 *     Authentication cookie components. None of the components should be assumed
+			 *     to be valid as they come directly from a client-provided cookie value.
+			 *
+			 *     @type string $username   User's username.
+			 *     @type string $expiration The time the cookie expires as a UNIX timestamp.
+			 *     @type string $token      User's session token used.
+			 *     @type string $hmac       The security hash for the cookie.
+			 *     @type string $scheme     The cookie scheme to use.
+			 * }
 			 */
 			do_action( 'auth_cookie_expired', $cookie_elements );
 			return false;
@@ -724,9 +740,18 @@ if ( ! function_exists( 'gc_validate_auth_cookie' ) ) :
 			/**
 			 * Fires if a bad username is entered in the user authentication process.
 			 *
-		
+			 * @since 2.7.0
 			 *
-			 * @param string[] $cookie_elements An array of data for the authentication cookie.
+			 * @param string[] $cookie_elements {
+			 *     Authentication cookie components. None of the components should be assumed
+			 *     to be valid as they come directly from a client-provided cookie value.
+			 *
+			 *     @type string $username   User's username.
+			 *     @type string $expiration The time the cookie expires as a UNIX timestamp.
+			 *     @type string $token      User's session token used.
+			 *     @type string $hmac       The security hash for the cookie.
+			 *     @type string $scheme     The cookie scheme to use.
+			 * }
 			 */
 			do_action( 'auth_cookie_bad_username', $cookie_elements );
 			return false;
@@ -744,9 +769,18 @@ if ( ! function_exists( 'gc_validate_auth_cookie' ) ) :
 			/**
 			 * Fires if a bad authentication cookie hash is encountered.
 			 *
-		
+			 * @since 2.7.0
 			 *
-			 * @param string[] $cookie_elements An array of data for the authentication cookie.
+			 * @param string[] $cookie_elements {
+			 *     Authentication cookie components. None of the components should be assumed
+			 *     to be valid as they come directly from a client-provided cookie value.
+			 *
+			 *     @type string $username   User's username.
+			 *     @type string $expiration The time the cookie expires as a UNIX timestamp.
+			 *     @type string $token      User's session token used.
+			 *     @type string $hmac       The security hash for the cookie.
+			 *     @type string $scheme     The cookie scheme to use.
+			 * }
 			 */
 			do_action( 'auth_cookie_bad_hash', $cookie_elements );
 			return false;
@@ -757,9 +791,18 @@ if ( ! function_exists( 'gc_validate_auth_cookie' ) ) :
 			/**
 			 * Fires if a bad session token is encountered.
 			 *
-		
+			 * @since 4.0.0
 			 *
-			 * @param string[] $cookie_elements An array of data for the authentication cookie.
+			 * @param string[] $cookie_elements {
+			 *     Authentication cookie components. None of the components should be assumed
+			 *     to be valid as they come directly from a client-provided cookie value.
+			 *
+			 *     @type string $username   User's username.
+			 *     @type string $expiration The time the cookie expires as a UNIX timestamp.
+			 *     @type string $token      User's session token used.
+			 *     @type string $hmac       The security hash for the cookie.
+			 *     @type string $scheme     The cookie scheme to use.
+			 * }
 			 */
 			do_action( 'auth_cookie_bad_session_token', $cookie_elements );
 			return false;
@@ -773,8 +816,15 @@ if ( ! function_exists( 'gc_validate_auth_cookie' ) ) :
 		/**
 		 * Fires once an authentication cookie has been validated.
 		 *
+		 * @param string[] $cookie_elements {
+		 *     Authentication cookie components.
 		 *
-		 * @param string[] $cookie_elements An array of data for the authentication cookie.
+		 *     @type string $username   User's username.
+		 *     @type string $expiration The time the cookie expires as a UNIX timestamp.
+		 *     @type string $token      User's session token used.
+		 *     @type string $hmac       The security hash for the cookie.
+		 *     @type string $scheme     The cookie scheme to use.
+		 * }
 		 * @param GC_User  $user            User object.
 		 */
 		do_action( 'auth_cookie_valid', $cookie_elements, $user );
@@ -787,6 +837,7 @@ if ( ! function_exists( 'gc_generate_auth_cookie' ) ) :
 	/**
 	 * Generates authentication cookie contents.
 	 *
+	 * @since 4.0.0 The `$token` parameter was added.
 	 *
 	 * @param int    $user_id    User ID.
 	 * @param int    $expiration The time the cookie expires as a UNIX timestamp.
@@ -819,6 +870,8 @@ if ( ! function_exists( 'gc_generate_auth_cookie' ) ) :
 		/**
 		 * Filters the authentication cookie.
 		 *
+		 * @since 2.5.0
+		 * @since 4.0.0 The `$token` parameter was added.
 		 *
 		 * @param string $cookie     Authentication cookie.
 		 * @param int    $user_id    User ID.
@@ -834,10 +887,22 @@ if ( ! function_exists( 'gc_parse_auth_cookie' ) ) :
 	/**
 	 * Parses a cookie into its components.
 	 *
+	 * @since 2.7.0
+	 * @since 4.0.0 The `$token` element was added to the return value.
 	 *
 	 * @param string $cookie Authentication cookie.
 	 * @param string $scheme Optional. The cookie scheme to use: 'auth', 'secure_auth', or 'logged_in'.
-	 * @return string[]|false Authentication cookie components.
+	 * @return string[]|false {
+	 *     Authentication cookie components. None of the components should be assumed
+	 *     to be valid as they come directly from a client-provided cookie value. If
+	 *     the cookie value is malformed, false is returned.
+	 *
+	 *     @type string $username   User's username.
+	 *     @type string $expiration The time the cookie expires as a UNIX timestamp.
+	 *     @type string $token      User's session token used.
+	 *     @type string $hmac       The security hash for the cookie.
+	 *     @type string $scheme     The cookie scheme to use.
+	 * }
 	 */
 	function gc_parse_auth_cookie( $cookie = '', $scheme = '' ) {
 		if ( empty( $cookie ) ) {
@@ -886,6 +951,7 @@ if ( ! function_exists( 'gc_set_auth_cookie' ) ) :
 	 * default the cookie is kept without remembering is two days. When $remember is
 	 * set, the cookies will be kept for 14 days or two weeks.
 	 *
+	 * @since 4.3.0 Added the `$token` parameter.
 	 *
 	 * @param int         $user_id  User ID.
 	 * @param bool        $remember Whether to remember the user.
@@ -898,7 +964,7 @@ if ( ! function_exists( 'gc_set_auth_cookie' ) ) :
 			/**
 			 * Filters the duration of the authentication cookie expiration period.
 			 *
-		
+			 * @since 2.8.0
 			 *
 			 * @param int  $length   Duration of the expiration period in seconds.
 			 * @param int  $user_id  User ID.
@@ -927,6 +993,7 @@ if ( ! function_exists( 'gc_set_auth_cookie' ) ) :
 		/**
 		 * Filters whether the auth cookie should only be sent over HTTPS.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param bool $secure  Whether the cookie should only be sent over HTTPS.
 		 * @param int  $user_id User ID.
@@ -936,6 +1003,7 @@ if ( ! function_exists( 'gc_set_auth_cookie' ) ) :
 		/**
 		 * Filters whether the logged in cookie should only be sent over HTTPS.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param bool $secure_logged_in_cookie Whether the logged in cookie should only be sent over HTTPS.
 		 * @param int  $user_id                 User ID.
@@ -962,6 +1030,8 @@ if ( ! function_exists( 'gc_set_auth_cookie' ) ) :
 		/**
 		 * Fires immediately before the authentication cookie is set.
 		 *
+		 * @since 2.5.0
+		 * @since 4.9.0 The `$token` parameter was added.
 		 *
 		 * @param string $auth_cookie Authentication cookie value.
 		 * @param int    $expire      The time the login grace period expires as a UNIX timestamp.
@@ -977,6 +1047,8 @@ if ( ! function_exists( 'gc_set_auth_cookie' ) ) :
 		/**
 		 * Fires immediately before the logged-in authentication cookie is set.
 		 *
+		 * @since 2.6.0
+		 * @since 4.9.0 The `$token` parameter was added.
 		 *
 		 * @param string $logged_in_cookie The logged-in cookie value.
 		 * @param int    $expire           The time the login grace period expires as a UNIX timestamp.
@@ -992,10 +1064,20 @@ if ( ! function_exists( 'gc_set_auth_cookie' ) ) :
 		/**
 		 * Allows preventing auth cookies from actually being sent to the client.
 		 *
+		 * @since 4.7.4
+		 * @since 6.2.0 The `$expire`, `$expiration`, `$user_id`, `$scheme`, and `$token` parameters were added.
 		 *
-		 * @param bool $send Whether to send auth cookies to the client.
+		 * @param bool   $send       Whether to send auth cookies to the client. Default true.
+		 * @param int    $expire     The time the login grace period expires as a UNIX timestamp.
+		 *                           Default is 12 hours past the cookie's expiration time. Zero when clearing cookies.
+		 * @param int    $expiration The time when the logged-in authentication cookie expires as a UNIX timestamp.
+		 *                           Default is 14 days from now. Zero when clearing cookies.
+		 * @param int    $user_id    User ID. Zero when clearing cookies.
+		 * @param string $scheme     Authentication scheme. Values include 'auth' or 'secure_auth'.
+		 *                           Empty string when clearing cookies.
+		 * @param string $token      User's session token to use for this cookie. Empty string when clearing cookies.
 		 */
-		if ( ! apply_filters( 'send_auth_cookies', true ) ) {
+		if ( ! apply_filters( 'send_auth_cookies', true, $expire, $expiration, $user_id, $scheme, $token ) ) {
 			return;
 		}
 
@@ -1021,7 +1103,7 @@ if ( ! function_exists( 'gc_clear_auth_cookie' ) ) :
 		do_action( 'clear_auth_cookie' );
 
 		/** This filter is documented in gc-includes/pluggable.php */
-		if ( ! apply_filters( 'send_auth_cookies', true ) ) {
+		if ( ! apply_filters( 'send_auth_cookies', true, 0, 0, 0, '', '' ) ) {
 			return;
 		}
 
@@ -1062,6 +1144,7 @@ if ( ! function_exists( 'is_user_logged_in' ) ) :
 	 * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
 	 * Conditional Tags} article in the Theme Developer Handbook.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @return bool True if user is logged in, false if not logged in.
 	 */
@@ -1081,6 +1164,7 @@ if ( ! function_exists( 'auth_redirect' ) ) :
 	 * in such a way that, upon logging in, they will be sent directly to the page they were originally
 	 * trying to access.
 	 *
+	 * @since 1.5.0
 	 */
 	function auth_redirect() {
 		$secure = ( is_ssl() || force_ssl_admin() );
@@ -1088,14 +1172,15 @@ if ( ! function_exists( 'auth_redirect' ) ) :
 		/**
 		 * Filters whether to use a secure authentication redirect.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param bool $secure Whether to use a secure authentication redirect. Default false.
 		 */
 		$secure = apply_filters( 'secure_auth_redirect', $secure );
 
 		// If https is required and request is http, redirect.
-		if ( $secure && ! is_ssl() && false !== strpos( $_SERVER['REQUEST_URI'], 'gc-admin' ) ) {
-			if ( 0 === strpos( $_SERVER['REQUEST_URI'], 'http' ) ) {
+		if ( $secure && ! is_ssl() && str_contains( $_SERVER['REQUEST_URI'], 'gc-admin' ) ) {
+			if ( str_starts_with( $_SERVER['REQUEST_URI'], 'http' ) ) {
 				gc_redirect( set_url_scheme( $_SERVER['REQUEST_URI'], 'https' ) );
 				exit;
 			} else {
@@ -1107,7 +1192,6 @@ if ( ! function_exists( 'auth_redirect' ) ) :
 		/**
 		 * Filters the authentication redirect scheme.
 		 *
-		 *
 		 * @param string $scheme Authentication redirect scheme. Default empty.
 		 */
 		$scheme = apply_filters( 'auth_redirect_scheme', '' );
@@ -1117,15 +1201,15 @@ if ( ! function_exists( 'auth_redirect' ) ) :
 			/**
 			 * Fires before the authentication redirect.
 			 *
-		
+			 * @since 2.8.0
 			 *
 			 * @param int $user_id User ID.
 			 */
 			do_action( 'auth_redirect', $user_id );
 
 			// If the user wants ssl but the session is not ssl, redirect.
-			if ( ! $secure && get_user_option( 'use_ssl', $user_id ) && false !== strpos( $_SERVER['REQUEST_URI'], 'gc-admin' ) ) {
-				if ( 0 === strpos( $_SERVER['REQUEST_URI'], 'http' ) ) {
+			if ( ! $secure && get_user_option( 'use_ssl', $user_id ) && str_contains( $_SERVER['REQUEST_URI'], 'gc-admin' ) ) {
+				if ( str_starts_with( $_SERVER['REQUEST_URI'], 'http' ) ) {
 					gc_redirect( set_url_scheme( $_SERVER['REQUEST_URI'], 'https' ) );
 					exit;
 				} else {
@@ -1140,7 +1224,11 @@ if ( ! function_exists( 'auth_redirect' ) ) :
 		// The cookie is no good, so force login.
 		nocache_headers();
 
-		$redirect = ( strpos( $_SERVER['REQUEST_URI'], '/options.php' ) && gc_get_referer() ) ? gc_get_referer() : set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+		if ( str_contains( $_SERVER['REQUEST_URI'], '/options.php' ) && gc_get_referer() ) {
+			$redirect = gc_get_referer();
+		} else {
+			$redirect = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+		}
 
 		$login_url = gc_login_url( $redirect, true );
 
@@ -1154,11 +1242,12 @@ if ( ! function_exists( 'check_admin_referer' ) ) :
 	 * Ensures intent by verifying that a user was referred from another admin page with the correct security nonce.
 	 *
 	 * This function ensures the user intends to perform a given action, which helps protect against clickjacking style
-	 * attacks. It verifies intent, not authorisation, therefore it does not verify the user's capabilities. This should
+	 * attacks. It verifies intent, not authorization, therefore it does not verify the user's capabilities. This should
 	 * be performed with `current_user_can()` or similar.
 	 *
 	 * If the nonce value is invalid, the function will exit with an "Are You Sure?" style message.
 	 *
+	 * @since 1.2.0 The `$query_arg` parameter was added.
 	 *
 	 * @param int|string $action    The nonce action.
 	 * @param string     $query_arg Optional. Key to check for nonce in `$_REQUEST`. Default '_gcnonce'.
@@ -1178,6 +1267,7 @@ if ( ! function_exists( 'check_admin_referer' ) ) :
 		/**
 		 * Fires once the admin request has been validated or not.
 		 *
+		 * @since 1.5.1
 		 *
 		 * @param string    $action The nonce action.
 		 * @param false|int $result False if the nonce is invalid, 1 if the nonce is valid and generated between
@@ -1185,7 +1275,7 @@ if ( ! function_exists( 'check_admin_referer' ) ) :
 		 */
 		do_action( 'check_admin_referer', $action, $result );
 
-		if ( ! $result && ! ( -1 === $action && strpos( $referer, $adminurl ) === 0 ) ) {
+		if ( ! $result && ! ( -1 === $action && str_starts_with( $referer, $adminurl ) ) ) {
 			gc_nonce_ays( $action );
 			die();
 		}
@@ -1198,18 +1288,19 @@ if ( ! function_exists( 'check_ajax_referer' ) ) :
 	/**
 	 * Verifies the Ajax request to prevent processing requests external of the blog.
 	 *
+	 * @since 2.0.3
 	 *
 	 * @param int|string   $action    Action nonce.
 	 * @param false|string $query_arg Optional. Key to check for the nonce in `$_REQUEST` (since 2.5). If false,
 	 *                                `$_REQUEST` values will be evaluated for '_ajax_nonce', and '_gcnonce'
 	 *                                (in that order). Default false.
-	 * @param bool         $die       Optional. Whether to die early when the nonce cannot be verified.
+	 * @param bool         $stop      Optional. Whether to stop early when the nonce cannot be verified.
 	 *                                Default true.
 	 * @return int|false 1 if the nonce is valid and generated between 0-12 hours ago,
 	 *                   2 if the nonce is valid and generated between 12-24 hours ago.
 	 *                   False if the nonce is invalid.
 	 */
-	function check_ajax_referer( $action = -1, $query_arg = false, $die = true ) {
+	function check_ajax_referer( $action = -1, $query_arg = false, $stop = true ) {
 		if ( -1 == $action ) {
 			_doing_it_wrong( __FUNCTION__, __( '您应该使用第一个参数指定要验证的操作。' ), '4.7.0' );
 		}
@@ -1229,6 +1320,7 @@ if ( ! function_exists( 'check_ajax_referer' ) ) :
 		/**
 		 * Fires once the Ajax request has been validated or not.
 		 *
+		 * @since 2.1.0
 		 *
 		 * @param string    $action The Ajax nonce action.
 		 * @param false|int $result False if the nonce is invalid, 1 if the nonce is valid and generated between
@@ -1236,7 +1328,7 @@ if ( ! function_exists( 'check_ajax_referer' ) ) :
 		 */
 		do_action( 'check_ajax_referer', $action, $result );
 
-		if ( $die && false === $result ) {
+		if ( $stop && false === $result ) {
 			if ( gc_doing_ajax() ) {
 				gc_die( -1, 403 );
 			} else {
@@ -1259,19 +1351,22 @@ if ( ! function_exists( 'gc_redirect' ) ) :
 	 *     exit;
 	 *
 	 * Exiting can also be selectively manipulated by using gc_redirect() as a conditional
-	 * in conjunction with the {@see 'gc_redirect'} and {@see 'gc_redirect_location'} filters:
+	 * in conjunction with the {@see 'gc_redirect'} and {@see 'gc_redirect_status'} filters:
 	 *
 	 *     if ( gc_redirect( $url ) ) {
 	 *         exit;
 	 *     }
 	 *
+	 * @since 1.5.1
+	 * @since 5.1.0 The `$x_redirect_by` parameter was added.
+	 * @since 5.4.0 On invalid status codes, gc_die() is called.
 	 *
 	 * @global bool $is_IIS
 	 *
 	 * @param string $location      The path or URL to redirect to.
 	 * @param int    $status        Optional. HTTP response status code to use. Default '302' (Moved Temporarily).
 	 * @param string $x_redirect_by Optional. The application doing the redirect. Default 'GeChiUI'.
-	 * @return bool False if the redirect was cancelled, true otherwise.
+	 * @return bool False if the redirect was canceled, true otherwise.
 	 */
 	function gc_redirect( $location, $status = 302, $x_redirect_by = 'GeChiUI' ) {
 		global $is_IIS;
@@ -1279,6 +1374,7 @@ if ( ! function_exists( 'gc_redirect' ) ) :
 		/**
 		 * Filters the redirect location.
 		 *
+		 * @since 2.1.0
 		 *
 		 * @param string $location The path or URL to redirect to.
 		 * @param int    $status   The HTTP response status code to use.
@@ -1288,6 +1384,7 @@ if ( ! function_exists( 'gc_redirect' ) ) :
 		/**
 		 * Filters the redirect HTTP response status code to use.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @param int    $status   The HTTP response status code to use.
 		 * @param string $location The path or URL to redirect to.
@@ -1313,6 +1410,7 @@ if ( ! function_exists( 'gc_redirect' ) ) :
 		 *
 		 * Allows applications to identify themselves when they're doing a redirect.
 		 *
+		 * @since 5.1.0
 		 *
 		 * @param string $x_redirect_by The application doing the redirect.
 		 * @param int    $status        Status code to use.
@@ -1333,6 +1431,7 @@ if ( ! function_exists( 'gc_sanitize_redirect' ) ) :
 	/**
 	 * Sanitizes a URL for use in a redirect.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param string $location The path to redirect to.
 	 * @return string Redirect-sanitized URL.
@@ -1363,9 +1462,10 @@ if ( ! function_exists( 'gc_sanitize_redirect' ) ) :
 	}
 
 	/**
-	 * URL encode UTF-8 characters in a URL.
+	 * URL encodes UTF-8 characters in a URL.
 	 *
 	 * @ignore
+	 * @since 4.2.0
 	 * @access private
 	 *
 	 * @see gc_sanitize_redirect()
@@ -1397,17 +1497,19 @@ if ( ! function_exists( 'gc_safe_redirect' ) ) :
 	 *     exit;
 	 *
 	 * Exiting can also be selectively manipulated by using gc_safe_redirect() as a conditional
-	 * in conjunction with the {@see 'gc_redirect'} and {@see 'gc_redirect_location'} filters:
+	 * in conjunction with the {@see 'gc_redirect'} and {@see 'gc_redirect_status'} filters:
 	 *
 	 *     if ( gc_safe_redirect( $url ) ) {
 	 *         exit;
 	 *     }
 	 *
+	 * @since 2.3.0
+	 * @since 5.1.0 The return value from gc_redirect() is now passed on, and the `$x_redirect_by` parameter was added.
 	 *
 	 * @param string $location      The path or URL to redirect to.
 	 * @param int    $status        Optional. HTTP response status code to use. Default '302' (Moved Temporarily).
 	 * @param string $x_redirect_by Optional. The application doing the redirect. Default 'GeChiUI'.
-	 * @return bool False if the redirect was cancelled, true otherwise.
+	 * @return bool False if the redirect was canceled, true otherwise.
 	 */
 	function gc_safe_redirect( $location, $status = 302, $x_redirect_by = 'GeChiUI' ) {
 
@@ -1417,11 +1519,14 @@ if ( ! function_exists( 'gc_safe_redirect' ) ) :
 		/**
 		 * Filters the redirect fallback URL for when the provided redirect is not safe (local).
 		 *
+		 * @since 4.3.0
 		 *
 		 * @param string $fallback_url The fallback URL to use by default.
 		 * @param int    $status       The HTTP response status code to use.
 		 */
-		$location = gc_validate_redirect( $location, apply_filters( 'gc_safe_redirect_fallback', admin_url(), $status ) );
+		$fallback_url = apply_filters( 'gc_safe_redirect_fallback', admin_url(), $status );
+
+		$location = gc_validate_redirect( $location, $fallback_url );
 
 		return gc_redirect( $location, $status, $x_redirect_by );
 	}
@@ -1435,22 +1540,25 @@ if ( ! function_exists( 'gc_validate_redirect' ) ) :
 	 * path. A plugin can therefore set or remove allowed host(s) to or from the
 	 * list.
 	 *
-	 * If the host is not allowed, then the redirect is to $default supplied
+	 * If the host is not allowed, then the redirect is to $fallback_url supplied.
 	 *
+	 * @since 2.8.1
 	 *
-	 * @param string $location The redirect to validate
-	 * @param string $default  The value to return if $location is not allowed
-	 * @return string redirect-sanitized URL
+	 * @param string $location     The redirect to validate.
+	 * @param string $fallback_url The value to return if $location is not allowed.
+	 * @return string Redirect-sanitized URL.
 	 */
-	function gc_validate_redirect( $location, $default = '' ) {
+	function gc_validate_redirect( $location, $fallback_url = '' ) {
 		$location = gc_sanitize_redirect( trim( $location, " \t\n\r\0\x08\x0B" ) );
 		// Browsers will assume 'http' is your protocol, and will obey a redirect to a URL starting with '//'.
-		if ( '//' === substr( $location, 0, 2 ) ) {
+		if ( str_starts_with( $location, '//' ) ) {
 			$location = 'http:' . $location;
 		}
 
-		// In PHP 5 parse_url() may fail if the URL query part contains 'http://'.
-		// See https://bugs.php.net/bug.php?id=38143
+		/*
+		 * In PHP 5 parse_url() may fail if the URL query part contains 'http://'.
+		 * See https://bugs.php.net/bug.php?id=38143
+		 */
 		$cut  = strpos( $location, '?' );
 		$test = $cut ? substr( $location, 0, $cut ) : $location;
 
@@ -1458,12 +1566,12 @@ if ( ! function_exists( 'gc_validate_redirect' ) ) :
 
 		// Give up if malformed URL.
 		if ( false === $lp ) {
-			return $default;
+			return $fallback_url;
 		}
 
 		// Allow only 'http' and 'https' schemes. No 'data:', etc.
 		if ( isset( $lp['scheme'] ) && ! ( 'http' === $lp['scheme'] || 'https' === $lp['scheme'] ) ) {
-			return $default;
+			return $fallback_url;
 		}
 
 		if ( ! isset( $lp['host'] ) && ! empty( $lp['path'] ) && '/' !== $lp['path'][0] ) {
@@ -1475,16 +1583,18 @@ if ( ! function_exists( 'gc_validate_redirect' ) ) :
 			$location = '/' . ltrim( $path . '/', '/' ) . $location;
 		}
 
-		// Reject if certain components are set but host is not.
-		// This catches URLs like https:host.com for which parse_url() does not set the host field.
+		/*
+		 * Reject if certain components are set but host is not.
+		 * This catches URLs like https:host.com for which parse_url() does not set the host field.
+		 */
 		if ( ! isset( $lp['host'] ) && ( isset( $lp['scheme'] ) || isset( $lp['user'] ) || isset( $lp['pass'] ) || isset( $lp['port'] ) ) ) {
-			return $default;
+			return $fallback_url;
 		}
 
 		// Reject malformed components parse_url() can return on odd inputs.
 		foreach ( array( 'user', 'pass', 'host' ) as $component ) {
 			if ( isset( $lp[ $component ] ) && strpbrk( $lp[ $component ], ':/?#@' ) ) {
-				return $default;
+				return $fallback_url;
 			}
 		}
 
@@ -1493,6 +1603,7 @@ if ( ! function_exists( 'gc_validate_redirect' ) ) :
 		/**
 		 * Filters the list of allowed hosts to redirect to.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @param string[] $hosts An array of allowed host names.
 		 * @param string   $host  The host name of the redirect destination; empty string if not set.
@@ -1500,7 +1611,7 @@ if ( ! function_exists( 'gc_validate_redirect' ) ) :
 		$allowed_hosts = (array) apply_filters( 'allowed_redirect_hosts', array( $gcp['host'] ), isset( $lp['host'] ) ? $lp['host'] : '' );
 
 		if ( isset( $lp['host'] ) && ( ! in_array( $lp['host'], $allowed_hosts, true ) && strtolower( $gcp['host'] ) !== $lp['host'] ) ) {
-			$location = $default;
+			$location = $fallback_url;
 		}
 
 		return $location;
@@ -1509,11 +1620,12 @@ endif;
 
 if ( ! function_exists( 'gc_notify_postauthor' ) ) :
 	/**
-	 * Notify an author (and/or others) of a comment/trackback/pingback on a post.
+	 * Notifies an author (and/or others) of a comment/trackback/pingback on a post.
 	 *
+	 * @since 1.0.0
 	 *
 	 * @param int|GC_Comment $comment_id Comment ID or GC_Comment object.
-	 * @param string         $deprecated Not used
+	 * @param string         $deprecated Not used.
 	 * @return bool True on completion. False if no email addresses were specified.
 	 */
 	function gc_notify_postauthor( $comment_id, $deprecated = null ) {
@@ -1541,6 +1653,7 @@ if ( ! function_exists( 'gc_notify_postauthor' ) ) :
 		 * By default, only post authors are notified of comments. This filter allows
 		 * others to be added.
 		 *
+		 * @since 3.7.0
 		 *
 		 * @param string[] $emails     An array of email addresses to receive a comment notification.
 		 * @param string   $comment_id The comment ID as a numeric string.
@@ -1562,6 +1675,7 @@ if ( ! function_exists( 'gc_notify_postauthor' ) ) :
 		 * By default, comment authors aren't notified of their comments on their own
 		 * posts. This filter allows you to override that.
 		 *
+		 * @since 3.8.0
 		 *
 		 * @param bool   $notify     Whether to notify the post author of their own comment.
 		 *                           Default false.
@@ -1598,8 +1712,10 @@ if ( ! function_exists( 'gc_notify_postauthor' ) ) :
 			$comment_author_domain = gethostbyaddr( $comment->comment_author_IP );
 		}
 
-		// The blogname option is escaped with esc_html() on the way into the database in sanitize_option().
-		// We want to reverse this for the plain text arena of emails.
+		/*
+		 * The blogname option is escaped with esc_html() on the way into the database in sanitize_option().
+		 * We want to reverse this for the plain text arena of emails.
+		 */
 		$blogname        = gc_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 		$comment_content = gc_specialchars_decode( $comment->comment_content );
 
@@ -1608,7 +1724,7 @@ if ( ! function_exists( 'gc_notify_postauthor' ) ) :
 				/* translators: %s: Post title. */
 				$notify_message = sprintf( __( '您的文章 《%s》 有新 trackback' ), $post->post_title ) . "\r\n";
 				/* translators: 1: Trackback/pingback website name, 2: Website IP address, 3: Website hostname. */
-				$notify_message .= sprintf( __( '网站：%1$s（IP地址：%2$s，%3$s）' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
+				$notify_message .= sprintf( __( '评论者：%1$s（IP地址：%2$s，%3$s）' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
 				/* translators: %s: Trackback/pingback/comment author URL. */
 				$notify_message .= sprintf( __( 'URL：%s' ), $comment->comment_author_url ) . "\r\n";
 				/* translators: %s: Comment text. */
@@ -1622,7 +1738,7 @@ if ( ! function_exists( 'gc_notify_postauthor' ) ) :
 				/* translators: %s: Post title. */
 				$notify_message = sprintf( __( '您的文章《%s》有新 pingback' ), $post->post_title ) . "\r\n";
 				/* translators: 1: Trackback/pingback website name, 2: Website IP address, 3: Website hostname. */
-				$notify_message .= sprintf( __( '网站：%1$s（IP地址：%2$s，%3$s）' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
+				$notify_message .= sprintf( __( '评论者：%1$s（IP地址：%2$s，%3$s）' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
 				/* translators: %s: Trackback/pingback/comment author URL. */
 				$notify_message .= sprintf( __( 'URL：%s' ), $comment->comment_author_url ) . "\r\n";
 				/* translators: %s: Comment text. */
@@ -1695,6 +1811,7 @@ if ( ! function_exists( 'gc_notify_postauthor' ) ) :
 		/**
 		 * Filters the comment notification email text.
 		 *
+		 * @since 1.5.2
 		 *
 		 * @param string $notify_message The comment notification email text.
 		 * @param string $comment_id     Comment ID as a numeric string.
@@ -1704,6 +1821,7 @@ if ( ! function_exists( 'gc_notify_postauthor' ) ) :
 		/**
 		 * Filters the comment notification email subject.
 		 *
+		 * @since 1.5.2
 		 *
 		 * @param string $subject    The comment notification email subject.
 		 * @param string $comment_id Comment ID as a numeric string.
@@ -1713,6 +1831,7 @@ if ( ! function_exists( 'gc_notify_postauthor' ) ) :
 		/**
 		 * Filters the comment notification email headers.
 		 *
+		 * @since 1.5.2
 		 *
 		 * @param string $message_headers Headers for the comment notification email.
 		 * @param string $comment_id      Comment ID as a numeric string.
@@ -1735,6 +1854,7 @@ if ( ! function_exists( 'gc_notify_moderator' ) ) :
 	/**
 	 * Notifies the moderator of the site about a new comment that is awaiting approval.
 	 *
+	 * @since 1.0.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -1752,9 +1872,10 @@ if ( ! function_exists( 'gc_notify_moderator' ) ) :
 		/**
 		 * Filters whether to send the site moderator email notifications, overriding the site setting.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param bool $maybe_notify Whether to notify blog moderator.
-		 * @param int  $comment_ID   The id of the comment for the notification.
+		 * @param int  $comment_id   The ID of the comment for the notification.
 		 */
 		$maybe_notify = apply_filters( 'notify_moderator', $maybe_notify, $comment_id );
 
@@ -1782,8 +1903,10 @@ if ( ! function_exists( 'gc_notify_moderator' ) ) :
 
 		$comments_waiting = $gcdb->get_var( "SELECT COUNT(*) FROM $gcdb->comments WHERE comment_approved = '0'" );
 
-		// The blogname option is escaped with esc_html() on the way into the database in sanitize_option().
-		// We want to reverse this for the plain text arena of emails.
+		/*
+		 * The blogname option is escaped with esc_html() on the way into the database in sanitize_option().
+		 * We want to reverse this for the plain text arena of emails.
+		 */
 		$blogname        = gc_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 		$comment_content = gc_specialchars_decode( $comment->comment_content );
 
@@ -1793,7 +1916,7 @@ if ( ! function_exists( 'gc_notify_moderator' ) ) :
 				$notify_message  = sprintf( __( '在《%s》中有一则新trackback等待您的审核' ), $post->post_title ) . "\r\n";
 				$notify_message .= get_permalink( $comment->comment_post_ID ) . "\r\n\r\n";
 				/* translators: 1: Trackback/pingback website name, 2: Website IP address, 3: Website hostname. */
-				$notify_message .= sprintf( __( '网站：%1$s（IP地址：%2$s，%3$s）' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
+				$notify_message .= sprintf( __( '评论者：%1$s（IP地址：%2$s，%3$s）' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
 				/* translators: %s: Trackback/pingback/comment author URL. */
 				$notify_message .= sprintf( __( 'URL：%s' ), $comment->comment_author_url ) . "\r\n";
 				$notify_message .= __( 'Trackback摘要：' ) . "\r\n" . $comment_content . "\r\n\r\n";
@@ -1804,7 +1927,7 @@ if ( ! function_exists( 'gc_notify_moderator' ) ) :
 				$notify_message  = sprintf( __( '在《%s》中有一则新pingback等待您的审核' ), $post->post_title ) . "\r\n";
 				$notify_message .= get_permalink( $comment->comment_post_ID ) . "\r\n\r\n";
 				/* translators: 1: Trackback/pingback website name, 2: Website IP address, 3: Website hostname. */
-				$notify_message .= sprintf( __( '网站：%1$s（IP地址：%2$s，%3$s）' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
+				$notify_message .= sprintf( __( '评论者：%1$s（IP地址：%2$s，%3$s）' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
 				/* translators: %s: Trackback/pingback/comment author URL. */
 				$notify_message .= sprintf( __( 'URL：%s' ), $comment->comment_author_url ) . "\r\n";
 				$notify_message .= __( 'Pingback摘要：' ) . "\r\n" . $comment_content . "\r\n\r\n";
@@ -1863,6 +1986,7 @@ if ( ! function_exists( 'gc_notify_moderator' ) ) :
 		/**
 		 * Filters the list of recipients for comment moderation emails.
 		 *
+		 * @since 3.7.0
 		 *
 		 * @param string[] $emails     List of email addresses to notify for comment moderation.
 		 * @param int      $comment_id Comment ID.
@@ -1872,6 +1996,7 @@ if ( ! function_exists( 'gc_notify_moderator' ) ) :
 		/**
 		 * Filters the comment moderation email text.
 		 *
+		 * @since 1.5.2
 		 *
 		 * @param string $notify_message Text of the comment moderation email.
 		 * @param int    $comment_id     Comment ID.
@@ -1881,6 +2006,7 @@ if ( ! function_exists( 'gc_notify_moderator' ) ) :
 		/**
 		 * Filters the comment moderation email subject.
 		 *
+		 * @since 1.5.2
 		 *
 		 * @param string $subject    Subject of the comment moderation email.
 		 * @param int    $comment_id Comment ID.
@@ -1890,6 +2016,7 @@ if ( ! function_exists( 'gc_notify_moderator' ) ) :
 		/**
 		 * Filters the comment moderation email headers.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param string $message_headers Headers for the comment moderation email.
 		 * @param int    $comment_id      Comment ID.
@@ -1910,19 +2037,24 @@ endif;
 
 if ( ! function_exists( 'gc_password_change_notification' ) ) :
 	/**
-	 * Notify the blog admin of a user changing password, normally via email.
+	 * Notifies the blog admin of a user changing password, normally via email.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param GC_User $user User object.
 	 */
 	function gc_password_change_notification( $user ) {
-		// Send a copy of password change notification to the admin,
-		// but check to see if it's the admin whose password we're changing, and skip this.
+		/*
+		 * Send a copy of password change notification to the admin,
+		 * but check to see if it's the admin whose password we're changing, and skip this.
+		 */
 		if ( 0 !== strcasecmp( $user->user_email, get_option( 'admin_email' ) ) ) {
 			/* translators: %s: User name. */
 			$message = sprintf( __( '用户的密码已修改：%s' ), $user->user_login ) . "\r\n";
-			// The blogname option is escaped with esc_html() on the way into the database in sanitize_option().
-			// We want to reverse this for the plain text arena of emails.
+			/*
+			 * The blogname option is escaped with esc_html() on the way into the database in sanitize_option().
+			 * We want to reverse this for the plain text arena of emails.
+			 */
 			$blogname = gc_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 
 			$gc_password_change_notification_email = array(
@@ -1936,7 +2068,7 @@ if ( ! function_exists( 'gc_password_change_notification' ) ) :
 			/**
 			 * Filters the contents of the password change notification email sent to the site admin.
 			 *
-		
+			 * @since 4.9.0
 			 *
 			 * @param array   $gc_password_change_notification_email {
 			 *     Used to build gc_mail().
@@ -1963,10 +2095,14 @@ endif;
 
 if ( ! function_exists( 'gc_new_user_notification' ) ) :
 	/**
-	 * Email login credentials to a newly-registered user.
+	 * Emails login credentials to a newly-registered user.
 	 *
 	 * A new user registration notification is also sent to admin email.
 	 *
+	 * @since 2.0.0
+	 * @since 4.3.0 The `$plaintext_pass` parameter was changed to `$notify`.
+	 * @since 4.3.1 The `$plaintext_pass` parameter was deprecated. `$notify` added as a third parameter.
+	 * @since 4.6.0 The `$notify` parameter accepts 'user' for sending notification only to the user created.
 	 *
 	 * @param int    $user_id    User ID.
 	 * @param null   $deprecated Not used (argument deprecated).
@@ -1985,15 +2121,27 @@ if ( ! function_exists( 'gc_new_user_notification' ) ) :
 
 		$user = get_userdata( $user_id );
 
-		// The blogname option is escaped with esc_html() on the way into the database in sanitize_option().
-		// We want to reverse this for the plain text arena of emails.
+		/*
+		 * The blogname option is escaped with esc_html() on the way into the database in sanitize_option().
+		 * We want to reverse this for the plain text arena of emails.
+		 */
 		$blogname = gc_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 
-		if ( 'user' !== $notify ) {
+		/**
+		 * Filters whether the admin is notified of a new user registration.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param bool    $send Whether to send the email. Default true.
+		 * @param GC_User $user User object for new user.
+		 */
+		$send_notification_to_admin = apply_filters( 'gc_send_new_user_notification_to_admin', true, $user );
+
+		if ( 'user' !== $notify && true === $send_notification_to_admin ) {
 			$switched_locale = switch_to_locale( get_locale() );
 
 			/* translators: %s: Site title. */
-			$message = sprintf( __( '您的站点 %s 有新用户注册：' ), $blogname ) . "\r\n\r\n";
+			$message = sprintf( __( '您的系统 %s 有新用户注册：' ), $blogname ) . "\r\n\r\n";
 			/* translators: %s: User login. */
 			$message .= sprintf( __( '用户名：%s' ), $user->user_login ) . "\r\n\r\n";
 			/* translators: %s: User email address. */
@@ -2010,7 +2158,7 @@ if ( ! function_exists( 'gc_new_user_notification' ) ) :
 			/**
 			 * Filters the contents of the new user notification email sent to the site admin.
 			 *
-		
+			 * @since 4.9.0
 			 *
 			 * @param array   $gc_new_user_notification_email_admin {
 			 *     Used to build gc_mail().
@@ -2037,8 +2185,18 @@ if ( ! function_exists( 'gc_new_user_notification' ) ) :
 			}
 		}
 
+		/**
+		 * Filters whether the user is notified of their new user registration.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param bool    $send Whether to send the email. Default true.
+		 * @param GC_User $user User object for new user.
+		 */
+		$send_notification_to_user = apply_filters( 'gc_send_new_user_notification_to_user', true, $user );
+
 		// `$deprecated` was pre-4.3 `$plaintext_pass`. An empty `$plaintext_pass` didn't sent a user notification.
-		if ( 'admin' === $notify || ( empty( $deprecated ) && empty( $notify ) ) ) {
+		if ( 'admin' === $notify || true !== $send_notification_to_user || ( empty( $deprecated ) && empty( $notify ) ) ) {
 			return;
 		}
 
@@ -2047,7 +2205,7 @@ if ( ! function_exists( 'gc_new_user_notification' ) ) :
 			return;
 		}
 
-		$switched_locale = switch_to_locale( get_user_locale( $user ) );
+		$switched_locale = switch_to_user_locale( $user_id );
 
 		/* translators: %s: User login. */
 		$message  = sprintf( __( '用户名：%s' ), $user->user_login ) . "\r\n\r\n";
@@ -2067,6 +2225,7 @@ if ( ! function_exists( 'gc_new_user_notification' ) ) :
 		/**
 		 * Filters the contents of the new user notification email sent to the new user.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param array   $gc_new_user_notification_email {
 		 *     Used to build gc_mail().
@@ -2101,17 +2260,22 @@ if ( ! function_exists( 'gc_nonce_tick' ) ) :
 	 * A nonce has a lifespan of two ticks. Nonces in their second tick may be
 	 * updated, e.g. by autosave.
 	 *
+	 * @since 6.1.0 Added `$action` argument.
 	 *
+	 * @param string|int $action Optional. The nonce action. Default -1.
 	 * @return float Float value rounded up to the next highest integer.
 	 */
-	function gc_nonce_tick() {
+	function gc_nonce_tick( $action = -1 ) {
 		/**
 		 * Filters the lifespan of nonces in seconds.
 		 *
+		 * @since 2.5.0
+		 * @since 6.1.0 Added `$action` argument to allow for more targeted filters.
 		 *
-		 * @param int $lifespan Lifespan of nonces in seconds. Default 86,400 seconds, or one day.
+		 * @param int        $lifespan Lifespan of nonces in seconds. Default 86,400 seconds, or one day.
+		 * @param string|int $action   The nonce action, or -1 if none was provided.
 		 */
-		$nonce_life = apply_filters( 'nonce_life', DAY_IN_SECONDS );
+		$nonce_life = apply_filters( 'nonce_life', DAY_IN_SECONDS, $action );
 
 		return ceil( time() / ( $nonce_life / 2 ) );
 	}
@@ -2123,6 +2287,7 @@ if ( ! function_exists( 'gc_verify_nonce' ) ) :
 	 *
 	 * A nonce is valid for 24 hours (by default).
 	 *
+	 * @since 2.0.3
 	 *
 	 * @param string     $nonce  Nonce value that was used for verification, usually via a form field.
 	 * @param string|int $action Should give context to what is taking place and be the same when nonce was created.
@@ -2138,10 +2303,10 @@ if ( ! function_exists( 'gc_verify_nonce' ) ) :
 			/**
 			 * Filters whether the user who generated the nonce is logged out.
 			 *
-		
+			 * @since 3.5.0
 			 *
-			 * @param int    $uid    ID of the nonce-owning user.
-			 * @param string $action The nonce action.
+			 * @param int        $uid    ID of the nonce-owning user.
+			 * @param string|int $action The nonce action, or -1 if none was provided.
 			 */
 			$uid = apply_filters( 'nonce_user_logged_out', $uid, $action );
 		}
@@ -2151,7 +2316,7 @@ if ( ! function_exists( 'gc_verify_nonce' ) ) :
 		}
 
 		$token = gc_get_session_token();
-		$i     = gc_nonce_tick();
+		$i     = gc_nonce_tick( $action );
 
 		// Nonce generated 0-12 hours ago.
 		$expected = substr( gc_hash( $i . '|' . $action . '|' . $uid . '|' . $token, 'nonce' ), -12, 10 );
@@ -2168,6 +2333,7 @@ if ( ! function_exists( 'gc_verify_nonce' ) ) :
 		/**
 		 * Fires when nonce verification fails.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param string     $nonce  The invalid nonce.
 		 * @param string|int $action The nonce action.
@@ -2186,6 +2352,8 @@ if ( ! function_exists( 'gc_create_nonce' ) ) :
 	 * Creates a cryptographic token tied to a specific action, user, user session,
 	 * and window of time.
 	 *
+	 * @since 2.0.3
+	 * @since 4.0.0 Session tokens were integrated with nonce creation.
 	 *
 	 * @param string|int $action Scalar value to add context to the nonce.
 	 * @return string The token.
@@ -2199,7 +2367,7 @@ if ( ! function_exists( 'gc_create_nonce' ) ) :
 		}
 
 		$token = gc_get_session_token();
-		$i     = gc_nonce_tick();
+		$i     = gc_nonce_tick( $action );
 
 		return substr( gc_hash( $i . '|' . $action . '|' . $uid . '|' . $token, 'nonce' ), -12, 10 );
 	}
@@ -2234,7 +2402,7 @@ if ( ! function_exists( 'gc_salt' ) ) :
 	 *
 	 * @link https://api.gechiui.com/secret-key/1.1/salt/ Create secrets for gc-config.php
 	 *
-	 * @param string $scheme Authentication scheme (auth, secure_auth, logged_in, nonce)
+	 * @param string $scheme Authentication scheme (auth, secure_auth, logged_in, nonce).
 	 * @return string Salt value
 	 */
 	function gc_salt( $scheme = 'auth' ) {
@@ -2243,7 +2411,7 @@ if ( ! function_exists( 'gc_salt' ) ) :
 			/**
 			 * Filters the GeChiUI salt.
 			 *
-		
+			 * @since 2.5.0
 			 *
 			 * @param string $cached_salt Cached salt for the given scheme.
 			 * @param string $scheme      Authentication scheme. Values include 'auth',
@@ -2254,7 +2422,17 @@ if ( ! function_exists( 'gc_salt' ) ) :
 
 		static $duplicated_keys;
 		if ( null === $duplicated_keys ) {
-			$duplicated_keys = array( 'put your unique phrase here' => true );
+			$duplicated_keys = array(
+				'将您的独特字串放在这里' => true,
+			);
+
+			/*
+			 * translators: This string should only be translated if gc-config-sample.php is localized.
+			 * You can check the localized release package or
+			 * https://i18n.svn.gechiui.com/<locale code>/branches/<gc version>/dist/gc-config-sample.php
+			 */
+			$duplicated_keys[ __( '将您的独特字串放在这里' ) ] = true;
+
 			foreach ( array( 'AUTH', 'SECURE_AUTH', 'LOGGED_IN', 'NONCE', 'SECRET' ) as $first ) {
 				foreach ( array( 'KEY', 'SALT' ) as $second ) {
 					if ( ! defined( "{$first}_{$second}" ) ) {
@@ -2310,12 +2488,13 @@ endif;
 
 if ( ! function_exists( 'gc_hash' ) ) :
 	/**
-	 * Get hash of given string.
+	 * Gets hash of given string.
 	 *
+	 * @since 2.0.3
 	 *
-	 * @param string $data   Plain text to hash
-	 * @param string $scheme Authentication scheme (auth, secure_auth, logged_in, nonce)
-	 * @return string Hash of $data
+	 * @param string $data   Plain text to hash.
+	 * @param string $scheme Authentication scheme (auth, secure_auth, logged_in, nonce).
+	 * @return string Hash of $data.
 	 */
 	function gc_hash( $data, $scheme = 'auth' ) {
 		$salt = gc_salt( $scheme );
@@ -2326,7 +2505,7 @@ endif;
 
 if ( ! function_exists( 'gc_hash_password' ) ) :
 	/**
-	 * Create a hash (encrypt) of a plain text password.
+	 * Creates a hash (encrypt) of a plain text password.
 	 *
 	 * For integration with other applications, this function can be overwritten to
 	 * instead use the other package password checking algorithm.
@@ -2334,8 +2513,8 @@ if ( ! function_exists( 'gc_hash_password' ) ) :
 	 *
 	 * @global PasswordHash $gc_hasher PHPass object
 	 *
-	 * @param string $password Plain text user password to hash
-	 * @return string The hash string of the password
+	 * @param string $password Plain text user password to hash.
+	 * @return string The hash string of the password.
 	 */
 	function gc_hash_password( $password ) {
 		global $gc_hasher;
@@ -2364,13 +2543,13 @@ if ( ! function_exists( 'gc_check_password' ) ) :
 	 *
 	 *
 	 * @global PasswordHash $gc_hasher PHPass object used for checking the password
-	 *                                 against the $hash + $password
+	 *                                 against the $hash + $password.
 	 * @uses PasswordHash::CheckPassword
 	 *
-	 * @param string     $password Plaintext user's password
+	 * @param string     $password Plaintext user's password.
 	 * @param string     $hash     Hash of the user's password to check against.
 	 * @param string|int $user_id  Optional. User ID.
-	 * @return bool False, if the $password does not match the hashed password
+	 * @return bool False, if the $password does not match the hashed password.
 	 */
 	function gc_check_password( $password, $hash, $user_id = '' ) {
 		global $gc_hasher;
@@ -2387,7 +2566,7 @@ if ( ! function_exists( 'gc_check_password' ) ) :
 			/**
 			 * Filters whether the plaintext password matches the encrypted password.
 			 *
-		
+			 * @since 2.5.0
 			 *
 			 * @param bool       $check    Whether the passwords match.
 			 * @param string     $password The plaintext password.
@@ -2397,8 +2576,10 @@ if ( ! function_exists( 'gc_check_password' ) ) :
 			return apply_filters( 'check_password', $check, $password, $hash, $user_id );
 		}
 
-		// If the stored hash is longer than an MD5,
-		// presume the new style phpass portable hash.
+		/*
+		 * If the stored hash is longer than an MD5,
+		 * presume the new style phpass portable hash.
+		 */
 		if ( empty( $gc_hasher ) ) {
 			require_once ABSPATH . GCINC . '/class-phpass.php';
 			// By default, use the portable hash from phpass.
@@ -2416,7 +2597,7 @@ if ( ! function_exists( 'gc_generate_password' ) ) :
 	/**
 	 * Generates a random password drawn from the defined set of characters.
 	 *
-	 * Uses gc_rand() is used to create passwords with far less predictability
+	 * Uses gc_rand() to create passwords with far less predictability
 	 * than similar native PHP functions like `rand()` or `mt_rand()`.
 	 *
 	 *
@@ -2444,6 +2625,8 @@ if ( ! function_exists( 'gc_generate_password' ) ) :
 		/**
 		 * Filters the randomly-generated password.
 		 *
+		 * @since 3.0.0
+		 * @since 5.3.0 Added the `$length`, `$special_chars`, and `$extra_special_chars` parameters.
 		 *
 		 * @param string $password            The generated password.
 		 * @param int    $length              The length of password to generate.
@@ -2456,21 +2639,36 @@ endif;
 
 if ( ! function_exists( 'gc_rand' ) ) :
 	/**
-	 * Generates a random number.
+	 * Generates a random non-negative number.
 	 *
+	 * @since 2.6.2
+	 * @since 4.4.0 Uses PHP7 random_int() or the random_compat library if available.
+	 * @since 6.1.0 Returns zero instead of a random number if both `$min` and `$max` are zero.
 	 *
 	 * @global string $rnd_value
 	 *
-	 * @param int $min Lower limit for the generated number
-	 * @param int $max Upper limit for the generated number
-	 * @return int A random number between min and max
+	 * @param int $min Optional. Lower limit for the generated number.
+	 *                 Accepts positive integers or zero. Defaults to 0.
+	 * @param int $max Optional. Upper limit for the generated number.
+	 *                 Accepts positive integers. Defaults to 4294967295.
+	 * @return int A random non-negative number between min and max.
 	 */
-	function gc_rand( $min = 0, $max = 0 ) {
+	function gc_rand( $min = null, $max = null ) {
 		global $rnd_value;
 
-		// Some misconfigured 32-bit environments (Entropy PHP, for example)
-		// truncate integers larger than PHP_INT_MAX to PHP_INT_MAX rather than overflowing them to floats.
+		/*
+		 * Some misconfigured 32-bit environments (Entropy PHP, for example)
+		 * truncate integers larger than PHP_INT_MAX to PHP_INT_MAX rather than overflowing them to floats.
+		 */
 		$max_random_number = 3000000000 === 2147483647 ? (float) '4294967295' : 4294967295; // 4294967295 = 0xffffffff
+
+		if ( null === $min ) {
+			$min = 0;
+		}
+
+		if ( null === $max ) {
+			$max = $max_random_number;
+		}
 
 		// We only handle ints, floats are truncated to their integer value.
 		$min = (int) $min;
@@ -2480,10 +2678,9 @@ if ( ! function_exists( 'gc_rand' ) ) :
 		static $use_random_int_functionality = true;
 		if ( $use_random_int_functionality ) {
 			try {
-				$_max = ( 0 != $max ) ? $max : $max_random_number;
 				// gc_rand() can accept arguments in either order, PHP cannot.
-				$_max = max( $min, $_max );
-				$_min = min( $min, $_max );
+				$_max = max( $min, $max );
+				$_min = min( $min, $max );
 				$val  = random_int( $_min, $_max );
 				if ( false !== $val ) {
 					return absint( $val );
@@ -2497,8 +2694,10 @@ if ( ! function_exists( 'gc_rand' ) ) :
 			}
 		}
 
-		// Reset $rnd_value after 14 uses.
-		// 32 (md5) + 40 (sha1) + 40 (sha1) / 8 = 14 random numbers from $rnd_value.
+		/*
+		 * Reset $rnd_value after 14 uses.
+		 * 32 (md5) + 40 (sha1) + 40 (sha1) / 8 = 14 random numbers from $rnd_value.
+		 */
 		if ( strlen( $rnd_value ) < 8 ) {
 			if ( defined( 'GC_SETUP_CONFIG' ) ) {
 				static $seed = '';
@@ -2523,9 +2722,7 @@ if ( ! function_exists( 'gc_rand' ) ) :
 		$value = abs( hexdec( $value ) );
 
 		// Reduce the value to be within the min - max range.
-		if ( 0 != $max ) {
-			$value = $min + ( $max - $min + 1 ) * $value / ( $max_random_number + 1 );
-		}
+		$value = $min + ( $max - $min + 1 ) * $value / ( $max_random_number + 1 );
 
 		return abs( (int) $value );
 	}
@@ -2545,8 +2742,8 @@ if ( ! function_exists( 'gc_set_password' ) ) :
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
-	 * @param string $password The plaintext new user password
-	 * @param int    $user_id  User ID
+	 * @param string $password The plaintext new user password.
+	 * @param int    $user_id  User ID.
 	 */
 	function gc_set_password( $password, $user_id ) {
 		global $gcdb;
@@ -2562,170 +2759,61 @@ if ( ! function_exists( 'gc_set_password' ) ) :
 		);
 
 		clean_user_cache( $user_id );
+
+		/**
+		 * Fires after the user password is set.
+		 *
+		 * @since 6.2.0
+		 *
+		 * @param string $password The plaintext password just set.
+		 * @param int    $user_id  The ID of the user whose password was just set.
+		 */
+		do_action( 'gc_set_password', $password, $user_id );
 	}
 endif;
 
 if ( ! function_exists( 'get_avatar' ) ) :
 	/**
-	 * Retrieve the avatar `<img>` tag for a user, email address, MD5 hash, comment, or post.
+	 * Retrieves the avatar `<img>` tag for a user, email address, MD5 hash, comment, or post.
 	 *
+	 * @since 6.3 
+	 * 
+	 * gongenlin
 	 *
-	 * @param mixed  $id_or_email The Gravatar to retrieve. Accepts a user_id, gravatar md5 hash,
-	 *                            user email, GC_User object, GC_Post object, or GC_Comment object.
-	 * @param int    $size        Optional. Height and width of the avatar image file in pixels. Default 96.
-	 * @param string $default     Optional. URL for the default image or a default type. Accepts '404'
-	 *                            (return a 404 instead of a default image), 'retro' (8bit), 'monsterid'
-	 *                            (monster), 'wavatar' (cartoon face), 'indenticon' (the "quilt"),
-	 *                            'mystery', 'mm', or 'mysteryman' (The Oyster Man), 'blank' (transparent GIF),
-	 *                            or 'gravatar_default' (the Gravatar logo). Default is the value of the
-	 *                            'avatar_default' option, with a fallback of 'mystery'.
-	 * @param string $alt         Optional. Alternative text to use in img tag. Default empty.
-	 * @param array  $args {
-	 *     Optional. Extra arguments to retrieve the avatar.
-	 *
-	 *     @type int          $height        Display height of the avatar in pixels. Defaults to $size.
-	 *     @type int          $width         Display width of the avatar in pixels. Defaults to $size.
-	 *     @type bool         $force_default Whether to always show the default image, never the Gravatar. Default false.
-	 *     @type string       $rating        What rating to display avatars up to. Accepts 'G', 'PG', 'R', 'X', and are
-	 *                                       judged in that order. Default is the value of the 'avatar_rating' option.
-	 *     @type string       $scheme        URL scheme to use. See set_url_scheme() for accepted values.
-	 *                                       Default null.
-	 *     @type array|string $class         Array or string of additional classes to add to the img element.
-	 *                                       Default null.
-	 *     @type bool         $force_display Whether to always show the avatar - ignores the show_avatars option.
-	 *                                       Default false.
-	 *     @type string       $loading       Value for the `loading` attribute.
-	 *                                       Default null.
-	 *     @type string       $extra_attr    HTML attributes to insert in the IMG element. Is not sanitized. Default empty.
-	 * }
 	 * @return string|false `<img>` tag for the user's avatar. False on failure.
 	 */
-	function get_avatar( $id_or_email, $size = 96, $default = '', $alt = '', $args = null ) {
-		$defaults = array(
-			// get_avatar_data() args.
-			'size'          => 96,
-			'height'        => null,
-			'width'         => null,
-			'default'       => get_option( 'avatar_default', 'mystery' ),
-			'force_default' => false,
-			'rating'        => get_option( 'avatar_rating' ),
-			'scheme'        => null,
-			'alt'           => '',
-			'class'         => null,
-			'force_display' => false,
-			'loading'       => null,
-			'extra_attr'    => '',
+	function get_avatar( $id_or_email, $size = 96, $default_value = '', $alt = '', $args = null ) {
+		if ( ! get_option( 'show_avatars' ) ) {
+			return '';
+		}
+		
+		// 默认头像的处理
+		if(empty($default_value)){
+			$default_value = get_option( 'avatar_default' );
+		}
+
+		$args = gc_parse_args(
+			$args,
+			array(
+				'size'           => $size,
+				'default'        => $default_value,
+				'force_default'  => false,
+				'rating'         => get_option( 'avatar_rating' ),
+				'alt'            => $alt
+			)
 		);
-
-		if ( gc_lazy_loading_enabled( 'img', 'get_avatar' ) ) {
-			$defaults['loading'] = gc_get_loading_attr_default( 'get_avatar' );
-		}
-
-		if ( empty( $args ) ) {
-			$args = array();
-		}
-
-		$args['size']    = (int) $size;
-		$args['default'] = $default;
-		$args['alt']     = $alt;
-
-		$args = gc_parse_args( $args, $defaults );
-
-		if ( empty( $args['height'] ) ) {
-			$args['height'] = $args['size'];
-		}
-		if ( empty( $args['width'] ) ) {
-			$args['width'] = $args['size'];
-		}
-
-		if ( is_object( $id_or_email ) && isset( $id_or_email->comment_ID ) ) {
-			$id_or_email = get_comment( $id_or_email );
-		}
-
-		/**
-		 * Allows the HTML for a user's avatar to be returned early.
-		 *
-		 * Returning a non-null value will effectively short-circuit get_avatar(), passing
-		 * the value through the {@see 'get_avatar'} filter and returning early.
-		 *
-		 *
-		 * @param string|null $avatar      HTML for the user's avatar. Default null.
-		 * @param mixed       $id_or_email The avatar to retrieve. Accepts a user_id, Gravatar MD5 hash,
-		 *                                 user email, GC_User object, GC_Post object, or GC_Comment object.
-		 * @param array       $args        Arguments passed to get_avatar_url(), after processing.
-		 */
-		$avatar = apply_filters( 'pre_get_avatar', null, $id_or_email, $args );
-
-		if ( ! is_null( $avatar ) ) {
-			/** This filter is documented in gc-includes/pluggable.php */
-			return apply_filters( 'get_avatar', $avatar, $id_or_email, $args['size'], $args['default'], $args['alt'], $args );
-		}
-
-		if ( ! $args['force_display'] && ! get_option( 'show_avatars' ) ) {
-			return false;
-		}
-
-		$url2x = get_avatar_url( $id_or_email, array_merge( $args, array( 'size' => $args['size'] * 2 ) ) );
-
 		$args = get_avatar_data( $id_or_email, $args );
+        
+        // $author_class = is_author( $user_id ) ? ' current-author' : '' ;
+        $url = get_avatar_url( $id_or_email, $args );
+        // 用户没有设置自定义头像，前端不展示
+        if( empty($url) || is_gc_error( $url ) ){
+        	return false;
+        }
+	    $avatar = "<img alt='" . esc_attr( $alt ) . "' src='" . get_avatar_url( $id_or_email, $args ) . "' class='avatar avatar-icon' style='height:{$size}px; width:{$size}px;' />";
+        
+		return apply_filters( 'get_avatar', $avatar, $args );
 
-		$url = $args['url'];
-
-		if ( ! $url || is_gc_error( $url ) ) {
-			return false;
-		}
-
-		$class = array( 'avatar', 'avatar-' . (int) $args['size'], 'photo' );
-
-		if ( ! $args['found_avatar'] || $args['force_default'] ) {
-			$class[] = 'avatar-default';
-		}
-
-		if ( $args['class'] ) {
-			if ( is_array( $args['class'] ) ) {
-				$class = array_merge( $class, $args['class'] );
-			} else {
-				$class[] = $args['class'];
-			}
-		}
-
-		// Add `loading` attribute.
-		$extra_attr = $args['extra_attr'];
-		$loading    = $args['loading'];
-
-		if ( in_array( $loading, array( 'lazy', 'eager' ), true ) && ! preg_match( '/\bloading\s*=/', $extra_attr ) ) {
-			if ( ! empty( $extra_attr ) ) {
-				$extra_attr .= ' ';
-			}
-
-			$extra_attr .= "loading='{$loading}'";
-		}
-
-		$avatar = sprintf(
-			"<img alt='%s' src='%s' srcset='%s' class='%s' height='%d' width='%d' %s/>",
-			esc_attr( $args['alt'] ),
-			esc_url( $url ),
-			esc_url( $url2x ) . ' 2x',
-			esc_attr( implode( ' ', $class ) ),
-			(int) $args['height'],
-			(int) $args['width'],
-			$extra_attr
-		);
-
-		/**
-		 * Filters the HTML for a user's avatar.
-		 *
-		 *
-		 * @param string $avatar      HTML for the user's avatar.
-		 * @param mixed  $id_or_email The avatar to retrieve. Accepts a user_id, Gravatar MD5 hash,
-		 *                            user email, GC_User object, GC_Post object, or GC_Comment object.
-		 * @param int    $size        Square avatar width and height in pixels to retrieve.
-		 * @param string $default     URL for the default image or a default type. Accepts '404', 'retro', 'monsterid',
-		 *                            'wavatar', 'indenticon', 'mystery', 'mm', 'mysteryman', 'blank', or 'gravatar_default'.
-		 * @param string $alt         Alternative text to use in the avatar image tag.
-		 * @param array  $args        Arguments passed to get_avatar_data(), after processing.
-		 */
-		return apply_filters( 'get_avatar', $avatar, $id_or_email, $args['size'], $args['default'], $args['alt'], $args );
 	}
 endif;
 
@@ -2737,13 +2825,14 @@ if ( ! function_exists( 'gc_text_diff' ) ) :
 	 * HTML, so the primary use is for displaying the changes. If the two strings
 	 * are equivalent, then an empty string will be returned.
 	 *
+	 * @since 2.6.0
 	 *
 	 * @see gc_parse_args() Used to change defaults to user defined settings.
 	 * @uses Text_Diff
 	 * @uses GC_Text_Diff_Renderer_Table
 	 *
-	 * @param string       $left_string  "old" (left) version of string
-	 * @param string       $right_string "new" (right) version of string
+	 * @param string       $left_string  "old" (left) version of string.
+	 * @param string       $right_string "new" (right) version of string.
 	 * @param string|array $args {
 	 *     Associative array of options to pass to GC_Text_Diff_Renderer_Table().
 	 *

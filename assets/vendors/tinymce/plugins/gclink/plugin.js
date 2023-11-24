@@ -305,20 +305,20 @@
 
 		editor.addButton( 'link', {
 			icon: 'link',
-			tooltip: 'Insert/edit link',
+			tooltip: '插入或编辑链接',
 			cmd: 'GC_Link',
 			stateSelector: 'a[href]'
 		});
 
 		editor.addButton( 'unlink', {
 			icon: 'unlink',
-			tooltip: 'Remove link',
+			tooltip: '移除链接',
 			cmd: 'unlink'
 		});
 
 		editor.addMenuItem( 'link', {
 			icon: 'link',
-			text: 'Insert/edit link',
+			text: '插入或编辑链接',
 			cmd: 'GC_Link',
 			stateSelector: 'a[href]',
 			context: 'insert',
@@ -571,13 +571,13 @@
 		} );
 
 		editor.addButton( 'gc_link_remove', {
-			tooltip: 'Remove link',
+			tooltip: '移除链接',
 			icon: 'dashicon dashicons-editor-unlink',
 			cmd: 'gc_unlink'
 		} );
 
 		editor.addButton( 'gc_link_advanced', {
-			tooltip: 'Link options',
+			tooltip: '链接选项',
 			icon: 'dashicon dashicons-admin-generic',
 			onclick: function() {
 				if ( typeof window.gcLink !== 'undefined' ) {

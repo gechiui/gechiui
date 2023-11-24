@@ -2329,12 +2329,12 @@ var paste = (function (domGlobals) {
       editor.addButton('pastetext', {
         active: false,
         icon: 'pastetext',
-        tooltip: 'Paste as text',
+        tooltip: '粘贴为文本',
         cmd: 'mceTogglePlainTextPaste',
         onPostRender: postRender
       });
       editor.addMenuItem('pastetext', {
-        text: 'Paste as text',
+        text: '粘贴为文本',
         selectable: true,
         active: clipboard.pasteFormat,
         cmd: 'mceTogglePlainTextPaste',

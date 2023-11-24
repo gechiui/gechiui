@@ -13,9 +13,9 @@ gc_reset_vars( array( 'action' ) );
 
 $tabs = array(
 	/* translators: Tab heading for Site Health Status page. */
-	''      => _x( '状态', '站点健康' ),
+	''      => _x( '状态', '系统健康' ),
 	/* translators: Tab heading for Site Health Info page. */
-	'debug' => _x( '信息', '站点健康' ),
+	'debug' => _x( '信息', '系统健康' ),
 );
 
 /**
@@ -23,7 +23,6 @@ $tabs = array(
  *
  * Add a custom page to the Site Health screen, based on a tab slug and label.
  * The label you provide will also be used as part of the site title.
- *
  *
  *
  * @param string[] $tabs An associative array of tab labels keyed by their slug.
@@ -40,12 +39,12 @@ $current_tab = ( isset( $_GET['tab'] ) ? $_GET['tab'] : '' );
 
 $title = sprintf(
 	// translators: %s: The currently displayed tab.
-	__( '站点健康 - %s' ),
+	__( '系统健康 - %s' ),
 	( isset( $tabs[ $current_tab ] ) ? esc_html( $tabs[ $current_tab ] ) : esc_html( reset( $tabs ) ) )
 );
 
 if ( ! current_user_can( 'view_site_health_checks' ) ) {
-	gc_die( __( '抱歉，您不能访问站点健康信息。' ), '', 403 );
+	gc_die( __( '抱歉，您不能访问系统健康信息。' ), '', 403 );
 }
 
 gc_enqueue_style( 'site-health' );
@@ -59,11 +58,11 @@ if ( 'update_https' === $action ) {
 	check_admin_referer( 'gc_update_https' );
 
 	if ( ! current_user_can( 'update_https' ) ) {
-		gc_die( __( '抱歉，您不能将该站点更新至HTTPS。' ), 403 );
+		gc_die( __( '抱歉，您不能将该系统更新至HTTPS。' ), 403 );
 	}
 
 	if ( ! gc_is_https_supported() ) {
-		gc_die( __( '看起来您的网站暂时不支持HTTPS。' ) );
+		gc_die( __( '看起来您的系统暂时不支持HTTPS。' ) );
 	}
 
 	$result = gc_update_urls_to_https();
@@ -79,15 +78,15 @@ get_current_screen()->add_help_tab(
 		'id'      => 'overview',
 		'title'   => __( '概述' ),
 		'content' =>
-				'<p>' . __( '此页面可让您获得站点的健康诊断数据，并显示 GeChiUI 安装状态的总体评级。' ) . '</p>' .
+				'<p>' . __( '此页面可让您获得系统的健康诊断数据，并显示 GeChiUI 安装状态的总体评级。' ) . '</p>' .
 				'<p>' . __( '在“状态”选项卡中，您可以查看有关 GeChiUI 配置的关键信息，以及其它需要您注意的信息。' ) . '</p>' .
-				'<p>' . __( '在信息选项卡中，您将找到有关 GeChiUI 站点、服务器和数据库配置的所有详细信息。还有一个导出功能，可让您将站点的所有相关信息复制到剪贴板，方便您在取得支援时解决站点问题。' ) . '</p>',
+				'<p>' . __( '在信息选项卡中，您将找到有关 GeChiUI 系统、服务器和数据库配置的所有详细信息。还有一个导出功能，可让您将系统的所有相关信息复制到剪贴板，方便您在取得支援时解决系统问题。' ) . '</p>',
 	)
 );
 
 get_current_screen()->set_help_sidebar(
 	'<p><strong>' . __( '更多信息：' ) . '</strong></p>' .
-	'<p>' . __( '<a href="https://www.gechiui.com/support/site-health-screen/">站点健康工具文档</a>' ) . '</p>'
+	'<p>' . __( '<a href="https://www.gechiui.com/support/site-health-screen/">系统健康工具文档</a>' ) . '</p>'
 );
 
 // Start by checking if this is a special request checking for the existence of certain filters.
@@ -98,20 +97,16 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 <div class="health-check-header">
 	<div class="health-check-title-section">
 		<h1>
-			<?php _e( '站点健康' ); ?>
+			<?php _e( '系统健康' ); ?>
 		</h1>
 	</div>
 
 	<?php
 	if ( isset( $_GET['https_updated'] ) ) {
 		if ( $_GET['https_updated'] ) {
-			?>
-			<div id="message" class="notice notice-success is-dismissible"><p><?php _e( '站点URL已切换至HTTPS。' ); ?></p></div>
-			<?php
+			echo setting_error( __( '系统URL已切换至HTTPS。' ), 'success' );
 		} else {
-			?>
-			<div id="message" class="notice notice-error is-dismissible"><p><?php _e( '站点URL未能切换至HTTPS。' ); ?></p></div>
-			<?php
+			echo setting_error( __( '系统URL未能切换至HTTPS。' ), 'danger' );
 		}
 	}
 	?>
@@ -124,7 +119,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 			</svg>
 		</div>
 		<div class="site-health-progress-label">
-			<?php _e( '结果载入中…' ); ?>
+			<?php _e( '结果载入中...'  ); ?>
 		</div>
 	</div>
 
@@ -188,8 +183,6 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 	</nav>
 </div>
 
-<hr class="gc-header-end">
-
 <?php
 if ( isset( $_GET['tab'] ) && ! empty( $_GET['tab'] ) ) {
 	/**
@@ -206,11 +199,8 @@ if ( isset( $_GET['tab'] ) && ! empty( $_GET['tab'] ) ) {
 	require_once ABSPATH . 'gc-admin/admin-footer.php';
 	return;
 } else {
+	echo setting_error( __( '系统健康检查需要JavaScript支持。' ), 'danger hide-if-js' );
 	?>
-
-<div class="notice notice-error hide-if-js">
-	<p><?php _e( '站点健康检查需要JavaScript支持。' ); ?></p>
-</div>
 
 <div class="health-check-body health-check-status-tab hide-if-no-js">
 	<div class="site-status-all-clear hide">
@@ -229,10 +219,10 @@ if ( isset( $_GET['tab'] ) && ! empty( $_GET['tab'] ) ) {
 
 	<div class="site-status-has-issues">
 		<h2>
-			<?php _e( '站点健康状态' ); ?>
+			<?php _e( '系统健康状态' ); ?>
 		</h2>
 
-		<p><?php _e( '站点健康检查向您显示关于您的GeChiUI配置的关键问题，及需要您的注意的项目。' ); ?></p>
+		<p><?php _e( '系统健康检查向您显示关于您的GeChiUI配置的关键问题，及需要您的注意的项目。' ); ?></p>
 
 		<div class="site-health-issues-wrapper" id="health-check-issues-critical">
 			<h3 class="site-health-issue-count-title">

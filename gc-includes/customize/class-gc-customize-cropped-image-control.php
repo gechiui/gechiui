@@ -4,13 +4,12 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customize Cropped Image Control class.
  *
- *
+ * @since 4.3.0
  *
  * @see GC_Customize_Image_Control
  */
@@ -19,6 +18,7 @@ class GC_Customize_Cropped_Image_Control extends GC_Customize_Image_Control {
 	/**
 	 * Control type.
 	 *
+	 * @since 4.3.0
 	 * @var string
 	 */
 	public $type = 'cropped_image';
@@ -26,6 +26,7 @@ class GC_Customize_Cropped_Image_Control extends GC_Customize_Image_Control {
 	/**
 	 * Suggested width for cropped image.
 	 *
+	 * @since 4.3.0
 	 * @var int
 	 */
 	public $width = 150;
@@ -33,6 +34,7 @@ class GC_Customize_Cropped_Image_Control extends GC_Customize_Image_Control {
 	/**
 	 * Suggested height for cropped image.
 	 *
+	 * @since 4.3.0
 	 * @var int
 	 */
 	public $height = 150;
@@ -40,6 +42,7 @@ class GC_Customize_Cropped_Image_Control extends GC_Customize_Image_Control {
 	/**
 	 * Whether the width is flexible.
 	 *
+	 * @since 4.3.0
 	 * @var bool
 	 */
 	public $flex_width = false;
@@ -47,6 +50,7 @@ class GC_Customize_Cropped_Image_Control extends GC_Customize_Image_Control {
 	/**
 	 * Whether the height is flexible.
 	 *
+	 * @since 4.3.0
 	 * @var bool
 	 */
 	public $flex_height = false;
@@ -54,6 +58,7 @@ class GC_Customize_Cropped_Image_Control extends GC_Customize_Image_Control {
 	/**
 	 * Enqueue control related scripts/styles.
 	 *
+	 * @since 4.3.0
 	 */
 	public function enqueue() {
 		gc_enqueue_script( 'customize-views' );
@@ -64,6 +69,7 @@ class GC_Customize_Cropped_Image_Control extends GC_Customize_Image_Control {
 	/**
 	 * Refresh the parameters passed to the JavaScript via JSON.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see GC_Customize_Control::to_json()
 	 */

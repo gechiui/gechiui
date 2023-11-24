@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/widgets/text-widgets.js
+ * @output assets/js/widgets/text-widgets.js
  */
 
 /* global tinymce, switchEditors */
@@ -102,6 +102,7 @@ gc.textWidgets = ( function( $ ) {
 		/**
 		 * Dismiss pointers for Custom HTML widget.
 		 *
+		 * @since 4.8.1
 		 *
 		 * @param {Array} pointers Pointer IDs to dismiss.
 		 * @return {void}
@@ -118,6 +119,7 @@ gc.textWidgets = ( function( $ ) {
 		/**
 		 * Open available widgets panel.
 		 *
+		 * @since 4.8.1
 		 * @return {void}
 		 */
 		openAvailableWidgetsPanel: function openAvailableWidgetsPanel() {

@@ -1,9 +1,10 @@
 <?php
 /**
- * 个人资料
- * 引用方法 <!-- gc:pattern {"slug":"gcoa/profile"} /-->
- * 简码引用 [gcoa_profile]
- */
+* Title: 个人资料
+* Slug: gcoa_profile
+* 简码引用 [gcoa_profile]
+*/
+
 function  gcoa_profile(){
     $current_user = gc_get_current_user();
     $user_id = $current_user->ID;
@@ -89,9 +90,3 @@ function  gcoa_profile(){
 
 }
 add_shortcode('gcoa_profile', 'gcoa_profile');
-
-// return array(
-// 	'title'      => __( '个人资料', 'gcoa' ),
-// 	'inserter' => false,
-// 	'content'    => gcoa_profile()
-// );

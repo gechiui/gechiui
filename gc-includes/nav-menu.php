@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Nav_Menus
- *
  */
 
 /**
  * Returns a navigation menu object.
- *
- *
  *
  * @param int|string|GC_Term $menu Menu ID, slug, name, or object.
  * @return GC_Term|false Menu object on success, false if $menu param isn't supplied or term does not exist.
@@ -41,6 +38,7 @@ function gc_get_nav_menu_object( $menu ) {
 	/**
 	 * Filters the nav_menu term retrieved for gc_get_nav_menu_object().
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param GC_Term|false      $menu_obj Term from nav_menu taxonomy, or false if nothing had been found.
 	 * @param int|string|GC_Term $menu     The menu ID, slug, name, or object passed to gc_get_nav_menu_object().
@@ -49,11 +47,9 @@ function gc_get_nav_menu_object( $menu ) {
 }
 
 /**
- * Check if the given ID is a navigation menu.
+ * Determines whether the given ID is a navigation menu.
  *
  * Returns true if it is; false otherwise.
- *
- *
  *
  * @param int|string|GC_Term $menu Menu ID, slug, name, or object of menu to check.
  * @return bool Whether the menu exists.
@@ -80,8 +76,6 @@ function is_nav_menu( $menu ) {
 /**
  * Registers navigation menu locations for a theme.
  *
- *
- *
  * @global array $_gc_registered_nav_menus
  *
  * @param string[] $locations Associative array of menu location identifiers (like a slug) and descriptive text.
@@ -104,8 +98,6 @@ function register_nav_menus( $locations = array() ) {
 /**
  * Unregisters a navigation menu location for a theme.
  *
- *
- *
  * @global array $_gc_registered_nav_menus
  *
  * @param string $location The menu location identifier.
@@ -127,8 +119,6 @@ function unregister_nav_menu( $location ) {
 /**
  * Registers a navigation menu location for a theme.
  *
- *
- *
  * @param string $location    Menu location identifier, like a slug.
  * @param string $description Menu location descriptive text.
  */
@@ -138,11 +128,9 @@ function register_nav_menu( $location, $description ) {
 /**
  * Retrieves all registered navigation menu locations in a theme.
  *
- *
- *
  * @global array $_gc_registered_nav_menus
  *
- * @return string[] Associative array of egistered navigation menu descriptions keyed
+ * @return string[] Associative array of registered navigation menu descriptions keyed
  *                  by their location. If none are registered, an empty array.
  */
 function get_registered_nav_menus() {
@@ -156,8 +144,6 @@ function get_registered_nav_menus() {
 /**
  * Retrieves all registered navigation menu locations and the menus assigned to them.
  *
- *
- *
  * @return int[] Associative array of registered navigation menu IDs keyed by their
  *               location name. If none are registered, an empty array.
  */
@@ -168,8 +154,6 @@ function get_nav_menu_locations() {
 
 /**
  * Determines whether a registered nav menu location has a menu assigned to it.
- *
- *
  *
  * @param string $location Menu location identifier.
  * @return bool Whether location has a menu.
@@ -186,6 +170,7 @@ function has_nav_menu( $location ) {
 	/**
 	 * Filters whether a nav menu is assigned to the specified location.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param bool   $has_nav_menu Whether there is a menu assigned to a location.
 	 * @param string $location     Menu location.
@@ -195,8 +180,6 @@ function has_nav_menu( $location ) {
 
 /**
  * Returns the name of a navigation menu.
- *
- *
  *
  * @param string $location Menu location identifier.
  * @return string Menu name.
@@ -217,6 +200,7 @@ function gc_get_nav_menu_name( $location ) {
 	/**
 	 * Filters the navigation menu name being returned.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param string $menu_name Menu name.
 	 * @param string $location  Menu location identifier.
@@ -226,8 +210,6 @@ function gc_get_nav_menu_name( $location ) {
 
 /**
  * Determines whether the given ID is a nav menu item.
- *
- *
  *
  * @param int $menu_item_id The ID of the potential nav menu item.
  * @return bool Whether the given ID is that of a nav menu item.
@@ -241,8 +223,6 @@ function is_nav_menu_item( $menu_item_id = 0 ) {
  *
  * Note that `$menu_name` is expected to be pre-slashed.
  *
- *
- *
  * @param string $menu_name Menu name.
  * @return int|GC_Error Menu ID on success, GC_Error object on failure.
  */
@@ -252,9 +232,7 @@ function gc_create_nav_menu( $menu_name ) {
 }
 
 /**
- * Delete a Navigation Menu.
- *
- *
+ * Deletes a navigation menu.
  *
  * @param int|string|GC_Term $menu Menu ID, slug, name, or object.
  * @return bool|GC_Error True on success, false or GC_Error object on failure.
@@ -288,6 +266,7 @@ function gc_delete_nav_menu( $menu ) {
 		/**
 		 * Fires after a navigation menu has been successfully deleted.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param int $term_id ID of the deleted menu.
 		 */
@@ -298,11 +277,9 @@ function gc_delete_nav_menu( $menu ) {
 }
 
 /**
- * Save the properties of a menu or create a new menu with those properties.
+ * Saves the properties of a menu or create a new menu with those properties.
  *
  * Note that `$menu_data` is expected to be pre-slashed.
- *
- *
  *
  * @param int   $menu_id   The ID of the menu or "0" to create a new menu.
  * @param array $menu_data The array of menu data.
@@ -363,6 +340,7 @@ function gc_update_nav_menu_object( $menu_id = 0, $menu_data = array() ) {
 		/**
 		 * Fires after a navigation menu is successfully created.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param int   $term_id   ID of the new menu.
 		 * @param array $menu_data An array of menu data.
@@ -398,13 +376,12 @@ function gc_update_nav_menu_object( $menu_id = 0, $menu_data = array() ) {
 }
 
 /**
- * Save the properties of a menu item or create a new one.
+ * Saves the properties of a menu item or create a new one.
  *
  * The menu-item-title, menu-item-description and menu-item-attr-title are expected
  * to be pre-slashed since they are passed directly to APIs that expect slashed data.
  *
- *
- *
+ * @since 5.9.0 Added the `$fire_after_hooks` parameter.
  *
  * @param int   $menu_id          The ID of the menu. If 0, makes the menu item a draft orphan.
  * @param int   $menu_item_db_id  The ID of the menu item. If 0, creates a new menu item.
@@ -444,6 +421,7 @@ function gc_update_nav_menu_item( $menu_id = 0, $menu_item_db_id = 0, $menu_item
 		'menu-item-attr-title'    => '',
 		'menu-item-target'        => '',
 		'menu-item-classes'       => '',
+		'menu-item-xfn'           => '',
 		'menu-item-status'        => '',
 		'menu-item-post-date'     => '',
 		'menu-item-post-date-gmt' => '',
@@ -529,6 +507,7 @@ function gc_update_nav_menu_item( $menu_id = 0, $menu_item_db_id = 0, $menu_item
 		/**
 		 * Fires immediately after a new navigation menu item has been added.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @see gc_update_nav_menu_item()
 		 *
@@ -539,8 +518,10 @@ function gc_update_nav_menu_item( $menu_id = 0, $menu_item_db_id = 0, $menu_item
 		do_action( 'gc_add_nav_menu_item', $menu_id, $menu_item_db_id, $args );
 	}
 
-	// Associate the menu item with the menu term.
-	// Only set the menu term if it isn't set to avoid unnecessary gc_get_object_terms().
+	/*
+	 * Associate the menu item with the menu term.
+	 * Only set the menu term if it isn't set to avoid unnecessary gc_get_object_terms().
+	 */
 	if ( $menu_id && ( ! $update || ! is_object_in_term( $menu_item_db_id, 'nav_menu', (int) $menu->term_id ) ) ) {
 		$update_terms = gc_set_object_terms( $menu_item_db_id, array( $menu->term_id ), 'nav_menu' );
 		if ( is_gc_error( $update_terms ) ) {
@@ -555,6 +536,11 @@ function gc_update_nav_menu_item( $menu_id = 0, $menu_item_db_id = 0, $menu_item
 
 	$menu_item_db_id = (int) $menu_item_db_id;
 
+	// Reset invalid `menu_item_parent`.
+	if ( (int) $args['menu-item-parent-id'] === $menu_item_db_id ) {
+		$args['menu-item-parent-id'] = 0;
+	}
+
 	update_post_meta( $menu_item_db_id, '_menu_item_type', sanitize_key( $args['menu-item-type'] ) );
 	update_post_meta( $menu_item_db_id, '_menu_item_menu_item_parent', (string) ( (int) $args['menu-item-parent-id'] ) );
 	update_post_meta( $menu_item_db_id, '_menu_item_object_id', (string) ( (int) $args['menu-item-object-id'] ) );
@@ -562,8 +548,10 @@ function gc_update_nav_menu_item( $menu_id = 0, $menu_item_db_id = 0, $menu_item
 	update_post_meta( $menu_item_db_id, '_menu_item_target', sanitize_key( $args['menu-item-target'] ) );
 
 	$args['menu-item-classes'] = array_map( 'sanitize_html_class', explode( ' ', $args['menu-item-classes'] ) );
+	$args['menu-item-xfn']     = implode( ' ', array_map( 'sanitize_html_class', explode( ' ', $args['menu-item-xfn'] ) ) );
 	update_post_meta( $menu_item_db_id, '_menu_item_classes', $args['menu-item-classes'] );
-	update_post_meta( $menu_item_db_id, '_menu_item_url', esc_url_raw( $args['menu-item-url'] ) );
+	update_post_meta( $menu_item_db_id, '_menu_item_xfn', $args['menu-item-xfn'] );
+	update_post_meta( $menu_item_db_id, '_menu_item_url', sanitize_url( $args['menu-item-url'] ) );
 
 	if ( 0 == $menu_id ) {
 		update_post_meta( $menu_item_db_id, '_menu_item_orphaned', (string) time() );
@@ -600,8 +588,7 @@ function gc_update_nav_menu_item( $menu_id = 0, $menu_item_db_id = 0, $menu_item
 /**
  * Returns all navigation menu objects.
  *
- *
- *
+ * @since 4.1.0 Default value of the 'orderby' argument was changed from 'none'
  *              to 'name'.
  *
  * @param array $args Optional. Array of arguments passed on to get_terms().
@@ -629,10 +616,9 @@ function gc_get_nav_menus( $args = array() ) {
 }
 
 /**
- * Return if a menu item is valid.
+ * Determines whether a menu item is valid.
  *
  * @link https://core.trac.gechiui.com/ticket/13958
- *
  *
  * @access private
  *
@@ -651,24 +637,25 @@ function _is_valid_nav_menu_item( $item ) {
  * indirectly affect the ultimate ordering and content of the resulting nav menu
  * items that get returned from this function.
  *
- *
- *
  * @param int|string|GC_Term $menu Menu ID, slug, name, or object.
  * @param array              $args {
  *     Optional. Arguments to pass to get_posts().
  *
- *     @type string $order       How to order nav menu items as queried with get_posts(). Will be ignored
- *                               if 'output' is ARRAY_A. Default 'ASC'.
- *     @type string $orderby     Field to order menu items by as retrieved from get_posts(). Supply an orderby
- *                               field via 'output_key' to affect the output order of nav menu items.
- *                               Default 'menu_order'.
- *     @type string $post_type   Menu items post type. Default 'nav_menu_item'.
- *     @type string $post_status Menu items post status. Default 'publish'.
- *     @type string $output      How to order outputted menu items. Default ARRAY_A.
- *     @type string $output_key  Key to use for ordering the actual menu items that get returned. Note that
- *                               that is not a get_posts() argument and will only affect output of menu items
- *                               processed in this function. Default 'menu_order'.
- *     @type bool   $nopaging    Whether to retrieve all menu items (true) or paginate (false). Default true.
+ *     @type string $order                  How to order nav menu items as queried with get_posts().
+ *                                          Will be ignored if 'output' is ARRAY_A. Default 'ASC'.
+ *     @type string $orderby                Field to order menu items by as retrieved from get_posts().
+ *                                          Supply an orderby field via 'output_key' to affect the
+ *                                          output order of nav menu items. Default 'menu_order'.
+ *     @type string $post_type              Menu items post type. Default 'nav_menu_item'.
+ *     @type string $post_status            Menu items post status. Default 'publish'.
+ *     @type string $output                 How to order outputted menu items. Default ARRAY_A.
+ *     @type string $output_key             Key to use for ordering the actual menu items that get
+ *                                          returned. Note that that is not a get_posts() argument
+ *                                          and will only affect output of menu items processed in
+ *                                          this function. Default 'menu_order'.
+ *     @type bool   $nopaging               Whether to retrieve all menu items (true) or paginate
+ *                                          (false). Default true.
+ *     @type bool   $update_menu_item_cache Whether to update the menu item cache. Default true.
  * }
  * @return array|false Array of menu items, otherwise false.
  */
@@ -679,74 +666,32 @@ function gc_get_nav_menu_items( $menu, $args = array() ) {
 		return false;
 	}
 
-	static $fetched = array();
-
-	$items = get_objects_in_term( $menu->term_id, 'nav_menu' );
-	if ( is_gc_error( $items ) ) {
+	if ( ! taxonomy_exists( 'nav_menu' ) ) {
 		return false;
 	}
 
-	$defaults        = array(
-		'order'       => 'ASC',
-		'orderby'     => 'menu_order',
-		'post_type'   => 'nav_menu_item',
-		'post_status' => 'publish',
-		'output'      => ARRAY_A,
-		'output_key'  => 'menu_order',
-		'nopaging'    => true,
+	$defaults = array(
+		'order'                  => 'ASC',
+		'orderby'                => 'menu_order',
+		'post_type'              => 'nav_menu_item',
+		'post_status'            => 'publish',
+		'output'                 => ARRAY_A,
+		'output_key'             => 'menu_order',
+		'nopaging'               => true,
+		'update_menu_item_cache' => true,
+		'tax_query'              => array(
+			array(
+				'taxonomy' => 'nav_menu',
+				'field'    => 'term_taxonomy_id',
+				'terms'    => $menu->term_taxonomy_id,
+			),
+		),
 	);
-	$args            = gc_parse_args( $args, $defaults );
-	$args['include'] = $items;
-
-	if ( ! empty( $items ) ) {
+	$args     = gc_parse_args( $args, $defaults );
+	if ( $menu->count > 0 ) {
 		$items = get_posts( $args );
 	} else {
 		$items = array();
-	}
-
-	// Get all posts and terms at once to prime the caches.
-	if ( empty( $fetched[ $menu->term_id ] ) && ! gc_using_ext_object_cache() ) {
-		$fetched[ $menu->term_id ] = true;
-		$posts                     = array();
-		$terms                     = array();
-		foreach ( $items as $item ) {
-			$object_id = get_post_meta( $item->ID, '_menu_item_object_id', true );
-			$object    = get_post_meta( $item->ID, '_menu_item_object', true );
-			$type      = get_post_meta( $item->ID, '_menu_item_type', true );
-
-			if ( 'post_type' === $type ) {
-				$posts[ $object ][] = $object_id;
-			} elseif ( 'taxonomy' === $type ) {
-				$terms[ $object ][] = $object_id;
-			}
-		}
-
-		if ( ! empty( $posts ) ) {
-			foreach ( array_keys( $posts ) as $post_type ) {
-				get_posts(
-					array(
-						'post__in'               => $posts[ $post_type ],
-						'post_type'              => $post_type,
-						'nopaging'               => true,
-						'update_post_term_cache' => false,
-					)
-				);
-			}
-		}
-		unset( $posts );
-
-		if ( ! empty( $terms ) ) {
-			foreach ( array_keys( $terms ) as $taxonomy ) {
-				get_terms(
-					array(
-						'taxonomy'     => $taxonomy,
-						'include'      => $terms[ $taxonomy ],
-						'hierarchical' => false,
-					)
-				);
-			}
-		}
-		unset( $terms );
 	}
 
 	$items = array_map( 'gc_setup_nav_menu_item', $items );
@@ -782,6 +727,41 @@ function gc_get_nav_menu_items( $menu, $args = array() ) {
 }
 
 /**
+ * Updates post and term caches for all linked objects for a list of menu items.
+ *
+ * @since 6.1.0
+ *
+ * @param GC_Post[] $menu_items Array of menu item post objects.
+ */
+function update_menu_item_cache( $menu_items ) {
+	$post_ids = array();
+	$term_ids = array();
+
+	foreach ( $menu_items as $menu_item ) {
+		if ( 'nav_menu_item' !== $menu_item->post_type ) {
+			continue;
+		}
+
+		$object_id = get_post_meta( $menu_item->ID, '_menu_item_object_id', true );
+		$type      = get_post_meta( $menu_item->ID, '_menu_item_type', true );
+
+		if ( 'post_type' === $type ) {
+			$post_ids[] = (int) $object_id;
+		} elseif ( 'taxonomy' === $type ) {
+			$term_ids[] = (int) $object_id;
+		}
+	}
+
+	if ( ! empty( $post_ids ) ) {
+		_prime_post_caches( $post_ids, false );
+	}
+
+	if ( ! empty( $term_ids ) ) {
+		_prime_term_caches( $term_ids );
+	}
+}
+
+/**
  * Decorates a menu item object with the shared navigation menu item properties.
  *
  * Properties:
@@ -789,25 +769,42 @@ function gc_get_nav_menu_items( $menu, $args = array() ) {
  * - attr_title:       The title attribute of the link element for this menu item.
  * - classes:          The array of class attribute values for the link element of this menu item.
  * - db_id:            The DB ID of this item as a nav_menu_item object, if it exists (0 if it doesn't exist).
- * - description:      此菜单项的描述。
+ * - description:      The description of this menu item.
  * - menu_item_parent: The DB ID of the nav_menu_item that is this item's menu parent, if any. 0 otherwise.
  * - object:           The type of object originally represented, such as 'category', 'post', or 'attachment'.
  * - object_id:        The DB ID of the original object this menu item represents, e.g. ID for posts and term_id for categories.
  * - post_parent:      The DB ID of the original object's parent object, if any (0 otherwise).
  * - post_title:       A "no title" label if menu item represents a post that lacks a title.
- * - target:           此菜单项的链接元素的target属性。
+ * - target:           The target attribute of the link element for this menu item.
  * - title:            The title of this menu item.
  * - type:             The family of objects originally represented, such as 'post_type' or 'taxonomy'.
- * - type_label:       用于描述此类菜单项的单数标签。
- * - url:              该菜单项指向的URL。
- * - _invalid:         菜单项是否表示不存在的对象。
- *
- *
+ * - type_label:       The singular label used to describe this type of menu item.
+ * - url:              The URL to which this menu item points.
+ * - xfn:              The XFN relationship expressed in the link of this menu item.
+ * - _invalid:         Whether the menu item represents an object that no longer exists.
  *
  * @param object $menu_item The menu item to modify.
  * @return object The menu item with standard menu item properties.
  */
 function gc_setup_nav_menu_item( $menu_item ) {
+
+	/**
+	 * Filters whether to short-circuit the gc_setup_nav_menu_item() output.
+	 *
+	 * Returning a non-null value from the filter will short-circuit gc_setup_nav_menu_item(),
+	 * returning that value instead.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @param object|null $modified_menu_item Modified menu item. Default null.
+	 * @param object      $menu_item          The menu item to modify.
+	 */
+	$pre_menu_item = apply_filters( 'pre_gc_setup_nav_menu_item', null, $menu_item );
+
+	if ( null !== $pre_menu_item ) {
+		return $pre_menu_item;
+	}
+
 	if ( isset( $menu_item->post_type ) ) {
 		if ( 'nav_menu_item' === $menu_item->post_type ) {
 			$menu_item->db_id            = (int) $menu_item->ID;
@@ -909,7 +906,7 @@ function gc_setup_nav_menu_item( $menu_item ) {
 			/**
 			 * Filters a navigation menu item's title attribute.
 			 *
-		
+			 * @since 3.0.0
 			 *
 			 * @param string $item_title The menu item title attribute.
 			 */
@@ -919,7 +916,7 @@ function gc_setup_nav_menu_item( $menu_item ) {
 				/**
 				 * Filters a navigation menu item's description.
 				 *
-			
+				 * @since 3.0.0
 				 *
 				 * @param string $description The menu item description.
 				 */
@@ -927,6 +924,7 @@ function gc_setup_nav_menu_item( $menu_item ) {
 			}
 
 			$menu_item->classes = ! isset( $menu_item->classes ) ? (array) get_post_meta( $menu_item->ID, '_menu_item_classes', true ) : $menu_item->classes;
+			$menu_item->xfn     = ! isset( $menu_item->xfn ) ? get_post_meta( $menu_item->ID, '_menu_item_xfn', true ) : $menu_item->xfn;
 		} else {
 			$menu_item->db_id            = 0;
 			$menu_item->menu_item_parent = 0;
@@ -952,6 +950,7 @@ function gc_setup_nav_menu_item( $menu_item ) {
 			/** This filter is documented in gc-includes/nav-menu.php */
 			$menu_item->description = apply_filters( 'nav_menu_description', '' );
 			$menu_item->classes     = array();
+			$menu_item->xfn         = '';
 		}
 	} elseif ( isset( $menu_item->taxonomy ) ) {
 		$menu_item->ID               = $menu_item->term_id;
@@ -971,6 +970,7 @@ function gc_setup_nav_menu_item( $menu_item ) {
 		$menu_item->attr_title  = '';
 		$menu_item->description = get_term_field( 'description', $menu_item->term_id, $menu_item->taxonomy );
 		$menu_item->classes     = array();
+		$menu_item->xfn         = '';
 
 	}
 
@@ -984,9 +984,7 @@ function gc_setup_nav_menu_item( $menu_item ) {
 }
 
 /**
- * Get the menu items associated with a particular object.
- *
- *
+ * Returns the menu items associated with a particular object.
  *
  * @param int    $object_id   Optional. The ID of the original object. Default 0.
  * @param string $object_type Optional. The type of object, such as 'post_type' or 'taxonomy'.
@@ -999,7 +997,7 @@ function gc_get_associated_nav_menu_items( $object_id = 0, $object_type = 'post_
 	$object_id     = (int) $object_id;
 	$menu_item_ids = array();
 
-	$query      = new GC_Query;
+	$query      = new GC_Query();
 	$menu_items = $query->query(
 		array(
 			'meta_key'       => '_menu_item_object_id',
@@ -1033,7 +1031,6 @@ function gc_get_associated_nav_menu_items( $object_id = 0, $object_type = 'post_
 /**
  * Callback for handling a menu item when its original object is deleted.
  *
- *
  * @access private
  *
  * @param int $object_id The ID of the original object being trashed.
@@ -1050,7 +1047,6 @@ function _gc_delete_post_menu_item( $object_id ) {
 
 /**
  * Serves as a callback for handling a menu item when its original object is deleted.
- *
  *
  * @access private
  *
@@ -1070,7 +1066,6 @@ function _gc_delete_tax_menu_item( $object_id, $tt_id, $taxonomy ) {
 
 /**
  * Automatically add newly published page objects to menus with that as an option.
- *
  *
  * @access private
  *
@@ -1116,8 +1111,7 @@ function _gc_auto_add_pages_to_menu( $new_status, $old_status, $post ) {
 }
 
 /**
- * Delete auto-draft posts associated with the supplied changeset.
- *
+ * Deletes auto-draft posts associated with the supplied changeset.
  *
  * @access private
  *
@@ -1150,10 +1144,9 @@ function _gc_delete_customize_changeset_dependent_auto_drafts( $post_id ) {
 }
 
 /**
- * Handle menu config after theme change.
+ * Handles menu config after theme change.
  *
  * @access private
- *
  */
 function _gc_menus_changed() {
 	$old_nav_menu_locations    = get_option( 'theme_switch_menu_locations', array() );
@@ -1166,8 +1159,6 @@ function _gc_menus_changed() {
 
 /**
  * Maps nav menu locations according to assignments in previously active theme.
- *
- *
  *
  * @param array $new_nav_menu_locations New nav menu locations assignments.
  * @param array $old_nav_menu_locations Old nav menu locations assignments.
@@ -1209,7 +1200,7 @@ function gc_map_nav_menu_locations( $new_nav_menu_locations, $old_nav_menu_locat
 	 */
 	$common_slug_groups = array(
 		array( 'primary', 'menu-1', 'main', 'header', 'navigation', 'top' ),
-		array( 'secondary', 'menu-2', 'footer', 'subsidiary', 'bottom' ),
+		array( 'primary tone', 'menu-2', 'footer', 'subsidiary', 'bottom' ),
 		array( 'social' ),
 	);
 
@@ -1261,4 +1252,32 @@ function gc_map_nav_menu_locations( $new_nav_menu_locations, $old_nav_menu_locat
 	} // End foreach ( $common_slug_groups as $slug_group ).
 
 	return $new_nav_menu_locations;
+}
+
+/**
+ * Prevents menu items from being their own parent.
+ *
+ * Resets menu_item_parent to 0 when the parent is set to the item itself.
+ * For use before saving `_menu_item_menu_item_parent` in nav-menus.php.
+ *
+ * @since 6.2.0
+ * @access private
+ *
+ * @param array $menu_item_data The menu item data array.
+ * @return array The menu item data with reset menu_item_parent.
+ */
+function _gc_reset_invalid_menu_item_parent( $menu_item_data ) {
+	if ( ! is_array( $menu_item_data ) ) {
+		return $menu_item_data;
+	}
+
+	if (
+		! empty( $menu_item_data['ID'] ) &&
+		! empty( $menu_item_data['menu_item_parent'] ) &&
+		(int) $menu_item_data['ID'] === (int) $menu_item_data['menu_item_parent']
+	) {
+		$menu_item_data['menu_item_parent'] = 0;
+	}
+
+	return $menu_item_data;
 }

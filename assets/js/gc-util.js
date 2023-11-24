@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/gc-util.js
+ * @output assets/js/gc-util.js
  */
 
 /* global _gcUtilSettings */
@@ -36,6 +36,9 @@ window.gc = window.gc || {};
 			};
 
 		return function ( data ) {
+			if ( ! document.getElementById( 'tmpl-' + id ) ) {
+				throw new Error( 'Template not found: ' + '#tmpl-' + id );
+			}
 			compiled = compiled || _.template( $( '#tmpl-' + id ).html(),  options );
 			return compiled( data );
 		};

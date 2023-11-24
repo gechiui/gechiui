@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core class representing a search handler for terms in the REST API.
- *
- *
  *
  * @see GC_REST_Search_Handler
  */
@@ -19,6 +16,7 @@ class GC_REST_Term_Search_Handler extends GC_REST_Search_Handler {
 	/**
 	 * Constructor.
 	 *
+	 * @since 5.6.0
 	 */
 	public function __construct() {
 		$this->type = 'term';
@@ -37,11 +35,17 @@ class GC_REST_Term_Search_Handler extends GC_REST_Search_Handler {
 	/**
 	 * Searches the object type content for a given search request.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request Full REST request.
-	 * @return array Associative array containing an `GC_REST_Search_Handler::RESULT_IDS` containing
-	 *               an array of found IDs and `GC_REST_Search_Handler::RESULT_TOTAL` containing the
-	 *               total count for the matching search results.
+	 * @return array {
+	 *     Associative array containing found IDs and total count for the matching search results.
+	 *
+	 *     @type int[]               $ids   Found IDs.
+	 *     @type string|int|GC_Error $total Numeric string containing the number of terms in that
+	 *                                      taxonomy, 0 if there are no results, or GC_Error if
+	 *                                      the requested taxonomy does not exist.
+	 * }
 	 */
 	public function search_items( GC_REST_Request $request ) {
 		$taxonomies = $request[ GC_REST_Search_Controller::PROP_SUBTYPE ];
@@ -63,11 +67,20 @@ class GC_REST_Term_Search_Handler extends GC_REST_Search_Handler {
 			$query_args['search'] = $request['search'];
 		}
 
+		if ( ! empty( $request['exclude'] ) ) {
+			$query_args['exclude'] = $request['exclude'];
+		}
+
+		if ( ! empty( $request['include'] ) ) {
+			$query_args['include'] = $request['include'];
+		}
+
 		/**
 		 * Filters the query arguments for a REST API search request.
 		 *
 		 * Enables adding extra arguments or setting defaults for a term search request.
 		 *
+		 * @since 5.6.0
 		 *
 		 * @param array           $query_args Key value array of query var to query value.
 		 * @param GC_REST_Request $request    The request used.
@@ -96,6 +109,7 @@ class GC_REST_Term_Search_Handler extends GC_REST_Search_Handler {
 	/**
 	 * Prepares the search result for a given ID.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param int   $id     Item ID.
 	 * @param array $fields Fields to include for the item.
@@ -125,9 +139,10 @@ class GC_REST_Term_Search_Handler extends GC_REST_Search_Handler {
 	/**
 	 * Prepares links for the search result of a given ID.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param int $id Item ID.
-	 * @return array Links for the given item.
+	 * @return array[] Array of link arrays for the given item.
 	 */
 	public function prepare_item_links( $id ) {
 		$term = get_term( $id );

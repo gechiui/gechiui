@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Feed
- *
  */
 
 /**
@@ -13,15 +12,23 @@
  * This uses Core's HTTP API to make requests, which gives plugins the ability
  * to hook into the process.
  *
- *
- *
  * @see SimplePie_File
  */
+#[AllowDynamicProperties]
 class GC_SimplePie_File extends SimplePie_File {
+
+	/**
+	 * Timeout.
+	 *
+	 * @var int How long the connection should stay open in seconds.
+	 */
+	public $timeout = 10;
 
 	/**
 	 * Constructor.
 	 *
+	 * @since 3.2.0 Updated to use a PHP5 constructor.
+	 * @since 5.6.1 Multiple headers are concatenated into a comma-separated string,
 	 *              rather than remaining an array.
 	 *
 	 * @param string       $url             Remote file URL.
@@ -53,7 +60,7 @@ class GC_SimplePie_File extends SimplePie_File {
 				$args['headers'] = $this->headers;
 			}
 
-			if ( SIMPLEPIE_USERAGENT != $this->useragent ) { // Use default GC user agent unless custom has been specified.
+			if ( SIMPLEPIE_USERAGENT !== $this->useragent ) { // Use default GC user agent unless custom has been specified.
 				$args['user-agent'] = $this->useragent;
 			}
 

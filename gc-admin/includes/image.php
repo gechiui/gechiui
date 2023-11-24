@@ -9,8 +9,6 @@
 /**
  * Crops an image to a given size.
  *
- *
- *
  * @param string|int   $src      The source file or Attachment ID.
  * @param int          $src_x    The start x position to crop from.
  * @param int          $src_y    The start y position to crop from.
@@ -28,8 +26,10 @@ function gc_crop_image( $src, $src_x, $src_y, $src_w, $src_h, $dst_w, $dst_h, $s
 		$src_file = get_attached_file( $src );
 
 		if ( ! file_exists( $src_file ) ) {
-			// If the file doesn't exist, attempt a URL fopen on the src link.
-			// This can occur with certain file replication plugins.
+			/*
+			 * If the file doesn't exist, attempt a URL fopen on the src link.
+			 * This can occur with certain file replication plugins.
+			 */
 			$src = _load_image_to_edit_path( $src, 'full' );
 		} else {
 			$src = $src_file;
@@ -63,6 +63,10 @@ function gc_crop_image( $src, $src_x, $src_y, $src_w, $src_h, $dst_w, $dst_h, $s
 		return $result;
 	}
 
+	if ( ! empty( $result['path'] ) ) {
+		return $result['path'];
+	}
+
 	return $dst_file;
 }
 
@@ -72,7 +76,7 @@ function gc_crop_image( $src, $src_x, $src_y, $src_w, $src_h, $dst_w, $dst_h, $s
  *
  * Registered sub-sizes that are larger than the image are skipped.
  *
- *
+ * @since 5.3.0
  *
  * @param int $attachment_id The image attachment post ID.
  * @return array[] Associative array of arrays of image sub-size information for
@@ -130,6 +134,7 @@ function gc_get_missing_image_subsizes( $attachment_id ) {
 	/**
 	 * Filters the array of missing image sub-sizes for an uploaded image.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @param array[] $missing_sizes Associative array of arrays of image sub-size information for
 	 *                               missing image sizes, keyed by image size name.
@@ -143,7 +148,7 @@ function gc_get_missing_image_subsizes( $attachment_id ) {
  * If any of the currently registered image sub-sizes are missing,
  * create them and update the image meta data.
  *
- *
+ * @since 5.3.0
  *
  * @param int $attachment_id The image attachment post ID.
  * @return array|GC_Error The updated image meta data array or GC_Error object
@@ -154,8 +159,10 @@ function gc_update_image_subsizes( $attachment_id ) {
 	$image_file = gc_get_original_image_path( $attachment_id );
 
 	if ( empty( $image_meta ) || ! is_array( $image_meta ) ) {
-		// Previously failed upload?
-		// If there is an uploaded file, make all sub-sizes and generate all of the attachment meta.
+		/*
+		 * Previously failed upload?
+		 * If there is an uploaded file, make all sub-sizes and generate all of the attachment meta.
+		 */
 		if ( ! empty( $image_file ) ) {
 			$image_meta = gc_create_image_subsizes( $image_file, $attachment_id );
 		} else {
@@ -184,7 +191,8 @@ function gc_update_image_subsizes( $attachment_id ) {
 /**
  * Updates the attached file and image meta data when the original image was edited.
  *
- *
+ * @since 5.3.0
+ * @since 6.0.0 The `$filesize` value was added to the returned array.
  * @access private
  *
  * @param array  $saved_data    The data returned from GC_Image_Editor after successfully saving an image.
@@ -206,6 +214,9 @@ function _gc_image_meta_replace_original( $saved_data, $original_file, $image_me
 	// Make the file path relative to the upload dir.
 	$image_meta['file'] = _gc_relative_upload_path( $new_file );
 
+	// Add image file size.
+	$image_meta['filesize'] = gc_filesize( $new_file );
+
 	// Store the original image file name in image_meta.
 	$image_meta['original_image'] = gc_basename( $original_file );
 
@@ -218,7 +229,7 @@ function _gc_image_meta_replace_original( $saved_data, $original_file, $image_me
  * Intended for use after an image is uploaded. Saves/updates the image metadata after each
  * sub-size is created. If there was an error, it is added to the returned image metadata array.
  *
- *
+ * @since 5.3.0
  *
  * @param string $file          Full path to the image file.
  * @param int    $attachment_id Attachment ID to process.
@@ -234,10 +245,11 @@ function gc_create_image_subsizes( $file, $attachment_id ) {
 
 	// Default image meta.
 	$image_meta = array(
-		'width'  => $imagesize[0],
-		'height' => $imagesize[1],
-		'file'   => _gc_relative_upload_path( $file ),
-		'sizes'  => array(),
+		'width'    => $imagesize[0],
+		'height'   => $imagesize[1],
+		'file'     => _gc_relative_upload_path( $file ),
+		'filesize' => gc_filesize( $file ),
+		'sizes'    => array(),
 	);
 
 	// Fetch additional metadata from EXIF/IPTC.
@@ -259,6 +271,7 @@ function gc_create_image_subsizes( $file, $attachment_id ) {
 		 *
 		 * Returning `false` from the filter callback will disable the scaling.
 		 *
+		 * @since 5.3.0
 		 *
 		 * @param int    $threshold     The threshold value in pixels. Default 2560.
 		 * @param array  $imagesize     {
@@ -272,8 +285,10 @@ function gc_create_image_subsizes( $file, $attachment_id ) {
 		 */
 		$threshold = (int) apply_filters( 'big_image_size_threshold', 2560, $imagesize, $file, $attachment_id );
 
-		// If the original image's dimensions are over the threshold,
-		// scale the image and use it as the "full" size.
+		/*
+		 * If the original image's dimensions are over the threshold,
+		 * scale the image and use it as the "full" size.
+		 */
 		if ( $threshold && ( $image_meta['width'] > $threshold || $image_meta['height'] > $threshold ) ) {
 			$editor = gc_get_image_editor( $file );
 
@@ -293,8 +308,10 @@ function gc_create_image_subsizes( $file, $attachment_id ) {
 			}
 
 			if ( ! is_gc_error( $resized ) ) {
-				// Append "-scaled" to the image file name. It will look like "my_image-scaled.jpg".
-				// This doesn't affect the sub-sizes names as they are generated from the original image (for best quality).
+				/*
+				 * Append "-scaled" to the image file name. It will look like "my_image-scaled.jpg".
+				 * This doesn't affect the sub-sizes names as they are generated from the original image (for best quality).
+				 */
 				$saved = $editor->save( $editor->generate_filename( 'scaled' ) );
 
 				if ( ! is_gc_error( $saved ) ) {
@@ -353,6 +370,9 @@ function gc_create_image_subsizes( $file, $attachment_id ) {
 	/**
 	 * Filters the image sizes automatically generated when uploading an image.
 	 *
+	 * @since 2.9.0
+	 * @since 4.4.0 Added the `$image_meta` argument.
+	 * @since 5.3.0 Added the `$attachment_id` argument.
 	 *
 	 * @param array $new_sizes     Associative array of image sizes to be created.
 	 * @param array $image_meta    The image meta data: width, height, file, sizes, etc.
@@ -369,7 +389,7 @@ function gc_create_image_subsizes( $file, $attachment_id ) {
  * Updates the image meta after each sub-size is created.
  * Errors are stored in the returned image metadata array.
  *
- *
+ * @since 5.3.0
  * @access private
  *
  * @param array  $new_sizes     Array defining what sizes to create.
@@ -461,9 +481,9 @@ function _gc_make_subsizes( $new_sizes, $file, $image_meta, $attachment_id ) {
 }
 
 /**
- * Generate attachment meta data and create image sub-sizes for images.
+ * Generates attachment meta data and create image sub-sizes for images.
  *
- *
+ * @since 6.0.0 The `$filesize` value was added to the returned array.
  *
  * @param int    $attachment_id Attachment ID to process.
  * @param string $file          Filepath of the attached image.
@@ -538,7 +558,7 @@ function gc_generate_attachment_metadata( $attachment_id, $file ) {
 				/**
 				 * Filters the parameters for the attachment thumbnail creation.
 				 *
-			
+				 * @since 3.9.0
 				 *
 				 * @param array $image_attachment An array of parameters to create the thumbnail.
 				 * @param array $metadata         Current attachment metadata.
@@ -571,6 +591,7 @@ function gc_generate_attachment_metadata( $attachment_id, $file ) {
 		/**
 		 * Filters the image sizes generated for non-image mime types.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param string[] $fallback_sizes An array of image size names.
 		 * @param array    $metadata       Current attachment metadata.
@@ -623,9 +644,15 @@ function gc_generate_attachment_metadata( $attachment_id, $file ) {
 	// Remove the blob of binary data from the array.
 	unset( $metadata['image']['data'] );
 
+	// Capture file size for cases where it has not been captured yet, such as PDFs.
+	if ( ! isset( $metadata['filesize'] ) && file_exists( $file ) ) {
+		$metadata['filesize'] = gc_filesize( $file );
+	}
+
 	/**
 	 * Filters the generated attachment meta data.
 	 *
+	 * @since 5.3.0 The `$context` parameter was added.
 	 *
 	 * @param array  $metadata      An array of attachment meta data.
 	 * @param int    $attachment_id Current attachment ID.
@@ -636,9 +663,7 @@ function gc_generate_attachment_metadata( $attachment_id, $file ) {
 }
 
 /**
- * Convert a fraction string to a decimal.
- *
- *
+ * Converts a fraction string to a decimal.
  *
  * @param string $str Fraction string.
  * @return int|float Returns calculated fraction or integer 0 on invalid input.
@@ -677,9 +702,7 @@ function gc_exif_frac2dec( $str ) {
 }
 
 /**
- * Convert the exif date format to a unix timestamp.
- *
- *
+ * Converts the exif date format to a unix timestamp.
  *
  * @param string $str A date string expected to be in Exif format (Y:m:d H:i:s).
  * @return int|false The unix timestamp, or false on failure.
@@ -692,7 +715,7 @@ function gc_exif_date2ts( $str ) {
 }
 
 /**
- * Get extended image metadata, exif or iptc as available.
+ * Gets extended image metadata, exif or iptc as available.
  *
  * Retrieves the EXIF metadata aperture, credit, camera, caption, copyright, iso
  * created_timestamp, focal_length, shutter_speed, and title.
@@ -702,7 +725,6 @@ function gc_exif_date2ts( $str ) {
  * DateTimeDigitized, FocalLength, ISOSpeedRatings, and ExposureTime.
  *
  * @todo Try other exif libraries if available.
- *
  *
  * @param string $file
  * @return array|false Image metadata array on success, false on failure.
@@ -753,6 +775,10 @@ function gc_read_image_metadata( $file ) {
 			} else {
 				// phpcs:ignore GeChiUI.PHP.NoSilencedErrors -- Silencing notice and warning is intentional. See https://core.trac.gechiui.com/ticket/42480
 				$iptc = @iptcparse( $info['APP13'] );
+			}
+
+			if ( ! is_array( $iptc ) ) {
+				$iptc = array();
 			}
 
 			// Headline, "A brief synopsis of the caption".
@@ -821,6 +847,10 @@ function gc_read_image_metadata( $file ) {
 		} else {
 			// phpcs:ignore GeChiUI.PHP.NoSilencedErrors -- Silencing notice and warning is intentional. See https://core.trac.gechiui.com/ticket/42480
 			$exif = @exif_read_data( $file );
+		}
+
+		if ( ! is_array( $exif ) ) {
+			$exif = array();
 		}
 
 		if ( ! empty( $exif['ImageDescription'] ) ) {
@@ -902,6 +932,8 @@ function gc_read_image_metadata( $file ) {
 	/**
 	 * Filters the array of meta data read from an image's exif data.
 	 *
+	 * @since 4.4.0 The `$iptc` parameter was added.
+	 * @since 5.0.0 The `$exif` parameter was added.
 	 *
 	 * @param array  $meta       Image meta data.
 	 * @param string $file       Path to image file.
@@ -914,9 +946,7 @@ function gc_read_image_metadata( $file ) {
 }
 
 /**
- * Validate that file is an image.
- *
- *
+ * Validates that file is an image.
  *
  * @param string $path File path to test if valid image.
  * @return bool True if valid image, false if not valid image.
@@ -927,9 +957,7 @@ function file_is_valid_image( $path ) {
 }
 
 /**
- * Validate that file is suitable for displaying within a web page.
- *
- *
+ * Validates that file is suitable for displaying within a web page.
  *
  * @param string $path File path to test.
  * @return bool True if suitable, false if not suitable.
@@ -957,9 +985,7 @@ function file_is_displayable_image( $path ) {
 }
 
 /**
- * Load an image resource for editing.
- *
- *
+ * Loads an image resource for editing.
  *
  * @param int          $attachment_id Attachment ID.
  * @param string       $mime_type     Image mime type.
@@ -999,7 +1025,6 @@ function load_image_to_edit( $attachment_id, $mime_type, $size = 'full' ) {
 		/**
 		 * Filters the current image being loaded for editing.
 		 *
-		 *
 		 * @param resource|GdImage $image         Current image.
 		 * @param int              $attachment_id Attachment ID.
 		 * @param string|int[]     $size          Requested image size. Can be any registered image size name, or
@@ -1017,11 +1042,10 @@ function load_image_to_edit( $attachment_id, $mime_type, $size = 'full' ) {
 }
 
 /**
- * Retrieve the path or URL of an attachment's attached file.
+ * Retrieves the path or URL of an attachment's attached file.
  *
  * If the attached file is not present on the local filesystem (usually due to replication plugins),
  * then the URL of the file is returned if `allow_url_fopen` is supported.
- *
  *
  * @access private
  *
@@ -1045,7 +1069,7 @@ function _load_image_to_edit_path( $attachment_id, $size = 'full' ) {
 				 *
 				 * The filter is evaluated for all image sizes except 'full'.
 				 *
-			
+				 * @since 3.1.0
 				 *
 				 * @param string       $path          Path to the current image.
 				 * @param int          $attachment_id Attachment ID.
@@ -1061,6 +1085,7 @@ function _load_image_to_edit_path( $attachment_id, $size = 'full' ) {
 		 *
 		 * The filter is only evaluated if the file isn't stored locally and `allow_url_fopen` is enabled on the server.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param string|false $image_url     Current image URL.
 		 * @param int          $attachment_id Attachment ID.
@@ -1073,6 +1098,7 @@ function _load_image_to_edit_path( $attachment_id, $size = 'full' ) {
 	/**
 	 * Filters the returned path or URL of the current image.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param string|false $filepath      File path or URL to current image, or false.
 	 * @param int          $attachment_id Attachment ID.
@@ -1083,8 +1109,7 @@ function _load_image_to_edit_path( $attachment_id, $size = 'full' ) {
 }
 
 /**
- * Copy an existing image file.
- *
+ * Copies an existing image file.
  *
  * @access private
  *

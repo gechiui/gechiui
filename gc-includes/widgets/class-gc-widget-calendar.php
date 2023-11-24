@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class used to implement the Calendar widget.
- *
- *
  *
  * @see GC_Widget
  */
@@ -18,6 +15,7 @@ class GC_Widget_Calendar extends GC_Widget {
 	/**
 	 * Ensure that the ID attribute only appears in the markup once
 	 *
+	 * @since 4.4.0
 	 * @var int
 	 */
 	private static $instance = 0;
@@ -29,7 +27,7 @@ class GC_Widget_Calendar extends GC_Widget {
 	public function __construct() {
 		$widget_ops = array(
 			'classname'                   => 'widget_calendar',
-			'description'                 => __( '您站点文章的日历。' ),
+			'description'                 => __( '您文章的日历。' ),
 			'customize_selective_refresh' => true,
 			'show_instance_in_rest'       => true,
 		);

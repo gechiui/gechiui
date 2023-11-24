@@ -4,13 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
+ * @since 5.9.0
  */
 
 /**
  * Core class used to managed menu terms associated via the REST API.
  *
- *
+ * @since 5.9.0
  *
  * @see GC_REST_Controller
  */
@@ -19,6 +19,7 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 	/**
 	 * Checks if a request has access to read menus.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return bool|GC_Error True if the request has read access, otherwise false or GC_Error object.
@@ -36,6 +37,7 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 	/**
 	 * Checks if a request has access to read or edit the specified menu.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return bool|GC_Error True if the request has read access for the item, otherwise false or GC_Error object.
@@ -53,6 +55,7 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 	/**
 	 * Gets the term, if the ID is valid.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param int $id Supplied ID.
 	 * @return GC_Term|GC_Error Term object if ID is valid, GC_Error otherwise.
@@ -75,6 +78,7 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 	 *
 	 * This allows for any user that can `edit_theme_options` or edit any REST API available post type.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return bool|GC_Error Whether the current user has permission.
@@ -104,6 +108,7 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 	/**
 	 * Prepares a single term output for response.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_Term         $term    Term object.
 	 * @param GC_REST_Request $request Request object.
@@ -129,7 +134,10 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 		$data    = $this->filter_response_by_context( $data, $context );
 
 		$response = rest_ensure_response( $data );
-		$response->add_links( $this->prepare_links( $term ) );
+
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$response->add_links( $this->prepare_links( $term ) );
+		}
 
 		/** This action is documented in gc-includes/rest-api/endpoints/class-gc-rest-terms-controller.php */
 		return apply_filters( "rest_prepare_{$this->taxonomy}", $response, $term, $request );
@@ -138,6 +146,7 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 	/**
 	 * Prepares links for the request.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_Term $term Term object.
 	 * @return array Links for the given term.
@@ -161,6 +170,7 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 	/**
 	 * Prepares a single term for create or update.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Request object.
 	 * @return object Prepared term data.
@@ -180,6 +190,7 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 	/**
 	 * Creates a single term in a taxonomy.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -268,6 +279,7 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 	/**
 	 * Updates a single term from a taxonomy.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -347,6 +359,7 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 	/**
 	 * Deletes a single term from a taxonomy.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -390,6 +403,7 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 	/**
 	 * Returns the value of a menu's auto_add setting.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param int $menu_id The menu id to query.
 	 * @return bool The value of auto_add.
@@ -403,6 +417,7 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 	/**
 	 * Updates the menu's auto add from a REST request.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param int             $menu_id The menu id to update.
 	 * @param GC_REST_Request $request Full details about the request.
@@ -440,9 +455,10 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 	/**
 	 * Returns the names of the locations assigned to the menu.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param int $menu_id The menu id.
-	 * @return string[] 分配给菜单的位置。
+	 * @return string[] The locations assigned to the menu.
 	 */
 	protected function get_menu_locations( $menu_id ) {
 		$locations      = get_nav_menu_locations();
@@ -460,6 +476,7 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 	/**
 	 * Updates the menu's locations from a REST request.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param int             $menu_id The menu id to update.
 	 * @param GC_REST_Request $request Full details about the request.
@@ -501,10 +518,15 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 	/**
 	 * Retrieves the term's schema, conforming to JSON Schema.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @return array Item schema data.
 	 */
 	public function get_item_schema() {
+		if ( $this->schema ) {
+			return $this->add_additional_fields_schema( $this->schema );
+		}
+
 		$schema = parent::get_item_schema();
 		unset( $schema['properties']['count'], $schema['properties']['link'], $schema['properties']['taxonomy'] );
 
@@ -516,7 +538,7 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 			),
 			'context'     => array( 'view', 'edit' ),
 			'arg_options' => array(
-				'validate_callback' => function ( $locations, $request, $param ) {
+				'validate_callback' => static function ( $locations, $request, $param ) {
 					$valid = rest_validate_request_arg( $locations, $request, $param );
 
 					if ( true !== $valid ) {
@@ -548,6 +570,8 @@ class GC_REST_Menus_Controller extends GC_REST_Terms_Controller {
 			'type'        => 'boolean',
 		);
 
-		return $schema;
+		$this->schema = $schema;
+
+		return $this->add_additional_fields_schema( $this->schema );
 	}
 }

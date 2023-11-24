@@ -4,21 +4,20 @@
  *
  * @package GeChiUI
  * @subpackage Sites
- *
  */
 
 /**
  * Core class used for querying sites.
  *
- *
- *
  * @see GC_Site_Query::__construct() for accepted arguments.
  */
+#[AllowDynamicProperties]
 class GC_Site_Query {
 
 	/**
 	 * SQL for database query.
 	 *
+	 * @since 4.6.0
 	 * @var string
 	 */
 	public $request;
@@ -26,6 +25,7 @@ class GC_Site_Query {
 	/**
 	 * SQL query clauses.
 	 *
+	 * @since 4.6.0
 	 * @var array
 	 */
 	protected $sql_clauses = array(
@@ -40,6 +40,7 @@ class GC_Site_Query {
 	/**
 	 * Metadata query container.
 	 *
+	 * @since 5.1.0
 	 * @var GC_Meta_Query
 	 */
 	public $meta_query = false;
@@ -47,6 +48,7 @@ class GC_Site_Query {
 	/**
 	 * Metadata query clauses.
 	 *
+	 * @since 5.1.0
 	 * @var array
 	 */
 	protected $meta_query_clauses;
@@ -54,6 +56,7 @@ class GC_Site_Query {
 	/**
 	 * Date query container.
 	 *
+	 * @since 4.6.0
 	 * @var GC_Date_Query A date query instance.
 	 */
 	public $date_query = false;
@@ -61,6 +64,7 @@ class GC_Site_Query {
 	/**
 	 * Query vars set by the user.
 	 *
+	 * @since 4.6.0
 	 * @var array
 	 */
 	public $query_vars;
@@ -68,6 +72,7 @@ class GC_Site_Query {
 	/**
 	 * Default values for query vars.
 	 *
+	 * @since 4.6.0
 	 * @var array
 	 */
 	public $query_var_defaults;
@@ -75,6 +80,7 @@ class GC_Site_Query {
 	/**
 	 * List of sites located by the query.
 	 *
+	 * @since 4.6.0
 	 * @var array
 	 */
 	public $sites;
@@ -82,6 +88,7 @@ class GC_Site_Query {
 	/**
 	 * The amount of found sites for the current query.
 	 *
+	 * @since 4.6.0
 	 * @var int
 	 */
 	public $found_sites = 0;
@@ -89,6 +96,7 @@ class GC_Site_Query {
 	/**
 	 * The number of pages.
 	 *
+	 * @since 4.6.0
 	 * @var int
 	 */
 	public $max_num_pages = 0;
@@ -96,7 +104,11 @@ class GC_Site_Query {
 	/**
 	 * Sets up the site query, based on the query vars passed.
 	 *
+	 * @since 4.6.0
+	 * @since 4.8.0 Introduced the 'lang_id', 'lang__in', and 'lang__not_in' parameters.
+	 * @since 5.1.0 Introduced the 'update_site_meta_cache', 'meta_query', 'meta_key',
 	 *              'meta_compare_key', 'meta_value', 'meta_type', and 'meta_compare' parameters.
+	 * @since 5.3.0 Introduced the 'meta_type_key' parameter.
 	 *
 	 * @param string|array $query {
 	 *     Optional. Array or query string of site query parameters. Default empty.
@@ -125,6 +137,11 @@ class GC_Site_Query {
 	 *                                                   - 'path_length'
 	 *                                                   - 'site__in'
 	 *                                                   - 'network__in'
+	 *                                                   - 'deleted'
+	 *                                                   - 'mature'
+	 *                                                   - 'spam'
+	 *                                                   - 'archived'
+	 *                                                   - 'public'
 	 *                                                   - false, an empty array, or 'none' to disable `ORDER BY` clause.
 	 *                                                   Default 'id'.
 	 *     @type string          $order                  How to order retrieved sites. Accepts 'ASC', 'DESC'. Default 'ASC'.
@@ -154,15 +171,15 @@ class GC_Site_Query {
 	 *     @type string|string[] $meta_key               Meta key or keys to filter by.
 	 *     @type string|string[] $meta_value             Meta value or values to filter by.
 	 *     @type string          $meta_compare           MySQL operator used for comparing the meta value.
-	 *                                                   See GC_Meta_Query::__construct for accepted values and default value.
+	 *                                                   See GC_Meta_Query::__construct() for accepted values and default value.
 	 *     @type string          $meta_compare_key       MySQL operator used for comparing the meta key.
-	 *                                                   See GC_Meta_Query::__construct for accepted values and default value.
+	 *                                                   See GC_Meta_Query::__construct() for accepted values and default value.
 	 *     @type string          $meta_type              MySQL data type that the meta_value column will be CAST to for comparisons.
-	 *                                                   See GC_Meta_Query::__construct for accepted values and default value.
+	 *                                                   See GC_Meta_Query::__construct() for accepted values and default value.
 	 *     @type string          $meta_type_key          MySQL data type that the meta_key column will be CAST to for comparisons.
-	 *                                                   See GC_Meta_Query::__construct for accepted values and default value.
+	 *                                                   See GC_Meta_Query::__construct() for accepted values and default value.
 	 *     @type array           $meta_query             An associative array of GC_Meta_Query arguments.
-	 *                                                   See GC_Meta_Query::__construct for accepted values.
+	 *                                                   See GC_Meta_Query::__construct() for accepted values.
 	 * }
 	 */
 	public function __construct( $query = '' ) {
@@ -214,6 +231,7 @@ class GC_Site_Query {
 	/**
 	 * Parses arguments passed to the site query with default query parameters.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @see GC_Site_Query::__construct()
 	 *
@@ -229,6 +247,7 @@ class GC_Site_Query {
 		/**
 		 * Fires after the site query vars have been parsed.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param GC_Site_Query $query The GC_Site_Query instance (passed by reference).
 		 */
@@ -238,6 +257,7 @@ class GC_Site_Query {
 	/**
 	 * Sets up the GeChiUI query for retrieving sites.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string|array $query Array or URL query string of parameters.
 	 * @return array|int List of GC_Site objects, a list of site IDs when 'fields' is set to 'ids',
@@ -252,6 +272,7 @@ class GC_Site_Query {
 	/**
 	 * Retrieves a list of sites matching the query vars.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -270,6 +291,7 @@ class GC_Site_Query {
 		/**
 		 * Fires before sites are retrieved.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param GC_Site_Query $query Current instance of GC_Site_Query (passed by reference).
 		 */
@@ -304,6 +326,8 @@ class GC_Site_Query {
 		 * passed to the filter by reference. If GC_Site_Query does not perform a database
 		 * query, it will not have enough information to generate these values itself.
 		 *
+		 * @since 5.2.0
+		 * @since 5.6.0 The returned array of site data is assigned to the `sites` property
 		 *              of the current GC_Site_Query instance.
 		 *
 		 * @param array|int|null $site_data Return an array of site data to short-circuit GC's site query,
@@ -324,14 +348,14 @@ class GC_Site_Query {
 		// $args can include anything. Only use the args defined in the query_var_defaults to compute the key.
 		$_args = gc_array_slice_assoc( $this->query_vars, array_keys( $this->query_var_defaults ) );
 
-		// Ignore the $fields argument as the queried result will be the same regardless.
-		unset( $_args['fields'] );
+		// Ignore the $fields, $update_site_cache, $update_site_meta_cache argument as the queried result will be the same regardless.
+		unset( $_args['fields'], $_args['update_site_cache'], $_args['update_site_meta_cache'] );
 
 		$key          = md5( serialize( $_args ) );
 		$last_changed = gc_cache_get_last_changed( 'sites' );
 
 		$cache_key   = "get_sites:$key:$last_changed";
-		$cache_value = gc_cache_get( $cache_key, 'sites' );
+		$cache_value = gc_cache_get( $cache_key, 'site-queries' );
 
 		if ( false === $cache_value ) {
 			$site_ids = $this->get_site_ids();
@@ -343,7 +367,7 @@ class GC_Site_Query {
 				'site_ids'    => $site_ids,
 				'found_sites' => $this->found_sites,
 			);
-			gc_cache_add( $cache_key, $cache_value, 'sites' );
+			gc_cache_add( $cache_key, $cache_value, 'site-queries' );
 		} else {
 			$site_ids          = $cache_value['site_ids'];
 			$this->found_sites = $cache_value['found_sites'];
@@ -361,6 +385,10 @@ class GC_Site_Query {
 
 		$site_ids = array_map( 'intval', $site_ids );
 
+		if ( $this->query_vars['update_site_meta_cache'] ) {
+			gc_lazyload_site_meta( $site_ids );
+		}
+
 		if ( 'ids' === $this->query_vars['fields'] ) {
 			$this->sites = $site_ids;
 
@@ -369,7 +397,7 @@ class GC_Site_Query {
 
 		// Prime site network caches.
 		if ( $this->query_vars['update_site_cache'] ) {
-			_prime_site_caches( $site_ids, $this->query_vars['update_site_meta_cache'] );
+			_prime_site_caches( $site_ids, false );
 		}
 
 		// Fetch full site objects from the primed cache.
@@ -384,6 +412,7 @@ class GC_Site_Query {
 		/**
 		 * Filters the site query results.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param GC_Site[]     $_sites An array of GC_Site objects.
 		 * @param GC_Site_Query $query  Current instance of GC_Site_Query (passed by reference).
@@ -399,6 +428,7 @@ class GC_Site_Query {
 	/**
 	 * Used internally to get a list of site IDs matching the query vars.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -585,7 +615,7 @@ class GC_Site_Query {
 			 *
 			 * The default columns include 'domain' and 'path.
 			 *
-		
+			 * @since 4.6.0
 			 *
 			 * @param string[]      $search_columns Array of column names to be searched.
 			 * @param string        $search         Text being searched.
@@ -598,7 +628,9 @@ class GC_Site_Query {
 
 		$date_query = $this->query_vars['date_query'];
 		if ( ! empty( $date_query ) && is_array( $date_query ) ) {
-			$this->date_query                         = new GC_Date_Query( $date_query, 'registered' );
+			$this->date_query = new GC_Date_Query( $date_query, 'registered' );
+
+			// Strip leading 'AND'.
 			$this->sql_clauses['where']['date_query'] = preg_replace( '/^\s*AND\s*/', '', $this->date_query->get_sql() );
 		}
 
@@ -623,9 +655,10 @@ class GC_Site_Query {
 		/**
 		 * Filters the site query clauses.
 		 *
+		 * @since 4.6.0
 		 *
-		 * @param string[]      $pieces An associative array of site query clauses.
-		 * @param GC_Site_Query $query  Current instance of GC_Site_Query (passed by reference).
+		 * @param string[]      $clauses An associative array of site query clauses.
+		 * @param GC_Site_Query $query   Current instance of GC_Site_Query (passed by reference).
 		 */
 		$clauses = apply_filters_ref_array( 'sites_clauses', array( compact( $pieces ), &$this ) );
 
@@ -659,7 +692,14 @@ class GC_Site_Query {
 		$this->sql_clauses['orderby'] = $orderby;
 		$this->sql_clauses['limits']  = $limits;
 
-		$this->request = "{$this->sql_clauses['select']} {$this->sql_clauses['from']} {$where} {$this->sql_clauses['groupby']} {$this->sql_clauses['orderby']} {$this->sql_clauses['limits']}";
+		$this->request = "
+			{$this->sql_clauses['select']}
+			{$this->sql_clauses['from']}
+			{$where}
+			{$this->sql_clauses['groupby']}
+			{$this->sql_clauses['orderby']}
+			{$this->sql_clauses['limits']}
+		";
 
 		if ( $this->query_vars['count'] ) {
 			return (int) $gcdb->get_var( $this->request );
@@ -674,6 +714,7 @@ class GC_Site_Query {
 	 * Populates found_sites and max_num_pages properties for the current query
 	 * if the limit clause was used.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 */
@@ -684,7 +725,7 @@ class GC_Site_Query {
 			/**
 			 * Filters the query used to retrieve found site count.
 			 *
-		
+			 * @since 4.6.0
 			 *
 			 * @param string        $found_sites_query SQL query. Default 'SELECT FOUND_ROWS()'.
 			 * @param GC_Site_Query $site_query        The `GC_Site_Query` instance.
@@ -698,20 +739,21 @@ class GC_Site_Query {
 	/**
 	 * Used internally to generate an SQL string for searching across multiple columns.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
-	 * @param string   $string  Search string.
+	 * @param string   $search  Search string.
 	 * @param string[] $columns Array of columns to search.
 	 * @return string Search SQL.
 	 */
-	protected function get_search_sql( $string, $columns ) {
+	protected function get_search_sql( $search, $columns ) {
 		global $gcdb;
 
-		if ( false !== strpos( $string, '*' ) ) {
-			$like = '%' . implode( '%', array_map( array( $gcdb, 'esc_like' ), explode( '*', $string ) ) ) . '%';
+		if ( str_contains( $search, '*' ) ) {
+			$like = '%' . implode( '%', array_map( array( $gcdb, 'esc_like' ), explode( '*', $search ) ) ) . '%';
 		} else {
-			$like = '%' . $gcdb->esc_like( $string ) . '%';
+			$like = '%' . $gcdb->esc_like( $search ) . '%';
 		}
 
 		$searches = array();
@@ -725,6 +767,7 @@ class GC_Site_Query {
 	/**
 	 * Parses and sanitizes 'orderby' keys passed to the site query.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -749,6 +792,11 @@ class GC_Site_Query {
 			case 'last_updated':
 			case 'path':
 			case 'registered':
+			case 'deleted':
+			case 'spam':
+			case 'mature':
+			case 'archived':
+			case 'public':
 				$parsed = $orderby;
 				break;
 			case 'network_id':
@@ -803,6 +851,7 @@ class GC_Site_Query {
 	/**
 	 * Parses an 'order' query variable and cast it to 'ASC' or 'DESC' as necessary.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string $order The 'order' query variable.
 	 * @return string The sanitized 'order' query variable.

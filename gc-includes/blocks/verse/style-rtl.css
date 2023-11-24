@@ -1,0 +1,8 @@
+pre.gc-block-verse{
+  overflow:auto;
+  white-space:pre-wrap;
+}
+
+:where(pre.gc-block-verse){
+  font-family:inherit;
+}

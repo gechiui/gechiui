@@ -1,93 +1,88 @@
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
-/******/ })
-/************************************************************************/
-/******/ ({
+/******/ (function() { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
 
-/***/ "+RYg":
-/***/ (function(module, exports) {
+/***/ 6045:
+/***/ (function(module) {
+
+var State = gc.media.controller.State,
+	l10n = gc.media.view.l10n,
+	AudioDetails;
+
+/**
+ * gc.media.controller.AudioDetails
+ *
+ * The controller for the Audio Details state
+ *
+ * @memberOf gc.media.controller
+ *
+ * @class
+ * @augments gc.media.controller.State
+ * @augments Backbone.Model
+ */
+AudioDetails = State.extend(/** @lends gc.media.controller.AudioDetails.prototype */{
+	defaults: {
+		id: 'audio-details',
+		toolbar: 'audio-details',
+		title: l10n.audioDetailsTitle,
+		content: 'audio-details',
+		menu: 'audio-details',
+		router: false,
+		priority: 60
+	},
+
+	initialize: function( options ) {
+		this.media = options.media;
+		State.prototype.initialize.apply( this, arguments );
+	}
+});
+
+module.exports = AudioDetails;
+
+
+/***/ }),
+
+/***/ 580:
+/***/ (function(module) {
+
+/**
+ * gc.media.controller.VideoDetails
+ *
+ * The controller for the Video Details state
+ *
+ * @memberOf gc.media.controller
+ *
+ * @class
+ * @augments gc.media.controller.State
+ * @augments Backbone.Model
+ */
+var State = gc.media.controller.State,
+	l10n = gc.media.view.l10n,
+	VideoDetails;
+
+VideoDetails = State.extend(/** @lends gc.media.controller.VideoDetails.prototype */{
+	defaults: {
+		id: 'video-details',
+		toolbar: 'video-details',
+		title: l10n.videoDetailsTitle,
+		content: 'video-details',
+		menu: 'video-details',
+		router: false,
+		priority: 60
+	},
+
+	initialize: function( options ) {
+		this.media = options.media;
+		State.prototype.initialize.apply( this, arguments );
+	}
+});
+
+module.exports = VideoDetails;
+
+
+/***/ }),
+
+/***/ 6615:
+/***/ (function(module) {
 
 /**
  * gc.media.model.PostMedia
@@ -135,221 +130,43 @@ module.exports = PostMedia;
 
 /***/ }),
 
-/***/ "/4UI":
-/***/ (function(module, exports) {
+/***/ 1764:
+/***/ (function(module) {
 
-/* global MediaElementPlayer */
-var AttachmentDisplay = gc.media.view.Settings.AttachmentDisplay,
-	$ = jQuery,
-	MediaDetails;
+var MediaDetails = gc.media.view.MediaDetails,
+	AudioDetails;
 
 /**
- * gc.media.view.MediaDetails
+ * gc.media.view.AudioDetails
  *
  * @memberOf gc.media.view
  *
  * @class
+ * @augments gc.media.view.MediaDetails
  * @augments gc.media.view.Settings.AttachmentDisplay
  * @augments gc.media.view.Settings
  * @augments gc.media.View
  * @augments gc.Backbone.View
  * @augments Backbone.View
  */
-MediaDetails = AttachmentDisplay.extend(/** @lends gc.media.view.MediaDetails.prototype */{
-	initialize: function() {
-		_.bindAll(this, 'success');
-		this.players = [];
-		this.listenTo( this.controller.states, 'close', gc.media.mixin.unsetPlayers );
-		this.on( 'ready', this.setPlayer );
-		this.on( 'media:setting:remove', gc.media.mixin.unsetPlayers, this );
-		this.on( 'media:setting:remove', this.render );
-		this.on( 'media:setting:remove', this.setPlayer );
+AudioDetails = MediaDetails.extend(/** @lends gc.media.view.AudioDetails.prototype */{
+	className: 'audio-details',
+	template:  gc.template('audio-details'),
 
-		AttachmentDisplay.prototype.initialize.apply( this, arguments );
-	},
+	setMedia: function() {
+		var audio = this.$('.gc-audio-shortcode');
 
-	events: function(){
-		return _.extend( {
-			'click .remove-setting' : 'removeSetting',
-			'change .content-track' : 'setTracks',
-			'click .remove-track' : 'setTracks',
-			'click .add-media-source' : 'addSource'
-		}, AttachmentDisplay.prototype.events );
-	},
-
-	prepare: function() {
-		return _.defaults({
-			model: this.model.toJSON()
-		}, this.options );
-	},
-
-	/**
-	 * Remove a setting's UI when the model unsets it
-	 *
-	 * @fires gc.media.view.MediaDetails#media:setting:remove
-	 *
-	 * @param {Event} e
-	 */
-	removeSetting : function(e) {
-		var wrap = $( e.currentTarget ).parent(), setting;
-		setting = wrap.find( 'input' ).data( 'setting' );
-
-		if ( setting ) {
-			this.model.unset( setting );
-			this.trigger( 'media:setting:remove', this );
-		}
-
-		wrap.remove();
-	},
-
-	/**
-	 *
-	 * @fires gc.media.view.MediaDetails#media:setting:remove
-	 */
-	setTracks : function() {
-		var tracks = '';
-
-		_.each( this.$('.content-track'), function(track) {
-			tracks += $( track ).val();
-		} );
-
-		this.model.set( 'content', tracks );
-		this.trigger( 'media:setting:remove', this );
-	},
-
-	addSource : function( e ) {
-		this.controller.lastMime = $( e.currentTarget ).data( 'mime' );
-		this.controller.setState( 'add-' + this.controller.defaults.id + '-source' );
-	},
-
-	loadPlayer: function () {
-		this.players.push( new MediaElementPlayer( this.media, this.settings ) );
-		this.scriptXhr = false;
-	},
-
-	setPlayer : function() {
-		var src;
-
-		if ( this.players.length || ! this.media || this.scriptXhr ) {
-			return;
-		}
-
-		src = this.model.get( 'src' );
-
-		if ( src && src.indexOf( 'vimeo' ) > -1 && ! ( 'Vimeo' in window ) ) {
-			this.scriptXhr = $.getScript( 'https://player.vimeo.com/api/player.js', _.bind( this.loadPlayer, this ) );
+		if ( audio.find( 'source' ).length ) {
+			if ( audio.is(':hidden') ) {
+				audio.show();
+			}
+			this.media = MediaDetails.prepareSrc( audio.get(0) );
 		} else {
-			this.loadPlayer();
+			audio.hide();
+			this.media = false;
 		}
-	},
 
-	/**
-	 * @abstract
-	 */
-	setMedia : function() {
 		return this;
-	},
-
-	success : function(mejs) {
-		var autoplay = mejs.attributes.autoplay && 'false' !== mejs.attributes.autoplay;
-
-		if ( 'flash' === mejs.pluginType && autoplay ) {
-			mejs.addEventListener( 'canplay', function() {
-				mejs.play();
-			}, false );
-		}
-
-		this.mejs = mejs;
-	},
-
-	/**
-	 * @return {media.view.MediaDetails} Returns itself to allow chaining.
-	 */
-	render: function() {
-		AttachmentDisplay.prototype.render.apply( this, arguments );
-
-		setTimeout( _.bind( function() {
-			this.scrollToTop();
-		}, this ), 10 );
-
-		this.settings = _.defaults( {
-			success : this.success
-		}, gc.media.mixin.mejsSettings );
-
-		return this.setMedia();
-	},
-
-	scrollToTop: function() {
-		this.$( '.embed-media-settings' ).scrollTop( 0 );
-	}
-},/** @lends gc.media.view.MediaDetails */{
-	instances : 0,
-	/**
-	 * When multiple players in the DOM contain the same src, things get weird.
-	 *
-	 * @param {HTMLElement} elem
-	 * @return {HTMLElement}
-	 */
-	prepareSrc : function( elem ) {
-		var i = MediaDetails.instances++;
-		_.each( $( elem ).find( 'source' ), function( source ) {
-			source.src = [
-				source.src,
-				source.src.indexOf('?') > -1 ? '&' : '?',
-				'_=',
-				i
-			].join('');
-		} );
-
-		return elem;
-	}
-});
-
-module.exports = MediaDetails;
-
-
-/***/ }),
-
-/***/ 0:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__("DYxr");
-
-
-/***/ }),
-
-/***/ "6pp6":
-/***/ (function(module, exports) {
-
-var State = gc.media.controller.State,
-	l10n = gc.media.view.l10n,
-	AudioDetails;
-
-/**
- * gc.media.controller.AudioDetails
- *
- * The controller for the Audio Details state
- *
- * @memberOf gc.media.controller
- *
- * @class
- * @augments gc.media.controller.State
- * @augments Backbone.Model
- */
-AudioDetails = State.extend(/** @lends gc.media.controller.AudioDetails.prototype */{
-	defaults: {
-		id: 'audio-details',
-		toolbar: 'audio-details',
-		title: l10n.audioDetailsTitle,
-		content: 'audio-details',
-		menu: 'audio-details',
-		router: false,
-		priority: 60
-	},
-
-	initialize: function( options ) {
-		this.media = options.media;
-		State.prototype.initialize.apply( this, arguments );
 	}
 });
 
@@ -358,8 +175,8 @@ module.exports = AudioDetails;
 
 /***/ }),
 
-/***/ "Bdio":
-/***/ (function(module, exports) {
+/***/ 5262:
+/***/ (function(module) {
 
 var MediaDetails = gc.media.view.MediaFrame.MediaDetails,
 	MediaLibrary = gc.media.controller.MediaLibrary,
@@ -441,387 +258,8 @@ module.exports = AudioDetails;
 
 /***/ }),
 
-/***/ "DYxr":
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * @output gc-includes/js/media-audiovideo.js
- */
-
-var media = gc.media,
-	baseSettings = window._gcmejsSettings || {},
-	l10n = window._gcMediaViewsL10n || {};
-
-/**
- *
- * Defines the gc.media.mixin object.
- *
- * @mixin
- *
- *
- */
-gc.media.mixin = {
-	mejsSettings: baseSettings,
-
-	/**
-	 * Pauses and removes all players.
-	 *
-	 *
-	 * @return {void}
-	 */
-	removeAllPlayers: function() {
-		var p;
-
-		if ( window.mejs && window.mejs.players ) {
-			for ( p in window.mejs.players ) {
-				window.mejs.players[p].pause();
-				this.removePlayer( window.mejs.players[p] );
-			}
-		}
-	},
-
-	/**
-	 * Removes the player.
-	 *
-	 * Override the MediaElement method for removing a player.
-	 * MediaElement tries to pull the audio/video tag out of
-	 * its container and re-add it to the DOM.
-	 *
-	 *
-	 * @return {void}
-	 */
-	removePlayer: function(t) {
-		var featureIndex, feature;
-
-		if ( ! t.options ) {
-			return;
-		}
-
-		// Invoke features cleanup.
-		for ( featureIndex in t.options.features ) {
-			feature = t.options.features[featureIndex];
-			if ( t['clean' + feature] ) {
-				try {
-					t['clean' + feature](t);
-				} catch (e) {}
-			}
-		}
-
-		if ( ! t.isDynamic ) {
-			t.node.remove();
-		}
-
-		if ( 'html5' !== t.media.rendererName ) {
-			t.media.remove();
-		}
-
-		delete window.mejs.players[t.id];
-
-		t.container.remove();
-		t.globalUnbind('resize', t.globalResizeCallback);
-		t.globalUnbind('keydown', t.globalKeydownCallback);
-		t.globalUnbind('click', t.globalClickCallback);
-		delete t.media.player;
-	},
-
-	/**
-	 *
-	 * Removes and resets all players.
-	 *
-	 * Allows any class that has set 'player' to a MediaElementPlayer
-	 * instance to remove the player when listening to events.
-	 *
-	 * Examples: modal closes, shortcode properties are removed, etc.
-	 *
-	 */
-	unsetPlayers : function() {
-		if ( this.players && this.players.length ) {
-			_.each( this.players, function (player) {
-				player.pause();
-				gc.media.mixin.removePlayer( player );
-			} );
-			this.players = [];
-		}
-	}
-};
-
-/**
- * Shortcode modeling for playlists.
- *
- *
- */
-gc.media.playlist = new gc.media.collection({
-	tag: 'playlist',
-	editTitle : l10n.editPlaylistTitle,
-	defaults : {
-		id: gc.media.view.settings.post.id,
-		style: 'light',
-		tracklist: true,
-		tracknumbers: true,
-		images: true,
-		artists: true,
-		type: 'audio'
-	}
-});
-
-/**
- * Shortcode modeling for audio.
- *
- * `edit()` prepares the shortcode for the media modal.
- * `shortcode()` builds the new shortcode after an update.
- *
- * @namespace
- *
- *
- */
-gc.media.audio = {
-	coerce : gc.media.coerce,
-
-	defaults : {
-		id : gc.media.view.settings.post.id,
-		src : '',
-		loop : false,
-		autoplay : false,
-		preload : 'none',
-		width : 400
-	},
-
-	/**
-	 * Instantiates a new media object with the next matching shortcode.
-	 *
-	 *
-	 * @param {string} data The text to apply the shortcode on.
-	 * @return {gc.media} The media object.
-	 */
-	edit : function( data ) {
-		var frame, shortcode = gc.shortcode.next( 'audio', data ).shortcode;
-
-		frame = gc.media({
-			frame: 'audio',
-			state: 'audio-details',
-			metadata: _.defaults( shortcode.attrs.named, this.defaults )
-		});
-
-		return frame;
-	},
-
-	/**
-	 * Generates an audio shortcode.
-	 *
-	 *
-	 * @param {Array} model Array with attributes for the shortcode.
-	 * @return {gc.shortcode} The audio shortcode object.
-	 */
-	shortcode : function( model ) {
-		var content;
-
-		_.each( this.defaults, function( value, key ) {
-			model[ key ] = this.coerce( model, key );
-
-			if ( value === model[ key ] ) {
-				delete model[ key ];
-			}
-		}, this );
-
-		content = model.content;
-		delete model.content;
-
-		return new gc.shortcode({
-			tag: 'audio',
-			attrs: model,
-			content: content
-		});
-	}
-};
-
-/**
- * Shortcode modeling for video.
- *
- *  `edit()` prepares the shortcode for the media modal.
- *  `shortcode()` builds the new shortcode after update.
- *
- *
- *
- * @namespace
- */
-gc.media.video = {
-	coerce : gc.media.coerce,
-
-	defaults : {
-		id : gc.media.view.settings.post.id,
-		src : '',
-		poster : '',
-		loop : false,
-		autoplay : false,
-		preload : 'metadata',
-		content : '',
-		width : 640,
-		height : 360
-	},
-
-	/**
-	 * Instantiates a new media object with the next matching shortcode.
-	 *
-	 *
-	 * @param {string} data The text to apply the shortcode on.
-	 * @return {gc.media} The media object.
-	 */
-	edit : function( data ) {
-		var frame,
-			shortcode = gc.shortcode.next( 'video', data ).shortcode,
-			attrs;
-
-		attrs = shortcode.attrs.named;
-		attrs.content = shortcode.content;
-
-		frame = gc.media({
-			frame: 'video',
-			state: 'video-details',
-			metadata: _.defaults( attrs, this.defaults )
-		});
-
-		return frame;
-	},
-
-	/**
-	 * Generates an video shortcode.
-	 *
-	 *
-	 * @param {Array} model Array with attributes for the shortcode.
-	 * @return {gc.shortcode} The video shortcode object.
-	 */
-	shortcode : function( model ) {
-		var content;
-
-		_.each( this.defaults, function( value, key ) {
-			model[ key ] = this.coerce( model, key );
-
-			if ( value === model[ key ] ) {
-				delete model[ key ];
-			}
-		}, this );
-
-		content = model.content;
-		delete model.content;
-
-		return new gc.shortcode({
-			tag: 'video',
-			attrs: model,
-			content: content
-		});
-	}
-};
-
-media.model.PostMedia = __webpack_require__( "+RYg" );
-media.controller.AudioDetails = __webpack_require__( "6pp6" );
-media.controller.VideoDetails = __webpack_require__( "Xcj4" );
-media.view.MediaFrame.MediaDetails = __webpack_require__( "RQe2" );
-media.view.MediaFrame.AudioDetails = __webpack_require__( "Bdio" );
-media.view.MediaFrame.VideoDetails = __webpack_require__( "m85o" );
-media.view.MediaDetails = __webpack_require__( "/4UI" );
-media.view.AudioDetails = __webpack_require__( "LX3m" );
-media.view.VideoDetails = __webpack_require__( "MT9K" );
-
-
-/***/ }),
-
-/***/ "LX3m":
-/***/ (function(module, exports) {
-
-var MediaDetails = gc.media.view.MediaDetails,
-	AudioDetails;
-
-/**
- * gc.media.view.AudioDetails
- *
- * @memberOf gc.media.view
- *
- * @class
- * @augments gc.media.view.MediaDetails
- * @augments gc.media.view.Settings.AttachmentDisplay
- * @augments gc.media.view.Settings
- * @augments gc.media.View
- * @augments gc.Backbone.View
- * @augments Backbone.View
- */
-AudioDetails = MediaDetails.extend(/** @lends gc.media.view.AudioDetails.prototype */{
-	className: 'audio-details',
-	template:  gc.template('audio-details'),
-
-	setMedia: function() {
-		var audio = this.$('.gc-audio-shortcode');
-
-		if ( audio.find( 'source' ).length ) {
-			if ( audio.is(':hidden') ) {
-				audio.show();
-			}
-			this.media = MediaDetails.prepareSrc( audio.get(0) );
-		} else {
-			audio.hide();
-			this.media = false;
-		}
-
-		return this;
-	}
-});
-
-module.exports = AudioDetails;
-
-
-/***/ }),
-
-/***/ "MT9K":
-/***/ (function(module, exports) {
-
-var MediaDetails = gc.media.view.MediaDetails,
-	VideoDetails;
-
-/**
- * gc.media.view.VideoDetails
- *
- * @memberOf gc.media.view
- *
- * @class
- * @augments gc.media.view.MediaDetails
- * @augments gc.media.view.Settings.AttachmentDisplay
- * @augments gc.media.view.Settings
- * @augments gc.media.View
- * @augments gc.Backbone.View
- * @augments Backbone.View
- */
-VideoDetails = MediaDetails.extend(/** @lends gc.media.view.VideoDetails.prototype */{
-	className: 'video-details',
-	template:  gc.template('video-details'),
-
-	setMedia: function() {
-		var video = this.$('.gc-video-shortcode');
-
-		if ( video.find( 'source' ).length ) {
-			if ( video.is(':hidden') ) {
-				video.show();
-			}
-
-			if ( ! video.hasClass( 'youtube-video' ) && ! video.hasClass( 'vimeo-video' ) ) {
-				this.media = MediaDetails.prepareSrc( video.get(0) );
-			} else {
-				this.media = video.get(0);
-			}
-		} else {
-			video.hide();
-			this.media = false;
-		}
-
-		return this;
-	}
-});
-
-module.exports = VideoDetails;
-
-
-/***/ }),
-
-/***/ "RQe2":
-/***/ (function(module, exports) {
+/***/ 6445:
+/***/ (function(module) {
 
 var Select = gc.media.view.MediaFrame.Select,
 	l10n = gc.media.view.l10n,
@@ -957,48 +395,8 @@ module.exports = MediaDetails;
 
 /***/ }),
 
-/***/ "Xcj4":
-/***/ (function(module, exports) {
-
-/**
- * gc.media.controller.VideoDetails
- *
- * The controller for the Video Details state
- *
- * @memberOf gc.media.controller
- *
- * @class
- * @augments gc.media.controller.State
- * @augments Backbone.Model
- */
-var State = gc.media.controller.State,
-	l10n = gc.media.view.l10n,
-	VideoDetails;
-
-VideoDetails = State.extend(/** @lends gc.media.controller.VideoDetails.prototype */{
-	defaults: {
-		id: 'video-details',
-		toolbar: 'video-details',
-		title: l10n.videoDetailsTitle,
-		content: 'video-details',
-		menu: 'video-details',
-		router: false,
-		priority: 60
-	},
-
-	initialize: function( options ) {
-		this.media = options.media;
-		State.prototype.initialize.apply( this, arguments );
-	}
-});
-
-module.exports = VideoDetails;
-
-
-/***/ }),
-
-/***/ "m85o":
-/***/ (function(module, exports) {
+/***/ 2075:
+/***/ (function(module) {
 
 var MediaDetails = gc.media.view.MediaFrame.MediaDetails,
 	MediaLibrary = gc.media.controller.MediaLibrary,
@@ -1108,6 +506,7 @@ VideoDetails = MediaDetails.extend(/** @lends gc.media.view.MediaFrame.VideoDeta
 
 			gc.ajax.send( 'set-attachment-thumbnail', {
 				data : {
+					_ajax_nonce: gc.media.view.settings.nonce.setAttachmentThumbnail,
 					urls: urls,
 					thumbnail_id: attachment.get( 'id' )
 				}
@@ -1137,6 +536,544 @@ VideoDetails = MediaDetails.extend(/** @lends gc.media.view.MediaFrame.VideoDeta
 module.exports = VideoDetails;
 
 
+/***/ }),
+
+/***/ 8867:
+/***/ (function(module) {
+
+/* global MediaElementPlayer */
+var AttachmentDisplay = gc.media.view.Settings.AttachmentDisplay,
+	$ = jQuery,
+	MediaDetails;
+
+/**
+ * gc.media.view.MediaDetails
+ *
+ * @memberOf gc.media.view
+ *
+ * @class
+ * @augments gc.media.view.Settings.AttachmentDisplay
+ * @augments gc.media.view.Settings
+ * @augments gc.media.View
+ * @augments gc.Backbone.View
+ * @augments Backbone.View
+ */
+MediaDetails = AttachmentDisplay.extend(/** @lends gc.media.view.MediaDetails.prototype */{
+	initialize: function() {
+		_.bindAll(this, 'success');
+		this.players = [];
+		this.listenTo( this.controller.states, 'close', gc.media.mixin.unsetPlayers );
+		this.on( 'ready', this.setPlayer );
+		this.on( 'media:setting:remove', gc.media.mixin.unsetPlayers, this );
+		this.on( 'media:setting:remove', this.render );
+		this.on( 'media:setting:remove', this.setPlayer );
+
+		AttachmentDisplay.prototype.initialize.apply( this, arguments );
+	},
+
+	events: function(){
+		return _.extend( {
+			'click .remove-setting' : 'removeSetting',
+			'change .content-track' : 'setTracks',
+			'click .remove-track' : 'setTracks',
+			'click .add-media-source' : 'addSource'
+		}, AttachmentDisplay.prototype.events );
+	},
+
+	prepare: function() {
+		return _.defaults({
+			model: this.model.toJSON()
+		}, this.options );
+	},
+
+	/**
+	 * Remove a setting's UI when the model unsets it
+	 *
+	 * @fires gc.media.view.MediaDetails#media:setting:remove
+	 *
+	 * @param {Event} e
+	 */
+	removeSetting : function(e) {
+		var wrap = $( e.currentTarget ).parent(), setting;
+		setting = wrap.find( 'input' ).data( 'setting' );
+
+		if ( setting ) {
+			this.model.unset( setting );
+			this.trigger( 'media:setting:remove', this );
+		}
+
+		wrap.remove();
+	},
+
+	/**
+	 *
+	 * @fires gc.media.view.MediaDetails#media:setting:remove
+	 */
+	setTracks : function() {
+		var tracks = '';
+
+		_.each( this.$('.content-track'), function(track) {
+			tracks += $( track ).val();
+		} );
+
+		this.model.set( 'content', tracks );
+		this.trigger( 'media:setting:remove', this );
+	},
+
+	addSource : function( e ) {
+		this.controller.lastMime = $( e.currentTarget ).data( 'mime' );
+		this.controller.setState( 'add-' + this.controller.defaults.id + '-source' );
+	},
+
+	loadPlayer: function () {
+		this.players.push( new MediaElementPlayer( this.media, this.settings ) );
+		this.scriptXhr = false;
+	},
+
+	setPlayer : function() {
+		var src;
+
+		if ( this.players.length || ! this.media || this.scriptXhr ) {
+			return;
+		}
+
+		src = this.model.get( 'src' );
+
+		this.loadPlayer();
+	},
+
+	/**
+	 * @abstract
+	 */
+	setMedia : function() {
+		return this;
+	},
+
+	success : function(mejs) {
+		var autoplay = mejs.attributes.autoplay && 'false' !== mejs.attributes.autoplay;
+
+		if ( 'flash' === mejs.pluginType && autoplay ) {
+			mejs.addEventListener( 'canplay', function() {
+				mejs.play();
+			}, false );
+		}
+
+		this.mejs = mejs;
+	},
+
+	/**
+	 * @return {media.view.MediaDetails} Returns itself to allow chaining.
+	 */
+	render: function() {
+		AttachmentDisplay.prototype.render.apply( this, arguments );
+
+		setTimeout( _.bind( function() {
+			this.scrollToTop();
+		}, this ), 10 );
+
+		this.settings = _.defaults( {
+			success : this.success
+		}, gc.media.mixin.mejsSettings );
+
+		return this.setMedia();
+	},
+
+	scrollToTop: function() {
+		this.$( '.embed-media-settings' ).scrollTop( 0 );
+	}
+},/** @lends gc.media.view.MediaDetails */{
+	instances : 0,
+	/**
+	 * When multiple players in the DOM contain the same src, things get weird.
+	 *
+	 * @param {HTMLElement} elem
+	 * @return {HTMLElement}
+	 */
+	prepareSrc : function( elem ) {
+		var i = MediaDetails.instances++;
+		_.each( $( elem ).find( 'source' ), function( source ) {
+			source.src = [
+				source.src,
+				source.src.indexOf('?') > -1 ? '&' : '?',
+				'_=',
+				i
+			].join('');
+		} );
+
+		return elem;
+	}
+});
+
+module.exports = MediaDetails;
+
+
+/***/ }),
+
+/***/ 7697:
+/***/ (function(module) {
+
+var MediaDetails = gc.media.view.MediaDetails,
+	VideoDetails;
+
+/**
+ * gc.media.view.VideoDetails
+ *
+ * @memberOf gc.media.view
+ *
+ * @class
+ * @augments gc.media.view.MediaDetails
+ * @augments gc.media.view.Settings.AttachmentDisplay
+ * @augments gc.media.view.Settings
+ * @augments gc.media.View
+ * @augments gc.Backbone.View
+ * @augments Backbone.View
+ */
+VideoDetails = MediaDetails.extend(/** @lends gc.media.view.VideoDetails.prototype */{
+	className: 'video-details',
+	template:  gc.template('video-details'),
+
+	setMedia: function() {
+		var video = this.$('.gc-video-shortcode');
+
+		if ( video.find( 'source' ).length ) {
+			if ( video.is(':hidden') ) {
+				video.show();
+			}
+
+			if ( ! video.hasClass( 'youku-video' ) && ! video.hasClass( 'vimeo-video' ) ) {
+				this.media = MediaDetails.prepareSrc( video.get(0) );
+			} else {
+				this.media = video.get(0);
+			}
+		} else {
+			video.hide();
+			this.media = false;
+		}
+
+		return this;
+	}
+});
+
+module.exports = VideoDetails;
+
+
 /***/ })
 
-/******/ });
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+!function() {
+/**
+ * @output assets/js/media-audiovideo.js
+ */
+
+var media = gc.media,
+	baseSettings = window._gcmejsSettings || {},
+	l10n = window._gcMediaViewsL10n || {};
+
+/**
+ *
+ * Defines the gc.media.mixin object.
+ *
+ * @mixin
+ *
+ * @since 4.2.0
+ */
+gc.media.mixin = {
+	mejsSettings: baseSettings,
+
+	/**
+	 * Pauses and removes all players.
+	 *
+	 * @since 4.2.0
+	 *
+	 * @return {void}
+	 */
+	removeAllPlayers: function() {
+		var p;
+
+		if ( window.mejs && window.mejs.players ) {
+			for ( p in window.mejs.players ) {
+				window.mejs.players[p].pause();
+				this.removePlayer( window.mejs.players[p] );
+			}
+		}
+	},
+
+	/**
+	 * Removes the player.
+	 *
+	 * Override the MediaElement method for removing a player.
+	 * MediaElement tries to pull the audio/video tag out of
+	 * its container and re-add it to the DOM.
+	 *
+	 * @since 4.2.0
+	 *
+	 * @return {void}
+	 */
+	removePlayer: function(t) {
+		var featureIndex, feature;
+
+		if ( ! t.options ) {
+			return;
+		}
+
+		// Invoke features cleanup.
+		for ( featureIndex in t.options.features ) {
+			feature = t.options.features[featureIndex];
+			if ( t['clean' + feature] ) {
+				try {
+					t['clean' + feature](t);
+				} catch (e) {}
+			}
+		}
+
+		if ( ! t.isDynamic ) {
+			t.node.remove();
+		}
+
+		if ( 'html5' !== t.media.rendererName ) {
+			t.media.remove();
+		}
+
+		delete window.mejs.players[t.id];
+
+		t.container.remove();
+		t.globalUnbind('resize', t.globalResizeCallback);
+		t.globalUnbind('keydown', t.globalKeydownCallback);
+		t.globalUnbind('click', t.globalClickCallback);
+		delete t.media.player;
+	},
+
+	/**
+	 *
+	 * Removes and resets all players.
+	 *
+	 * Allows any class that has set 'player' to a MediaElementPlayer
+	 * instance to remove the player when listening to events.
+	 *
+	 * Examples: modal closes, shortcode properties are removed, etc.
+	 *
+	 * @since 4.2.0
+	 */
+	unsetPlayers : function() {
+		if ( this.players && this.players.length ) {
+			_.each( this.players, function (player) {
+				player.pause();
+				gc.media.mixin.removePlayer( player );
+			} );
+			this.players = [];
+		}
+	}
+};
+
+/**
+ * Shortcode modeling for playlists.
+ *
+ * @since 4.2.0
+ */
+gc.media.playlist = new gc.media.collection({
+	tag: 'playlist',
+	editTitle : l10n.editPlaylistTitle,
+	defaults : {
+		id: gc.media.view.settings.post.id,
+		style: 'light',
+		tracklist: true,
+		tracknumbers: true,
+		images: true,
+		artists: true,
+		type: 'audio'
+	}
+});
+
+/**
+ * Shortcode modeling for audio.
+ *
+ * `edit()` prepares the shortcode for the media modal.
+ * `shortcode()` builds the new shortcode after an update.
+ *
+ * @namespace
+ *
+ * @since 4.2.0
+ */
+gc.media.audio = {
+	coerce : gc.media.coerce,
+
+	defaults : {
+		id : gc.media.view.settings.post.id,
+		src : '',
+		loop : false,
+		autoplay : false,
+		preload : 'none',
+		width : 400
+	},
+
+	/**
+	 * Instantiates a new media object with the next matching shortcode.
+	 *
+	 * @since 4.2.0
+	 *
+	 * @param {string} data The text to apply the shortcode on.
+	 * @return {gc.media} The media object.
+	 */
+	edit : function( data ) {
+		var frame, shortcode = gc.shortcode.next( 'audio', data ).shortcode;
+
+		frame = gc.media({
+			frame: 'audio',
+			state: 'audio-details',
+			metadata: _.defaults( shortcode.attrs.named, this.defaults )
+		});
+
+		return frame;
+	},
+
+	/**
+	 * Generates an audio shortcode.
+	 *
+	 * @since 4.2.0
+	 *
+	 * @param {Array} model Array with attributes for the shortcode.
+	 * @return {gc.shortcode} The audio shortcode object.
+	 */
+	shortcode : function( model ) {
+		var content;
+
+		_.each( this.defaults, function( value, key ) {
+			model[ key ] = this.coerce( model, key );
+
+			if ( value === model[ key ] ) {
+				delete model[ key ];
+			}
+		}, this );
+
+		content = model.content;
+		delete model.content;
+
+		return new gc.shortcode({
+			tag: 'audio',
+			attrs: model,
+			content: content
+		});
+	}
+};
+
+/**
+ * Shortcode modeling for video.
+ *
+ *  `edit()` prepares the shortcode for the media modal.
+ *  `shortcode()` builds the new shortcode after update.
+ *
+ * @since 4.2.0
+ *
+ * @namespace
+ */
+gc.media.video = {
+	coerce : gc.media.coerce,
+
+	defaults : {
+		id : gc.media.view.settings.post.id,
+		src : '',
+		poster : '',
+		loop : false,
+		autoplay : false,
+		preload : 'metadata',
+		content : '',
+		width : 640,
+		height : 360
+	},
+
+	/**
+	 * Instantiates a new media object with the next matching shortcode.
+	 *
+	 * @since 4.2.0
+	 *
+	 * @param {string} data The text to apply the shortcode on.
+	 * @return {gc.media} The media object.
+	 */
+	edit : function( data ) {
+		var frame,
+			shortcode = gc.shortcode.next( 'video', data ).shortcode,
+			attrs;
+
+		attrs = shortcode.attrs.named;
+		attrs.content = shortcode.content;
+
+		frame = gc.media({
+			frame: 'video',
+			state: 'video-details',
+			metadata: _.defaults( attrs, this.defaults )
+		});
+
+		return frame;
+	},
+
+	/**
+	 * Generates an video shortcode.
+	 *
+	 * @since 4.2.0
+	 *
+	 * @param {Array} model Array with attributes for the shortcode.
+	 * @return {gc.shortcode} The video shortcode object.
+	 */
+	shortcode : function( model ) {
+		var content;
+
+		_.each( this.defaults, function( value, key ) {
+			model[ key ] = this.coerce( model, key );
+
+			if ( value === model[ key ] ) {
+				delete model[ key ];
+			}
+		}, this );
+
+		content = model.content;
+		delete model.content;
+
+		return new gc.shortcode({
+			tag: 'video',
+			attrs: model,
+			content: content
+		});
+	}
+};
+
+media.model.PostMedia = __webpack_require__( 6615 );
+media.controller.AudioDetails = __webpack_require__( 6045 );
+media.controller.VideoDetails = __webpack_require__( 580 );
+media.view.MediaFrame.MediaDetails = __webpack_require__( 6445 );
+media.view.MediaFrame.AudioDetails = __webpack_require__( 5262 );
+media.view.MediaFrame.VideoDetails = __webpack_require__( 2075 );
+media.view.MediaDetails = __webpack_require__( 8867 );
+media.view.AudioDetails = __webpack_require__( 1764 );
+media.view.VideoDetails = __webpack_require__( 7697 );
+
+}();
+/******/ })()
+;

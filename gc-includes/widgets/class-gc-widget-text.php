@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class used to implement a Text widget.
- *
- *
  *
  * @see GC_Widget
  */
@@ -19,6 +16,7 @@ class GC_Widget_Text extends GC_Widget {
 	/**
 	 * Whether or not the widget has been registered yet.
 	 *
+	 * @since 4.8.1
 	 * @var bool
 	 */
 	protected $registered = false;
@@ -38,11 +36,11 @@ class GC_Widget_Text extends GC_Widget {
 			'width'  => 400,
 			'height' => 350,
 		);
-		parent::__construct( 'text', __( '文本' ), $widget_ops, $control_ops );
+		parent::__construct( 'text', __( '文字' ), $widget_ops, $control_ops );
 	}
 
 	/**
-	 * Add hooks for enqueueing assets when registering all widget instances of this widget class.
+	 * Adds hooks for enqueueing assets when registering all widget instances of this widget class.
 	 *
 	 * @param int $number Optional. The unique order number of this widget instance
 	 *                    compared to other instances of the same class. Default -1.
@@ -54,24 +52,27 @@ class GC_Widget_Text extends GC_Widget {
 		}
 		$this->registered = true;
 
-		gc_add_inline_script( 'text-widgets', sprintf( 'gc.textWidgets.idBases.push( %s );', gc_json_encode( $this->id_base ) ) );
-
 		if ( $this->is_preview() ) {
 			add_action( 'gc_enqueue_scripts', array( $this, 'enqueue_preview_scripts' ) );
 		}
 
-		// Note that the widgets component in the customizer will also do
-		// the 'admin_print_scripts-widgets.php' action in GC_Customize_Widgets::print_scripts().
+		/*
+		 * Note that the widgets component in the customizer will also do
+		 * the 'admin_print_scripts-widgets.php' action in GC_Customize_Widgets::print_scripts().
+		 */
 		add_action( 'admin_print_scripts-widgets.php', array( $this, 'enqueue_admin_scripts' ) );
 
-		// Note that the widgets component in the customizer will also do
-		// the 'admin_footer-widgets.php' action in GC_Customize_Widgets::print_footer_scripts().
+		/*
+		 * Note that the widgets component in the customizer will also do
+		 * the 'admin_footer-widgets.php' action in GC_Customize_Widgets::print_footer_scripts().
+		 */
 		add_action( 'admin_footer-widgets.php', array( 'GC_Widget_Text', 'render_control_template_scripts' ) );
 	}
 
 	/**
 	 * Determines whether a given instance is legacy and should bypass using TinyMCE.
 	 *
+	 * @since 4.8.1
 	 *
 	 * @param array $instance {
 	 *     Instance data.
@@ -100,7 +101,7 @@ class GC_Widget_Text extends GC_Widget {
 		}
 
 		$gcautop         = ! empty( $instance['filter'] );
-		$has_line_breaks = ( false !== strpos( trim( $instance['text'] ), "\n" ) );
+		$has_line_breaks = ( str_contains( trim( $instance['text'] ), "\n" ) );
 
 		// If auto-paragraphs are not enabled and there are line breaks, then ensure legacy mode.
 		if ( ! $gcautop && $has_line_breaks ) {
@@ -108,7 +109,7 @@ class GC_Widget_Text extends GC_Widget {
 		}
 
 		// If an HTML comment is present, assume legacy mode.
-		if ( false !== strpos( $instance['text'], '<!--' ) ) {
+		if ( str_contains( $instance['text'], '<!--' ) ) {
 			return true;
 		}
 
@@ -196,6 +197,7 @@ class GC_Widget_Text extends GC_Widget {
 	 * Prevents all of a site's attachments from being shown in a gallery displayed on a
 	 * non-singular template where a $post context is not available.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param array $attrs Attributes.
 	 * @return array Attributes.
@@ -265,6 +267,9 @@ class GC_Widget_Text extends GC_Widget {
 		/**
 		 * Filters the content of the Text widget.
 		 *
+		 * @since 2.3.0
+		 * @since 4.4.0 Added the `$widget` parameter.
+		 * @since 4.8.1 The `$widget` param may now be a `GC_Widget_Custom_HTML` object in addition to a `GC_Widget_Text` object.
 		 *
 		 * @param string                               $text     The widget content.
 		 * @param array                                $instance Array of settings for the current widget.
@@ -279,7 +284,7 @@ class GC_Widget_Text extends GC_Widget {
 			 *
 			 * By default a subset of the_content filters are applied, including gcautop and gctexturize.
 			 *
-		
+			 * @since 4.8.0
 			 *
 			 * @param string         $text     The widget content.
 			 * @param array          $instance Array of settings for the current widget.
@@ -334,8 +339,9 @@ class GC_Widget_Text extends GC_Widget {
 	}
 
 	/**
-	 * Inject max-width and remove height for videos too constrained to fit inside sidebars on frontend.
+	 * Injects max-width and removes height for videos too constrained to fit inside sidebars on frontend.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @see GC_Widget_Media_Video::inject_video_max_width_style()
 	 *
@@ -402,12 +408,13 @@ class GC_Widget_Text extends GC_Widget {
 	}
 
 	/**
-	 * Enqueue preview scripts.
+	 * Enqueues preview scripts.
 	 *
 	 * These scripts normally are enqueued just-in-time when a playlist shortcode is used.
 	 * However, in the customizer, a playlist shortcode may be used in a text widget and
 	 * dynamically added via selective refresh, so it is important to unconditionally enqueue them.
 	 *
+	 * @since 4.9.3
 	 */
 	public function enqueue_preview_scripts() {
 		require_once dirname( __DIR__ ) . '/media.php';
@@ -419,17 +426,21 @@ class GC_Widget_Text extends GC_Widget {
 	/**
 	 * Loads the required scripts and styles for the widget control.
 	 *
+	 * @since 4.8.0
 	 */
 	public function enqueue_admin_scripts() {
 		gc_enqueue_editor();
 		gc_enqueue_media();
 		gc_enqueue_script( 'text-widgets' );
+		gc_add_inline_script( 'text-widgets', sprintf( 'gc.textWidgets.idBases.push( %s );', gc_json_encode( $this->id_base ) ) );
 		gc_add_inline_script( 'text-widgets', 'gc.textWidgets.init();', 'after' );
 	}
 
 	/**
 	 * Outputs the Text widget settings form.
 	 *
+	 * @since 4.8.0 Form only contains hidden inputs which are synced with JS template.
+	 * @since 4.8.1 Restored original form to be displayed when in legacy mode.
 	 *
 	 * @see GC_Widget_Text::render_control_template_scripts()
 	 * @see _GC_Editors::editor()
@@ -481,7 +492,7 @@ class GC_Widget_Text extends GC_Widget {
 				<?php if ( ! isset( $instance['visual'] ) ) : ?>
 					<p><?php _e( '此小工具包含了可能在“自定义HTML”小工具中表现更佳的代码，要试试那个小工具吗？' ); ?></p>
 				<?php else : ?>
-					<p><?php _e( '此小工具可能包含了在“自定义HTML”小工具中可能表现更佳的代码。如果您还没试过，要试试那个小工具吗？' ); ?></p>
+					<p><?php _e( '此小工具可能包含了在 &#8220;自定义 HTML&#8221; 小工具中表现更佳的代码。如果您还没试过，要试试那个小工具吗？' ); ?></p>
 				<?php endif; ?>
 			</div>
 			<p>
@@ -496,8 +507,10 @@ class GC_Widget_Text extends GC_Widget {
 	}
 
 	/**
-	 * Render form template scripts.
+	 * Renders form template scripts.
 	 *
+	 * @since 4.8.0
+	 * @since 4.9.0 The method is now static.
 	 */
 	public static function render_control_template_scripts() {
 		$dismissed_pointers = explode( ',', (string) get_user_meta( get_current_user_id(), 'dismissed_gc_pointers', true ) );
@@ -514,9 +527,9 @@ class GC_Widget_Text extends GC_Widget {
 					<div class="gc-pointer-content">
 						<h3><?php _e( '新自定义HTML小工具' ); ?></h3>
 						<?php if ( is_customize_preview() ) : ?>
-							<p><?php _e( '您知道现在有“自定义HTML”小工具了吗？您可以通过点击“<a class="add-widget" href="#">添加小工具</a>”按钮并搜索”HTML“来找到它。来用它向您的站点添加自定义代码吧！' ); ?></p>
+							<p><?php _e( '您知道现在有“自定义HTML”小工具了吗？您可以通过点击“<a class="add-widget" href="#">添加小工具</a>”按钮并搜索”HTML“来找到它。来用它向您的系统添加自定义代码吧！' ); ?></p>
 						<?php else : ?>
-							<p><?php _e( '您知道现在有“自定义HTML”小工具了吗？您可在此界面查看所有可用的小工具。来用它向您的站点添加自定义代码吧！' ); ?></p>
+							<p><?php _e( '您知道现在有“自定义HTML”小工具了吗？您可在此界面查看所有可用的小工具。来用它向您的系统添加自定义代码吧！' ); ?></p>
 						<?php endif; ?>
 						<div class="gc-pointer-buttons">
 							<a class="close" href="#"><?php _e( '不再显示' ); ?></a>
@@ -544,7 +557,7 @@ class GC_Widget_Text extends GC_Widget {
 			<?php endif; ?>
 
 			<p>
-				<label for="{{ elementIdPrefix }}text" class="screen-reader-text"><?php esc_html_e( '内容：' ); ?></label>
+				<label for="{{ elementIdPrefix }}text" class="screen-reader-text"><?php /* translators: Hidden accessibility text. */ esc_html_e( '内容：' ); ?></label>
 				<textarea id="{{ elementIdPrefix }}text" class="widefat text gc-editor-area" style="height: 200px" rows="16" cols="20"></textarea>
 			</p>
 		</script>

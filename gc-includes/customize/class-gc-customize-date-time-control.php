@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customize Date Time Control class.
- *
- *
  *
  * @see GC_Customize_Control
  */
@@ -19,6 +16,7 @@ class GC_Customize_Date_Time_Control extends GC_Customize_Control {
 	/**
 	 * Customize control type.
 	 *
+	 * @since 4.9.0
 	 * @var string
 	 */
 	public $type = 'date_time';
@@ -26,6 +24,7 @@ class GC_Customize_Date_Time_Control extends GC_Customize_Control {
 	/**
 	 * Minimum Year.
 	 *
+	 * @since 4.9.0
 	 * @var int
 	 */
 	public $min_year = 1000;
@@ -33,6 +32,7 @@ class GC_Customize_Date_Time_Control extends GC_Customize_Control {
 	/**
 	 * Maximum Year.
 	 *
+	 * @since 4.9.0
 	 * @var int
 	 */
 	public $max_year = 9999;
@@ -40,6 +40,7 @@ class GC_Customize_Date_Time_Control extends GC_Customize_Control {
 	/**
 	 * Allow past date, if set to false user can only select future date.
 	 *
+	 * @since 4.9.0
 	 * @var bool
 	 */
 	public $allow_past_date = true;
@@ -47,6 +48,7 @@ class GC_Customize_Date_Time_Control extends GC_Customize_Control {
 	/**
 	 * Whether hours, minutes, and meridian should be shown.
 	 *
+	 * @since 4.9.0
 	 * @var bool
 	 */
 	public $include_time = true;
@@ -55,6 +57,7 @@ class GC_Customize_Date_Time_Control extends GC_Customize_Control {
 	 * If set to false the control will appear in 24 hour format,
 	 * the value will still be saved in Y-m-d H:i:s format.
 	 *
+	 * @since 4.9.0
 	 * @var bool
 	 */
 	public $twelve_hour_format = true;
@@ -62,12 +65,14 @@ class GC_Customize_Date_Time_Control extends GC_Customize_Control {
 	/**
 	 * Don't render the control's content - it's rendered with a JS template.
 	 *
+	 * @since 4.9.0
 	 */
 	public function render_content() {}
 
 	/**
 	 * Export data to JS.
 	 *
+	 * @since 4.9.0
 	 * @return array
 	 */
 	public function json() {
@@ -85,6 +90,7 @@ class GC_Customize_Date_Time_Control extends GC_Customize_Control {
 	/**
 	 * Renders a JS template for the content of date time control.
 	 *
+	 * @since 4.9.0
 	 */
 	public function content_template() {
 		$data          = array_merge( $this->json(), $this->get_month_choices() );
@@ -118,7 +124,12 @@ class GC_Customize_Date_Time_Control extends GC_Customize_Control {
 				<legend class="title-day {{ ! data.includeTime ? 'screen-reader-text' : '' }}"><?php esc_html_e( '日期' ); ?></legend>
 				<div class="day-fields clear">
 					<?php ob_start(); ?>
-					<label for="{{ idPrefix }}date-time-month" class="screen-reader-text"><?php esc_html_e( '月' ); ?></label>
+					<label for="{{ idPrefix }}date-time-month" class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						esc_html_e( '月' );
+						?>
+					</label>
 					<select id="{{ idPrefix }}date-time-month" class="date-input month" data-component="month">
 						<# _.each( data.month_choices, function( choice ) {
 							if ( _.isObject( choice ) && ! _.isUndefined( choice.text ) && ! _.isUndefined( choice.value ) ) {
@@ -134,12 +145,22 @@ class GC_Customize_Date_Time_Control extends GC_Customize_Control {
 					<?php $month_field = trim( ob_get_clean() ); ?>
 
 					<?php ob_start(); ?>
-					<label for="{{ idPrefix }}date-time-day" class="screen-reader-text"><?php esc_html_e( '日' ); ?></label>
+					<label for="{{ idPrefix }}date-time-day" class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						esc_html_e( '日' );
+						?>
+					</label>
 					<input id="{{ idPrefix }}date-time-day" type="number" size="2" autocomplete="off" class="date-input day" data-component="day" min="1" max="31" />
 					<?php $day_field = trim( ob_get_clean() ); ?>
 
 					<?php ob_start(); ?>
-					<label for="{{ idPrefix }}date-time-year" class="screen-reader-text"><?php esc_html_e( '年' ); ?></label>
+					<label for="{{ idPrefix }}date-time-year" class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						esc_html_e( '年' );
+						?>
+					</label>
 					<input id="{{ idPrefix }}date-time-year" type="number" size="4" autocomplete="off" class="date-input year" data-component="year" min="{{ data.minYear }}" max="{{ data.maxYear }}">
 					<?php $year_field = trim( ob_get_clean() ); ?>
 
@@ -150,15 +171,30 @@ class GC_Customize_Date_Time_Control extends GC_Customize_Control {
 				<fieldset class="time-row clear">
 					<legend class="title-time"><?php esc_html_e( '时间' ); ?></legend>
 					<div class="time-fields clear">
-						<label for="{{ idPrefix }}date-time-hour" class="screen-reader-text"><?php esc_html_e( '时' ); ?></label>
+						<label for="{{ idPrefix }}date-time-hour" class="screen-reader-text">
+							<?php
+							/* translators: Hidden accessibility text. */
+							esc_html_e( '时' );
+							?>
+						</label>
 						<# var maxHour = data.twelveHourFormat ? 12 : 23; #>
 						<# var minHour = data.twelveHourFormat ? 1 : 0; #>
 						<input id="{{ idPrefix }}date-time-hour" type="number" size="2" autocomplete="off" class="date-input hour" data-component="hour" min="{{ minHour }}" max="{{ maxHour }}">
 						:
-						<label for="{{ idPrefix }}date-time-minute" class="screen-reader-text"><?php esc_html_e( '分' ); ?></label>
+						<label for="{{ idPrefix }}date-time-minute" class="screen-reader-text">
+							<?php
+							/* translators: Hidden accessibility text. */
+							esc_html_e( '分' );
+							?>
+						</label>
 						<input id="{{ idPrefix }}date-time-minute" type="number" size="2" autocomplete="off" class="date-input minute" data-component="minute" min="0" max="59">
 						<# if ( data.twelveHourFormat ) { #>
-							<label for="{{ idPrefix }}date-time-meridian" class="screen-reader-text"><?php esc_html_e( '子午线' ); ?></label>
+							<label for="{{ idPrefix }}date-time-meridian" class="screen-reader-text">
+								<?php
+								/* translators: Hidden accessibility text. */
+								esc_html_e( '子午线' );
+								?>
+							</label>
 							<select id="{{ idPrefix }}date-time-meridian" class="date-input meridian" data-component="meridian">
 								<option value="am"><?php esc_html_e( '上午' ); ?></option>
 								<option value="pm"><?php esc_html_e( '下午' ); ?></option>
@@ -177,6 +213,7 @@ class GC_Customize_Date_Time_Control extends GC_Customize_Control {
 	 *
 	 * Based on touch_time().
 	 *
+	 * @since 4.9.0
 	 *
 	 * @see touch_time()
 	 *
@@ -202,6 +239,7 @@ class GC_Customize_Date_Time_Control extends GC_Customize_Control {
 	/**
 	 * Get timezone info.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @return array {
 	 *     Timezone info. All properties are optional.
@@ -223,7 +261,7 @@ class GC_Customize_Date_Time_Control extends GC_Customize_Control {
 
 			if ( $tz ) {
 				$now                   = new DateTime( 'now', $tz );
-				$formatted_gmt_offset  = $this->format_gmt_offset( $tz->getOffset( $now ) / 3600 );
+				$formatted_gmt_offset  = $this->format_gmt_offset( $tz->getOffset( $now ) / HOUR_IN_SECONDS );
 				$tz_name               = str_replace( '_', ' ', $tz->getName() );
 				$timezone_info['abbr'] = $now->format( 'T' );
 
@@ -255,6 +293,7 @@ class GC_Customize_Date_Time_Control extends GC_Customize_Control {
 	/**
 	 * Format GMT Offset.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @see gc_timezone_choice()
 	 *

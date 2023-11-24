@@ -65,7 +65,7 @@ function gc_load_press_this() {
 			} else {
 				$action = sprintf(
 					/* translators: %s: URL to Press This bookmarklet on the main site. */
-					__( '“快速发布”并未安装，请从<a href="%s">主站点</a>安装“按这里”。' ),
+					__( '“快速发布”并未安装，请从<a href="%s">主系统</a>安装“按这里”。' ),
 					get_admin_url( get_current_network_id(), 'press-this.php' )
 				);
 			}
@@ -77,7 +77,7 @@ function gc_load_press_this() {
 		);
 	} else {
 		gc_die(
-			__( '“快速发布”不可用，请联系您的站点管理员。' ),
+			__( '“快速发布”不可用，请联系您的系统管理员。' ),
 			__( '需要安装' ),
 			200
 		);

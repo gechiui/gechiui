@@ -6,20 +6,22 @@
  *
  * @package GeChiUI
  * @subpackage Sitemaps
- *
+ * @since 5.5.0
  */
 
 /**
  * Class GC_Sitemaps_Provider.
  *
- *
+ * @since 5.5.0
  */
+#[AllowDynamicProperties]
 abstract class GC_Sitemaps_Provider {
 	/**
 	 * Provider name.
 	 *
 	 * This will also be used as the public-facing name in URLs.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @var string
 	 */
@@ -28,6 +30,7 @@ abstract class GC_Sitemaps_Provider {
 	/**
 	 * Object type name (e.g. 'post', 'term', 'user').
 	 *
+	 * @since 5.5.0
 	 *
 	 * @var string
 	 */
@@ -36,6 +39,7 @@ abstract class GC_Sitemaps_Provider {
 	/**
 	 * Gets a URL list for a sitemap.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param int    $page_num       Page of results.
 	 * @param string $object_subtype Optional. Object subtype name. Default empty.
@@ -46,6 +50,7 @@ abstract class GC_Sitemaps_Provider {
 	/**
 	 * Gets the max number of pages available for the object type.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $object_subtype Optional. Object subtype. Default empty.
 	 * @return int Total number of pages.
@@ -55,6 +60,7 @@ abstract class GC_Sitemaps_Provider {
 	/**
 	 * Gets data about each sitemap type.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return array[] Array of sitemap types including object subtype name and number of pages.
 	 */
@@ -63,8 +69,10 @@ abstract class GC_Sitemaps_Provider {
 
 		$object_subtypes = $this->get_object_subtypes();
 
-		// If there are no object subtypes, include a single sitemap for the
-		// entire object type.
+		/*
+		 * If there are no object subtypes, include a single sitemap for the
+		 * entire object type.
+		 */
 		if ( empty( $object_subtypes ) ) {
 			$sitemap_data[] = array(
 				'name'  => '',
@@ -91,6 +99,7 @@ abstract class GC_Sitemaps_Provider {
 	 *
 	 * The returned data is used to populate the sitemap entries of the index.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return array[] Array of sitemap entries.
 	 */
@@ -100,7 +109,7 @@ abstract class GC_Sitemaps_Provider {
 		$sitemap_types = $this->get_sitemap_type_data();
 
 		foreach ( $sitemap_types as $type ) {
-			for ( $page = 1; $page <= $type['pages']; $page ++ ) {
+			for ( $page = 1; $page <= $type['pages']; $page++ ) {
 				$sitemap_entry = array(
 					'loc' => $this->get_sitemap_url( $type['name'], $page ),
 				);
@@ -108,7 +117,7 @@ abstract class GC_Sitemaps_Provider {
 				/**
 				 * Filters the sitemap entry for the sitemap index.
 				 *
-			
+				 * @since 5.5.0
 				 *
 				 * @param array  $sitemap_entry  Sitemap entry for the post.
 				 * @param string $object_type    Object empty name.
@@ -128,6 +137,7 @@ abstract class GC_Sitemaps_Provider {
 	/**
 	 * Gets the URL of a sitemap entry.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
 	 *
@@ -162,6 +172,7 @@ abstract class GC_Sitemaps_Provider {
 	/**
 	 * Returns the list of supported object subtypes exposed by the provider.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return array List of object subtypes objects keyed by their name.
 	 */

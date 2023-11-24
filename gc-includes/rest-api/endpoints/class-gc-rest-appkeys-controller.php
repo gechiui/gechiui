@@ -4,21 +4,20 @@
  *
  * @package    GeChiUI
  * @subpackage REST_API
- *
+ * @since      5.6.0
  */
 
 /**
- * Core class to access a user's appkeys via the REST API.
- *
- *
+ * Core class to access a user's application passwords via the REST API.
  *
  * @see   GC_REST_Controller
  */
 class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 
 	/**
-	 * AppKeys controller constructor.
+	 * Application Passwords controller constructor.
 	 *
+	 * @since 5.6.0
 	 */
 	public function __construct() {
 		$this->namespace = 'gc/v2';
@@ -26,8 +25,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Registers the REST API routes for the appkeys controller.
+	 * Registers the REST API routes for the application passwords controller.
 	 *
+	 * @since 5.6.0
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -100,8 +100,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Checks if a given request has access to get appkeys.
+	 * Checks if a given request has access to get application passwords.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -125,8 +126,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Retrieves a collection of appkeys.
+	 * Retrieves a collection of application passwords.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -151,8 +153,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Checks if a given request has access to get a specific appkey.
+	 * Checks if a given request has access to get a specific application password.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access for the item, GC_Error object otherwise.
@@ -176,8 +179,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Retrieves one appkey from the collection.
+	 * Retrieves one application password from the collection.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -193,8 +197,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Checks if a given request has access to create appkeys.
+	 * Checks if a given request has access to create application passwords.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to create items, GC_Error object otherwise.
@@ -218,8 +223,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Creates an appkey.
+	 * Creates an application password.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -254,12 +260,13 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 		}
 
 		/**
-		 * Fires after a single appkey is completely created or updated via the REST API.
+		 * Fires after a single application password is completely created or updated via the REST API.
 		 *
+		 * @since 5.6.0
 		 *
 		 * @param array           $item     Inserted or updated password item.
 		 * @param GC_REST_Request $request  Request object.
-		 * @param bool            $creating True when creating an appkey, false when updating.
+		 * @param bool            $creating True when creating an application password, false when updating.
 		 */
 		do_action( 'rest_after_insert_appkey', $item, $request, true );
 
@@ -273,8 +280,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Checks if a given request has access to update appkeys.
+	 * Checks if a given request has access to update application passwords.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to create items, GC_Error object otherwise.
@@ -298,8 +306,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Updates an appkey.
+	 * Updates an application password.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -345,8 +354,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Checks if a given request has access to delete all appkeys for a user.
+	 * Checks if a given request has access to delete all application passwords for a user.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to delete the item, GC_Error object otherwise.
@@ -370,8 +380,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Deletes all appkeys for a user.
+	 * Deletes all application passwords for a user.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -398,8 +409,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Checks if a given request has access to delete a specific appkey for a user.
+	 * Checks if a given request has access to delete a specific application password for a user.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to delete the item, GC_Error object otherwise.
@@ -423,8 +435,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Deletes an appkey for a user.
+	 * Deletes an application password for a user.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -459,8 +472,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Checks if a given request has access to get the currently used appkey for a user.
+	 * Checks if a given request has access to get the currently used application password for a user.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access for the item, GC_Error object otherwise.
@@ -484,8 +498,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Retrieves the appkey being currently used for authentication of a user.
+	 * Retrieves the application password being currently used for authentication of a user.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -523,6 +538,7 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	/**
 	 * Performs a permissions check for the request.
 	 *
+	 * @since 5.6.0
 	 * @deprecated 5.7.0 Use `edit_user` directly or one of the specific meta capabilities introduced in 5.7.0.
 	 *
 	 * @param GC_REST_Request $request
@@ -549,8 +565,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Prepares an appkey for a create or update operation.
+	 * Prepares an application password for a create or update operation.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request Request object.
 	 * @return object|GC_Error The prepared item, or GC_Error object on failure.
@@ -565,18 +582,20 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 		}
 
 		/**
-		 * Filters an appkey before it is inserted via the REST API.
+		 * Filters an application password before it is inserted via the REST API.
 		 *
+		 * @since 5.6.0
 		 *
-		 * @param stdClass        $prepared An object representing a single appkey prepared for inserting or updating the database.
+		 * @param stdClass        $prepared An object representing a single application password prepared for inserting or updating the database.
 		 * @param GC_REST_Request $request  Request object.
 		 */
 		return apply_filters( 'rest_pre_insert_appkey', $prepared, $request );
 	}
 
 	/**
-	 * Prepares the appkey for the REST response.
+	 * Prepares the application password for the REST response.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param array           $item    GeChiUI representation of the item.
 	 * @param GC_REST_Request $request Request object.
@@ -588,6 +607,8 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 		if ( is_gc_error( $user ) ) {
 			return $user;
 		}
+
+		$fields = $this->get_fields_for_response( $request );
 
 		$prepared = array(
 			'uuid'      => $item['uuid'],
@@ -606,14 +627,18 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 		$prepared = $this->filter_response_by_context( $prepared, $request['context'] );
 
 		$response = new GC_REST_Response( $prepared );
-		$response->add_links( $this->prepare_links( $user, $item ) );
+
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$response->add_links( $this->prepare_links( $user, $item ) );
+		}
 
 		/**
-		 * Filters the REST API response for an appkey.
+		 * Filters the REST API response for an application password.
 		 *
+		 * @since 5.6.0
 		 *
 		 * @param GC_REST_Response $response The response object.
-		 * @param array            $item     The appkey array.
+		 * @param array            $item     The application password array.
 		 * @param GC_REST_Request  $request  The request object.
 		 */
 		return apply_filters( 'rest_prepare_appkey', $response, $item, $request );
@@ -622,15 +647,23 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares links for the request.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_User $user The requested user.
-	 * @param array   $item The appkey.
+	 * @param array   $item The application password.
 	 * @return array The list of links.
 	 */
 	protected function prepare_links( GC_User $user, $item ) {
 		return array(
 			'self' => array(
-				'href' => rest_url( sprintf( '%s/users/%d/appkeys/%s', $this->namespace, $user->ID, $item['uuid'] ) ),
+				'href' => rest_url(
+					sprintf(
+						'%s/users/%d/appkeys/%s',
+						$this->namespace,
+						$user->ID,
+						$item['uuid']
+					)
+				),
 			),
 		);
 	}
@@ -638,6 +671,7 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	/**
 	 * Gets the requested user.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request The request object.
 	 * @return GC_User|GC_Error The GeChiUI user associated with the request, or a GC_Error if none found.
@@ -683,14 +717,14 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 			return $error;
 		}
 
-		if ( is_multisite() && ! is_user_member_of_blog( $user->ID ) ) {
+		if ( is_multisite() && ! user_can( $user->ID, 'manage_sites' ) && ! is_user_member_of_blog( $user->ID ) ) {
 			return $error;
 		}
 
 		if ( ! gc_is_appkeys_available_for_user( $user ) ) {
 			return new GC_Error(
 				'appkeys_disabled_for_user',
-				__( '您的账户无法使用Appkey。请联系站点管理员以获得协助。' ),
+				__( '您的账户无法使用Appkey。请联系系统管理员以获得协助。' ),
 				array( 'status' => 501 )
 			);
 		}
@@ -699,11 +733,12 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Gets the requested appkey for a user.
+	 * Gets the requested application password for a user.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request The request object.
-	 * @return array|GC_Error The appkey details if found, a GC_Error otherwise.
+	 * @return array|GC_Error The application password details if found, a GC_Error otherwise.
 	 */
 	protected function get_appkey( $request ) {
 		$user = $this->get_user( $request );
@@ -728,6 +763,7 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the query params for the collections.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @return array Query parameters for the collection.
 	 */
@@ -738,8 +774,9 @@ class GC_REST_AppKeys_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Retrieves the appkey's schema, conforming to JSON Schema.
+	 * Retrieves the application password's schema, conforming to JSON Schema.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @return array Item schema data.
 	 */

@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/gc-list-revisions.js
+ * @output assets/js/gc-list-revisions.js
  */
 
 (function(w) {

@@ -26,7 +26,7 @@ if ( isset( $_GET['action'] ) ) {
 
 	if ( 'update-selected' === $action ) {
 		if ( ! current_user_can( 'update_plugins' ) ) {
-			gc_die( __( '抱歉，您不能在此站点上升级插件。' ) );
+			gc_die( __( '抱歉，您不能在此系统上升级插件。' ) );
 		}
 
 		check_admin_referer( 'bulk-update-plugins' );
@@ -54,7 +54,7 @@ if ( isset( $_GET['action'] ) ) {
 
 	} elseif ( 'upgrade-plugin' === $action ) {
 		if ( ! current_user_can( 'update_plugins' ) ) {
-			gc_die( __( '抱歉，您不能在此站点上升级插件。' ) );
+			gc_die( __( '抱歉，您不能在此系统上升级插件。' ) );
 		}
 
 		check_admin_referer( 'upgrade-plugin_' . $plugin );
@@ -77,7 +77,7 @@ if ( isset( $_GET['action'] ) ) {
 
 	} elseif ( 'activate-plugin' === $action ) {
 		if ( ! current_user_can( 'update_plugins' ) ) {
-			gc_die( __( '抱歉，您不能在此站点上升级插件。' ) );
+			gc_die( __( '抱歉，您不能在此系统上升级插件。' ) );
 		}
 
 		check_admin_referer( 'activate-plugin_' . $plugin );
@@ -104,7 +104,7 @@ if ( isset( $_GET['action'] ) ) {
 	} elseif ( 'install-plugin' === $action ) {
 
 		if ( ! current_user_can( 'install_plugins' ) ) {
-			gc_die( __( '抱歉，您不能在此站点上安装插件。' ) );
+			gc_die( __( '抱歉，您不能在此系统上安装插件。' ) );
 		}
 
 		include_once ABSPATH . 'gc-admin/includes/plugin-install.php'; // For plugins_api().
@@ -149,7 +149,7 @@ if ( isset( $_GET['action'] ) ) {
 	} elseif ( 'upload-plugin' === $action ) {
 
 		if ( ! current_user_can( 'upload_plugins' ) ) {
-			gc_die( __( '抱歉，您不能在此站点上安装插件。' ) );
+			gc_die( __( '抱歉，您不能在此系统上安装插件。' ) );
 		}
 
 		check_admin_referer( 'plugin-upload' );
@@ -183,7 +183,7 @@ if ( isset( $_GET['action'] ) ) {
 
 	} elseif ( 'upload-plugin-cancel-overwrite' === $action ) {
 		if ( ! current_user_can( 'upload_plugins' ) ) {
-			gc_die( __( '抱歉，您不能在此站点上安装插件。' ) );
+			gc_die( __( '抱歉，您不能在此系统上安装插件。' ) );
 		}
 
 		check_admin_referer( 'plugin-upload-cancel-overwrite' );
@@ -204,7 +204,7 @@ if ( isset( $_GET['action'] ) ) {
 	} elseif ( 'upgrade-theme' === $action ) {
 
 		if ( ! current_user_can( 'update_themes' ) ) {
-			gc_die( __( '抱歉，您不能在此站点上升级主题。' ) );
+			gc_die( __( '抱歉，您不能在此系统上升级主题。' ) );
 		}
 
 		check_admin_referer( 'upgrade-theme_' . $theme );
@@ -227,7 +227,7 @@ if ( isset( $_GET['action'] ) ) {
 		require_once ABSPATH . 'gc-admin/admin-footer.php';
 	} elseif ( 'update-selected-themes' === $action ) {
 		if ( ! current_user_can( 'update_themes' ) ) {
-			gc_die( __( '抱歉，您不能在此站点上升级主题。' ) );
+			gc_die( __( '抱歉，您不能在此系统上升级主题。' ) );
 		}
 
 		check_admin_referer( 'bulk-update-themes' );
@@ -255,7 +255,7 @@ if ( isset( $_GET['action'] ) ) {
 	} elseif ( 'install-theme' === $action ) {
 
 		if ( ! current_user_can( 'install_themes' ) ) {
-			gc_die( __( '抱歉，您不能在此站点上安装主题。' ) );
+			gc_die( __( '抱歉，您不能在此系统上安装主题。' ) );
 		}
 
 		include_once ABSPATH . 'gc-admin/includes/class-gc-upgrader.php'; // For themes_api().
@@ -297,7 +297,7 @@ if ( isset( $_GET['action'] ) ) {
 	} elseif ( 'upload-theme' === $action ) {
 
 		if ( ! current_user_can( 'upload_themes' ) ) {
-			gc_die( __( '抱歉，您不能在此站点上安装主题。' ) );
+			gc_die( __( '抱歉，您不能在此系统上安装主题。' ) );
 		}
 
 		check_admin_referer( 'theme-upload' );
@@ -331,7 +331,7 @@ if ( isset( $_GET['action'] ) ) {
 
 	} elseif ( 'upload-theme-cancel-overwrite' === $action ) {
 		if ( ! current_user_can( 'upload_themes' ) ) {
-			gc_die( __( '抱歉，您不能在此站点上安装主题。' ) );
+			gc_die( __( '抱歉，您不能在此系统上安装主题。' ) );
 		}
 
 		check_admin_referer( 'theme-upload-cancel-overwrite' );

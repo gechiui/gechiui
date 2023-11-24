@@ -4,14 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Core class used to implement an internal admin pointers API.
  *
- *
  */
+#[AllowDynamicProperties]
 final class GC_Internal_Pointers {
 	/**
 	 * Initializes the new feature pointers.
@@ -102,7 +101,7 @@ final class GC_Internal_Pointers {
 	}
 
 	/**
-	 * Print the pointer JavaScript data.
+	 * Prints the pointer JavaScript data.
 	 *
 	 *
 	 * @param string $pointer_id The pointer ID.

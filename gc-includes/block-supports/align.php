@@ -3,13 +3,11 @@
  * Align block support flag.
  *
  * @package GeChiUI
- * @since 5.6.0
  */
 
 /**
  * Registers the align block attribute for block types that support it.
  *
- * @since 5.6.0
  * @access private
  *
  * @param GC_Block_Type $block_type Block Type.
@@ -34,7 +32,6 @@ function gc_register_alignment_support( $block_type ) {
  * Adds CSS classes for block alignment to the incoming attributes array.
  * This will be applied to the block markup in the front-end.
  *
- * @since 5.6.0
  * @access private
  *
  * @param GC_Block_Type $block_type       Block Type.

@@ -6,19 +6,21 @@
  *
  * @package GeChiUI
  * @subpackage Sitemaps
- *
+ * @since 5.5.0
  */
 
 /**
  * Class GC_Sitemaps_Index.
  * Builds the sitemap index page that lists the links to all of the sitemaps.
  *
- *
+ * @since 5.5.0
  */
+#[AllowDynamicProperties]
 class GC_Sitemaps_Index {
 	/**
 	 * The main registry of supported sitemaps.
 	 *
+	 * @since 5.5.0
 	 * @var GC_Sitemaps_Registry
 	 */
 	protected $registry;
@@ -26,6 +28,7 @@ class GC_Sitemaps_Index {
 	/**
 	 * Maximum number of sitemaps to include in an index.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @var int Maximum number of sitemaps.
 	 */
@@ -34,6 +37,7 @@ class GC_Sitemaps_Index {
 	/**
 	 * GC_Sitemaps_Index constructor.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_Sitemaps_Registry $registry Sitemap provider registry.
 	 */
@@ -44,6 +48,7 @@ class GC_Sitemaps_Index {
 	/**
 	 * Gets a sitemap list for the index.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return array[] Array of all sitemaps.
 	 */
@@ -73,6 +78,7 @@ class GC_Sitemaps_Index {
 	/**
 	 * Builds the URL for the sitemap index.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
 	 *

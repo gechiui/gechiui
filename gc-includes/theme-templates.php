@@ -6,7 +6,7 @@
  * This is only needed for auto-drafts created by the regular GC editor.
  * If this page is to be removed, this will not be necessary.
  *
- *
+ * @since 5.9.0
  *
  * @param int $post_id Post ID.
  */
@@ -27,7 +27,7 @@ function gc_set_unique_slug_on_create_template_part( $post_id ) {
 
 	$terms = get_the_terms( $post_id, 'gc_theme' );
 	if ( ! is_array( $terms ) || ! count( $terms ) ) {
-		gc_set_post_terms( $post_id, gc_get_theme()->get_stylesheet(), 'gc_theme' );
+		gc_set_post_terms( $post_id, get_stylesheet(), 'gc_theme' );
 	}
 }
 
@@ -35,16 +35,16 @@ function gc_set_unique_slug_on_create_template_part( $post_id ) {
  * Generates a unique slug for templates.
  *
  * @access private
- *
+ * @since 5.8.0
  *
  * @param string $override_slug The filtered value of the slug (starts as `null` from apply_filter).
  * @param string $slug          The original/un-filtered slug (post_name).
- * @param int    $post_ID       Post ID.
+ * @param int    $post_id       Post ID.
  * @param string $post_status   No uniqueness checks are made if the post is still draft or pending.
  * @param string $post_type     Post type.
  * @return string The original, desired slug.
  */
-function gc_filter_gc_template_unique_post_slug( $override_slug, $slug, $post_ID, $post_status, $post_type ) {
+function gc_filter_gc_template_unique_post_slug( $override_slug, $slug, $post_id, $post_status, $post_type ) {
 	if ( 'gc_template' !== $post_type && 'gc_template_part' !== $post_type ) {
 		return $override_slug;
 	}
@@ -60,8 +60,8 @@ function gc_filter_gc_template_unique_post_slug( $override_slug, $slug, $post_ID
 	 * in the case of new entities since is too early in the process to have been saved
 	 * to the entity. So for now we use the currently activated theme for creation.
 	 */
-	$theme = gc_get_theme()->get_stylesheet();
-	$terms = get_the_terms( $post_ID, 'gc_theme' );
+	$theme = get_stylesheet();
+	$terms = get_the_terms( $post_id, 'gc_theme' );
 	if ( $terms && ! is_gc_error( $terms ) ) {
 		$theme = $terms[0]->name;
 	}
@@ -71,7 +71,7 @@ function gc_filter_gc_template_unique_post_slug( $override_slug, $slug, $post_ID
 		'post_type'      => $post_type,
 		'posts_per_page' => 1,
 		'no_found_rows'  => true,
-		'post__not_in'   => array( $post_ID ),
+		'post__not_in'   => array( $post_id ),
 		'tax_query'      => array(
 			array(
 				'taxonomy' => 'gc_theme',
@@ -102,11 +102,9 @@ function gc_filter_gc_template_unique_post_slug( $override_slug, $slug, $post_ID
  * Prints the skip-link script & styles.
  *
  * @access private
- *
+ * @since 5.8.0
  *
  * @global string $_gc_current_template_content
- *
- * @return void
  */
 function the_block_template_skip_link() {
 	global $_gc_current_template_content;
@@ -175,8 +173,10 @@ function the_block_template_skip_link() {
 			return;
 		}
 
-		// Get the site wrapper.
-		// The skip-link will be injected in the beginning of it.
+		/*
+		 * Get the site wrapper.
+		 * The skip-link will be injected in the beginning of it.
+		 */
 		sibling = document.querySelector( '.gc-site-blocks' );
 
 		// Early exit if the root element was not found.
@@ -195,7 +195,7 @@ function the_block_template_skip_link() {
 		skipLink = document.createElement( 'a' );
 		skipLink.classList.add( 'skip-link', 'screen-reader-text' );
 		skipLink.href = '#' + skipLinkTargetID;
-		skipLink.innerHTML = '<?php esc_html_e( '跳至内容' ); ?>';
+		skipLink.innerHTML = '<?php /* translators: Hidden accessibility text. */ esc_html_e( '跳至内容' ); ?>';
 
 		// Inject the skip link.
 		sibling.parentElement.insertBefore( skipLink, sibling );
@@ -208,10 +208,10 @@ function the_block_template_skip_link() {
  * Enables the block templates (editor mode) for themes with theme.json by default.
  *
  * @access private
- *
+ * @since 5.8.0
  */
 function gc_enable_block_templates() {
-	if ( gc_is_block_theme() || GC_Theme_JSON_Resolver::theme_has_support() ) {
+	if ( gc_is_block_theme() || gc_theme_has_theme_json() ) {
 		add_theme_support( 'block-templates' );
 	}
 }

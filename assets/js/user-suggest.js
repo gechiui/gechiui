@@ -6,8 +6,8 @@
  * only be used in a multisite environment. Only users in the currently active
  * site are shown.
  *
- *
- * @output gc-admin/js/user-suggest.js
+ * @since 3.4.0
+ * @output assets/js/user-suggest.js
  */
 
 /* global ajaxurl, current_site_id, isRtl */

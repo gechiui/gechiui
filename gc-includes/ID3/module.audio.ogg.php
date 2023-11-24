@@ -186,7 +186,7 @@ class getid3_ogg extends getid3_handler
 			if ($info['ogg']['pageheader']['theora']['pixel_aspect_denominator'] > 0) {
 				$info['video']['pixel_aspect_ratio'] = (float) $info['ogg']['pageheader']['theora']['pixel_aspect_numerator'] / $info['ogg']['pageheader']['theora']['pixel_aspect_denominator'];
 			}
-			$this->warning('Ogg Theora (v3) not fully supported in this version of getID3 ['.$this->getid3->version().'] -- bitrate, playtime and all audio data are currently unavailable');
+$this->warning('Ogg Theora (v3) not fully supported in this version of getID3 ['.$this->getid3->version().'] -- bitrate, playtime and all audio data are currently unavailable');
 
 
 		} elseif (substr($filedata, 0, 8) == "fishead\x00") {
@@ -897,7 +897,7 @@ class getid3_ogg extends getid3_handler
 		// http://www.theora.org/doc/Theora.pdf (table 6.3)
 		static $TheoraColorSpaceLookup = array();
 		if (empty($TheoraColorSpaceLookup)) {
-			$TheoraColorSpaceLookup[0] = '未定义';
+			$TheoraColorSpaceLookup[0] = 'Undefined';
 			$TheoraColorSpaceLookup[1] = 'Rec. 470M';
 			$TheoraColorSpaceLookup[2] = 'Rec. 470BG';
 			$TheoraColorSpaceLookup[3] = 'Reserved';

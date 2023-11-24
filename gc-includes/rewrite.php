@@ -9,13 +9,11 @@
 /**
  * Endpoint mask that matches nothing.
  *
- *
  */
 define( 'EP_NONE', 0 );
 
 /**
  * Endpoint mask that matches post permalinks.
- *
  *
  */
 define( 'EP_PERMALINK', 1 );
@@ -23,13 +21,11 @@ define( 'EP_PERMALINK', 1 );
 /**
  * Endpoint mask that matches attachment permalinks.
  *
- *
  */
 define( 'EP_ATTACHMENT', 2 );
 
 /**
  * Endpoint mask that matches any date archives.
- *
  *
  */
 define( 'EP_DATE', 4 );
@@ -37,13 +33,11 @@ define( 'EP_DATE', 4 );
 /**
  * Endpoint mask that matches yearly archives.
  *
- *
  */
 define( 'EP_YEAR', 8 );
 
 /**
  * Endpoint mask that matches monthly archives.
- *
  *
  */
 define( 'EP_MONTH', 16 );
@@ -51,20 +45,17 @@ define( 'EP_MONTH', 16 );
 /**
  * Endpoint mask that matches daily archives.
  *
- *
  */
 define( 'EP_DAY', 32 );
 
 /**
  * Endpoint mask that matches the site root.
  *
- *
  */
 define( 'EP_ROOT', 64 );
 
 /**
  * Endpoint mask that matches comment feeds.
- *
  *
  */
 define( 'EP_COMMENTS', 128 );
@@ -75,13 +66,11 @@ define( 'EP_COMMENTS', 128 );
  * Note that this only matches a search at a "pretty" URL such as
  * `/search/my-search-term`, not `?s=my-search-term`.
  *
- *
  */
 define( 'EP_SEARCH', 256 );
 
 /**
  * Endpoint mask that matches category archives.
- *
  *
  */
 define( 'EP_CATEGORIES', 512 );
@@ -89,13 +78,11 @@ define( 'EP_CATEGORIES', 512 );
 /**
  * Endpoint mask that matches tag archives.
  *
- *
  */
 define( 'EP_TAGS', 1024 );
 
 /**
  * Endpoint mask that matches author archives.
- *
  *
  */
 define( 'EP_AUTHORS', 2048 );
@@ -103,20 +90,17 @@ define( 'EP_AUTHORS', 2048 );
 /**
  * Endpoint mask that matches pages.
  *
- *
  */
 define( 'EP_PAGES', 4096 );
 
 /**
  * Endpoint mask that matches all archive views.
  *
- *
  */
 define( 'EP_ALL_ARCHIVES', EP_DATE | EP_YEAR | EP_MONTH | EP_DAY | EP_CATEGORIES | EP_TAGS | EP_AUTHORS );
 
 /**
  * Endpoint mask that matches everything.
- *
  *
  */
 define( 'EP_ALL', EP_PERMALINK | EP_ATTACHMENT | EP_ROOT | EP_COMMENTS | EP_SEARCH | EP_PAGES | EP_ALL_ARCHIVES );
@@ -126,9 +110,7 @@ define( 'EP_ALL', EP_PERMALINK | EP_ATTACHMENT | EP_ROOT | EP_COMMENTS | EP_SEAR
  *
  * Any value in the $after parameter that isn't 'bottom' will result in the rule
  * being placed at the top of the rewrite rules.
- *
- *
- *
+ * Array support was added to the `$query` parameter.
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
@@ -144,13 +126,11 @@ function add_rewrite_rule( $regex, $query, $after = 'bottom' ) {
 }
 
 /**
- * Add a new rewrite tag (like %postname%).
+ * Adds a new rewrite tag (like %postname%).
  *
  * The `$query` parameter is optional. If it is omitted you must ensure that you call
  * this on, or before, the {@see 'init'} hook. This is because `$query` defaults to
  * `$tag=`, and for this to work a new query var has to be added.
- *
- *
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  * @global GC         $gc         Current GeChiUI environment instance.
@@ -179,8 +159,6 @@ function add_rewrite_tag( $tag, $regex, $query = '' ) {
 /**
  * Removes an existing rewrite tag (like %postname%).
  *
- *
- *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
  * @param string $tag Name of the rewrite tag.
@@ -191,9 +169,7 @@ function remove_rewrite_tag( $tag ) {
 }
 
 /**
- * Add permalink structure.
- *
- *
+ * Adds a permalink structure.
  *
  * @see GC_Rewrite::add_permastruct()
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
@@ -210,7 +186,8 @@ function add_permastruct( $name, $struct, $args = array() ) {
 	if ( ! is_array( $args ) ) {
 		$args = array( 'with_front' => $args );
 	}
-	if ( func_num_args() == 4 ) {
+
+	if ( func_num_args() === 4 ) {
 		$args['ep_mask'] = func_get_arg( 3 );
 	}
 
@@ -222,8 +199,6 @@ function add_permastruct( $name, $struct, $args = array() ) {
  *
  * Can only be used to remove permastructs that were added using add_permastruct().
  * Built-in permastructs cannot be removed.
- *
- *
  *
  * @see GC_Rewrite::remove_permastruct()
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
@@ -237,17 +212,15 @@ function remove_permastruct( $name ) {
 }
 
 /**
- * Add a new feed type like /atom1/.
- *
- *
+ * Adds a new feed type like /atom1/.
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
  * @param string   $feedname Feed name.
- * @param callable $function Callback to run on feed display.
+ * @param callable $callback Callback to run on feed display.
  * @return string Feed action name.
  */
-function add_feed( $feedname, $function ) {
+function add_feed( $feedname, $callback ) {
 	global $gc_rewrite;
 
 	if ( ! in_array( $feedname, $gc_rewrite->feeds, true ) ) {
@@ -259,15 +232,13 @@ function add_feed( $feedname, $function ) {
 	// Remove default function hook.
 	remove_action( $hook, $hook );
 
-	add_action( $hook, $function, 10, 2 );
+	add_action( $hook, $callback, 10, 2 );
 
 	return $hook;
 }
 
 /**
- * Remove rewrite rules and then recreate rewrite rules.
- *
- *
+ * Removes rewrite rules and then recreate rewrite rules.
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
@@ -283,7 +254,7 @@ function flush_rewrite_rules( $hard = true ) {
 }
 
 /**
- * Add an endpoint, like /trackback/.
+ * Adds an endpoint, like /trackback/.
  *
  * Adding an endpoint creates extra rewrite rules for each of the matching
  * places specified by the provided bitmask. For example:
@@ -304,8 +275,7 @@ function flush_rewrite_rules( $hard = true ) {
  * Be sure to flush the rewrite rules - see flush_rewrite_rules() - when your plugin gets
  * activated and deactivated.
  *
- *
- *
+ * @since 4.3.0 Added support for skipping query var registration by passing `false` to `$query_var`.
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
@@ -343,7 +313,6 @@ function add_rewrite_endpoint( $name, $places, $query_var = true ) {
  *
  * @access private
  *
- *
  * @param string $base The taxonomy base that we're going to filter
  * @return string
  */
@@ -357,7 +326,7 @@ function _gc_filter_taxonomy_base( $base ) {
 
 
 /**
- * Resolve numeric slugs that collide with date permalinks.
+ * Resolves numeric slugs that collide with date permalinks.
  *
  * Permalinks of posts with numeric slugs can sometimes look to GC_Query::parse_query()
  * like a date archive, as when your permalink structure is `/%year%/%postname%/` and
@@ -371,7 +340,7 @@ function _gc_filter_taxonomy_base( $base ) {
  * function is primarily for legacy content, as well as cases when the admin has changed
  * the site's permalink structure in a way that introduces URL conflicts.
  *
- *
+ * @since 4.3.0
  *
  * @param array $query_vars Optional. Query variables for setting up the loop, as determined in
  *                          GC::parse_request(). Default empty array.
@@ -410,7 +379,10 @@ function gc_resolve_numeric_slug_conflicts( $query_vars = array() ) {
 	}
 
 	// This is the potentially clashing slug.
-	$value = $query_vars[ $compare ];
+	$value = '';
+	if ( $compare && array_key_exists( $compare, $query_vars ) ) {
+		$value = $query_vars[ $compare ];
+	}
 
 	$post = get_page_by_path( $value, OBJECT, 'post' );
 	if ( ! ( $post instanceof GC_Post ) ) {
@@ -473,11 +445,9 @@ function gc_resolve_numeric_slug_conflicts( $query_vars = array() ) {
 }
 
 /**
- * Examine a URL and try to determine the post ID it represents.
+ * Examines a URL and try to determine the post ID it represents.
  *
  * Checks are supposedly from the hosted site blog.
- *
- *
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  * @global GC         $gc         Current GeChiUI environment instance.
@@ -491,13 +461,27 @@ function url_to_postid( $url ) {
 	/**
 	 * Filters the URL to derive the post ID from.
 	 *
+	 * @since 2.2.0
 	 *
 	 * @param string $url The URL to derive the post ID from.
 	 */
 	$url = apply_filters( 'url_to_postid', $url );
 
-	$url_host      = str_replace( 'www.', '', parse_url( $url, PHP_URL_HOST ) );
-	$home_url_host = str_replace( 'www.', '', parse_url( home_url(), PHP_URL_HOST ) );
+	$url_host = parse_url( $url, PHP_URL_HOST );
+
+	if ( is_string( $url_host ) ) {
+		$url_host = str_replace( 'www.', '', $url_host );
+	} else {
+		$url_host = '';
+	}
+
+	$home_url_host = parse_url( home_url(), PHP_URL_HOST );
+
+	if ( is_string( $home_url_host ) ) {
+		$home_url_host = str_replace( 'www.', '', $home_url_host );
+	} else {
+		$home_url_host = '';
+	}
 
 	// Bail early if the URL does not belong to this site.
 	if ( $url_host && $url_host !== $home_url_host ) {
@@ -525,12 +509,12 @@ function url_to_postid( $url ) {
 	$url    = set_url_scheme( $url, $scheme );
 
 	// Add 'www.' if it is absent and should be there.
-	if ( false !== strpos( home_url(), '://www.' ) && false === strpos( $url, '://www.' ) ) {
+	if ( str_contains( home_url(), '://www.' ) && ! str_contains( $url, '://www.' ) ) {
 		$url = str_replace( '://', '://www.', $url );
 	}
 
 	// Strip 'www.' if it is present and shouldn't be.
-	if ( false === strpos( home_url(), '://www.' ) ) {
+	if ( ! str_contains( home_url(), '://www.' ) ) {
 		$url = str_replace( '://www.', '://', $url );
 	}
 
@@ -555,7 +539,7 @@ function url_to_postid( $url ) {
 		$url = str_replace( $gc_rewrite->index . '/', '', $url );
 	}
 
-	if ( false !== strpos( trailingslashit( $url ), home_url( '/' ) ) ) {
+	if ( str_contains( trailingslashit( $url ), home_url( '/' ) ) ) {
 		// Chop off http://domain.com/[path].
 		$url = str_replace( home_url(), '', $url );
 	} else {
@@ -581,9 +565,11 @@ function url_to_postid( $url ) {
 	$request_match = $request;
 	foreach ( (array) $rewrite as $match => $query ) {
 
-		// If the requesting file is the anchor of the match,
-		// prepend it to the path info.
-		if ( ! empty( $url ) && ( $url != $request ) && ( strpos( $match, $url ) === 0 ) ) {
+		/*
+		 * If the requesting file is the anchor of the match,
+		 * prepend it to the path info.
+		 */
+		if ( ! empty( $url ) && ( $url !== $request ) && str_starts_with( $match, $url ) ) {
 			$request_match = $url . '/' . $request;
 		}
 
@@ -603,8 +589,10 @@ function url_to_postid( $url ) {
 				}
 			}
 
-			// Got a match.
-			// Trim the query of everything up to the '?'.
+			/*
+			 * Got a match.
+			 * Trim the query of everything up to the '?'.
+			 */
 			$query = preg_replace( '!^.+\?!', '', $query );
 
 			// Substitute the substring matches into the query.

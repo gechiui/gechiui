@@ -38,8 +38,8 @@ body.js .theme-browser.search-loading {
 }
 
 /* Position admin messages */
-.theme .notice,
-.theme .notice.is-dismissible {
+.theme .alert,
+.theme .alert.is-dismissible {
   left: 0;
   margin: 0;
   position: absolute;
@@ -120,16 +120,14 @@ body.js .theme-browser.search-loading {
   display: block;
   overflow: hidden;
   position: relative;
-  -webkit-backface-visibility: hidden;
-  /* Prevents flicker of the screenshot on hover. */
+  -webkit-backface-visibility: hidden; /* Prevents flicker of the screenshot on hover. */
   transition: opacity 0.2s ease-in-out;
 }
 
 .theme-browser .theme .theme-screenshot:after {
   content: "";
   display: block;
-  padding-top: 66.66666%;
-  /* using a 3/2 aspect ratio */
+  padding-top: 66.66666%; /* using a 3/2 aspect ratio */
 }
 
 .theme-browser .theme .theme-screenshot img {
@@ -171,6 +169,7 @@ body.js .theme-browser.search-loading {
   border-radius: 3px;
   border: none;
   transition: opacity 0.1s ease-in-out;
+  cursor: pointer;
 }
 
 .theme-browser .theme .more-details:focus {
@@ -367,8 +366,7 @@ body.js .theme-browser.search-loading {
   bottom: 0;
   background: #f0f0f1;
   background: rgba(240, 240, 241, 0.9);
-  z-index: 10000;
-  /* Over GC Pointers. */
+  z-index: 10000; /* Over GC Pointers. */
 }
 
 .theme-overlay .theme-header {
@@ -475,8 +473,7 @@ body.js .theme-browser.search-loading {
   bottom: 3%;
   background: #fff;
   box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
-  z-index: 10000;
-  /* Over GC Pointers. */
+  z-index: 10000; /* Over GC Pointers. */
   box-sizing: border-box;
   -webkit-overflow-scrolling: touch;
 }
@@ -560,8 +557,7 @@ body.folded .theme-browser ~ .theme-overlay .theme-wrap {
   float: left;
   margin: 0 30px 0 0;
   width: 55%;
-  max-width: 1200px;
-  /* Recommended theme screenshot width, set here to avoid stretching */
+  max-width: 1200px; /* Recommended theme screenshot width, set here to avoid stretching */
   text-align: center;
 }
 
@@ -577,8 +573,7 @@ body.folded .theme-browser ~ .theme-overlay .theme-wrap {
 .theme-overlay .screenshot:after {
   content: "";
   display: block;
-  padding-top: 75%;
-  /* using a 4/3 aspect ratio */
+  padding-top: 75%; /* using a 4/3 aspect ratio */
 }
 
 .theme-overlay .screenshot img {
@@ -615,8 +610,7 @@ body.folded .theme-browser ~ .theme-overlay .theme-wrap {
 .theme-overlay .screenshot.thumb:after {
   content: "";
   display: block;
-  padding-top: 100%;
-  /* using a 1/1 aspect ratio */
+  padding-top: 100%; /* using a 1/1 aspect ratio */
 }
 
 .theme-overlay .screenshot.thumb img {
@@ -696,8 +690,7 @@ body.folded .theme-browser ~ .theme-overlay .theme-wrap {
   display: inline-flex;
   align-items: center;
   /* Prevents content after the auto-update toggler from jumping down and up. */
-  min-height: 20px;
-  /* Same height as the spinning dashicon. */
+  min-height: 20px; /* Same height as the spinning dashicon. */
   vertical-align: top;
 }
 
@@ -786,12 +779,10 @@ body.folded .theme-browser ~ .theme-overlay .theme-wrap {
     width: 17.6%;
     margin: 0 3% 3% 0;
   }
-
   #gcwrap .theme-browser .theme:nth-child(3n),
-#gcwrap .theme-browser .theme:nth-child(4n) {
+  #gcwrap .theme-browser .theme:nth-child(4n) {
     margin-right: 3%;
   }
-
   #gcwrap .theme-browser .theme:nth-child(5n) {
     margin-right: 0;
   }
@@ -808,16 +799,12 @@ body.folded .theme-browser ~ .theme-overlay .theme-wrap {
     width: 22.7%;
     margin: 0 3% 3% 0;
   }
-
   .theme-browser .theme .theme-screenshot:after {
-    padding-top: 75%;
-    /* using a 4/3 aspect ratio */
+    padding-top: 75%; /* using a 4/3 aspect ratio */
   }
-
   .theme-browser .theme:nth-child(3n) {
     margin-right: 3%;
   }
-
   .theme-browser .theme:nth-child(4n) {
     margin-right: 0;
   }
@@ -828,11 +815,9 @@ body.folded .theme-browser ~ .theme-overlay .theme-wrap {
     width: 47.5%;
     margin-right: 0;
   }
-
   .theme-browser .theme:nth-child(even) {
     margin-right: 0;
   }
-
   .theme-browser .theme:nth-child(odd) {
     margin-right: 5%;
   }
@@ -843,62 +828,51 @@ body.folded .theme-browser ~ .theme-overlay .theme-wrap {
     left: 65px;
   }
 }
-@media only screen and (max-width: 780px) {
+@media only screen and (max-width: 782px) {
   body.folded .theme-overlay .theme-wrap,
-.theme-overlay .theme-wrap {
-    top: 0;
-    /* The adminmenu isn't fixed on mobile, so this can use the full viewport height */
+  .theme-overlay .theme-wrap {
+    top: 0; /* The adminmenu isn't fixed on mobile, so this can use the full viewport height */
     right: 0;
     bottom: 0;
     left: 0;
     padding: 70px 20px 20px;
     border: none;
-    z-index: 100000;
-    /* should overlap #gcadminbar. */
+    z-index: 100000; /* should overlap #gcadminbar. */
     position: fixed;
   }
-
   .theme-browser .theme.active .theme-name span {
     /* Hide the "Active: " label on smaller screens. */
     display: none;
   }
-
   .theme-overlay .theme-screenshots {
     width: 40%;
   }
-
   .theme-overlay .theme-info {
     width: 50%;
   }
-
   .single-theme .theme-wrap {
     padding: 10px;
   }
-
   .theme-browser .theme .theme-actions {
     padding: 5px 10px 4px;
   }
-
   .theme-overlay.small-screenshot .theme-screenshots {
     position: static;
     float: none;
     max-width: 302px;
   }
-
   .theme-overlay.small-screenshot .theme-info {
     margin-left: 0;
     width: auto;
   }
-
   .theme:not(.active):hover .theme-actions,
-.theme:not(.active):focus .theme-actions,
-.theme:hover .more-details,
-.theme.focus .more-details {
+  .theme:not(.active):focus .theme-actions,
+  .theme:hover .more-details,
+  .theme.focus .more-details {
     display: none;
   }
-
   .theme-browser.rendered .theme:hover .theme-screenshot img,
-.theme-browser.rendered .theme.focus .theme-screenshot img {
+  .theme-browser.rendered .theme.focus .theme-screenshot img {
     opacity: 1;
   }
 }
@@ -907,16 +881,13 @@ body.folded .theme-browser ~ .theme-overlay .theme-wrap {
     width: 100%;
     margin-right: 0;
   }
-
   .theme-browser .theme:nth-child(2n),
-.theme-browser .theme:nth-child(3n) {
+  .theme-browser .theme:nth-child(3n) {
     margin-right: 0;
   }
-
   .theme-overlay .theme-about {
     bottom: 105px;
   }
-
   .theme-overlay .theme-actions {
     padding-left: 4%;
     padding-right: 4%;
@@ -926,35 +897,28 @@ body.folded .theme-browser ~ .theme-overlay .theme-wrap {
   .theme-overlay .theme-description {
     margin-left: 0;
   }
-
   .theme-overlay .theme-actions .delete-theme {
     position: relative;
     right: auto;
     bottom: auto;
   }
-
   .theme-overlay .theme-actions .inactive-theme {
     display: inline;
   }
-
   .theme-overlay .theme-screenshots {
     width: 100%;
     float: none;
   }
-
   .theme-overlay .theme-info {
     width: 100%;
   }
-
   .theme-overlay .theme-author {
     margin: 5px 0 15px;
   }
-
   .theme-overlay .current-label {
     margin-top: 10px;
     font-size: 13px;
   }
-
   .themes-php .gc-filter-search {
     float: none;
     clear: both;
@@ -964,7 +928,6 @@ body.folded .theme-browser ~ .theme-overlay .theme-wrap {
     width: 100%;
     max-width: 280px;
   }
-
   .theme-browser .theme.add-new-theme span:after {
     font: normal 60px/90px dashicons;
     width: 80px;
@@ -974,21 +937,17 @@ body.folded .theme-browser ~ .theme-overlay .theme-wrap {
     text-indent: 0;
     margin-left: -40px;
   }
-
   .single-theme .theme-wrap {
     margin: 0 -12px 0 -10px;
     padding: 10px;
   }
-
   .single-theme .theme-overlay .theme-about {
     padding: 10px;
     overflow: visible;
   }
-
   .single-theme .current-label {
     display: none;
   }
-
   .single-theme .theme-overlay .theme-actions {
     position: static;
   }
@@ -1086,8 +1045,7 @@ body.folded .theme-browser ~ .theme-overlay .theme-wrap {
 
 .upload-theme .install-help,
 .upload-plugin .install-help {
-  color: #50575e;
-  /* #f1f1f1 background */
+  color: #50575e; /* #f1f1f1 background */
   font-size: 18px;
   font-style: normal;
   margin: 0;
@@ -1120,7 +1078,6 @@ p.no-themes-local {
     margin: 20px 0;
     max-width: 100%;
   }
-
   .upload-theme .install-help {
     font-size: 15px;
     padding: 20px 0 0;
@@ -1398,7 +1355,6 @@ body.full-overlay-active {
   .gc-full-overlay.expanded {
     margin-left: 18%;
   }
-
   .gc-full-overlay.collapsed .gc-full-overlay-sidebar {
     margin-left: -18%;
   }
@@ -1407,7 +1363,6 @@ body.full-overlay-active {
   .gc-full-overlay.expanded {
     margin-left: 600px;
   }
-
   .gc-full-overlay.collapsed .gc-full-overlay-sidebar {
     margin-left: -600px;
   }
@@ -1581,8 +1536,7 @@ body.full-overlay-active {
 .gc-full-overlay .collapse-sidebar-arrow {
   width: 20px;
   height: 20px;
-  margin: 0 2px;
-  /* avoid the focus box-shadow to be cut-off */
+  margin: 0 2px; /* avoid the focus box-shadow to be cut-off */
   border-radius: 50%;
   overflow: hidden;
 }
@@ -1618,8 +1572,7 @@ body.full-overlay-active {
 /* rtl:ignore */
 .gc-full-overlay.collapsed .collapse-sidebar-arrow:before,
 .rtl .gc-full-overlay .collapse-sidebar-arrow:before {
-  transform: rotate(180.001deg);
-  /* Firefox: promoting to its own layer to trigger anti-aliasing */
+  transform: rotate(180.001deg); /* Firefox: promoting to its own layer to trigger anti-aliasing */
 }
 
 .rtl .gc-full-overlay.collapsed .collapse-sidebar-arrow:before {
@@ -1750,8 +1703,7 @@ body.full-overlay-active {
 
 .preview-tablet .gc-full-overlay-main {
   margin: auto 0 auto -360px;
-  width: 720px;
-  /* Size is loosely based on a typical "tablet" device size. Intentionally ambiguous - this does not represent any particular device precisely. */
+  width: 720px; /* Size is loosely based on a typical "tablet" device size. Intentionally ambiguous - this does not represent any particular device precisely. */
   height: 1080px;
   max-height: 100%;
   max-width: 100%;
@@ -1800,7 +1752,7 @@ body.full-overlay-active {
 #customize-container iframe,
 .theme-install-overlay iframe {
   height: 100%;
-  width: 100vw;
+  width: 100%;
   z-index: 20;
   transition: opacity 0.3s;
 }
@@ -1846,6 +1798,22 @@ body.full-overlay-active {
   margin: 15px 0;
   width: 258px;
   border: 1px solid #c3c4c7;
+  position: relative;
+  overflow: hidden;
+}
+
+.install-theme-info .theme-screenshot > img {
+  width: 100%;
+  height: auto;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.install-theme-info .theme-screenshot:after {
+  content: "";
+  display: block;
+  padding-top: 66.66666666%;
 }
 
 .install-theme-info .theme-details {
@@ -1917,16 +1885,15 @@ body.full-overlay-active {
 /**
  * HiDPI Displays
  */
-@media print, (-webkit-min-device-pixel-ratio: 1.25), (min-resolution: 120dpi) {
+@media print, (min-resolution: 120dpi) {
   .gc-full-overlay .collapse-sidebar-arrow {
     background-image: url(../images/arrows-2x.png);
     background-size: 15px 123px;
   }
-
   #customize-preview.gc-full-overlay-main:before,
-.customize-loading #customize-container:before,
-#customize-controls .notice.notification-overlay.notification-loading:before,
-.theme-install-overlay .gc-full-overlay-main:before {
+  .customize-loading #customize-container:before,
+  #customize-controls .notice.notification-overlay.notification-loading:before,
+  .theme-install-overlay .gc-full-overlay-main:before {
     background-image: url(../images/spinner-2x.gif);
   }
 }
@@ -1937,41 +1904,35 @@ body.full-overlay-active {
     padding: 0;
     clear: both;
   }
-
   .available-theme .action-links .delete-theme a {
     padding: 0;
   }
-
   .broken-themes table {
     width: 100%;
   }
-
   .theme-install-overlay .gc-full-overlay-header .button {
     font-size: 13px;
     line-height: 2.15384615;
     min-height: 30px;
   }
-
   .theme-browser .theme .theme-actions .button {
     margin-bottom: 0;
   }
-
   .theme-browser .theme.active .theme-actions,
-.theme-browser .theme .theme-actions {
+  .theme-browser .theme .theme-actions {
     padding-top: 4px;
     padding-bottom: 4px;
   }
-
   .upload-theme .gc-upload-form,
-.upload-plugin .gc-upload-form {
+  .upload-plugin .gc-upload-form {
     display: block;
   }
 }
 @media aural {
   .theme .notice:before,
-.theme-info .updating-message:before,
-.theme-info .updated-message:before,
-.theme-install.updating-message:before {
+  .theme-info .updating-message:before,
+  .theme-info .updated-message:before,
+  .theme-install.updating-message:before {
     speak: never;
   }
 }

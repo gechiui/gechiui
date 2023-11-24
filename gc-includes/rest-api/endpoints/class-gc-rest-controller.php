@@ -4,19 +4,19 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core base controller for managing and interacting with REST API items.
  *
- *
  */
+#[AllowDynamicProperties]
 abstract class GC_REST_Controller {
 
 	/**
 	 * The namespace of this controller's route.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	protected $namespace;
@@ -24,6 +24,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * The base of this controller's route.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	protected $rest_base;
@@ -31,6 +32,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Cached results of get_item_schema.
 	 *
+	 * @since 5.3.0
 	 * @var array
 	 */
 	protected $schema;
@@ -38,6 +40,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Registers the routes for the objects of the controller.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @see register_rest_route()
 	 */
@@ -53,6 +56,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to get items.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -69,6 +73,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Retrieves a collection of items.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -85,6 +90,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to get a specific item.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access for the item, GC_Error object otherwise.
@@ -101,6 +107,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Retrieves one item from the collection.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -117,6 +124,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to create items.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to create items, GC_Error object otherwise.
@@ -133,6 +141,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Creates one item from the collection.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -149,6 +158,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to update a specific item.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to update the item, GC_Error object otherwise.
@@ -165,6 +175,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Updates one item from the collection.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -181,6 +192,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to delete a specific item.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to delete the item, GC_Error object otherwise.
@@ -197,6 +209,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Deletes one item from the collection.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -213,6 +226,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Prepares one item for create or update operation.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Request object.
 	 * @return object|GC_Error The prepared item, or GC_Error object on failure.
@@ -229,6 +243,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Prepares the item for the REST response.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param mixed           $item    GeChiUI representation of the item.
 	 * @param GC_REST_Request $request Request object.
@@ -246,6 +261,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Prepares a response for insertion into a collection.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Response $response Response object.
 	 * @return array|mixed Response data, ready for insertion into collection data.
@@ -269,21 +285,23 @@ abstract class GC_REST_Controller {
 	/**
 	 * Filters a response based on the context defined in the schema.
 	 *
+	 * @since 4.7.0
 	 *
-	 * @param array  $data    Response data to filter.
-	 * @param string $context Context defined in the schema.
+	 * @param array  $response_data Response data to filter.
+	 * @param string $context       Context defined in the schema.
 	 * @return array Filtered response.
 	 */
-	public function filter_response_by_context( $data, $context ) {
+	public function filter_response_by_context( $response_data, $context ) {
 
 		$schema = $this->get_item_schema();
 
-		return rest_filter_response_by_context( $data, $schema, $context );
+		return rest_filter_response_by_context( $response_data, $schema, $context );
 	}
 
 	/**
 	 * Retrieves the item's schema, conforming to JSON Schema.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Item schema data.
 	 */
@@ -294,6 +312,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Retrieves the item's schema for display / public consumption purposes.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Public item schema data.
 	 */
@@ -313,6 +332,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Retrieves the query params for the collections.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Query parameters for the collection.
 	 */
@@ -350,6 +370,7 @@ abstract class GC_REST_Controller {
 	 *
 	 * Ensures consistent descriptions between endpoints, and populates enum from schema.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array $args Optional. Additional arguments for context parameter. Default empty array.
 	 * @return array Context parameter details.
@@ -387,12 +408,13 @@ abstract class GC_REST_Controller {
 	/**
 	 * Adds the values from additional fields to a data object.
 	 *
+	 * @since 4.7.0
 	 *
-	 * @param array           $prepared Prepared response array.
-	 * @param GC_REST_Request $request  Full details about the request.
+	 * @param array           $response_data Prepared response array.
+	 * @param GC_REST_Request $request       Full details about the request.
 	 * @return array Modified data object with additional fields.
 	 */
-	protected function add_additional_fields_to_object( $prepared, $request ) {
+	protected function add_additional_fields_to_object( $response_data, $request ) {
 
 		$additional_fields = $this->get_additional_fields();
 
@@ -407,21 +429,28 @@ abstract class GC_REST_Controller {
 				continue;
 			}
 
-			$prepared[ $field_name ] = call_user_func( $field_options['get_callback'], $prepared, $field_name, $request, $this->get_object_type() );
+			$response_data[ $field_name ] = call_user_func(
+				$field_options['get_callback'],
+				$response_data,
+				$field_name,
+				$request,
+				$this->get_object_type()
+			);
 		}
 
-		return $prepared;
+		return $response_data;
 	}
 
 	/**
 	 * Updates the values of additional fields added to a data object.
 	 *
+	 * @since 4.7.0
 	 *
-	 * @param object          $object  Data model like GC_Term or GC_Post.
-	 * @param GC_REST_Request $request Full details about the request.
+	 * @param object          $data_object Data model like GC_Term or GC_Post.
+	 * @param GC_REST_Request $request     Full details about the request.
 	 * @return true|GC_Error True on success, GC_Error object if a field cannot be updated.
 	 */
-	protected function update_additional_fields_for_object( $object, $request ) {
+	protected function update_additional_fields_for_object( $data_object, $request ) {
 		$additional_fields = $this->get_additional_fields();
 
 		foreach ( $additional_fields as $field_name => $field_options ) {
@@ -434,7 +463,14 @@ abstract class GC_REST_Controller {
 				continue;
 			}
 
-			$result = call_user_func( $field_options['update_callback'], $request[ $field_name ], $object, $field_name, $request, $this->get_object_type() );
+			$result = call_user_func(
+				$field_options['update_callback'],
+				$request[ $field_name ],
+				$data_object,
+				$field_name,
+				$request,
+				$this->get_object_type()
+			);
 
 			if ( is_gc_error( $result ) ) {
 				return $result;
@@ -449,6 +485,7 @@ abstract class GC_REST_Controller {
 	 *
 	 * The type of object is inferred from the passed schema.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array $schema Schema array.
 	 * @return array Modified Schema array.
@@ -477,6 +514,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Retrieves all of the registered additional fields for a given object-type.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @global array $gc_rest_additional_fields Holds registered fields, organized by object type.
 	 *
@@ -505,6 +543,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Retrieves the object type this controller is responsible for managing.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return string Object type for the controller.
 	 */
@@ -523,6 +562,7 @@ abstract class GC_REST_Controller {
 	 *
 	 * Included fields are based on item schema and `_fields=` request argument.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return string[] Fields to be included in the response.
@@ -534,8 +574,10 @@ abstract class GC_REST_Controller {
 		$additional_fields = $this->get_additional_fields();
 
 		foreach ( $additional_fields as $field_name => $field_options ) {
-			// For back-compat, include any field with an empty schema
-			// because it won't be present in $this->get_item_schema().
+			/*
+			 * For back-compat, include any field with an empty schema
+			 * because it won't be present in $this->get_item_schema().
+			 */
 			if ( is_null( $field_options['schema'] ) ) {
 				$properties[ $field_name ] = $field_options;
 			}
@@ -552,6 +594,18 @@ abstract class GC_REST_Controller {
 		}
 
 		$fields = array_keys( $properties );
+
+		/*
+		 * '_links' and '_embedded' are not typically part of the item schema,
+		 * but they can be specified in '_fields', so they are added here as a
+		 * convenience for checking with rest_is_field_included().
+		 */
+		$fields[] = '_links';
+		if ( $request->has_param( '_embed' ) ) {
+			$fields[] = '_embedded';
+		}
+
+		$fields = array_unique( $fields );
 
 		if ( ! isset( $request['_fields'] ) ) {
 			return $fields;
@@ -576,8 +630,10 @@ abstract class GC_REST_Controller {
 				}
 				// Check for nested fields if $field is not a direct match.
 				$nested_fields = explode( '.', $field );
-				// A nested field is included so long as its top-level property
-				// is present in the schema.
+				/*
+				 * A nested field is included so long as its top-level property
+				 * is present in the schema.
+				 */
 				if ( in_array( $nested_fields[0], $fields, true ) ) {
 					$response_fields[] = $field;
 				}
@@ -590,6 +646,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Retrieves an array of endpoint arguments from the item schema for the controller.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string $method Optional. HTTP method of the request. The arguments for `CREATABLE` requests are
 	 *                       checked for required values and may fall-back to a given default, this is not done
@@ -603,6 +660,7 @@ abstract class GC_REST_Controller {
 	/**
 	 * Sanitizes the slug value.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @internal We can't use sanitize_title() directly, as the second
 	 * parameter is the fallback title, which would end up being set to the

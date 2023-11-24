@@ -26,7 +26,6 @@ if ( force_ssl_admin() && ! is_ssl() ) {
  * Output the login page header.
  *
  *
- *
  * @global string      $error         Login error message set by deprecated pluggable gc_login() function
  *                                    or plugins replacing it.
  * @global bool|string $interim_login Whether interim login modal is being displayed. String 'success'
@@ -116,43 +115,6 @@ function login_header( $title = '登录', $message = '', $gc_error = null ) {
 	 */
 	do_action( 'login_head' );
 
-	$login_header_url = __( 'https://www.gechiui.com/' );
-
-	/**
-	 * Filters link URL of the header logo above login form.
-	 *
-	 *
-	 * @param string $login_header_url Login header logo URL.
-	 */
-	$login_header_url = apply_filters( 'login_headerurl', $login_header_url );
-
-	$login_header_title = '';
-
-	/**
-	 * Filters the title attribute of the header logo above login form.
-	 *
-	 * @deprecated 5.2.0 Use {@see 'login_headertext'} instead.
-	 *
-	 * @param string $login_header_title Login header logo title attribute.
-	 */
-	$login_header_title = apply_filters_deprecated(
-		'login_headertitle',
-		array( $login_header_title ),
-		'5.2.0',
-		'login_headertext',
-		__( '出于无障碍访问的考虑，我们不推荐在登录 logo 上使用 title 属性。请改用链接文字。' )
-	);
-
-	$login_header_text = empty( $login_header_title ) ? __( '基于GeChiUI' ) : $login_header_title;
-
-	/**
-	 * Filters the link text of the header logo above the login form.
-	 *
-	 *
-	 * @param string $login_header_text The login header logo link text.
-	 */
-	$login_header_text = apply_filters( 'login_headertext', $login_header_text );
-
 	$classes = array( 'login-action-' . $action, 'gc-core-ui' );
 
 	if ( is_rtl() ) {
@@ -204,9 +166,11 @@ function login_header( $title = '登录', $message = '', $gc_error = null ) {
                         <div class="col-md-7 col-lg-6 m-h-auto">
 		                    <div class="text-center m-b-20">
                             <?php
-                                //站点LOGO，默认GeChiUI的LOGO
-                                if ( function_exists( 'the_custom_logo' ) ) {
+                                //系统LOGO，默认GeChiUI的LOGO
+                                if ( has_custom_logo() ) {
                                     the_custom_logo();
+                                }else{
+                                	echo '<img class="img" src="/assets/images/logo/logo.png">';
                                 }
                             ?>
                             </div>
@@ -272,7 +236,6 @@ function login_header( $title = '登录', $message = '', $gc_error = null ) {
  * Outputs the footer for the login page.
  *
  *
- *
  * @global bool|string $interim_login Whether interim login modal is being displayed. String 'success'
  *                                    upon successful login.
  *
@@ -326,7 +289,6 @@ function login_footer( $input_id = '' ) {
 		/**
 		 * Filters the Languages select input activation on the login screen.
 		 *
-		 *
 		 * @param bool Whether to display the Languages select input on the login screen.
 		 */
 		apply_filters( 'login_display_language_dropdown', true )
@@ -375,7 +337,7 @@ function login_footer( $input_id = '' ) {
 						<input type="hidden" name="action" value="<?php echo esc_attr( $_GET['action'] ); ?>" />
 					<?php } ?>
 
-						<input type="submit" class="button" value="<?php esc_attr_e( '更改' ); ?>">
+						<input type="submit" class="btn btn-primary btn-tone btn-sm" value="<?php esc_attr_e( '更改' ); ?>">
 
 					</form>
 				</div>
@@ -408,7 +370,6 @@ function login_footer( $input_id = '' ) {
 /**
  * Outputs the JavaScript to handle the form shaking on the login page.
  *
- *
  */
 function gc_shake_js() {
 	?>
@@ -420,7 +381,6 @@ function gc_shake_js() {
 
 /**
  * Outputs the viewport meta tag for the login page.
- *
  *
  */
 function gc_login_viewport_meta() {
@@ -497,7 +457,6 @@ if ( isset( $_GET['gc_lang'] ) ) {
 /**
  * Fires when the login form is initialized.
  *
- *
  */
 do_action( 'login_init' );
 
@@ -522,7 +481,6 @@ do_action( 'login_init' );
  *  - `login_form_retrievepassword`
  *  - `login_form_rp`
  *
- *
  */
 do_action( "login_form_{$action}" );
 
@@ -531,7 +489,6 @@ $interim_login = isset( $_REQUEST['interim-login'] );
 
 /**
  * Filters the separator used between login form navigation links.
- *
  *
  *
  * @param string $login_link_separator The separator used between login form navigation links.
@@ -554,6 +511,7 @@ switch ( $action ) {
 		exit;
 
 	case 'logout':
+		// 退出登录
 		require_once 'src/login/logout.php';
 		exit;
 

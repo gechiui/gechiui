@@ -4,14 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Core class used to implement displaying links in a list table.
- *
- *
- * @access private
  *
  * @see GC_List_Table
  */
@@ -124,14 +120,15 @@ class GC_Links_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * @return array
+	 * @return string[] Array of column titles keyed by their column name.
 	 */
 	public function get_columns() {
 		return array(
 			'cb'         => '<input type="checkbox" />',
 			'name'       => _x( '名称', 'link name' ),
 			'url'        => __( 'URL' ),
-			'categories' => __( '分类' ),
+			'categories' => __( '分类目录' ),
+			'rel'        => __( '关系' ),
 			'visible'    => __( '可见性' ),
 			'rating'     => __( '评级' ),
 		);
@@ -142,16 +139,17 @@ class GC_Links_List_Table extends GC_List_Table {
 	 */
 	protected function get_sortable_columns() {
 		return array(
-			'name'    => 'name',
-			'url'     => 'url',
-			'visible' => 'visible',
-			'rating'  => 'rating',
+			'name'    => array( 'name', false, _x( '名称', 'link name' ), __( '表格按名称排序。' ), 'asc' ),
+			'url'     => array( 'url', false, __( 'URL' ), __( '表格按 URL 排序。' ) ),
+			'visible' => array( 'visible', false, __( '可见性' ), __( '表格按可见性排序。' ) ),
+			'rating'  => array( 'rating', false, __( '评级' ), __( '表格按评级排序。' ) ),
 		);
 	}
 
 	/**
-	 * Get the name of the default primary column.
+	 * Gets the name of the default primary column.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @return string Name of the default primary column, in this case, 'name'.
 	 */
@@ -162,6 +160,8 @@ class GC_Links_List_Table extends GC_List_Table {
 	/**
 	 * Handles the checkbox column output.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$link` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param object $item The current link object.
 	 */
@@ -170,11 +170,13 @@ class GC_Links_List_Table extends GC_List_Table {
 		$link = $item;
 
 		?>
-		<label class="screen-reader-text" for="cb-select-<?php echo $link->link_id; ?>">
+		<label class="label-covers-full-cell" for="cb-select-<?php echo $link->link_id; ?>">
+			<span class="screen-reader-text">
 			<?php
-			/* translators: %s: Link name. */
+			/* translators: Hidden accessibility text. %s: Link name. */
 			printf( __( '选择%s' ), $link->link_name );
 			?>
+			</span>
 		</label>
 		<input type="checkbox" name="linkcheck[]" id="cb-select-<?php echo $link->link_id; ?>" value="<?php echo esc_attr( $link->link_id ); ?>" />
 		<?php
@@ -183,6 +185,7 @@ class GC_Links_List_Table extends GC_List_Table {
 	/**
 	 * Handles the link name column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param object $link The current link object.
 	 */
@@ -192,7 +195,7 @@ class GC_Links_List_Table extends GC_List_Table {
 			'<strong><a class="row-title" href="%s" aria-label="%s">%s</a></strong>',
 			$edit_link,
 			/* translators: %s: Link name. */
-			esc_attr( sprintf( __( '编辑“%s”' ), $link->link_name ) ),
+			esc_attr( sprintf( __( '编辑『%s』' ), $link->link_name ) ),
 			$link->link_name
 		);
 	}
@@ -200,6 +203,7 @@ class GC_Links_List_Table extends GC_List_Table {
 	/**
 	 * Handles the link URL column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param object $link The current link object.
 	 */
@@ -211,6 +215,7 @@ class GC_Links_List_Table extends GC_List_Table {
 	/**
 	 * Handles the link categories column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @global int $cat_id
 	 *
@@ -237,6 +242,7 @@ class GC_Links_List_Table extends GC_List_Table {
 	/**
 	 * Handles the link relation column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param object $link The current link object.
 	 */
@@ -247,6 +253,7 @@ class GC_Links_List_Table extends GC_List_Table {
 	/**
 	 * Handles the link visibility column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param object $link The current link object.
 	 */
@@ -261,6 +268,7 @@ class GC_Links_List_Table extends GC_List_Table {
 	/**
 	 * Handles the link rating column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param object $link The current link object.
 	 */
@@ -271,6 +279,8 @@ class GC_Links_List_Table extends GC_List_Table {
 	/**
 	 * Handles the default column output.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$link` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param object $item        Link object.
 	 * @param string $column_name Current column name.
@@ -279,6 +289,7 @@ class GC_Links_List_Table extends GC_List_Table {
 		/**
 		 * Fires for each registered custom link column.
 		 *
+		 * @since 2.1.0
 		 *
 		 * @param string $column_name Name of the custom column.
 		 * @param int    $link_id     Link ID.
@@ -302,6 +313,8 @@ class GC_Links_List_Table extends GC_List_Table {
 	/**
 	 * Generates and displays row action links.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$link` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param object $item        Link being acted upon.
 	 * @param string $column_name Current column name.
@@ -324,7 +337,7 @@ class GC_Links_List_Table extends GC_List_Table {
 			'<a class="submitdelete" href="%s" onclick="return confirm( \'%s\' );">%s</a>',
 			gc_nonce_url( "link.php?action=delete&amp;link_id=$link->link_id", 'delete-bookmark_' . $link->link_id ),
 			/* translators: %s: Link name. */
-			esc_js( sprintf( __( "您将要删除此链接 '%s'\n  “取消”停止，“确定”删除。" ), $link->link_name ) ),
+			esc_js( sprintf( __( "您将删除链接『%s』\n按『取消』停止，按『确定』删除。" ), $link->link_name ) ),
 			__( '删除' )
 		);
 

@@ -86,8 +86,7 @@ label {
   background-size: 84px;
   background-position: center top;
   background-repeat: no-repeat;
-  color: #3c434a;
-  /* same as login.css */
+  color: #3c434a; /* same as login.css */
   font-size: 20px;
   font-weight: 400;
   line-height: 1.3em;
@@ -134,7 +133,7 @@ textarea {
   font-size: 14px;
   text-align: left;
   padding: 10px 20px 10px 0;
-  width: 140px;
+  width: 115px;
   vertical-align: top;
 }
 
@@ -148,10 +147,28 @@ textarea {
   font-size: 11px;
 }
 
+.form-table .setup-description {
+  margin: 4px 0 0;
+  line-height: 1.6;
+}
+
 .form-table input {
   line-height: 1.33333333;
   font-size: 15px;
   padding: 3px 5px;
+}
+
+.gc-pwd {
+  margin-top: 0;
+}
+
+.form-table .gc-pwd {
+  display: flex;
+  column-gap: 4px;
+}
+
+.form-table .password-input-wrapper {
+  width: 100%;
 }
 
 input,
@@ -164,7 +181,7 @@ submit {
 .form-table input[type=url],
 .form-table input[type=password],
 #pass-strength-result {
-  width: 218px;
+  width: 100%;
 }
 
 .form-table th p {
@@ -239,7 +256,6 @@ body.rtl,
   body {
     margin-top: 115px;
   }
-
   #logo a {
     margin: -125px auto 30px;
   }
@@ -248,36 +264,31 @@ body.rtl,
   .form-table {
     margin-top: 0;
   }
-
   .form-table th,
-.form-table td {
+  .form-table td {
     display: block;
     width: auto;
     vertical-align: middle;
   }
-
   .form-table th {
     padding: 20px 0 0;
   }
-
   .form-table td {
     padding: 5px 0;
     border: 0;
     margin: 0;
   }
-
   textarea,
-input {
+  input {
     font-size: 16px;
   }
-
   .form-table td input[type=text],
-.form-table td input[type=email],
-.form-table td input[type=url],
-.form-table td input[type=password],
-.form-table td select,
-.form-table td textarea,
-.form-table span.description {
+  .form-table td input[type=email],
+  .form-table td input[type=url],
+  .form-table td input[type=password],
+  .form-table td select,
+  .form-table td textarea,
+  .form-table span.description {
     width: 100%;
     font-size: 16px;
     line-height: 1.5;
@@ -286,15 +297,15 @@ input {
     max-width: none;
     box-sizing: border-box;
   }
-
+  #pwd {
+    padding-right: 2.5rem;
+  }
   .gc-pwd #pass1 {
     padding-right: 50px;
   }
-
   .gc-pwd .button.gc-hide-pw {
     right: 0;
   }
-
   #pass-strength-result {
     width: 100%;
   }
@@ -368,7 +379,7 @@ body.language-chooser {
 /**
  * HiDPI Displays
  */
-@media print, (-webkit-min-device-pixel-ratio: 1.25), (min-resolution: 120dpi) {
+@media print, (min-resolution: 120dpi) {
   .spinner {
     background-image: url(../images/spinner-2x.gif);
   }

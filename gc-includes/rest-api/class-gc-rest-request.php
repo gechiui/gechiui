@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
@@ -14,7 +13,7 @@
  *
  * Note: This implements ArrayAccess, and acts as an array of parameters when
  * used in that manner. It does not use ArrayObject (as we cannot rely on SPL),
- * so be aware it may have non-array behaviour in some cases.
+ * so be aware it may have non-array behavior in some cases.
  *
  * Note: When using features provided by ArrayAccess, be aware that GeChiUI deliberately
  * does not distinguish between arguments of the same name for different request methods.
@@ -22,15 +21,15 @@
  * 2 (`POST`) not 1 (`GET`). For more precision between request methods, use
  * GC_REST_Request::get_body_params(), GC_REST_Request::get_url_params(), etc.
  *
- *
- *
  * @link https://www.php.net/manual/en/class.arrayaccess.php
  */
+#[AllowDynamicProperties]
 class GC_REST_Request implements ArrayAccess {
 
 	/**
 	 * HTTP method.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	protected $method = '';
@@ -41,6 +40,7 @@ class GC_REST_Request implements ArrayAccess {
 	 * These typically come from the `$_GET`, `$_POST` and `$_FILES`
 	 * superglobals when being created from the global scope.
 	 *
+	 * @since 4.4.0
 	 * @var array Contains GET, POST and FILES keys mapping to arrays of data.
 	 */
 	protected $params;
@@ -48,6 +48,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * HTTP headers for the request.
 	 *
+	 * @since 4.4.0
 	 * @var array Map of key to value. Key is always lowercase, as per HTTP specification.
 	 */
 	protected $headers = array();
@@ -55,6 +56,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Body data.
 	 *
+	 * @since 4.4.0
 	 * @var string Binary data from the request.
 	 */
 	protected $body = null;
@@ -62,6 +64,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Route matched for the request.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	protected $route;
@@ -72,6 +75,7 @@ class GC_REST_Request implements ArrayAccess {
 	 * This is the options array used when the route was registered, typically
 	 * containing the callback as well as the valid methods for the route.
 	 *
+	 * @since 4.4.0
 	 * @var array Attributes for the request.
 	 */
 	protected $attributes = array();
@@ -81,6 +85,7 @@ class GC_REST_Request implements ArrayAccess {
 	 *
 	 * Allows lazy-parsing of JSON data where possible.
 	 *
+	 * @since 4.4.0
 	 * @var bool
 	 */
 	protected $parsed_json = false;
@@ -88,6 +93,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Used to determine if the body data has been parsed yet.
 	 *
+	 * @since 4.4.0
 	 * @var bool
 	 */
 	protected $parsed_body = false;
@@ -95,6 +101,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $method     Optional. Request method. Default empty.
 	 * @param string $route      Optional. Request route. Default empty.
@@ -121,6 +128,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Retrieves the HTTP method for the request.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return string HTTP method.
 	 */
@@ -131,6 +139,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Sets HTTP method for the request.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $method HTTP method.
 	 */
@@ -141,6 +150,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Retrieves all headers from the request.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return array Map of key to value. Key is always lowercase, as per HTTP specification.
 	 */
@@ -161,6 +171,7 @@ class GC_REST_Request implements ArrayAccess {
 	 * @link https://www.nginx.com/resources/wiki/start/topics/tutorials/config_pitfalls/#missing-disappearing-http-headers
 	 * @link https://nginx.org/en/docs/http/ngx_http_core_module.html#underscores_in_headers
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $key Header name.
 	 * @return string Canonicalized name.
@@ -179,6 +190,7 @@ class GC_REST_Request implements ArrayAccess {
 	 * as per the HTTP specification. Be aware that some non-compliant headers
 	 * (notably cookie headers) cannot be joined this way.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $key Header name, will be canonicalized to lowercase.
 	 * @return string|null String value if set, null otherwise.
@@ -196,6 +208,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Retrieves header values from the request.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $key Header name, will be canonicalized to lowercase.
 	 * @return array|null List of string values if set, null otherwise.
@@ -213,6 +226,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Sets the header on request.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $key   Header name.
 	 * @param string $value Header value, or list of values.
@@ -227,6 +241,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Appends a header value for the given header.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $key   Header name.
 	 * @param string $value Header value, or list of values.
@@ -245,6 +260,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Removes all values for a header.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $key Header name.
 	 */
@@ -256,6 +272,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Sets headers on the request.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $headers  Map of header name to value.
 	 * @param bool  $override If true, replace the request's headers. Otherwise, merge with existing.
@@ -271,15 +288,16 @@ class GC_REST_Request implements ArrayAccess {
 	}
 
 	/**
-	 * Retrieves the content-type of the request.
+	 * Retrieves the Content-Type of the request.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return array|null Map containing 'value' and 'parameters' keys
-	 *                    or null when no valid content-type header was
+	 *                    or null when no valid Content-Type header was
 	 *                    available.
 	 */
 	public function get_content_type() {
-		$value = $this->get_header( 'content-type' );
+		$value = $this->get_header( 'Content-Type' );
 		if ( empty( $value ) ) {
 			return null;
 		}
@@ -290,7 +308,7 @@ class GC_REST_Request implements ArrayAccess {
 		}
 
 		$value = strtolower( $value );
-		if ( false === strpos( $value, '/' ) ) {
+		if ( ! str_contains( $value, '/' ) ) {
 			return null;
 		}
 
@@ -304,10 +322,11 @@ class GC_REST_Request implements ArrayAccess {
 	}
 
 	/**
-	 * Checks if the request has specified a JSON content-type.
+	 * Checks if the request has specified a JSON Content-Type.
 	 *
+	 * @since 5.6.0
 	 *
-	 * @return bool True if the content-type header is JSON.
+	 * @return bool True if the Content-Type header is JSON.
 	 */
 	public function is_json_content_type() {
 		$content_type = $this->get_content_type();
@@ -320,6 +339,7 @@ class GC_REST_Request implements ArrayAccess {
 	 *
 	 * Used when checking parameters in GC_REST_Request::get_param().
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return string[] Array of types to check, in order of priority.
 	 */
@@ -354,6 +374,7 @@ class GC_REST_Request implements ArrayAccess {
 		 * The order affects which parameters are checked when using GC_REST_Request::get_param()
 		 * and family. This acts similarly to PHP's `request_order` setting.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param string[]        $order   Array of types to check, in order of priority.
 		 * @param GC_REST_Request $request The request object.
@@ -364,6 +385,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Retrieves a parameter from the request.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $key Parameter name.
 	 * @return mixed|null Value if set, null otherwise.
@@ -387,6 +409,7 @@ class GC_REST_Request implements ArrayAccess {
 	 * This allows distinguishing between an omitted parameter,
 	 * and a parameter specifically set to null.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @param string $key Parameter name.
 	 * @return bool True if a param exists for the given key.
@@ -410,6 +433,7 @@ class GC_REST_Request implements ArrayAccess {
 	 * otherwise a new param will be created in the first parameter type (respecting
 	 * get_parameter_order()).
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $key   Parameter name.
 	 * @param mixed  $value Parameter value.
@@ -436,6 +460,7 @@ class GC_REST_Request implements ArrayAccess {
 	 * The equivalent of get_param(), but returns all parameters for the request.
 	 * Handles merging all the available values into a single array.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return array Map of key to value.
 	 */
@@ -445,8 +470,10 @@ class GC_REST_Request implements ArrayAccess {
 
 		$params = array();
 		foreach ( $order as $type ) {
-			// array_merge() / the "+" operator will mess up
-			// numeric keys, so instead do a manual foreach.
+			/*
+			 * array_merge() / the "+" operator will mess up
+			 * numeric keys, so instead do a manual foreach.
+			 */
 			foreach ( (array) $this->params[ $type ] as $key => $value ) {
 				$params[ $key ] = $value;
 			}
@@ -460,6 +487,7 @@ class GC_REST_Request implements ArrayAccess {
 	 *
 	 * These are parsed from the URL using the regex.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return array Parameter map of key to value.
 	 */
@@ -472,6 +500,7 @@ class GC_REST_Request implements ArrayAccess {
 	 *
 	 * Typically, this is set after parsing the URL.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $params Parameter map of key to value.
 	 */
@@ -484,6 +513,7 @@ class GC_REST_Request implements ArrayAccess {
 	 *
 	 * These are the parameters you'd typically find in `$_GET`.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return array Parameter map of key to value
 	 */
@@ -496,6 +526,7 @@ class GC_REST_Request implements ArrayAccess {
 	 *
 	 * Typically, this is set from `$_GET`.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $params Parameter map of key to value.
 	 */
@@ -508,6 +539,7 @@ class GC_REST_Request implements ArrayAccess {
 	 *
 	 * These are the parameters you'd typically find in `$_POST`.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return array Parameter map of key to value.
 	 */
@@ -520,6 +552,7 @@ class GC_REST_Request implements ArrayAccess {
 	 *
 	 * Typically, this is set from `$_POST`.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $params Parameter map of key to value.
 	 */
@@ -532,6 +565,7 @@ class GC_REST_Request implements ArrayAccess {
 	 *
 	 * These are the parameters you'd typically find in `$_FILES`.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return array Parameter map of key to value
 	 */
@@ -544,6 +578,7 @@ class GC_REST_Request implements ArrayAccess {
 	 *
 	 * Typically, this is set from `$_FILES`.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $params Parameter map of key to value.
 	 */
@@ -556,6 +591,7 @@ class GC_REST_Request implements ArrayAccess {
 	 *
 	 * These are the parameters set in the route registration.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return array Parameter map of key to value
 	 */
@@ -568,6 +604,7 @@ class GC_REST_Request implements ArrayAccess {
 	 *
 	 * These are the parameters set in the route registration.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $params Parameter map of key to value.
 	 */
@@ -578,6 +615,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Retrieves the request body content.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return string Binary data from the request body.
 	 */
@@ -588,6 +626,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Sets body content.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $data Binary data from the request body.
 	 */
@@ -603,6 +642,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Retrieves the parameters from a JSON-formatted body.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return array Parameter map of key to value.
 	 */
@@ -618,6 +658,8 @@ class GC_REST_Request implements ArrayAccess {
 	 *
 	 * Avoids parsing the JSON data until we need to access it.
 	 *
+	 * @since 4.4.0
+	 * @since 4.7.0 Returns error instance if value cannot be decoded.
 	 * @return true|GC_Error True if the JSON data was passed or no JSON data was provided, GC_Error if invalid JSON was passed.
 	 */
 	protected function parse_json_params() {
@@ -666,6 +708,7 @@ class GC_REST_Request implements ArrayAccess {
 	 * Parses out URL-encoded bodies for request methods that aren't supported
 	 * natively by PHP. In PHP 5.x, only POST has these parsed automatically.
 	 *
+	 * @since 4.4.0
 	 */
 	protected function parse_body_params() {
 		if ( $this->parsed_body ) {
@@ -675,7 +718,7 @@ class GC_REST_Request implements ArrayAccess {
 		$this->parsed_body = true;
 
 		/*
-		 * Check that we got URL-encoded. Treat a missing content-type as
+		 * Check that we got URL-encoded. Treat a missing Content-Type as
 		 * URL-encoded for maximum compatibility.
 		 */
 		$content_type = $this->get_content_type();
@@ -696,6 +739,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Retrieves the route that matched the request.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return string Route matching regex.
 	 */
@@ -706,6 +750,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Sets the route that matched the request.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $route Route matching regex.
 	 */
@@ -718,6 +763,7 @@ class GC_REST_Request implements ArrayAccess {
 	 *
 	 * These are the options for the route that was matched.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return array Attributes for the request.
 	 */
@@ -728,6 +774,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Sets the attributes for the request.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $attributes Attributes for the request.
 	 */
@@ -741,6 +788,7 @@ class GC_REST_Request implements ArrayAccess {
 	 * This is primarily based off the sanitize_callback param on each registered
 	 * argument.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return true|GC_Error True if parameters were sanitized, GC_Error if an error occurred during sanitization.
 	 */
@@ -809,6 +857,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Checks whether this request is valid according to its attributes.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return true|GC_Error True if there are no parameters to validate or if all pass validation,
 	 *                       GC_Error if required parameters are missing.
@@ -903,6 +952,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Checks if a parameter is set.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $offset Parameter name.
 	 * @return bool Whether the parameter is set.
@@ -923,6 +973,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Retrieves a parameter from the request.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $offset Parameter name.
 	 * @return mixed|null Value if set, null otherwise.
@@ -935,6 +986,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Sets a parameter on the request.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $offset Parameter name.
 	 * @param mixed  $value  Parameter value.
@@ -947,6 +999,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Removes a parameter from the request.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $offset Parameter name.
 	 */
@@ -963,6 +1016,7 @@ class GC_REST_Request implements ArrayAccess {
 	/**
 	 * Retrieves a GC_REST_Request object from a full URL.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param string $url URL with protocol, domain, path and query args.
 	 * @return GC_REST_Request|false GC_REST_Request object on success, false on failure.
@@ -976,7 +1030,7 @@ class GC_REST_Request implements ArrayAccess {
 		}
 
 		$api_root = rest_url();
-		if ( get_option( 'permalink_structure' ) && 0 === strpos( $url, $api_root ) ) {
+		if ( get_option( 'permalink_structure' ) && str_starts_with( $url, $api_root ) ) {
 			// Pretty permalinks on, and URL is under the API root.
 			$api_url_part = substr( $url, strlen( untrailingslashit( $api_root ) ) );
 			$route        = parse_url( $api_url_part, PHP_URL_PATH );
@@ -995,6 +1049,7 @@ class GC_REST_Request implements ArrayAccess {
 		/**
 		 * Filters the REST API request generated from a URL.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @param GC_REST_Request|false $request Generated request object, or false if URL
 		 *                                       could not be parsed.

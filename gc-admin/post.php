@@ -17,7 +17,7 @@ $submenu_file = 'edit.php';
 gc_reset_vars( array( 'action' ) );
 
 if ( isset( $_GET['post'] ) && isset( $_POST['post_ID'] ) && (int) $_GET['post'] !== (int) $_POST['post_ID'] ) {
-	gc_die( __( '检测到不匹配的文章ID。' ), __( '抱歉，您不能编辑此项目。' ), 400 );
+	gc_die( __( '检测到文章ID不匹配。' ), __( '很抱歉，不允许您编辑此项目。' ), 400 );
 } elseif ( isset( $_GET['post'] ) ) {
 	$post_id = (int) $_GET['post'];
 } elseif ( isset( $_POST['post_ID'] ) ) {
@@ -44,7 +44,7 @@ if ( $post ) {
 }
 
 if ( isset( $_POST['post_type'] ) && $post && $post_type !== $_POST['post_type'] ) {
-	gc_die( __( '检测到文章类型不匹配。' ), __( '抱歉，您不能编辑此项目。' ), 400 );
+	gc_die( __( '检测到文章类型不匹配。' ), __( '很抱歉，不允许您编辑此项目。' ), 400 );
 }
 
 if ( isset( $_POST['deletepost'] ) ) {
@@ -55,8 +55,8 @@ if ( isset( $_POST['deletepost'] ) ) {
 
 $sendback = gc_get_referer();
 if ( ! $sendback ||
-	false !== strpos( $sendback, 'post.php' ) ||
-	false !== strpos( $sendback, 'post-new.php' ) ) {
+	str_contains( $sendback, 'post.php' ) ||
+	str_contains( $sendback, 'post-new.php' ) ) {
 	if ( 'attachment' === $post_type ) {
 		$sendback = admin_url( 'upload.php' );
 	} else {
@@ -79,7 +79,7 @@ switch ( $action ) {
 		require_once ABSPATH . 'gc-admin/includes/dashboard.php';
 
 		if ( ! gc_verify_nonce( $nonce, 'add-post' ) ) {
-			$error_msg = __( '无法提交此表单，请刷新并重试。' );
+			$error_msg = __( '无法提交，请刷新并重试。' );
 		}
 
 		if ( ! current_user_can( get_post_type_object( 'post' )->cap->create_posts ) ) {
@@ -97,7 +97,7 @@ switch ( $action ) {
 		$_POST['ping_status']    = get_default_comment_status( $post->post_type, 'pingback' );
 
 		// Wrap Quick Draft content in the Paragraph block.
-		if ( false === strpos( $_POST['content'], '<!-- gc:paragraph -->' ) ) {
+		if ( ! str_contains( $_POST['content'], '<!-- gc:paragraph -->' ) ) {
 			$_POST['content'] = sprintf(
 				'<!-- gc:paragraph -->%s<!-- /gc:paragraph -->',
 				str_replace( array( "\r\n", "\r", "\n" ), '<br />', $_POST['content'] )
@@ -124,7 +124,7 @@ switch ( $action ) {
 		}
 
 		if ( ! $post ) {
-			gc_die( __( '您正在试图编辑一个不存在的条目。它已被删除？' ) );
+			gc_die( __( '您试图编辑一个不存在的项目。也许它被删除了？' ) );
 		}
 
 		if ( ! $post_type_object ) {
@@ -136,11 +136,11 @@ switch ( $action ) {
 		}
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			gc_die( __( '抱歉，您不能编辑此项目。' ) );
+			gc_die( __( '很抱歉，不允许您编辑此项目。' ) );
 		}
 
 		if ( 'trash' === $post->post_status ) {
-			gc_die( __( '您无法编辑该条目，因为它现在在回收站中。请先将其恢复，然后再重试。' ) );
+			gc_die( __( '您无法编辑此项目，因为它在垃圾箱中。请还原它，然后重试。' ) );
 		}
 
 		if ( ! empty( $_GET['get-post-lock'] ) ) {
@@ -174,6 +174,7 @@ switch ( $action ) {
 		/**
 		 * Allows replacement of the editor.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param bool    $replace Whether to replace the editor. Default false.
 		 * @param GC_Post $post    Post object.
@@ -238,7 +239,7 @@ switch ( $action ) {
 		check_admin_referer( 'trash-post_' . $post_id );
 
 		if ( ! $post ) {
-			gc_die( __( '您试图移动到回收站的项目已不存在。' ) );
+			gc_die( __( '您试图移动到垃圾箱的项目已不存在。' ) );
 		}
 
 		if ( ! $post_type_object ) {
@@ -246,18 +247,18 @@ switch ( $action ) {
 		}
 
 		if ( ! current_user_can( 'delete_post', $post_id ) ) {
-			gc_die( __( '抱歉，您不能移动此项目到回收站。' ) );
+			gc_die( __( '很抱歉，您不允许将此项目移动到垃圾箱。' ) );
 		}
 
 		$user_id = gc_check_post_lock( $post_id );
 		if ( $user_id ) {
 			$user = get_userdata( $user_id );
 			/* translators: %s: User's display name. */
-			gc_die( sprintf( __( '您不能移动此项目到回收站。%s正在编辑。' ), $user->display_name ) );
+			gc_die( sprintf( __( '您无法将此项目移动到垃圾箱。%s当前正在编辑。' ), $user->display_name ) );
 		}
 
 		if ( ! gc_trash_post( $post_id ) ) {
-			gc_die( __( '将项目移至回收站时发生错误。' ) );
+			gc_die( __( 'Error in moving the item to Trash.' ) );
 		}
 
 		gc_redirect(
@@ -275,7 +276,7 @@ switch ( $action ) {
 		check_admin_referer( 'untrash-post_' . $post_id );
 
 		if ( ! $post ) {
-			gc_die( __( '您试图从回收站恢复的项目已不存在。' ) );
+			gc_die( __( '您试图从垃圾箱中恢复的项目已不存在。' ) );
 		}
 
 		if ( ! $post_type_object ) {
@@ -283,11 +284,11 @@ switch ( $action ) {
 		}
 
 		if ( ! current_user_can( 'delete_post', $post_id ) ) {
-			gc_die( __( '抱歉，您不能从回收站还原此项目。' ) );
+			gc_die( __( '很抱歉，您不允许从垃圾箱中还原此项目。' ) );
 		}
 
 		if ( ! gc_untrash_post( $post_id ) ) {
-			gc_die( __( '从回收站恢复时发生错误。' ) );
+			gc_die( __( '从回收站还原项目时出错。' ) );
 		}
 
 		$sendback = add_query_arg(
@@ -312,7 +313,7 @@ switch ( $action ) {
 		}
 
 		if ( ! current_user_can( 'delete_post', $post_id ) ) {
-			gc_die( __( '抱歉，您不能删除此项目。' ) );
+			gc_die( __( '很抱歉，您不允许删除此项目。' ) );
 		}
 
 		if ( 'attachment' === $post->post_type ) {
@@ -322,7 +323,7 @@ switch ( $action ) {
 			}
 		} else {
 			if ( ! gc_delete_post( $post_id, true ) ) {
-				gc_die( __( '删除项目时发生错误。' ) );
+				gc_die( __( '删除项目时出错。' ) );
 			}
 		}
 
@@ -355,6 +356,7 @@ switch ( $action ) {
 		 *
 		 * The dynamic portion of the hook name, `$action`, refers to the custom post action.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param int $post_id Post ID sent with the request.
 		 */

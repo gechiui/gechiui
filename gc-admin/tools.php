@@ -61,7 +61,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 
 ?>
 <div class="wrap">
-<h1><?php echo esc_html( $title ); ?></h1>
+<div class="page-header"><h2 class="header-title"><?php echo esc_html( $title ); ?></h2></div>
 <?php
 
 if ( current_user_can( 'import' ) ) :
@@ -70,16 +70,18 @@ if ( current_user_can( 'import' ) ) :
 	if ( current_user_can( $cats->cap->manage_terms ) || current_user_can( $tags->cap->manage_terms ) ) :
 		?>
 		<div class="card">
-			<h2 class="title"><?php _e( '分类与标签转换器' ); ?></h2>
-			<p>
-			<?php
-				printf(
-					/* translators: %s: URL to Import screen. */
-					__( '如果您想将分类转为标签（或者反过来），可以选用“导入”页面上的<a href="%s">分类与标签转换器</a>来实现。' ),
-					'import.php'
-				);
-			?>
-			</p>
+			<div class="card-body">
+				<h4><?php _e( '分类与标签转换器' ); ?></h4>
+				<p>
+				<?php
+					printf(
+						/* translators: %s: URL to Import screen. */
+						__( '如果您想将分类转为标签（或者反过来），可以选用“导入”页面上的<a href="%s">分类与标签转换器</a>来实现。' ),
+						'import.php'
+					);
+				?>
+				</p>
+			</div>
 		</div>
 		<?php
 	endif;
@@ -87,7 +89,6 @@ endif;
 
 /**
  * Fires at the end of the Tools Administration screen.
- *
  *
  */
 do_action( 'tool_box' );

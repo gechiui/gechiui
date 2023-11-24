@@ -3,7 +3,7 @@
  * Error Protection API: GC_Fatal_Error_Handler class
  *
  * @package GeChiUI
- *
+ * @since 5.2.0
  */
 
 /**
@@ -14,8 +14,9 @@
  * can override its methods individually as necessary. The file must return the instance of the class that should be
  * registered.
  *
- *
+ * @since 5.2.0
  */
+#[AllowDynamicProperties]
 class GC_Fatal_Error_Handler {
 
 	/**
@@ -23,6 +24,7 @@ class GC_Fatal_Error_Handler {
 	 *
 	 * This method is registered via `register_shutdown_function()`.
 	 *
+	 * @since 5.2.0
 	 */
 	public function handle() {
 		if ( defined( 'GC_SANDBOX_SCRAPING' ) && GC_SANDBOX_SCRAPING ) {
@@ -63,8 +65,10 @@ class GC_Fatal_Error_Handler {
 	/**
 	 * Detects the error causing the crash if it should be handled.
 	 *
+	 * @since 5.2.0
 	 *
-	 * @return array|null Error that was triggered, or null if no error received or if the error should not be handled.
+	 * @return array|null Error information returned by `error_get_last()`, or null
+	 *                    if none was recorded or the error should not be handled.
 	 */
 	protected function detect_error() {
 		$error = error_get_last();
@@ -86,8 +90,9 @@ class GC_Fatal_Error_Handler {
 	 * Determines whether we are dealing with an error that GeChiUI should handle
 	 * in order to protect the admin backend against WSODs.
 	 *
+	 * @since 5.2.0
 	 *
-	 * @param array $error Error information retrieved from error_get_last().
+	 * @param array $error Error information retrieved from `error_get_last()`.
 	 * @return bool Whether GeChiUI should handle this error.
 	 */
 	protected function should_handle_error( $error ) {
@@ -110,9 +115,10 @@ class GC_Fatal_Error_Handler {
 		 * it exclusively allows adding further rules for which errors should be handled, but not removing existing
 		 * ones.
 		 *
+		 * @since 5.2.0
 		 *
 		 * @param bool  $should_handle_error Whether the error should be handled by the fatal error handler.
-		 * @param array $error               Error information retrieved from error_get_last().
+		 * @param array $error               Error information retrieved from `error_get_last()`.
 		 */
 		return (bool) apply_filters( 'gc_should_handle_php_error', false, $error );
 	}
@@ -127,6 +133,8 @@ class GC_Fatal_Error_Handler {
 	 *
 	 * If no such drop-in is available, this will call {@see GC_Fatal_Error_Handler::display_default_error_template()}.
 	 *
+	 * @since 5.2.0
+	 * @since 5.3.0 The `$handled` parameter was added.
 	 *
 	 * @param array         $error   Error information retrieved from `error_get_last()`.
 	 * @param true|GC_Error $handled Whether Recovery Mode handled the fatal error.
@@ -155,6 +163,8 @@ class GC_Fatal_Error_Handler {
 	 * login link to the admin backend. The {@see 'gc_php_error_message'} and {@see 'gc_php_error_args'} filters can
 	 * be used to modify these parameters.
 	 *
+	 * @since 5.2.0
+	 * @since 5.3.0 The `$handled` parameter was added.
 	 *
 	 * @param array         $error   Error information retrieved from `error_get_last()`.
 	 * @param true|GC_Error $handled Whether Recovery Mode handled the fatal error.
@@ -173,11 +183,15 @@ class GC_Fatal_Error_Handler {
 		}
 
 		if ( true === $handled && gc_is_recovery_mode() ) {
-			$message = __( '此站点遇到了致命错误，现在正运行在恢复模式。请检查主题和插件页面来获得更多信息。如果您刚刚安装或升级了一个主题或插件，请先检查此处。' );
+			$message = __( '此系统遇到了致命错误，现在正运行在恢复模式。请检查主题和插件页面来获得更多信息。如果您刚刚安装或升级了一个主题或插件，请先检查此处。' );
 		} elseif ( is_protected_endpoint() && gc_recovery_mode()->is_initialized() ) {
-			$message = __( '此站点遇到了致命错误，请查看您站点管理员电子邮箱中收到的邮件来获得指引。' );
+			if ( is_multisite() ) {
+				$message = __( '此系统发生了一个严重的错误。请联系您的系统管理员，并通报此错误以得到他们进一步的帮助。' );
+			} else {
+				$message = __( '此系统遇到了致命错误，请查看您系统管理员电子邮箱中收到的邮件来获得指引。' );
+			}
 		} else {
-			$message = __( '此站点遇到了致命错误。' );
+			$message = __( '此系统遇到了致命错误。' );
 		}
 
 		$message = sprintf(
@@ -196,6 +210,7 @@ class GC_Fatal_Error_Handler {
 		/**
 		 * Filters the message that the default PHP error template displays.
 		 *
+		 * @since 5.2.0
 		 *
 		 * @param string $message HTML error message to display.
 		 * @param array  $error   Error information retrieved from `error_get_last()`.
@@ -205,6 +220,7 @@ class GC_Fatal_Error_Handler {
 		/**
 		 * Filters the arguments passed to {@see gc_die()} for the default PHP error template.
 		 *
+		 * @since 5.2.0
 		 *
 		 * @param array $args Associative array of arguments passed to `gc_die()`. By default these contain a
 		 *                    'response' key, and optionally 'link_url' and 'link_text' keys.

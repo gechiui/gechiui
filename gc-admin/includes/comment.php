@@ -4,17 +4,14 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
- * Determine if a comment exists based on author and date.
+ * Determines if a comment exists based on author and date.
  *
  * For best performance, use `$timezone = 'gmt'`, which queries a field that is properly indexed. The default value
  * for `$timezone` is 'blog' for legacy reasons.
- *
- *
- *
+ * Added the `$timezone` parameter.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -42,10 +39,9 @@ function comment_exists( $comment_author, $comment_date, $timezone = 'blog' ) {
 }
 
 /**
- * Update a comment with values provided in $_POST.
+ * Updates a comment with values provided in $_POST.
  *
- *
- *
+ * @since 5.5.0 A return value was added.
  *
  * @return int|GC_Error The value 1 if the comment was updated, 0 if not updated.
  *                      A GC_Error object on failure.
@@ -102,8 +98,6 @@ function edit_comment() {
 /**
  * Returns a GC_Comment object based on comment ID.
  *
- *
- *
  * @param int $id ID of comment to retrieve.
  * @return GC_Comment|false Comment if found. False on failure.
  */
@@ -120,6 +114,7 @@ function get_comment_to_edit( $id ) {
 	/**
 	 * Filters the comment content before editing.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $comment_content Comment content.
 	 */
@@ -134,9 +129,7 @@ function get_comment_to_edit( $id ) {
 }
 
 /**
- * Get the number of pending comments on a post or posts
- *
- *
+ * Gets the number of pending comments on a post or posts.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -185,8 +178,6 @@ function get_pending_comments_num( $post_id ) {
 /**
  * Adds avatars to relevant places in admin.
  *
- *
- *
  * @param string $name User name.
  * @return string Avatar with the user name.
  */
@@ -196,7 +187,9 @@ function floated_admin_avatar( $name ) {
 }
 
 /**
+ * Enqueues comment shortcuts jQuery script.
  *
+ * @since 2.7.0
  */
 function enqueue_comment_hotkeys_js() {
 	if ( 'true' === get_user_option( 'comment_shortcuts' ) ) {
@@ -205,7 +198,7 @@ function enqueue_comment_hotkeys_js() {
 }
 
 /**
- * Display error message at bottom of comments.
+ * Displays error message at bottom of comments.
  *
  * @param string $msg Error Message. Assumed to contain HTML and be sanitized.
  */

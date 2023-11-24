@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/theme.js
+ * @output assets/js/theme.js
  */
 
 /* global _gcThemeSettings, confirm, tb_position */
@@ -621,6 +621,9 @@ themes.view.Theme = gc.Backbone.View.extend({
 		$( document ).on( 'gc-theme-install-success', function( event, response ) {
 			if ( _this.model.get( 'id' ) === response.slug ) {
 				_this.model.set( { 'installed': true } );
+			}
+			if ( response.blockTheme ) {
+				_this.model.set( { 'block_theme': true } );
 			}
 		} );
 
@@ -1424,7 +1427,7 @@ themes.view.Search = gc.Backbone.View.extend({
 /**
  * Navigate router.
  *
- *
+ * @since 4.9.0
  *
  * @param {string} url - URL to navigate to.
  * @param {Object} state - State.
@@ -1691,7 +1694,13 @@ themes.view.Installer = themes.view.Appearance.extend({
 	browse: function( section ) {
 		// Create a new collection with the proper theme data
 		// for each section.
-		this.collection.query( { browse: section } );
+		if ( 'block-themes' === section ) {
+			// Get the themes by sending Ajax POST request to api.gechiui.com/themes
+			// or searching the local cache.
+			this.collection.query( { tag: 'full-site-editing' } );
+		} else {
+			this.collection.query( { browse: section } );
+		}
 	},
 
 	// Sorting navigation.
@@ -1867,7 +1876,7 @@ themes.view.Installer = themes.view.Appearance.extend({
 	activeClass: 'current',
 
 	/**
-	 * When users press the "Upload Theme" button, show the upload form in place.
+	 * When users press the "上传主题" button, show the upload form in place.
 	 */
 	uploader: function() {
 		var uploadViewToggle = $( '.upload-view-toggle' ),

@@ -6,7 +6,7 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- * @output gc-admin/js/nav-menu.js
+ * @output assets/js/nav-menu.js
  */
 
 /* global menus, postboxes, columns, isRtl, ajaxurl, gcNavMenu */
@@ -598,7 +598,7 @@
 				if ( title ) {
 					titleEl.text( title ).removeClass( 'no-title' );
 				} else {
-					titleEl.text( gc.i18n._x( '(无标记)', 'missing menu item navigation label' ) ).addClass( 'no-title' );
+					titleEl.text( gc.i18n._x( '（无标签）', 'missing menu item navigation label' ) ).addClass( 'no-title' );
 				}
 			} );
 		},
@@ -875,6 +875,7 @@
 		/**
 		 * Handle toggling bulk selection checkboxes for menu items.
 		 *
+		 * @since 5.8.0
 		 */ 
 		attachBulkSelectButtonListeners : function() {
 			var that = this;
@@ -893,6 +894,7 @@
 		/**
 		 * Enable bulk selection checkboxes for menu items.
 		 *
+		 * @since 5.8.0
 		 */ 
 		enableBulkSelection : function() {
 			var checkbox = $( '#menu-to-edit .menu-item-checkbox' );
@@ -909,6 +911,7 @@
 		/**
 		 * Disable bulk selection checkboxes for menu items.
 		 *
+		 * @since 5.8.0
 		 */ 
 		disableBulkSelection : function() {
 			var checkbox = $( '#menu-to-edit .menu-item-checkbox' );
@@ -932,6 +935,7 @@
 		/**
 		 * Listen for state changes on bulk action checkboxes.
 		 *
+		 * @since 5.8.0
 		 */ 
 		attachMenuCheckBoxListeners : function() {
 			var that = this;
@@ -944,6 +948,7 @@
 		/**
 		 * Create delete button to remove menu items from collection.
 		 *
+		 * @since 5.8.0
 		 */ 
 		attachMenuItemDeleteButton : function() {
 			var that = this;
@@ -984,6 +989,7 @@
 		/**
 		 * List menu items awaiting deletion.
 		 *
+		 * @since 5.8.0
 		 */ 
 		attachPendingMenuItemsListForDeletion : function() {
 			$( '#post-body-content' ).on( 'change', '.menu-item-checkbox', function() {
@@ -1020,6 +1026,7 @@
 		/**
 		 * Set status of bulk delete checkbox.
 		 *
+		 * @since 5.8.0
 		 */ 
 		setBulkDeleteCheckboxStatus : function() {
 			var that = this;
@@ -1043,6 +1050,7 @@
 		/**
 		 * Set status of menu items removal button.
 		 *
+		 * @since 5.8.0
 		 */ 
 		setRemoveSelectedButtonStatus : function() {
 			var button = $( '.menu-items-delete' );
@@ -1419,7 +1427,7 @@
 
 		eventOnClickMenuDelete : function() {
 			// Delete warning AYS.
-			if ( window.confirm( gc.i18n.__( '您将要永久删除此菜单。\n\'取消\' 停止, \'确定\' 删除。' ) ) ) {
+			if ( window.confirm( gc.i18n.__( 'You are about to permanently delete this menu.\n\'Cancel\' to stop, \'OK\' to delete.' ) ) ) {
 				window.onbeforeunload = null;
 				return true;
 			}
@@ -1548,5 +1556,20 @@
 			}
 		});
 	});
+
+	// Show bulk action.
+	$( document ).on( 'menu-item-added', function() {
+		if ( ! $( '.bulk-actions' ).is( ':visible' ) ) {
+			$( '.bulk-actions' ).show();
+		}
+	} );
+
+	// Hide bulk action.
+	$( document ).on( 'menu-removing-item', function( e, el ) {
+		var menuElement = $( el ).parents( '#menu-to-edit' );
+		if ( menuElement.find( 'li' ).length === 1 && $( '.bulk-actions' ).is( ':visible' ) ) {
+			$( '.bulk-actions' ).hide();
+		}
+	} );
 
 })(jQuery);

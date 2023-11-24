@@ -3,8 +3,8 @@
  * GC_HTTP_IXR_Client
  *
  * @package GeChiUI
- *
  */
+#[AllowDynamicProperties]
 class GC_HTTP_IXR_Client extends IXR_Client {
 	public $scheme;
 	/**
@@ -46,6 +46,7 @@ class GC_HTTP_IXR_Client extends IXR_Client {
 	}
 
 	/**
+	 * @since 5.5.0 Formalized the existing `...$args` parameter by adding it
 	 *              to the function signature.
 	 *
 	 * @return bool
@@ -71,6 +72,7 @@ class GC_HTTP_IXR_Client extends IXR_Client {
 		/**
 		 * Filters the headers collection to be sent to the XML-RPC server.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param string[] $headers Associative array of headers to be sent.
 		 */

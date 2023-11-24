@@ -26,10 +26,10 @@ tinymce.PluginManager.add( 'gceditimage', function( editor ) {
 	} );
 
 	each( {
-		alignleft: 'Align left',
-		aligncenter: 'Align center',
-		alignright: 'Align right',
-		alignnone: 'No alignment'
+		alignleft: '左对齐',
+		aligncenter: '居中对齐',
+		alignright: '右对齐',
+		alignnone: '无对齐'
 	}, function( tooltip, name ) {
 		var direction = name.slice( 5 );
 

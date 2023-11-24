@@ -47,7 +47,7 @@ if ( empty( $option_page ) ) {
 if ( ! current_user_can( $capability ) ) {
 	gc_die(
 		'<h1>' . __( '您需要更高级别的权限。' ) . '</h1>' .
-		'<p>' . __( '抱歉，您不能管理此站点的选项。' ) . '</p>',
+		'<p>' . __( '抱歉，您不能管理此系统的选项。' ) . '</p>',
 		403
 	);
 }
@@ -208,7 +208,6 @@ if ( ! is_multisite() ) {
 /**
  * Filters the allowed options list.
  *
- *
  * @deprecated 5.5.0 Use {@see 'allowed_options'} instead.
  *
  * @param array $allowed_options The allowed options list.
@@ -223,7 +222,6 @@ $allowed_options = apply_filters_deprecated(
 
 /**
  * Filters the allowed options list.
- *
  *
  *
  * @param array $allowed_options The allowed options list.
@@ -251,7 +249,7 @@ if ( 'update' === $action ) { // We are saving settings sent from a settings pag
 
 	if ( 'options' === $option_page ) {
 		if ( is_multisite() && ! current_user_can( 'manage_network_options' ) ) {
-			gc_die( __( '抱歉，您不能修改此站点的未注册设置。' ) );
+			gc_die( __( '抱歉，您不能修改此系统的未注册设置。' ) );
 		}
 		$options = explode( ',', gc_unslash( $_POST['page_options'] ) );
 	} else {
@@ -348,14 +346,12 @@ if ( 'update' === $action ) { // We are saving settings sent from a settings pag
 	exit;
 }
 
+add_settings_error( 'general', 'message', __( '此页面可以直接修改您的系统设置。您能在这里搞坏东西，请小心！' ), 'warning' );
+
 require_once ABSPATH . 'gc-admin/admin-header.php'; ?>
 
 <div class="wrap">
-	<h1><?php esc_html_e( '全部设置' ); ?></h1>
-
-	<div class="notice notice-warning">
-		<p><strong><?php _e( '警告：' ); ?></strong> <?php _e( '此页面可以直接修改您的站点设置。您能在这里搞坏东西，请小心！' ); ?></p>
-	</div>
+	<div class="page-header"><h2 class="header-title"><?php esc_html_e( '全部设置' ); ?></h2></div>
 
 	<form name="form" action="options.php" method="post" id="all-options">
 		<?php gc_nonce_field( 'options-options' ); ?>

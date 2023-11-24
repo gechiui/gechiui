@@ -1,7 +1,7 @@
 /**
  * @file Contains all dynamic functionality needed on post and term pages.
  *
- * @output gc-admin/js/post.js
+ * @output assets/js/post.js
  */
 
  /* global ajaxurl, gcAjax, postboxes, pagenow, tinymce, alert, deleteUserSetting, ClipboardJS */
@@ -78,7 +78,7 @@ window.gc = window.gc || {};
 
 						return;
 					} else if ( 1 == r ) {
-						$('#show-comments').text( __( '已无更多评论。' ) );
+						$('#show-comments').text( __( '找不到更多评论。' ) );
 						return;
 					}
 
@@ -150,7 +150,7 @@ window.gc = window.gc || {};
 			 */
 			function(str){
 				if ( str == '0' ) {
-					alert( __( '无法设置为缩略图。请尝试其他附件。' ) );
+					alert( __( '无法将其设置为缩略图。请尝试其他附件。' ) );
 				} else {
 					GCSetThumbnailHTML(str);
 				}
@@ -482,7 +482,7 @@ jQuery( function($) {
 			$submitButtons.removeClass( 'disabled' );
 		}
 	}).on( 'before-autosave.edit-post', function() {
-		$( '.autosave-message' ).text( __( '草稿保存中…' ) );
+		$( '.autosave-message' ).text( __( '正在保存草稿...'  ) );
 	}).on( 'after-autosave.edit-post', function( event, data ) {
 		$( '.autosave-message' ).text( data.message );
 
@@ -789,14 +789,14 @@ jQuery( function($) {
 			}
 
 			// Determine what the publish should be depending on the date and post status.
-			if ( attemptedDate > currentDate && $('#original_post_status').val() != 'future' ) {
-				publishOn = __( '预定发布于：' );
-				$('#publish').val( _x( '时间表', 'post action/button label' ) );
+			if ( attemptedDate > currentDate ) {
+				publishOn = __( '计划于:' );
+				$('#publish').val( _x( '计划', 'post action/button label' ) );
 			} else if ( attemptedDate <= currentDate && $('#original_post_status').val() != 'publish' ) {
-				publishOn = __( '发布于：' );
+				publishOn = __( '发布时间：' );
 				$('#publish').val( __( '发布' ) );
 			} else {
-				publishOn = __( '发布于：' );
+				publishOn = __( '更新时间：' );
 				$('#publish').val( __( '更新' ) );
 			}
 
@@ -847,7 +847,7 @@ jQuery( function($) {
 				gc.sanitize.stripTagsAndEncodeText( $('option:selected', postStatus).text() )
 			);
 
-			// Show or hide the "Save Draft" button.
+			// Show or hide the "保存草稿" button.
 			if (
 				$('option:selected', postStatus).val() == 'private' ||
 				$('option:selected', postStatus).val() == 'publish'
@@ -1061,7 +1061,7 @@ jQuery( function($) {
 					permalink.html(permalinkOrig);
 					real_slug.val(new_slug);
 					$( '.edit-slug' ).trigger( 'focus' );
-					gc.a11y.speak( __( '固定链接已保存' ) );
+					gc.a11y.speak( __( '永久链接已保存' ) );
 				}
 			);
 		});
@@ -1082,7 +1082,7 @@ jQuery( function($) {
 				c++;
 		}
 		slug_value = ( c > full.length / 4 ) ? '' : full;
-		slug_label = __( 'URL别名' );
+		slug_label = __( 'URL Slug' );
 
 		$el.html(
 			'<label for="new-post-slug" class="screen-reader-text">' + slug_label + '</label>' +
@@ -1291,6 +1291,7 @@ jQuery( function($) {
 	/**
 	 * Copies the attachment URL in the Edit Media page to the clipboard.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param {MouseEvent} event A click event.
 	 *

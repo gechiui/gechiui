@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Multisite
- *
  */
 
 /** Load GeChiUI Administration Bootstrap */

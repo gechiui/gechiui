@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/customize-preview-widgets.js
+ * @output assets/js/customize-preview-widgets.js
  */
 
 /* global _gcWidgetCustomizerPreviewSettings */
@@ -7,7 +7,7 @@
 /**
  * Handles the initialization, refreshing and rendering of widget partials and sidebar widgets.
  *
- *
+ * @since 4.5.0
  *
  * @namespace gc.customize.widgetsPreview
  *
@@ -38,6 +38,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 	/**
 	 * Initializes the widgets preview.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @memberOf gc.customize.widgetsPreview
 	 *
@@ -84,6 +85,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 		/**
 		 * Represents a partial widget instance.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @constructs
 		 * @augments gc.customize.selectiveRefresh.Partial
@@ -120,6 +122,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 		/**
 		 * Refreshes the widget partial.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @return {Promise|void} Either a promise postponing the refresh, or void.
 		 */
@@ -159,6 +162,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 		/**
 		 * Represents a partial widget area.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @class
 		 * @augments gc.customize.selectiveRefresh.Partial
@@ -199,6 +203,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 		/**
 		 * Sets up the partial.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @return {void}
 		 */
@@ -244,6 +249,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 		 *
 		 * Note that TreeWalker is not implemented in IE8.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @return {Array.<{before: Comment, after: Comment, instanceNumber: number}>}
 		 *         An array with an object for each sidebar instance, containing the
@@ -285,6 +291,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 		/**
 		 * Gets the placements for this partial.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @return {Array} An array containing placement objects for each of the
 		 *                 dynamic sidebar boundary nodes.
@@ -307,6 +314,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 		/**
 		 * Get the list of widget IDs associated with this widget area.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @throws {Error} If there's no settingId.
 		 * @throws {Error} If the setting doesn't exist in the API.
@@ -334,6 +342,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 		 * Reflows widgets in the sidebar, ensuring they have the proper position in the
 		 * DOM.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @return {Array.<gc.customize.selectiveRefresh.Placement>} List of placements
 		 *                                                           that were reflowed.
@@ -399,6 +408,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 		 * Makes sure there is a widget instance container in this sidebar for the given
 		 * widget ID.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @param {string} widgetId The widget ID.
 		 *
@@ -465,6 +475,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 		/**
 		 * Handles changes to the sidebars_widgets[] setting.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @param {Array} newWidgetIds New widget IDs.
 		 * @param {Array} oldWidgetIds Old widget IDs.
@@ -522,6 +533,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 		 * Note that the meat is handled in handleSettingChange because it has the
 		 * context of which widgets were removed.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @return {Promise} A promise postponing the refresh.
 		 */
@@ -551,6 +563,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 	/**
 	 * Adds partials for the registered widget areas (sidebars).
 	 *
+	 * @since 4.5.0
 	 *
 	 * @return {void}
 	 */
@@ -575,6 +588,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 	 *
 	 * @memberOf gc.customize.widgetsPreview
 	 *
+	 * @since 3.9.0
 	 *
 	 * @return {void}
 	 */
@@ -616,6 +630,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 	 *
 	 * @memberOf gc.customize.widgetsPreview
 	 *
+	 * @since 3.9.0
 	 * @param {string} widgetId ID of the widget.
 	 *
 	 * @return {void}
@@ -638,6 +653,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 	 *
 	 * @memberOf gc.customize.widgetsPreview
 	 *
+	 * @since 3.9.0
 	 *
 	 * @return {void}
 	 */
@@ -672,6 +688,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 	 *
 	 * @memberOf gc.customize.widgetsPreview
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param {string} widgetId The widget ID.
 	 *
@@ -700,6 +717,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 	 *
 	 * @memberOf gc.customize.widgetsPreview
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param {string} settingId Widget setting ID.
 	 *
@@ -729,6 +747,7 @@ gc.customize.widgetsPreview = gc.customize.WidgetCustomizerPreview = (function( 
 	 *
 	 * @memberOf gc.customize.widgetsPreview
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param {string} widgetId The widget ID.
 	 *

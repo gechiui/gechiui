@@ -7,17 +7,15 @@
  */
 
 /**
- * Defines the default media upload tabs
- *
- *
+ * Defines the default media upload tabs.
  *
  * @return string[] Default tabs.
  */
 function media_upload_tabs() {
 	$_default_tabs = array(
 		'type'     => __( '从计算机' ), // Handler action suffix => tab text.
-		'type_url' => __( '从URL' ),
-		'gallery'  => __( '画廊' ),
+		'type_url' => __( '从 URL' ),
+		'gallery'  => __( '图库' ),
 		'library'  => __( '媒体库' ),
 	);
 
@@ -31,9 +29,7 @@ function media_upload_tabs() {
 }
 
 /**
- * Adds the gallery tab back to the tabs array if post has image attachments
- *
- *
+ * Adds the gallery tab back to the tabs array if post has image attachments.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -67,8 +63,6 @@ function update_gallery_tab( $tabs ) {
 
 /**
  * Outputs the legacy media upload tabs UI.
- *
- *
  *
  * @global string $redir_tab
  */
@@ -116,8 +110,6 @@ function the_media_upload_tabs() {
 /**
  * Retrieves the image HTML to send to the editor.
  *
- *
- *
  * @param int          $id      Image attachment ID.
  * @param string       $caption Image caption.
  * @param string       $title   Image title attribute.
@@ -144,12 +136,13 @@ function get_image_send_to_editor( $id, $caption, $title, $align, $url = '', $re
 	}
 
 	if ( $url ) {
-		$html = '<a href="' . esc_attr( $url ) . '"' . $rel . '>' . $html . '</a>';
+		$html = '<a href="' . esc_url( $url ) . '"' . $rel . '>' . $html . '</a>';
 	}
 
 	/**
 	 * Filters the image HTML markup to send to the editor when inserting an image.
 	 *
+	 * @since 5.6.0 The `$rel` parameter was added.
 	 *
 	 * @param string       $html    The image HTML markup to send.
 	 * @param int          $id      The attachment ID.
@@ -169,8 +162,6 @@ function get_image_send_to_editor( $id, $caption, $title, $align, $url = '', $re
 
 /**
  * Adds image shortcode with caption to editor.
- *
- *
  *
  * @param string  $html    The image HTML markup to send.
  * @param int     $id      Image attachment ID.
@@ -193,6 +184,7 @@ function image_add_caption( $html, $id, $caption, $title, $align, $url, $size, $
 	 * Passing an empty value also prevents the {@see 'image_add_caption_shortcode'}
 	 * Filters from being evaluated at the end of image_add_caption().
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param string $caption The original caption text.
 	 * @param int    $id      The attachment ID.
@@ -204,6 +196,7 @@ function image_add_caption( $html, $id, $caption, $title, $align, $url, $size, $
 	 *
 	 * Prevents image captions from being appended to image HTML when inserted into the editor.
 	 *
+	 * @since 2.6.0
 	 *
 	 * @param bool $bool Whether to disable appending captions. Returning true from the filter
 	 *                   will disable captions. Default empty string.
@@ -236,6 +229,7 @@ function image_add_caption( $html, $id, $caption, $title, $align, $url, $size, $
 	/**
 	 * Filters the image HTML markup including the caption shortcode.
 	 *
+	 * @since 2.6.0
 	 *
 	 * @param string $shcode The image HTML markup with caption shortcode.
 	 * @param string $html   The image HTML markup.
@@ -248,6 +242,8 @@ function image_add_caption( $html, $id, $caption, $title, $align, $url, $size, $
  *
  * @access private
  *
+ * @param array $matches Single regex match.
+ * @return string Cleaned up HTML for caption.
  */
 function _cleanup_image_add_caption( $matches ) {
 	// Remove any line breaks from inside the tags.
@@ -256,8 +252,6 @@ function _cleanup_image_add_caption( $matches ) {
 
 /**
  * Adds image HTML to editor.
- *
- *
  *
  * @param string $html
  */
@@ -273,8 +267,6 @@ function media_send_to_editor( $html ) {
 
 /**
  * Saves a file submitted from a POST request and create an attachment post for it.
- *
- *
  *
  * @param string $file_id   Index of the `$_FILES` array that the file was sent.
  * @param int    $post_id   The post ID of a post to attach the media item to. Required, but can
@@ -355,12 +347,21 @@ function media_handle_upload( $file_id, $post_id, $post_data = array(), $overrid
 		if ( ! empty( $meta['track_number'] ) ) {
 			$track_number = explode( '/', $meta['track_number'] );
 
-			if ( isset( $track_number[1] ) ) {
-				/* translators: Audio file track information. 1: Audio track number, 2: Total audio tracks. */
-				$content .= ' ' . sprintf( __( '第%1$s曲，共%2$s曲。' ), number_format_i18n( $track_number[0] ), number_format_i18n( $track_number[1] ) );
-			} else {
-				/* translators: Audio file track information. %s: Audio track number. */
-				$content .= ' ' . sprintf( __( '曲目%s。' ), number_format_i18n( $track_number[0] ) );
+			if ( is_numeric( $track_number[0] ) ) {
+				if ( isset( $track_number[1] ) && is_numeric( $track_number[1] ) ) {
+					$content .= ' ' . sprintf(
+						/* translators: Audio file track information. 1: Audio track number, 2: Total audio tracks. */
+						__( '第%1$s曲，共%2$s曲。' ),
+						number_format_i18n( $track_number[0] ),
+						number_format_i18n( $track_number[1] )
+					);
+				} else {
+					$content .= ' ' . sprintf(
+						/* translators: Audio file track information. %s: Audio track number. */
+						__( '曲目%s。' ),
+						number_format_i18n( $track_number[0] )
+					);
+				}
 			}
 		}
 
@@ -370,7 +371,7 @@ function media_handle_upload( $file_id, $post_id, $post_data = array(), $overrid
 		}
 
 		// Use image exif/iptc data for title and caption defaults if possible.
-	} elseif ( 0 === strpos( $type, 'image/' ) ) {
+	} elseif ( str_starts_with( $type, 'image/' ) ) {
 		$image_meta = gc_read_image_metadata( $file );
 
 		if ( $image_meta ) {
@@ -404,14 +405,18 @@ function media_handle_upload( $file_id, $post_id, $post_data = array(), $overrid
 	$attachment_id = gc_insert_attachment( $attachment, $file, $post_id, true );
 
 	if ( ! is_gc_error( $attachment_id ) ) {
-		// Set a custom header with the attachment_id.
-		// Used by the browser/client to resume creating image sub-sizes after a PHP fatal error.
+		/*
+		 * Set a custom header with the attachment_id.
+		 * Used by the browser/client to resume creating image sub-sizes after a PHP fatal error.
+		 */
 		if ( ! headers_sent() ) {
 			header( 'X-GC-Upload-Attachment-ID: ' . $attachment_id );
 		}
 
-		// The image sub-sizes are created during gc_generate_attachment_metadata().
-		// This is generally slow and may cause timeouts or out of memory errors.
+		/*
+		 * The image sub-sizes are created during gc_generate_attachment_metadata().
+		 * This is generally slow and may cause timeouts or out of memory errors.
+		 */
 		gc_update_attachment_metadata( $attachment_id, gc_generate_attachment_metadata( $attachment_id, $file ) );
 	}
 
@@ -421,8 +426,7 @@ function media_handle_upload( $file_id, $post_id, $post_data = array(), $overrid
 /**
  * Handles a side-loaded file in the same way as an uploaded file is handled by media_handle_upload().
  *
- *
- *
+ * @since 5.3.0 The `$post_id` parameter was made optional.
  *
  * @param string[] $file_array Array that represents a `$_FILES` upload array.
  * @param int      $post_id    Optional. The post ID the media is associated with.
@@ -501,8 +505,7 @@ function media_handle_sideload( $file_array, $post_id = 0, $desc = null, $post_d
 /**
  * Outputs the iframe to display the media upload page.
  *
- *
- *
+ * @since 5.3.0 Formalized the existing and already documented `...$args` parameter
  *              by adding it to the function signature.
  *
  * @global int $body_id
@@ -519,8 +522,8 @@ function gc_iframe( $content_func, ...$args ) {
 	gc_enqueue_style( 'colors' );
 	// Check callback name for 'media'.
 	if (
-		( is_array( $content_func ) && ! empty( $content_func[1] ) && 0 === strpos( (string) $content_func[1], 'media' ) ) ||
-		( ! is_array( $content_func ) && 0 === strpos( $content_func, 'media' ) )
+		( is_array( $content_func ) && ! empty( $content_func[1] ) && str_starts_with( (string) $content_func[1], 'media' ) ) ||
+		( ! is_array( $content_func ) && str_starts_with( $content_func, 'media' ) )
 	) {
 		gc_enqueue_style( 'deprecated-media' );
 	}
@@ -538,6 +541,7 @@ function gc_iframe( $content_func, ...$args ) {
 	/**
 	 * Fires when admin styles enqueued for the legacy (pre-3.5.0) media upload popup are printed.
 	 *
+	 * @since 2.9.0
 	 */
 	do_action( 'admin_print_styles-media-upload-popup' );  // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 
@@ -547,6 +551,7 @@ function gc_iframe( $content_func, ...$args ) {
 	/**
 	 * Fires when admin scripts enqueued for the legacy (pre-3.5.0) media upload popup are printed.
 	 *
+	 * @since 2.9.0
 	 */
 	do_action( 'admin_print_scripts-media-upload-popup' ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 
@@ -557,6 +562,7 @@ function gc_iframe( $content_func, ...$args ) {
 	 * Fires when scripts enqueued for the admin header for the legacy (pre-3.5.0)
 	 * media upload popup are printed.
 	 *
+	 * @since 2.9.0
 	 */
 	do_action( 'admin_head-media-upload-popup' ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 
@@ -571,6 +577,7 @@ function gc_iframe( $content_func, ...$args ) {
 		 * The dynamic portion of the hook name, `$content_func`, refers to the form
 		 * callback for the media upload type.
 		 *
+		 * @since 2.5.0
 		 */
 		do_action( "admin_head_{$content_func}" );
 	}
@@ -602,9 +609,7 @@ function gc_iframe( $content_func, ...$args ) {
 }
 
 /**
- * Adds the media button to the editor
- *
- *
+ * Adds the media button to the editor.
  *
  * @global int $post_ID
  *
@@ -627,7 +632,7 @@ function media_buttons( $editor_id = 'content' ) {
 	$id_attribute = 1 === $instance ? ' id="insert-media-button"' : '';
 
 	printf(
-		'<button type="button"%s class="button insert-media add_media" data-editor="%s">%s</button>',
+		'<button type="btn btn-primary btn-tone btn-sm"%s class="button insert-media add_media" data-editor="%s">%s</button>',
 		$id_attribute,
 		esc_attr( $editor_id ),
 		$img . __( '添加媒体' )
@@ -654,11 +659,14 @@ function media_buttons( $editor_id = 'content' ) {
 }
 
 /**
+ * Retrieves the upload iframe source URL.
+ *
  * @global int $post_ID
- * @param string $type
- * @param int    $post_id
- * @param string $tab
- * @return string
+ *
+ * @param string $type    Media type.
+ * @param int    $post_id Post ID.
+ * @param string $tab     Media upload tab.
+ * @return string Upload iframe source URL.
  */
 function get_upload_iframe_src( $type = null, $post_id = null, $tab = null ) {
 	global $post_ID;
@@ -698,8 +706,6 @@ function get_upload_iframe_src( $type = null, $post_id = null, $tab = null ) {
 
 /**
  * Handles form submissions for the legacy media uploader.
- *
- *
  *
  * @return null|array|void Array of error messages keyed by attachment ID, null or void on success.
  */
@@ -747,7 +753,7 @@ function media_upload_form_handler() {
 			/**
 			 * Filters the attachment fields to be saved.
 			 *
-		
+			 * @since 2.5.0
 			 *
 			 * @see gc_get_attachment_metadata()
 			 *
@@ -802,7 +808,7 @@ function media_upload_form_handler() {
 		if ( ! empty( $attachment['url'] ) ) {
 			$rel = '';
 
-			if ( strpos( $attachment['url'], 'attachment_id' ) || get_attachment_link( $send_id ) == $attachment['url'] ) {
+			if ( str_contains( $attachment['url'], 'attachment_id' ) || get_attachment_link( $send_id ) === $attachment['url'] ) {
 				$rel = " rel='attachment gc-att-" . esc_attr( $send_id ) . "'";
 			}
 
@@ -812,6 +818,7 @@ function media_upload_form_handler() {
 		/**
 		 * Filters the HTML markup for a media item sent to the editor.
 		 *
+		 * @since 2.5.0
 		 *
 		 * @see gc_get_attachment_metadata()
 		 *
@@ -829,8 +836,6 @@ function media_upload_form_handler() {
 
 /**
  * Handles the process of uploading media.
- *
- *
  *
  * @return null|string
  */
@@ -889,13 +894,13 @@ function gc_media_upload_handler() {
 			 *  - `file_send_to_editor_url`
 			 *  - `video_send_to_editor_url`
 			 *
-		
+			 * @since 3.3.0
 			 *
 			 * @param string $html  HTML markup sent to the editor.
 			 * @param string $src   Media source URL.
 			 * @param string $title Media title.
 			 */
-			$html = apply_filters( "{$type}_send_to_editor_url", $html, esc_url_raw( $src ), $title );
+			$html = apply_filters( "{$type}_send_to_editor_url", $html, sanitize_url( $src ), $title );
 		} else {
 			$align = '';
 			$alt   = esc_attr( gc_unslash( $_POST['alt'] ) );
@@ -912,7 +917,7 @@ function gc_media_upload_handler() {
 			/**
 			 * Filters the image URL sent to the editor.
 			 *
-		
+			 * @since 2.8.0
 			 *
 			 * @param string $html  HTML markup sent to the editor for an image.
 			 * @param string $src   Image source URL.
@@ -920,7 +925,7 @@ function gc_media_upload_handler() {
 			 * @param string $align The image alignment. Default 'alignnone'. Possible values include
 			 *                      'alignleft', 'aligncenter', 'alignright', 'alignnone'.
 			 */
-			$html = apply_filters( 'image_send_to_editor_url', $html, esc_url_raw( $src ), $alt, $align );
+			$html = apply_filters( 'image_send_to_editor_url', $html, sanitize_url( $src ), $alt, $align );
 		}
 
 		return media_send_to_editor( $html );
@@ -959,23 +964,21 @@ function gc_media_upload_handler() {
 
 /**
  * Downloads an image from the specified URL, saves it as an attachment, and optionally attaches it to a post.
- *
- *
- *
- *
- *
- *
+ * Introduced the `$return_type` parameter. Introduced the 'id' option for the `$return_type` parameter.
+ * @since 5.3.0 The `$post_id` parameter was made optional.
+ * @since 5.4.0 The original URL of the attachment is stored in the `_source_url`
  *              post meta value.
+ * @since 5.8.0 Added 'webp' to the default list of allowed file extensions.
  *
- * @param string $file    The URL of the image to download.
- * @param int    $post_id Optional. The post ID the media is to be associated with.
- * @param string $desc    Optional. Description of the image.
- * @param string $return  Optional. Accepts 'html' (image tag html) or 'src' (URL),
- *                        or 'id' (attachment ID). Default 'html'.
+ * @param string $file        The URL of the image to download.
+ * @param int    $post_id     Optional. The post ID the media is to be associated with.
+ * @param string $desc        Optional. Description of the image.
+ * @param string $return_type Optional. Accepts 'html' (image tag html) or 'src' (URL),
+ *                            or 'id' (attachment ID). Default 'html'.
  * @return string|int|GC_Error Populated HTML img tag, attachment ID, or attachment source
  *                             on success, GC_Error object otherwise.
  */
-function media_sideload_image( $file, $post_id = 0, $desc = null, $return = 'html' ) {
+function media_sideload_image( $file, $post_id = 0, $desc = null, $return_type = 'html' ) {
 	if ( ! empty( $file ) ) {
 
 		$allowed_extensions = array( 'jpg', 'jpeg', 'jpe', 'png', 'gif', 'webp' );
@@ -990,7 +993,10 @@ function media_sideload_image( $file, $post_id = 0, $desc = null, $return = 'htm
 		 *  - `jpe`
 		 *  - `png`
 		 *  - `gif`
+		 *  - `webp`
 		 *
+		 * @since 5.6.0
+		 * @since 5.8.0 Added 'webp' to the default list of allowed file extensions.
 		 *
 		 * @param string[] $allowed_extensions Array of allowed file extensions.
 		 * @param string   $file               The URL of the image to download.
@@ -1029,7 +1035,7 @@ function media_sideload_image( $file, $post_id = 0, $desc = null, $return = 'htm
 		add_post_meta( $id, '_source_url', $file );
 
 		// If attachment ID was requested, return it.
-		if ( 'id' === $return ) {
+		if ( 'id' === $return_type ) {
 			return $id;
 		}
 
@@ -1038,7 +1044,7 @@ function media_sideload_image( $file, $post_id = 0, $desc = null, $return = 'htm
 
 	// Finally, check to make sure the file has been saved, then return the HTML.
 	if ( ! empty( $src ) ) {
-		if ( 'src' === $return ) {
+		if ( 'src' === $return_type ) {
 			return $src;
 		}
 
@@ -1053,8 +1059,6 @@ function media_sideload_image( $file, $post_id = 0, $desc = null, $return = 'htm
 
 /**
  * Retrieves the legacy media uploader form in an iframe.
- *
- *
  *
  * @return string|null
  */
@@ -1080,8 +1084,6 @@ function media_upload_gallery() {
 /**
  * Retrieves the legacy media library form in an iframe.
  *
- *
- *
  * @return string|null
  */
 function media_upload_library() {
@@ -1102,9 +1104,9 @@ function media_upload_library() {
 }
 
 /**
- * Retrieve HTML for the image alignment radio buttons with the specified one checked.
+ * Retrieves HTML for the image alignment radio buttons with the specified one checked.
  *
- *
+ * @since 2.7.0
  *
  * @param GC_Post $post
  * @param string  $checked
@@ -1127,22 +1129,22 @@ function image_align_input_fields( $post, $checked = '' ) {
 		$checked = 'none';
 	}
 
-	$out = array();
+	$output = array();
 
 	foreach ( $alignments as $name => $label ) {
-		$name  = esc_attr( $name );
-		$out[] = "<input type='radio' name='attachments[{$post->ID}][align]' id='image-align-{$name}-{$post->ID}' value='$name'" .
+		$name     = esc_attr( $name );
+		$output[] = "<input type='radio' name='attachments[{$post->ID}][align]' id='image-align-{$name}-{$post->ID}' value='$name'" .
 			( $checked == $name ? " checked='checked'" : '' ) .
 			" /><label for='image-align-{$name}-{$post->ID}' class='align image-align-{$name}-label'>$label</label>";
 	}
 
-	return implode( "\n", $out );
+	return implode( "\n", $output );
 }
 
 /**
- * Retrieve HTML for the size radio buttons with the specified one checked.
+ * Retrieves HTML for the size radio buttons with the specified one checked.
  *
- *
+ * @since 2.7.0
  *
  * @param GC_Post     $post
  * @param bool|string $check
@@ -1154,7 +1156,7 @@ function image_size_input_fields( $post, $check = '' ) {
 	 *
 	 *
 	 * @param string[] $size_names Array of image size labels keyed by their name. Default values
-	 *                             include '缩略图', 'Medium', 'Large', and '全尺寸'.
+	 *                             include 'Thumbnail', 'Medium', 'Large', and '全尺寸'.
 	 */
 	$size_names = apply_filters(
 		'image_size_names_choose',
@@ -1162,7 +1164,7 @@ function image_size_input_fields( $post, $check = '' ) {
 			'thumbnail' => __( '缩略图' ),
 			'medium'    => __( '中等' ),
 			'large'     => __( '大' ),
-			'full'      => __( '全尺寸' ),
+			'full'      => __( '实际大小' ),
 		)
 	);
 
@@ -1170,7 +1172,7 @@ function image_size_input_fields( $post, $check = '' ) {
 		$check = get_user_setting( 'imgsize', 'medium' );
 	}
 
-	$out = array();
+	$output = array();
 
 	foreach ( $size_names as $size => $label ) {
 		$downsize = image_downsize( $post->ID, $size );
@@ -1206,20 +1208,20 @@ function image_size_input_fields( $post, $check = '' ) {
 		}
 		$html .= '</div>';
 
-		$out[] = $html;
+		$output[] = $html;
 	}
 
 	return array(
 		'label' => __( '尺寸' ),
 		'input' => 'html',
-		'html'  => implode( "\n", $out ),
+		'html'  => implode( "\n", $output ),
 	);
 }
 
 /**
- * Retrieve HTML for the Link URL buttons with the default link type as specified.
+ * Retrieves HTML for the Link URL buttons with the default link type as specified.
  *
- *
+ * @since 2.7.0
  *
  * @param GC_Post $post
  * @param string  $url_type
@@ -1245,15 +1247,13 @@ function image_link_input_fields( $post, $url_type = '' ) {
 	return "
 	<input type='text' class='text urlfield' name='attachments[$post->ID][url]' value='" . esc_attr( $url ) . "' /><br />
 	<button type='button' class='button urlnone' data-link-url=''>" . __( '无' ) . "</button>
-	<button type='button' class='button urlfile' data-link-url='" . esc_attr( $file ) . "'>" . __( '文件URL' ) . "</button>
-	<button type='button' class='button urlpost' data-link-url='" . esc_attr( $link ) . "'>" . __( '附件专页URL' ) . '</button>
+	<button type='button' class='button urlfile' data-link-url='" . esc_url( $file ) . "'>" . __( '文件 URL' ) . "</button>
+	<button type='button' class='button urlpost' data-link-url='" . esc_url( $link ) . "'>" . __( '附件专页URL' ) . '</button>
 ';
 }
 
 /**
- * Output a textarea element for inputting an attachment caption.
- *
- *
+ * Outputs a textarea element for inputting an attachment caption.
  *
  * @param GC_Post $edit_post Attachment GC_Post object.
  * @return string HTML markup for the textarea element.
@@ -1268,8 +1268,6 @@ function gc_caption_input_textarea( $edit_post ) {
 /**
  * Retrieves the image attachment fields to edit form fields.
  *
- *
- *
  * @param array  $form_fields
  * @param object $post
  * @return array
@@ -1280,8 +1278,6 @@ function image_attachment_fields_to_edit( $form_fields, $post ) {
 
 /**
  * Retrieves the single non-image attachment fields to edit form fields.
- *
- *
  *
  * @param array   $form_fields An array of attachment form fields.
  * @param GC_Post $post        The GC_Post attachment object.
@@ -1295,8 +1291,6 @@ function media_single_attachment_fields_to_edit( $form_fields, $post ) {
 /**
  * Retrieves the post non-image attachment fields to edit form fields.
  *
- *
- *
  * @param array   $form_fields An array of attachment form fields.
  * @param GC_Post $post        The GC_Post attachment object.
  * @return array Filtered attachment form fields.
@@ -1307,34 +1301,7 @@ function media_post_single_attachment_fields_to_edit( $form_fields, $post ) {
 }
 
 /**
- * Filters input from media_upload_form_handler() and assigns a default
- * post_title from the file name if none supplied.
- *
- * Illustrates the use of the {@see 'attachment_fields_to_save'} filter
- * which can be used to add default values to any field before saving to DB.
- *
- *
- *
- * @param array $post       The GC_Post attachment object converted to an array.
- * @param array $attachment An array of attachment metadata.
- * @return array Filtered attachment post object.
- */
-function image_attachment_fields_to_save( $post, $attachment ) {
-	if ( 'image' === substr( $post['post_mime_type'], 0, 5 ) ) {
-		if ( strlen( trim( $post['post_title'] ) ) == 0 ) {
-			$attachment_url                           = ( isset( $post['attachment_url'] ) ) ? $post['attachment_url'] : $post['guid'];
-			$post['post_title']                       = preg_replace( '/\.\w+$/', '', gc_basename( $attachment_url ) );
-			$post['errors']['post_title']['errors'][] = __( '文件名返回了空的标题。' );
-		}
-	}
-
-	return $post;
-}
-
-/**
  * Retrieves the media element HTML to send to the editor.
- *
- *
  *
  * @param string  $html
  * @param int     $attachment_id
@@ -1344,12 +1311,12 @@ function image_attachment_fields_to_save( $post, $attachment ) {
 function image_media_send_to_editor( $html, $attachment_id, $attachment ) {
 	$post = get_post( $attachment_id );
 
-	if ( 'image' === substr( $post->post_mime_type, 0, 5 ) ) {
+	if ( str_starts_with( $post->post_mime_type, 'image' ) ) {
 		$url   = $attachment['url'];
 		$align = ! empty( $attachment['align'] ) ? $attachment['align'] : 'none';
 		$size  = ! empty( $attachment['image-size'] ) ? $attachment['image-size'] : 'medium';
 		$alt   = ! empty( $attachment['image_alt'] ) ? $attachment['image_alt'] : '';
-		$rel   = ( strpos( $url, 'attachment_id' ) || get_attachment_link( $attachment_id ) === $url );
+		$rel   = ( str_contains( $url, 'attachment_id' ) || get_attachment_link( $attachment_id ) === $url );
 
 		return get_image_send_to_editor( $attachment_id, $attachment['post_excerpt'], $attachment['post_title'], $align, $url, $rel, $size, $alt );
 	}
@@ -1359,8 +1326,6 @@ function image_media_send_to_editor( $html, $attachment_id, $attachment ) {
 
 /**
  * Retrieves the attachment fields to edit form fields.
- *
- *
  *
  * @param GC_Post $post
  * @param array   $errors
@@ -1406,7 +1371,7 @@ function get_attachment_fields_to_edit( $post, $errors = null ) {
 			'value' => $edit_post->menu_order,
 		),
 		'image_url'    => array(
-			'label' => __( '文件URL' ),
+			'label' => __( '文件 URL' ),
 			'input' => 'html',
 			'html'  => "<input type='text' class='text urlfield' readonly='readonly' name='attachments[$post->ID][url]' value='" . esc_attr( $image_url ) . "' /><br />",
 			'value' => gc_get_attachment_url( $post->ID ),
@@ -1455,7 +1420,7 @@ function get_attachment_fields_to_edit( $post, $errors = null ) {
 	$form_fields = array_merge_recursive( $form_fields, (array) $errors );
 
 	// This was formerly in image_attachment_fields_to_edit().
-	if ( 'image' === substr( $post->post_mime_type, 0, 5 ) ) {
+	if ( str_starts_with( $post->post_mime_type, 'image' ) ) {
 		$alt = get_post_meta( $post->ID, '_gc_attachment_image_alt', true );
 
 		if ( empty( $alt ) ) {
@@ -1495,19 +1460,17 @@ function get_attachment_fields_to_edit( $post, $errors = null ) {
 }
 
 /**
- * Retrieve HTML for media items of post gallery.
+ * Retrieves HTML for media items of post gallery.
  *
  * The HTML markup retrieved will be created for the progress of SWF Upload
  * component. Will also create link for showing and hiding the form to modify
  * the image attachment.
  *
- *
- *
  * @global GC_Query $gc_the_query GeChiUI Query object.
  *
  * @param int   $post_id Post ID.
  * @param array $errors  Errors for attachment, if any.
- * @return string
+ * @return string HTML content for media items of post gallery.
  */
 function get_media_items( $post_id, $errors ) {
 	$attachments = array();
@@ -1552,9 +1515,7 @@ function get_media_items( $post_id, $errors ) {
 }
 
 /**
- * Retrieve HTML form for modifying the image attachment.
- *
- *
+ * Retrieves HTML form for modifying the image attachment.
  *
  * @global string $redir_tab
  *
@@ -1696,8 +1657,7 @@ function get_media_item( $attachment_id, $args = null ) {
 		<tr><td colspan='2' class='imgedit-response' id='imgedit-response-$post->ID'></td></tr>\n
 		<tr><td style='display:none' colspan='2' class='image-editor' id='image-editor-$post->ID'></td></tr>\n
 		<tr><td colspan='2'><p class='media-types media-types-required-info'>" .
-			/* translators: %s: Asterisk symbol (*). */
-			sprintf( __( '必填项已用%s标注' ), '<span class="required">*</span>' ) .
+			gc_required_field_message() .
 		"</p></td></tr>\n";
 
 	$defaults = array(
@@ -1777,7 +1737,7 @@ function get_media_item( $attachment_id, $args = null ) {
 			continue;
 		}
 
-		$required      = $field['required'] ? '<span class="required">*</span>' : '';
+		$required      = $field['required'] ? ' ' . gc_required_field_indicator() : '';
 		$required_attr = $field['required'] ? ' required' : '';
 		$class         = $id;
 		$class        .= $field['required'] ? ' form-required' : '';
@@ -1846,7 +1806,6 @@ function get_media_item( $attachment_id, $args = null ) {
 }
 
 /**
- *
  *
  * @param int   $attachment_id
  * @param array $args
@@ -1968,7 +1927,7 @@ function get_compat_media_markup( $attachment_id, $args = null ) {
 		}
 
 		$readonly      = ! $user_can_edit && ! empty( $field['taxonomy'] ) ? " readonly='readonly' " : '';
-		$required      = $field['required'] ? '<span class="required">*</span>' : '';
+		$required      = $field['required'] ? ' ' . gc_required_field_indicator() : '';
 		$required_attr = $field['required'] ? ' required' : '';
 		$class         = 'compat-field-' . $id;
 		$class        .= $field['required'] ? ' form-required' : '';
@@ -2024,8 +1983,7 @@ function get_compat_media_markup( $attachment_id, $args = null ) {
 
 	if ( $item ) {
 		$item = '<p class="media-types media-types-required-info">' .
-			/* translators: %s: Asterisk symbol (*). */
-			sprintf( __( '必填项已用%s标注' ), '<span class="required">*</span>' ) .
+			gc_required_field_message() .
 			'</p>' .
 			'<table class="compat-attachment-fields">' . $item . '</table>';
 	}
@@ -2047,7 +2005,6 @@ function get_compat_media_markup( $attachment_id, $args = null ) {
 /**
  * Outputs the legacy media upload header.
  *
- *
  */
 function media_upload_header() {
 	$post_id = isset( $_REQUEST['post_id'] ) ? (int) $_REQUEST['post_id'] : 0;
@@ -2063,8 +2020,6 @@ function media_upload_header() {
 
 /**
  * Outputs the legacy media upload form.
- *
- *
  *
  * @global string $type
  * @global string $tab
@@ -2120,6 +2075,7 @@ function media_upload_form( $errors = null ) {
 		/**
 		 * Fires when an upload will exceed the defined upload space quota for a network site.
 		 *
+		 * @since 3.5.0
 		 */
 		do_action( 'upload_ui_over_quota' );
 		return;
@@ -2128,6 +2084,7 @@ function media_upload_form( $errors = null ) {
 	/**
 	 * Fires just before the legacy (pre-3.5.0) upload interface is loaded.
 	 *
+	 * @since 2.6.0
 	 */
 	do_action( 'pre-upload-ui' ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 
@@ -2141,7 +2098,7 @@ function media_upload_form( $errors = null ) {
 
 	/**
 	 * Filters the media upload post parameters.
-	 *
+	 * As 'swfupload_post_params'
 	 *
 	 * @param array $post_params An array of media upload parameters used by Plupload.
 	 */
@@ -2168,8 +2125,8 @@ function media_upload_form( $errors = null ) {
 	 */
 	if (
 		gc_is_mobile() &&
-		strpos( $_SERVER['HTTP_USER_AGENT'], 'OS 7_' ) !== false &&
-		strpos( $_SERVER['HTTP_USER_AGENT'], 'like Mac OS X' ) !== false
+		str_contains( $_SERVER['HTTP_USER_AGENT'], 'OS 7_' ) &&
+		str_contains( $_SERVER['HTTP_USER_AGENT'], 'like Mac OS X' )
 	) {
 		$plupload_init['multi_selection'] = false;
 	}
@@ -2213,6 +2170,7 @@ function media_upload_form( $errors = null ) {
 	/**
 	 * Fires before the upload interface loads.
 	 *
+	 * @since 2.6.0 As 'pre-flash-upload-ui'
 	 */
 	do_action( 'pre-plupload-upload-ui' ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 
@@ -2220,14 +2178,15 @@ function media_upload_form( $errors = null ) {
 	<div id="drag-drop-area">
 		<div class="drag-drop-inside">
 		<p class="drag-drop-info"><?php _e( '拖文件至此可上传' ); ?></p>
-		<p><?php _ex( '或', 'Uploader: Drop files here - or - Select Files' ); ?></p>
-		<p class="drag-drop-buttons"><input id="plupload-browse-button" type="button" value="<?php esc_attr_e( '选择文件' ); ?>" class="button" /></p>
+		<p><?php _ex( 'or', 'Uploader: Drop files here - or - Select Files' ); ?></p>
+		<p class="drag-drop-buttons"><input id="plupload-browse-button" type="button" value="<?php esc_attr_e( '选择文件' ); ?>" class="btn btn-primary btn-tone" /></p>
 		</div>
 	</div>
 	<?php
 	/**
 	 * Fires after the upload interface loads.
 	 *
+	 * @since 2.6.0 As 'post-flash-upload-ui'
 	 */
 	do_action( 'post-plupload-upload-ui' ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 	?>
@@ -2238,12 +2197,18 @@ function media_upload_form( $errors = null ) {
 	/**
 	 * Fires before the upload button in the media upload interface.
 	 *
+	 * @since 2.6.0
 	 */
 	do_action( 'pre-html-upload-ui' ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 
 	?>
 	<p id="async-upload-wrap">
-		<label class="screen-reader-text" for="async-upload"><?php _e( '上传' ); ?></label>
+		<label class="screen-reader-text" for="async-upload">
+			<?php
+			/* translators: Hidden accessibility text. */
+			_e( '上传' );
+			?>
+		</label>
 		<input type="file" name="async-upload" id="async-upload" />
 		<?php submit_button( __( '上传' ), 'primary', 'html-upload', false ); ?>
 		<a href="#" onclick="try{top.tb_remove();}catch(e){}; return false;"><?php _e( '取消' ); ?></a>
@@ -2253,6 +2218,7 @@ function media_upload_form( $errors = null ) {
 	/**
 	 * Fires after the upload button in the media upload interface.
 	 *
+	 * @since 2.6.0
 	 */
 	do_action( 'post-html-upload-ui' ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 
@@ -2272,14 +2238,13 @@ function media_upload_form( $errors = null ) {
 	 *
 	 * Legacy (pre-3.5.0) media workflow hook.
 	 *
+	 * @since 2.6.0
 	 */
 	do_action( 'post-upload-ui' ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 }
 
 /**
  * Outputs the legacy media upload form for a given media type.
- *
- *
  *
  * @param string       $type
  * @param array        $errors
@@ -2296,6 +2261,7 @@ function media_upload_type_form( $type = 'file', $errors = null, $id = null ) {
 	/**
 	 * Filters the media upload form action URL.
 	 *
+	 * @since 2.6.0
 	 *
 	 * @param string $form_action_url The media upload form action URL.
 	 * @param string $type            The type of media. Default 'file'.
@@ -2352,7 +2318,7 @@ function media_upload_type_form( $type = 'file', $errors = null, $id = null ) {
 /**
  * Outputs the legacy media upload form for external media.
  *
- *
+ * @since 2.7.0
  *
  * @param string  $type
  * @param object  $errors
@@ -2439,7 +2405,7 @@ function media_upload_type_url_form( $type = null, $errors = null, $id = null ) 
 		document.getElementById('go_button').style.color = '#bbb';
 		if ( ! document.forms[0].src.value )
 			document.getElementById('status_img').innerHTML = '';
-		else document.getElementById('status_img').innerHTML = '<img src="<?php echo esc_url( assets_url( '/images/no.png' ) ); ?>" alt="" />';
+		else document.getElementById('status_img').innerHTML = '<img src="<?php echo esc_url( assets_url( 'images/no.png' ) ); ?>" alt="" />';
 	},
 
 	updateImageData : function() {
@@ -2448,7 +2414,7 @@ function media_upload_type_url_form( $type = null, $errors = null, $id = null ) 
 		t.width = t.preloadImg.width;
 		t.height = t.preloadImg.height;
 		document.getElementById('go_button').style.color = '#333';
-		document.getElementById('status_img').innerHTML = '<img src="<?php echo esc_url( assets_url( '/images/yes.png' ) ); ?>" alt="" />';
+		document.getElementById('status_img').innerHTML = '<img src="<?php echo esc_url( assets_url( 'images/yes.png' ) ); ?>" alt="" />';
 	},
 
 	getImageData : function() {
@@ -2462,7 +2428,7 @@ function media_upload_type_url_form( $type = null, $errors = null, $id = null ) 
 			return false;
 		}
 
-		document.getElementById('status_img').innerHTML = '<img src="<?php echo esc_url( assets_url( '/images/spinner-2x.gif' ) ); ?>" alt="" width="16" height="16" />';
+		document.getElementById('status_img').innerHTML = '<img src="<?php echo esc_url( assets_url( 'images/spinner-2x.gif' ) ); ?>" alt="" width="16" height="16" />';
 		t.preloadImg = new Image();
 		t.preloadImg.onload = t.updateImageData;
 		t.preloadImg.onerror = t.resetImageData;
@@ -2496,9 +2462,7 @@ function media_upload_type_url_form( $type = null, $errors = null, $id = null ) 
 }
 
 /**
- * Adds gallery form to upload iframe
- *
- *
+ * Adds gallery form to upload iframe.
  *
  * @global string $redir_tab
  * @global string $type
@@ -2541,7 +2505,7 @@ function media_upload_gallery_form( $errors ) {
 		<?php _e( '排序：' ); ?>
 	<a href="#" id="asc"><?php _e( '升序' ); ?></a> |
 	<a href="#" id="desc"><?php _e( '降序' ); ?></a> |
-	<a href="#" id="clear"><?php _ex( '清除', 'verb' ); ?></a>
+	<a href="#" id="clear"><?php _ex( 'Clear', 'verb' ); ?></a>
 	</div>
 	<form enctype="multipart/form-data" method="post" action="<?php echo esc_url( $form_action_url ); ?>" class="<?php echo $form_class; ?>" id="gallery-form">
 		<?php gc_nonce_field( 'media-form' ); ?>
@@ -2647,8 +2611,8 @@ function media_upload_gallery_form( $errors ) {
 	</tbody></table>
 
 	<p class="ml-submit">
-	<input type="button" class="button" style="display:none;" onMouseDown="gcgallery.update();" name="insert-gallery" id="insert-gallery" value="<?php esc_attr_e( '插入相册' ); ?>" />
-	<input type="button" class="button" style="display:none;" onMouseDown="gcgallery.update();" name="update-gallery" id="update-gallery" value="<?php esc_attr_e( '更新相册设置' ); ?>" />
+	<input type="button" class="btn btn-primary btn-tone btn-sm" style="display:none;" onMouseDown="gcgallery.update();" name="insert-gallery" id="insert-gallery" value="<?php esc_attr_e( '插入相册' ); ?>" />
+	<input type="button" class="btn btn-primary btn-tone btn-sm" style="display:none;" onMouseDown="gcgallery.update();" name="update-gallery" id="update-gallery" value="<?php esc_attr_e( '更新相册设置' ); ?>" />
 	</p>
 	</div>
 	</form>
@@ -2657,8 +2621,6 @@ function media_upload_gallery_form( $errors ) {
 
 /**
  * Outputs the legacy media upload form for the media library.
- *
- *
  *
  * @global gcdb      $gcdb            GeChiUI database abstraction object.
  * @global GC_Query  $gc_query        GeChiUI Query object.
@@ -2707,9 +2669,14 @@ function media_upload_library_form( $errors ) {
 	<input type="hidden" name="context" value="<?php echo isset( $_GET['context'] ) ? esc_attr( $_GET['context'] ) : ''; ?>" />
 
 	<p id="media-search" class="search-box">
-		<label class="screen-reader-text" for="media-search-input"><?php _e( '搜索媒体' ); ?>:</label>
-		<input type="search" id="media-search-input" name="s" value="<?php the_search_query(); ?>" />
-		<?php submit_button( __( '搜索媒体' ), '', '', false ); ?>
+		<label class="screen-reader-text" for="media-search-input">
+			<?php
+			/* translators: Hidden accessibility text. */
+			_e( '搜索媒体' );
+			?>
+		</label>
+		<input type="search" id="media-search-input" name="s" class="form-control-sm" value="<?php the_search_query(); ?>" />
+		<?php submit_button( __( '搜索媒体' ), 'primary btn-tone m-l-5', '', false ); ?>
 	</p>
 
 	<ul class="subsubsub">
@@ -2770,6 +2737,7 @@ function media_upload_library_form( $errors ) {
 		 *
 		 * Returned values should begin with an `<li>` tag.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param string[] $type_links An array of list items containing mime type link HTML.
 		 */
@@ -2785,7 +2753,7 @@ function media_upload_library_form( $errors ) {
 			array(
 				'base'      => add_query_arg( 'paged', '%#%' ),
 				'format'    => '',
-				'prev_text' => __( '&laquo' ),
+				'prev_text' => __( '&laquo;' ),
 				'next_text' => __( '&raquo;' ),
 				'total'     => ceil( $gc_query->found_posts / 10 ),
 				'current'   => $q['paged'],
@@ -2869,12 +2837,12 @@ function media_upload_library_form( $errors ) {
 }
 
 /**
- * Creates the form for external url
+ * Creates the form for external url.
  *
- *
+ * @since 2.7.0
  *
  * @param string $default_view
- * @return string the form html
+ * @return string HTML content of the form.
  */
 function gc_media_insert_url_form( $default_view = 'image' ) {
 	/** This filter is documented in gc-admin/includes/media.php */
@@ -2882,7 +2850,7 @@ function gc_media_insert_url_form( $default_view = 'image' ) {
 		$caption = '
 		<tr class="image-only">
 			<th scope="row" class="label">
-				<label for="caption"><span class="alignleft">' . __( '图片说明文字' ) . '</span></label>
+				<label for="caption"><span class="alignleft">' . __( '图片描述文字' ) . '</span></label>
 			</th>
 			<td class="field"><textarea id="caption" name="caption"></textarea></td>
 		</tr>';
@@ -2907,13 +2875,12 @@ function gc_media_insert_url_form( $default_view = 'image' ) {
 	return '
 	<p class="media-types"><label><input type="radio" name="media_type" value="image" id="image-only"' . checked( 'image-only', $view, false ) . ' /> ' . __( '图片' ) . '</label> &nbsp; &nbsp; <label><input type="radio" name="media_type" value="generic" id="not-image"' . checked( 'not-image', $view, false ) . ' /> ' . __( '音频、视频等文件' ) . '</label></p>
 	<p class="media-types media-types-required-info">' .
-		/* translators: %s: Asterisk symbol (*). */
-		sprintf( __( '必填项已用%s标注' ), '<span class="required">*</span>' ) .
+		gc_required_field_message() .
 	'</p>
 	<table class="describe ' . $table_class . '"><tbody>
 		<tr>
 			<th scope="row" class="label" style="width:130px;">
-				<label for="src"><span class="alignleft">' . __( 'URL' ) . '</span> <span class="required">*</span></label>
+				<label for="src"><span class="alignleft">' . __( 'URL' ) . '</span> ' . gc_required_field_indicator() . '</label>
 				<span class="alignright" id="status_img"></span>
 			</th>
 			<td class="field"><input id="src" name="src" value="" type="text" required onblur="addExtImage.getImageData()" /></td>
@@ -2921,16 +2888,16 @@ function gc_media_insert_url_form( $default_view = 'image' ) {
 
 		<tr>
 			<th scope="row" class="label">
-				<label for="title"><span class="alignleft">' . __( '标题' ) . '</span> <span class="required">*</span></label>
+				<label for="title"><span class="alignleft">' . __( '标题' ) . '</span> ' . gc_required_field_indicator() . '</label>
 			</th>
 			<td class="field"><input id="title" name="title" value="" type="text" required /></td>
 		</tr>
 
-		<tr class="not-image"><td></td><td><p class="help">' . __( '链接的文字，例如：“赎金要求（PDF）”' ) . '</p></td></tr>
+		<tr class="not-image"><td></td><td><p class="help">' . __( '链接的文字，例如：『赎金要求（PDF）』' ) . '</p></td></tr>
 
 		<tr class="image-only">
 			<th scope="row" class="label">
-				<label for="alt"><span class="alignleft">' . __( '替代文本' ) . '</span></label>
+				<label for="alt"><span class="alignleft">' . __( '替代文本' ) . '</span> ' . gc_required_field_indicator() . '</label>
 			</th>
 			<td class="field"><input id="alt" name="alt" value="" type="text" required />
 			<p class="help">' . __( '图片的替代文字，例如“蒙娜丽莎”' ) . '</p></td>
@@ -2956,14 +2923,14 @@ function gc_media_insert_url_form( $default_view = 'image' ) {
 			</th>
 			<td class="field"><input id="url" name="url" value="" type="text" /><br />
 
-			<button type="button" class="button" value="" onclick="document.forms[0].url.value=null">' . __( '无' ) . '</button>
-			<button type="button" class="button" value="" onclick="document.forms[0].url.value=document.forms[0].src.value">' . __( '链接到图片' ) . '</button>
+			<button type="button" class="btn btn-primary btn-tone btn-sm" value="" onclick="document.forms[0].url.value=null">' . __( '无' ) . '</button>
+			<button type="button" class="btn btn-primary btn-tone btn-sm" value="" onclick="document.forms[0].url.value=document.forms[0].src.value">' . __( '链接到图片' ) . '</button>
 			<p class="help">' . __( '输入链接URL或点选预设值。' ) . '</p></td>
 		</tr>
 		<tr class="image-only">
 			<td></td>
 			<td>
-				<input type="button" class="button" id="go_button" style="color:#bbb;" onclick="addExtImage.insert()" value="' . esc_attr__( '插入到文章' ) . '" />
+				<input type="button" class="btn btn-primary btn-tone btn-sm" id="go_button" style="color:#bbb;" onclick="addExtImage.insert()" value="' . esc_attr__( '插入到文章' ) . '" />
 			</td>
 		</tr>
 		<tr class="not-image">
@@ -2977,8 +2944,6 @@ function gc_media_insert_url_form( $default_view = 'image' ) {
 
 /**
  * Displays the multi-file uploader message.
- *
- *
  *
  * @global int $post_ID
  */
@@ -3009,7 +2974,6 @@ function media_upload_flash_bypass() {
 /**
  * Displays the browser's built-in uploader message.
  *
- *
  */
 function media_upload_html_bypass() {
 	?>
@@ -3022,13 +2986,11 @@ function media_upload_html_bypass() {
 /**
  * Used to display a "After a file has been uploaded..." help message.
  *
- *
  */
 function media_upload_text_after() {}
 
 /**
  * Displays the checkbox to scale images.
- *
  *
  */
 function media_upload_max_image_resize() {
@@ -3056,7 +3018,6 @@ function media_upload_max_image_resize() {
 /**
  * Displays the out of storage quota message in Multisite.
  *
- *
  */
 function multisite_over_quota_message() {
 	echo '<p>' . sprintf(
@@ -3068,8 +3029,6 @@ function multisite_over_quota_message() {
 
 /**
  * Displays the image and editor in the post editor
- *
- *
  *
  * @param GC_Post $post A post object.
  */
@@ -3174,6 +3133,7 @@ function edit_form_image_editor( $post ) {
 		/**
 		 * Fires when an attachment type can't be rendered in the edit form.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param GC_Post $post A post object.
 		 */
@@ -3184,10 +3144,10 @@ function edit_form_image_editor( $post ) {
 	?>
 	</div>
 	<div class="gc_attachment_details edit-form-section">
-	<?php if ( 'image' === substr( $post->post_mime_type, 0, 5 ) ) : ?>
+	<?php if ( str_starts_with( $post->post_mime_type, 'image' ) ) : ?>
 		<p class="attachment-alt-text">
 			<label for="attachment_alt"><strong><?php _e( '替代文本' ); ?></strong></label><br />
-			<input type="text" class="widefat" name="_gc_attachment_image_alt" id="attachment_alt" aria-describedby="alt-text-description" value="<?php echo esc_attr( $alt_text ); ?>" />
+			<textarea class="widefat" name="_gc_attachment_image_alt" id="attachment_alt" aria-describedby="alt-text-description"><?php echo esc_attr( $alt_text ); ?></textarea>
 		</p>
 		<p class="attachment-alt-text-description" id="alt-text-description">
 		<?php
@@ -3199,7 +3159,7 @@ function edit_form_image_editor( $post ) {
 			'target="_blank" rel="noopener"',
 			sprintf(
 				'<span class="screen-reader-text"> %s</span>',
-				/* translators: Accessibility text. */
+				/* translators: Hidden accessibility text. */
 				__( '（在新窗口中打开）' )
 			)
 		);
@@ -3247,7 +3207,6 @@ function edit_form_image_editor( $post ) {
 
 /**
  * Displays non-editable attachment metadata in the publish meta box.
- *
  *
  */
 function attachment_submitbox_metadata() {
@@ -3309,9 +3268,12 @@ function attachment_submitbox_metadata() {
 		<label for="attachment_url"><?php _e( '文件URL：' ); ?></label>
 		<input type="text" class="widefat urlfield" readonly="readonly" name="attachment_url" id="attachment_url" value="<?php echo esc_attr( $att_url ); ?>" />
 		<span class="copy-to-clipboard-container">
-			<button type="button" class="button copy-attachment-url edit-media" data-clipboard-target="#attachment_url"><?php _e( '复制网址至剪贴板' ); ?></button>
+			<button type="button" class="btn btn-primary btn-tone btn-sm copy-attachment-url edit-media" data-clipboard-target="#attachment_url"><?php _e( '复制网址至剪贴板' ); ?></button>
 			<span class="success hidden" aria-hidden="true"><?php _e( '已复制！' ); ?></span>
 		</span>
+	</div>
+	<div class="misc-pub-section misc-pub-download">
+		<a href="<?php echo esc_attr( $att_url ); ?>" download><?php _e( '下载文件' ); ?></a>
 	</div>
 	<div class="misc-pub-section misc-pub-filename">
 		<?php _e( '文件名：' ); ?> <strong><?php echo $filename; ?></strong>
@@ -3344,7 +3306,7 @@ function attachment_submitbox_metadata() {
 	if ( isset( $meta['filesize'] ) ) {
 		$file_size = $meta['filesize'];
 	} elseif ( file_exists( $file ) ) {
-		$file_size = filesize( $file );
+		$file_size = gc_filesize( $file );
 	}
 
 	if ( ! empty( $file_size ) ) {
@@ -3367,6 +3329,8 @@ function attachment_submitbox_metadata() {
 		 * The key for each item in the array should correspond to an attachment
 		 * metadata key, and the value should be the desired label.
 		 *
+		 * @since 3.7.0
+		 * @since 4.9.0 Added the `$post` parameter.
 		 *
 		 * @param array   $fields An array of the attachment metadata keys and labels.
 		 * @param GC_Post $post   GC_Post object for the current attachment.
@@ -3413,6 +3377,8 @@ function attachment_submitbox_metadata() {
 		 * The key for each item in the array should correspond to an attachment
 		 * metadata key, and the value should be the desired label.
 		 *
+		 * @since 3.7.0
+		 * @since 4.9.0 Added the `$post` parameter.
 		 *
 		 * @param array   $fields An array of the attachment metadata keys and labels.
 		 * @param GC_Post $post   GC_Post object for the current attachment.
@@ -3442,10 +3408,10 @@ function attachment_submitbox_metadata() {
 
 	if ( ! empty( $meta['original_image'] ) ) {
 		?>
-		<div class="misc-pub-section misc-pub-original-image">
+		<div class="misc-pub-section misc-pub-original-image word-wrap-break-word">
 			<?php _e( '原始图片：' ); ?>
 			<a href="<?php echo esc_url( gc_get_original_image_url( $attachment_id ) ); ?>">
-				<?php echo esc_html( gc_basename( gc_get_original_image_path( $attachment_id ) ) ); ?>
+				<strong><?php echo esc_html( gc_basename( gc_get_original_image_path( $attachment_id ) ) ); ?></strong>
 			</a>
 		</div>
 		<?php
@@ -3453,12 +3419,10 @@ function attachment_submitbox_metadata() {
 }
 
 /**
- * Parse ID3v2, ID3v1, and getID3 comments to extract usable data
+ * Parses ID3v2, ID3v1, and getID3 comments to extract usable data.
  *
- *
- *
- * @param array $metadata An existing array with data
- * @param array $data Data supplied by ID3 tags
+ * @param array $metadata An existing array with data.
+ * @param array $data Data supplied by ID3 tags.
  */
 function gc_add_id3_tag_data( &$metadata, $data ) {
 	foreach ( array( 'id3v2', 'id3v1' ) as $version ) {
@@ -3467,7 +3431,7 @@ function gc_add_id3_tag_data( &$metadata, $data ) {
 				if ( 'length' !== $key && ! empty( $list ) ) {
 					$metadata[ $key ] = gc_kses_post( reset( $list ) );
 					// Fix bug in byte stream analysis.
-					if ( 'terms_of_use' === $key && 0 === strpos( $metadata[ $key ], 'yright notice.' ) ) {
+					if ( 'terms_of_use' === $key && str_starts_with( $metadata[ $key ], 'yright notice.' ) ) {
 						$metadata[ $key ] = 'Cop' . $metadata[ $key ];
 					}
 				}
@@ -3498,9 +3462,7 @@ function gc_add_id3_tag_data( &$metadata, $data ) {
 }
 
 /**
- * Retrieve metadata from a video file's ID3 tags
- *
- *
+ * Retrieves metadata from a video file's ID3 tags.
  *
  * @param string $file Path to file.
  * @return array|false Returns array of metadata, if found.
@@ -3601,19 +3563,19 @@ function gc_read_video_metadata( $file ) {
 	 * In core, usually this selection is what is stored.
 	 * More complete data can be parsed from the `$data` parameter.
 	 *
+	 * @since 4.9.0
 	 *
-	 * @param array  $metadata       Filtered Video metadata.
-	 * @param string $file           Path to video file.
-	 * @param string $file_format    File format of video, as analyzed by getID3.
-	 * @param array  $data           Raw metadata from getID3.
+	 * @param array       $metadata    Filtered video metadata.
+	 * @param string      $file        Path to video file.
+	 * @param string|null $file_format File format of video, as analyzed by getID3.
+	 *                                 Null if unknown.
+	 * @param array       $data        Raw metadata from getID3.
 	 */
 	return apply_filters( 'gc_read_video_metadata', $metadata, $file, $file_format, $data );
 }
 
 /**
- * Retrieve metadata from an audio file's ID3 tags.
- *
- *
+ * Retrieves metadata from an audio file's ID3 tags.
  *
  * @param string $file Path to file.
  * @return array|false Returns array of metadata, if found.
@@ -3674,16 +3636,30 @@ function gc_read_audio_metadata( $file ) {
 
 	gc_add_id3_tag_data( $metadata, $data );
 
-	return $metadata;
+	$file_format = isset( $metadata['fileformat'] ) ? $metadata['fileformat'] : null;
+
+	/**
+	 * Filters the array of metadata retrieved from an audio file.
+	 *
+	 * In core, usually this selection is what is stored.
+	 * More complete data can be parsed from the `$data` parameter.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param array       $metadata    Filtered audio metadata.
+	 * @param string      $file        Path to audio file.
+	 * @param string|null $file_format File format of audio, as analyzed by getID3.
+	 *                                 Null if unknown.
+	 * @param array       $data        Raw metadata from getID3.
+	 */
+	return apply_filters( 'gc_read_audio_metadata', $metadata, $file, $file_format, $data );
 }
 
 /**
- * Parse creation date from media metadata.
+ * Parses creation date from media metadata.
  *
  * The getID3 library doesn't have a standard method for getting creation dates,
  * so the location of this data can vary based on the MIME type.
- *
- *
  *
  * @link https://github.com/JamesHeinrich/getID3/blob/master/structure.txt
  *
@@ -3727,8 +3703,6 @@ function gc_get_media_creation_timestamp( $metadata ) {
 
 /**
  * Encapsulates the logic for Attach/Detach actions.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -3774,7 +3748,7 @@ function gc_media_attach_action( $parent_id, $action = 'attach' ) {
 			/**
 			 * Fires when media is attached or detached from a post.
 			 *
-		
+			 * @since 5.5.0
 			 *
 			 * @param string $action        Attach/detach action. Accepts 'attach' or 'detach'.
 			 * @param int    $attachment_id The attachment ID.
@@ -3789,7 +3763,7 @@ function gc_media_attach_action( $parent_id, $action = 'attach' ) {
 		$referer  = gc_get_referer();
 
 		if ( $referer ) {
-			if ( false !== strpos( $referer, 'upload.php' ) ) {
+			if ( str_contains( $referer, 'upload.php' ) ) {
 				$location = remove_query_arg( array( 'attached', 'detach' ), $referer );
 			}
 		}

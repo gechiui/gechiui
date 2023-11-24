@@ -25,8 +25,6 @@ $charset_collate = $gcdb->get_charset_collate();
 /**
  * Retrieve the SQL for creating database tables.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param string $scope   Optional. The tables for which to retrieve SQL. Can be all, global, ms_global, or blog tables. Defaults to all.
@@ -38,7 +36,7 @@ function gc_get_db_schema( $scope = 'all', $blog_id = null ) {
 
 	$charset_collate = $gcdb->get_charset_collate();
 
-	if ( $blog_id && $blog_id != $gcdb->blogid ) {
+	if ( $blog_id && (int) $blog_id !== $gcdb->blogid ) {
 		$old_blog_id = $gcdb->set_blog_id( $blog_id );
 	}
 
@@ -194,7 +192,6 @@ CREATE TABLE $gcdb->posts (
 	user_pass varchar(255) NOT NULL default '',
 	user_nicename varchar(50) NOT NULL default '',
 	user_email varchar(100) NOT NULL default '',
-	user_mobile varchar(100) NOT NULL default '',
 	user_url varchar(100) NOT NULL default '',
 	user_registered datetime NOT NULL default '0000-00-00 00:00:00',
 	user_activation_key varchar(255) NOT NULL default '',
@@ -203,8 +200,7 @@ CREATE TABLE $gcdb->posts (
 	PRIMARY KEY  (ID),
 	KEY user_login_key (user_login),
 	KEY user_nicename (user_nicename),
-	KEY user_email (user_email),
-	KEY user_mobile (user_mobile)
+	KEY user_email (user_email)
 ) $charset_collate;\n";
 
 	// Multisite users table.
@@ -214,7 +210,6 @@ CREATE TABLE $gcdb->posts (
 	user_pass varchar(255) NOT NULL default '',
 	user_nicename varchar(50) NOT NULL default '',
 	user_email varchar(100) NOT NULL default '',
-	user_mobile varchar(100) NOT NULL default '',
 	user_url varchar(100) NOT NULL default '',
 	user_registered datetime NOT NULL default '0000-00-00 00:00:00',
 	user_activation_key varchar(255) NOT NULL default '',
@@ -225,8 +220,7 @@ CREATE TABLE $gcdb->posts (
 	PRIMARY KEY  (ID),
 	KEY user_login_key (user_login),
 	KEY user_nicename (user_nicename),
-	KEY user_email (user_email),
-	KEY user_mobile (user_mobile)
+	KEY user_email (user_email)
 ) $charset_collate;\n";
 
 	// Usermeta.
@@ -306,7 +300,6 @@ CREATE TABLE $gcdb->signups (
 	title longtext NOT NULL,
 	user_login varchar(60) NOT NULL default '',
 	user_email varchar(100) NOT NULL default '',
-	user_mobile varchar(100) NOT NULL default '',
 	registered datetime NOT NULL default '0000-00-00 00:00:00',
 	activated datetime NOT NULL default '0000-00-00 00:00:00',
 	active tinyint(1) NOT NULL default '0',
@@ -315,7 +308,6 @@ CREATE TABLE $gcdb->signups (
 	PRIMARY KEY  (signup_id),
 	KEY activation_key (activation_key),
 	KEY user_email (user_email),
-	KEY user_mobile (user_mobile),
 	KEY user_login_email (user_login,user_email),
 	KEY domain_path (domain(140),path(51))
 ) $charset_collate;";
@@ -355,8 +347,7 @@ $gc_queries = gc_get_db_schema( 'all' );
 /**
  * Create GeChiUI options and set the default values.
  *
- *
- *
+ * @since 5.1.0 The $options parameter has been added.
  *
  * @global gcdb $gcdb                  GeChiUI database abstraction object.
  * @global int  $gc_db_version         GeChiUI database version.
@@ -371,6 +362,7 @@ function populate_options( array $options = array() ) {
 	/**
 	 * Fires before creating GeChiUI options and populating their default values.
 	 *
+	 * @since 2.6.0
 	 */
 	do_action( 'populate_options' );
 
@@ -393,21 +385,30 @@ function populate_options( array $options = array() ) {
 	/*
 	 * translators: default GMT offset or timezone string. Must be either a valid offset (-12 to 14)
 	 * or a valid timezone string (America/New_York). See https://www.php.net/manual/en/timezones.php
-	 * for all timezone strings supported by PHP.
+	 * for all timezone strings currently supported by PHP.
+	 *
+	 * Important: When a previous timezone string, like `Europe/Kiev`, has been superseded by an
+	 * updated one, like `Europe/Kyiv`, as a rule of thumb, the **old** timezone name should be used
+	 * in the "translation" to allow for the default timezone setting to be PHP cross-version compatible,
+	 * as old timezone names will be recognized in new PHP versions, while new timezone names cannot
+	 * be recognized in old PHP versions.
+	 *
+	 * To verify which timezone strings are available in the _oldest_ PHP version supported, you can
+	 * use https://3v4l.org/6YQAt#v5.6.20 and replace the "BR" (Brazil) in the code line with the
+	 * country code for which you want to look up the supported timezone names.
 	 */
-	$offset_or_tz = _x( 'Asia/Shanghai', 'default GMT offset or timezone string' );
+	$offset_or_tz = _x( 'Asia/Shanghai', '默认GMT偏移量或时区字符串' ); // gongenlin 默认上海时区+8
 	if ( is_numeric( $offset_or_tz ) ) {
 		$gmt_offset = $offset_or_tz;
-	} elseif ( $offset_or_tz && in_array( $offset_or_tz, timezone_identifiers_list(), true ) ) {
-			$timezone_string = $offset_or_tz;
+	} elseif ( $offset_or_tz && in_array( $offset_or_tz, timezone_identifiers_list( DateTimeZone::ALL_WITH_BC ), true ) ) {
+		$timezone_string = $offset_or_tz;
 	}
 
 	$defaults = array(
 		'siteurl'                         => $guessurl,
 		'home'                            => $guessurl,
-		'blogname'                        => __( '我的站点' ),
-		/* translators: Site tagline. */
-		'blogdescription'                 => __( '又一个GeChiUI站点' ),
+		'blogname'                        => __( '我的系统' ),
+		'blogdescription'                 => '',
 		'users_can_register'              => 0,
 		'admin_email'                     => 'you@example.com',
 		/* translators: Default start of the week. 0 = Sunday, 1 = Monday. */
@@ -432,7 +433,7 @@ function populate_options( array $options = array() ) {
 		/* translators: Default time format, see https://www.php.net/manual/datetime.format.php */
 		'time_format'                     => __( 'ag:i' ),
 		/* translators: Links last updated date format, see https://www.php.net/manual/datetime.format.php */
-		'links_updated_date_format'       => __( 'Y年n月j日ag:i' ),
+		'links_updated_date_format'       => __( 'Y年n月j日a g:i' ),
 		'comment_moderation'              => 0,
 		'moderation_notify'               => 1,
 		'permalink_structure'             => '',
@@ -544,8 +545,10 @@ function populate_options( array $options = array() ) {
 		// 5.6.0
 		'auto_update_core_dev'            => 'enabled',
 		'auto_update_core_minor'          => 'enabled',
-		// Default to enabled for new installs.
-		// See https://core.trac.gechiui.com/ticket/51742.
+		/*
+		 * Default to enabled for new installs.
+		 * See https://core.trac.gechiui.com/ticket/51742.
+		 */
 		'auto_update_core_major'          => 'enabled',
 
 		// 5.8.0
@@ -560,8 +563,6 @@ function populate_options( array $options = array() ) {
 
 	// 3.0.0 multisite.
 	if ( is_multisite() ) {
-		/* translators: %s: Network title. */
-		$defaults['blogdescription']     = sprintf( __( '又一个%s站点' ), get_network()->site_name );
 		$defaults['permalink_structure'] = '/%year%/%monthnum%/%day%/%postname%/';
 	}
 
@@ -705,7 +706,6 @@ function populate_options( array $options = array() ) {
 /**
  * Execute GeChiUI role creation for the various GeChiUI versions.
  *
- *
  */
 function populate_roles() {
 	populate_roles_160();
@@ -720,7 +720,6 @@ function populate_roles() {
 
 /**
  * Create the roles for GeChiUI 2.0
- *
  *
  */
 function populate_roles_160() {
@@ -813,7 +812,6 @@ function populate_roles_160() {
 /**
  * Create and modify GeChiUI roles for GeChiUI 2.1.
  *
- *
  */
 function populate_roles_210() {
 	$roles = array( 'administrator', 'editor' );
@@ -861,7 +859,6 @@ function populate_roles_210() {
 /**
  * Create and modify GeChiUI roles for GeChiUI 2.3.
  *
- *
  */
 function populate_roles_230() {
 	$role = get_role( 'administrator' );
@@ -874,7 +871,6 @@ function populate_roles_230() {
 /**
  * Create and modify GeChiUI roles for GeChiUI 2.5.
  *
- *
  */
 function populate_roles_250() {
 	$role = get_role( 'administrator' );
@@ -886,7 +882,6 @@ function populate_roles_250() {
 
 /**
  * Create and modify GeChiUI roles for GeChiUI 2.6.
- *
  *
  */
 function populate_roles_260() {
@@ -901,7 +896,7 @@ function populate_roles_260() {
 /**
  * Create and modify GeChiUI roles for GeChiUI 2.7.
  *
- *
+ * @since 2.7.0
  */
 function populate_roles_270() {
 	$role = get_role( 'administrator' );
@@ -915,7 +910,6 @@ function populate_roles_270() {
 /**
  * Create and modify GeChiUI roles for GeChiUI 2.8.
  *
- *
  */
 function populate_roles_280() {
 	$role = get_role( 'administrator' );
@@ -927,7 +921,6 @@ function populate_roles_280() {
 
 /**
  * Create and modify GeChiUI roles for GeChiUI 3.0.
- *
  *
  */
 function populate_roles_300() {
@@ -961,8 +954,6 @@ endif;
 /**
  * Populate network settings.
  *
- *
- *
  * @global gcdb       $gcdb         GeChiUI database abstraction object.
  * @global object     $current_site
  * @global GC_Rewrite $gc_rewrite   GeChiUI rewrite component.
@@ -980,23 +971,27 @@ endif;
 function populate_network( $network_id = 1, $domain = '', $email = '', $site_name = '', $path = '/', $subdomain_install = false ) {
 	global $gcdb, $current_site, $gc_rewrite;
 
+	$network_id = (int) $network_id;
+
 	$errors = new GC_Error();
 	if ( '' === $domain ) {
 		$errors->add( 'empty_domain', __( '您必须提供域名。' ) );
 	}
 	if ( '' === $site_name ) {
-		$errors->add( 'empty_sitename', __( '您必须为您的站点网络指定一个名称。' ) );
+		$errors->add( 'empty_sitename', __( '您必须为您的SaaS平台指定一个名称。' ) );
 	}
 
 	// Check for network collision.
 	$network_exists = false;
 	if ( is_multisite() ) {
-		if ( get_network( (int) $network_id ) ) {
-			$errors->add( 'siteid_exists', __( '此站点网络已经存在。' ) );
+		if ( get_network( $network_id ) ) {
+			$errors->add( 'siteid_exists', __( '此SaaS平台已经存在。' ) );
 		}
 	} else {
-		if ( $network_id == $gcdb->get_var( $gcdb->prepare( "SELECT id FROM $gcdb->site WHERE id = %d", $network_id ) ) ) {
-			$errors->add( 'siteid_exists', __( '此站点网络已经存在。' ) );
+		if ( $network_id === (int) $gcdb->get_var(
+			$gcdb->prepare( "SELECT id FROM $gcdb->site WHERE id = %d", $network_id )
+		) ) {
+			$errors->add( 'siteid_exists', __( '此SaaS平台已经存在。' ) );
 		}
 	}
 
@@ -1008,7 +1003,7 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 		return $errors;
 	}
 
-	if ( 1 == $network_id ) {
+	if ( 1 === $network_id ) {
 		$gcdb->insert(
 			$gcdb->site,
 			array(
@@ -1037,8 +1032,6 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 		)
 	);
 
-	$site_user = get_userdata( (int) $gcdb->get_var( $gcdb->prepare( "SELECT meta_value FROM $gcdb->sitemeta WHERE meta_key = %s AND site_id = %d", 'admin_user_id', $network_id ) ) );
-
 	/*
 	 * When upgrading from single to multisite, assume the current site will
 	 * become the main site of the network. When using populate_network()
@@ -1047,7 +1040,7 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 	 * created.
 	 */
 	if ( ! is_multisite() ) {
-		$current_site            = new stdClass;
+		$current_site            = new stdClass();
 		$current_site->domain    = $domain;
 		$current_site->path      = $path;
 		$current_site->site_name = ucfirst( $domain );
@@ -1062,8 +1055,29 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 			)
 		);
 		$current_site->blog_id = $gcdb->insert_id;
-		update_user_meta( $site_user->ID, 'source_domain', $domain );
-		update_user_meta( $site_user->ID, 'primary_blog', $current_site->blog_id );
+
+		$site_user_id = (int) $gcdb->get_var(
+			$gcdb->prepare(
+				"SELECT meta_value
+				FROM $gcdb->sitemeta
+				WHERE meta_key = %s AND site_id = %d",
+				'admin_user_id',
+				$network_id
+			)
+		);
+
+		update_user_meta( $site_user_id, 'source_domain', $domain );
+		update_user_meta( $site_user_id, 'primary_blog', $current_site->blog_id );
+
+		// Unable to use update_network_option() while populating the network.
+		$gcdb->insert(
+			$gcdb->sitemeta,
+			array(
+				'site_id'    => $network_id,
+				'meta_key'   => 'main_site',
+				'meta_value' => $current_site->blog_id,
+			)
+		);
 
 		if ( $subdomain_install ) {
 			$gc_rewrite->set_permalink_structure( '/%year%/%monthnum%/%day%/%postname%/' );
@@ -1089,16 +1103,16 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 		);
 		if ( is_gc_error( $page ) ) {
 			$errstr = $page->get_error_message();
-		} elseif ( 200 == gc_remote_retrieve_response_code( $page ) ) {
+		} elseif ( 200 === gc_remote_retrieve_response_code( $page ) ) {
 				$vhost_ok = true;
 		}
 
 		if ( ! $vhost_ok ) {
-			$msg = '<p><strong>' . __( '警告！泛DNS配置可能有误！' ) . '</strong></p>';
+			$msg = '<p><strong>' . __( '警告！泛 DNS 配置可能有误！' ) . '</strong></p>';
 
 			$msg .= '<p>' . sprintf(
 				/* translators: %s: Host name. */
-				__( '安装程序会与您当前站点所处域名的一个随机主机名（%s）进行通信。' ),
+				__( '安装程序会与您当前系统所处域名的一个随机主机名（%s）进行通信。' ),
 				'<code>' . $hostname . '</code>'
 			);
 			if ( ! empty( $errstr ) ) {
@@ -1113,7 +1127,7 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 				'<code>*</code>'
 			) . '</p>';
 
-			$msg .= '<p>' . __( '您依然可以访问您的站点，但是可能无法访问任何子域名。如果您确信DNS设置无误，请忽略本提示。' ) . '</p>';
+			$msg .= '<p>' . __( '您依然可以访问您的系统，但是可能无法访问任何子域名。如果您确信DNS设置无误，请忽略本提示。' ) . '</p>';
 
 			return new GC_Error( 'no_wildcard_dns', $msg );
 		}
@@ -1125,7 +1139,7 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 /**
  * Creates GeChiUI network meta and sets the default values.
  *
- *
+ * @since 5.1.0
  *
  * @global gcdb $gcdb          GeChiUI database abstraction object.
  * @global int  $gc_db_version GeChiUI database version.
@@ -1151,16 +1165,15 @@ function populate_network_meta( $network_id, array $meta = array() ) {
 		$email = $site_user->user_email;
 	}
 
-
 	$template       = get_option( 'template' );
 	$stylesheet     = get_option( 'stylesheet' );
 	$allowed_themes = array( $stylesheet => true );
 
-	if ( $template != $stylesheet ) {
+	if ( $template !== $stylesheet ) {
 		$allowed_themes[ $template ] = true;
 	}
 
-	if ( GC_DEFAULT_THEME != $stylesheet && GC_DEFAULT_THEME != $template ) {
+	if ( GC_DEFAULT_THEME !== $stylesheet && GC_DEFAULT_THEME !== $template ) {
 		$allowed_themes[ GC_DEFAULT_THEME ] = true;
 	}
 
@@ -1177,8 +1190,6 @@ function populate_network_meta( $network_id, array $meta = array() ) {
 	} else {
 		gc_cache_delete( $network_id, 'networks' );
 	}
-
-	gc_cache_delete( 'networks_have_paths', 'site-options' );
 
 	if ( ! is_multisite() ) {
 		$site_admins = array( $site_user->user_login );
@@ -1203,7 +1214,7 @@ function populate_network_meta( $network_id, array $meta = array() ) {
 	$welcome_email = __(
 		'您好，USERNAME：
 
-您的新站点SITE_NAME已经被成功建立：
+您的SITE_NAME已经被成功建立：
 BLOG_URL
 
 您可以使用以下凭据登录管理员账户：
@@ -1212,7 +1223,7 @@ BLOG_URL
 密码：PASSWORD
 在此登录：BLOG_URLgc-login.php
 
-我们希望您享受您的新站点，谢谢！
+我们希望您享受您的新系统，谢谢！
 
 ——SITE_NAME团队'
 	);
@@ -1251,7 +1262,7 @@ BLOG_URL
 	$upload_filetypes = array_unique( array_merge( $misc_exts, $audio_exts, $video_exts ) );
 
 	$sitemeta = array(
-		'site_name'                   => __( '我的站点网络' ),
+		'site_name'                   => __( '我的系统' ),
 		'admin_email'                 => $email,
 		'admin_user_id'               => $site_user->ID,
 		'registration'                => 'none',
@@ -1270,8 +1281,8 @@ BLOG_URL
 		'add_new_users'               => '0',
 		'upload_space_check_disabled' => is_multisite() ? get_site_option( 'upload_space_check_disabled' ) : '1',
 		'subdomain_install'           => $subdomain_install,
-		'global_terms_enabled'        => global_terms_enabled() ? '1' : '0',
 		'ms_files_rewriting'          => is_multisite() ? get_site_option( 'ms_files_rewriting' ) : '0',
+		'user_count'                  => get_site_option( 'user_count' ),
 		'initial_db_version'          => get_option( 'initial_db_version' ),
 		'active_sitewide_plugins'     => array(),
 		'GCLANG'                      => get_locale(),
@@ -1285,6 +1296,7 @@ BLOG_URL
 	/**
 	 * Filters meta for a network on creation.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param array $sitemeta   Associative array of network meta keys and values to be inserted.
 	 * @param int   $network_id ID of network to populate.
@@ -1307,7 +1319,7 @@ BLOG_URL
 /**
  * Creates GeChiUI site meta and sets the default values.
  *
- *
+ * @since 5.1.0
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -1330,6 +1342,7 @@ function populate_site_meta( $site_id, array $meta = array() ) {
 	/**
 	 * Filters meta for a site on creation.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param array $meta    Associative array of site meta keys and values to be inserted.
 	 * @param int   $site_id ID of site to populate.

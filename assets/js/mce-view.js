@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/mce-view.js
+ * @output assets/js/mce-view.js
  */
 
 /* global tinymce */

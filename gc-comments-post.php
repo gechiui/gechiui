@@ -43,10 +43,8 @@ $user            = gc_get_current_user();
 $cookies_consent = ( isset( $_POST['gc-comment-cookies-consent'] ) );
 
 /**
- * Perform other actions when comment cookies are set.
- *
- *
- *
+ * Fires after comment cookies are set.
+ * The `$cookies_consent` parameter was added.
  *
  * @param GC_Comment $comment         Comment object.
  * @param GC_User    $user            Comment author's user object. The user may not exist.
@@ -70,7 +68,7 @@ if ( ! $cookies_consent && 'unapproved' === gc_get_comment_status( $comment ) &&
 /**
  * Filters the location URI to send the commenter after posting.
  *
- *
+ * @since 2.0.5
  *
  * @param string     $location The 'redirect_to' URI sent via $_POST.
  * @param GC_Comment $comment  Comment object.

@@ -4,12 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Output JavaScript to toggle display of additional settings if avatars are disabled.
- *
  *
  */
 function options_discussion_add_js() {
@@ -28,7 +26,6 @@ function options_discussion_add_js() {
 
 /**
  * Display JavaScript on the page.
- *
  *
  */
 function options_general_add_js() {
@@ -90,8 +87,10 @@ function options_general_add_js() {
 
 		var languageSelect = $( '#GCLANG' );
 		$( 'form' ).on( 'submit', function() {
-			// Don't show a spinner for English and installed languages,
-			// as there is nothing to download.
+			/*
+			 * Don't show a spinner for English and installed languages,
+			 * as there is nothing to download.
+			 */
 			if ( ! languageSelect.find( 'option:selected' ).data( 'installed' ) ) {
 				$( '#submit', this ).after( '<span class="spinner language-install-spinner is-active" />' );
 			}
@@ -103,7 +102,6 @@ function options_general_add_js() {
 
 /**
  * Display JavaScript on the page.
- *
  *
  */
 function options_reading_add_js() {
@@ -126,9 +124,8 @@ function options_reading_add_js() {
 /**
  * Render the site charset setting.
  *
- *
  */
 function options_reading_blog_charset() {
 	echo '<input name="blog_charset" type="text" id="blog_charset" value="' . esc_attr( get_option( 'blog_charset' ) ) . '" class="regular-text" />';
-	echo '<p class="description">' . __( '您的站点的<a href="https://www.gechiui.com/support/glossary/#character-set">字符编码</a>（推荐使用UTF-8）' ) . '</p>';
+	echo '<p class="description">' . __( '您的系统的<a href="https://www.gechiui.com/support/glossary/#character-set">字符编码</a>（推荐使用UTF-8）' ) . '</p>';
 }

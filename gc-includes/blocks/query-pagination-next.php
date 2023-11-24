@@ -20,9 +20,15 @@ function render_block_core_query_pagination_next( $attributes, $content, $block 
 	$max_page = isset( $block->context['query']['pages'] ) ? (int) $block->context['query']['pages'] : 0;
 
 	$wrapper_attributes = get_block_wrapper_attributes();
+	$show_label         = isset( $block->context['showLabel'] ) ? (bool) $block->context['showLabel'] : true;
 	$default_label      = __( '下一页' );
-	$label              = isset( $attributes['label'] ) && ! empty( $attributes['label'] ) ? $attributes['label'] : $default_label;
+	$label_text         = isset( $attributes['label'] ) && ! empty( $attributes['label'] ) ? esc_html( $attributes['label'] ) : $default_label;
+	$label              = $show_label ? $label_text : '';
 	$pagination_arrow   = get_query_pagination_arrow( $block, true );
+
+	if ( ! $label ) {
+		$wrapper_attributes .= ' aria-label="' . $label_text . '"';
+	}
 	if ( $pagination_arrow ) {
 		$label .= $pagination_arrow;
 	}
@@ -30,7 +36,7 @@ function render_block_core_query_pagination_next( $attributes, $content, $block 
 
 	// Check if the pagination is for Query that inherits the global context.
 	if ( isset( $block->context['query']['inherit'] ) && $block->context['query']['inherit'] ) {
-		$filter_link_attributes = function() use ( $wrapper_attributes ) {
+		$filter_link_attributes = static function() use ( $wrapper_attributes ) {
 			return $wrapper_attributes;
 		};
 		add_filter( 'next_posts_link_attributes', $filter_link_attributes );
@@ -63,7 +69,7 @@ function render_block_core_query_pagination_next( $attributes, $content, $block 
  */
 function register_block_core_query_pagination_next() {
 	register_block_type_from_metadata(
-		ABSPATH . 'assets/blocks/query-pagination-next',
+		__DIR__ . '/query-pagination-next',
 		array(
 			'render_callback' => 'render_block_core_query_pagination_next',
 		)

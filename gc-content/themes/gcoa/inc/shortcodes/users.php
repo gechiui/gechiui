@@ -1,9 +1,9 @@
 <?php
 /**
- * 成员列表
- * 引用方法 <!-- gc:pattern {"slug":"gcoa/users"} /-->
+* Title: 成员列表
+* Slug: gcoa_users
 * 简码引用 [gcoa_users]
- */
+*/
 
 function gcoa_page_users_styles() {
     $theme_version = gc_get_theme()->get( 'Version' );
@@ -105,9 +105,3 @@ function gcoa_users(){
         ';
 }
 add_shortcode('gcoa_users', 'gcoa_users');
-
-// return array(
-// 	'title'      => __( '成员列表', 'gcoa' ),
-// 	'inserter' => false,
-// 	'content'    => gcoa_users()
-// );

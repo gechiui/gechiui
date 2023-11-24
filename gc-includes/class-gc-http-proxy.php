@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage HTTP
- *
  */
 
 /**
@@ -37,14 +36,14 @@
  * @link https://core.trac.gechiui.com/ticket/4011 Proxy support ticket in GeChiUI.
  * @link https://core.trac.gechiui.com/ticket/14636 Allow wildcard domains in GC_PROXY_BYPASS_HOSTS
  *
- *
  */
+#[AllowDynamicProperties]
 class GC_HTTP_Proxy {
 
 	/**
 	 * Whether proxy connection should be used.
 	 *
-	 * Constants which control this behaviour:
+	 * Constants which control this behavior:
 	 *
 	 * - `GC_PROXY_HOST`
 	 * - `GC_PROXY_PORT`
@@ -59,7 +58,7 @@ class GC_HTTP_Proxy {
 	/**
 	 * Whether authentication should be used.
 	 *
-	 * Constants which control this behaviour:
+	 * Constants which control this behavior:
 	 *
 	 * - `GC_PROXY_USERNAME`
 	 * - `GC_PROXY_PASSWORD`
@@ -174,6 +173,7 @@ class GC_HTTP_Proxy {
 		 * Returning false will bypass the proxy; returning true will send
 		 * the request through the proxy. Returning null bypasses the filter.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @param bool|null $override Whether to send the request through the proxy. Default null.
 		 * @param string    $uri      URL of the request.
@@ -198,7 +198,7 @@ class GC_HTTP_Proxy {
 		if ( null === $bypass_hosts ) {
 			$bypass_hosts = preg_split( '|,\s*|', GC_PROXY_BYPASS_HOSTS );
 
-			if ( false !== strpos( GC_PROXY_BYPASS_HOSTS, '*' ) ) {
+			if ( str_contains( GC_PROXY_BYPASS_HOSTS, '*' ) ) {
 				$wildcard_regex = array();
 				foreach ( $bypass_hosts as $host ) {
 					$wildcard_regex[] = str_replace( '\*', '.+', preg_quote( $host, '/' ) );

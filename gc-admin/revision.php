@@ -164,7 +164,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 ?>
 
 <div class="wrap">
-	<h1 class="long-header"><?php echo $h1; ?></h1>
+	<div class="page-header"><h2 class="header-title"><?php echo $h1; ?></h2></div>
 	<?php echo $return_to_post; ?>
 </div>
 <?php

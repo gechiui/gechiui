@@ -8,6 +8,7 @@ if ( gc_using_themes() ) {
 	/**
 	 * Fires before determining which template to load.
 	 *
+	 * @since 1.5.0
 	 */
 	do_action( 'template_redirect' );
 }
@@ -17,8 +18,6 @@ if ( gc_using_themes() ) {
  *
  * Provides a significant performance bump by exiting before the page
  * content loads for 'HEAD' requests. See #14348.
- *
- *
  *
  * @param bool $exit Whether to exit without generating any content for 'HEAD' requests. Default true.
  */
@@ -38,6 +37,7 @@ if ( is_robots() ) {
 	/**
 	 * Fired when the template loader determines a favicon.ico request.
 	 *
+	 * @since 5.4.0
 	 */
 	do_action( 'do_favicon' );
 	return;

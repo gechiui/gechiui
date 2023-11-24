@@ -1,0 +1,86 @@
+.gc-block-navigation .block-list-appender{
+  position:relative;
+}
+.gc-block-navigation .has-child{
+  cursor:pointer;
+}
+.gc-block-navigation .has-child .gc-block-navigation__submenu-container{
+  z-index:28;
+}
+.gc-block-navigation .has-child:hover .gc-block-navigation__submenu-container{
+  z-index:29;
+}
+.gc-block-navigation .has-child.has-child-selected>.gc-block-navigation__submenu-container,.gc-block-navigation .has-child.is-selected>.gc-block-navigation__submenu-container{
+  height:auto !important;
+  min-width:200px !important;
+  opacity:1 !important;
+  overflow:visible !important;
+  visibility:visible !important;
+  width:auto !important;
+}
+.gc-block-navigation-item .gc-block-navigation-item__content{
+  cursor:text;
+}
+.gc-block-navigation-item.is-editing,.gc-block-navigation-item.is-selected{
+  min-width:20px;
+}
+.gc-block-navigation-item .block-list-appender{
+  margin:16px 16px 16px auto;
+}
+
+.gc-block-navigation-link__invalid-item{
+  color:#000;
+}
+
+.gc-block-navigation-link__missing_text-tooltip{
+  height:1px;
+  margin:-1px;
+  overflow:hidden;
+  padding:0;
+  position:absolute;
+  width:1px;
+}
+.gc-block-navigation-link__placeholder{
+  background-image:none !important;
+  box-shadow:none !important;
+  position:relative;
+  text-decoration:none !important;
+}
+.gc-block-navigation-link__placeholder .gc-block-navigation-link__placeholder-text span{
+  --gc-underline-color:var(--gc-admin-theme-color);
+  background-image:linear-gradient(-45deg, transparent 20%, var(--gc-underline-color) 30%, var(--gc-underline-color) 36%, transparent 46%), linear-gradient(-135deg, transparent 54%, var(--gc-underline-color) 64%, var(--gc-underline-color) 70%, transparent 80%);
+  background-position:100% 100%;
+  background-repeat:repeat-x;
+  background-size:6px 3px;
+  padding-bottom:.1em;
+}
+.is-dark-theme .gc-block-navigation-link__placeholder .gc-block-navigation-link__placeholder-text span{
+  --gc-underline-color:#fff;
+}
+.gc-block-navigation-link__placeholder.gc-block-navigation-item__content{
+  cursor:pointer;
+}
+.link-control-transform{
+  border-top:1px solid #ccc;
+  padding:0 16px 8px;
+}
+
+.link-control-transform__subheading{
+  color:#1e1e1e;
+  font-size:11px;
+  font-weight:500;
+  margin-bottom:1.5em;
+  text-transform:uppercase;
+}
+
+.link-control-transform__items{
+  display:flex;
+  justify-content:space-between;
+}
+
+.link-control-transform__item{
+  flex-basis:33%;
+  flex-direction:column;
+  gap:8px;
+  height:auto;
+}

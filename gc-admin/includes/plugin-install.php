@@ -44,7 +44,7 @@
  * | `$is_ssl`            | Yes           |  Yes               | No       | No             |
  * | `$fields`            | Yes           |  Yes               | No       | No             |
  *
- *
+ * @since 2.7.0
  *
  * @param string       $action API action to perform: 'query_plugins', 'plugin_information',
  *                             'hot_tags' or 'hot_categories'.
@@ -114,6 +114,7 @@ function plugins_api( $action, $args = array() ) {
 	}
 
 	//在请求参数中添加www.gechiui.com的appkey身份识别
+	// gongenlin
 	if(defined( 'GECHIUI_USERNAME' ) && defined( 'GECHIUI_APPKEY' ) ){
 		$args->username = GECHIUI_USERNAME;
 	    $args->appkey = GECHIUI_APPKEY;
@@ -132,6 +133,7 @@ function plugins_api( $action, $args = array() ) {
 	 *
 	 * Important: An object MUST be returned to this filter.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param object $args   Plugin API arguments.
 	 * @param string $action The type of information being requested from the Plugin Installation API.
@@ -146,6 +148,7 @@ function plugins_api( $action, $args = array() ) {
 	 * If `$action` is 'query_plugins' or 'plugin_information', an object MUST be passed.
 	 * If `$action` is 'hot_tags' or 'hot_categories', an array should be passed.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param false|object|array $result The result object or array. Default false.
 	 * @param string             $action The type of information being requested from the Plugin Installation API.
@@ -155,7 +158,7 @@ function plugins_api( $action, $args = array() ) {
 
 	if ( false === $res ) {
 
-		$url = 'http://api.gechiui.com/plugins/info/1.3/';
+		$url = 'http://api.gechiui.com/plugins/info/1.2/';
 		$url = add_query_arg(
 			array(
 				'action'  => $action,
@@ -229,6 +232,7 @@ function plugins_api( $action, $args = array() ) {
 	/**
 	 * Filters the Plugin Installation API response results.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param object|GC_Error $res    Response object or GC_Error.
 	 * @param string          $action The type of information being requested from the Plugin Installation API.
@@ -238,9 +242,9 @@ function plugins_api( $action, $args = array() ) {
 }
 
 /**
- * Retrieve popular GeChiUI plugin tags.
+ * Retrieves popular GeChiUI plugin tags.
  *
- *
+ * @since 2.7.0
  *
  * @param array $args
  * @return array|GC_Error
@@ -264,24 +268,16 @@ function install_popular_tags( $args = array() ) {
 }
 
 /**
+ * Displays the Featured tab of Add Plugins screen.
  *
+ * @since 2.7.0
  */
 function install_dashboard() {
+	display_plugins_table();
 	?>
-	<p>
-		<?php
-		printf(
-			/* translators: %s: https://www.gechiui.com/plugins/ */
-			__( '插件可以扩展和增强GeChiUI的功能。您可以从<a href="%s">GeChiUI插件目录</a>中自动安装插件，或者通过点击本页顶部的按钮上传.zip格式的插件文件。' ),
-			__( 'https://www.gechiui.com/plugins/' )
-		);
-		?>
-	</p>
-
-	<?php display_plugins_table(); ?>
 
 	<div class="plugins-popular-tags-wrapper">
-	<h2><?php _e( '热门标签' ); ?></h2>
+	<h4><?php _e( '热门标签' ); ?></h4>
 	<p><?php _e( '您也可以浏览插件目录中最流行的标签：' ); ?></p>
 	<?php
 
@@ -320,8 +316,7 @@ function install_dashboard() {
 /**
  * Displays a search form for searching plugins.
  *
- *
- *
+ * @since 2.7.0 The `$type_selector` parameter was deprecated.
  *
  * @param bool $deprecated Not used.
  */
@@ -331,31 +326,44 @@ function install_search_form( $deprecated = true ) {
 	?>
 	<form class="search-form search-plugins" method="get">
 		<input type="hidden" name="tab" value="search" />
-		<label class="screen-reader-text" for="typeselector"><?php _e( '搜索插件：' ); ?></label>
+		<label class="screen-reader-text" for="typeselector">
+			<?php
+			/* translators: Hidden accessibility text. */
+			_e( '搜索插件：' );
+			?>
+		</label>
 		<select name="type" id="typeselector">
 			<option value="term"<?php selected( 'term', $type ); ?>><?php _e( '关键字' ); ?></option>
-			<option value="author"<?php selected( 'author', $type ); ?>><?php _e( '作者' ); ?></option>
-			<option value="tag"<?php selected( 'tag', $type ); ?>><?php _ex( '标签', 'Plugin Installer' ); ?></option>
+			<option value="tag"<?php selected( 'tag', $type ); ?>><?php _ex( 'Tag', 'Plugin Installer' ); ?></option>
 		</select>
-		<label class="screen-reader-text" for="search-plugins"><?php _e( '搜索插件' ); ?></label>
-		<input type="search" name="s" id="search-plugins" value="<?php echo esc_attr( $term ); ?>" class="gc-filter-search" placeholder="<?php esc_attr_e( '搜索插件…' ); ?>" />
+		<label class="screen-reader-text" for="search-plugins">
+			<?php
+			/* translators: Hidden accessibility text. */
+			_e( '搜索插件' );
+			?>
+		</label>
+		<input type="search" name="s" id="search-plugins" value="<?php echo esc_attr( $term ); ?>" class="gc-filter-search" placeholder="<?php esc_attr_e( '搜索插件...'  ); ?>" />
 		<?php submit_button( __( '搜索插件' ), 'hide-if-js', false, false, array( 'id' => 'search-submit' ) ); ?>
 	</form>
 	<?php
 }
 
 /**
- * Upload from zip
- *
+ * Displays a form to upload plugins from zip files.
  *
  */
 function install_plugins_upload() {
 	?>
 <div class="upload-plugin">
-	<p class="install-help"><?php _e( '如果您有.zip格式的插件文件，可以在这里通过上传安装它。' ); ?></p>
-	<form method="post" enctype="multipart/form-data" class="gc-upload-form" action="<?php echo self_admin_url( 'update.php?action=upload-plugin' ); ?>">
+	<p class="install-help"><?php _e( '如果您有 .zip 格式的插件文件，可以在这里通过上传安装它。' ); ?></p>
+	<form method="post" enctype="multipart/form-data" class="gc-upload-form" action="<?php echo esc_url( self_admin_url( 'update.php?action=upload-plugin' ) ); ?>">
 		<?php gc_nonce_field( 'plugin-upload' ); ?>
-		<label class="screen-reader-text" for="pluginzip"><?php _e( '插件zip文件' ); ?></label>
+		<label class="screen-reader-text" for="pluginzip">
+			<?php
+			/* translators: Hidden accessibility text. */
+			_e( '插件 Zip 文件' );
+			?>
+		</label>
 		<input type="file" id="pluginzip" name="pluginzip" accept=".zip" />
 		<?php submit_button( __( '立即安装' ), '', 'install-plugin-submit', false ); ?>
 	</form>
@@ -364,9 +372,30 @@ function install_plugins_upload() {
 }
 
 /**
- * Display plugin content based on plugin list.
+ * Shows a username form for the favorites page.
  *
+ */
+function install_plugins_favorites_form() {
+	$user   = get_user_option( 'gcorg_favorites' );
+	$action = 'save_gcorg_username_' . get_current_user_id();
+	?>
+	<p><?php _e( '您可在此浏览在www.GeChiUI.com上收藏过的插件。' ); ?></p>
+	<form method="get">
+		<input type="hidden" name="tab" value="favorites" />
+		<p>
+			<label for="user"><?php _e( '您的www.GeChiUI.com用户名：' ); ?></label>
+			<input type="search" id="user" name="user" value="<?php echo esc_attr( $user ); ?>" />
+			<input type="submit" class="btn btn-primary btn-tone btn-sm" value="<?php esc_attr_e( '获取收藏列表' ); ?>" />
+			<input type="hidden" id="gcorg-username-nonce" name="_gcnonce" value="<?php echo esc_attr( gc_create_nonce( $action ) ); ?>" />
+		</p>
+	</form>
+	<?php
+}
+
+/**
+ * Displays plugin content based on plugin list.
  *
+ * @since 2.7.0
  *
  * @global GC_List_Table $gc_list_table
  */
@@ -374,23 +403,29 @@ function display_plugins_table() {
 	global $gc_list_table;
 
 	switch ( current_filter() ) {
+		case 'install_plugins_beta':
+			printf(
+				/* translators: %s: URL to "Features as Plugins" page. */
+				'<p>' . __( '您正在使用开发版本的GeChiUI。这些功能插件同样正被开发。<a href="%s">了解更多</a>。' ) . '</p>',
+				'https://make.gechiui.com/core/handbook/about/release-cycle/features-as-plugins/'
+			);
+			break;
+		case 'install_plugins_featured':
+			printf(
+				/* translators: %s: https://www.gechiui.com/plugins/ */
+				'<p>' . __( '插件可以扩展和增强GeChiUI的功能。您可以从<a href="%s">GeChiUI插件目录</a>中自动安装插件，或者通过点击本页顶部的按钮上传.zip格式的插件文件。' ) . '</p>',
+				__( 'https://www.gechiui.com/plugins/' )
+			);
+			break;
+		case 'install_plugins_recommended':
+			echo '<p>' . __( '这些建议是基于您和其他用户已安装的插件做出的。' ) . '</p>';
+			break;
 		case 'install_plugins_favorites':
 			if ( empty( $_GET['user'] ) && ! get_user_option( 'gcorg_favorites' ) ) {
 				return;
 			}
 			break;
-		case 'install_plugins_all':
-			echo '<p>' . __( '包含了所有的插件，包括子插件。' ) . '</p>';
-			break;
-		case 'install_plugins_beta':
-			printf(
-				/* translators: %s: URL to "Features as Plugins" page. */
-				'<p>' . __( '您正在使用开发版本的GeChiUI。这些功能插件同样正被开发。<a href=\"%s\">了解更多</a>。' ) . '</p>',
-				'https://make.gechiui.com/core/handbook/about/release-cycle/features-as-plugins/'
-			);
-			break;
 	}
-
 	?>
 	<form id="plugin-filter" method="post">
 		<?php $gc_list_table->display(); ?>
@@ -399,9 +434,7 @@ function display_plugins_table() {
 }
 
 /**
- * Determine the status we can perform on a plugin.
- *
- *
+ * Determines the status we can perform on a plugin.
  *
  * @param array|object $api  Data about the plugin retrieved from the API.
  * @param bool         $loop Optional. Disable further loops. Default false.
@@ -454,8 +487,10 @@ function install_plugin_install_status( $api, $loop = false ) {
 				}
 			} else {
 				$key = array_keys( $installed_plugin );
-				// Use the first plugin regardless of the name.
-				// Could have issues for multiple plugins in one directory if they share different version numbers.
+				/*
+				 * Use the first plugin regardless of the name.
+				 * Could have issues for multiple plugins in one directory if they share different version numbers.
+				 */
 				$key = reset( $key );
 
 				$update_file = $api->slug . '/' . $key;
@@ -489,9 +524,9 @@ function install_plugin_install_status( $api, $loop = false ) {
 }
 
 /**
- * Display plugin information in dialog box form.
+ * Displays plugin information in dialog box form.
  *
- *
+ * @since 2.7.0
  *
  * @global string $tab
  */
@@ -644,10 +679,10 @@ function install_plugin_information() {
 				</li>
 			<?php } if ( ! empty( $api->requires ) ) { ?>
 				<li>
-					<strong><?php _e( '需要GeChiUI版本：' ); ?></strong>
+					<strong><?php _e( '需要 GeChiUI 版本：' ); ?></strong>
 					<?php
 					/* translators: %s: Version number. */
-					printf( __( '%s或更高' ), $api->requires );
+					printf( __( '%s 或更高版本' ), $api->requires );
 					?>
 				</li>
 			<?php } if ( ! empty( $api->tested ) ) { ?>
@@ -657,7 +692,7 @@ function install_plugin_information() {
 					<strong><?php _e( '要求PHP版本：' ); ?></strong>
 					<?php
 					/* translators: %s: Version number. */
-					printf( __( '%s或更高' ), $api->requires_php );
+					printf( __( '%s 或更高版本' ), $api->requires_php );
 					?>
 				</li>
 			<?php } if ( isset( $api->active_installs ) ) { ?>
@@ -678,7 +713,7 @@ function install_plugin_information() {
 				?>
 				</li>
 			<?php } if ( ! empty( $api->slug ) && empty( $api->external ) ) { ?>
-				<li><a target="_blank" href="<?php echo esc_url( __( 'https://www.gechiui.com/plugins/' ) . $api->slug ); ?>/"><?php _e( 'www.GeChiUI.com插件页面 &#187;' ); ?></a></li>
+				<li><a target="_blank" href="<?php echo esc_url( __( 'https://www.gechiui.com/plugins/' ) . $api->slug ); ?>/"><?php _e( 'www.GeChiUI.com 插件页面 &#187;' ); ?></a></li>
 			<?php } if ( ! empty( $api->homepage ) ) { ?>
 				<li><a target="_blank" href="<?php echo esc_url( $api->homepage ); ?>"><?php _e( '插件主页 &#187;' ); ?></a></li>
 			<?php } if ( ! empty( $api->donate_link ) && empty( $api->contributors ) ) { ?>
@@ -700,7 +735,7 @@ function install_plugin_information() {
 				<?php
 				printf(
 					/* translators: %s: Number of ratings. */
-					_n( '（基于%s次评级）', '（基于%s次评级）', $api->num_ratings ),
+					_n( '（基于 %s 次评级）', '（基于 %s 次评级）', $api->num_ratings ),
 					number_format_i18n( $api->num_ratings )
 				);
 				?>
@@ -783,37 +818,31 @@ function install_plugin_information() {
 	$tested_gc      = ( empty( $api->tested ) || version_compare( get_bloginfo( 'version' ), $api->tested, '<=' ) );
 
 	if ( ! $compatible_php ) {
-		echo '<div class="notice notice-error notice-alt"><p>';
-		_e( '<strong>错误：</strong>此插件<strong>需要新版本的PHP</strong>。' );
+		$message = __( '<strong>错误：</strong>此插件<strong>需要新版本的PHP</strong>。' );
 		if ( current_user_can( 'update_php' ) ) {
-			printf(
+			$message = sprintf(
 				/* translators: %s: URL to Update PHP page. */
 				' ' . __( '<a href="%s" target="_blank">点击此处查阅如何更新PHP</a>。' ),
 				esc_url( gc_get_update_php_url() )
 			);
-
-			gc_update_php_annotation( '</p><p><em>', '</em>' );
-		} else {
-			echo '</p>';
 		}
-		echo '</div>';
+		echo setting_error( $message, 'notice-alt danger' );
 	}
 
 	if ( ! $tested_gc ) {
-		echo '<div class="notice notice-warning notice-alt"><p>';
-		_e( '<strong>警告：</strong>此插件没有与您当前版本的GeChiUI进行<strong>兼容性测试</strong>。' );
-		echo '</p></div>';
+		$message = __( '此插件没有与您当前版本的GeChiUI进行<strong>兼容性测试</strong>。' );
+		echo setting_error( $message, 'notice-alt warning' );
 	} elseif ( ! $compatible_gc ) {
-		echo '<div class="notice notice-error notice-alt"><p>';
-		_e( '<strong>错误：</strong>此插件<strong>需要新版本的GeChiUI</strong>。' );
+
+		$message = __( '<strong>错误：</strong>此插件<strong>需要新版本的GeChiUI</strong>。' );
 		if ( current_user_can( 'update_core' ) ) {
-			printf(
+			$message = sprintf(
 				/* translators: %s: URL to GeChiUI Updates screen. */
 				' ' . __( '<a href="%s" target="_parent">点击此处更新GeChiUI</a>。' ),
-				self_admin_url( 'update-core.php' )
+				esc_url( self_admin_url( 'update-core.php' ) )
 			);
 		}
-		echo '</p></div>';
+		echo setting_error( $message, 'notice-alt danger' );
 	}
 
 	foreach ( (array) $api->sections as $section_name => $content ) {
@@ -838,10 +867,10 @@ function install_plugin_information() {
 			case 'install':
 				if ( $status['url'] ) {
 					if ( $compatible_php && $compatible_gc ) {
-						echo '<a data-slug="' . esc_attr( $api->slug ) . '" id="plugin_install_from_iframe" class="button button-primary right" href="' . $status['url'] . '" target="_parent">' . __( '立即安装' ) . '</a>';
+						echo '<a data-slug="' . esc_attr( $api->slug ) . '" id="plugin_install_from_iframe" class="btn btn-primary right" href="' . $status['url'] . '" target="_parent">' . __( '立即安装' ) . '</a>';
 					} else {
 						printf(
-							'<button type="button" class="button button-primary button-disabled right" disabled="disabled">%s</button>',
+							'<button type="button" class="btn btn-primary button-disabled right" disabled="disabled">%s</button>',
 							_x( '无法安装', 'plugin' )
 						);
 					}
@@ -850,10 +879,10 @@ function install_plugin_information() {
 			case 'update_available':
 				if ( $status['url'] ) {
 					if ( $compatible_php ) {
-						echo '<a data-slug="' . esc_attr( $api->slug ) . '" data-plugin="' . esc_attr( $status['file'] ) . '" id="plugin_update_from_iframe" class="button button-primary right" href="' . $status['url'] . '" target="_parent">' . __( '立即安装更新' ) . '</a>';
+						echo '<a data-slug="' . esc_attr( $api->slug ) . '" data-plugin="' . esc_attr( $status['file'] ) . '" id="plugin_update_from_iframe" class="btn btn-primary right" href="' . $status['url'] . '" target="_parent">' . __( '立即安装更新' ) . '</a>';
 					} else {
 						printf(
-							'<button type="button" class="button button-primary button-disabled right" disabled="disabled">%s</button>',
+							'<button type="button" class="btn btn-primary button-disabled right" disabled="disabled">%s</button>',
 							_x( '未能更新', 'plugin' )
 						);
 					}
@@ -861,10 +890,10 @@ function install_plugin_information() {
 				break;
 			case 'newer_installed':
 				/* translators: %s: Plugin version. */
-				echo '<a class="button button-primary right disabled">' . sprintf( __( '新版本（%s）已安装' ), esc_html( $status['version'] ) ) . '</a>';
+				echo '<a class="btn btn-primary right disabled">' . sprintf( __( '新版本（%s）已安装' ), esc_html( $status['version'] ) ) . '</a>';
 				break;
 			case 'latest_installed':
-				echo '<a class="button button-primary right disabled">' . __( '已安装最新版本' ) . '</a>';
+				echo '<a class="btn btn-primary right disabled">' . __( '已安装最新版本' ) . '</a>';
 				break;
 		}
 	}

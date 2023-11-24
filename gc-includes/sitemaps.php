@@ -7,13 +7,13 @@
  *
  * @package GeChiUI
  * @subpackage Sitemaps
- *
+ * @since 5.5.0
  */
 
 /**
  * Retrieves the current Sitemaps server instance.
  *
- *
+ * @since 5.5.0
  *
  * @global GC_Sitemaps $gc_sitemaps Global Core Sitemaps instance.
  *
@@ -32,6 +32,7 @@ function gc_sitemaps_get_server() {
 		 *
 		 * Additional sitemaps should be registered on this hook.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param GC_Sitemaps $gc_sitemaps Sitemaps object.
 		 */
@@ -44,7 +45,7 @@ function gc_sitemaps_get_server() {
 /**
  * Gets an array of sitemap providers.
  *
- *
+ * @since 5.5.0
  *
  * @return GC_Sitemaps_Provider[] Array of sitemap providers.
  */
@@ -57,7 +58,7 @@ function gc_get_sitemap_providers() {
 /**
  * Registers a new sitemap provider.
  *
- *
+ * @since 5.5.0
  *
  * @param string               $name     Unique name for the sitemap provider.
  * @param GC_Sitemaps_Provider $provider The `Sitemaps_Provider` instance implementing the sitemap.
@@ -72,7 +73,7 @@ function gc_register_sitemap_provider( $name, GC_Sitemaps_Provider $provider ) {
 /**
  * Gets the maximum number of URLs for a sitemap.
  *
- *
+ * @since 5.5.0
  *
  * @param string $object_type Object type for sitemap to be filtered (e.g. 'post', 'term', 'user').
  * @return int The maximum number of URLs.
@@ -81,6 +82,7 @@ function gc_sitemaps_get_max_urls( $object_type ) {
 	/**
 	 * Filters the maximum number of URLs displayed on a sitemap.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param int    $max_urls    The maximum number of URLs included in a sitemap. Default 2000.
 	 * @param string $object_type Object type for sitemap to be filtered (e.g. 'post', 'term', 'user').
@@ -91,7 +93,7 @@ function gc_sitemaps_get_max_urls( $object_type ) {
 /**
  * Retrieves the full URL for a sitemap.
  *
- *
+ * @since 5.5.1
  *
  * @param string $name         The sitemap name.
  * @param string $subtype_name The sitemap subtype name. Default empty string.

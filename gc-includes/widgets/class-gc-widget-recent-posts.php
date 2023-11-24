@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class used to implement a Recent Posts widget.
- *
- *
  *
  * @see GC_Widget
  */
@@ -23,7 +20,7 @@ class GC_Widget_Recent_Posts extends GC_Widget {
 	public function __construct() {
 		$widget_ops = array(
 			'classname'                   => 'widget_recent_entries',
-			'description'                 => __( '显示您站点上最近发布的几篇文章。' ),
+			'description'                 => __( '显示您系统上最近发布的几篇文章。' ),
 			'customize_selective_refresh' => true,
 			'show_instance_in_rest'       => true,
 		);
@@ -60,8 +57,8 @@ class GC_Widget_Recent_Posts extends GC_Widget {
 			/**
 			 * Filters the arguments for the Recent Posts widget.
 			 *
-		
-		
+			 * @since 3.4.0
+			 * @since 4.9.0 Added the `$instance` parameter.
 			 *
 			 * @see GC_Query::get_posts()
 			 *

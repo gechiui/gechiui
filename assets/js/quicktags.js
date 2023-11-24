@@ -17,7 +17,7 @@
  * quicktags_id string The ID of the textarea that will be the editor canvas
  * buttons string Comma separated list of the default buttons names that will be shown in that instance.
  *
- * @output gc-includes/js/quicktags.js
+ * @output assets/js/quicktags.js
  */
 
 // New edit toolbar used with permission

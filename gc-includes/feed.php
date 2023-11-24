@@ -7,17 +7,16 @@
  *
  * @package GeChiUI
  * @subpackage Feed
- *
  */
 
 /**
- * RSS container for the bloginfo function.
+ * Retrieves RSS container for the bloginfo function.
  *
  * You can retrieve anything that you can using the get_bloginfo() function.
  * Everything will be stripped of tags and characters converted, when the values
  * are retrieved for use in the feeds.
  *
- *
+ * @since 1.5.1
  *
  * @see get_bloginfo() For the list of possible values to display.
  *
@@ -29,6 +28,7 @@ function get_bloginfo_rss( $show = '' ) {
 	/**
 	 * Filters the bloginfo for use in RSS feeds.
 	 *
+	 * @since 2.2.0
 	 *
 	 * @see convert_chars()
 	 * @see get_bloginfo()
@@ -40,13 +40,11 @@ function get_bloginfo_rss( $show = '' ) {
 }
 
 /**
- * Display RSS container for the bloginfo function.
+ * Displays RSS container for the bloginfo function.
  *
  * You can retrieve anything that you can using the get_bloginfo() function.
  * Everything will be stripped of tags and characters converted, when the values
  * are retrieved for use in the feeds.
- *
- *
  *
  * @see get_bloginfo() For the list of possible values to display.
  *
@@ -66,12 +64,10 @@ function bloginfo_rss( $show = '' ) {
 }
 
 /**
- * Retrieve the default feed.
+ * Retrieves the default feed.
  *
  * The default feed is 'rss2', unless a plugin changes it through the
  * {@see 'default_feed'} filter.
- *
- *
  *
  * @return string Default feed, or for example 'rss2', 'atom', etc.
  */
@@ -89,12 +85,10 @@ function get_default_feed() {
 }
 
 /**
- * Retrieve the blog title for the feed title.
+ * Retrieves the blog title for the feed title.
+ * The optional `$sep` parameter was deprecated and renamed to `$deprecated`.
  *
- *
- *
- *
- * @param string $deprecated Unused..
+ * @param string $deprecated Unused.
  * @return string The document title.
  */
 function get_gc_title_rss( $deprecated = '&#8211;' ) {
@@ -106,6 +100,8 @@ function get_gc_title_rss( $deprecated = '&#8211;' ) {
 	/**
 	 * Filters the blog title for use as the feed title.
 	 *
+	 * @since 2.2.0
+	 * @since 4.4.0 The `$sep` parameter was deprecated and renamed to `$deprecated`.
 	 *
 	 * @param string $title      The current blog title.
 	 * @param string $deprecated Unused.
@@ -114,10 +110,8 @@ function get_gc_title_rss( $deprecated = '&#8211;' ) {
 }
 
 /**
- * Display the blog title for display of the feed title.
- *
- *
- *
+ * Displays the blog title for display of the feed title.
+ * The optional `$sep` parameter was deprecated and renamed to `$deprecated`.
  *
  * @param string $deprecated Unused.
  */
@@ -130,6 +124,8 @@ function gc_title_rss( $deprecated = '&#8211;' ) {
 	/**
 	 * Filters the blog title for display of the feed title.
 	 *
+	 * @since 2.2.0
+	 * @since 4.4.0 The `$sep` parameter was deprecated and renamed to `$deprecated`.
 	 *
 	 * @see get_gc_title_rss()
 	 *
@@ -140,9 +136,7 @@ function gc_title_rss( $deprecated = '&#8211;' ) {
 }
 
 /**
- * Retrieve the current post title for the feed.
- *
- *
+ * Retrieves the current post title for the feed.
  *
  * @return string Current post title.
  */
@@ -152,6 +146,7 @@ function get_the_title_rss() {
 	/**
 	 * Filters the post title for use in a feed.
 	 *
+	 * @since 1.2.0
 	 *
 	 * @param string $title The current post title.
 	 */
@@ -159,8 +154,7 @@ function get_the_title_rss() {
 }
 
 /**
- * Display the post title in the feed.
- *
+ * Displays the post title in the feed.
  *
  */
 function the_title_rss() {
@@ -168,9 +162,7 @@ function the_title_rss() {
 }
 
 /**
- * Retrieve the post content for feeds.
- *
- *
+ * Retrieves the post content for feeds.
  *
  * @see get_the_content()
  *
@@ -189,6 +181,7 @@ function get_the_content_feed( $feed_type = null ) {
 	/**
 	 * Filters the post content for use in feeds.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param string $content   The current post content.
 	 * @param string $feed_type Type of feed. Possible values include 'rss2', 'atom'.
@@ -198,9 +191,7 @@ function get_the_content_feed( $feed_type = null ) {
 }
 
 /**
- * Display the post content for feeds.
- *
- *
+ * Displays the post content for feeds.
  *
  * @param string $feed_type The type of feed. rss2 | atom | rss | rdf
  */
@@ -209,8 +200,7 @@ function the_content_feed( $feed_type = null ) {
 }
 
 /**
- * Display the post excerpt for the feed.
- *
+ * Displays the post excerpt for the feed.
  *
  */
 function the_excerpt_rss() {
@@ -218,6 +208,7 @@ function the_excerpt_rss() {
 	/**
 	 * Filters the post excerpt for a feed.
 	 *
+	 * @since 1.2.0
 	 *
 	 * @param string $output The current post excerpt.
 	 */
@@ -225,14 +216,14 @@ function the_excerpt_rss() {
 }
 
 /**
- * Display the permalink to the post for use in feeds.
- *
+ * Displays the permalink to the post for use in feeds.
  *
  */
 function the_permalink_rss() {
 	/**
 	 * Filters the permalink to the post for use in feeds.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param string $post_permalink The current post permalink.
 	 */
@@ -240,14 +231,14 @@ function the_permalink_rss() {
 }
 
 /**
- * Outputs the link to the comments for the current post in an xml safe way
- *
+ * Outputs the link to the comments for the current post in an XML safe way.
  *
  */
 function comments_link_feed() {
 	/**
 	 * Filters the comments permalink for the current post.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param string $comment_permalink The current comment permalink with
 	 *                                  '#comments' appended.
@@ -256,9 +247,7 @@ function comments_link_feed() {
 }
 
 /**
- * Display the feed GUID for the current comment.
- *
- *
+ * Displays the feed GUID for the current comment.
  *
  * @param int|GC_Comment $comment_id Optional comment object or ID. Defaults to global comment object.
  */
@@ -267,9 +256,7 @@ function comment_guid( $comment_id = null ) {
 }
 
 /**
- * Retrieve the feed GUID for the current comment.
- *
- *
+ * Retrieves the feed GUID for the current comment.
  *
  * @param int|GC_Comment $comment_id Optional comment object or ID. Defaults to global comment object.
  * @return string|false GUID for comment on success, false on failure.
@@ -285,10 +272,8 @@ function get_comment_guid( $comment_id = null ) {
 }
 
 /**
- * Display the link to the comments.
- *
- *
- *
+ * Displays the link to the comments.
+ * Introduced the `$comment` argument.
  *
  * @param int|GC_Comment $comment Optional. Comment object or ID. Defaults to global comment object.
  */
@@ -296,6 +281,7 @@ function comment_link( $comment = null ) {
 	/**
 	 * Filters the current comment's permalink.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @see get_comment_link()
 	 *
@@ -305,16 +291,15 @@ function comment_link( $comment = null ) {
 }
 
 /**
- * Retrieve the current comment author for use in the feeds.
+ * Retrieves the current comment author for use in the feeds.
  *
- *
- *
- * @return string Comment Author
+ * @return string Comment Author.
  */
 function get_comment_author_rss() {
 	/**
 	 * Filters the current comment author for use in a feed.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @see get_comment_author()
 	 *
@@ -324,8 +309,7 @@ function get_comment_author_rss() {
 }
 
 /**
- * Display the current comment author in the feed.
- *
+ * Displays the current comment author in the feed.
  *
  */
 function comment_author_rss() {
@@ -333,8 +317,7 @@ function comment_author_rss() {
 }
 
 /**
- * Display the current comment content for use in the feeds.
- *
+ * Displays the current comment content for use in the feeds.
  *
  */
 function comment_text_rss() {
@@ -342,6 +325,7 @@ function comment_text_rss() {
 	/**
 	 * Filters the current comment content for use in a feed.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $comment_text The content of the current comment.
 	 */
@@ -350,13 +334,11 @@ function comment_text_rss() {
 }
 
 /**
- * Retrieve all of the post categories, formatted for use in feeds.
+ * Retrieves all of the post categories, formatted for use in feeds.
  *
  * All of the categories for the current post in the feed loop, will be
  * retrieved and have feed markup added, so that they can easily be added to the
  * RSS2, Atom, or RSS1 and RSS0.91 RDF feeds.
- *
- *
  *
  * @param string $type Optional, default is the type returned by get_default_feed().
  * @return string All of the post categories for displaying in the feed.
@@ -402,6 +384,7 @@ function get_the_category_rss( $type = null ) {
 	/**
 	 * Filters all of the post categories for display in a feed.
 	 *
+	 * @since 1.2.0
 	 *
 	 * @param string $the_list All of the RSS post categories.
 	 * @param string $type     Type of feed. Possible values include 'rss2', 'atom'.
@@ -411,9 +394,7 @@ function get_the_category_rss( $type = null ) {
 }
 
 /**
- * Display the post categories in the feed.
- *
- *
+ * Displays the post categories in the feed.
  *
  * @see get_the_category_rss() For better explanation.
  *
@@ -424,15 +405,14 @@ function the_category_rss( $type = null ) {
 }
 
 /**
- * Display the HTML type based on the blog setting.
+ * Displays the HTML type based on the blog setting.
  *
  * The two possible values are either 'xhtml' or 'html'.
- *
  *
  */
 function html_type_rss() {
 	$type = get_bloginfo( 'html_type' );
-	if ( strpos( $type, 'xhtml' ) !== false ) {
+	if ( str_contains( $type, 'xhtml' ) ) {
 		$type = 'xhtml';
 	} else {
 		$type = 'html';
@@ -441,7 +421,7 @@ function html_type_rss() {
 }
 
 /**
- * Display the rss enclosure for the current post.
+ * Displays the rss enclosure for the current post.
  *
  * Uses the global $post to check whether the post requires a password and if
  * the user has the password for the post. If not then it will return before
@@ -451,7 +431,6 @@ function html_type_rss() {
  * metadata field and parses the value to display the enclosure(s). The
  * enclosure(s) consist of enclosure HTML tag(s) with a URI and other
  * attributes.
- *
  *
  */
 function rss_enclosure() {
@@ -471,7 +450,7 @@ function rss_enclosure() {
 				/**
 				 * Filters the RSS enclosure HTML link tag for the current post.
 				 *
-			
+				 * @since 2.2.0
 				 *
 				 * @param string $html_link_tag The HTML link tag with a URI and other attributes.
 				 */
@@ -482,7 +461,7 @@ function rss_enclosure() {
 }
 
 /**
- * Display the atom enclosure for the current post.
+ * Displays the atom enclosure for the current post.
  *
  * Uses the global $post to check whether the post requires a password and if
  * the user has the password for the post. If not then it will return before
@@ -491,7 +470,6 @@ function rss_enclosure() {
  * Also uses the function get_post_custom() to get the post's 'enclosure'
  * metadata field and parses the value to display the enclosure(s). The
  * enclosure(s) consist of link HTML tag(s) with a URI and other attributes.
- *
  *
  */
 function atom_enclosure() {
@@ -536,7 +514,7 @@ function atom_enclosure() {
 				/**
 				 * Filters the atom enclosure HTML link tag for the current post.
 				 *
-			
+				 * @since 2.2.0
 				 *
 				 * @param string $html_link_tag The HTML link tag with a URI and other attributes.
 				 */
@@ -547,7 +525,7 @@ function atom_enclosure() {
 }
 
 /**
- * Determine the type of a string of data with the data formatted.
+ * Determines the type of a string of data with the data formatted.
  *
  * Tell whether the type is text, HTML, or XHTML, per RFC 4287 section 3.1.
  *
@@ -558,13 +536,11 @@ function atom_enclosure() {
  *
  * @link http://www.atomenabled.org/developers/syndication/atom-format-spec.php#rfc.section.3.1
  *
- *
- *
- * @param string $data Input string
+ * @param string $data Input string.
  * @return array array(type, value)
  */
 function prep_atom_text_construct( $data ) {
-	if ( strpos( $data, '<' ) === false && strpos( $data, '&' ) === false ) {
+	if ( ! str_contains( $data, '<' ) && ! str_contains( $data, '&' ) ) {
 		return array( 'text', $data );
 	}
 
@@ -581,7 +557,7 @@ function prep_atom_text_construct( $data ) {
 	unset( $parser );
 
 	if ( ! $code ) {
-		if ( strpos( $data, '<' ) === false ) {
+		if ( ! str_contains( $data, '<' ) ) {
 			return array( 'text', $data );
 		} else {
 			$data = "<div xmlns='http://www.w3.org/1999/xhtml'>$data</div>";
@@ -589,7 +565,7 @@ function prep_atom_text_construct( $data ) {
 		}
 	}
 
-	if ( strpos( $data, ']]>' ) === false ) {
+	if ( ! str_contains( $data, ']]>' ) ) {
 		return array( 'html', "<![CDATA[$data]]>" );
 	} else {
 		return array( 'html', htmlspecialchars( $data ) );
@@ -599,7 +575,7 @@ function prep_atom_text_construct( $data ) {
 /**
  * Displays Site Icon in atom feeds.
  *
- *
+ * @since 4.3.0
  *
  * @see get_site_icon_url()
  */
@@ -613,7 +589,7 @@ function atom_site_icon() {
 /**
  * Displays Site Icon in RSS2.
  *
- *
+ * @since 4.3.0
  */
 function rss2_site_icon() {
 	$rss_title = get_gc_title_rss();
@@ -637,7 +613,7 @@ function rss2_site_icon() {
 /**
  * Returns the link for the currently displayed feed.
  *
- *
+ * @since 5.3.0
  *
  * @return string Correct link for the atom:self element.
  */
@@ -647,16 +623,16 @@ function get_self_link() {
 }
 
 /**
- * Display the link for the currently displayed feed in a XSS safe way.
+ * Displays the link for the currently displayed feed in a XSS safe way.
  *
  * Generate a correct link for the atom:self element.
- *
  *
  */
 function self_link() {
 	/**
 	 * Filters the current feed URL.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @see set_url_scheme()
 	 * @see gc_unslash()
@@ -667,14 +643,14 @@ function self_link() {
 }
 
 /**
- * Get the UTC time of the most recently modified post from GC_Query.
+ * Gets the UTC time of the most recently modified post from GC_Query.
  *
  * If viewing a comment feed, the time of the most recently modified
  * comment will be returned.
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
- *
+ * @since 5.2.0
  *
  * @param string $format Date format string to return the time in.
  * @return string|false The time in requested format, or false on failure.
@@ -715,6 +691,7 @@ function get_feed_build_date( $format ) {
 	/**
 	 * Filters the date the last post or comment in the query was modified.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param string|false $max_modified_time Date the last post or comment was modified in the query, in UTC.
 	 *                                        False on failure.
@@ -724,11 +701,10 @@ function get_feed_build_date( $format ) {
 }
 
 /**
- * Return the content type for specified feed type.
- *
- *
+ * Returns the content type for specified feed type.
  *
  * @param string $type Type of feed. Possible values include 'rss', rss2', 'atom', and 'rdf'.
+ * @return string Content type for specified feed type.
  */
 function feed_content_type( $type = '' ) {
 	if ( empty( $type ) ) {
@@ -756,9 +732,7 @@ function feed_content_type( $type = '' ) {
 }
 
 /**
- * Build SimplePie object based on RSS or Atom feed from URL.
- *
- *
+ * Builds SimplePie object based on RSS or Atom feed from URL.
  *
  * @param string|string[] $url URL of feed to retrieve. If an array of URLs, the feeds are merged
  *                             using SimplePie's multifeed feature.
@@ -777,8 +751,10 @@ function fetch_feed( $url ) {
 	$feed = new SimplePie();
 
 	$feed->set_sanitize_class( 'GC_SimplePie_Sanitize_KSES' );
-	// We must manually overwrite $feed->sanitize because SimplePie's constructor
-	// sets it before we have a chance to set the sanitization class.
+	/*
+	 * We must manually overwrite $feed->sanitize because SimplePie's constructor
+	 * sets it before we have a chance to set the sanitization class.
+	 */
 	$feed->sanitize = new GC_SimplePie_Sanitize_KSES();
 
 	// Register the cache handler using the recommended method for SimplePie 1.3 or later.

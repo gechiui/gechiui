@@ -44,7 +44,6 @@
 /**
  * Used for feed auto-discovery
  *
- *
  * This class can be overloaded with {@see SimplePie::set_locator_class()}
  *
  * @package SimplePie

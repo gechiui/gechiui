@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customize Upload Control Class.
- *
- *
  *
  * @see GC_Customize_Media_Control
  */
@@ -18,6 +15,7 @@ class GC_Customize_Upload_Control extends GC_Customize_Media_Control {
 	/**
 	 * Control type.
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	public $type = 'upload';
@@ -25,6 +23,7 @@ class GC_Customize_Upload_Control extends GC_Customize_Media_Control {
 	/**
 	 * Media control mime type.
 	 *
+	 * @since 4.1.0
 	 * @var string
 	 */
 	public $mime_type = '';
@@ -32,6 +31,7 @@ class GC_Customize_Upload_Control extends GC_Customize_Media_Control {
 	/**
 	 * Button labels.
 	 *
+	 * @since 4.1.0
 	 * @var array
 	 */
 	public $button_labels = array();
@@ -43,6 +43,7 @@ class GC_Customize_Upload_Control extends GC_Customize_Media_Control {
 	/**
 	 * Refresh the parameters passed to the JavaScript via JSON.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @uses GC_Customize_Media_Control::to_json()
 	 */

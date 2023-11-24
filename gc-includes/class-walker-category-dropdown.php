@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Template
- *
  */
 
 /**
  * Core class used to create an HTML dropdown list of Categories.
- *
- *
  *
  * @see Walker
  */
@@ -41,6 +38,7 @@ class Walker_CategoryDropdown extends Walker {
 	/**
 	 * Starts the element output.
 	 *
+	 * @since 5.9.0 Renamed `$category` to `$data_object` and `$id` to `$current_object_id`
 	 *              to match parent class for PHP 8 named parameter support.
 	 *
 	 * @see Walker::start_el()

@@ -4,13 +4,15 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
+ * @since 2.7.0
  */
 
 /**
  * Stores files to be deleted.
  *
+ * Bundled theme files should not be included in this list.
  *
+ * @since 2.7.0
  *
  * @global array $_old_files
  * @var array
@@ -35,6 +37,8 @@ $_old_files = array(
 	'gc-images/gc-small.png',
 	'gc-images/gcminilogo.png',
 	'gc.php',
+	// 2.0.8
+	'gc-includes/vendors/tinymce/plugins/inlinepopups/readme.txt',
 	// 2.1
 	'gc-admin/edit-form-ajax-cat.php',
 	'gc-admin/execute-pings.php',
@@ -47,7 +51,9 @@ $_old_files = array(
 	'gc-includes/functions-compat.php',
 	'gc-includes/functions-formatting.php',
 	'gc-includes/functions-post.php',
-	'assets/js/dbx-key.js',
+	'gc-includes/js/dbx-key.js',
+	'gc-includes/vendors/tinymce/plugins/autosave/langs/cs.js',
+	'gc-includes/vendors/tinymce/plugins/autosave/langs/sv.js',
 	'gc-includes/links.php',
 	'gc-includes/pluggable-functions.php',
 	'gc-includes/template-functions-author.php',
@@ -59,9 +65,9 @@ $_old_files = array(
 	// 2.2
 	'gc-admin/cat-js.php',
 	'gc-admin/import/b2.php',
-	'assets/js/autosave-js.php',
-	'assets/js/list-manipulation-js.php',
-	'assets/js/gc-ajax-js.php',
+	'gc-includes/js/autosave-js.php',
+	'gc-includes/js/list-manipulation-js.php',
+	'gc-includes/js/gc-ajax-js.php',
 	// 2.3
 	'gc-admin/admin-db.php',
 	'gc-admin/cat.js',
@@ -79,71 +85,112 @@ $_old_files = array(
 	'gc-admin/users.js',
 	'gc-admin/widgets-rtl.css',
 	'gc-admin/widgets.css',
+	'gc-admin/xfn.js',
+	'gc-includes/vendors/tinymce/license.html',
 	// 2.5
 	'gc-admin/css/upload.css',
-	'gc-admin/images/box-bg-left.gif',
-	'gc-admin/images/box-bg-right.gif',
-	'gc-admin/images/box-bg.gif',
-	'gc-admin/images/box-butt-left.gif',
-	'gc-admin/images/box-butt-right.gif',
-	'gc-admin/images/box-butt.gif',
-	'gc-admin/images/box-head-left.gif',
-	'gc-admin/images/box-head-right.gif',
-	'gc-admin/images/box-head.gif',
-	'gc-admin/images/heading-bg.gif',
-	'gc-admin/images/login-bkg-bottom.gif',
-	'gc-admin/images/login-bkg-tile.gif',
-	'gc-admin/images/notice.gif',
-	'gc-admin/images/toggle.gif',
+	'assets/images/box-bg-left.gif',
+	'assets/images/box-bg-right.gif',
+	'assets/images/box-bg.gif',
+	'assets/images/box-butt-left.gif',
+	'assets/images/box-butt-right.gif',
+	'assets/images/box-butt.gif',
+	'assets/images/box-head-left.gif',
+	'assets/images/box-head-right.gif',
+	'assets/images/box-head.gif',
+	'assets/images/heading-bg.gif',
+	'assets/images/login-bkg-bottom.gif',
+	'assets/images/login-bkg-tile.gif',
+	'assets/images/notice.gif',
+	'assets/images/toggle.gif',
 	'gc-admin/includes/upload.php',
 	'gc-admin/js/dbx-admin-key.js',
 	'gc-admin/js/link-cat.js',
 	'gc-admin/profile-update.php',
 	'gc-admin/templates.php',
-	'gc-includes/images/wlw/GcComments.png',
-	'gc-includes/images/wlw/GcIcon.png',
-	'gc-includes/images/wlw/GcWatermark.png',
-	'assets/js/dbx.js',
-	'assets/js/fat.js',
-	'assets/js/list-manipulation.js',
-
+	'assets/images/wlw/GcComments.png',
+	'assets/images/wlw/GcIcon.png',
+	'assets/images/wlw/GcWatermark.png',
+	'gc-includes/js/dbx.js',
+	'gc-includes/js/fat.js',
+	'gc-includes/js/list-manipulation.js',
+	'gc-includes/vendors/tinymce/langs/en.js',
+	'gc-includes/vendors/tinymce/plugins/autosave/editor_plugin_src.js',
+	'gc-includes/vendors/tinymce/plugins/autosave/langs',
+	'gc-includes/vendors/tinymce/plugins/directionality/images',
+	'gc-includes/vendors/tinymce/plugins/directionality/langs',
+	'gc-includes/vendors/tinymce/plugins/inlinepopups/css',
+	'gc-includes/vendors/tinymce/plugins/inlinepopups/images',
+	'gc-includes/vendors/tinymce/plugins/inlinepopups/jscripts',
+	'gc-includes/vendors/tinymce/plugins/paste/images',
+	'gc-includes/vendors/tinymce/plugins/paste/jscripts',
+	'gc-includes/vendors/tinymce/plugins/paste/langs',
+	'gc-includes/vendors/tinymce/plugins/spellchecker/classes/HttpClient.class.php',
+	'gc-includes/vendors/tinymce/plugins/spellchecker/classes/TinyGoogleSpell.class.php',
+	'gc-includes/vendors/tinymce/plugins/spellchecker/classes/TinyPspell.class.php',
+	'gc-includes/vendors/tinymce/plugins/spellchecker/classes/TinyPspellShell.class.php',
+	'gc-includes/vendors/tinymce/plugins/spellchecker/css/spellchecker.css',
+	'gc-includes/vendors/tinymce/plugins/spellchecker/images',
+	'gc-includes/vendors/tinymce/plugins/spellchecker/langs',
+	'gc-includes/vendors/tinymce/plugins/spellchecker/tinyspell.php',
+	'gc-includes/vendors/tinymce/plugins/gechiui/images',
+	'gc-includes/vendors/tinymce/plugins/gechiui/langs',
+	'gc-includes/vendors/tinymce/plugins/gechiui/gechiui.css',
+	'gc-includes/vendors/tinymce/plugins/gchelp',
+	'gc-includes/vendors/tinymce/themes/advanced/css',
+	'gc-includes/vendors/tinymce/themes/advanced/images',
+	'gc-includes/vendors/tinymce/themes/advanced/jscripts',
+	'gc-includes/vendors/tinymce/themes/advanced/langs',
+	// 2.5.1
+	'gc-includes/vendors/tinymce/tiny_mce_gzip.php',
 	// 2.6
 	'gc-admin/bookmarklet.php',
-	'assets/js/gc-ajax.js',
+	'gc-includes/vendors/jquery/jquery.dimensions.min.js',
+	'gc-includes/vendors/tinymce/plugins/gechiui/popups.css',
+	'gc-includes/js/gc-ajax.js',
 	// 2.7
 	'gc-admin/css/press-this-ie-rtl.css',
 	'gc-admin/css/press-this-ie.css',
 	'gc-admin/css/upload-rtl.css',
 	'gc-admin/edit-form.php',
-	'gc-admin/images/comment-pill.gif',
-	'gc-admin/images/comment-stalk-classic.gif',
-	'gc-admin/images/comment-stalk-fresh.gif',
-	'gc-admin/images/comment-stalk-rtl.gif',
-	'gc-admin/images/del.png',
-	'gc-admin/images/gear.png',
-	'gc-admin/images/media-button-gallery.gif',
-	'gc-admin/images/media-buttons.gif',
-	'gc-admin/images/postbox-bg.gif',
-	'gc-admin/images/tab.png',
-	'gc-admin/images/tail.gif',
+	'assets/images/comment-pill.gif',
+	'assets/images/comment-stalk-classic.gif',
+	'assets/images/comment-stalk-fresh.gif',
+	'assets/images/comment-stalk-rtl.gif',
+	'assets/images/del.png',
+	'assets/images/gear.png',
+	'assets/images/media-button-gallery.gif',
+	'assets/images/media-buttons.gif',
+	'assets/images/postbox-bg.gif',
+	'assets/images/tab.png',
+	'assets/images/tail.gif',
 	'gc-admin/js/forms.js',
 	'gc-admin/js/upload.js',
 	'gc-admin/link-import.php',
-	'gc-includes/images/audio.png',
-	'gc-includes/images/css.png',
-	'gc-includes/images/default.png',
-	'gc-includes/images/doc.png',
-	'gc-includes/images/exe.png',
-	'gc-includes/images/html.png',
-	'gc-includes/images/js.png',
-	'gc-includes/images/pdf.png',
-	'gc-includes/images/swf.png',
-	'gc-includes/images/tar.png',
-	'gc-includes/images/text.png',
-	'gc-includes/images/video.png',
-	'gc-includes/images/zip.png',
+	'assets/images/audio.png',
+	'assets/images/css.png',
+	'assets/images/default.png',
+	'assets/images/doc.png',
+	'assets/images/exe.png',
+	'assets/images/html.png',
+	'assets/images/js.png',
+	'assets/images/pdf.png',
+	'assets/images/swf.png',
+	'assets/images/tar.png',
+	'assets/images/text.png',
+	'assets/images/video.png',
+	'assets/images/zip.png',
+	'gc-includes/vendors/tinymce/tiny_mce_config.php',
+	'gc-includes/vendors/tinymce/tiny_mce_ext.js',
 	// 2.8
 	'gc-admin/js/users.js',
+	'gc-includes/vendors/swfupload/plugins/swfupload.documentready.js',
+	'gc-includes/vendors/swfupload/plugins/swfupload.graceful_degradation.js',
+	'gc-includes/vendors/swfupload/swfupload_f9.swf',
+	'gc-includes/vendors/tinymce/plugins/autosave',
+	'gc-includes/vendors/tinymce/plugins/paste/css',
+	'gc-includes/vendors/tinymce/utils/mclayer.js',
+	'gc-includes/vendors/tinymce/gechiui.css',
 	// 2.8.5
 	'gc-admin/import/btt.php',
 	'gc-admin/import/jkw.php',
@@ -155,6 +202,7 @@ $_old_files = array(
 	'gc-admin/js/slug.dev.js',
 	'gc-admin/js/slug.js',
 	'gc-includes/gettext.php',
+	'gc-includes/vendors/tinymce/plugins/gechiui/js',
 	'gc-includes/streams.php',
 	// MU
 	'README.txt',
@@ -162,7 +210,7 @@ $_old_files = array(
 	'index-install.php',
 	'gc-admin/css/mu-rtl.css',
 	'gc-admin/css/mu.css',
-	'gc-admin/images/site-admin.png',
+	'assets/images/site-admin.png',
 	'gc-admin/includes/mu.php',
 	'gc-admin/gcmu-admin.php',
 	'gc-admin/gcmu-blogs.php',
@@ -171,7 +219,7 @@ $_old_files = array(
 	'gc-admin/gcmu-themes.php',
 	'gc-admin/gcmu-upgrade-site.php',
 	'gc-admin/gcmu-users.php',
-	'gc-includes/images/gechiui-mu.png',
+	'assets/images/gechiui-mu.png',
 	'gc-includes/gcmu-default-filters.php',
 	'gc-includes/gcmu-functions.php',
 	'gcmu-settings.php',
@@ -180,16 +228,16 @@ $_old_files = array(
 	'gc-admin/edit-category-form.php',
 	'gc-admin/edit-page-form.php',
 	'gc-admin/edit-pages.php',
-	'gc-admin/images/admin-header-footer.png',
-	'gc-admin/images/browse-happy.gif',
-	'gc-admin/images/ico-add.png',
-	'gc-admin/images/ico-close.png',
-	'gc-admin/images/ico-edit.png',
-	'gc-admin/images/ico-viewpage.png',
-	'gc-admin/images/fav-top.png',
-	'gc-admin/images/screen-options-left.gif',
-	'gc-admin/images/gc-logo-vs.gif',
-	'gc-admin/images/gc-logo.gif',
+	'assets/images/admin-header-footer.png',
+	'assets/images/browse-happy.gif',
+	'assets/images/ico-add.png',
+	'assets/images/ico-close.png',
+	'assets/images/ico-edit.png',
+	'assets/images/ico-viewpage.png',
+	'assets/images/fav-top.png',
+	'assets/images/screen-options-left.gif',
+	'assets/images/gc-logo-vs.gif',
+	'assets/images/gc-logo.gif',
 	'gc-admin/import',
 	'gc-admin/js/gc-gears.dev.js',
 	'gc-admin/js/gc-gears.js',
@@ -201,34 +249,48 @@ $_old_files = array(
 	'gc-admin/update-links.php',
 	'gc-admin/gc-admin.css',
 	'gc-admin/gc-admin.dev.css',
-	'assets/js/codepress',
-	'assets/js/codepress/engines/khtml.js',
-	'assets/js/codepress/engines/older.js',
+	'gc-includes/js/codepress',
+	'gc-includes/js/codepress/engines/khtml.js',
+	'gc-includes/js/codepress/engines/older.js',
+	'gc-includes/vendors/jquery/autocomplete.dev.js',
+	'gc-includes/vendors/jquery/autocomplete.js',
+	'gc-includes/vendors/jquery/interface.js',
+	'gc-includes/js/scriptaculous/prototype.js',
 	// Following file added back in 5.1, see #45645.
+	//'gc-includes/vendors/tinymce/gc-tinymce.js',
 	// 3.1
 	'gc-admin/edit-attachment-rows.php',
 	'gc-admin/edit-link-categories.php',
 	'gc-admin/edit-link-category-form.php',
 	'gc-admin/edit-post-rows.php',
-	'gc-admin/images/button-grad-active-vs.png',
-	'gc-admin/images/button-grad-vs.png',
-	'gc-admin/images/fav-arrow-vs-rtl.gif',
-	'gc-admin/images/fav-arrow-vs.gif',
-	'gc-admin/images/fav-top-vs.gif',
-	'gc-admin/images/list-vs.png',
-	'gc-admin/images/screen-options-right-up.gif',
-	'gc-admin/images/screen-options-right.gif',
-	'gc-admin/images/visit-site-button-grad-vs.gif',
-	'gc-admin/images/visit-site-button-grad.gif',
+	'assets/images/button-grad-active-vs.png',
+	'assets/images/button-grad-vs.png',
+	'assets/images/fav-arrow-vs-rtl.gif',
+	'assets/images/fav-arrow-vs.gif',
+	'assets/images/fav-top-vs.gif',
+	'assets/images/list-vs.png',
+	'assets/images/screen-options-right-up.gif',
+	'assets/images/screen-options-right.gif',
+	'assets/images/visit-site-button-grad-vs.gif',
+	'assets/images/visit-site-button-grad.gif',
 	'gc-admin/link-category.php',
 	'gc-admin/sidebar.php',
 	'gc-includes/classes.php',
+	'gc-includes/vendors/tinymce/blank.htm',
+	'gc-includes/vendors/tinymce/plugins/media/css/content.css',
+	'gc-includes/vendors/tinymce/plugins/media/img',
+	'gc-includes/vendors/tinymce/plugins/safari',
 	// 3.2
-	'gc-admin/images/logo-login.gif',
-	'gc-admin/images/star.gif',
+	'assets/images/logo-login.gif',
+	'assets/images/star.gif',
 	'gc-admin/js/list-table.dev.js',
 	'gc-admin/js/list-table.js',
 	'gc-includes/default-embeds.php',
+	'gc-includes/vendors/tinymce/plugins/gechiui/img/help.gif',
+	'gc-includes/vendors/tinymce/plugins/gechiui/img/more.gif',
+	'gc-includes/vendors/tinymce/plugins/gechiui/img/toolbars.gif',
+	'gc-includes/vendors/tinymce/themes/advanced/img/fm.gif',
+	'gc-includes/vendors/tinymce/themes/advanced/img/sflogo.png',
 	// 3.3
 	'gc-admin/css/colors-classic-rtl.css',
 	'gc-admin/css/colors-classic-rtl.dev.css',
@@ -266,9 +328,30 @@ $_old_files = array(
 	'gc-admin/css/widgets-rtl.dev.css',
 	'gc-admin/css/widgets.dev.css',
 	'gc-admin/includes/internal-linking.php',
-	'gc-includes/images/admin-bar-sprite-rtl.png',
-	'assets/js/l10n.dev.js',
-	'assets/js/l10n.js',
+	'assets/images/admin-bar-sprite-rtl.png',
+	'gc-includes/vendors/jquery/ui.button.js',
+	'gc-includes/vendors/jquery/ui.core.js',
+	'gc-includes/vendors/jquery/ui.dialog.js',
+	'gc-includes/vendors/jquery/ui.draggable.js',
+	'gc-includes/vendors/jquery/ui.droppable.js',
+	'gc-includes/vendors/jquery/ui.mouse.js',
+	'gc-includes/vendors/jquery/ui.position.js',
+	'gc-includes/vendors/jquery/ui.resizable.js',
+	'gc-includes/vendors/jquery/ui.selectable.js',
+	'gc-includes/vendors/jquery/ui.sortable.js',
+	'gc-includes/vendors/jquery/ui.tabs.js',
+	'gc-includes/vendors/jquery/ui.widget.js',
+	'gc-includes/js/l10n.dev.js',
+	'gc-includes/js/l10n.js',
+	'gc-includes/vendors/tinymce/plugins/gclink/css',
+	'gc-includes/vendors/tinymce/plugins/gclink/img',
+	'gc-includes/vendors/tinymce/plugins/gclink/js',
+	'gc-includes/vendors/tinymce/themes/advanced/img/gcicons.png',
+	'gc-includes/vendors/tinymce/themes/advanced/skins/gc_theme/img/butt2.png',
+	'gc-includes/vendors/tinymce/themes/advanced/skins/gc_theme/img/button_bg.png',
+	'gc-includes/vendors/tinymce/themes/advanced/skins/gc_theme/img/down_arrow.gif',
+	'gc-includes/vendors/tinymce/themes/advanced/skins/gc_theme/img/fade-butt.png',
+	'gc-includes/vendors/tinymce/themes/advanced/skins/gc_theme/img/separator.gif',
 	// Don't delete, yet: 'gc-rss.php',
 	// Don't delete, yet: 'gc-rdf.php',
 	// Don't delete, yet: 'gc-rss2.php',
@@ -276,67 +359,80 @@ $_old_files = array(
 	// Don't delete, yet: 'gc-atom.php',
 	// Don't delete, yet: 'gc-feed.php',
 	// 3.4
-	'gc-admin/images/gray-star.png',
-	'gc-admin/images/logo-login.png',
-	'gc-admin/images/star.png',
+	'assets/images/gray-star.png',
+	'assets/images/logo-login.png',
+	'assets/images/star.png',
 	'gc-admin/index-extra.php',
 	'gc-admin/network/index-extra.php',
 	'gc-admin/user/index-extra.php',
-	'gc-admin/images/screenshots/admin-flyouts.png',
-	'gc-admin/images/screenshots/coediting.png',
-	'gc-admin/images/screenshots/drag-and-drop.png',
-	'gc-admin/images/screenshots/help-screen.png',
-	'gc-admin/images/screenshots/media-icon.png',
-	'gc-admin/images/screenshots/new-feature-pointer.png',
-	'gc-admin/images/screenshots/welcome-screen.png',
+	'assets/images/screenshots/admin-flyouts.png',
+	'assets/images/screenshots/coediting.png',
+	'assets/images/screenshots/drag-and-drop.png',
+	'assets/images/screenshots/help-screen.png',
+	'assets/images/screenshots/media-icon.png',
+	'assets/images/screenshots/new-feature-pointer.png',
+	'assets/images/screenshots/welcome-screen.png',
 	'gc-includes/css/editor-buttons.css',
 	'gc-includes/css/editor-buttons.dev.css',
+	'gc-includes/vendors/tinymce/plugins/paste/blank.htm',
+	'gc-includes/vendors/tinymce/plugins/gechiui/css',
+	'gc-includes/vendors/tinymce/plugins/gechiui/editor_plugin.dev.js',
+	'gc-includes/vendors/tinymce/plugins/gechiui/img/embedded.png',
+	'gc-includes/vendors/tinymce/plugins/gechiui/img/more_bug.gif',
+	'gc-includes/vendors/tinymce/plugins/gechiui/img/page_bug.gif',
+	'gc-includes/vendors/tinymce/plugins/gcdialogs/editor_plugin.dev.js',
+	'gc-includes/vendors/tinymce/plugins/gceditimage/css/editimage-rtl.css',
+	'gc-includes/vendors/tinymce/plugins/gceditimage/editor_plugin.dev.js',
+	'gc-includes/vendors/tinymce/plugins/gcfullscreen/editor_plugin.dev.js',
+	'gc-includes/vendors/tinymce/plugins/gcgallery/editor_plugin.dev.js',
+	'gc-includes/vendors/tinymce/plugins/gcgallery/img/gallery.png',
+	'gc-includes/vendors/tinymce/plugins/gclink/editor_plugin.dev.js',
 	// Don't delete, yet: 'gc-pass.php',
 	// Don't delete, yet: 'gc-register.php',
 	// 3.5
 	'gc-admin/gears-manifest.php',
 	'gc-admin/includes/manifest.php',
-	'gc-admin/images/archive-link.png',
-	'gc-admin/images/blue-grad.png',
-	'gc-admin/images/button-grad-active.png',
-	'gc-admin/images/button-grad.png',
-	'gc-admin/images/ed-bg-vs.gif',
-	'gc-admin/images/ed-bg.gif',
-	'gc-admin/images/fade-butt.png',
-	'gc-admin/images/fav-arrow-rtl.gif',
-	'gc-admin/images/fav-arrow.gif',
-	'gc-admin/images/fav-vs.png',
-	'gc-admin/images/fav.png',
-	'gc-admin/images/gray-grad.png',
-	'gc-admin/images/loading-publish.gif',
-	'gc-admin/images/logo-ghost.png',
-	'gc-admin/images/logo.gif',
-	'gc-admin/images/menu-arrow-frame-rtl.png',
-	'gc-admin/images/menu-arrow-frame.png',
-	'gc-admin/images/menu-arrows.gif',
-	'gc-admin/images/menu-bits-rtl-vs.gif',
-	'gc-admin/images/menu-bits-rtl.gif',
-	'gc-admin/images/menu-bits-vs.gif',
-	'gc-admin/images/menu-bits.gif',
-	'gc-admin/images/menu-dark-rtl-vs.gif',
-	'gc-admin/images/menu-dark-rtl.gif',
-	'gc-admin/images/menu-dark-vs.gif',
-	'gc-admin/images/menu-dark.gif',
-	'gc-admin/images/required.gif',
-	'gc-admin/images/screen-options-toggle-vs.gif',
-	'gc-admin/images/screen-options-toggle.gif',
-	'gc-admin/images/toggle-arrow-rtl.gif',
-	'gc-admin/images/toggle-arrow.gif',
-	'gc-admin/images/upload-classic.png',
-	'gc-admin/images/upload-fresh.png',
-	'gc-admin/images/white-grad-active.png',
-	'gc-admin/images/white-grad.png',
-	'gc-admin/images/widgets-arrow-vs.gif',
-	'gc-admin/images/widgets-arrow.gif',
-	'gc-admin/images/gcspin_dark.gif',
-	'gc-includes/images/upload.png',
-	'assets/js/prototype.js',
-	'assets/js/scriptaculous',
+	'assets/images/archive-link.png',
+	'assets/images/blue-grad.png',
+	'assets/images/button-grad-active.png',
+	'assets/images/button-grad.png',
+	'assets/images/ed-bg-vs.gif',
+	'assets/images/ed-bg.gif',
+	'assets/images/fade-butt.png',
+	'assets/images/fav-arrow-rtl.gif',
+	'assets/images/fav-arrow.gif',
+	'assets/images/fav-vs.png',
+	'assets/images/fav.png',
+	'assets/images/gray-grad.png',
+	'assets/images/loading-publish.gif',
+	'assets/images/logo-ghost.png',
+	'assets/images/logo.gif',
+	'assets/images/menu-arrow-frame-rtl.png',
+	'assets/images/menu-arrow-frame.png',
+	'assets/images/menu-arrows.gif',
+	'assets/images/menu-bits-rtl-vs.gif',
+	'assets/images/menu-bits-rtl.gif',
+	'assets/images/menu-bits-vs.gif',
+	'assets/images/menu-bits.gif',
+	'assets/images/menu-dark-rtl-vs.gif',
+	'assets/images/menu-dark-rtl.gif',
+	'assets/images/menu-dark-vs.gif',
+	'assets/images/menu-dark.gif',
+	'assets/images/required.gif',
+	'assets/images/screen-options-toggle-vs.gif',
+	'assets/images/screen-options-toggle.gif',
+	'assets/images/toggle-arrow-rtl.gif',
+	'assets/images/toggle-arrow.gif',
+	'assets/images/upload-classic.png',
+	'assets/images/upload-fresh.png',
+	'assets/images/white-grad-active.png',
+	'assets/images/white-grad.png',
+	'assets/images/widgets-arrow-vs.gif',
+	'assets/images/widgets-arrow.gif',
+	'assets/images/gcspin_dark.gif',
+	'assets/images/upload.png',
+	'gc-includes/js/prototype.js',
+	'gc-includes/js/scriptaculous',
 	'gc-admin/css/gc-admin-rtl.dev.css',
 	'gc-admin/css/gc-admin.dev.css',
 	'gc-admin/css/media-rtl.dev.css',
@@ -348,18 +444,29 @@ $_old_files = array(
 	'gc-admin/css/ie.dev.css',
 	'gc-admin/css/install.dev.css',
 	'gc-admin/css/colors-fresh.dev.css',
-	'assets/js/customize-base.dev.js',
-	'assets/js/comment-reply.dev.js',
-	'assets/js/customize-preview.dev.js',
-	'assets/js/gclink.dev.js',
-	'assets/js/gc-list-revisions.dev.js',
-	'assets/js/autosave.dev.js',
-	'assets/js/admin-bar.dev.js',
-	'assets/js/quicktags.dev.js',
-	'assets/js/gc-ajax-response.dev.js',
-	'assets/js/gc-pointer.dev.js',
-	'assets/js/gc-lists.dev.js',
-	'assets/js/customize-loader.dev.js',
+	'gc-includes/js/customize-base.dev.js',
+	'gc-includes/vendors/json2.dev.js',
+	'gc-includes/js/comment-reply.dev.js',
+	'gc-includes/js/customize-preview.dev.js',
+	'gc-includes/js/gclink.dev.js',
+	'gc-includes/vendors/tw-sack.dev.js',
+	'gc-includes/js/gc-list-revisions.dev.js',
+	'gc-includes/js/autosave.dev.js',
+	'gc-includes/js/admin-bar.dev.js',
+	'gc-includes/js/quicktags.dev.js',
+	'gc-includes/js/gc-ajax-response.dev.js',
+	'gc-includes/js/gc-pointer.dev.js',
+	'gc-includes/vendors/hoverintent.dev.js',
+	'gc-includes/vendors/colorpicker.dev.js',
+	'gc-includes/js/gc-lists.dev.js',
+	'gc-includes/js/customize-loader.dev.js',
+	'gc-includes/vendors/jquery/jquery.table-hotkeys.dev.js',
+	'gc-includes/vendors/jquery/jquery.color.dev.js',
+	'gc-includes/vendors/jquery/jquery.color.js',
+	'gc-includes/vendors/jquery/jquery.hotkeys.dev.js',
+	'gc-includes/vendors/jquery/jquery.form.dev.js',
+	'gc-includes/vendors/jquery/suggest.dev.js',
+	'gc-admin/js/xfn.dev.js',
 	'gc-admin/js/set-post-thumbnail.dev.js',
 	'gc-admin/js/comment.dev.js',
 	'gc-admin/js/theme.dev.js',
@@ -393,28 +500,55 @@ $_old_files = array(
 	'gc-admin/js/inline-edit-post.dev.js',
 	'gc-admin/js/categories.dev.js',
 	'gc-admin/js/editor.dev.js',
+	'gc-includes/vendors/tinymce/plugins/gceditimage/js/editimage.dev.js',
+	'gc-includes/vendors/tinymce/plugins/gcdialogs/js/popup.dev.js',
+	'gc-includes/vendors/tinymce/plugins/gcdialogs/js/gcdialog.dev.js',
+	'gc-includes/vendors/plupload/handlers.dev.js',
+	'gc-includes/vendors/plupload/gc-plupload.dev.js',
+	'gc-includes/vendors/swfupload/handlers.dev.js',
+	'gc-includes/vendors/jcrop/jquery.Jcrop.dev.js',
+	'gc-includes/vendors/jcrop/jquery.Jcrop.js',
+	'gc-includes/vendors/jcrop/jquery.Jcrop.css',
+	'gc-includes/vendors/imgareaselect/jquery.imgareaselect.dev.js',
 	'gc-includes/css/gc-pointer.dev.css',
 	'gc-includes/css/editor.dev.css',
 	'gc-includes/css/jquery-ui-dialog.dev.css',
 	'gc-includes/css/admin-bar-rtl.dev.css',
 	'gc-includes/css/admin-bar.dev.css',
-	'gc-admin/images/screenshots/captions-1.png',
-	'gc-admin/images/screenshots/captions-2.png',
-	'gc-admin/images/screenshots/flex-header-1.png',
-	'gc-admin/images/screenshots/flex-header-2.png',
-	'gc-admin/images/screenshots/flex-header-3.png',
-	'gc-admin/images/screenshots/flex-header-media-library.png',
-	'gc-admin/images/screenshots/theme-customizer.png',
-	'gc-admin/images/screenshots/twitter-embed-1.png',
-	'gc-admin/images/screenshots/twitter-embed-2.png',
+	'gc-includes/vendors/jquery/ui/jquery.effects.clip.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.effects.scale.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.effects.blind.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.effects.core.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.effects.shake.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.effects.fade.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.effects.explode.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.effects.slide.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.effects.drop.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.effects.highlight.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.effects.bounce.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.effects.pulsate.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.effects.transfer.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.effects.fold.min.js',
+	'assets/images/screenshots/captions-1.png',
+	'assets/images/screenshots/captions-2.png',
+	'assets/images/screenshots/flex-header-1.png',
+	'assets/images/screenshots/flex-header-2.png',
+	'assets/images/screenshots/flex-header-3.png',
+	'assets/images/screenshots/flex-header-media-library.png',
+	'assets/images/screenshots/theme-customizer.png',
+	'assets/images/screenshots/twitter-embed-1.png',
+	'assets/images/screenshots/twitter-embed-2.png',
 	'gc-admin/js/utils.js',
 	// Added back in 5.3 [45448], see #43895.
 	// 'gc-admin/options-privacy.php',
 	'gc-app.php',
 	'gc-includes/class-gc-atom-server.php',
+	'gc-includes/vendors/tinymce/themes/advanced/skins/gc_theme/ui.css',
+	// 3.5.2
+	'gc-includes/vendors/swfupload/swfupload-all.js',
 	// 3.6
 	'gc-admin/js/revisions-js.php',
-	'gc-admin/images/screenshots',
+	'assets/images/screenshots',
 	'gc-admin/js/categories.js',
 	'gc-admin/js/categories.min.js',
 	'gc-admin/js/custom-fields.js',
@@ -422,43 +556,48 @@ $_old_files = array(
 	// 3.7
 	'gc-admin/js/cat.js',
 	'gc-admin/js/cat.min.js',
+	'gc-includes/vendors/tinymce/plugins/gceditimage/js/editimage.min.js',
 	// 3.8
-	'gc-includes/images/gcmini-blue-2x.png',
-	'gc-includes/images/gcmini-blue.png',
+	'gc-includes/vendors/tinymce/themes/advanced/skins/gc_theme/img/page_bug.gif',
+	'gc-includes/vendors/tinymce/themes/advanced/skins/gc_theme/img/more_bug.gif',
+	'gc-includes/vendors/thickbox/tb-close-2x.png',
+	'gc-includes/vendors/thickbox/tb-close.png',
+	'assets/images/gcmini-blue-2x.png',
+	'assets/images/gcmini-blue.png',
 	'gc-admin/css/colors-fresh.css',
 	'gc-admin/css/colors-classic.css',
 	'gc-admin/css/colors-fresh.min.css',
 	'gc-admin/css/colors-classic.min.css',
 	'gc-admin/js/about.min.js',
 	'gc-admin/js/about.js',
-	'gc-admin/images/arrows-dark-vs-2x.png',
-	'gc-admin/images/gc-logo-vs.png',
-	'gc-admin/images/arrows-dark-vs.png',
-	'gc-admin/images/gc-logo.png',
-	'gc-admin/images/arrows-pr.png',
-	'gc-admin/images/arrows-dark.png',
-	'gc-admin/images/press-this.png',
-	'gc-admin/images/press-this-2x.png',
-	'gc-admin/images/arrows-vs-2x.png',
-	'gc-admin/images/welcome-icons.png',
-	'gc-admin/images/gc-logo-2x.png',
-	'gc-admin/images/stars-rtl-2x.png',
-	'gc-admin/images/arrows-dark-2x.png',
-	'gc-admin/images/arrows-pr-2x.png',
-	'gc-admin/images/menu-shadow-rtl.png',
-	'gc-admin/images/arrows-vs.png',
-	'gc-admin/images/about-search-2x.png',
-	'gc-admin/images/bubble_bg-rtl-2x.gif',
-	'gc-admin/images/gc-badge-2x.png',
-	'gc-admin/images/gechiui-logo-2x.png',
-	'gc-admin/images/bubble_bg-rtl.gif',
-	'gc-admin/images/gc-badge.png',
-	'gc-admin/images/menu-shadow.png',
-	'gc-admin/images/about-globe-2x.png',
-	'gc-admin/images/welcome-icons-2x.png',
-	'gc-admin/images/stars-rtl.png',
-	'gc-admin/images/gc-logo-vs-2x.png',
-	'gc-admin/images/about-updates-2x.png',
+	'assets/images/arrows-dark-vs-2x.png',
+	'assets/images/gc-logo-vs.png',
+	'assets/images/arrows-dark-vs.png',
+	'assets/images/gc-logo.png',
+	'assets/images/arrows-pr.png',
+	'assets/images/arrows-dark.png',
+	'assets/images/press-this.png',
+	'assets/images/press-this-2x.png',
+	'assets/images/arrows-vs-2x.png',
+	'assets/images/welcome-icons.png',
+	'assets/images/gc-logo-2x.png',
+	'assets/images/stars-rtl-2x.png',
+	'assets/images/arrows-dark-2x.png',
+	'assets/images/arrows-pr-2x.png',
+	'assets/images/menu-shadow-rtl.png',
+	'assets/images/arrows-vs.png',
+	'assets/images/about-search-2x.png',
+	'assets/images/bubble_bg-rtl-2x.gif',
+	'assets/images/gc-badge-2x.png',
+	'assets/images/gechiui-logo-2x.png',
+	'assets/images/bubble_bg-rtl.gif',
+	'assets/images/gc-badge.png',
+	'assets/images/menu-shadow.png',
+	'assets/images/about-globe-2x.png',
+	'assets/images/welcome-icons-2x.png',
+	'assets/images/stars-rtl.png',
+	'assets/images/gc-logo-vs-2x.png',
+	'assets/images/about-updates-2x.png',
 	// 3.9
 	'gc-admin/css/colors.css',
 	'gc-admin/css/colors.min.css',
@@ -468,20 +607,117 @@ $_old_files = array(
 	// 'gc-admin/css/media-rtl.min.css',
 	// 'gc-admin/css/media.min.css',
 	// 'gc-admin/css/farbtastic-rtl.min.css',
-	'gc-admin/images/lock-2x.png',
-	'gc-admin/images/lock.png',
+	'assets/images/lock-2x.png',
+	'assets/images/lock.png',
 	'gc-admin/js/theme-preview.js',
 	'gc-admin/js/theme-install.min.js',
 	'gc-admin/js/theme-install.js',
 	'gc-admin/js/theme-preview.min.js',
+	'gc-includes/vendors/plupload/plupload.html4.js',
+	'gc-includes/vendors/plupload/plupload.html5.js',
+	'gc-includes/vendors/plupload/changelog.txt',
+	'gc-includes/vendors/plupload/plupload.silverlight.js',
+	'gc-includes/vendors/plupload/plupload.flash.js',
 	// Added back in 4.9 [41328], see #41755.
+	// 'gc-includes/vendors/plupload/plupload.js',
+	'gc-includes/vendors/tinymce/plugins/spellchecker',
+	'gc-includes/vendors/tinymce/plugins/inlinepopups',
+	'gc-includes/vendors/tinymce/plugins/media/js',
+	'gc-includes/vendors/tinymce/plugins/media/css',
+	'gc-includes/vendors/tinymce/plugins/gechiui/img',
+	'gc-includes/vendors/tinymce/plugins/gcdialogs/js',
+	'gc-includes/vendors/tinymce/plugins/gceditimage/img',
+	'gc-includes/vendors/tinymce/plugins/gceditimage/js',
+	'gc-includes/vendors/tinymce/plugins/gceditimage/css',
+	'gc-includes/vendors/tinymce/plugins/gcgallery/img',
+	'gc-includes/vendors/tinymce/plugins/gcfullscreen/css',
+	'gc-includes/vendors/tinymce/plugins/paste/js',
+	'gc-includes/vendors/tinymce/themes/advanced',
+	'gc-includes/vendors/tinymce/tiny_mce.js',
+	'gc-includes/vendors/tinymce/mark_loaded_src.js',
+	'gc-includes/vendors/tinymce/gc-tinymce-schema.js',
+	'gc-includes/vendors/tinymce/plugins/media/editor_plugin.js',
+	'gc-includes/vendors/tinymce/plugins/media/editor_plugin_src.js',
+	'gc-includes/vendors/tinymce/plugins/media/media.htm',
+	'gc-includes/vendors/tinymce/plugins/gcview/editor_plugin_src.js',
+	'gc-includes/vendors/tinymce/plugins/gcview/editor_plugin.js',
+	'gc-includes/vendors/tinymce/plugins/directionality/editor_plugin.js',
+	'gc-includes/vendors/tinymce/plugins/directionality/editor_plugin_src.js',
+	'gc-includes/vendors/tinymce/plugins/gechiui/editor_plugin.js',
+	'gc-includes/vendors/tinymce/plugins/gechiui/editor_plugin_src.js',
+	'gc-includes/vendors/tinymce/plugins/gcdialogs/editor_plugin_src.js',
+	'gc-includes/vendors/tinymce/plugins/gcdialogs/editor_plugin.js',
+	'gc-includes/vendors/tinymce/plugins/gceditimage/editimage.html',
+	'gc-includes/vendors/tinymce/plugins/gceditimage/editor_plugin.js',
+	'gc-includes/vendors/tinymce/plugins/gceditimage/editor_plugin_src.js',
+	'gc-includes/vendors/tinymce/plugins/fullscreen/editor_plugin_src.js',
+	'gc-includes/vendors/tinymce/plugins/fullscreen/fullscreen.htm',
+	'gc-includes/vendors/tinymce/plugins/fullscreen/editor_plugin.js',
+	'gc-includes/vendors/tinymce/plugins/gclink/editor_plugin_src.js',
+	'gc-includes/vendors/tinymce/plugins/gclink/editor_plugin.js',
+	'gc-includes/vendors/tinymce/plugins/gcgallery/editor_plugin_src.js',
+	'gc-includes/vendors/tinymce/plugins/gcgallery/editor_plugin.js',
+	'gc-includes/vendors/tinymce/plugins/tabfocus/editor_plugin.js',
+	'gc-includes/vendors/tinymce/plugins/tabfocus/editor_plugin_src.js',
+	'gc-includes/vendors/tinymce/plugins/gcfullscreen/editor_plugin.js',
+	'gc-includes/vendors/tinymce/plugins/gcfullscreen/editor_plugin_src.js',
+	'gc-includes/vendors/tinymce/plugins/paste/editor_plugin.js',
+	'gc-includes/vendors/tinymce/plugins/paste/pasteword.htm',
+	'gc-includes/vendors/tinymce/plugins/paste/editor_plugin_src.js',
+	'gc-includes/vendors/tinymce/plugins/paste/pastetext.htm',
+	'gc-includes/vendors/tinymce/langs/gc-langs.php',
+	// 4.1
+	'gc-includes/vendors/jquery/ui/jquery.ui.accordion.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.autocomplete.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.button.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.core.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.datepicker.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.dialog.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.draggable.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.droppable.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.effect-blind.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.effect-bounce.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.effect-clip.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.effect-drop.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.effect-explode.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.effect-fade.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.effect-fold.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.effect-highlight.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.effect-pulsate.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.effect-scale.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.effect-shake.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.effect-slide.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.effect-transfer.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.effect.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.menu.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.mouse.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.position.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.progressbar.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.resizable.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.selectable.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.slider.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.sortable.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.spinner.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.tabs.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.tooltip.min.js',
+	'gc-includes/vendors/jquery/ui/jquery.ui.widget.min.js',
+	'gc-includes/vendors/tinymce/skins/gechiui/images/dashicon-no-alt.png',
 	// 4.3
 	'gc-admin/js/gc-fullscreen.js',
 	'gc-admin/js/gc-fullscreen.min.js',
+	'gc-includes/vendors/tinymce/gc-mce-help.php',
+	'gc-includes/vendors/tinymce/plugins/gcfullscreen',
 	// 4.5
 	'gc-includes/theme-compat/comments-popup.php',
 	// 4.6
 	'gc-admin/includes/class-gc-automatic-upgrader.php', // Wrong file name, see #37628.
+	// 4.8
+	'gc-includes/vendors/tinymce/plugins/gcembed',
+	'gc-includes/vendors/tinymce/plugins/media/moxieplayer.swf',
+	'gc-includes/vendors/tinymce/skins/lightgray/fonts/readme.md',
+	'gc-includes/vendors/tinymce/skins/lightgray/fonts/tinymce-small.json',
+	'gc-includes/vendors/tinymce/skins/lightgray/fonts/tinymce.json',
+	'gc-includes/vendors/tinymce/skins/lightgray/skin.ie7.min.css',
 	// 4.9
 	'gc-admin/css/press-this-editor-rtl.css',
 	'gc-admin/css/press-this-editor-rtl.min.css',
@@ -496,11 +732,66 @@ $_old_files = array(
 	'gc-admin/js/bookmarklet.min.js',
 	'gc-admin/js/press-this.js',
 	'gc-admin/js/press-this.min.js',
+	'gc-includes/vendors/mediaelement/background.png',
+	'gc-includes/vendors/mediaelement/bigplay.png',
+	'gc-includes/vendors/mediaelement/bigplay.svg',
+	'gc-includes/vendors/mediaelement/controls.png',
+	'gc-includes/vendors/mediaelement/controls.svg',
+	'gc-includes/vendors/mediaelement/flashmediaelement.swf',
+	'gc-includes/vendors/mediaelement/froogaloop.min.js',
+	'gc-includes/vendors/mediaelement/jumpforward.png',
+	'gc-includes/vendors/mediaelement/loading.gif',
+	'gc-includes/vendors/mediaelement/silverlightmediaelement.xap',
+	'gc-includes/vendors/mediaelement/skipback.png',
+	'gc-includes/vendors/plupload/plupload.flash.swf',
+	'gc-includes/vendors/plupload/plupload.full.min.js',
+	'gc-includes/vendors/plupload/plupload.silverlight.xap',
+	'gc-includes/vendors/swfupload/plugins',
+	'gc-includes/vendors/swfupload/swfupload.swf',
+	// 4.9.2
+	'gc-includes/vendors/mediaelement/lang',
+	'gc-includes/vendors/mediaelement/lang/ca.js',
+	'gc-includes/vendors/mediaelement/lang/cs.js',
+	'gc-includes/vendors/mediaelement/lang/de.js',
+	'gc-includes/vendors/mediaelement/lang/es.js',
+	'gc-includes/vendors/mediaelement/lang/fa.js',
+	'gc-includes/vendors/mediaelement/lang/fr.js',
+	'gc-includes/vendors/mediaelement/lang/hr.js',
+	'gc-includes/vendors/mediaelement/lang/hu.js',
+	'gc-includes/vendors/mediaelement/lang/it.js',
+	'gc-includes/vendors/mediaelement/lang/ja.js',
+	'gc-includes/vendors/mediaelement/lang/ko.js',
+	'gc-includes/vendors/mediaelement/lang/nl.js',
+	'gc-includes/vendors/mediaelement/lang/pl.js',
+	'gc-includes/vendors/mediaelement/lang/pt.js',
+	'gc-includes/vendors/mediaelement/lang/ro.js',
+	'gc-includes/vendors/mediaelement/lang/ru.js',
+	'gc-includes/vendors/mediaelement/lang/sk.js',
+	'gc-includes/vendors/mediaelement/lang/sv.js',
+	'gc-includes/vendors/mediaelement/lang/uk.js',
+	'gc-includes/vendors/mediaelement/lang/zh-cn.js',
+	'gc-includes/vendors/mediaelement/lang/zh.js',
+	'gc-includes/vendors/mediaelement/mediaelement-flash-audio-ogg.swf',
+	'gc-includes/vendors/mediaelement/mediaelement-flash-audio.swf',
+	'gc-includes/vendors/mediaelement/mediaelement-flash-video-hls.swf',
+	'gc-includes/vendors/mediaelement/mediaelement-flash-video-mdash.swf',
+	'gc-includes/vendors/mediaelement/mediaelement-flash-video.swf',
+	'gc-includes/vendors/mediaelement/renderers/dailymotion.js',
+	'gc-includes/vendors/mediaelement/renderers/dailymotion.min.js',
+	'gc-includes/vendors/mediaelement/renderers/facebook.js',
+	'gc-includes/vendors/mediaelement/renderers/facebook.min.js',
+	'gc-includes/vendors/mediaelement/renderers/soundcloud.js',
+	'gc-includes/vendors/mediaelement/renderers/soundcloud.min.js',
+	'gc-includes/vendors/mediaelement/renderers/twitch.js',
+	'gc-includes/vendors/mediaelement/renderers/twitch.min.js',
+	// 5.0
+	'gc-includes/vendors/codemirror/jshint.js',
 	// 5.1
 	'gc-includes/random_compat/random_bytes_openssl.php',
+	'gc-includes/vendors/tinymce/gc-tinymce.js.gz',
 	// 5.3
-	'assets/js/gc-a11y.js',     // Moved to: assets/js/dist/a11y.js
-	'assets/js/gc-a11y.min.js', // Moved to: assets/js/dist/a11y.min.js
+	'gc-includes/js/gc-a11y.js',     // Moved to: gc-includes/js/dist/a11y.js
+	'gc-includes/js/gc-a11y.min.js', // Moved to: gc-includes/js/dist/a11y.min.js
 	// 5.4
 	'gc-admin/js/gc-fullscreen-stub.js',
 	'gc-admin/js/gc-fullscreen-stub.min.js',
@@ -509,15 +800,18 @@ $_old_files = array(
 	'gc-admin/css/ie.min.css',
 	'gc-admin/css/ie-rtl.css',
 	'gc-admin/css/ie-rtl.min.css',
+	// 5.6
+	'gc-includes/vendors/jquery/ui/position.min.js',
+	'gc-includes/vendors/jquery/ui/widget.min.js',
 	// 5.7
-	'assets/blocks/classic/block.json',
+	'gc-includes/blocks/classic/block.json',
 	// 5.8
-	'gc-admin/images/freedoms.png',
-	'gc-admin/images/privacy.png',
-	'gc-admin/images/about-badge.svg',
-	'gc-admin/images/about-color-palette.svg',
-	'gc-admin/images/about-color-palette-vert.svg',
-	'gc-admin/images/about-header-brushes.svg',
+	'assets/images/freedoms.png',
+	'assets/images/privacy.png',
+	'assets/images/about-badge.svg',
+	'assets/images/about-color-palette.svg',
+	'assets/images/about-color-palette-vert.svg',
+	'assets/images/about-header-brushes.svg',
 	'gc-includes/block-patterns/large-header.php',
 	'gc-includes/block-patterns/heading-paragraph.php',
 	'gc-includes/block-patterns/quote.php',
@@ -528,29 +822,141 @@ $_old_files = array(
 	'gc-includes/block-patterns/text-two-columns-with-images.php',
 	'gc-includes/block-patterns/text-two-columns.php',
 	'gc-includes/block-patterns/large-header-button.php',
-	'assets/blocks/subhead/block.json',
-	'assets/blocks/subhead',
+	'gc-includes/blocks/subhead/block.json',
+	'gc-includes/blocks/subhead',
 	'gc-includes/css/dist/editor/editor-styles.css',
 	'gc-includes/css/dist/editor/editor-styles.min.css',
 	'gc-includes/css/dist/editor/editor-styles-rtl.css',
 	'gc-includes/css/dist/editor/editor-styles-rtl.min.css',
 	// 5.9
-	'assets/blocks/heading/editor.css',
-	'assets/blocks/heading/editor.min.css',
-	'assets/blocks/heading/editor-rtl.css',
-	'assets/blocks/heading/editor-rtl.min.css',
-	'assets/blocks/post-content/editor.css',
-	'assets/blocks/post-content/editor.min.css',
-	'assets/blocks/post-content/editor-rtl.css',
-	'assets/blocks/post-content/editor-rtl.min.css',
-	'assets/blocks/query-title/editor.css',
-	'assets/blocks/query-title/editor.min.css',
-	'assets/blocks/query-title/editor-rtl.css',
-	'assets/blocks/query-title/editor-rtl.min.css',
-	'assets/blocks/tag-cloud/editor.css',
-	'assets/blocks/tag-cloud/editor.min.css',
-	'assets/blocks/tag-cloud/editor-rtl.css',
-	'assets/blocks/tag-cloud/editor-rtl.min.css',
+	'gc-includes/blocks/heading/editor.css',
+	'gc-includes/blocks/heading/editor.min.css',
+	'gc-includes/blocks/heading/editor-rtl.css',
+	'gc-includes/blocks/heading/editor-rtl.min.css',
+	'gc-includes/blocks/post-content/editor.css',
+	'gc-includes/blocks/post-content/editor.min.css',
+	'gc-includes/blocks/post-content/editor-rtl.css',
+	'gc-includes/blocks/post-content/editor-rtl.min.css',
+	'gc-includes/blocks/query-title/editor.css',
+	'gc-includes/blocks/query-title/editor.min.css',
+	'gc-includes/blocks/query-title/editor-rtl.css',
+	'gc-includes/blocks/query-title/editor-rtl.min.css',
+	'gc-includes/blocks/tag-cloud/editor.css',
+	'gc-includes/blocks/tag-cloud/editor.min.css',
+	'gc-includes/blocks/tag-cloud/editor-rtl.css',
+	'gc-includes/blocks/tag-cloud/editor-rtl.min.css',
+	// 6.1
+	'gc-includes/blocks/post-comments.php',
+	'gc-includes/blocks/post-comments/block.json',
+	'gc-includes/blocks/post-comments/editor.css',
+	'gc-includes/blocks/post-comments/editor.min.css',
+	'gc-includes/blocks/post-comments/editor-rtl.css',
+	'gc-includes/blocks/post-comments/editor-rtl.min.css',
+	'gc-includes/blocks/post-comments/style.css',
+	'gc-includes/blocks/post-comments/style.min.css',
+	'gc-includes/blocks/post-comments/style-rtl.css',
+	'gc-includes/blocks/post-comments/style-rtl.min.css',
+	'gc-includes/blocks/post-comments',
+	'gc-includes/blocks/comments-query-loop/block.json',
+	'gc-includes/blocks/comments-query-loop/editor.css',
+	'gc-includes/blocks/comments-query-loop/editor.min.css',
+	'gc-includes/blocks/comments-query-loop/editor-rtl.css',
+	'gc-includes/blocks/comments-query-loop/editor-rtl.min.css',
+	'gc-includes/blocks/comments-query-loop',
+	// 6.3
+	'assets/images/wlw',
+	'gc-includes/wlwmanifest.xml',
+	'gc-includes/random_compat',
+);
+
+/**
+ * Stores Requests files to be preloaded and deleted.
+ *
+ * For classes/interfaces, use the class/interface name
+ * as the array key.
+ *
+ * All other files/directories should not have a key.
+ *
+ * @since 6.2.0
+ *
+ * @global array $_old_requests_files
+ * @var array
+ * @name $_old_requests_files
+ */
+global $_old_requests_files;
+
+$_old_requests_files = array(
+	// Interfaces.
+	'Requests_Auth'                              => 'gc-includes/Requests/Auth.php',
+	'Requests_Hooker'                            => 'gc-includes/Requests/Hooker.php',
+	'Requests_Proxy'                             => 'gc-includes/Requests/Proxy.php',
+	'Requests_Transport'                         => 'gc-includes/Requests/Transport.php',
+
+	// Classes.
+	'Requests_Auth_Basic'                        => 'gc-includes/Requests/Auth/Basic.php',
+	'Requests_Cookie_Jar'                        => 'gc-includes/Requests/Cookie/Jar.php',
+	'Requests_Exception_HTTP'                    => 'gc-includes/Requests/Exception/HTTP.php',
+	'Requests_Exception_Transport'               => 'gc-includes/Requests/Exception/Transport.php',
+	'Requests_Exception_HTTP_304'                => 'gc-includes/Requests/Exception/HTTP/304.php',
+	'Requests_Exception_HTTP_305'                => 'gc-includes/Requests/Exception/HTTP/305.php',
+	'Requests_Exception_HTTP_306'                => 'gc-includes/Requests/Exception/HTTP/306.php',
+	'Requests_Exception_HTTP_400'                => 'gc-includes/Requests/Exception/HTTP/400.php',
+	'Requests_Exception_HTTP_401'                => 'gc-includes/Requests/Exception/HTTP/401.php',
+	'Requests_Exception_HTTP_402'                => 'gc-includes/Requests/Exception/HTTP/402.php',
+	'Requests_Exception_HTTP_403'                => 'gc-includes/Requests/Exception/HTTP/403.php',
+	'Requests_Exception_HTTP_404'                => 'gc-includes/Requests/Exception/HTTP/404.php',
+	'Requests_Exception_HTTP_405'                => 'gc-includes/Requests/Exception/HTTP/405.php',
+	'Requests_Exception_HTTP_406'                => 'gc-includes/Requests/Exception/HTTP/406.php',
+	'Requests_Exception_HTTP_407'                => 'gc-includes/Requests/Exception/HTTP/407.php',
+	'Requests_Exception_HTTP_408'                => 'gc-includes/Requests/Exception/HTTP/408.php',
+	'Requests_Exception_HTTP_409'                => 'gc-includes/Requests/Exception/HTTP/409.php',
+	'Requests_Exception_HTTP_410'                => 'gc-includes/Requests/Exception/HTTP/410.php',
+	'Requests_Exception_HTTP_411'                => 'gc-includes/Requests/Exception/HTTP/411.php',
+	'Requests_Exception_HTTP_412'                => 'gc-includes/Requests/Exception/HTTP/412.php',
+	'Requests_Exception_HTTP_413'                => 'gc-includes/Requests/Exception/HTTP/413.php',
+	'Requests_Exception_HTTP_414'                => 'gc-includes/Requests/Exception/HTTP/414.php',
+	'Requests_Exception_HTTP_415'                => 'gc-includes/Requests/Exception/HTTP/415.php',
+	'Requests_Exception_HTTP_416'                => 'gc-includes/Requests/Exception/HTTP/416.php',
+	'Requests_Exception_HTTP_417'                => 'gc-includes/Requests/Exception/HTTP/417.php',
+	'Requests_Exception_HTTP_418'                => 'gc-includes/Requests/Exception/HTTP/418.php',
+	'Requests_Exception_HTTP_428'                => 'gc-includes/Requests/Exception/HTTP/428.php',
+	'Requests_Exception_HTTP_429'                => 'gc-includes/Requests/Exception/HTTP/429.php',
+	'Requests_Exception_HTTP_431'                => 'gc-includes/Requests/Exception/HTTP/431.php',
+	'Requests_Exception_HTTP_500'                => 'gc-includes/Requests/Exception/HTTP/500.php',
+	'Requests_Exception_HTTP_501'                => 'gc-includes/Requests/Exception/HTTP/501.php',
+	'Requests_Exception_HTTP_502'                => 'gc-includes/Requests/Exception/HTTP/502.php',
+	'Requests_Exception_HTTP_503'                => 'gc-includes/Requests/Exception/HTTP/503.php',
+	'Requests_Exception_HTTP_504'                => 'gc-includes/Requests/Exception/HTTP/504.php',
+	'Requests_Exception_HTTP_505'                => 'gc-includes/Requests/Exception/HTTP/505.php',
+	'Requests_Exception_HTTP_511'                => 'gc-includes/Requests/Exception/HTTP/511.php',
+	'Requests_Exception_HTTP_Unknown'            => 'gc-includes/Requests/Exception/HTTP/Unknown.php',
+	'Requests_Exception_Transport_cURL'          => 'gc-includes/Requests/Exception/Transport/cURL.php',
+	'Requests_Proxy_HTTP'                        => 'gc-includes/Requests/Proxy/HTTP.php',
+	'Requests_Response_Headers'                  => 'gc-includes/Requests/Response/Headers.php',
+	'Requests_Transport_cURL'                    => 'gc-includes/Requests/Transport/cURL.php',
+	'Requests_Transport_fsockopen'               => 'gc-includes/Requests/Transport/fsockopen.php',
+	'Requests_Utility_CaseInsensitiveDictionary' => 'gc-includes/Requests/Utility/CaseInsensitiveDictionary.php',
+	'Requests_Utility_FilteredIterator'          => 'gc-includes/Requests/Utility/FilteredIterator.php',
+	'Requests_Cookie'                            => 'gc-includes/Requests/Cookie.php',
+	'Requests_Exception'                         => 'gc-includes/Requests/Exception.php',
+	'Requests_Hooks'                             => 'gc-includes/Requests/Hooks.php',
+	'Requests_IDNAEncoder'                       => 'gc-includes/Requests/IDNAEncoder.php',
+	'Requests_IPv6'                              => 'gc-includes/Requests/IPv6.php',
+	'Requests_IRI'                               => 'gc-includes/Requests/IRI.php',
+	'Requests_Response'                          => 'gc-includes/Requests/Response.php',
+	'Requests_SSL'                               => 'gc-includes/Requests/SSL.php',
+	'Requests_Session'                           => 'gc-includes/Requests/Session.php',
+
+	// Directories.
+	'gc-includes/Requests/Auth/',
+	'gc-includes/Requests/Cookie/',
+	'gc-includes/Requests/Exception/HTTP/',
+	'gc-includes/Requests/Exception/Transport/',
+	'gc-includes/Requests/Exception/',
+	'gc-includes/Requests/Proxy/',
+	'gc-includes/Requests/Response/',
+	'gc-includes/Requests/Transport/',
+	'gc-includes/Requests/Utility/',
 );
 
 /**
@@ -558,15 +964,13 @@ $_old_files = array(
  *
  * The contents of this array indicate any new bundled plugins/themes which
  * should be installed with the GeChiUI Upgrade. These items will not be
- * re-installed in future upgrades, this behaviour is controlled by the
+ * re-installed in future upgrades, this behavior is controlled by the
  * introduced version present here being older than the current installed version.
  *
  * The content of this array should follow the following format:
  * Filename (relative to gc-content) => Introduced version
  * Directories should be noted by suffixing it with a trailing slash (/)
- *
- *
- *
+ * New themes were not automatically installed for 4.4-4.6 on
  *              upgrade. New themes are now installed again. To disable new
  *              themes from being installed on upgrade, explicitly define
  *              CORE_UPGRADE_SKIP_NEW_BUNDLED as true.
@@ -577,8 +981,8 @@ $_old_files = array(
 global $_new_bundled_files;
 
 $_new_bundled_files = array(
-	'themes/gechiui-book/' => '5.8',
-	'themes/gcoa/' => '5.9',
+	'plugins/akismet/'          => '2.0',
+	'themes/gcoa/' => '1.1',
 );
 
 /**
@@ -621,10 +1025,11 @@ $_new_bundled_files = array(
  * themes, then if you edit the default theme, you should rename it, so that
  * your changes remain.
  *
- *
+ * @since 2.7.0
  *
  * @global GC_Filesystem_Base $gc_filesystem          GeChiUI filesystem subclass.
  * @global array              $_old_files
+ * @global array              $_old_requests_files
  * @global array              $_new_bundled_files
  * @global gcdb               $gcdb                   GeChiUI database abstraction object.
  * @global string             $gc_version
@@ -636,9 +1041,19 @@ $_new_bundled_files = array(
  * @return string|GC_Error New GeChiUI version on success, GC_Error on failure.
  */
 function update_core( $from, $to ) {
-	global $gc_filesystem, $_old_files, $_new_bundled_files, $gcdb;
+	global $gc_filesystem, $_old_files, $_old_requests_files, $_new_bundled_files, $gcdb;
 
-	set_time_limit( 300 );
+	if ( function_exists( 'set_time_limit' ) ) {
+		set_time_limit( 300 );
+	}
+
+	/*
+	 * Merge the old Requests files and directories into the `$_old_files`.
+	 * Then preload these Requests files first, before the files are deleted
+	 * and replaced to ensure the code is in memory if needed.
+	 */
+	$_old_files = array_merge( $_old_files, array_values( $_old_requests_files ) );
+	_preload_old_requests_classes_and_interfaces( $to );
 
 	/**
 	 * Filters feedback messages displayed during the core update process.
@@ -690,7 +1105,7 @@ function update_core( $from, $to ) {
 
 		return new GC_Error(
 			'copy_failed_for_version_file',
-			__( '因为我们不能复制一些文件，升级未被安装。这通常是因为存在不一致的文件权限。' ),
+			__( '由于某些文件无法被复制，更新无法进行。此问题通常是由于文件权限不一致造成的。' ),
 			'gc-includes/version.php'
 		);
 	}
@@ -708,9 +1123,14 @@ function update_core( $from, $to ) {
 	require GC_CONTENT_DIR . '/upgrade/version-current.php';
 	$gc_filesystem->delete( $versions_file );
 
-	$php_version       = phpversion();
-	$mysql_version     = $gcdb->db_version();
-	$old_gc_version    = $GLOBALS['gc_version']; // The version of GeChiUI we're updating from.
+	$php_version    = PHP_VERSION;
+	$mysql_version  = $gcdb->db_version();
+	$old_gc_version = $GLOBALS['gc_version']; // The version of GeChiUI we're updating from.
+	/*
+	 * Note: str_contains() is not used here, as this file is included
+	 * when updating from older GeChiUI versions, in which case
+	 * the polyfills from gc-includes/compat.php may not be available.
+	 */
 	$development_build = ( false !== strpos( $old_gc_version . $gc_version, '-' ) ); // A dash in the version indicates a development release.
 	$php_compat        = version_compare( $php_version, $required_php_version, '>=' );
 
@@ -795,8 +1215,10 @@ function update_core( $from, $to ) {
 	/** This filter is documented in gc-admin/includes/update-core.php */
 	apply_filters( 'update_feedback', __( '正在准备安装最新版本&#8230;' ) );
 
-	// Don't copy gc-content, we'll deal with that below.
-	// We also copy version.php last so failed updates report their old version.
+	/*
+	 * Don't copy gc-content, we'll deal with that below.
+	 * We also copy version.php last so failed updates report their old version.
+	 */
 	$skip              = array( 'gc-content', 'gc-includes/version.php' );
 	$check_is_writable = array();
 
@@ -813,6 +1235,11 @@ function update_core( $from, $to ) {
 
 		if ( is_array( $checksums ) ) {
 			foreach ( $checksums as $file => $checksum ) {
+				/*
+				 * Note: str_starts_with() is not used here, as this file is included
+				 * when updating from older GeChiUI versions, in which case
+				 * the polyfills from gc-includes/compat.php may not be available.
+				 */
 				if ( 'gc-content' === substr( $file, 0, 10 ) ) {
 					continue;
 				}
@@ -862,7 +1289,7 @@ function update_core( $from, $to ) {
 			if ( $files_not_writable ) {
 				return new GC_Error(
 					'files_not_writable',
-					__( '因为我们不能复制一些文件，升级未被安装。这通常是因为存在不一致的文件权限。' ),
+					__( '因为您的系统不能复制一些文件，更新不能被安装。这通常是因为存在不一致的文件权限。' ),
 					implode( ', ', $error_data )
 				);
 			}
@@ -882,7 +1309,7 @@ function update_core( $from, $to ) {
 	apply_filters( 'update_feedback', __( '正在复制所需的文件&#8230;' ) );
 
 	// Copy new versions of GC files into place.
-	$result = _copy_dir( $from . $distro, $to, $skip );
+	$result = copy_dir( $from . $distro, $to, $skip );
 
 	if ( is_gc_error( $result ) ) {
 		$result = new GC_Error(
@@ -898,7 +1325,7 @@ function update_core( $from, $to ) {
 			$gc_filesystem->delete( $from, true );
 			$result = new GC_Error(
 				'copy_failed_for_version_file',
-				__( '因为我们不能复制一些文件，升级未被安装。这通常是因为存在不一致的文件权限。' ),
+				__( '因为您的系统不能复制一些文件，更新不能被安装。这通常是因为存在不一致的文件权限。' ),
 				'gc-includes/version.php'
 			);
 		}
@@ -920,6 +1347,11 @@ function update_core( $from, $to ) {
 
 	if ( isset( $checksums ) && is_array( $checksums ) ) {
 		foreach ( $checksums as $file => $checksum ) {
+			/*
+			 * Note: str_starts_with() is not used here, as this file is included
+			 * when updating from older GeChiUI versions, in which case
+			 * the polyfills from gc-includes/compat.php may not be available.
+			 */
 			if ( 'gc-content' === substr( $file, 0, 10 ) ) {
 				continue;
 			}
@@ -953,14 +1385,16 @@ function update_core( $from, $to ) {
 			}
 		}
 
-		// If we don't have enough free space, it isn't worth trying again.
-		// Unlikely to be hit due to the check in unzip_file().
+		/*
+		 * If we don't have enough free space, it isn't worth trying again.
+		 * Unlikely to be hit due to the check in unzip_file().
+		 */
 		$available_space = function_exists( 'disk_free_space' ) ? @disk_free_space( ABSPATH ) : false;
 
 		if ( $available_space && $total_size >= $available_space ) {
 			$result = new GC_Error( 'disk_full', __( '磁盘空间不足，无法执行更新。' ) );
 		} else {
-			$result = _copy_dir( $from . $distro, $to, $skip );
+			$result = copy_dir( $from . $distro, $to, $skip );
 
 			if ( is_gc_error( $result ) ) {
 				$result = new GC_Error(
@@ -972,15 +1406,21 @@ function update_core( $from, $to ) {
 		}
 	}
 
-	// Custom content directory needs updating now.
-	// Copy languages.
+	/*
+	 * Custom content directory needs updating now.
+	 * Copy languages.
+	 */
 	if ( ! is_gc_error( $result ) && $gc_filesystem->is_dir( $from . $distro . 'gc-content/languages' ) ) {
 		if ( GC_LANG_DIR !== ABSPATH . GCINC . '/languages' || @is_dir( GC_LANG_DIR ) ) {
 			$lang_dir = GC_LANG_DIR;
 		} else {
 			$lang_dir = GC_CONTENT_DIR . '/languages';
 		}
-
+		/*
+		 * Note: str_starts_with() is not used here, as this file is included
+		 * when updating from older GeChiUI versions, in which case
+		 * the polyfills from gc-includes/compat.php may not be available.
+		 */
 		// Check if the language directory exists first.
 		if ( ! @is_dir( $lang_dir ) && 0 === strpos( $lang_dir, ABSPATH ) ) {
 			// If it's within the ABSPATH we can handle it here, otherwise they're out of luck.
@@ -1010,6 +1450,18 @@ function update_core( $from, $to ) {
 
 	// Remove maintenance file, we're done with potential site-breaking changes.
 	$gc_filesystem->delete( $maintenance_file );
+
+	/*
+	 * 3.5 -> 3.5+ - an empty twentytwelve directory was created upon upgrade to 3.5 for some users,
+	 * preventing installation of Twenty Twelve.
+	 */
+	if ( '3.5' === $old_gc_version ) {
+		if ( is_dir( GC_CONTENT_DIR . '/themes/twentytwelve' )
+			&& ! file_exists( GC_CONTENT_DIR . '/themes/twentytwelve/style.css' )
+		) {
+			$gc_filesystem->delete( $gc_filesystem->gc_themes_dir() . 'twentytwelve/' );
+		}
+	}
 
 	/*
 	 * Copy new bundled plugins & themes.
@@ -1057,10 +1509,13 @@ function update_core( $from, $to ) {
 					$gc_filesystem->mkdir( $dest . $filename, FS_CHMOD_DIR );
 					$_result = copy_dir( $from . $distro . 'gc-content/' . $file, $dest . $filename );
 
-					// If a error occurs partway through this final step, keep the error flowing through, but keep process going.
+					/*
+					 * If an error occurs partway through this final step,
+					 * keep the error flowing through, but keep the process going.
+					 */
 					if ( is_gc_error( $_result ) ) {
 						if ( ! is_gc_error( $result ) ) {
-							$result = new GC_Error;
+							$result = new GC_Error();
 						}
 
 						$result->add(
@@ -1101,8 +1556,8 @@ function update_core( $from, $to ) {
 	// Deactivate the REST API plugin if its version is 2.0 Beta 4 or lower.
 	_upgrade_440_force_deactivate_incompatible_plugins();
 
-	// Deactivate the Gutenberg plugin if its version is 11.8 or lower.
-	_upgrade_590_force_deactivate_incompatible_plugins();
+	// Deactivate incompatible plugins.
+	_upgrade_core_deactivate_incompatible_plugins();
 
 	// Upgrade DB with separate request.
 	/** This filter is documented in gc-admin/includes/update-core.php */
@@ -1143,92 +1598,60 @@ function update_core( $from, $to ) {
 }
 
 /**
- * Copies a directory from one location to another via the GeChiUI Filesystem Abstraction.
+ * Preloads old Requests classes and interfaces.
  *
- * Assumes that GC_Filesystem() has already been called and setup.
+ * This function preloads the old Requests code into memory before the
+ * upgrade process deletes the files. Why? Requests code is loaded into
+ * memory via an autoloader, meaning when a class or interface is needed
+ * If a request is in process, Requests could attempt to access code. If
+ * the file is not there, a fatal error could occur. If the file was
+ * replaced, the new code is not compatible with the old, resulting in
+ * a fatal error. Preloading ensures the code is in memory before the
+ * code is updated.
  *
- * This is a standalone copy of the `copy_dir()` function that is used to
- * upgrade the core files. It is placed here so that the version of this
- * function from the *new* GeChiUI version will be called.
+ * @since 6.2.0
  *
- * It was initially added for the 3.1 -> 3.2 upgrade.
+ * @global array              $_old_requests_files Requests files to be preloaded.
+ * @global GC_Filesystem_Base $gc_filesystem       GeChiUI filesystem subclass.
+ * @global string             $gc_version          The GeChiUI version string.
  *
- * @ignore
- *
- *
- *
- * @see copy_dir()
- * @link https://core.trac.gechiui.com/ticket/17173
- *
- * @global GC_Filesystem_Base $gc_filesystem
- *
- * @param string   $from      Source directory.
- * @param string   $to        Destination directory.
- * @param string[] $skip_list Array of files/folders to skip copying.
- * @return true|GC_Error True on success, GC_Error on failure.
+ * @param string $to Path to old GeChiUI installation.
  */
-function _copy_dir( $from, $to, $skip_list = array() ) {
-	global $gc_filesystem;
+function _preload_old_requests_classes_and_interfaces( $to ) {
+	global $_old_requests_files, $gc_filesystem, $gc_version;
 
-	$dirlist = $gc_filesystem->dirlist( $from );
-
-	if ( false === $dirlist ) {
-		return new GC_Error( 'dirlist_failed__copy_dir', __( '无法显示目录列表。' ), basename( $to ) );
+	/*
+	 * Requests was introduced in GeChiUI 4.6.
+	 *
+	 * Skip preloading if the website was previously using
+	 * an earlier version of GeChiUI.
+	 */
+	if ( version_compare( $gc_version, '4.6', '<' ) ) {
+		return;
 	}
 
-	$from = trailingslashit( $from );
-	$to   = trailingslashit( $to );
+	if ( ! defined( 'REQUESTS_SILENCE_PSR0_DEPRECATIONS' ) ) {
+		define( 'REQUESTS_SILENCE_PSR0_DEPRECATIONS', true );
+	}
 
-	foreach ( (array) $dirlist as $filename => $fileinfo ) {
-		if ( in_array( $filename, $skip_list, true ) ) {
+	foreach ( $_old_requests_files as $name => $file ) {
+		// Skip files that aren't interfaces or classes.
+		if ( is_int( $name ) ) {
 			continue;
 		}
 
-		if ( 'f' === $fileinfo['type'] ) {
-			if ( ! $gc_filesystem->copy( $from . $filename, $to . $filename, true, FS_CHMOD_FILE ) ) {
-				// If copy failed, chmod file to 0644 and try again.
-				$gc_filesystem->chmod( $to . $filename, FS_CHMOD_FILE );
-
-				if ( ! $gc_filesystem->copy( $from . $filename, $to . $filename, true, FS_CHMOD_FILE ) ) {
-					return new GC_Error( 'copy_failed__copy_dir', __( '无法复制文件。' ), $to . $filename );
-				}
-			}
-
-			/*
-			 * `gc_opcache_invalidate()` only exists in GeChiUI 5.5 or later,
-			 * so don't run it when upgrading from older versions.
-			 */
-			if ( function_exists( 'gc_opcache_invalidate' ) ) {
-				gc_opcache_invalidate( $to . $filename );
-			}
-		} elseif ( 'd' === $fileinfo['type'] ) {
-			if ( ! $gc_filesystem->is_dir( $to . $filename ) ) {
-				if ( ! $gc_filesystem->mkdir( $to . $filename, FS_CHMOD_DIR ) ) {
-					return new GC_Error( 'mkdir_failed__copy_dir', __( '无法创建目录。' ), $to . $filename );
-				}
-			}
-
-			/*
-			 * Generate the $sub_skip_list for the subdirectory as a sub-set
-			 * of the existing $skip_list.
-			 */
-			$sub_skip_list = array();
-
-			foreach ( $skip_list as $skip_item ) {
-				if ( 0 === strpos( $skip_item, $filename . '/' ) ) {
-					$sub_skip_list[] = preg_replace( '!^' . preg_quote( $filename, '!' ) . '/!i', '', $skip_item );
-				}
-			}
-
-			$result = _copy_dir( $from . $filename, $to . $filename, $sub_skip_list );
-
-			if ( is_gc_error( $result ) ) {
-				return $result;
-			}
+		// Skip if it's already loaded.
+		if ( class_exists( $name ) || interface_exists( $name ) ) {
+			continue;
 		}
-	}
 
-	return true;
+		// Skip if the file is missing.
+		if ( ! $gc_filesystem->is_file( $to . $file ) ) {
+			continue;
+		}
+
+		require_once $to . $file;
+	}
 }
 
 /**
@@ -1236,10 +1659,8 @@ function _copy_dir( $from, $to, $skip_list = array() ) {
  *
  * This function is only needed when the existing installation is older than 3.4.0.
  *
- *
- *
  * @global string $gc_version The GeChiUI version string.
- * @global string $pagenow
+ * @global string $pagenow    The filename of the current screen.
  * @global string $action
  *
  * @param string $new_version
@@ -1298,7 +1719,7 @@ window.location = 'about.php?updated';
 /**
  * Cleans up Genericons example files.
  *
- *
+ * @since 4.2.2
  *
  * @global array              $gc_theme_directories
  * @global GC_Filesystem_Base $gc_filesystem
@@ -1343,7 +1764,7 @@ function _upgrade_422_remove_genericons() {
  * Recursively find Genericons example files in a given folder.
  *
  * @ignore
- *
+ * @since 4.2.2
  *
  * @param string $directory Directory path. Expects trailingslashed.
  * @return array
@@ -1353,6 +1774,11 @@ function _upgrade_422_find_genericons_files_in_folder( $directory ) {
 	$files     = array();
 
 	if ( file_exists( "{$directory}example.html" )
+		/*
+		 * Note: str_contains() is not used here, as this file is included
+		 * when updating from older GeChiUI versions, in which case
+		 * the polyfills from gc-includes/compat.php may not be available.
+		 */
 		&& false !== strpos( file_get_contents( "{$directory}example.html" ), '<title>Genericons</title>' )
 	) {
 		$files[] = "{$directory}example.html";
@@ -1362,7 +1788,13 @@ function _upgrade_422_find_genericons_files_in_folder( $directory ) {
 	$dirs = array_filter(
 		$dirs,
 		static function( $dir ) {
-			// Skip any node_modules directories.
+			/*
+			 * Skip any node_modules directories.
+			 *
+			 * Note: str_contains() is not used here, as this file is included
+			 * when updating from older GeChiUI versions, in which case
+			 * the polyfills from gc-includes/compat.php may not be available.
+			 */
 			return false === strpos( $dir, 'node_modules' );
 		}
 	);
@@ -1378,7 +1810,6 @@ function _upgrade_422_find_genericons_files_in_folder( $directory ) {
 
 /**
  * @ignore
- *
  */
 function _upgrade_440_force_deactivate_incompatible_plugins() {
 	if ( defined( 'REST_API_VERSION' ) && version_compare( REST_API_VERSION, '2.0-beta4', '<=' ) ) {
@@ -1389,14 +1820,16 @@ function _upgrade_440_force_deactivate_incompatible_plugins() {
 /**
  * @access private
  * @ignore
- *
+ * @since 5.8.0
+ * @since 5.9.0 The minimum compatible version of Gutenberg is 11.9.
+ * @since 6.1.1 The minimum compatible version of Gutenberg is 14.1.
  */
-function _upgrade_590_force_deactivate_incompatible_plugins() {
-	if ( defined( 'GUTENBERG_VERSION' ) && version_compare( GUTENBERG_VERSION, '11.9', '<' ) ) {
+function _upgrade_core_deactivate_incompatible_plugins() {
+	if ( defined( 'GUTENBERG_VERSION' ) && version_compare( GUTENBERG_VERSION, '14.1', '<' ) ) {
 		$deactivated_gutenberg['gutenberg'] = array(
 			'plugin_name'         => 'Gutenberg',
 			'version_deactivated' => GUTENBERG_VERSION,
-			'version_compatible'  => '11.9',
+			'version_compatible'  => '14.1',
 		);
 		if ( is_plugin_active_for_network( 'gutenberg/gutenberg.php' ) ) {
 			$deactivated_plugins = get_site_option( 'gc_force_deactivated_plugins', array() );

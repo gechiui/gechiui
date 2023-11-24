@@ -1,0 +1,54 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/post-navigation-link",
+	"title": "文章导航链接",
+	"category": "theme",
+	"description": "显示与当前文章相邻的下一篇或上一篇文章的链接。",
+	"textdomain": "default",
+	"attributes": {
+		"textAlign": {
+			"type": "string"
+		},
+		"type": {
+			"type": "string",
+			"default": "next"
+		},
+		"label": {
+			"type": "string"
+		},
+		"showTitle": {
+			"type": "boolean",
+			"default": false
+		},
+		"linkLabel": {
+			"type": "boolean",
+			"default": false
+		},
+		"arrow": {
+			"type": "string",
+			"default": "none"
+		}
+	},
+	"supports": {
+		"reusable": false,
+		"html": false,
+		"color": {
+			"link": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalTextTransform": true,
+			"__experimentalTextDecoration": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		}
+	},
+	"style": "gc-block-post-navigation-link"
+}

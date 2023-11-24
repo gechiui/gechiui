@@ -69,7 +69,7 @@ if ( isset( $_REQUEST['attachment_id'] ) && (int) $_REQUEST['attachment_id'] && 
 				</div>
 				<div class="attachment-tools">
 					<span class="media-item-copy-container copy-to-clipboard-container edit-attachment">
-						<button type="button" class="button button-small copy-attachment-url" data-clipboard-text="<?php echo $file_url; ?>"><?php _e( '复制网址至剪贴板' ); ?></button>
+						<button type="button" class="btn btn-primary btn-tone btn-sm button-small copy-attachment-url" data-clipboard-text="<?php echo $file_url; ?>"><?php _e( '复制网址至剪贴板' ); ?></button>
 						<span class="success hidden" aria-hidden="true"><?php _e( '已复制！' ); ?></span>
 					</span>
 					<?php

@@ -15,7 +15,7 @@ if ( is_multisite() && ! is_network_admin() ) {
 }
 
 if ( ! current_user_can( 'edit_themes' ) ) {
-	gc_die( '<p>' . __( '抱歉，您不能在此站点上编辑模板。' ) . '</p>' );
+	gc_die( '<p>' . __( '抱歉，您不能在此系统上编辑模板。' ) . '</p>' );
 }
 
 // Used in the HTML title tag.
@@ -37,13 +37,13 @@ get_current_screen()->add_help_tab(
 				'<li id="editor-keyboard-trap-help-4">' . __( '致屏幕阅读器用户：在表单模式中，您可能需要按Esc键两次。' ) . '</li>' .
 				'</ul>' .
 				'<p>' . __( '当编辑完成时，请点击“更新文件”。' ) . '</p>' .
-				'<p>' . __( '<strong>建议：</strong>如果您在线编辑正在使用的主题，请当心您的站点崩溃。' ) . '</p>' .
+				'<p>' . __( '<strong>建议：</strong>如果您在线编辑正在使用的主题，请当心您的系统崩溃。' ) . '</p>' .
 				'<p>' . sprintf(
 					/* translators: %s: Link to documentation on child themes. */
 					__( '升级新版本的主题将会导致您所做的修改被覆盖。要避免类似悲剧的发生，请考虑创建一个<a href="%s">子主题</a>。' ),
 					__( 'https://developer.gechiui.com/themes/advanced-topics/child-themes/' )
 				) . '</p>' .
-				( is_network_admin() ? '<p>' . __( '从此页面对文件的任何编辑都将应用到站点网络中的所有站点。' ) . '</p>' : '' ),
+				( is_network_admin() ? '<p>' . __( '从此页面对文件的任何编辑都将应用到SaaS平台中的所有系统。' ) . '</p>' : '' ),
 	)
 );
 
@@ -146,8 +146,6 @@ gc_enqueue_script( 'gc-theme-plugin-editor' );
 gc_add_inline_script( 'gc-theme-plugin-editor', sprintf( 'jQuery( function( $ ) { gc.themePluginEditor.init( $( "#template" ), %s ); } )', gc_json_encode( $settings ) ) );
 gc_add_inline_script( 'gc-theme-plugin-editor', 'gc.themePluginEditor.themeOrPlugin = "theme";' );
 
-require_once ABSPATH . 'gc-admin/admin-header.php';
-
 update_recently_edited( $file );
 
 if ( ! is_file( $file ) ) {
@@ -181,35 +179,31 @@ $description      = esc_html( $file_description );
 if ( $file_description !== $file_show ) {
 	$description .= ' <span>(' . esc_html( $file_show ) . ')</span>';
 }
+
+if ( isset( $_GET['a'] ) ) {
+	$message = __( '文件修改成功。' );
+	add_settings_error( 'general', 'settings_updated', $message, 'success' );
+} elseif ( is_gc_error( $edit_error ) ) {
+	$message = __( '在试图更新文件时遇到了错误，您可能需要修正问题并重试更新。' );
+	$message .= '<pre>' .esc_html( $edit_error->get_error_message() ? $edit_error->get_error_message() : $edit_error->get_error_code() ) .'</pre>';
+	add_settings_error( 'general', 'settings_updated', $message, 'danger' );
+}
+
+if ( preg_match( '/\.css$/', $file ) && ! gc_is_block_theme() && current_user_can( 'customize' ) ) {
+	$message = __( '您知道吗？' );
+	$message .= '<p>';
+	$message .= sprintf( __( '您不需要在这里修改您的CSS——您可以在<a href="%s">内建的CSS编辑器</a>中编辑并实时预览您的CSS。' ), esc_url( add_query_arg( 'autofocus[section]', 'custom_css', admin_url( 'customize.php' ) ) ) );
+	$message .= '</p>';
+	add_settings_error( 'general', 'settings_updated', $message, 'primary lg' );
+}
+if ( $theme->errors() ) {
+	$message = '<strong>' . __( '该主题受损。' ) . '</strong> ' . $theme->errors()->get_error_message();
+	add_settings_error( 'general', 'settings_updated', $message, 'danger' );
+}
+require_once ABSPATH . 'gc-admin/admin-header.php';
 ?>
 <div class="wrap">
-<h1><?php echo esc_html( $title ); ?></h1>
-
-<?php if ( isset( $_GET['a'] ) ) : ?>
-	<div id="message" class="updated notice is-dismissible">
-		<p><?php _e( '文件修改成功。' ); ?></p>
-	</div>
-<?php elseif ( is_gc_error( $edit_error ) ) : ?>
-	<div id="message" class="notice notice-error">
-		<p><?php _e( '在试图更新文件时遇到了错误，您可能需要修正问题并重试更新。' ); ?></p>
-		<pre><?php echo esc_html( $edit_error->get_error_message() ? $edit_error->get_error_message() : $edit_error->get_error_code() ); ?></pre>
-	</div>
-<?php endif; ?>
-
-<?php if ( preg_match( '/\.css$/', $file ) && ! gc_is_block_theme() && current_user_can( 'customize' ) ) : ?>
-	<div id="message" class="notice-info notice">
-		<p><strong><?php _e( '您知道吗？' ); ?></strong></p>
-		<p>
-			<?php
-			printf(
-				/* translators: %s: Link to Custom CSS section in the Customizer. */
-				__( '您不需要在这里修改您的CSS——您可以在<a href="%s">内建的CSS编辑器</a>中编辑并实时预览您的CSS。' ),
-				esc_url( add_query_arg( 'autofocus[section]', 'custom_css', admin_url( 'customize.php' ) ) )
-			);
-			?>
-		</p>
-	</div>
-<?php endif; ?>
+<div class="page-header"><h2 class="header-title"><?php echo esc_html( $title ); ?></h2></div>
 
 <div class="fileedit-sub">
 <div class="alignleft">
@@ -241,12 +235,6 @@ if ( $file_description !== $file_show ) {
 </div>
 <br class="clear" />
 </div>
-
-<?php
-if ( $theme->errors() ) {
-	echo '<div class="error"><p><strong>' . __( '该主题受损。' ) . '</strong> ' . $theme->errors()->get_error_message() . '</p></div>';
-}
-?>
 
 <div id="templateside">
 	<h2 id="theme-files-label"><?php _e( '主题文件' ); ?></h2>
@@ -293,22 +281,15 @@ else :
 			<div id="documentation" class="hide-if-no-js">
 				<label for="docs-list"><?php _e( '文档：' ); ?></label>
 				<?php echo $docs_select; ?>
-				<input disabled id="docs-lookup" type="button" class="button" value="<?php esc_attr_e( '查询' ); ?>" onclick="if ( '' != jQuery('#docs-list').val() ) { window.open( 'https://api.gechiui.com/core/handbook/1.0/?function=' + escape( jQuery( '#docs-list' ).val() ) + '&amp;locale=<?php echo urlencode( get_user_locale() ); ?>&amp;version=<?php echo urlencode( get_bloginfo( 'version' ) ); ?>&amp;redirect=true'); }" />
+				<input disabled id="docs-lookup" type="button" class="btn btn-primary btn-tone btn-sm" value="<?php esc_attr_e( '查询' ); ?>" onclick="if ( '' != jQuery('#docs-list').val() ) { window.open( 'https://api.gechiui.com/core/handbook/1.0/?function=' + escape( jQuery( '#docs-list' ).val() ) + '&amp;locale=<?php echo urlencode( get_user_locale() ); ?>&amp;version=<?php echo urlencode( get_bloginfo( 'version' ) ); ?>&amp;redirect=true'); }" />
 			</div>
 		<?php endif; ?>
 
 		<div>
 			<div class="editor-notices">
-				<?php if ( is_child_theme() && $theme->get_stylesheet() === get_template() ) : ?>
-					<div class="notice notice-warning inline">
-						<p>
-							<?php if ( is_writable( $file ) ) : ?>
-								<strong><?php _e( '注意：' ); ?></strong>
-							<?php endif; ?>
-							<?php _e( '这是您当前父主题中的一个文件。' ); ?>
-						</p>
-					</div>
-				<?php endif; ?>
+				<?php if ( is_child_theme() && $theme->get_stylesheet() === get_template() ) : 
+						echo setting_error( __( '这是您当前父主题中的一个文件。' ), 'warning inline' );
+				endif; ?>
 			</div>
 			<?php if ( is_writable( $file ) ) : ?>
 				<p class="submit">
@@ -359,7 +340,7 @@ if ( ! in_array( 'theme_editor_notice', $dismissed_pointers, true ) ) :
 					<h1><?php _e( '小心！' ); ?></h1>
 					<p>
 						<?php
-						_e( '此操作可在 GeChiUI 仪表盘中直接编辑您的主题。 不推荐！ 直接编辑您的主题可能会破坏您的站点，且您的更改可能会在未来的更新中丢失。' );
+						_e( '此操作可在 GeChiUI 仪表盘中直接编辑您的主题。 不推荐！ 直接编辑您的主题可能会破坏您的系统，且您的更改可能会在未来的更新中丢失。' );
 						?>
 					</p>
 						<?php
@@ -376,8 +357,8 @@ if ( ! in_array( 'theme_editor_notice', $dismissed_pointers, true ) ) :
 					<p><?php _e( '如果您仍要直接进行修改，请使用资源管理器将文件复制一份并保留修改前的版本。这样当出现问题时您就能恢复到正常的版本。' ); ?></p>
 				</div>
 				<p>
-					<a class="button file-editor-warning-go-back" href="<?php echo esc_url( $return_url ); ?>"><?php _e( '返回' ); ?></a>
-					<button type="button" class="file-editor-warning-dismiss button button-primary"><?php _e( '我明白' ); ?></button>
+					<a class="btn btn-primary btn-tone file-editor-warning-go-back" href="<?php echo esc_url( $return_url ); ?>"><?php _e( '返回' ); ?></a>
+					<button type="button" class="file-editor-warning-dismiss btn btn-primary"><?php _e( '我明白' ); ?></button>
 				</p>
 			</div>
 		</div>

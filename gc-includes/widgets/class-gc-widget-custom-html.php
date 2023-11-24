@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class used to implement a Custom HTML widget.
- *
- *
  *
  * @see GC_Widget
  */
@@ -19,6 +16,7 @@ class GC_Widget_Custom_HTML extends GC_Widget {
 	/**
 	 * Whether or not the widget has been registered yet.
 	 *
+	 * @since 4.9.0
 	 * @var bool
 	 */
 	protected $registered = false;
@@ -26,6 +24,7 @@ class GC_Widget_Custom_HTML extends GC_Widget {
 	/**
 	 * Default instance.
 	 *
+	 * @since 4.8.1
 	 * @var array
 	 */
 	protected $default_instance = array(
@@ -36,6 +35,7 @@ class GC_Widget_Custom_HTML extends GC_Widget {
 	/**
 	 * Sets up a new Custom HTML widget instance.
 	 *
+	 * @since 4.8.1
 	 */
 	public function __construct() {
 		$widget_ops  = array(
@@ -54,6 +54,7 @@ class GC_Widget_Custom_HTML extends GC_Widget {
 	/**
 	 * Add hooks for enqueueing assets when registering all widget instances of this widget class.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param int $number Optional. The unique order number of this widget instance
 	 *                    compared to other instances of the same class. Default -1.
@@ -65,14 +66,16 @@ class GC_Widget_Custom_HTML extends GC_Widget {
 		}
 		$this->registered = true;
 
-		gc_add_inline_script( 'custom-html-widgets', sprintf( 'gc.customHtmlWidgets.idBases.push( %s );', gc_json_encode( $this->id_base ) ) );
-
-		// Note that the widgets component in the customizer will also do
-		// the 'admin_print_scripts-widgets.php' action in GC_Customize_Widgets::print_scripts().
+		/*
+		 * Note that the widgets component in the customizer will also do
+		 * the 'admin_print_scripts-widgets.php' action in GC_Customize_Widgets::print_scripts().
+		 */
 		add_action( 'admin_print_scripts-widgets.php', array( $this, 'enqueue_admin_scripts' ) );
 
-		// Note that the widgets component in the customizer will also do
-		// the 'admin_footer-widgets.php' action in GC_Customize_Widgets::print_footer_scripts().
+		/*
+		 * Note that the widgets component in the customizer will also do
+		 * the 'admin_footer-widgets.php' action in GC_Customize_Widgets::print_footer_scripts().
+		 */
 		add_action( 'admin_footer-widgets.php', array( 'GC_Widget_Custom_HTML', 'render_control_template_scripts' ) );
 
 		// Note this action is used to ensure the help text is added to the end.
@@ -85,6 +88,7 @@ class GC_Widget_Custom_HTML extends GC_Widget {
 	 * Prevents all of a site's attachments from being shown in a gallery displayed on a
 	 * non-singular template where a $post context is not available.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param array $attrs Attributes.
 	 * @return array Attributes.
@@ -99,6 +103,7 @@ class GC_Widget_Custom_HTML extends GC_Widget {
 	/**
 	 * Outputs the content for the current Custom HTML widget instance.
 	 *
+	 * @since 4.8.1
 	 *
 	 * @global GC_Post $post Global post object.
 	 *
@@ -147,6 +152,7 @@ class GC_Widget_Custom_HTML extends GC_Widget {
 		/**
 		 * Filters the content of the Custom HTML widget.
 		 *
+		 * @since 4.8.1
 		 *
 		 * @param string                $content  The widget content.
 		 * @param array                 $instance Array of settings for the current widget.
@@ -174,6 +180,7 @@ class GC_Widget_Custom_HTML extends GC_Widget {
 	/**
 	 * Handles updating settings for the current Custom HTML widget instance.
 	 *
+	 * @since 4.8.1
 	 *
 	 * @param array $new_instance New settings for this instance as input by the user via
 	 *                            GC_Widget::form().
@@ -194,6 +201,7 @@ class GC_Widget_Custom_HTML extends GC_Widget {
 	/**
 	 * Loads the required scripts and styles for the widget control.
 	 *
+	 * @since 4.9.0
 	 */
 	public function enqueue_admin_scripts() {
 		$settings = gc_enqueue_code_editor(
@@ -207,6 +215,8 @@ class GC_Widget_Custom_HTML extends GC_Widget {
 		);
 
 		gc_enqueue_script( 'custom-html-widgets' );
+		gc_add_inline_script( 'custom-html-widgets', sprintf( 'gc.customHtmlWidgets.idBases.push( %s );', gc_json_encode( $this->id_base ) ) );
+
 		if ( empty( $settings ) ) {
 			$settings = array(
 				'disabled' => true,
@@ -229,6 +239,8 @@ class GC_Widget_Custom_HTML extends GC_Widget {
 	/**
 	 * Outputs the Custom HTML widget settings form.
 	 *
+	 * @since 4.8.1
+	 * @since 4.9.0 The form contains only hidden sync inputs. For the control UI, see `GC_Widget_Custom_HTML::render_control_template_scripts()`.
 	 *
 	 * @see GC_Widget_Custom_HTML::render_control_template_scripts()
 	 *
@@ -245,6 +257,7 @@ class GC_Widget_Custom_HTML extends GC_Widget {
 	/**
 	 * Render form template scripts.
 	 *
+	 * @since 4.9.0
 	 */
 	public static function render_control_template_scripts() {
 		?>
@@ -284,6 +297,7 @@ class GC_Widget_Custom_HTML extends GC_Widget {
 	/**
 	 * Add help text to widgets admin screen.
 	 *
+	 * @since 4.9.0
 	 */
 	public static function add_help_text() {
 		$screen = get_current_screen();
@@ -301,7 +315,7 @@ class GC_Widget_Custom_HTML extends GC_Widget {
 				'class="external-link" target="_blank"',
 				sprintf(
 					'<span class="screen-reader-text"> %s</span>',
-					/* translators: Accessibility text. */
+					/* translators: Hidden accessibility text. */
 					__( '（在新窗口中打开）' )
 				)
 			);

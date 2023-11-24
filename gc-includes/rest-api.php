@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
@@ -19,20 +18,19 @@ define( 'REST_API_VERSION', '2.0' );
  *
  * Note: Do not use before the {@see 'rest_api_init'} hook.
  *
+ * @since 5.1.0 Added a `_doing_it_wrong()` notice when not called on or after the `rest_api_init` hook.
+ * @since 5.5.0 Added a `_doing_it_wrong()` notice when the required `permission_callback` argument is not set.
  *
- *
- *
- *
- * @param string $namespace The first URL segment after core prefix. Should be unique to your package/plugin.
- * @param string $route     The base URL for route you are adding.
- * @param array  $args      Optional. Either an array of options for the endpoint, or an array of arrays for
- *                          multiple methods. Default empty array.
- * @param bool   $override  Optional. If the route already exists, should we override it? True overrides,
- *                          false merges (with newer overriding if duplicate keys exist). Default false.
+ * @param string $route_namespace The first URL segment after core prefix. Should be unique to your package/plugin.
+ * @param string $route           The base URL for route you are adding.
+ * @param array  $args            Optional. Either an array of options for the endpoint, or an array of arrays for
+ *                                multiple methods. Default empty array.
+ * @param bool   $override        Optional. If the route already exists, should we override it? True overrides,
+ *                                false merges (with newer overriding if duplicate keys exist). Default false.
  * @return bool True on success, false on error.
  */
-function register_rest_route( $namespace, $route, $args = array(), $override = false ) {
-	if ( empty( $namespace ) ) {
+function register_rest_route( $route_namespace, $route, $args = array(), $override = false ) {
+	if ( empty( $route_namespace ) ) {
 		/*
 		 * Non-namespaced routes are not allowed, with the exception of the main
 		 * and namespace indexes. If you really need to register a
@@ -45,9 +43,9 @@ function register_rest_route( $namespace, $route, $args = array(), $override = f
 		return false;
 	}
 
-	$clean_namespace = trim( $namespace, '/' );
+	$clean_namespace = trim( $route_namespace, '/' );
 
-	if ( $clean_namespace !== $namespace ) {
+	if ( $clean_namespace !== $route_namespace ) {
 		_doing_it_wrong( __FUNCTION__, __( '命名空间不得以斜杠开头或结尾。' ), '5.4.2' );
 	}
 
@@ -103,6 +101,22 @@ function register_rest_route( $namespace, $route, $args = array(), $override = f
 				'5.5.0'
 			);
 		}
+
+		foreach ( $arg_group['args'] as $arg ) {
+			if ( ! is_array( $arg ) ) {
+				_doing_it_wrong(
+					__FUNCTION__,
+					sprintf(
+						/* translators: 1: $args, 2: The REST API route being registered. */
+						__( 'REST API %1$s 应当为一个由数组组成的数组。检测到 %2$s 有非数组值。' ),
+						'<code>$args</code>',
+						'<code>' . $clean_namespace . '/' . trim( $route, '/' ) . '</code>'
+					),
+					'6.1.0'
+				);
+				break; // Leave the foreach loop once a non-array argument was found.
+			}
+		}
 	}
 
 	$full_route = '/' . $clean_namespace . '/' . trim( $route, '/' );
@@ -112,8 +126,6 @@ function register_rest_route( $namespace, $route, $args = array(), $override = f
 
 /**
  * Registers a new field on an existing GeChiUI object type.
- *
- *
  *
  * @global array $gc_rest_additional_fields Holds registered fields, organized
  *                                          by object type.
@@ -155,8 +167,6 @@ function register_rest_field( $object_type, $attribute, $args = array() ) {
 /**
  * Registers rewrite rules for the REST API.
  *
- *
- *
  * @see rest_api_register_rewrites()
  * @global GC $gc Current GeChiUI environment instance.
  */
@@ -169,8 +179,6 @@ function rest_api_init() {
 
 /**
  * Adds REST rewrite rules.
- *
- *
  *
  * @see add_rewrite_rule()
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
@@ -189,7 +197,6 @@ function rest_api_register_rewrites() {
  *
  * Attached to the {@see 'rest_api_init'} action
  * to make testing and disabling these filters easier.
- *
  *
  */
 function rest_api_default_filters() {
@@ -215,7 +222,6 @@ function rest_api_default_filters() {
 /**
  * Registers default REST API routes.
  *
- *
  */
 function create_initial_rest_routes() {
 	foreach ( get_post_types( array( 'show_in_rest' => true ), 'objects' ) as $post_type ) {
@@ -239,15 +245,15 @@ function create_initial_rest_routes() {
 	}
 
 	// Post types.
-	$controller = new GC_REST_Post_Types_Controller;
+	$controller = new GC_REST_Post_Types_Controller();
 	$controller->register_routes();
 
 	// Post statuses.
-	$controller = new GC_REST_Post_Statuses_Controller;
+	$controller = new GC_REST_Post_Statuses_Controller();
 	$controller->register_routes();
 
 	// Taxonomies.
-	$controller = new GC_REST_Taxonomies_Controller;
+	$controller = new GC_REST_Taxonomies_Controller();
 	$controller->register_routes();
 
 	// Terms.
@@ -262,15 +268,15 @@ function create_initial_rest_routes() {
 	}
 
 	// Users.
-	$controller = new GC_REST_Users_Controller;
+	$controller = new GC_REST_Users_Controller();
 	$controller->register_routes();
 
-	// AppKeys
+	// Application Passwords
 	$controller = new GC_REST_AppKeys_Controller();
 	$controller->register_routes();
 
 	// Comments.
-	$controller = new GC_REST_Comments_Controller;
+	$controller = new GC_REST_Comments_Controller();
 	$controller->register_routes();
 
 	$search_handlers = array(
@@ -282,6 +288,7 @@ function create_initial_rest_routes() {
 	/**
 	 * Filters the search handlers to use in the REST search controller.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param array $search_handlers List of search handlers to use in the controller. Each search
 	 *                               handler instance must extend the `GC_REST_Search_Handler` class.
@@ -300,16 +307,20 @@ function create_initial_rest_routes() {
 	$controller = new GC_REST_Block_Types_Controller();
 	$controller->register_routes();
 
+	// Global Styles revisions.
+	$controller = new GC_REST_Global_Styles_Revisions_Controller();
+	$controller->register_routes();
+
 	// Global Styles.
-	$controller = new GC_REST_Global_Styles_Controller;
+	$controller = new GC_REST_Global_Styles_Controller();
 	$controller->register_routes();
 
 	// Settings.
-	$controller = new GC_REST_Settings_Controller;
+	$controller = new GC_REST_Settings_Controller();
 	$controller->register_routes();
 
 	// Themes.
-	$controller = new GC_REST_Themes_Controller;
+	$controller = new GC_REST_Themes_Controller();
 	$controller->register_routes();
 
 	// Plugins.
@@ -336,6 +347,14 @@ function create_initial_rest_routes() {
 	$controller = new GC_REST_Pattern_Directory_Controller();
 	$controller->register_routes();
 
+	// Block Patterns.
+	$controller = new GC_REST_Block_Patterns_Controller();
+	$controller->register_routes();
+
+	// Block Pattern Categories.
+	$controller = new GC_REST_Block_Pattern_Categories_Controller();
+	$controller->register_routes();
+
 	// Site Health.
 	$site_health = GC_Site_Health::get_instance();
 	$controller  = new GC_REST_Site_Health_Controller( $site_health );
@@ -352,12 +371,14 @@ function create_initial_rest_routes() {
 	// Site Editor Export.
 	$controller = new GC_REST_Edit_Site_Export_Controller();
 	$controller->register_routes();
+
+	// Navigation Fallback.
+	$controller = new GC_REST_Navigation_Fallback_Controller();
+	$controller->register_routes();
 }
 
 /**
  * Loads the REST API.
- *
- *
  *
  * @global GC $gc Current GeChiUI environment instance.
  */
@@ -369,6 +390,7 @@ function rest_api_loaded() {
 	/**
 	 * Whether this is a REST Request.
 	 *
+	 * @since 4.4.0
 	 * @var bool
 	 */
 	define( 'REST_REQUEST', true );
@@ -390,14 +412,13 @@ function rest_api_loaded() {
 /**
  * Retrieves the URL prefix for any API resource.
  *
- *
- *
  * @return string Prefix.
  */
 function rest_get_url_prefix() {
 	/**
 	 * Filters the REST URL prefix.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $prefix URL prefix. Default 'gc-json'.
 	 */
@@ -408,8 +429,6 @@ function rest_get_url_prefix() {
  * Retrieves the URL to a REST endpoint on a site.
  *
  * Note: The returned URL is NOT escaped.
- *
- *
  *
  * @todo Check if this is even necessary
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
@@ -438,9 +457,11 @@ function get_rest_url( $blog_id = null, $path = '/', $scheme = 'rest' ) {
 		$url .= $path;
 	} else {
 		$url = trailingslashit( get_home_url( $blog_id, '', $scheme ) );
-		// nginx only allows HTTP/1.0 methods when redirecting from / to /index.php.
-		// To work around this, we manually add index.php to the URL, avoiding the redirect.
-		if ( 'index.php' !== substr( $url, 9 ) ) {
+		/*
+		 * nginx only allows HTTP/1.0 methods when redirecting from / to /index.php.
+		 * To work around this, we manually add index.php to the URL, avoiding the redirect.
+		 */
+		if ( ! str_ends_with( $url, 'index.php' ) ) {
 			$url .= 'index.php';
 		}
 
@@ -468,6 +489,7 @@ function get_rest_url( $blog_id = null, $path = '/', $scheme = 'rest' ) {
 	 *
 	 * Use this filter to adjust the url returned by the get_rest_url() function.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string   $url     REST URL.
 	 * @param string   $path    REST route.
@@ -482,8 +504,6 @@ function get_rest_url( $blog_id = null, $path = '/', $scheme = 'rest' ) {
  *
  * Note: The returned URL is NOT escaped.
  *
- *
- *
  * @param string $path   Optional. REST route. Default empty.
  * @param string $scheme Optional. Sanitization scheme. Default 'rest'.
  * @return string Full URL to the endpoint.
@@ -497,8 +517,6 @@ function rest_url( $path = '', $scheme = 'rest' ) {
  *
  * Used primarily to route internal requests through GC_REST_Server.
  *
- *
- *
  * @param GC_REST_Request|string $request Request.
  * @return GC_REST_Response REST response.
  */
@@ -511,8 +529,6 @@ function rest_do_request( $request ) {
  * Retrieves the current REST server instance.
  *
  * Instantiates a new instance if none exists already.
- *
- *
  *
  * @global GC_REST_Server $gc_rest_server REST server instance.
  *
@@ -529,11 +545,12 @@ function rest_get_server() {
 		 * This filter allows you to adjust the server class used by the REST API, using a
 		 * different class to handle requests.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param string $class_name The name of the server class. Default 'GC_REST_Server'.
 		 */
 		$gc_rest_server_class = apply_filters( 'gc_rest_server_class', 'GC_REST_Server' );
-		$gc_rest_server       = new $gc_rest_server_class;
+		$gc_rest_server       = new $gc_rest_server_class();
 
 		/**
 		 * Fires when preparing to serve a REST API request.
@@ -541,6 +558,7 @@ function rest_get_server() {
 		 * Endpoint objects should be created and register their hooks on this action rather
 		 * than another action to ensure they're only loaded when needed.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param GC_REST_Server $gc_rest_server Server object.
 		 */
@@ -553,8 +571,7 @@ function rest_get_server() {
 /**
  * Ensures request arguments are a request object (for consistency).
  *
- *
- *
+ * @since 5.3.0 Accept string argument for the request path.
  *
  * @param array|string|GC_REST_Request $request Request to check.
  * @return GC_REST_Request REST request instance.
@@ -578,8 +595,6 @@ function rest_ensure_request( $request ) {
  * without needing to double-check the object. Will also allow GC_Error to indicate error
  * responses, so users should immediately check for this value.
  *
- *
- *
  * @param GC_REST_Response|GC_Error|GC_HTTP_Response|mixed $response Response to check.
  * @return GC_REST_Response|GC_Error If response generated an error, GC_Error, if response
  *                                   is already an instance, GC_REST_Response, otherwise
@@ -594,8 +609,10 @@ function rest_ensure_response( $response ) {
 		return $response;
 	}
 
-	// While GC_HTTP_Response is the base class of GC_REST_Response, it doesn't provide
-	// all the required methods used in GC_REST_Server::dispatch().
+	/*
+	 * While GC_HTTP_Response is the base class of GC_REST_Response, it doesn't provide
+	 * all the required methods used in GC_REST_Server::dispatch().
+	 */
 	if ( $response instanceof GC_HTTP_Response ) {
 		return new GC_REST_Response(
 			$response->get_data(),
@@ -610,22 +627,20 @@ function rest_ensure_response( $response ) {
 /**
  * Handles _deprecated_function() errors.
  *
- *
- *
- * @param string $function    The function that was called.
- * @param string $replacement The function that should have been called.
- * @param string $version     Version.
+ * @param string $function_name The function that was called.
+ * @param string $replacement   The function that should have been called.
+ * @param string $version       Version.
  */
-function rest_handle_deprecated_function( $function, $replacement, $version ) {
+function rest_handle_deprecated_function( $function_name, $replacement, $version ) {
 	if ( ! GC_DEBUG || headers_sent() ) {
 		return;
 	}
 	if ( ! empty( $replacement ) ) {
 		/* translators: 1: Function name, 2: GeChiUI version number, 3: New function name. */
-		$string = sprintf( __( '%1$s（自%2$s；请改用%3$s）' ), $function, $version, $replacement );
+		$string = sprintf( __( '%1$s（自%2$s；请改用%3$s）' ), $function_name, $version, $replacement );
 	} else {
 		/* translators: 1: Function name, 2: GeChiUI version number. */
-		$string = sprintf( __( '%1$s（自%2$s；无可用替代）' ), $function, $version );
+		$string = sprintf( __( '%1$s（自%2$s；无可用替代）' ), $function_name, $version );
 	}
 
 	header( sprintf( 'X-GC-DeprecatedFunction: %s', $string ) );
@@ -634,22 +649,20 @@ function rest_handle_deprecated_function( $function, $replacement, $version ) {
 /**
  * Handles _deprecated_argument() errors.
  *
- *
- *
- * @param string $function    The function that was called.
- * @param string $message     A message regarding the change.
- * @param string $version     Version.
+ * @param string $function_name The function that was called.
+ * @param string $message       A message regarding the change.
+ * @param string $version       Version.
  */
-function rest_handle_deprecated_argument( $function, $message, $version ) {
+function rest_handle_deprecated_argument( $function_name, $message, $version ) {
 	if ( ! GC_DEBUG || headers_sent() ) {
 		return;
 	}
 	if ( $message ) {
 		/* translators: 1: Function name, 2: GeChiUI version number, 3: Error message. */
-		$string = sprintf( __( '%1$s（自%2$s；%3$s）' ), $function, $version, $message );
+		$string = sprintf( __( '%1$s（自%2$s；%3$s）' ), $function_name, $version, $message );
 	} else {
 		/* translators: 1: Function name, 2: GeChiUI version number. */
-		$string = sprintf( __( '%1$s（自%2$s；无可用替代）' ), $function, $version );
+		$string = sprintf( __( '%1$s（自%2$s；无可用替代）' ), $function_name, $version );
 	}
 
 	header( sprintf( 'X-GC-DeprecatedParam: %s', $string ) );
@@ -658,13 +671,13 @@ function rest_handle_deprecated_argument( $function, $message, $version ) {
 /**
  * Handles _doing_it_wrong errors.
  *
+ * @since 5.5.0
  *
- *
- * @param string      $function The function that was called.
- * @param string      $message  A message explaining what has been done incorrectly.
- * @param string|null $version  The version of GeChiUI where the message was added.
+ * @param string      $function_name The function that was called.
+ * @param string      $message       A message explaining what has been done incorrectly.
+ * @param string|null $version       The version of GeChiUI where the message was added.
  */
-function rest_handle_doing_it_wrong( $function, $message, $version ) {
+function rest_handle_doing_it_wrong( $function_name, $message, $version ) {
 	if ( ! GC_DEBUG || headers_sent() ) {
 		return;
 	}
@@ -672,11 +685,11 @@ function rest_handle_doing_it_wrong( $function, $message, $version ) {
 	if ( $version ) {
 		/* translators: Developer debugging message. 1: PHP function name, 2: GeChiUI version number, 3: Explanatory message. */
 		$string = __( '%1$s（自%2$s；%3$s）' );
-		$string = sprintf( $string, $function, $version, $message );
+		$string = sprintf( $string, $function_name, $version, $message );
 	} else {
 		/* translators: Developer debugging message. 1: PHP function name, 2: Explanatory message. */
 		$string = __( '%1$s（%2$s）' );
-		$string = sprintf( $string, $function, $message );
+		$string = sprintf( $string, $function_name, $message );
 	}
 
 	header( sprintf( 'X-GC-DoingItWrong: %s', $string ) );
@@ -684,8 +697,6 @@ function rest_handle_doing_it_wrong( $function, $message, $version ) {
 
 /**
  * Sends Cross-Origin Resource Sharing headers with API requests.
- *
- *
  *
  * @param mixed $value Response data.
  * @return mixed Response data.
@@ -696,7 +707,7 @@ function rest_send_cors_headers( $value ) {
 	if ( $origin ) {
 		// Requests from file:// and data: URLs send "Origin: null".
 		if ( 'null' !== $origin ) {
-			$origin = esc_url_raw( $origin );
+			$origin = sanitize_url( $origin );
 		}
 		header( 'Access-Control-Allow-Origin: ' . $origin );
 		header( 'Access-Control-Allow-Methods: OPTIONS, GET, POST, PUT, PATCH, DELETE' );
@@ -714,8 +725,6 @@ function rest_send_cors_headers( $value ) {
  *
  * This is handled outside of the server code, as it doesn't obey normal route
  * mapping.
- *
- *
  *
  * @param mixed           $response Current response, either response or `null` to indicate pass-through.
  * @param GC_REST_Server  $handler  ResponseHandler instance (usually GC_REST_Server).
@@ -764,8 +773,6 @@ function rest_handle_options_request( $response, $handler, $request ) {
 /**
  * Sends the "Allow" header to state all methods that can be sent to the current route.
  *
- *
- *
  * @param GC_REST_Response $response Current response being served.
  * @param GC_REST_Server   $server   ResponseHandler instance (usually GC_REST_Server).
  * @param GC_REST_Request  $request  The request that was used to make current response.
@@ -810,7 +817,7 @@ function rest_send_allow_header( $response, $server, $request ) {
 /**
  * Recursively computes the intersection of arrays using keys for comparison.
  *
- *
+ * @since 5.3.0
  *
  * @param array $array1 The array with master keys to check.
  * @param array $array2 An array to compare keys against.
@@ -829,8 +836,6 @@ function _rest_array_intersect_key_recursive( $array1, $array2 ) {
 
 /**
  * Filters the REST API response to include only a white-listed set of response object fields.
- *
- *
  *
  * @param GC_REST_Response $response Current response being served.
  * @param GC_REST_Server   $server   ResponseHandler instance (usually GC_REST_Server).
@@ -895,7 +900,7 @@ function rest_filter_response_fields( $response, $server, $request ) {
  * will return true if any of `title`, `title.raw` or `title.rendered` is
  * provided.
  *
- *
+ * @since 5.3.0
  *
  * @param string $field  A field to test for inclusion in the response body.
  * @param array  $fields An array of string fields supported by the endpoint.
@@ -907,14 +912,18 @@ function rest_is_field_included( $field, $fields ) {
 	}
 
 	foreach ( $fields as $accepted_field ) {
-		// Check to see if $field is the parent of any item in $fields.
-		// A field "parent" should be accepted if "parent.child" is accepted.
-		if ( strpos( $accepted_field, "$field." ) === 0 ) {
+		/*
+		 * Check to see if $field is the parent of any item in $fields.
+		 * A field "parent" should be accepted if "parent.child" is accepted.
+		 */
+		if ( str_starts_with( $accepted_field, "$field." ) ) {
 			return true;
 		}
-		// Conversely, if "parent" is accepted, all "parent.child" fields
-		// should also be accepted.
-		if ( strpos( $field, "$accepted_field." ) === 0 ) {
+		/*
+		 * Conversely, if "parent" is accepted, all "parent.child" fields
+		 * should also be accepted.
+		 */
+		if ( str_starts_with( $field, "$accepted_field." ) ) {
 			return true;
 		}
 	}
@@ -924,8 +933,6 @@ function rest_is_field_included( $field, $fields ) {
 
 /**
  * Adds the REST API URL to the GC RSD endpoint.
- *
- *
  *
  * @see get_rest_url()
  */
@@ -942,8 +949,6 @@ function rest_output_rsd() {
 
 /**
  * Outputs the REST API link tag into page header.
- *
- *
  *
  * @see get_rest_url()
  */
@@ -966,7 +971,6 @@ function rest_output_link_gc_head() {
 /**
  * Sends a Link header for the REST API.
  *
- *
  */
 function rest_output_link_header() {
 	if ( headers_sent() ) {
@@ -979,12 +983,12 @@ function rest_output_link_header() {
 		return;
 	}
 
-	header( sprintf( 'Link: <%s>; rel="https://api.w.org/"', esc_url_raw( $api_root ) ), false );
+	header( sprintf( 'Link: <%s>; rel="https://api.w.org/"', sanitize_url( $api_root ) ), false );
 
 	$resource = rest_get_queried_resource_route();
 
 	if ( $resource ) {
-		header( sprintf( 'Link: <%s>; rel="alternate"; type="application/json"', esc_url_raw( rest_url( $resource ) ) ), false );
+		header( sprintf( 'Link: <%s>; rel="alternate"; type="application/json"', sanitize_url( rest_url( $resource ) ) ), false );
 	}
 }
 
@@ -994,8 +998,6 @@ function rest_output_link_header() {
  * GeChiUI' built-in cookie authentication is always active
  * for logged in users. However, the API has to check nonces
  * for each request to ensure users are not vulnerable to CSRF.
- *
- *
  *
  * @global mixed          $gc_rest_auth_cookie
  *
@@ -1052,8 +1054,6 @@ function rest_cookie_check_errors( $result ) {
  *
  * Collects errors from gc_validate_auth_cookie for use by rest_cookie_check_errors.
  *
- *
- *
  * @see current_action()
  * @global mixed $gc_rest_auth_cookie
  */
@@ -1071,16 +1071,15 @@ function rest_cookie_collect_status() {
 }
 
 /**
- * Collects the status of authenticating with an appkey.
+ * Collects the status of authenticating with an application password.
  *
- *
- *
+ * @since 5.7.0 Added the `$app_password` parameter.
  *
  * @global GC_User|GC_Error|null $gc_rest_appkey_status
  * @global string|null $gc_rest_appkey_uuid
  *
  * @param GC_Error $user_or_error The authenticated user or error instance.
- * @param array    $app_password  The AppKey used to authenticate.
+ * @param array    $app_password  The Application Password used to authenticate.
  */
 function rest_appkey_collect_status( $user_or_error, $app_password = array() ) {
 	global $gc_rest_appkey_status, $gc_rest_appkey_uuid;
@@ -1095,13 +1094,13 @@ function rest_appkey_collect_status( $user_or_error, $app_password = array() ) {
 }
 
 /**
- * Gets the AppKey used for authenticating the request.
+ * Gets the Application Password used for authenticating the request.
  *
- *
+ * @since 5.7.0
  *
  * @global string|null $gc_rest_appkey_uuid
  *
- * @return string|null The AppKey UUID, or null if AppKeys was not used.
+ * @return string|null The Application Password UUID, or null if Application Passwords was not used.
  */
 function rest_get_authenticated_app_password() {
 	global $gc_rest_appkey_uuid;
@@ -1110,15 +1109,13 @@ function rest_get_authenticated_app_password() {
 }
 
 /**
- * Checks for errors when using appkey-based authentication.
- *
- *
+ * Checks for errors when using application password-based authentication.
  *
  * @global GC_User|GC_Error|null $gc_rest_appkey_status
  *
  * @param GC_Error|null|true $result Error from another authentication handler,
  *                                   null if we should handle it, or another value if not.
- * @return GC_Error|null|true GC_Error if the appkey is invalid, the $result, otherwise true.
+ * @return GC_Error|null|true GC_Error if the application password is invalid, the $result, otherwise true.
  */
 function rest_appkey_check_errors( $result ) {
 	global $gc_rest_appkey_status;
@@ -1147,9 +1144,7 @@ function rest_appkey_check_errors( $result ) {
 }
 
 /**
- * Adds AppKeys info to the REST API index.
- *
- *
+ * Adds Application Passwords info to the REST API index.
  *
  * @param GC_REST_Response $response The index response object.
  * @return GC_REST_Response
@@ -1171,13 +1166,11 @@ function rest_add_appkeys_to_index( $response ) {
 /**
  * Retrieves the avatar urls in various sizes.
  *
- *
- *
  * @see get_avatar_url()
  *
  * @param mixed $id_or_email The Gravatar to retrieve a URL for. Accepts a user_id, gravatar md5 hash,
  *                           user email, GC_User object, GC_Post object, or GC_Comment object.
- * @return array Avatar URLs keyed by size. Each value can be a URL string or boolean false.
+ * @return (string|false)[] Avatar URLs keyed by size. Each value can be a URL string or boolean false.
  */
 function rest_get_avatar_urls( $id_or_email ) {
 	$avatar_sizes = rest_get_avatar_sizes();
@@ -1193,8 +1186,6 @@ function rest_get_avatar_urls( $id_or_email ) {
 /**
  * Retrieves the pixel sizes for avatars.
  *
- *
- *
  * @return int[] List of pixel sizes for avatars. Default `[ 24, 48, 96 ]`.
  */
 function rest_get_avatar_sizes() {
@@ -1204,6 +1195,7 @@ function rest_get_avatar_sizes() {
 	 * Use this filter to adjust the array of sizes returned by the
 	 * `rest_get_avatar_sizes` function.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param int[] $sizes An array of int values that are the pixel sizes for avatars.
 	 *                     Default `[ 24, 48, 96 ]`.
@@ -1213,8 +1205,6 @@ function rest_get_avatar_sizes() {
 
 /**
  * Parses an RFC3339 time into a Unix timestamp.
- *
- *
  *
  * @param string $date      RFC3339 timestamp.
  * @param bool   $force_utc Optional. Whether to force UTC timezone instead of using
@@ -1238,7 +1228,7 @@ function rest_parse_date( $date, $force_utc = false ) {
 /**
  * Parses a 3 or 6 digit hex color (with #).
  *
- *
+ * @since 5.4.0
  *
  * @param string $color 3 or 6 digit hex color (with #).
  * @return string|false
@@ -1255,14 +1245,17 @@ function rest_parse_hex_color( $color ) {
 /**
  * Parses a date into both its local and UTC equivalent, in MySQL datetime format.
  *
- *
- *
  * @see rest_parse_date()
  *
  * @param string $date   RFC3339 timestamp.
  * @param bool   $is_utc Whether the provided date should be interpreted as UTC. Default false.
- * @return array|null Local and UTC datetime strings, in MySQL datetime format (Y-m-d H:i:s),
- *                    null on failure.
+ * @return array|null {
+ *     Local and UTC datetime strings, in MySQL datetime format (Y-m-d H:i:s),
+ *     null on failure.
+ *
+ *     @type string $0 Local datetime string.
+ *     @type string $1 UTC datetime string.
+ * }
  */
 function rest_get_date_with_gmt( $date, $is_utc = false ) {
 	/*
@@ -1297,8 +1290,6 @@ function rest_get_date_with_gmt( $date, $is_utc = false ) {
 /**
  * Returns a contextual HTTP error code for authorization failure.
  *
- *
- *
  * @return int 401 if the user is not logged in, 403 if the user is logged in.
  */
 function rest_authorization_required_code() {
@@ -1307,8 +1298,6 @@ function rest_authorization_required_code() {
 
 /**
  * Validate a request argument based on details registered to the route.
- *
- *
  *
  * @param mixed           $value
  * @param GC_REST_Request $request
@@ -1327,8 +1316,6 @@ function rest_validate_request_arg( $value, $request, $param ) {
 
 /**
  * Sanitize a request argument based on details registered to the route.
- *
- *
  *
  * @param mixed           $value
  * @param GC_REST_Request $request
@@ -1350,8 +1337,6 @@ function rest_sanitize_request_arg( $value, $request, $param ) {
  *
  * Runs a validation check and sanitizes the value, primarily to be used via
  * the `sanitize_callback` arguments in the endpoint args registration.
- *
- *
  *
  * @param mixed           $value
  * @param GC_REST_Request $request
@@ -1375,15 +1360,13 @@ function rest_parse_request_arg( $value, $request, $param ) {
  *
  * Handles both IPv4 and IPv6 addresses.
  *
- *
- *
  * @param string $ip IP address.
  * @return string|false The valid IP address, otherwise false.
  */
 function rest_is_ip_address( $ip ) {
 	$ipv4_pattern = '/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/';
 
-	if ( ! preg_match( $ipv4_pattern, $ip ) && ! Requests_IPv6::check_ipv6( $ip ) ) {
+	if ( ! preg_match( $ipv4_pattern, $ip ) && ! GcOrg\Requests\Ipv6::check_ipv6( $ip ) ) {
 		return false;
 	}
 
@@ -1392,8 +1375,6 @@ function rest_is_ip_address( $ip ) {
 
 /**
  * Changes a boolean-like value into the proper boolean value.
- *
- *
  *
  * @param bool|string|int $value The value being evaluated.
  * @return bool Returns the proper associated boolean value.
@@ -1413,8 +1394,6 @@ function rest_sanitize_boolean( $value ) {
 
 /**
  * Determines if a given value is boolean-like.
- *
- *
  *
  * @param bool|string $maybe_bool The value being evaluated.
  * @return bool True if a boolean, otherwise false.
@@ -1447,7 +1426,7 @@ function rest_is_boolean( $maybe_bool ) {
 /**
  * Determines if a given value is integer-like.
  *
- *
+ * @since 5.5.0
  *
  * @param mixed $maybe_integer The value being evaluated.
  * @return bool True if an integer, otherwise false.
@@ -1459,7 +1438,7 @@ function rest_is_integer( $maybe_integer ) {
 /**
  * Determines if a given value is array-like.
  *
- *
+ * @since 5.5.0
  *
  * @param mixed $maybe_array The value being evaluated.
  * @return bool
@@ -1475,7 +1454,7 @@ function rest_is_array( $maybe_array ) {
 /**
  * Converts an array-like value to an array.
  *
- *
+ * @since 5.5.0
  *
  * @param mixed $maybe_array The value being evaluated.
  * @return array Returns the array extracted from the value.
@@ -1496,7 +1475,7 @@ function rest_sanitize_array( $maybe_array ) {
 /**
  * Determines if a given value is object-like.
  *
- *
+ * @since 5.5.0
  *
  * @param mixed $maybe_object The value being evaluated.
  * @return bool True if object like, otherwise false.
@@ -1518,12 +1497,12 @@ function rest_is_object( $maybe_object ) {
 }
 
 /**
- * Converts an object-like value to an object.
+ * Converts an object-like value to an array.
  *
- *
+ * @since 5.5.0
  *
  * @param mixed $maybe_object The value being evaluated.
- * @return array Returns the object extracted from the value.
+ * @return array Returns the object extracted from the value as an associative array.
  */
 function rest_sanitize_object( $maybe_object ) {
 	if ( '' === $maybe_object ) {
@@ -1548,10 +1527,10 @@ function rest_sanitize_object( $maybe_object ) {
 /**
  * Gets the best type for a value.
  *
+ * @since 5.5.0
  *
- *
- * @param mixed $value The value to check.
- * @param array $types The list of possible types.
+ * @param mixed    $value The value to check.
+ * @param string[] $types The list of possible types.
  * @return string The best matching type, an empty string if no types match.
  */
 function rest_get_best_type_for_value( $value, $types ) {
@@ -1565,8 +1544,10 @@ function rest_get_best_type_for_value( $value, $types ) {
 		'null'    => 'is_null',
 	);
 
-	// Both arrays and objects allow empty strings to be converted to their types.
-	// But the best answer for this type is a string.
+	/*
+	 * Both arrays and objects allow empty strings to be converted to their types.
+	 * But the best answer for this type is a string.
+	 */
 	if ( '' === $value && in_array( 'string', $types, true ) ) {
 		return 'string';
 	}
@@ -1586,7 +1567,7 @@ function rest_get_best_type_for_value( $value, $types ) {
  * This is a wrapper for {@see rest_get_best_type_for_value()} that handles
  * backward compatibility for schemas that use invalid types.
  *
- *
+ * @since 5.5.0
  *
  * @param mixed  $value The value to check.
  * @param array  $args  The schema array to use.
@@ -1623,15 +1604,15 @@ function rest_handle_multi_type_schema( $value, $args, $param = '' ) {
 /**
  * Checks if an array is made up of unique items.
  *
+ * @since 5.5.0
  *
- *
- * @param array $array The array to check.
+ * @param array $input_array The array to check.
  * @return bool True if the array contains unique items, false otherwise.
  */
-function rest_validate_array_contains_unique_items( $array ) {
+function rest_validate_array_contains_unique_items( $input_array ) {
 	$seen = array();
 
-	foreach ( $array as $item ) {
+	foreach ( $input_array as $item ) {
 		$stabilized = rest_stabilize_value( $item );
 		$key        = serialize( $stabilized );
 
@@ -1652,7 +1633,7 @@ function rest_validate_array_contains_unique_items( $array ) {
  *
  * For lists, order is preserved. For objects, properties are reordered alphabetically.
  *
- *
+ * @since 5.5.0
  *
  * @param mixed $value The value to stabilize. Must already be sanitized. Objects should have been converted to arrays.
  * @return mixed The stabilized value.
@@ -1680,8 +1661,6 @@ function rest_stabilize_value( $value ) {
 /**
  * Validates if the JSON Schema pattern matches a value.
  *
- *
- *
  * @param string $pattern The pattern to match against.
  * @param string $value   The value to check.
  * @return bool           True if the pattern matches the given value, false otherwise.
@@ -1694,8 +1673,6 @@ function rest_validate_json_schema_pattern( $pattern, $value ) {
 
 /**
  * Finds the schema for a property using the patternProperties keyword.
- *
- *
  *
  * @param string $property The property name to check.
  * @param array  $args     The schema array to use.
@@ -1715,8 +1692,6 @@ function rest_find_matching_pattern_property_schema( $property, $args ) {
 
 /**
  * Formats a combining operation error into a GC_Error object.
- *
- *
  *
  * @param string $param The parameter name.
  * @param array $error  The error details.
@@ -1747,8 +1722,6 @@ function rest_format_combining_operation_error( $param, $error ) {
 
 /**
  * Gets the error of combining operation.
- *
- *
  *
  * @param array  $value  The value to validate.
  * @param string $param  The parameter name, used in error messages.
@@ -1817,8 +1790,6 @@ function rest_get_combining_operation_error( $value, $param, $errors ) {
 /**
  * Finds the matching schema among the "anyOf" schemas.
  *
- *
- *
  * @param mixed  $value   The value to validate.
  * @param array  $args    The schema array to use.
  * @param string $param   The parameter name, used in error messages.
@@ -1849,8 +1820,6 @@ function rest_find_any_matching_schema( $value, $args, $param ) {
 
 /**
  * Finds the matching schema among the "oneOf" schemas.
- *
- *
  *
  * @param mixed  $value                  The value to validate.
  * @param array  $args                   The schema array to use.
@@ -1930,7 +1899,7 @@ function rest_find_one_matching_schema( $value, $args, $param, $stop_after_first
  *
  * Values must have been previously sanitized/coerced to their native types.
  *
- *
+ * @since 5.7.0
  *
  * @param mixed $value1 The first value to check.
  * @param mixed $value2 The second value to check.
@@ -1963,7 +1932,7 @@ function rest_are_values_equal( $value1, $value2 ) {
 /**
  * Validates that the given value is a member of the JSON Schema "enum".
  *
- *
+ * @since 5.7.0
  *
  * @param mixed  $value  The value to validate.
  * @param array  $args   The schema array to use.
@@ -1999,8 +1968,6 @@ function rest_validate_enum( $value, $args, $param ) {
 /**
  * Get all valid JSON schema properties.
  *
- *
- *
  * @return string[] All valid JSON schema properties.
  */
 function rest_get_allowed_schema_keywords() {
@@ -2035,17 +2002,14 @@ function rest_get_allowed_schema_keywords() {
 
 /**
  * Validate a value based on a schema.
- *
- *
- *
- *
- *
- *
- *
+ * Support the "object" type.
+ * @since 5.2.0 Support validating "additionalProperties" against a schema.
+ * @since 5.3.0 Support multiple types.
+ * @since 5.4.0 Convert an empty string to an empty object.
+ * @since 5.5.0 Add the "uuid" and "hex-color" formats.
  *              Support the "minLength", "maxLength" and "pattern" keywords for strings.
  *              Support the "minItems", "maxItems" and "uniqueItems" keywords for arrays.
- *              Validate required properties.
- *
+ *              Validate required properties. Support the "minProperties" and "maxProperties" keywords for objects.
  *              Support the "multipleOf" keyword for numbers and integers.
  *              Support the "patternProperties" keyword for objects.
  *              Support the "anyOf" and "oneOf" keywords.
@@ -2147,8 +2111,10 @@ function rest_validate_value_from_schema( $value, $args, $param = '' ) {
 		}
 	}
 
-	// The "format" keyword should only be applied to strings. However, for backward compatibility,
-	// we allow the "format" keyword if the type keyword was not specified, or was set to an invalid value.
+	/*
+	 * The "format" keyword should only be applied to strings. However, for backward compatibility,
+	 * we allow the "format" keyword if the type keyword was not specified, or was set to an invalid value.
+	 */
 	if ( isset( $args['format'] )
 		&& ( ! isset( $args['type'] ) || 'string' === $args['type'] || ! in_array( $args['type'], $allowed_types, true ) )
 	) {
@@ -2191,7 +2157,7 @@ function rest_validate_value_from_schema( $value, $args, $param = '' ) {
 /**
  * Validates a null value based on a schema.
  *
- *
+ * @since 5.7.0
  *
  * @param mixed  $value The value to validate.
  * @param string $param The parameter name, used in error messages.
@@ -2213,7 +2179,7 @@ function rest_validate_null_value_from_schema( $value, $param ) {
 /**
  * Validates a boolean value based on a schema.
  *
- *
+ * @since 5.7.0
  *
  * @param mixed  $value The value to validate.
  * @param string $param The parameter name, used in error messages.
@@ -2235,7 +2201,7 @@ function rest_validate_boolean_value_from_schema( $value, $param ) {
 /**
  * Validates an object value based on a schema.
  *
- *
+ * @since 5.7.0
  *
  * @param mixed  $value The value to validate.
  * @param array  $args  Schema array to use for validation.
@@ -2350,7 +2316,7 @@ function rest_validate_object_value_from_schema( $value, $args, $param ) {
 /**
  * Validates an array value based on a schema.
  *
- *
+ * @since 5.7.0
  *
  * @param mixed  $value The value to validate.
  * @param array  $args  Schema array to use for validation.
@@ -2421,7 +2387,7 @@ function rest_validate_array_value_from_schema( $value, $args, $param ) {
 /**
  * Validates a number value based on a schema.
  *
- *
+ * @since 5.7.0
  *
  * @param mixed  $value The value to validate.
  * @param array  $args  Schema array to use for validation.
@@ -2550,7 +2516,7 @@ function rest_validate_number_value_from_schema( $value, $args, $param ) {
 /**
  * Validates a string value based on a schema.
  *
- *
+ * @since 5.7.0
  *
  * @param mixed  $value The value to validate.
  * @param array  $args  Schema array to use for validation.
@@ -2613,7 +2579,7 @@ function rest_validate_string_value_from_schema( $value, $args, $param ) {
 /**
  * Validates an integer value based on a schema.
  *
- *
+ * @since 5.7.0
  *
  * @param mixed  $value The value to validate.
  * @param array  $args  Schema array to use for validation.
@@ -2641,10 +2607,8 @@ function rest_validate_integer_value_from_schema( $value, $args, $param ) {
 /**
  * Sanitize a value based on a schema.
  *
- *
- *
- *
- *
+ * @since 5.5.0 Added the `$param` parameter. Support the "anyOf" and "oneOf" keywords.
+ * @since 5.9.0 Added `text-field` and `textarea-field` formats.
  *
  * @param mixed  $value The value to sanitize.
  * @param array  $args  Schema array to use for sanitization.
@@ -2780,7 +2744,7 @@ function rest_sanitize_value_from_schema( $value, $args, $param = '' ) {
 				return sanitize_text_field( $value );
 
 			case 'uri':
-				return esc_url_raw( $value );
+				return sanitize_url( $value );
 
 			case 'ip':
 				return sanitize_text_field( $value );
@@ -2807,15 +2771,17 @@ function rest_sanitize_value_from_schema( $value, $args, $param = '' ) {
  * Append result of internal request to REST API for purpose of preloading data to be attached to a page.
  * Expected to be called in the context of `array_reduce`.
  *
- *
+ * @since 5.0.0
  *
  * @param array  $memo Reduce accumulator.
  * @param string $path REST API path to preload.
  * @return array Modified reduce accumulator.
  */
 function rest_preload_api_request( $memo, $path ) {
-	// array_reduce() doesn't support passing an array in PHP 5.2,
-	// so we need to make sure we start with one.
+	/*
+	 * array_reduce() doesn't support passing an array in PHP 5.2,
+	 * so we need to make sure we start with one.
+	 */
 	if ( ! is_array( $memo ) ) {
 		$memo = array();
 	}
@@ -2853,12 +2819,12 @@ function rest_preload_api_request( $memo, $path ) {
 	$response = rest_do_request( $request );
 	if ( 200 === $response->status ) {
 		$server = rest_get_server();
-		$embed  = $request->has_param( '_embed' ) ? rest_parse_embed_param( $request['_embed'] ) : false;
-		$data   = (array) $server->response_to_data( $response, $embed );
+		/** This filter is documented in gc-includes/rest-api/class-gc-rest-server.php */
+		$response = apply_filters( 'rest_post_dispatch', rest_ensure_response( $response ), $server, $request );
+		$embed    = $request->has_param( '_embed' ) ? rest_parse_embed_param( $request['_embed'] ) : false;
+		$data     = (array) $server->response_to_data( $response, $embed );
 
 		if ( 'OPTIONS' === $method ) {
-			$response = rest_send_allow_header( $response, $server, $request );
-
 			$memo[ $method ][ $path ] = array(
 				'body'    => $data,
 				'headers' => $response->headers,
@@ -2877,7 +2843,7 @@ function rest_preload_api_request( $memo, $path ) {
 /**
  * Parses the "_embed" parameter into the list of resources to embed.
  *
- *
+ * @since 5.4.0
  *
  * @param string|array $embed Raw "_embed" parameter value.
  * @return true|string[] Either true to embed all embeds, or a list of relations to embed.
@@ -2899,40 +2865,39 @@ function rest_parse_embed_param( $embed ) {
 /**
  * Filters the response to remove any fields not available in the given context.
  *
- *
- *
+ * @since 5.5.0 Support the "patternProperties" keyword for objects.
  *              Support the "anyOf" and "oneOf" keywords.
  *
- * @param array|object $data    The response data to modify.
- * @param array        $schema  The schema for the endpoint used to filter the response.
- * @param string       $context The requested context.
+ * @param array|object $response_data The response data to modify.
+ * @param array        $schema        The schema for the endpoint used to filter the response.
+ * @param string       $context       The requested context.
  * @return array|object The filtered response data.
  */
-function rest_filter_response_by_context( $data, $schema, $context ) {
+function rest_filter_response_by_context( $response_data, $schema, $context ) {
 	if ( isset( $schema['anyOf'] ) ) {
-		$matching_schema = rest_find_any_matching_schema( $data, $schema, '' );
+		$matching_schema = rest_find_any_matching_schema( $response_data, $schema, '' );
 		if ( ! is_gc_error( $matching_schema ) ) {
 			if ( ! isset( $schema['type'] ) ) {
 				$schema['type'] = $matching_schema['type'];
 			}
 
-			$data = rest_filter_response_by_context( $data, $matching_schema, $context );
+			$response_data = rest_filter_response_by_context( $response_data, $matching_schema, $context );
 		}
 	}
 
 	if ( isset( $schema['oneOf'] ) ) {
-		$matching_schema = rest_find_one_matching_schema( $data, $schema, '', true );
+		$matching_schema = rest_find_one_matching_schema( $response_data, $schema, '', true );
 		if ( ! is_gc_error( $matching_schema ) ) {
 			if ( ! isset( $schema['type'] ) ) {
 				$schema['type'] = $matching_schema['type'];
 			}
 
-			$data = rest_filter_response_by_context( $data, $matching_schema, $context );
+			$response_data = rest_filter_response_by_context( $response_data, $matching_schema, $context );
 		}
 	}
 
-	if ( ! is_array( $data ) && ! is_object( $data ) ) {
-		return $data;
+	if ( ! is_array( $response_data ) && ! is_object( $response_data ) ) {
+		return $response_data;
 	}
 
 	if ( isset( $schema['type'] ) ) {
@@ -2940,14 +2905,14 @@ function rest_filter_response_by_context( $data, $schema, $context ) {
 	} elseif ( isset( $schema['properties'] ) ) {
 		$type = 'object'; // Back compat if a developer accidentally omitted the type.
 	} else {
-		return $data;
+		return $response_data;
 	}
 
 	$is_array_type  = 'array' === $type || ( is_array( $type ) && in_array( 'array', $type, true ) );
 	$is_object_type = 'object' === $type || ( is_array( $type ) && in_array( 'object', $type, true ) );
 
 	if ( $is_array_type && $is_object_type ) {
-		if ( rest_is_array( $data ) ) {
+		if ( rest_is_array( $response_data ) ) {
 			$is_object_type = false;
 		} else {
 			$is_array_type = false;
@@ -2956,7 +2921,7 @@ function rest_filter_response_by_context( $data, $schema, $context ) {
 
 	$has_additional_properties = $is_object_type && isset( $schema['additionalProperties'] ) && is_array( $schema['additionalProperties'] );
 
-	foreach ( $data as $key => $value ) {
+	foreach ( $response_data as $key => $value ) {
 		$check = array();
 
 		if ( $is_array_type ) {
@@ -2981,34 +2946,33 @@ function rest_filter_response_by_context( $data, $schema, $context ) {
 		if ( ! in_array( $context, $check['context'], true ) ) {
 			if ( $is_array_type ) {
 				// All array items share schema, so there's no need to check each one.
-				$data = array();
+				$response_data = array();
 				break;
 			}
 
-			if ( is_object( $data ) ) {
-				unset( $data->$key );
+			if ( is_object( $response_data ) ) {
+				unset( $response_data->$key );
 			} else {
-				unset( $data[ $key ] );
+				unset( $response_data[ $key ] );
 			}
 		} elseif ( is_array( $value ) || is_object( $value ) ) {
 			$new_value = rest_filter_response_by_context( $value, $check, $context );
 
-			if ( is_object( $data ) ) {
-				$data->$key = $new_value;
+			if ( is_object( $response_data ) ) {
+				$response_data->$key = $new_value;
 			} else {
-				$data[ $key ] = $new_value;
+				$response_data[ $key ] = $new_value;
 			}
 		}
 	}
 
-	return $data;
+	return $response_data;
 }
 
 /**
  * Sets the "additionalProperties" to false by default for all object definitions in the schema.
  *
- *
- *
+ * @since 5.5.0 Support the "patternProperties" keyword.
  *
  * @param array $schema The schema to modify.
  * @return array The modified schema.
@@ -3046,7 +3010,7 @@ function rest_default_additional_properties_to_false( $schema ) {
 /**
  * Gets the REST API route for a post.
  *
- *
+ * @since 5.5.0
  *
  * @param int|GC_Post $post Post ID or post object.
  * @return string The route path with a leading slash for the given post,
@@ -3069,6 +3033,7 @@ function rest_get_route_for_post( $post ) {
 	/**
 	 * Filters the REST API route for a post.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string  $route The route path.
 	 * @param GC_Post $post  The post object.
@@ -3079,7 +3044,7 @@ function rest_get_route_for_post( $post ) {
 /**
  * Gets the REST API route for a post type.
  *
- *
+ * @since 5.9.0
  *
  * @param string $post_type The name of a registered post type.
  * @return string The route path with a leading slash for the given post type,
@@ -3102,6 +3067,7 @@ function rest_get_route_for_post_type_items( $post_type ) {
 	/**
 	 * Filters the REST API route for a post type.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param string       $route      The route path.
 	 * @param GC_Post_Type $post_type  The post type object.
@@ -3112,7 +3078,7 @@ function rest_get_route_for_post_type_items( $post_type ) {
 /**
  * Gets the REST API route for a term.
  *
- *
+ * @since 5.5.0
  *
  * @param int|GC_Term $term Term ID or term object.
  * @return string The route path with a leading slash for the given term,
@@ -3135,6 +3101,7 @@ function rest_get_route_for_term( $term ) {
 	/**
 	 * Filters the REST API route for a term.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string  $route The route path.
 	 * @param GC_Term $term  The term object.
@@ -3145,7 +3112,7 @@ function rest_get_route_for_term( $term ) {
 /**
  * Gets the REST API route for a taxonomy.
  *
- *
+ * @since 5.9.0
  *
  * @param string $taxonomy Name of taxonomy.
  * @return string The route path with a leading slash for the given taxonomy.
@@ -3167,6 +3134,7 @@ function rest_get_route_for_taxonomy_items( $taxonomy ) {
 	/**
 	 * Filters the REST API route for a taxonomy.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param string      $route    The route path.
 	 * @param GC_Taxonomy $taxonomy The taxonomy object.
@@ -3177,7 +3145,7 @@ function rest_get_route_for_taxonomy_items( $taxonomy ) {
 /**
  * Gets the REST route for the currently queried object.
  *
- *
+ * @since 5.5.0
  *
  * @return string The REST route of the resource, or an empty string if no resource identified.
  */
@@ -3195,6 +3163,7 @@ function rest_get_queried_resource_route() {
 	/**
 	 * Filters the REST route for the currently queried object.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $link The route with a leading slash, or an empty string.
 	 */
@@ -3203,8 +3172,6 @@ function rest_get_queried_resource_route() {
 
 /**
  * Retrieves an array of endpoint arguments from the item schema and endpoint method.
- *
- *
  *
  * @param array  $schema The full JSON schema for the endpoint.
  * @param string $method Optional. HTTP method of the endpoint. The arguments for `CREATABLE` endpoints are
@@ -3271,10 +3238,10 @@ function rest_get_endpoint_args_for_schema( $schema, $method = GC_REST_Server::C
  * Converts an error to a response object.
  *
  * This iterates over all error codes and messages to change it into a flat
- * array. This enables simpler client behaviour, as it is represented as a
+ * array. This enables simpler client behavior, as it is represented as a
  * list in JSON rather than an object/map.
  *
- *
+ * @since 5.7.0
  *
  * @param GC_Error $error GC_Error instance.
  *

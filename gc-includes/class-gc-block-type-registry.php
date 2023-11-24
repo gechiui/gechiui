@@ -4,18 +4,20 @@
  *
  * @package GeChiUI
  * @subpackage Blocks
- *
+ * @since 5.0.0
  */
 
 /**
  * Core class used for interacting with block types.
  *
- *
+ * @since 5.0.0
  */
+#[AllowDynamicProperties]
 final class GC_Block_Type_Registry {
 	/**
 	 * Registered block types, as `$name => $instance` pairs.
 	 *
+	 * @since 5.0.0
 	 * @var GC_Block_Type[]
 	 */
 	private $registered_block_types = array();
@@ -23,6 +25,7 @@ final class GC_Block_Type_Registry {
 	/**
 	 * Container for the main instance of the class.
 	 *
+	 * @since 5.0.0
 	 * @var GC_Block_Type_Registry|null
 	 */
 	private static $instance = null;
@@ -30,6 +33,7 @@ final class GC_Block_Type_Registry {
 	/**
 	 * Registers a block type.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @see GC_Block_Type::__construct()
 	 *
@@ -98,6 +102,7 @@ final class GC_Block_Type_Registry {
 	/**
 	 * Unregisters a block type.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param string|GC_Block_Type $name Block type name including namespace, or alternatively
 	 *                                   a complete GC_Block_Type instance.
@@ -127,6 +132,7 @@ final class GC_Block_Type_Registry {
 	/**
 	 * Retrieves a registered block type.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param string $name Block type name including namespace.
 	 * @return GC_Block_Type|null The registered block type, or null if it is not registered.
@@ -142,6 +148,7 @@ final class GC_Block_Type_Registry {
 	/**
 	 * Retrieves all registered block types.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @return GC_Block_Type[] Associative array of `$block_type_name => $block_type` pairs.
 	 */
@@ -152,6 +159,7 @@ final class GC_Block_Type_Registry {
 	/**
 	 * Checks if a block type is registered.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param string $name Block type name including namespace.
 	 * @return bool True if the block type is registered, false otherwise.
@@ -165,6 +173,7 @@ final class GC_Block_Type_Registry {
 	 *
 	 * The instance will be created if it does not exist yet.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @return GC_Block_Type_Registry The main instance.
 	 */

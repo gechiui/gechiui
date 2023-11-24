@@ -4,14 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Core class used to implement displaying terms in a list table.
- *
- *
- * @access private
  *
  * @see GC_List_Table
  */
@@ -84,7 +80,7 @@ class GC_Terms_List_Table extends GC_List_Table {
 			/**
 			 * Filters the number of terms displayed per page for the Tags list table.
 			 *
-		
+			 * @since 2.8.0
 			 *
 			 * @param int $tags_per_page Number of tags to be displayed. Default 20.
 			 */
@@ -93,7 +89,7 @@ class GC_Terms_List_Table extends GC_List_Table {
 			/**
 			 * Filters the number of terms displayed per page for the Tags list table.
 			 *
-		
+			 * @since 2.7.0
 			 * @deprecated 2.8.0 Use {@see 'edit_tags_per_page'} instead.
 			 *
 			 * @param int $tags_per_page Number of tags to be displayed. Default 20.
@@ -103,7 +99,7 @@ class GC_Terms_List_Table extends GC_List_Table {
 			/**
 			 * Filters the number of terms displayed per page for the Categories list table.
 			 *
-		
+			 * @since 2.8.0
 			 *
 			 * @param int $tags_per_page Number of categories to be displayed. Default 20.
 			 */
@@ -185,7 +181,7 @@ class GC_Terms_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * @return array
+	 * @return string[] Array of column titles keyed by their column name.
 	 */
 	public function get_columns() {
 		$columns = array(
@@ -208,12 +204,20 @@ class GC_Terms_List_Table extends GC_List_Table {
 	 * @return array
 	 */
 	protected function get_sortable_columns() {
+		$taxonomy = $this->screen->taxonomy;
+
+		if ( ! isset( $_GET['orderby'] ) && is_taxonomy_hierarchical( $taxonomy ) ) {
+			$name_orderby_text = __( '表格按层次排序。' );
+		} else {
+			$name_orderby_text = __( '表格按名称排序。' );
+		}
+
 		return array(
-			'name'        => 'name',
-			'description' => 'description',
-			'slug'        => 'slug',
-			'posts'       => 'count',
-			'links'       => 'count',
+			'name'        => array( 'name', false, _x( '名称', 'term name' ), $name_orderby_text, 'asc' ),
+			'description' => array( 'description', false, __( '描述' ), __( '表格按描述排序。' ) ),
+			'slug'        => array( 'slug', false, __( '别名' ), __( '表格按别名排序。' ) ),
+			'posts'       => array( 'count', false, _x( '总数', 'Number/count of items' ), __( '表格按文章计数排序。' ) ),
+			'links'       => array( 'count', false, __( '链接' ), __( '表格按链接排序。' ) ),
 		);
 	}
 
@@ -261,10 +265,10 @@ class GC_Terms_List_Table extends GC_List_Table {
 	 * @param int    $start
 	 * @param int    $per_page
 	 * @param int    $count
-	 * @param int    $parent
+	 * @param int    $parent_term
 	 * @param int    $level
 	 */
-	private function _rows( $taxonomy, $terms, &$children, $start, $per_page, &$count, $parent = 0, $level = 0 ) {
+	private function _rows( $taxonomy, $terms, &$children, $start, $per_page, &$count, $parent_term = 0, $level = 0 ) {
 
 		$end = $start + $per_page;
 
@@ -274,7 +278,7 @@ class GC_Terms_List_Table extends GC_List_Table {
 				break;
 			}
 
-			if ( $term->parent !== $parent && empty( $_REQUEST['s'] ) ) {
+			if ( $term->parent !== $parent_term && empty( $_REQUEST['s'] ) ) {
 				continue;
 			}
 
@@ -346,6 +350,7 @@ class GC_Terms_List_Table extends GC_List_Table {
 	}
 
 	/**
+	 * @since 5.9.0 Renamed `$tag` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Term $item Term object.
 	 * @return string
@@ -356,10 +361,10 @@ class GC_Terms_List_Table extends GC_List_Table {
 
 		if ( current_user_can( 'delete_term', $tag->term_id ) ) {
 			return sprintf(
-				'<label class="screen-reader-text" for="cb-select-%1$s">%2$s</label>' .
+				'<label class="label-covers-full-cell" for="cb-select-%1$s"><span class="screen-reader-text">%2$s</span></label>' .
 				'<input type="checkbox" name="delete_tags[]" value="%1$s" id="cb-select-%1$s" />',
 				$tag->term_id,
-				/* translators: %s: Taxonomy term name. */
+				/* translators: Hidden accessibility text. %s: Taxonomy term name. */
 				sprintf( __( '选择%s' ), $tag->name )
 			);
 		}
@@ -382,6 +387,7 @@ class GC_Terms_List_Table extends GC_List_Table {
 		 * The default output may include padding due to the term's
 		 * current level in the term hierarchy.
 		 *
+		 * @since 2.5.0
 		 *
 		 * @see GC_Terms_List_Table::column_name()
 		 *
@@ -411,24 +417,25 @@ class GC_Terms_List_Table extends GC_List_Table {
 			);
 		}
 
-		$out = sprintf(
+		$output = sprintf(
 			'<strong>%s</strong><br />',
 			$name
 		);
 
-		$out .= '<div class="hidden" id="inline_' . $qe_data->term_id . '">';
-		$out .= '<div class="name">' . $qe_data->name . '</div>';
+		$output .= '<div class="hidden" id="inline_' . $qe_data->term_id . '">';
+		$output .= '<div class="name">' . $qe_data->name . '</div>';
 
 		/** This filter is documented in gc-admin/edit-tag-form.php */
-		$out .= '<div class="slug">' . apply_filters( 'editable_slug', $qe_data->slug, $qe_data ) . '</div>';
-		$out .= '<div class="parent">' . $qe_data->parent . '</div></div>';
+		$output .= '<div class="slug">' . apply_filters( 'editable_slug', $qe_data->slug, $qe_data ) . '</div>';
+		$output .= '<div class="parent">' . $qe_data->parent . '</div></div>';
 
-		return $out;
+		return $output;
 	}
 
 	/**
 	 * Gets the name of the default primary column.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @return string Name of the default primary column, in this case, 'name'.
 	 */
@@ -439,6 +446,8 @@ class GC_Terms_List_Table extends GC_List_Table {
 	/**
 	 * Generates and displays row action links.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$tag` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Term $item        Tag being acted upon.
 	 * @param string  $column_name Current column name.
@@ -454,7 +463,6 @@ class GC_Terms_List_Table extends GC_List_Table {
 		// Restores the more descriptive, specific name for use within this method.
 		$tag      = $item;
 		$taxonomy = $this->screen->taxonomy;
-		$tax      = get_taxonomy( $taxonomy );
 		$uri      = gc_doing_ajax() ? gc_get_referer() : $_SERVER['REQUEST_URI'];
 
 		$edit_link = add_query_arg(
@@ -470,7 +478,7 @@ class GC_Terms_List_Table extends GC_List_Table {
 				'<a href="%s" aria-label="%s">%s</a>',
 				esc_url( $edit_link ),
 				/* translators: %s: Taxonomy term name. */
-				esc_attr( sprintf( __( '编辑“%s”' ), $tag->name ) ),
+				esc_attr( sprintf( __( '编辑『%s』' ), $tag->name ) ),
 				__( '编辑' )
 			);
 			$actions['inline hide-if-no-js'] = sprintf(
@@ -491,7 +499,7 @@ class GC_Terms_List_Table extends GC_List_Table {
 			);
 		}
 
-		if ( is_taxonomy_viewable( $tax ) ) {
+		if ( is_term_publicly_viewable( $tag ) ) {
 			$actions['view'] = sprintf(
 				'<a href="%s" aria-label="%s">%s</a>',
 				get_term_link( $tag ),
@@ -504,6 +512,9 @@ class GC_Terms_List_Table extends GC_List_Table {
 		/**
 		 * Filters the action links displayed for each term in the Tags list table.
 		 *
+		 * @since 2.8.0
+		 * @since 3.0.0 Deprecated in favor of {@see '{$taxonomy}_row_actions'} filter.
+		 * @since 5.4.2 Restored (un-deprecated).
 		 *
 		 * @param string[] $actions An array of action links to be displayed. Default
 		 *                          'Edit', '快速编辑', 'Delete', and 'View'.
@@ -521,6 +532,7 @@ class GC_Terms_List_Table extends GC_List_Table {
 		 *  - `category_row_actions`
 		 *  - `post_tag_row_actions`
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param string[] $actions An array of action links to be displayed. Default
 		 *                          'Edit', '快速编辑', 'Delete', and 'View'.
@@ -539,7 +551,10 @@ class GC_Terms_List_Table extends GC_List_Table {
 		if ( $tag->description ) {
 			return $tag->description;
 		} else {
-			return '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . __( '无描述' ) . '</span>';
+			return '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' .
+				/* translators: Hidden accessibility text. */
+				__( '无描述' ) .
+			'</span>';
 		}
 	}
 
@@ -601,6 +616,7 @@ class GC_Terms_List_Table extends GC_List_Table {
 	}
 
 	/**
+	 * @since 5.9.0 Renamed `$tag` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Term $item        Term object.
 	 * @param string  $column_name Name of the column.
@@ -618,6 +634,7 @@ class GC_Terms_List_Table extends GC_List_Table {
 		 *  - `manage_category_custom_column`
 		 *  - `manage_post_tag_custom_column`
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param string $string      Custom column output. Default empty.
 		 * @param string $column_name Name of the column.
@@ -643,21 +660,20 @@ class GC_Terms_List_Table extends GC_List_Table {
 
 			<tr id="inline-edit" class="inline-edit-row" style="display: none">
 			<td colspan="<?php echo $this->get_column_count(); ?>" class="colspanchange">
+			<div class="inline-edit-wrapper">
 
 			<fieldset>
 				<legend class="inline-edit-legend"><?php _e( '快速编辑' ); ?></legend>
 				<div class="inline-edit-col">
 				<label>
-					<span class="title"><?php _ex( '名称', 'term name' ); ?></span>
+					<span class="title"><?php _ex( 'Name', 'term name' ); ?></span>
 					<span class="input-text-wrap"><input type="text" name="name" class="ptitle" value="" /></span>
 				</label>
 
-				<?php if ( ! global_terms_enabled() ) : ?>
-					<label>
-						<span class="title"><?php _e( '别名' ); ?></span>
-						<span class="input-text-wrap"><input type="text" name="slug" class="ptitle" value="" /></span>
-					</label>
-				<?php endif; ?>
+				<label>
+					<span class="title"><?php _e( '别名' ); ?></span>
+					<span class="input-text-wrap"><input type="text" name="slug" class="ptitle" value="" /></span>
+				</label>
 				</div>
 			</fieldset>
 
@@ -683,18 +699,18 @@ class GC_Terms_List_Table extends GC_List_Table {
 			?>
 
 			<div class="inline-edit-save submit">
-				<button type="button" class="cancel button alignleft"><?php _e( '取消' ); ?></button>
-				<button type="button" class="save button button-primary alignright"><?php echo $tax->labels->update_item; ?></button>
+				<button type="button" class="save btn btn-primary"><?php echo $tax->labels->update_item; ?></button>
+				<button type="button" class="cancel button"><?php _e( '取消' ); ?></button>
 				<span class="spinner"></span>
 
 				<?php gc_nonce_field( 'taxinlineeditnonce', '_inline_edit', false ); ?>
 				<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $this->screen->taxonomy ); ?>" />
 				<input type="hidden" name="post_type" value="<?php echo esc_attr( $this->screen->post_type ); ?>" />
-				<br class="clear" />
 
-				<div class="notice notice-error notice-alt inline hidden">
+				<div class="alert alert-danger notice-alt inline hidden">
 					<p class="error"></p>
 				</div>
+			</div>
 			</div>
 
 			</td></tr>

@@ -1,0 +1,8 @@
+.gc-block-read-more{
+  display:block;
+  width:-moz-fit-content;
+  width:fit-content;
+}
+.gc-block-read-more:not([style*=text-decoration]),.gc-block-read-more:not([style*=text-decoration]):active,.gc-block-read-more:not([style*=text-decoration]):focus{
+  text-decoration:none;
+}

@@ -6,7 +6,6 @@
  *
  * @package GeChiUI
  * @subpackage Deprecated
- *
  */
 
 /*
@@ -17,7 +16,7 @@
  * Get the "dashboard blog", the blog where users without a blog edit their profile data.
  * Dashboard blog functionality was removed in GeChiUI 3.1, replaced by the user admin.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 3.1.0 Use get_site()
  * @see get_site()
  *
@@ -35,7 +34,7 @@ function get_dashboard_blog() {
 /**
  * Generates a random password.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 3.0.0 Use gc_generate_password()
  * @see gc_generate_password()
  *
@@ -55,7 +54,7 @@ function generate_random_password( $len = 8 ) {
  * This function must reside in a file included only if is_multisite() due to
  * legacy function_exists() checks to determine if multisite is enabled.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 3.0.0 Use is_super_admin()
  * @see is_super_admin()
  *
@@ -82,7 +81,7 @@ if ( !function_exists( 'graceful_fail' ) ) :
 /**
  * Deprecated functionality to gracefully fail.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 3.0.0 Use gc_die()
  * @see gc_die()
  */
@@ -120,7 +119,7 @@ endif;
 /**
  * Deprecated functionality to retrieve user information.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 3.0.0 Use get_user_by()
  * @see get_user_by()
  *
@@ -134,7 +133,7 @@ function get_user_details( $username ) {
 /**
  * Deprecated functionality to clear the global post cache.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 3.0.0 Use clean_post_cache()
  * @see clean_post_cache()
  *
@@ -147,7 +146,7 @@ function clear_global_post_cache( $post_id ) {
 /**
  * Deprecated functionality to determin if the current site is the main site.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 3.0.0 Use is_main_site()
  * @see is_main_site()
  */
@@ -159,7 +158,7 @@ function is_main_blog() {
 /**
  * Deprecated functionality to validate an email address.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 3.0.0 Use is_email()
  * @see is_email()
  *
@@ -175,9 +174,11 @@ function validate_email( $email, $check_domain = true) {
 /**
  * Deprecated functionality to retrieve a list of all sites.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 3.0.0 Use gc_get_sites()
  * @see gc_get_sites()
+ *
+ * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param int    $start      Optional. Offset for retrieving the blog list. Default 0.
  * @param int    $num        Optional. Number of blogs to list. Default 10.
@@ -209,7 +210,7 @@ function get_blog_list( $start = 0, $num = 10, $deprecated = '' ) {
 /**
  * Deprecated functionality to retrieve a list of the most active sites.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 3.0.0
  *
  * @param int  $num     Optional. Number of activate blogs to retrieve. Default 10.
@@ -261,7 +262,7 @@ function get_most_active_blogs( $num = 10, $display = true ) {
  * 5) $_POST['redirect']
  * 6) $url
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 3.3.0 Use gc_redirect()
  * @see gc_redirect()
  *
@@ -293,7 +294,7 @@ function gcmu_admin_do_redirect( $url = '' ) {
 	if ( isset( $_GET['redirect'] ) && isset( $_POST['redirect'] ) && $_GET['redirect'] !== $_POST['redirect'] ) {
 		gc_die( __( '检测到了不匹配的变量。' ), __( '抱歉，您不能查看此项目。' ), 400 );
 	} elseif ( isset( $_GET['redirect'] ) ) {
-		if ( 's_' === substr( $_GET['redirect'], 0, 2 ) )
+		if ( str_starts_with( $_GET['redirect'], 's_' ) )
 			$url .= '&action=blogs&s='. esc_html( substr( $_GET['redirect'], 2 ) );
 	} elseif ( isset( $_POST['redirect'] ) ) {
 		$url = gcmu_admin_redirect_add_updated_param( $_POST['redirect'] );
@@ -305,7 +306,7 @@ function gcmu_admin_do_redirect( $url = '' ) {
 /**
  * Adds an 'updated=true' argument to a URL.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 3.3.0 Use add_query_arg()
  * @see add_query_arg()
  *
@@ -315,8 +316,8 @@ function gcmu_admin_do_redirect( $url = '' ) {
 function gcmu_admin_redirect_add_updated_param( $url = '' ) {
 	_deprecated_function( __FUNCTION__, '3.3.0', 'add_query_arg()' );
 
-	if ( strpos( $url, 'updated=true' ) === false ) {
-		if ( strpos( $url, '?' ) === false )
+	if ( ! str_contains( $url, 'updated=true' ) ) {
+		if ( ! str_contains( $url, '?' ) )
 			return $url . '?updated=true';
 		else
 			return $url . '&updated=true';
@@ -330,22 +331,22 @@ function gcmu_admin_redirect_add_updated_param( $url = '' ) {
  * A numeric string is considered to be an existing user ID
  * and is simply returned as such.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 3.6.0 Use get_user_by()
  * @see get_user_by()
  *
- * @param string $string Either an email address or a login.
+ * @param string $email_or_login Either an email address or a login.
  * @return int
  */
-function get_user_id_from_string( $string ) {
+function get_user_id_from_string( $email_or_login ) {
 	_deprecated_function( __FUNCTION__, '3.6.0', 'get_user_by()' );
 
-	if ( is_email( $string ) )
-		$user = get_user_by( 'email', $string );
-	elseif ( is_numeric( $string ) )
-		return $string;
+	if ( is_email( $email_or_login ) )
+		$user = get_user_by( 'email', $email_or_login );
+	elseif ( is_numeric( $email_or_login ) )
+		return $email_or_login;
 	else
-		$user = get_user_by( 'login', $string );
+		$user = get_user_by( 'login', $email_or_login );
 
 	if ( $user )
 		return $user->ID;
@@ -353,9 +354,9 @@ function get_user_id_from_string( $string ) {
 }
 
 /**
- * Get a full blog URL, given a domain and a path.
+ * Get a full site URL, given a domain and a path.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 3.7.0
  *
  * @param string $domain
@@ -378,13 +379,13 @@ function get_blogaddress_by_domain( $domain, $path ) {
 			$url = 'http://' . $domain . $path;
 		}
 	}
-	return esc_url_raw( $url );
+	return sanitize_url( $url );
 }
 
 /**
  * Create an empty blog.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 4.4.0
  *
  * @param string $domain       The new blog's domain.
@@ -401,7 +402,7 @@ function create_empty_blog( $domain, $path, $weblog_title, $site_id = 1 ) {
 
 	// Check if the domain has been used already. We should return an error message.
 	if ( domain_exists($domain, $path, $site_id) )
-		return __( '<strong>错误</strong>：您输入的站点URL已被占用。' );
+		return __( '<strong>错误：</strong>您输入的系统 URL 已被占用。' );
 
 	/*
 	 * Need to back up gcdb table names, and create a new gc_blogs entry for new blog.
@@ -410,7 +411,7 @@ function create_empty_blog( $domain, $path, $weblog_title, $site_id = 1 ) {
 	 */
 
 	if ( ! $blog_id = insert_blog($domain, $path, $site_id) )
-		return __( '<strong>错误</strong>：创建站点条目时出现问题。' );
+		return __( '<strong>错误：</strong>创建系统条目时出现问题。' );
 
 	switch_to_blog($blog_id);
 	install_blog($blog_id);
@@ -422,7 +423,7 @@ function create_empty_blog( $domain, $path, $weblog_title, $site_id = 1 ) {
 /**
  * Get the admin for a domain/path combination.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 4.4.0
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -456,7 +457,6 @@ function get_admin_users_for_domain( $domain = '', $path = '' ) {
 
 /**
  * Return an array of sites for a network or networks.
- *
  *
  * @deprecated 4.6.0 Use get_sites()
  * @see get_sites()
@@ -528,7 +528,7 @@ function gc_get_sites( $args = array() ) {
 /**
  * Check whether a usermeta key has to do with the current blog.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 4.9.0
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -558,8 +558,8 @@ function is_user_option_local( $key, $user_id = 0, $blog_id = 0 ) {
  * This function creates a row in the gc_blogs table and returns
  * the new blog's ID. It is the first step in creating a new blog.
  *
- * @since MU
- * @deprecated 5.1.0 Use `gc_insert_site()`
+ * @since MU (3.0.0)
+ * @deprecated 5.1.0 Use gc_insert_site()
  * @see gc_insert_site()
  *
  * @param string $domain  The domain of the new site.
@@ -593,7 +593,7 @@ function insert_blog($domain, $path, $site_id) {
  * directly, be sure to use switch_to_blog() first, so that $gcdb
  * points to the new blog.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated 5.1.0
  *
  * @global gcdb     $gcdb     GeChiUI database abstraction object.
@@ -663,7 +663,7 @@ function install_blog( $blog_id, $blog_title = '' ) {
  *
  * This function creates a row in the gc_blogs table.
  *
- * @since MU
+ * @since MU (3.0.0)
  * @deprecated MU
  * @deprecated Use gc_install_defaults()
  *
@@ -690,7 +690,6 @@ function install_blog_defaults( $blog_id, $user_id ) {
  * Update the status of a user in the database.
  *
  * Previously used in core to mark a user as spam or "ham" (not spam) in Multisite.
- *
  *
  * @deprecated 5.3.0 Use gc_update_user()
  * @see gc_update_user()
@@ -729,4 +728,20 @@ function update_user_status( $id, $pref, $value, $deprecated = null ) {
 	}
 
 	return $value;
+}
+
+/**
+ * Maintains a canonical list of terms by syncing terms created for each blog with the global terms table.
+ *
+ * @since 6.1.0 This function no longer does anything.
+ * @deprecated 6.1.0
+ *
+ * @param int    $term_id    An ID for a term on the current blog.
+ * @param string $deprecated Not used.
+ * @return int An ID from the global terms table mapped from $term_id.
+ */
+function global_terms( $term_id, $deprecated = '' ) {
+	_deprecated_function( __FUNCTION__, '6.1.0' );
+
+	return $term_id;
 }

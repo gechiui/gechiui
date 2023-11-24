@@ -1,0 +1,22 @@
+.gc-block-text-columns,.gc-block-text-columns.aligncenter{
+  display:flex;
+}
+.gc-block-text-columns .gc-block-column{
+  margin:0 1em;
+  padding:0;
+}
+.gc-block-text-columns .gc-block-column:first-child{
+  margin-left:0;
+}
+.gc-block-text-columns .gc-block-column:last-child{
+  margin-right:0;
+}
+.gc-block-text-columns.columns-2 .gc-block-column{
+  width:50%;
+}
+.gc-block-text-columns.columns-3 .gc-block-column{
+  width:33.33333%;
+}
+.gc-block-text-columns.columns-4 .gc-block-column{
+  width:25%;
+}

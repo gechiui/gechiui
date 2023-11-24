@@ -4,13 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
+ * @since 5.8.0
  */
 
 /**
  * Core class to access widgets via the REST API.
  *
- *
+ * @since 5.8.0
  *
  * @see GC_REST_Controller
  */
@@ -19,6 +19,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Tracks whether {@see retrieve_widgets()} has been called in the current request.
 	 *
+	 * @since 5.9.0
 	 * @var bool
 	 */
 	protected $widgets_retrieved = false;
@@ -26,6 +27,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Whether the controller supports batching.
 	 *
+	 * @since 5.9.0
 	 * @var array
 	 */
 	protected $allow_batch = array( 'v1' => true );
@@ -33,6 +35,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Widgets controller constructor.
 	 *
+	 * @since 5.8.0
 	 */
 	public function __construct() {
 		$this->namespace = 'gc/v2';
@@ -42,6 +45,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the widget routes for the controller.
 	 *
+	 * @since 5.8.0
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -103,6 +107,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to get widgets.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -125,6 +130,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves a collection of widgets.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -159,6 +165,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to get a widget.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -179,6 +186,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a sidebar can be read publicly.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param string $sidebar_id The sidebar ID.
 	 * @return bool Whether the sidebar can be read.
@@ -192,6 +200,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Gets an individual widget.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -216,6 +225,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to create widgets.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -227,6 +237,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Creates a widget.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -258,6 +269,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to update widgets.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -269,6 +281,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Updates an existing widget.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @global GC_Widget_Factory $gc_widget_factory
 	 *
@@ -330,6 +343,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to delete widgets.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -341,6 +355,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Deletes a widget.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @global GC_Widget_Factory $gc_widget_factory
 	 * @global array             $gc_registered_widget_updates The registered widget update functions.
@@ -443,6 +458,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 		/**
 		 * Fires after a widget is deleted via the REST API.
 		 *
+		 * @since 5.8.0
 		 *
 		 * @param string                    $widget_id  ID of the widget marked for deletion.
 		 * @param string                    $sidebar_id ID of the sidebar the widget was deleted from.
@@ -457,6 +473,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Performs a permissions check for managing widgets.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error
@@ -478,6 +495,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Looks for "lost" widgets once per request.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @see retrieve_widgets()
 	 */
@@ -491,6 +509,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Saves the widget in the request object.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @global GC_Widget_Factory $gc_widget_factory
 	 * @global array             $gc_registered_widget_updates The registered widget update functions.
@@ -620,6 +639,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 		/**
 		 * Fires after a widget is created or updated via the REST API.
 		 *
+		 * @since 5.8.0
 		 *
 		 * @param string          $id         ID of the widget being saved.
 		 * @param string          $sidebar_id ID of the sidebar containing the widget being saved.
@@ -634,6 +654,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares the widget for the REST response.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @global GC_Widget_Factory $gc_widget_factory
 	 * @global array             $gc_registered_widgets The registered widgets.
@@ -694,7 +715,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 
 				if ( ! empty( $widget_object->widget_options['show_instance_in_rest'] ) ) {
 					// Use new stdClass so that JSON result is {} and not [].
-					$prepared['instance']['raw'] = empty( $instance ) ? new stdClass : $instance;
+					$prepared['instance']['raw'] = empty( $instance ) ? new stdClass() : $instance;
 				}
 			}
 		}
@@ -705,11 +726,14 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 
 		$response = rest_ensure_response( $prepared );
 
-		$response->add_links( $this->prepare_links( $prepared ) );
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$response->add_links( $this->prepare_links( $prepared ) );
+		}
 
 		/**
 		 * Filters the REST API response for a widget.
 		 *
+		 * @since 5.8.0
 		 *
 		 * @param GC_REST_Response|GC_Error $response The response object, or GC_Error object on failure.
 		 * @param array                     $widget   The registered widget data.
@@ -721,6 +745,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares links for the widget.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param array $prepared Widget.
 	 * @return array Links for the given widget.
@@ -748,6 +773,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Gets the list of collection params.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @return array[]
 	 */
@@ -764,6 +790,7 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the widget's schema, conforming to JSON Schema.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @return array Item schema data.
 	 */
@@ -834,9 +861,9 @@ class GC_REST_Widgets_Controller extends GC_REST_Controller {
 					'type'        => 'string',
 					'context'     => array(),
 					'arg_options' => array(
-						'sanitize_callback' => static function( $string ) {
+						'sanitize_callback' => static function( $form_data ) {
 							$array = array();
-							gc_parse_str( $string, $array );
+							gc_parse_str( $form_data, $array );
 							return $array;
 						},
 					),

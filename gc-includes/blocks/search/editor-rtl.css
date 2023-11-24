@@ -1,0 +1,14 @@
+.gc-block[data-align=center] .gc-block-search .gc-block-search__inside-wrapper{
+  margin:auto;
+}
+
+.gc-block-search .gc-block-search__button{
+  align-items:center;
+  border-radius:initial;
+  display:flex;
+  height:auto;
+  justify-content:center;
+}
+.gc-block-search__components-button-group{
+  margin-top:10px;
+}

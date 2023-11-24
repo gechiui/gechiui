@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customize Theme Control class.
- *
- *
  *
  * @see GC_Customize_Control
  */
@@ -19,6 +16,7 @@ class GC_Customize_Theme_Control extends GC_Customize_Control {
 	/**
 	 * Customize control type.
 	 *
+	 * @since 4.2.0
 	 * @var string
 	 */
 	public $type = 'theme';
@@ -26,6 +24,7 @@ class GC_Customize_Theme_Control extends GC_Customize_Control {
 	/**
 	 * Theme object.
 	 *
+	 * @since 4.2.0
 	 * @var GC_Theme
 	 */
 	public $theme;
@@ -33,6 +32,7 @@ class GC_Customize_Theme_Control extends GC_Customize_Control {
 	/**
 	 * Refresh the parameters passed to the JavaScript via JSON.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @see GC_Customize_Control::to_json()
 	 */
@@ -44,12 +44,14 @@ class GC_Customize_Theme_Control extends GC_Customize_Control {
 	/**
 	 * Don't render the control content from PHP, as it's rendered via JS on load.
 	 *
+	 * @since 4.2.0
 	 */
 	public function render_content() {}
 
 	/**
 	 * Render a JS template for theme display.
 	 *
+	 * @since 4.2.0
 	 */
 	public function content_template() {
 		/* translators: %s: Theme name. */
@@ -69,7 +71,7 @@ class GC_Customize_Theme_Control extends GC_Customize_Control {
 
 			<# if ( data.theme.screenshot && data.theme.screenshot[0] ) { #>
 				<div class="theme-screenshot">
-					<img data-src="{{ data.theme.screenshot[0] }}" alt="" />
+					<img data-src="{{ data.theme.screenshot[0] }}?ver={{ data.theme.version }}" alt="" />
 				</div>
 			<# } else { #>
 				<div class="theme-screenshot blank"></div>
@@ -108,7 +110,7 @@ class GC_Customize_Theme_Control extends GC_Customize_Control {
 								<?php
 								printf(
 									/* translators: %s: Theme name. */
-									__( '%s的新版本可用，但无法在您安装版本的GeChiUI和PHP上工作。' ),
+									__( '%s 有新版本可用，但与您当前使用的 GeChiUI 和 PHP 版本不兼容。' ),
 									'{{{ data.theme.name }}}'
 								);
 								if ( current_user_can( 'update_core' ) && current_user_can( 'update_php' ) ) {
@@ -138,7 +140,7 @@ class GC_Customize_Theme_Control extends GC_Customize_Control {
 								<?php
 								printf(
 									/* translators: %s: Theme name. */
-									__( '%s的新版本可用，但无法在您安装版本的GeChiUI和PHP上工作。' ),
+									__( '%s 有新版本可用，但与您当前使用的 GeChiUI 版本不兼容。' ),
 									'{{{ data.theme.name }}}'
 								);
 								if ( current_user_can( 'update_core' ) ) {
@@ -153,7 +155,7 @@ class GC_Customize_Theme_Control extends GC_Customize_Control {
 								<?php
 								printf(
 									/* translators: %s: Theme name. */
-									__( '%s的新版本可用，但无法在您安装版本的GeChiUI和PHP上工作。' ),
+									__( '%s 有新版本可用，但与您当前使用的 PHP 版本不兼容。' ),
 									'{{{ data.theme.name }}}'
 								);
 								if ( current_user_can( 'update_php' ) ) {
@@ -172,10 +174,10 @@ class GC_Customize_Theme_Control extends GC_Customize_Control {
 			<# } #>
 
 			<# if ( ! data.theme.compatibleGC || ! data.theme.compatiblePHP ) { #>
-				<div class="notice notice-error notice-alt"><p>
+				<div class="alert alert-danger notice-alt"><p>
 					<# if ( ! data.theme.compatibleGC && ! data.theme.compatiblePHP ) { #>
 						<?php
-						_e( '此主题不能与您的GeChiUI和PHP版本一同工作。' );
+						_e( '此主题未适配您当前的 GeChiUI 和 PHP 版本。' );
 						if ( current_user_can( 'update_core' ) && current_user_can( 'update_php' ) ) {
 							printf(
 								/* translators: 1: URL to GeChiUI Updates screen, 2: URL to Update PHP page. */
@@ -201,7 +203,7 @@ class GC_Customize_Theme_Control extends GC_Customize_Control {
 						?>
 					<# } else if ( ! data.theme.compatibleGC ) { #>
 						<?php
-						_e( '此主题未适配当前GeChiUI版本。' );
+						_e( '此主题未适配您当前的 GeChiUI 版本。' );
 						if ( current_user_can( 'update_core' ) ) {
 							printf(
 								/* translators: %s: URL to GeChiUI Updates screen. */
@@ -212,7 +214,7 @@ class GC_Customize_Theme_Control extends GC_Customize_Control {
 						?>
 					<# } else if ( ! data.theme.compatiblePHP ) { #>
 						<?php
-						_e( '此主题未适配当前PHP版本。' );
+						_e( '此主题未适配您当前的 PHP 版本。' );
 						if ( current_user_can( 'update_php' ) ) {
 							printf(
 								/* translators: %s: URL to Update PHP page. */
@@ -229,13 +231,13 @@ class GC_Customize_Theme_Control extends GC_Customize_Control {
 			<# if ( data.theme.active ) { #>
 				<div class="theme-id-container">
 					<h3 class="theme-name" id="{{ data.section }}-{{ data.theme.id }}-name">
-						<span><?php _ex( '正在预览：', 'theme' ); ?></span> {{ data.theme.name }}
+						<span><?php _ex( 'Previewing:', 'theme' ); ?></span> {{ data.theme.name }}
 					</h3>
 					<div class="theme-actions">
-						<button type="button" class="button button-primary customize-theme" aria-label="<?php echo esc_attr( $customize_label ); ?>"><?php _e( '自定义' ); ?></button>
+						<button type="button" class="btn btn-primary customize-theme" aria-label="<?php echo esc_attr( $customize_label ); ?>"><?php _e( '自定义' ); ?></button>
 					</div>
 				</div>
-				<div class="notice notice-success notice-alt"><p><?php _ex( '已安装', 'theme' ); ?></p></div>
+				<div class="alert alert-success notice-alt"><p><?php _ex( 'Installed', 'theme' ); ?></p></div>
 			<# } else if ( 'installed' === data.theme.type ) { #>
 				<# if ( data.theme.blockTheme ) { #>
 					<div class="theme-id-container">
@@ -244,13 +246,13 @@ class GC_Customize_Theme_Control extends GC_Customize_Control {
 							<# if ( data.theme.actions.activate ) { #>
 								<?php
 									/* translators: %s: Theme name. */
-									$aria_label = sprintf( _x( '启用%s', 'theme' ), '{{ data.name }}' );
+									$aria_label = sprintf( _x( '启用 %s', 'theme' ), '{{ data.name }}' );
 								?>
-								<a href="{{{ data.theme.actions.activate }}}" class="button button-primary activate" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _e( '启用' ); ?></a>
+								<a href="{{{ data.theme.actions.activate }}}" class="btn btn-primary activate" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _e( '启用' ); ?></a>
 							<# } #>
 						</div>
 					</div>
-					<div class="notice notice-error notice-alt"><p>
+					<div class="alert alert-danger notice-alt"><p>
 					<?php
 						_e( '此主题不支持自定义。' );
 					?>
@@ -259,7 +261,7 @@ class GC_Customize_Theme_Control extends GC_Customize_Control {
 							echo ' ';
 							printf(
 								/* translators: %s: URL to the themes page (also it activates the theme). */
-								__( '但您也可以<a href="%s">启用此主题</a>，并使用站点编辑器对其进行自定义。' ),
+								__( '但您也可以<a href="%s">启用此主题</a>，并使用系统编辑器对其进行自定义。' ),
 								'{{{ data.theme.actions.activate }}}'
 							);
 						?>
@@ -270,22 +272,22 @@ class GC_Customize_Theme_Control extends GC_Customize_Control {
 						<h3 class="theme-name" id="{{ data.section }}-{{ data.theme.id }}-name">{{ data.theme.name }}</h3>
 						<div class="theme-actions">
 							<# if ( data.theme.compatibleGC && data.theme.compatiblePHP ) { #>
-								<button type="button" class="button button-primary preview-theme" aria-label="<?php echo esc_attr( $preview_label ); ?>" data-slug="{{ data.theme.id }}"><?php _e( '实时预览' ); ?></button>
+								<button type="button" class="btn btn-primary preview-theme" aria-label="<?php echo esc_attr( $preview_label ); ?>" data-slug="{{ data.theme.id }}"><?php _e( '实时预览' ); ?></button>
 							<# } else { #>
-								<button type="button" class="button button-primary disabled" aria-label="<?php echo esc_attr( $preview_label ); ?>"><?php _e( '实时预览' ); ?></button>
+								<button type="button" class="btn btn-primary disabled" aria-label="<?php echo esc_attr( $preview_label ); ?>"><?php _e( '实时预览' ); ?></button>
 							<# } #>
 						</div>
 					</div>
-					<div class="notice notice-success notice-alt"><p><?php _ex( '已安装', 'theme' ); ?></p></div>
+					<div class="alert alert-success notice-alt"><p><?php _ex( 'Installed', 'theme' ); ?></p></div>
 				<# } #>
 			<# } else { #>
 				<div class="theme-id-container">
 					<h3 class="theme-name" id="{{ data.section }}-{{ data.theme.id }}-name">{{ data.theme.name }}</h3>
 					<div class="theme-actions">
 						<# if ( data.theme.compatibleGC && data.theme.compatiblePHP ) { #>
-							<button type="button" class="button button-primary theme-install preview" aria-label="<?php echo esc_attr( $install_label ); ?>" data-slug="{{ data.theme.id }}" data-name="{{ data.theme.name }}"><?php _e( '安装并预览' ); ?></button>
+							<button type="button" class="btn btn-primary theme-install preview" aria-label="<?php echo esc_attr( $install_label ); ?>" data-slug="{{ data.theme.id }}" data-name="{{ data.theme.name }}"><?php _e( '安装并预览' ); ?></button>
 						<# } else { #>
-							<button type="button" class="button button-primary disabled" aria-label="<?php echo esc_attr( $install_label ); ?>" disabled><?php _e( '安装并预览' ); ?></button>
+							<button type="button" class="btn btn-primary disabled" aria-label="<?php echo esc_attr( $install_label ); ?>" disabled><?php _e( '安装并预览' ); ?></button>
 						<# } #>
 					</div>
 				</div>

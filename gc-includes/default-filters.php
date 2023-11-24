@@ -4,10 +4,15 @@
  * of the GeChiUI hooks.
  *
  * If you need to remove a default hook, this file will
- * give you the priority for which to use to remove the
- * hook.
+ * give you the priority to use for removing the hook.
  *
- * Not all of the default hooks are found in default-filters.php
+ * Not all of the default hooks are found in this file.
+ * For instance, administration-related hooks are located in
+ * gc-admin/includes/admin-filters.php.
+ *
+ * If a hook should only be called from a specific context
+ * (admin area, multisite environment…), please move it
+ * to a more appropriate file instead.
  *
  * @package GeChiUI
  */
@@ -67,7 +72,7 @@ foreach ( array(
 	'pre_post_guid',
 ) as $filter ) {
 	add_filter( $filter, 'gc_strip_all_tags' );
-	add_filter( $filter, 'esc_url_raw' );
+	add_filter( $filter, 'sanitize_url' );
 	add_filter( $filter, 'gc_filter_kses' );
 }
 
@@ -109,6 +114,14 @@ foreach ( array( 'user_register', 'deleted_user' ) as $action ) {
 add_action( 'added_post_meta', 'gc_cache_set_posts_last_changed' );
 add_action( 'updated_post_meta', 'gc_cache_set_posts_last_changed' );
 add_action( 'deleted_post_meta', 'gc_cache_set_posts_last_changed' );
+
+// User meta.
+add_action( 'added_user_meta', 'gc_cache_set_users_last_changed' );
+add_action( 'updated_user_meta', 'gc_cache_set_users_last_changed' );
+add_action( 'deleted_user_meta', 'gc_cache_set_users_last_changed' );
+add_action( 'add_user_role', 'gc_cache_set_users_last_changed' );
+add_action( 'set_user_role', 'gc_cache_set_users_last_changed' );
+add_action( 'remove_user_role', 'gc_cache_set_users_last_changed' );
 
 // Term meta.
 add_action( 'added_term_meta', 'gc_cache_set_terms_last_changed' );
@@ -293,7 +306,6 @@ add_filter( 'comments_open', '_close_comments_for_old_post', 10, 2 );
 add_filter( 'pings_open', '_close_comments_for_old_post', 10, 2 );
 add_filter( 'editable_slug', 'urldecode' );
 add_filter( 'editable_slug', 'esc_textarea' );
-add_filter( 'nav_menu_meta_box_object', '_gc_nav_menu_meta_box_object' );
 add_filter( 'pingback_ping_source_uri', 'pingback_ping_source_uri' );
 add_filter( 'xmlrpc_pingback_error', 'xmlrpc_pingback_error' );
 add_filter( 'title_save_pre', 'trim' );
@@ -320,10 +332,10 @@ add_filter( 'rest_authentication_errors', 'rest_cookie_check_errors', 100 );
 add_action( 'gc_head', '_gc_render_title_tag', 1 );
 add_action( 'gc_head', 'gc_enqueue_scripts', 1 );
 add_action( 'gc_head', 'gc_resource_hints', 2 );
+add_action( 'gc_head', 'gc_preload_resources', 1 );
 add_action( 'gc_head', 'feed_links', 2 );
 add_action( 'gc_head', 'feed_links_extra', 3 );
 add_action( 'gc_head', 'rsd_link' );
-add_action( 'gc_head', 'wlwmanifest_link' );
 add_action( 'gc_head', 'locale_stylesheet' );
 add_action( 'publish_future_post', 'check_and_publish_future_post', 10, 1 );
 add_action( 'gc_head', 'gc_robots', 1 );
@@ -341,11 +353,12 @@ add_action( 'gc_print_footer_scripts', '_gc_footer_scripts' );
 add_action( 'init', '_register_core_block_patterns_and_categories' );
 add_action( 'init', 'check_theme_switched', 99 );
 add_action( 'init', array( 'GC_Block_Supports', 'init' ), 22 );
-add_action( 'switch_theme', array( 'GC_Theme_JSON_Resolver', 'clean_cached_data' ) );
-add_action( 'start_previewing_theme', array( 'GC_Theme_JSON_Resolver', 'clean_cached_data' ) );
+add_action( 'switch_theme', 'gc_clean_theme_json_cache' );
+add_action( 'start_previewing_theme', 'gc_clean_theme_json_cache' );
 add_action( 'after_switch_theme', '_gc_menus_changed' );
 add_action( 'after_switch_theme', '_gc_sidebars_changed' );
 add_action( 'gc_print_styles', 'print_emoji_styles' );
+add_action( 'plugins_loaded', '_gc_theme_json_webfonts_handler' );
 
 if ( isset( $_GET['replytocom'] ) ) {
 	add_filter( 'gc_robots', 'gc_robots_no_robots' );
@@ -397,11 +410,6 @@ add_action( 'do_robots', 'do_robots' );
 add_action( 'do_favicon', 'do_favicon' );
 add_action( 'set_comment_cookies', 'gc_set_comment_cookies', 10, 3 );
 add_action( 'sanitize_comment_cookies', 'sanitize_comment_cookies' );
-add_action( 'admin_print_scripts', 'print_emoji_detection_script' );
-add_action( 'admin_print_scripts', 'print_head_scripts', 20 );
-add_action( 'admin_print_footer_scripts', '_gc_footer_scripts' );
-add_action( 'admin_print_styles', 'print_emoji_styles' );
-add_action( 'admin_print_styles', 'print_admin_styles', 20 );
 add_action( 'init', 'smilies_init', 5 );
 add_action( 'plugins_loaded', 'gc_maybe_load_widgets', 0 );
 add_action( 'plugins_loaded', 'gc_maybe_load_embeds', 0 );
@@ -412,8 +420,6 @@ add_action( 'publish_post', '_publish_post_hook', 5, 1 );
 add_action( 'transition_post_status', '_transition_post_status', 5, 3 );
 add_action( 'transition_post_status', '_update_term_count_on_transition_post_status', 10, 3 );
 add_action( 'comment_form', 'gc_comment_form_unfiltered_html_nonce' );
-add_action( 'admin_init', 'send_frame_options_header', 10, 0 );
-add_action( 'welcome_panel', 'gc_welcome_panel' );
 
 // Privacy.
 add_action( 'user_request_action_confirmed', '_gc_privacy_account_request_confirmed' );
@@ -438,9 +444,11 @@ add_action( 'delete_term', '_gc_delete_tax_menu_item', 10, 3 );
 add_action( 'transition_post_status', '_gc_auto_add_pages_to_menu', 10, 3 );
 add_action( 'delete_post', '_gc_delete_customize_changeset_dependent_auto_drafts' );
 
-// Post Thumbnail CSS class filtering.
+// Post Thumbnail specific image filtering.
 add_action( 'begin_fetch_post_thumbnail_html', '_gc_post_thumbnail_class_filter_add' );
 add_action( 'end_fetch_post_thumbnail_html', '_gc_post_thumbnail_class_filter_remove' );
+add_action( 'begin_fetch_post_thumbnail_html', '_gc_post_thumbnail_context_filter_add' );
+add_action( 'end_fetch_post_thumbnail_html', '_gc_post_thumbnail_context_filter_remove' );
 
 // Redirect old slugs.
 add_action( 'template_redirect', 'gc_old_slug_redirect' );
@@ -460,10 +468,6 @@ add_action( 'gc_head', 'gc_post_preview_js', 1 );
 // Timezone.
 add_filter( 'pre_option_gmt_offset', 'gc_timezone_override_offset' );
 
-// Admin color schemes.
-// add_action( 'admin_init', 'register_admin_color_schemes', 1 ); //管理界面配色方案
-add_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );
-
 // If the upgrade hasn't run yet, assume link manager is used.
 add_filter( 'default_option_link_manager_enabled', '__return_true' );
 
@@ -479,10 +483,10 @@ add_filter( 'heartbeat_send', 'gc_auth_check' );
 add_filter( 'heartbeat_nopriv_send', 'gc_auth_check' );
 
 // Default authentication filters.
-add_filter( 'authenticate', 'gc_authenticate_username_password', 20, 3 );//用户名+密码登录校验
-add_filter( 'authenticate', 'gc_authenticate_email_password', 20, 3 );//邮箱+密码登录核验
-add_filter( 'authenticate', 'gc_authenticate_appkey', 20, 3 );//应用秘钥核验
-add_filter( 'authenticate', 'gc_authenticate_spam_check', 99 );//垃圾用户检查
+add_filter( 'authenticate', 'gc_authenticate_username_password', 20, 3 );
+add_filter( 'authenticate', 'gc_authenticate_email_password', 20, 3 );
+add_filter( 'authenticate', 'gc_authenticate_appkey', 20, 3 );
+add_filter( 'authenticate', 'gc_authenticate_spam_check', 99 );
 add_filter( 'determine_current_user', 'gc_validate_auth_cookie' );
 add_filter( 'determine_current_user', 'gc_validate_logged_in_cookie', 20 );
 add_filter( 'determine_current_user', 'gc_validate_appkey', 20 );
@@ -562,43 +566,51 @@ add_action( 'gc_default_scripts', 'gc_default_packages' );
 
 add_action( 'gc_enqueue_scripts', 'gc_localize_jquery_ui_datepicker', 1000 );
 add_action( 'gc_enqueue_scripts', 'gc_common_block_scripts_and_styles' );
+add_action( 'gc_enqueue_scripts', 'gc_enqueue_classic_theme_styles' );
 add_action( 'admin_enqueue_scripts', 'gc_localize_jquery_ui_datepicker', 1000 );
 add_action( 'admin_enqueue_scripts', 'gc_common_block_scripts_and_styles' );
 add_action( 'enqueue_block_assets', 'gc_enqueue_registered_block_scripts_and_styles' );
 add_action( 'enqueue_block_assets', 'enqueue_block_styles_assets', 30 );
+/*
+ * `gc_enqueue_registered_block_scripts_and_styles` is bound to both
+ * `enqueue_block_editor_assets` and `enqueue_block_assets` hooks
+ * since the introduction of the block editor in GeChiUI 5.0.
+ *
+ * The way this works is that the block assets are loaded before any other assets.
+ * For example, this is the order of styles for the editor:
+ *
+ * - front styles registered for blocks, via `styles` handle (block.json)
+ * - editor styles registered for blocks, via `editorStyles` handle (block.json)
+ * - editor styles enqueued via `enqueue_block_editor_assets` hook
+ * - front styles enqueued via `enqueue_block_assets` hook
+ */
 add_action( 'enqueue_block_editor_assets', 'gc_enqueue_registered_block_scripts_and_styles' );
 add_action( 'enqueue_block_editor_assets', 'enqueue_editor_block_styles_assets' );
 add_action( 'enqueue_block_editor_assets', 'gc_enqueue_editor_block_directory_assets' );
 add_action( 'enqueue_block_editor_assets', 'gc_enqueue_editor_format_library_assets' );
 add_action( 'enqueue_block_editor_assets', 'gc_enqueue_global_styles_css_custom_properties' );
-add_action( 'admin_print_scripts-index.php', 'gc_localize_community_events' );
-add_filter( 'gc_print_scripts', 'gc_just_in_time_script_localization' );
+add_action( 'gc_print_scripts', 'gc_just_in_time_script_localization' );
 add_filter( 'print_scripts_array', 'gc_prototype_before_jquery' );
-add_filter( 'customize_controls_print_styles', 'gc_resource_hints', 1 );
+add_action( 'customize_controls_print_styles', 'gc_resource_hints', 1 );
 add_action( 'admin_head', 'gc_check_widget_editor_deps' );
+add_filter( 'block_editor_settings_all', 'gc_add_editor_classic_theme_styles' );
 
 // Global styles can be enqueued in both the header and the footer. See https://core.trac.gechiui.com/ticket/53494.
 add_action( 'gc_enqueue_scripts', 'gc_enqueue_global_styles' );
 add_action( 'gc_footer', 'gc_enqueue_global_styles', 1 );
 
-// SVG filters like duotone have to be loaded at the beginning of the body in both admin and the front-end.
-add_action( 'gc_body_open', 'gc_global_styles_render_svg_filters' );
-add_action( 'in_admin_header', 'gc_global_styles_render_svg_filters' );
+// Global styles custom CSS.
+add_action( 'gc_enqueue_scripts', 'gc_enqueue_global_styles_custom_css' );
+
+// Block supports, and other styles parsed and stored in the Style Engine.
+add_action( 'gc_enqueue_scripts', 'gc_enqueue_stored_styles' );
+add_action( 'gc_footer', 'gc_enqueue_stored_styles', 1 );
 
 add_action( 'gc_default_styles', 'gc_default_styles' );
 add_filter( 'style_loader_src', 'gc_style_loader_src', 10, 2 );
 
 add_action( 'gc_head', 'gc_maybe_inline_styles', 1 ); // Run for styles enqueued in <head>.
 add_action( 'gc_footer', 'gc_maybe_inline_styles', 1 ); // Run for late-loaded styles in the footer.
-
-add_action( 'admin_footer-post.php', 'gc_add_iframed_editor_assets_html' );
-add_action( 'admin_footer-post-new.php', 'gc_add_iframed_editor_assets_html' );
-add_action( 'admin_footer-widgets.php', 'gc_add_iframed_editor_assets_html' );
-add_action( 'admin_footer-site-editor.php', 'gc_add_iframed_editor_assets_html' );
-
-add_action( 'use_block_editor_for_post_type', '_disable_block_editor_for_navigation_post_type', 10, 2 );
-add_action( 'edit_form_after_title', '_disable_content_editor_for_navigation_post_type' );
-add_action( 'edit_form_after_editor', '_enable_content_editor_for_navigation_post_type' );
 
 /*
  * Disable "文章属性" for gc_navigation post type. The attributes are
@@ -626,10 +638,13 @@ add_filter( 'plupload_default_settings', 'gc_show_heic_upload_error' );
 
 // Nav menu.
 add_filter( 'nav_menu_item_id', '_nav_menu_item_id_use_once', 10, 2 );
+add_filter( 'nav_menu_css_class', 'gc_nav_menu_remove_menu_item_has_children_class', 10, 4 );
 
 // Widgets.
 add_action( 'after_setup_theme', 'gc_setup_widgets_block_editor', 1 );
 add_action( 'init', 'gc_widgets_init', 1 );
+add_action( 'change_locale', array( 'GC_Widget_Media', 'reset_default_labels' ) );
+add_action( 'widgets_init', '_gc_block_theme_register_classic_sidebars', 1 );
 
 // Admin Bar.
 // Don't remove. Wrong way to disable.
@@ -695,9 +710,13 @@ add_action( 'gc_footer', 'the_block_template_skip_link' );
 add_action( 'setup_theme', 'gc_enable_block_templates' );
 add_action( 'gc_loaded', '_add_template_loader_filters' );
 
-// 默认身份验证筛选器增加mobile
-add_filter( 'authenticate', 'gc_authenticate_mobile_password', 20, 3 );  //手机号+密码登录核验
-add_filter( 'authenticate_mobile', 'gc_authenticate_mobile_smscode', 20, 3 );  //手机号+验证码登录校验
-add_filter( 'authenticate_mobile', 'gc_authenticate_spam_check', 99 ); //垃圾用户检查
+// Fluid typography.
+add_filter( 'render_block', 'gc_render_typography_support', 10, 2 );
+
+// User preferences.
+add_action( 'init', 'gc_register_persisted_preferences_meta' );
+
+// CPT gc_block custom postmeta field.
+add_action( 'init', 'gc_create_initial_post_meta' );
 
 unset( $filter, $action );

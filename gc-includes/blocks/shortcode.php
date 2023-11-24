@@ -22,7 +22,7 @@ function render_block_core_shortcode( $attributes, $content ) {
  */
 function register_block_core_shortcode() {
 	register_block_type_from_metadata(
-		ABSPATH . 'assets/blocks/shortcode',
+		__DIR__ . '/shortcode',
 		array(
 			'render_callback' => 'render_block_core_shortcode',
 		)

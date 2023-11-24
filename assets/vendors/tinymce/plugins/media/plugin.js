@@ -445,27 +445,27 @@ var media = (function () {
 
     var urlPatterns = [
       {
-        regex: /youtu\.be\/([\w\-_\?&=.]+)/i,
+        regex: /youku\.com\/([\w\-_\?&=.]+)/i,
         type: 'iframe',
         w: 560,
         h: 314,
-        url: '//www.youtube.com/embed/$1',
+        url: '//player.youku.com/embed/$1',
         allowFullscreen: true
       },
       {
-        regex: /youtube\.com(.+)v=([^&]+)(&([a-z0-9&=\-_]+))?/i,
+        regex: /youku\.com(.+)v=([^&]+)(&([a-z0-9&=\-_]+))?/i,
         type: 'iframe',
         w: 560,
         h: 314,
-        url: '//www.youtube.com/embed/$2?$4',
+        url: '//www.youku.com/embed/$2?$4',
         allowFullscreen: true
       },
       {
-        regex: /youtube.com\/embed\/([a-z0-9\?&=\-_]+)/i,
+        regex: /youku.com\/embed\/([a-z0-9\?&=\-_]+)/i,
         type: 'iframe',
         w: 560,
         h: 314,
-        url: '//www.youtube.com/embed/$1',
+        url: '//www.youku.com/embed/$1',
         allowFullscreen: true
       },
       {
@@ -485,11 +485,11 @@ var media = (function () {
         allowFullscreen: true
       },
       {
-        regex: /maps\.google\.([a-z]{2,3})\/maps\/(.+)msid=(.+)/,
+        regex: /maps\.gaode\.([a-z]{2,3})\/maps\/(.+)msid=(.+)/,
         type: 'iframe',
         w: 425,
         h: 350,
-        url: '//maps.google.com/maps/ms?msid=$2&output=embed"',
+        url: '//maps.gaode.com/maps/ms?msid=$2&output=embed"',
         allowFullscreen: false
       },
       {
@@ -886,7 +886,7 @@ var media = (function () {
           type: 'filepicker',
           filetype: 'media',
           size: 40,
-          label: 'Alternative source'
+          label: '备用源'
         });
       }
       if (Settings.hasPoster(editor)) {
@@ -1271,7 +1271,7 @@ var media = (function () {
 
     var register$1 = function (editor) {
       editor.addButton('media', {
-        tooltip: 'Insert/edit media',
+        tooltip: '插入/编辑媒体',
         cmd: 'mceMedia',
         stateSelector: [
           'img[data-mce-object]',

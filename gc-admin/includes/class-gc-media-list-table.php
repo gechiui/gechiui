@@ -4,14 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Core class used to implement displaying media items in a list table.
- *
- *
- * @access private
  *
  * @see GC_List_Table
  */
@@ -19,6 +15,7 @@ class GC_Media_List_Table extends GC_List_Table {
 	/**
 	 * Holds the number of pending comments for each post.
 	 *
+	 * @since 4.4.0
 	 * @var array
 	 */
 	protected $comment_pending_count = array();
@@ -109,6 +106,10 @@ class GC_Media_List_Table extends GC_List_Table {
 				'per_page'    => $gc_query->query_vars['posts_per_page'],
 			)
 		);
+		if ( $gc_query->posts ) {
+			update_post_thumbnail_cache( $gc_query );
+			update_post_parent_caches( $gc_query->posts );
+		}
 	}
 
 	/**
@@ -135,7 +136,7 @@ class GC_Media_List_Table extends GC_List_Table {
 			}
 
 			$selected = selected(
-				$filter && 0 === strpos( $filter, 'post_mime_type:' ) &&
+				$filter && str_starts_with( $filter, 'post_mime_type:' ) &&
 					gc_match_mime_types( $mime_type, str_replace( 'post_mime_type:', '', $filter ) ),
 				true,
 				false
@@ -214,7 +215,7 @@ class GC_Media_List_Table extends GC_List_Table {
 			if ( $this->is_trash && $this->has_items()
 				&& current_user_can( 'edit_others_posts' )
 			) {
-				submit_button( __( '清空回收站' ), 'apply', 'delete_all', false );
+				submit_button( __( '清空回收站' ), '', 'delete_all', false );
 			}
 			?>
 		</div>
@@ -258,7 +259,7 @@ class GC_Media_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Override parent views so we can use the filter bar display.
+	 * Overrides parent views to use the filter bar display.
 	 *
 	 * @global string $mode List table view mode.
 	 */
@@ -273,7 +274,12 @@ class GC_Media_List_Table extends GC_List_Table {
 			<div class="filter-items">
 				<?php $this->view_switcher( $mode ); ?>
 
-				<label for="attachment-filter" class="screen-reader-text"><?php _e( '按类型筛选' ); ?></label>
+				<label for="attachment-filter" class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '按类型筛选' );
+					?>
+				</label>
 				<select class="attachment-filters" name="attachment-filter" id="attachment-filter">
 					<?php
 					if ( ! empty( $views ) ) {
@@ -302,15 +308,23 @@ class GC_Media_List_Table extends GC_List_Table {
 			</div>
 
 			<div class="search-form">
-				<label for="media-search-input" class="media-search-input-label"><?php esc_html_e( '搜索' ); ?></label>
-				<input type="search" id="media-search-input" class="search" name="s" value="<?php _admin_search_query(); ?>">
+				<p class="search-box">
+					<label class="screen-reader-text" for="media-search-input">
+					<?php
+					/* translators: Hidden accessibility text. */
+					esc_html_e( '搜索媒体' );
+					?>
+					</label>
+					<input type="search" id="media-search-input" class="search" name="s" class="form-control-sm" value="<?php _admin_search_query(); ?>">
+					<input id="search-submit" type="submit" class="btn btn-primary btn-tone btn-sm" value="<?php esc_attr_e( '搜索媒体' ); ?>">
+				</p>
 			</div>
 		</div>
 		<?php
 	}
 
 	/**
-	 * @return array
+	 * @return string[] Array of column titles keyed by their column name.
 	 */
 	public function get_columns() {
 		$posts_columns       = array();
@@ -325,6 +339,7 @@ class GC_Media_List_Table extends GC_List_Table {
 		/**
 		 * Filters the taxonomy columns for attachments in the Media list table.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @param string[] $taxonomies An array of registered taxonomy names to show for attachments.
 		 * @param string   $post_type  The post type. Default 'attachment'.
@@ -347,8 +362,14 @@ class GC_Media_List_Table extends GC_List_Table {
 		/* translators: Column name. */
 		if ( ! $this->detached ) {
 			$posts_columns['parent'] = _x( '上传至', 'column name' );
+
 			if ( post_type_supports( 'attachment', 'comments' ) ) {
-				$posts_columns['comments'] = '<span class="vers comment-grey-bubble" title="' . esc_attr__( '评论' ) . '"><span class="screen-reader-text">' . __( '评论' ) . '</span></span>';
+				$posts_columns['comments'] = sprintf(
+					'<span class="vers comment-grey-bubble" title="%1$s" aria-hidden="true"></span><span class="screen-reader-text">%2$s</span>',
+					esc_attr__( '评论' ),
+					/* translators: Hidden accessibility text. */
+					__( '评论' )
+				);
 			}
 		}
 
@@ -358,6 +379,7 @@ class GC_Media_List_Table extends GC_List_Table {
 		/**
 		 * Filters the Media list table columns.
 		 *
+		 * @since 2.5.0
 		 *
 		 * @param string[] $posts_columns An array of columns displayed in the Media list table.
 		 * @param bool     $detached      Whether the list table contains media not attached
@@ -371,17 +393,19 @@ class GC_Media_List_Table extends GC_List_Table {
 	 */
 	protected function get_sortable_columns() {
 		return array(
-			'title'    => 'title',
-			'author'   => 'author',
-			'parent'   => 'parent',
-			'comments' => 'comment_count',
-			'date'     => array( 'date', true ),
+			'title'    => array( 'title', false, _x( '文件', 'column name' ), __( '表格按文件名排序。' ) ),
+			'author'   => array( 'author', false, __( '作者' ), __( '表格按作者排序。' ) ),
+			'parent'   => array( 'parent', false, _x( '上传至', 'column name' ), __( '表格按关联内容排序。' ) ),
+			'comments' => array( 'comment_count', __( '评论' ), false, __( '表格按评论排序。' ) ),
+			'date'     => array( 'date', true, __( '日期' ), __( '表格按日期排序。' ), 'desc' ),
 		);
 	}
 
 	/**
 	 * Handles the checkbox column output.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$post` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Post $item The current GC_Post object.
 	 */
@@ -391,11 +415,13 @@ class GC_Media_List_Table extends GC_List_Table {
 
 		if ( current_user_can( 'edit_post', $post->ID ) ) {
 			?>
-			<label class="screen-reader-text" for="cb-select-<?php echo $post->ID; ?>">
+			<label class="label-covers-full-cell" for="cb-select-<?php echo $post->ID; ?>">
+				<span class="screen-reader-text">
 				<?php
-				/* translators: %s: Attachment title. */
+				/* translators: Hidden accessibility text. %s: Attachment title. */
 				printf( __( '选择%s' ), _draft_or_post_title() );
 				?>
+				</span>
 			</label>
 			<input type="checkbox" name="media[]" id="cb-select-<?php echo $post->ID; ?>" value="<?php echo $post->ID; ?>" />
 			<?php
@@ -405,14 +431,25 @@ class GC_Media_List_Table extends GC_List_Table {
 	/**
 	 * Handles the title column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param GC_Post $post The current GC_Post object.
 	 */
 	public function column_title( $post ) {
 		list( $mime ) = explode( '/', $post->post_mime_type );
 
+		$attachment_id = $post->ID;
+
+		if ( has_post_thumbnail( $post ) ) {
+			$thumbnail_id = get_post_thumbnail_id( $post );
+
+			if ( ! empty( $thumbnail_id ) ) {
+				$attachment_id = $thumbnail_id;
+			}
+		}
+
 		$title      = _draft_or_post_title();
-		$thumb      = gc_get_attachment_image( $post->ID, array( 60, 60 ), true, array( 'alt' => '' ) );
+		$thumb      = gc_get_attachment_image( $attachment_id, array( 60, 60 ), true, array( 'alt' => '' ) );
 		$link_start = '';
 		$link_end   = '';
 
@@ -444,7 +481,12 @@ class GC_Media_List_Table extends GC_List_Table {
 			?>
 		</strong>
 		<p class="filename">
-			<span class="screen-reader-text"><?php _e( '文件名：' ); ?> </span>
+			<span class="screen-reader-text">
+				<?php
+				/* translators: Hidden accessibility text. */
+				_e( '文件名：' );
+				?>
+			</span>
 			<?php
 			$file = get_attached_file( $post->ID );
 			echo esc_html( gc_basename( $file ) );
@@ -456,6 +498,7 @@ class GC_Media_List_Table extends GC_List_Table {
 	/**
 	 * Handles the author column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param GC_Post $post The current GC_Post object.
 	 */
@@ -470,16 +513,21 @@ class GC_Media_List_Table extends GC_List_Table {
 	/**
 	 * Handles the description column output.
 	 *
+	 * @since 4.3.0
+	 * @deprecated 6.2.0
 	 *
 	 * @param GC_Post $post The current GC_Post object.
 	 */
 	public function column_desc( $post ) {
+		_deprecated_function( __METHOD__, '6.2.0' );
+
 		echo has_excerpt() ? $post->post_excerpt : '';
 	}
 
 	/**
 	 * Handles the date column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param GC_Post $post The current GC_Post object.
 	 */
@@ -498,12 +546,22 @@ class GC_Media_List_Table extends GC_List_Table {
 			}
 		}
 
-		echo $h_time;
+		/**
+		 * Filters the published time of an attachment displayed in the Media list table.
+		 *
+		 * @since 6.0.0
+		 *
+		 * @param string  $h_time      The published time.
+		 * @param GC_Post $post        Attachment object.
+		 * @param string  $column_name The column name.
+		 */
+		echo apply_filters( 'media_date_column_time', $h_time, $post, 'date' );
 	}
 
 	/**
 	 * Handles the parent column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param GC_Post $post The current GC_Post object.
 	 */
@@ -565,6 +623,7 @@ class GC_Media_List_Table extends GC_List_Table {
 	/**
 	 * Handles the comments column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param GC_Post $post The current GC_Post object.
 	 */
@@ -585,6 +644,8 @@ class GC_Media_List_Table extends GC_List_Table {
 	/**
 	 * Handles output for the default column.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$post` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Post $item        The current GC_Post object.
 	 * @param string  $column_name Current column name.
@@ -597,7 +658,7 @@ class GC_Media_List_Table extends GC_List_Table {
 			$taxonomy = 'category';
 		} elseif ( 'tags' === $column_name ) {
 			$taxonomy = 'post_tag';
-		} elseif ( 0 === strpos( $column_name, 'taxonomy-' ) ) {
+		} elseif ( str_starts_with( $column_name, 'taxonomy-' ) ) {
 			$taxonomy = substr( $column_name, 9 );
 		} else {
 			$taxonomy = false;
@@ -607,20 +668,21 @@ class GC_Media_List_Table extends GC_List_Table {
 			$terms = get_the_terms( $post->ID, $taxonomy );
 
 			if ( is_array( $terms ) ) {
-				$out = array();
+				$output = array();
+
 				foreach ( $terms as $t ) {
 					$posts_in_term_qv             = array();
 					$posts_in_term_qv['taxonomy'] = $taxonomy;
 					$posts_in_term_qv['term']     = $t->slug;
 
-					$out[] = sprintf(
+					$output[] = sprintf(
 						'<a href="%s">%s</a>',
 						esc_url( add_query_arg( $posts_in_term_qv, 'upload.php' ) ),
 						esc_html( sanitize_term_field( 'name', $t->name, $t->term_id, $taxonomy, 'display' ) )
 					);
 				}
-				/* translators: Used between list items, there is a space after the comma. */
-				echo implode( __( '、' ), $out );
+
+				echo implode( gc_get_list_item_separator(), $output );
 			} else {
 				echo '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . get_taxonomy( $taxonomy )->labels->no_terms . '</span>';
 			}
@@ -633,6 +695,7 @@ class GC_Media_List_Table extends GC_List_Table {
 		 *
 		 * Custom columns are registered using the {@see 'manage_media_columns'} filter.
 		 *
+		 * @since 2.5.0
 		 *
 		 * @param string $column_name Name of the custom column.
 		 * @param int    $post_id     Attachment ID.
@@ -641,7 +704,8 @@ class GC_Media_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * @global GC_Post $post Global post object.
+	 * @global GC_Post  $post     Global post object.
+	 * @global GC_Query $gc_query GeChiUI Query object.
 	 */
 	public function display_rows() {
 		global $post, $gc_query;
@@ -674,6 +738,7 @@ class GC_Media_List_Table extends GC_List_Table {
 	/**
 	 * Gets the name of the default primary column.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @return string Name of the default primary column, in this case, 'title'.
 	 */
@@ -689,116 +754,104 @@ class GC_Media_List_Table extends GC_List_Table {
 	private function _get_row_actions( $post, $att_title ) {
 		$actions = array();
 
-		if ( $this->detached ) {
-			if ( current_user_can( 'edit_post', $post->ID ) ) {
-				$actions['edit'] = sprintf(
-					'<a href="%s" aria-label="%s">%s</a>',
-					get_edit_post_link( $post->ID ),
-					/* translators: %s: Attachment title. */
-					esc_attr( sprintf( __( '编辑“%s”' ), $att_title ) ),
-					__( '编辑' )
-				);
-			}
-
-			if ( current_user_can( 'delete_post', $post->ID ) ) {
-				if ( EMPTY_TRASH_DAYS && MEDIA_TRASH ) {
-					$actions['trash'] = sprintf(
-						'<a href="%s" class="submitdelete aria-button-if-js" aria-label="%s">%s</a>',
-						gc_nonce_url( "post.php?action=trash&amp;post=$post->ID", 'trash-post_' . $post->ID ),
-						/* translators: %s: Attachment title. */
-						esc_attr( sprintf( __( '移动“%s”到回收站' ), $att_title ) ),
-						_x( '移至回收站', 'verb' )
-					);
-				} else {
-					$delete_ays        = ! MEDIA_TRASH ? " onclick='return showNotice.warn();'" : '';
-					$actions['delete'] = sprintf(
-						'<a href="%s" class="submitdelete aria-button-if-js"%s aria-label="%s">%s</a>',
-						gc_nonce_url( "post.php?action=delete&amp;post=$post->ID", 'delete-post_' . $post->ID ),
-						$delete_ays,
-						/* translators: %s: Attachment title. */
-						esc_attr( sprintf( __( '永久删除“%s”' ), $att_title ) ),
-						__( '永久删除' )
-					);
-				}
-			}
-
-			$actions['view'] = sprintf(
-				'<a href="%s" aria-label="%s" rel="bookmark">%s</a>',
-				get_permalink( $post->ID ),
+		if ( ! $this->is_trash && current_user_can( 'edit_post', $post->ID ) ) {
+			$actions['edit'] = sprintf(
+				'<a href="%s" aria-label="%s">%s</a>',
+				esc_url( get_edit_post_link( $post->ID ) ),
 				/* translators: %s: Attachment title. */
-				esc_attr( sprintf( __( '查看“%s”' ), $att_title ) ),
-				__( '查看' )
+				esc_attr( sprintf( __( '编辑『%s』' ), $att_title ) ),
+				__( '编辑' )
 			);
+		}
 
-			if ( current_user_can( 'edit_post', $post->ID ) ) {
-				$actions['attach'] = sprintf(
-					'<a href="#the-list" onclick="findPosts.open( \'media[]\', \'%s\' ); return false;" class="hide-if-no-js aria-button-if-js" aria-label="%s">%s</a>',
-					$post->ID,
+		if ( current_user_can( 'delete_post', $post->ID ) ) {
+			if ( $this->is_trash ) {
+				$actions['untrash'] = sprintf(
+					'<a href="%s" class="submitdelete aria-button-if-js" aria-label="%s">%s</a>',
+					esc_url( gc_nonce_url( "post.php?action=untrash&amp;post=$post->ID", 'untrash-post_' . $post->ID ) ),
 					/* translators: %s: Attachment title. */
-					esc_attr( sprintf( __( '附加“%s”到已有内容' ), $att_title ) ),
-					__( '现在附加到文章或页面' )
+					esc_attr( sprintf( __( '从回收站中恢复“%s”' ), $att_title ) ),
+					__( '还原' )
+				);
+			} elseif ( EMPTY_TRASH_DAYS && MEDIA_TRASH ) {
+				$actions['trash'] = sprintf(
+					'<a href="%s" class="submitdelete aria-button-if-js" aria-label="%s">%s</a>',
+					esc_url( gc_nonce_url( "post.php?action=trash&amp;post=$post->ID", 'trash-post_' . $post->ID ) ),
+					/* translators: %s: Attachment title. */
+					esc_attr( sprintf( __( '移动“%s”到回收站' ), $att_title ) ),
+					_x( '回收站', 'verb' )
 				);
 			}
-		} else {
-			if ( current_user_can( 'edit_post', $post->ID ) && ! $this->is_trash ) {
-				$actions['edit'] = sprintf(
-					'<a href="%s" aria-label="%s">%s</a>',
-					get_edit_post_link( $post->ID ),
+
+			if ( $this->is_trash || ! EMPTY_TRASH_DAYS || ! MEDIA_TRASH ) {
+				$show_confirmation = ( ! $this->is_trash && ! MEDIA_TRASH ) ? " onclick='return showNotice.warn();'" : '';
+
+				$actions['delete'] = sprintf(
+					'<a href="%s" class="submitdelete aria-button-if-js"%s aria-label="%s">%s</a>',
+					esc_url( gc_nonce_url( "post.php?action=delete&amp;post=$post->ID", 'delete-post_' . $post->ID ) ),
+					$show_confirmation,
 					/* translators: %s: Attachment title. */
-					esc_attr( sprintf( __( '编辑“%s”' ), $att_title ) ),
-					__( '编辑' )
+					esc_attr( sprintf( __( '永久删除“%s”' ), $att_title ) ),
+					__( '永久删除' )
 				);
 			}
+		}
 
-			if ( current_user_can( 'delete_post', $post->ID ) ) {
-				if ( $this->is_trash ) {
-					$actions['untrash'] = sprintf(
-						'<a href="%s" class="submitdelete aria-button-if-js" aria-label="%s">%s</a>',
-						gc_nonce_url( "post.php?action=untrash&amp;post=$post->ID", 'untrash-post_' . $post->ID ),
-						/* translators: %s: Attachment title. */
-						esc_attr( sprintf( __( '从回收站中恢复“%s”' ), $att_title ) ),
-						__( '还原' )
-					);
-				} elseif ( EMPTY_TRASH_DAYS && MEDIA_TRASH ) {
-					$actions['trash'] = sprintf(
-						'<a href="%s" class="submitdelete aria-button-if-js" aria-label="%s">%s</a>',
-						gc_nonce_url( "post.php?action=trash&amp;post=$post->ID", 'trash-post_' . $post->ID ),
-						/* translators: %s: Attachment title. */
-						esc_attr( sprintf( __( '移动“%s”到回收站' ), $att_title ) ),
-						_x( '移至回收站', 'verb' )
-					);
-				}
+		$attachment_url = gc_get_attachment_url( $post->ID );
 
-				if ( $this->is_trash || ! EMPTY_TRASH_DAYS || ! MEDIA_TRASH ) {
-					$delete_ays        = ( ! $this->is_trash && ! MEDIA_TRASH ) ? " onclick='return showNotice.warn();'" : '';
-					$actions['delete'] = sprintf(
-						'<a href="%s" class="submitdelete aria-button-if-js"%s aria-label="%s">%s</a>',
-						gc_nonce_url( "post.php?action=delete&amp;post=$post->ID", 'delete-post_' . $post->ID ),
-						$delete_ays,
-						/* translators: %s: Attachment title. */
-						esc_attr( sprintf( __( '永久删除“%s”' ), $att_title ) ),
-						__( '永久删除' )
-					);
-				}
-			}
+		if ( ! $this->is_trash ) {
+			$permalink = get_permalink( $post->ID );
 
-			if ( ! $this->is_trash ) {
+			if ( $permalink ) {
 				$actions['view'] = sprintf(
 					'<a href="%s" aria-label="%s" rel="bookmark">%s</a>',
-					get_permalink( $post->ID ),
+					esc_url( $permalink ),
 					/* translators: %s: Attachment title. */
-					esc_attr( sprintf( __( '查看“%s”' ), $att_title ) ),
+					esc_attr( sprintf( __( '查看『%s』' ), $att_title ) ),
 					__( '查看' )
 				);
 			}
+
+			if ( $attachment_url ) {
+				$actions['copy'] = sprintf(
+					'<span class="copy-to-clipboard-container"><button type="button" class="button-link copy-attachment-url media-library" data-clipboard-text="%s" aria-label="%s">%s</button><span class="success hidden" aria-hidden="true">%s</span></span>',
+					esc_url( $attachment_url ),
+					/* translators: %s: Attachment title. */
+					esc_attr( sprintf( __( '复制 &#8220;%s&#8221; 的网址到剪贴板' ), $att_title ) ),
+					__( '复制URL' ),
+					__( '已复制！' )
+				);
+			}
+		}
+
+		if ( $attachment_url ) {
+			$actions['download'] = sprintf(
+				'<a href="%s" aria-label="%s" download>%s</a>',
+				esc_url( $attachment_url ),
+				/* translators: %s: Attachment title. */
+				esc_attr( sprintf( __( '下载 \"%s\"' ), $att_title ) ),
+				__( '下载文件' )
+			);
+		}
+
+		if ( $this->detached && current_user_can( 'edit_post', $post->ID ) ) {
+			$actions['attach'] = sprintf(
+				'<a href="#the-list" onclick="findPosts.open( \'media[]\', \'%s\' ); return false;" class="hide-if-no-js aria-button-if-js" aria-label="%s">%s</a>',
+				$post->ID,
+				/* translators: %s: Attachment title. */
+				esc_attr( sprintf( __( '附加“%s”到已有内容' ), $att_title ) ),
+				__( '现在附加到文章或页面' )
+			);
 		}
 
 		/**
 		 * Filters the action links for each attachment in the Media list table.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param string[] $actions  An array of action links for each attachment.
-		 *                           Default 'Edit', '永久删除', 'View'.
+		 *                           Includes 'Edit', '永久删除', 'View',
+		 *                           '复制URL' and '下载文件'.
 		 * @param GC_Post  $post     GC_Post object for the current attachment.
 		 * @param bool     $detached Whether the list table contains media not attached
 		 *                           to any posts. Default true.
@@ -809,6 +862,8 @@ class GC_Media_List_Table extends GC_List_Table {
 	/**
 	 * Generates and displays row action links.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$post` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Post $item        Attachment being acted upon.
 	 * @param string  $column_name Current column name.

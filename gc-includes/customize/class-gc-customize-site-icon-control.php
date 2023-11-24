@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
@@ -12,7 +11,7 @@
  *
  * Used only for custom functionality in JavaScript.
  *
- *
+ * @since 4.3.0
  *
  * @see GC_Customize_Cropped_Image_Control
  */
@@ -21,6 +20,7 @@ class GC_Customize_Site_Icon_Control extends GC_Customize_Cropped_Image_Control 
 	/**
 	 * Control type.
 	 *
+	 * @since 4.3.0
 	 * @var string
 	 */
 	public $type = 'site_icon';
@@ -28,6 +28,7 @@ class GC_Customize_Site_Icon_Control extends GC_Customize_Cropped_Image_Control 
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see GC_Customize_Control::__construct()
 	 *
@@ -45,6 +46,7 @@ class GC_Customize_Site_Icon_Control extends GC_Customize_Cropped_Image_Control 
 	/**
 	 * Renders a JS template for the content of the site icon control.
 	 *
+	 * @since 4.5.0
 	 */
 	public function content_template() {
 		?>
@@ -60,12 +62,12 @@ class GC_Customize_Site_Icon_Control extends GC_Customize_Cropped_Image_Control 
 				<# if ( data.attachment.sizes ) { #>
 					<div class="site-icon-preview gc-clearfix">
 						<div class="favicon-preview">
-							<img src="<?php echo esc_url( assets_url( '/images/' . ( is_rtl() ? 'browser-rtl.png' : 'browser.png' ) ) ); ?>" class="browser-preview" width="182" alt="" />
+							<img src="<?php echo esc_url( assets_url( 'images/' . ( is_rtl() ? 'browser-rtl.png' : 'browser.png' ) ) ); ?>" class="browser-preview" width="182" alt="" />
 
 							<div class="favicon">
 								<img src="{{ data.attachment.sizes.full ? data.attachment.sizes.full.url : data.attachment.url }}" alt="<?php esc_attr_e( '作为浏览器图标预览' ); ?>" />
 							</div>
-							<span class="browser-title" aria-hidden="true"><# print( '<?php bloginfo( 'name' ); ?>' ) #></span>
+							<span class="browser-title" aria-hidden="true"><# print( '<?php echo esc_js( get_bloginfo( 'name' ) ); ?>' ) #></span>
 						</div>
 						<img class="app-icon-preview" src="{{ data.attachment.sizes.full ? data.attachment.sizes.full.url : data.attachment.url }}" alt="<?php esc_attr_e( '作为app图标预览' ); ?>" />
 					</div>

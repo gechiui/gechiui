@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class used to implement a Search widget.
- *
- *
  *
  * @see GC_Widget
  */
@@ -23,7 +20,7 @@ class GC_Widget_Search extends GC_Widget {
 	public function __construct() {
 		$widget_ops = array(
 			'classname'                   => 'widget_search',
-			'description'                 => __( '您站点的搜索框。' ),
+			'description'                 => __( '您系统的搜索框。' ),
 			'customize_selective_refresh' => true,
 			'show_instance_in_rest'       => true,
 		);

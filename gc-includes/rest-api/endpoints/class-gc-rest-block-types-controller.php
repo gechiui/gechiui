@@ -4,13 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
+ * @since 5.5.0
  */
 
 /**
  * Core class used to access block types via the REST API.
  *
- *
+ * @since 5.5.0
  *
  * @see GC_REST_Controller
  */
@@ -19,6 +19,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Instance of GC_Block_Type_Registry.
 	 *
+	 * @since 5.5.0
 	 * @var GC_Block_Type_Registry
 	 */
 	protected $block_registry;
@@ -26,6 +27,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Instance of GC_Block_Styles_Registry.
 	 *
+	 * @since 5.5.0
 	 * @var GC_Block_Styles_Registry
 	 */
 	protected $style_registry;
@@ -33,6 +35,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Constructor.
 	 *
+	 * @since 5.5.0
 	 */
 	public function __construct() {
 		$this->namespace      = 'gc/v2';
@@ -44,6 +47,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the routes for block types.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @see register_rest_route()
 	 */
@@ -87,7 +91,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 						'type'        => 'string',
 					),
 					'namespace' => array(
-						'description' => __( '区块名字空间。' ),
+						'description' => __( '区块命名空间。' ),
 						'type'        => 'string',
 					),
 				),
@@ -107,6 +111,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Checks whether a given request has permission to read post block types.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -118,6 +123,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves all post block types, depending on user context.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -151,6 +157,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to read a block type.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access for the item, GC_Error object otherwise.
@@ -172,6 +179,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Checks whether a given block type should be visible.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return true|GC_Error True if the block type is visible, GC_Error otherwise.
 	 */
@@ -191,6 +199,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Get the block, if the name is valid.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $name Block name.
 	 * @return GC_Block_Type|GC_Error Block type object if name is valid, GC_Error otherwise.
@@ -207,6 +216,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves a specific block type.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -225,6 +235,9 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a block type object for serialization.
 	 *
+	 * @since 5.5.0
+	 * @since 5.9.0 Renamed `$block_type` to `$item` to match parent class for PHP 8 named parameter support.
+	 * @since 6.3.0 Added `selectors` field.
 	 *
 	 * @param GC_Block_Type   $item    Block type data.
 	 * @param GC_REST_Request $request Full details about the request.
@@ -244,33 +257,50 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 			$data['is_dynamic'] = $block_type->is_dynamic();
 		}
 
-		$schema       = $this->get_item_schema();
-		$extra_fields = array(
-			'api_version',
-			'name',
-			'title',
-			'description',
-			'icon',
-			'category',
-			'keywords',
-			'parent',
-			'provides_context',
-			'uses_context',
-			'supports',
-			'styles',
-			'textdomain',
-			'example',
+		$schema = $this->get_item_schema();
+		// Fields deprecated in GeChiUI 6.1, but left in the schema for backwards compatibility.
+		$deprecated_fields = array(
 			'editor_script',
 			'script',
 			'view_script',
 			'editor_style',
 			'style',
-			'variations',
+		);
+		$extra_fields      = array_merge(
+			array(
+				'api_version',
+				'name',
+				'title',
+				'description',
+				'icon',
+				'category',
+				'keywords',
+				'parent',
+				'ancestor',
+				'provides_context',
+				'uses_context',
+				'selectors',
+				'supports',
+				'styles',
+				'textdomain',
+				'example',
+				'editor_script_handles',
+				'script_handles',
+				'view_script_handles',
+				'editor_style_handles',
+				'style_handles',
+				'variations',
+			),
+			$deprecated_fields
 		);
 		foreach ( $extra_fields as $extra_field ) {
 			if ( rest_is_field_included( $extra_field, $fields ) ) {
 				if ( isset( $block_type->$extra_field ) ) {
 					$field = $block_type->$extra_field;
+					if ( in_array( $extra_field, $deprecated_fields, true ) && is_array( $field ) ) {
+						// Since the schema only allows strings or null (but no arrays), we return the first array item.
+						$field = ! empty( $field ) ? array_shift( $field ) : '';
+					}
 				} elseif ( array_key_exists( 'default', $schema['properties'][ $extra_field ] ) ) {
 					$field = $schema['properties'][ $extra_field ]['default'];
 				} else {
@@ -293,13 +323,16 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 
 		$response = rest_ensure_response( $data );
 
-		$response->add_links( $this->prepare_links( $block_type ) );
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$response->add_links( $this->prepare_links( $block_type ) );
+		}
 
 		/**
 		 * Filters a block type returned from the REST API.
 		 *
 		 * Allows modification of the block type data right before it is returned.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param GC_REST_Response $response   The response object.
 		 * @param GC_Block_Type    $block_type The original block type object.
@@ -311,6 +344,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares links for the request.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_Block_Type $block_type Block type data.
 	 * @return array Links for the given block type.
@@ -332,7 +366,11 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 
 		if ( $block_type->is_dynamic() ) {
 			$links['https://api.w.org/render-block'] = array(
-				'href' => add_query_arg( 'context', 'edit', rest_url( sprintf( '%s/%s/%s', 'gc/v2', 'block-renderer', $block_type->name ) ) ),
+				'href' => add_query_arg(
+					'context',
+					'edit',
+					rest_url( sprintf( '%s/%s/%s', 'gc/v2', 'block-renderer', $block_type->name ) )
+				),
 			);
 		}
 
@@ -342,6 +380,8 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the block type' schema, conforming to JSON Schema.
 	 *
+	 * @since 5.5.0
+	 * @since 6.3.0 Added `selectors` field.
 	 *
 	 * @return array Item schema data.
 	 */
@@ -415,41 +455,41 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 			'readonly'    => true,
 		);
 
-		$schema = array(
+		$this->schema = array(
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
 			'title'      => 'block-type',
 			'type'       => 'object',
 			'properties' => array(
-				'api_version'      => array(
+				'api_version'           => array(
 					'description' => __( '区块API的版本。' ),
 					'type'        => 'integer',
 					'default'     => 1,
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'title'            => array(
+				'title'                 => array(
 					'description' => __( '区块类型的标题。' ),
 					'type'        => 'string',
 					'default'     => '',
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'name'             => array(
+				'name'                  => array(
 					'description' => __( '区块类型的唯一名称。' ),
 					'type'        => 'string',
 					'default'     => '',
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'description'      => array(
+				'description'           => array(
 					'description' => __( '区块类型的描述。' ),
 					'type'        => 'string',
 					'default'     => '',
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'icon'             => $icon_definition,
-				'attributes'       => array(
+				'icon'                  => $icon_definition,
+				'attributes'            => array(
 					'description'          => __( '区块属性。' ),
 					'type'                 => array( 'object', 'null' ),
 					'properties'           => array(),
@@ -460,7 +500,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 					'context'              => array( 'embed', 'view', 'edit' ),
 					'readonly'             => true,
 				),
-				'provides_context' => array(
+				'provides_context'      => array(
 					'description'          => __( '此类区块所提供的上下文。' ),
 					'type'                 => 'object',
 					'properties'           => array(),
@@ -471,7 +511,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 					'context'              => array( 'embed', 'view', 'edit' ),
 					'readonly'             => true,
 				),
-				'uses_context'     => array(
+				'uses_context'          => array(
 					'description' => __( '此类区块所继承的上下文的值。' ),
 					'type'        => 'array',
 					'default'     => array(),
@@ -481,7 +521,15 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'supports'         => array(
+				'selectors'             => array(
+					'description' => __( '自定义CSS选择器。' ),
+					'type'        => 'object',
+					'default'     => array(),
+					'properties'  => array(),
+					'context'     => array( 'embed', 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'supports'              => array(
 					'description' => __( '区块支持。' ),
 					'type'        => 'object',
 					'default'     => array(),
@@ -489,50 +537,65 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'category'         => $category_definition,
-				'is_dynamic'       => array(
+				'category'              => $category_definition,
+				'is_dynamic'            => array(
 					'description' => __( '区块是动态渲染的？' ),
 					'type'        => 'boolean',
 					'default'     => false,
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'editor_script'    => array(
-					'description' => __( '编辑器脚本控制代码。' ),
-					'type'        => array( 'string', 'null' ),
-					'default'     => null,
+				'editor_script_handles' => array(
+					'description' => __( '编辑器脚本句柄。' ),
+					'type'        => array( 'array' ),
+					'default'     => array(),
+					'items'       => array(
+						'type' => 'string',
+					),
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'script'           => array(
-					'description' => __( '面向公众和编辑器脚本句柄。' ),
-					'type'        => array( 'string', 'null' ),
-					'default'     => null,
+				'script_handles'        => array(
+					'description' => __( '公开界面和编辑器脚本的句柄。' ),
+					'type'        => array( 'array' ),
+					'default'     => array(),
+					'items'       => array(
+						'type' => 'string',
+					),
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'view_script'      => array(
-					'description' => __( '对外公开的脚本控制代码。' ),
-					'type'        => array( 'string', 'null' ),
-					'default'     => null,
+				'view_script_handles'   => array(
+					'description' => __( '公开界面脚本的句柄。' ),
+					'type'        => array( 'array' ),
+					'default'     => array(),
+					'items'       => array(
+						'type' => 'string',
+					),
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'editor_style'     => array(
-					'description' => __( '编辑器样式控制代码。' ),
-					'type'        => array( 'string', 'null' ),
-					'default'     => null,
+				'editor_style_handles'  => array(
+					'description' => __( '编辑器样式句柄。' ),
+					'type'        => array( 'array' ),
+					'default'     => array(),
+					'items'       => array(
+						'type' => 'string',
+					),
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'style'            => array(
-					'description' => __( '面向公众和编辑器风格的句柄。' ),
-					'type'        => array( 'string', 'null' ),
-					'default'     => null,
+				'style_handles'         => array(
+					'description' => __( '公开界面和编辑器样式的句柄。' ),
+					'type'        => array( 'array' ),
+					'default'     => array(),
+					'items'       => array(
+						'type' => 'string',
+					),
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'styles'           => array(
+				'styles'                => array(
 					'description' => __( '区块样式变体。' ),
 					'type'        => 'array',
 					'items'       => array(
@@ -552,7 +615,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 								'type'        => 'string',
 							),
 							'style_handle' => array(
-								'description' => __( '包含定义区块样式的控制代码。' ),
+								'description' => __( '包含定义区块样式的句柄。' ),
 								'type'        => 'string',
 							),
 						),
@@ -561,7 +624,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'variations'       => array(
+				'variations'            => array(
 					'description' => __( '区块变体。' ),
 					'type'        => 'array',
 					'items'       => array(
@@ -585,7 +648,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 							'category'    => $category_definition,
 							'icon'        => $icon_definition,
 							'isDefault'   => array(
-								'description' => __( '表示当前的变体是否为默认变体。' ),
+								'description' => __( '指明当前的变体是否为默认变体。' ),
 								'type'        => 'boolean',
 								'required'    => false,
 								'default'     => false,
@@ -613,14 +676,14 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'default'     => null,
 				),
-				'textdomain'       => array(
+				'textdomain'            => array(
 					'description' => __( '公共文本域。' ),
 					'type'        => array( 'string', 'null' ),
 					'default'     => null,
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'parent'           => array(
+				'parent'                => array(
 					'description' => __( '上级区块' ),
 					'type'        => array( 'array', 'null' ),
 					'items'       => array(
@@ -630,12 +693,60 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'keywords'         => $keywords_definition,
-				'example'          => $example_definition,
+				'ancestor'              => array(
+					'description' => __( '上层区块。' ),
+					'type'        => array( 'array', 'null' ),
+					'items'       => array(
+						'type' => 'string',
+					),
+					'default'     => null,
+					'context'     => array( 'embed', 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'keywords'              => $keywords_definition,
+				'example'               => $example_definition,
 			),
 		);
 
-		$this->schema = $schema;
+		// Properties deprecated in GeChiUI 6.1, but left in the schema for backwards compatibility.
+		$deprecated_properties      = array(
+			'editor_script' => array(
+				'description' => __( '编辑器脚本的句柄。已弃用：请使用 `editor_script_handles` 作为代替。' ),
+				'type'        => array( 'string', 'null' ),
+				'default'     => null,
+				'context'     => array( 'embed', 'view', 'edit' ),
+				'readonly'    => true,
+			),
+			'script'        => array(
+				'description' => __( '公开界面和编辑器脚本的句柄。已弃用：请使用 `script_handles` 作为代替。' ),
+				'type'        => array( 'string', 'null' ),
+				'default'     => null,
+				'context'     => array( 'embed', 'view', 'edit' ),
+				'readonly'    => true,
+			),
+			'view_script'   => array(
+				'description' => __( '公开界面脚本的句柄。已弃用：请使用 `view_script_handles` 作为代替。' ),
+				'type'        => array( 'string', 'null' ),
+				'default'     => null,
+				'context'     => array( 'embed', 'view', 'edit' ),
+				'readonly'    => true,
+			),
+			'editor_style'  => array(
+				'description' => __( '编辑器样式的句柄。已弃用：请使用 `editor_style_handles` 作为代替。' ),
+				'type'        => array( 'string', 'null' ),
+				'default'     => null,
+				'context'     => array( 'embed', 'view', 'edit' ),
+				'readonly'    => true,
+			),
+			'style'         => array(
+				'description' => __( '公开界面和编辑器样式的句柄。已弃用：请使用 `style_handles` 作为代替。' ),
+				'type'        => array( 'string', 'null' ),
+				'default'     => null,
+				'context'     => array( 'embed', 'view', 'edit' ),
+				'readonly'    => true,
+			),
+		);
+		$this->schema['properties'] = array_merge( $this->schema['properties'], $deprecated_properties );
 
 		return $this->add_additional_fields_schema( $this->schema );
 	}
@@ -643,6 +754,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the query params for collections.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return array Collection parameters.
 	 */
@@ -650,7 +762,7 @@ class GC_REST_Block_Types_Controller extends GC_REST_Controller {
 		return array(
 			'context'   => $this->get_context_param( array( 'default' => 'view' ) ),
 			'namespace' => array(
-				'description' => __( '区块名字空间。' ),
+				'description' => __( '区块命名空间。' ),
 				'type'        => 'string',
 			),
 		);

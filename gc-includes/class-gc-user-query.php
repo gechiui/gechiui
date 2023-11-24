@@ -4,21 +4,20 @@
  *
  * @package GeChiUI
  * @subpackage Users
- *
  */
 
 /**
  * Core class used for querying users.
  *
- *
- *
  * @see GC_User_Query::prepare_query() for information on accepted arguments.
  */
+#[AllowDynamicProperties]
 class GC_User_Query {
 
 	/**
 	 * Query vars, after parsing
 	 *
+	 * @since 3.5.0
 	 * @var array
 	 */
 	public $query_vars = array();
@@ -40,6 +39,7 @@ class GC_User_Query {
 	/**
 	 * Metadata query container.
 	 *
+	 * @since 4.2.0
 	 * @var GC_Meta_Query
 	 */
 	public $meta_query = false;
@@ -47,6 +47,7 @@ class GC_User_Query {
 	/**
 	 * The SQL query used to fetch matching users.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $request;
@@ -61,10 +62,11 @@ class GC_User_Query {
 	public $query_limit;
 
 	/**
-	 * PHP5 constructor.
+	 * Constructor.
 	 *
 	 *
 	 * @param null|string|array $query Optional. The query variables.
+	 *                                 See GC_User_Query::prepare_query() for information on accepted arguments.
 	 */
 	public function __construct( $query = null ) {
 		if ( ! empty( $query ) ) {
@@ -76,8 +78,9 @@ class GC_User_Query {
 	/**
 	 * Fills in missing query variables with default values.
 	 *
+	 * @since 4.4.0
 	 *
-	 * @param array $args Query vars, as passed to `GC_User_Query`.
+	 * @param string|array $args Query vars, as passed to `GC_User_Query`.
 	 * @return array Complete query variables with undefined ones filled in with defaults.
 	 */
 	public static function fill_query_vars( $args ) {
@@ -111,24 +114,34 @@ class GC_User_Query {
 			'login'               => '',
 			'login__in'           => array(),
 			'login__not_in'       => array(),
+			'cache_results'       => true,
 		);
 
 		return gc_parse_args( $args, $defaults );
 	}
 
 	/**
-	 * Prepare the query variables.
+	 * Prepares the query variables.
 	 *
+	 * @since 4.1.0 Added the ability to order by the `include` value.
+	 * @since 4.2.0 Added 'meta_value_num' support for `$orderby` parameter. Added multi-dimensional array syntax
 	 *              for `$orderby` parameter.
+	 * @since 4.3.0 Added 'has_published_posts' parameter.
+	 * @since 4.4.0 Added 'paged', 'role__in', and 'role__not_in' parameters. The 'role' parameter was updated to
 	 *              permit an array or comma-separated list of values. The 'number' parameter was updated to support
 	 *              querying for all users with using -1.
+	 * @since 4.7.0 Added 'nicename', 'nicename__in', 'nicename__not_in', 'login', 'login__in',
 	 *              and 'login__not_in' parameters.
+	 * @since 5.1.0 Introduced the 'meta_compare_key' parameter.
+	 * @since 5.3.0 Introduced the 'meta_type_key' parameter.
+	 * @since 5.9.0 Added 'capability', 'capability__in', and 'capability__not_in' parameters.
+	 * @since 6.3.0 Added 'cache_results' parameter.
 	 *
-	 * @global gcdb $gcdb GeChiUI database abstraction object.
-	 * @global int  $blog_id
+	 * @global gcdb     $gcdb     GeChiUI database abstraction object.
+	 * @global GC_Roles $gc_roles GeChiUI role management object.
 	 *
 	 * @param string|array $query {
-	 *     Optional. Array or string of Query parameters.
+	 *     Optional. Array or string of query parameters.
 	 *
 	 *     @type int             $blog_id             The site ID. Default is the current site.
 	 *     @type string|string[] $role                An array or a comma-separated list of role names that users must match
@@ -141,15 +154,15 @@ class GC_User_Query {
 	 *     @type string|string[] $meta_key            Meta key or keys to filter by.
 	 *     @type string|string[] $meta_value          Meta value or values to filter by.
 	 *     @type string          $meta_compare        MySQL operator used for comparing the meta value.
-	 *                                                See GC_Meta_Query::__construct for accepted values and default value.
+	 *                                                See GC_Meta_Query::__construct() for accepted values and default value.
 	 *     @type string          $meta_compare_key    MySQL operator used for comparing the meta key.
-	 *                                                See GC_Meta_Query::__construct for accepted values and default value.
+	 *                                                See GC_Meta_Query::__construct() for accepted values and default value.
 	 *     @type string          $meta_type           MySQL data type that the meta_value column will be CAST to for comparisons.
-	 *                                                See GC_Meta_Query::__construct for accepted values and default value.
+	 *                                                See GC_Meta_Query::__construct() for accepted values and default value.
 	 *     @type string          $meta_type_key       MySQL data type that the meta_key column will be CAST to for comparisons.
-	 *                                                See GC_Meta_Query::__construct for accepted values and default value.
+	 *                                                See GC_Meta_Query::__construct() for accepted values and default value.
 	 *     @type array           $meta_query          An associative array of GC_Meta_Query arguments.
-	 *                                                See GC_Meta_Query::__construct for accepted values.
+	 *                                                See GC_Meta_Query::__construct() for accepted values.
 	 *     @type string|string[] $capability          An array or a comma-separated list of capability names that users must match
 	 *                                                to be included in results. Note that this is an inclusive list: users
 	 *                                                must match *each* capability.
@@ -214,8 +227,13 @@ class GC_User_Query {
 	 *                                                - 'user_email'
 	 *                                                - 'user_url'
 	 *                                                - 'user_registered'
-	 *                                                - 'all' for all fields
-	 *                                                - 'all_with_meta' to include meta fields.
+	 *                                                - 'user_pass'
+	 *                                                - 'user_activation_key'
+	 *                                                - 'user_status'
+	 *                                                - 'spam' (only available on multisite installs)
+	 *                                                - 'deleted' (only available on multisite installs)
+	 *                                                - 'all' for all fields and loads user meta.
+	 *                                                - 'all_with_meta' Deprecated. Use 'all'.
 	 *                                                Default 'all'.
 	 *     @type string          $who                 Type of users to query. Accepts 'authors'.
 	 *                                                Default empty (all users).
@@ -232,10 +250,11 @@ class GC_User_Query {
 	 *                                                logins will be included in results. Default empty array.
 	 *     @type string[]        $login__not_in       An array of logins to exclude. Users matching one of these
 	 *                                                logins will not be included in results. Default empty array.
+	 *     @type bool            $cache_results       Whether to cache user information. Default true.
 	 * }
 	 */
 	public function prepare_query( $query = array() ) {
-		global $gcdb;
+		global $gcdb, $gc_roles;
 
 		if ( empty( $this->query_vars ) || ! empty( $query ) ) {
 			$this->query_limit = null;
@@ -248,6 +267,7 @@ class GC_User_Query {
 		 * The passed GC_User_Query object contains the query variables,
 		 * not yet passed into SQL.
 		 *
+		 * @since 4.0.0
 		 *
 		 * @param GC_User_Query $query Current instance of GC_User_Query (passed by reference).
 		 */
@@ -257,19 +277,42 @@ class GC_User_Query {
 		$qv =& $this->query_vars;
 		$qv = $this->fill_query_vars( $qv );
 
+		$allowed_fields = array(
+			'id',
+			'user_login',
+			'user_pass',
+			'user_nicename',
+			'user_email',
+			'user_url',
+			'user_registered',
+			'user_activation_key',
+			'user_status',
+			'display_name',
+		);
+		if ( is_multisite() ) {
+			$allowed_fields[] = 'spam';
+			$allowed_fields[] = 'deleted';
+		}
+
 		if ( is_array( $qv['fields'] ) ) {
-			$qv['fields'] = array_unique( $qv['fields'] );
+			$qv['fields'] = array_map( 'strtolower', $qv['fields'] );
+			$qv['fields'] = array_intersect( array_unique( $qv['fields'] ), $allowed_fields );
+
+			if ( empty( $qv['fields'] ) ) {
+				$qv['fields'] = array( 'id' );
+			}
 
 			$this->query_fields = array();
 			foreach ( $qv['fields'] as $field ) {
-				$field                = 'ID' === $field ? 'ID' : sanitize_key( $field );
+				$field                = 'id' === $field ? 'ID' : sanitize_key( $field );
 				$this->query_fields[] = "$gcdb->users.$field";
 			}
 			$this->query_fields = implode( ',', $this->query_fields );
-		} elseif ( 'all' === $qv['fields'] ) {
-			$this->query_fields = "$gcdb->users.*";
-		} else {
+		} elseif ( 'all_with_meta' === $qv['fields'] || 'all' === $qv['fields'] || ! in_array( $qv['fields'], $allowed_fields, true ) ) {
 			$this->query_fields = "$gcdb->users.ID";
+		} else {
+			$field              = 'id' === strtolower( $qv['fields'] ) ? 'ID' : sanitize_key( $qv['fields'] );
+			$this->query_fields = "$gcdb->users.$field";
 		}
 
 		if ( isset( $qv['count_total'] ) && $qv['count_total'] ) {
@@ -403,8 +446,6 @@ class GC_User_Query {
 		$available_roles = array();
 
 		if ( ! empty( $qv['capability'] ) || ! empty( $qv['capability__in'] ) || ! empty( $qv['capability__not_in'] ) ) {
-			global $gc_roles;
-
 			$gc_roles->for_site( $blog_id );
 			$available_roles = $gc_roles->roles;
 		}
@@ -645,8 +686,8 @@ class GC_User_Query {
 		}
 
 		if ( $search ) {
-			$leading_wild  = ( ltrim( $search, '*' ) != $search );
-			$trailing_wild = ( rtrim( $search, '*' ) != $search );
+			$leading_wild  = ( ltrim( $search, '*' ) !== $search );
+			$trailing_wild = ( rtrim( $search, '*' ) !== $search );
 			if ( $leading_wild && $trailing_wild ) {
 				$wild = 'both';
 			} elseif ( $leading_wild ) {
@@ -665,7 +706,7 @@ class GC_User_Query {
 				$search_columns = array_intersect( $qv['search_columns'], array( 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', 'display_name' ) );
 			}
 			if ( ! $search_columns ) {
-				if ( false !== strpos( $search, '@' ) ) {
+				if ( str_contains( $search, '@' ) ) {
 					$search_columns = array( 'user_email' );
 				} elseif ( is_numeric( $search ) ) {
 					$search_columns = array( 'user_login', 'ID' );
@@ -682,7 +723,7 @@ class GC_User_Query {
 			 * The default columns depend on the search term, and include 'ID', 'user_login',
 			 * 'user_email', 'user_url', 'user_nicename', and 'display_name'.
 			 *
-		
+			 * @since 3.6.0
 			 *
 			 * @param string[]      $search_columns Array of column names to be searched.
 			 * @param string        $search         Text being searched.
@@ -715,6 +756,7 @@ class GC_User_Query {
 		 * The passed GC_User_Query object contains SQL parts formed
 		 * from parsing the given query.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param GC_User_Query $query Current instance of GC_User_Query (passed by reference).
 		 */
@@ -722,7 +764,7 @@ class GC_User_Query {
 	}
 
 	/**
-	 * Execute the query, with the current variables.
+	 * Executes the query, with the current variables.
 	 *
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -730,7 +772,24 @@ class GC_User_Query {
 	public function query() {
 		global $gcdb;
 
+		if ( ! did_action( 'plugins_loaded' ) ) {
+			_doing_it_wrong(
+				'GC_User_Query::query',
+				sprintf(
+				/* translators: %s: plugins_loaded */
+					__( '用户查询不应运行于钩子 %s 之前。' ),
+					'<code>plugins_loaded</code>'
+				),
+				'6.1.1'
+			);
+		}
+
 		$qv =& $this->query_vars;
+
+		// Do not cache results if more than 3 fields are requested.
+		if ( is_array( $qv['fields'] ) && count( $qv['fields'] ) > 3 ) {
+			$qv['cache_results'] = false;
+		}
 
 		/**
 		 * Filters the users array before the query takes place.
@@ -742,6 +801,7 @@ class GC_User_Query {
 		 * by reference. If GC_User_Query does not perform a database query, it will not
 		 * have enough information to generate these values itself.
 		 *
+		 * @since 5.1.0
 		 *
 		 * @param array|null    $results Return an array of user data to short-circuit GC's user query
 		 *                               or null to allow GC to run its normal queries.
@@ -750,55 +810,89 @@ class GC_User_Query {
 		$this->results = apply_filters_ref_array( 'users_pre_query', array( null, &$this ) );
 
 		if ( null === $this->results ) {
-			$this->request = "SELECT $this->query_fields $this->query_from $this->query_where $this->query_orderby $this->query_limit";
-
-			if ( is_array( $qv['fields'] ) || 'all' === $qv['fields'] ) {
-				$this->results = $gcdb->get_results( $this->request );
-			} else {
-				$this->results = $gcdb->get_col( $this->request );
+			$this->request = "
+				SELECT {$this->query_fields}
+				{$this->query_from}
+				{$this->query_where}
+				{$this->query_orderby}
+				{$this->query_limit}
+			";
+			$cache_value   = false;
+			$cache_key     = $this->generate_cache_key( $qv, $this->request );
+			$cache_group   = 'user-queries';
+			if ( $qv['cache_results'] ) {
+				$cache_value = gc_cache_get( $cache_key, $cache_group );
 			}
+			if ( false !== $cache_value ) {
+				$this->results     = $cache_value['user_data'];
+				$this->total_users = $cache_value['total_users'];
+			} else {
 
-			if ( isset( $qv['count_total'] ) && $qv['count_total'] ) {
-				/**
-				 * Filters SELECT FOUND_ROWS() query for the current GC_User_Query instance.
-				 *
-			
-			
-				 *
-				 * @global gcdb $gcdb GeChiUI database abstraction object.
-				 *
-				 * @param string        $sql   The SELECT FOUND_ROWS() query for the current GC_User_Query.
-				 * @param GC_User_Query $query The current GC_User_Query instance.
-				 */
-				$found_users_query = apply_filters( 'found_users_query', 'SELECT FOUND_ROWS()', $this );
+				if ( is_array( $qv['fields'] ) ) {
+					$this->results = $gcdb->get_results( $this->request );
+				} else {
+					$this->results = $gcdb->get_col( $this->request );
+				}
 
-				$this->total_users = (int) $gcdb->get_var( $found_users_query );
+				if ( isset( $qv['count_total'] ) && $qv['count_total'] ) {
+					/**
+					 * Filters SELECT FOUND_ROWS() query for the current GC_User_Query instance.
+					 *
+					 * @since 3.2.0
+					 * @since 5.1.0 Added the `$this` parameter.
+					 *
+					 * @global gcdb $gcdb GeChiUI database abstraction object.
+					 *
+					 * @param string        $sql   The SELECT FOUND_ROWS() query for the current GC_User_Query.
+					 * @param GC_User_Query $query The current GC_User_Query instance.
+					 */
+					$found_users_query = apply_filters( 'found_users_query', 'SELECT FOUND_ROWS()', $this );
+
+					$this->total_users = (int) $gcdb->get_var( $found_users_query );
+				}
+
+				if ( $qv['cache_results'] ) {
+					$cache_value = array(
+						'user_data'   => $this->results,
+						'total_users' => $this->total_users,
+					);
+					gc_cache_add( $cache_key, $cache_value, $cache_group );
+				}
 			}
 		}
 
 		if ( ! $this->results ) {
 			return;
 		}
-
-		if ( 'all_with_meta' === $qv['fields'] ) {
-			cache_users( $this->results );
+		if (
+			is_array( $qv['fields'] ) &&
+			isset( $this->results[0]->ID )
+		) {
+			foreach ( $this->results as $result ) {
+				$result->id = $result->ID;
+			}
+		} elseif ( 'all_with_meta' === $qv['fields'] || 'all' === $qv['fields'] ) {
+			if ( function_exists( 'cache_users' ) ) {
+				cache_users( $this->results );
+			}
 
 			$r = array();
 			foreach ( $this->results as $userid ) {
-				$r[ $userid ] = new GC_User( $userid, '', $qv['blog_id'] );
+				if ( 'all_with_meta' === $qv['fields'] ) {
+					$r[ $userid ] = new GC_User( $userid, '', $qv['blog_id'] );
+				} else {
+					$r[] = new GC_User( $userid, '', $qv['blog_id'] );
+				}
 			}
 
 			$this->results = $r;
-		} elseif ( 'all' === $qv['fields'] ) {
-			foreach ( $this->results as $key => $user ) {
-				$this->results[ $key ] = new GC_User( $user, '', $qv['blog_id'] );
-			}
 		}
 	}
 
 	/**
-	 * Retrieve query variable.
+	 * Retrieves query variable.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param string $query_var Query variable key.
 	 * @return mixed
@@ -812,8 +906,9 @@ class GC_User_Query {
 	}
 
 	/**
-	 * Set query variable.
+	 * Sets query variable.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param string $query_var Query variable key.
 	 * @param mixed  $value     Query variable value.
@@ -823,30 +918,30 @@ class GC_User_Query {
 	}
 
 	/**
-	 * Used internally to generate an SQL string for searching across multiple columns
+	 * Used internally to generate an SQL string for searching across multiple columns.
 	 *
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
-	 * @param string $string
-	 * @param array  $cols
-	 * @param bool   $wild   Whether to allow wildcard searches. Default is false for Network Admin, true for single site.
-	 *                       Single site allows leading and trailing wildcards, Network Admin only trailing.
+	 * @param string   $search  Search string.
+	 * @param string[] $columns Array of columns to search.
+	 * @param bool     $wild    Whether to allow wildcard searches. Default is false for Network Admin, true for single site.
+	 *                          Single site allows leading and trailing wildcards, Network Admin only trailing.
 	 * @return string
 	 */
-	protected function get_search_sql( $string, $cols, $wild = false ) {
+	protected function get_search_sql( $search, $columns, $wild = false ) {
 		global $gcdb;
 
 		$searches      = array();
 		$leading_wild  = ( 'leading' === $wild || 'both' === $wild ) ? '%' : '';
 		$trailing_wild = ( 'trailing' === $wild || 'both' === $wild ) ? '%' : '';
-		$like          = $leading_wild . $gcdb->esc_like( $string ) . $trailing_wild;
+		$like          = $leading_wild . $gcdb->esc_like( $search ) . $trailing_wild;
 
-		foreach ( $cols as $col ) {
-			if ( 'ID' === $col ) {
-				$searches[] = $gcdb->prepare( "$col = %s", $string );
+		foreach ( $columns as $column ) {
+			if ( 'ID' === $column ) {
+				$searches[] = $gcdb->prepare( "$column = %s", $search );
 			} else {
-				$searches[] = $gcdb->prepare( "$col LIKE %s", $like );
+				$searches[] = $gcdb->prepare( "$column LIKE %s", $like );
 			}
 		}
 
@@ -854,7 +949,7 @@ class GC_User_Query {
 	}
 
 	/**
-	 * Return the list of users.
+	 * Returns the list of users.
 	 *
 	 *
 	 * @return array Array of results.
@@ -864,7 +959,7 @@ class GC_User_Query {
 	}
 
 	/**
-	 * Return the total number of users for the current query.
+	 * Returns the total number of users for the current query.
 	 *
 	 *
 	 * @return int Number of total users.
@@ -874,8 +969,9 @@ class GC_User_Query {
 	}
 
 	/**
-	 * Parse and sanitize 'orderby' keys passed to the user query.
+	 * Parses and sanitizes 'orderby' keys passed to the user query.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -902,12 +998,11 @@ class GC_User_Query {
 				FROM $gcdb->posts
 				$where
 				GROUP BY post_author
-			) p ON ({$gcdb->users}.ID = p.post_author)
-			";
+			) p ON ({$gcdb->users}.ID = p.post_author)";
 			$_orderby          = 'post_count';
 		} elseif ( 'ID' === $orderby || 'id' === $orderby ) {
 			$_orderby = 'ID';
-		} elseif ( 'meta_value' === $orderby || $this->get( 'meta_key' ) == $orderby ) {
+		} elseif ( 'meta_value' === $orderby || $this->get( 'meta_key' ) === $orderby ) {
 			$_orderby = "$gcdb->usermeta.meta_value";
 		} elseif ( 'meta_value_num' === $orderby ) {
 			$_orderby = "$gcdb->usermeta.meta_value+0";
@@ -932,8 +1027,60 @@ class GC_User_Query {
 	}
 
 	/**
-	 * Parse an 'order' query variable and cast it to ASC or DESC as necessary.
+	 * Generate cache key.
 	 *
+	 * @since 6.3.0
+	 *
+	 * @global gcdb $gcdb GeChiUI database abstraction object.
+	 *
+	 * @param array  $args Query arguments.
+	 * @param string $sql  SQL statement.
+	 * @return string Cache key.
+	 */
+	protected function generate_cache_key( array $args, $sql ) {
+		global $gcdb;
+
+		// Replace gcdb placeholder in the SQL statement used by the cache key.
+		$sql = $gcdb->remove_placeholder_escape( $sql );
+
+		$key          = md5( $sql );
+		$last_changed = gc_cache_get_last_changed( 'users' );
+
+		if ( empty( $args['orderby'] ) ) {
+			// Default order is by 'user_login'.
+			$ordersby = array( 'user_login' => '' );
+		} elseif ( is_array( $args['orderby'] ) ) {
+			$ordersby = $args['orderby'];
+		} else {
+			// 'orderby' values may be a comma- or space-separated list.
+			$ordersby = preg_split( '/[,\s]+/', $args['orderby'] );
+		}
+
+		$blog_id = 0;
+		if ( isset( $args['blog_id'] ) ) {
+			$blog_id = absint( $args['blog_id'] );
+		}
+
+		if ( $args['has_published_posts'] || in_array( 'post_count', $ordersby, true ) ) {
+			$switch = $blog_id && get_current_blog_id() !== $blog_id;
+			if ( $switch ) {
+				switch_to_blog( $blog_id );
+			}
+
+			$last_changed .= gc_cache_get_last_changed( 'posts' );
+
+			if ( $switch ) {
+				restore_current_blog();
+			}
+		}
+
+		return "get_users:$key:$last_changed";
+	}
+
+	/**
+	 * Parses an 'order' query variable and casts it to ASC or DESC as necessary.
+	 *
+	 * @since 4.2.0
 	 *
 	 * @param string $order The 'order' query variable.
 	 * @return string The sanitized 'order' query variable.
@@ -951,8 +1098,9 @@ class GC_User_Query {
 	}
 
 	/**
-	 * Make private properties readable for backward compatibility.
+	 * Makes private properties readable for backward compatibility.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $name Property to get.
 	 * @return mixed Property.
@@ -964,8 +1112,9 @@ class GC_User_Query {
 	}
 
 	/**
-	 * Make private properties settable for backward compatibility.
+	 * Makes private properties settable for backward compatibility.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $name  Property to check if set.
 	 * @param mixed  $value Property value.
@@ -978,8 +1127,9 @@ class GC_User_Query {
 	}
 
 	/**
-	 * Make private properties checkable for backward compatibility.
+	 * Makes private properties checkable for backward compatibility.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $name Property to check if set.
 	 * @return bool Whether the property is set.
@@ -991,8 +1141,9 @@ class GC_User_Query {
 	}
 
 	/**
-	 * Make private properties un-settable for backward compatibility.
+	 * Makes private properties un-settable for backward compatibility.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $name Property to unset.
 	 */
@@ -1003,8 +1154,9 @@ class GC_User_Query {
 	}
 
 	/**
-	 * Make private/protected methods readable for backward compatibility.
+	 * Makes private/protected methods readable for backward compatibility.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $name      Method to call.
 	 * @param array  $arguments Arguments to pass when calling.

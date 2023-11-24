@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Users
- *
  */
 
 /**
  * Core class used to implement the GC_User object.
- *
- *
  *
  * @property string $nickname
  * @property string $description
@@ -36,10 +33,12 @@
  * @property string $syntax_highlighting
  * @property string $use_ssl
  */
+#[AllowDynamicProperties]
 class GC_User {
 	/**
 	 * User data container.
 	 *
+	 * @since 2.0.0
 	 * @var stdClass
 	 */
 	public $data;
@@ -54,6 +53,7 @@ class GC_User {
 	/**
 	 * Capabilities that the individual user has been granted outside of those inherited from their role.
 	 *
+	 * @since 2.0.0
 	 * @var bool[] Array of key/value pairs where keys represent a capability name
 	 *             and boolean values represent whether the user has that capability.
 	 */
@@ -62,6 +62,7 @@ class GC_User {
 	/**
 	 * User metadata option name.
 	 *
+	 * @since 2.0.0
 	 * @var string
 	 */
 	public $cap_key;
@@ -69,6 +70,7 @@ class GC_User {
 	/**
 	 * The roles the user is part of.
 	 *
+	 * @since 2.0.0
 	 * @var string[]
 	 */
 	public $roles = array();
@@ -76,6 +78,7 @@ class GC_User {
 	/**
 	 * All capabilities the user has, including individual and role based.
 	 *
+	 * @since 2.0.0
 	 * @var bool[] Array of key/value pairs where keys represent a capability name
 	 *             and boolean values represent whether the user has that capability.
 	 */
@@ -84,6 +87,7 @@ class GC_User {
 	/**
 	 * The filter context applied to user data fields.
 	 *
+	 * @since 2.9.0
 	 * @var string
 	 */
 	public $filter = null;
@@ -91,6 +95,7 @@ class GC_User {
 	/**
 	 * The site ID the capabilities of this user are initialized for.
 	 *
+	 * @since 4.9.0
 	 * @var int
 	 */
 	private $site_id = 0;
@@ -105,6 +110,7 @@ class GC_User {
 	 *
 	 * Retrieves the userdata and passes it to GC_User::init().
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param int|string|stdClass|GC_User $id      User's ID, a GC_User object, or a user object from the DB.
 	 * @param string                      $name    Optional. User's username
@@ -145,7 +151,7 @@ class GC_User {
 		if ( $data ) {
 			$this->init( $data, $site_id );
 		} else {
-			$this->data = new stdClass;
+			$this->data = new stdClass();
 		}
 	}
 
@@ -167,14 +173,15 @@ class GC_User {
 	}
 
 	/**
-	 * Return only the main user fields
+	 * Returns only the main user fields.
 	 *
+	 * @since 4.4.0 Added 'ID' as an alias of 'id' for the `$field` parameter.
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
 	 * @param string     $field The field to query against: 'id', 'ID', 'slug', 'email' or 'login'.
-	 * @param string|int $value The field value
-	 * @return object|false Raw user object
+	 * @param string|int $value The field value.
+	 * @return object|false Raw user object.
 	 */
 	public static function get_data_by( $field, $value ) {
 		global $gcdb;
@@ -185,8 +192,7 @@ class GC_User {
 		}
 
 		if ( 'id' === $field ) {
-			// Make sure the value is numeric to avoid casting objects, for example,
-			// to int 1.
+			// Make sure the value is numeric to avoid casting objects, for example, to int 1.
 			if ( ! is_numeric( $value ) ) {
 				return false;
 			}
@@ -214,10 +220,6 @@ class GC_User {
 			case 'email':
 				$user_id  = gc_cache_get( $value, 'useremail' );
 				$db_field = 'user_email';
-				break;
-			case 'mobile':
-				$user_id  = gc_cache_get( $value, 'usermobile' );
-				$db_field = 'user_mobile';
 				break;
 			case 'login':
 				$value    = sanitize_user( $value );
@@ -249,30 +251,6 @@ class GC_User {
 
 		return $user;
 	}
-
-
-	//获取有效的Session
-    public static function get_session($key){
-    	return get_option( '_session_'.$key, array() );
-    }
-    
-    //写入短信验证码的Session
-    //键+值+过期时间点
-    //GeChiUI本身不实现这个方法，而是给插件开发使用，例如短信验证码插件
-    public static function set_session($key, $value, $expiry=null){
-    	if(empty($expiry)) {
-    		//过期时间
-            $expiry = date('Y-m-d H:i:s',  strtotime(current_time( 'mysql' )) + (60*15));
-        }
-    	$session = array(
-                'session_key'         => $key,
-                'session_value'           => $value,
-                'session_expiry'          => $expiry,
-                'session_date' => current_time( 'mysql' )
-            );
-
-    	update_option('_session_'.$key, $session);
-    }
 
 	/**
 	 * Magic method for checking the existence of a certain custom field.
@@ -374,6 +352,7 @@ class GC_User {
 	/**
 	 * Magic method for unsetting a certain custom field.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $key User meta key to unset.
 	 */
@@ -400,8 +379,9 @@ class GC_User {
 	}
 
 	/**
-	 * Determine whether the user exists in the database.
+	 * Determines whether the user exists in the database.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @return bool True if user exists in the database, false if not.
 	 */
@@ -410,7 +390,7 @@ class GC_User {
 	}
 
 	/**
-	 * Retrieve the value of a property or meta key.
+	 * Retrieves the value of a property or meta key.
 	 *
 	 * Retrieves from the users and usermeta table.
 	 *
@@ -423,12 +403,12 @@ class GC_User {
 	}
 
 	/**
-	 * Determine whether a property or meta key is set
+	 * Determines whether a property or meta key is set.
 	 *
 	 * Consults the users and usermeta tables.
 	 *
 	 *
-	 * @param string $key Property
+	 * @param string $key Property.
 	 * @return bool
 	 */
 	public function has_prop( $key ) {
@@ -436,8 +416,9 @@ class GC_User {
 	}
 
 	/**
-	 * Return an array representation.
+	 * Returns an array representation.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @return array Array representation.
 	 */
@@ -448,6 +429,7 @@ class GC_User {
 	/**
 	 * Makes private/protected methods readable for backward compatibility.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param string $name      Method to call.
 	 * @param array  $arguments Arguments to pass when calling.
@@ -461,7 +443,7 @@ class GC_User {
 	}
 
 	/**
-	 * Set up capability object properties.
+	 * Sets up capability object properties.
 	 *
 	 * Will set the value for the 'cap_key' property to current database table
 	 * prefix, followed by 'capabilities'. Will then check to see if the
@@ -498,13 +480,14 @@ class GC_User {
 	 * capabilities. This means that the user can be denied specific capabilities that
 	 * their role might have, but the user is specifically denied.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @return bool[] Array of key/value pairs where keys represent a capability name
 	 *                and boolean values represent whether the user has that capability.
 	 */
 	public function get_role_caps() {
 		$switch_site = false;
-		if ( is_multisite() && get_current_blog_id() != $this->site_id ) {
+		if ( is_multisite() && get_current_blog_id() !== $this->site_id ) {
 			$switch_site = true;
 
 			switch_to_blog( $this->site_id );
@@ -533,15 +516,20 @@ class GC_User {
 	}
 
 	/**
-	 * Add role to user.
+	 * Adds role to user.
 	 *
 	 * Updates the user's meta data option with capabilities and roles.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $role Role name.
 	 */
 	public function add_role( $role ) {
 		if ( empty( $role ) ) {
+			return;
+		}
+
+		if ( in_array( $role, $this->roles, true ) ) {
 			return;
 		}
 
@@ -553,6 +541,7 @@ class GC_User {
 		/**
 		 * Fires immediately after the user has been given a new role.
 		 *
+		 * @since 4.3.0
 		 *
 		 * @param int    $user_id The user ID.
 		 * @param string $role    The new role.
@@ -561,8 +550,9 @@ class GC_User {
 	}
 
 	/**
-	 * Remove role from user.
+	 * Removes role from user.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $role Role name.
 	 */
@@ -570,6 +560,7 @@ class GC_User {
 		if ( ! in_array( $role, $this->roles, true ) ) {
 			return;
 		}
+
 		unset( $this->caps[ $role ] );
 		update_user_meta( $this->ID, $this->cap_key, $this->caps );
 		$this->get_role_caps();
@@ -578,6 +569,7 @@ class GC_User {
 		/**
 		 * Fires immediately after a role as been removed from a user.
 		 *
+		 * @since 4.3.0
 		 *
 		 * @param int    $user_id The user ID.
 		 * @param string $role    The removed role.
@@ -586,17 +578,18 @@ class GC_User {
 	}
 
 	/**
-	 * Set the role of the user.
+	 * Sets the role of the user.
 	 *
 	 * This will remove the previous roles of the user and assign the user the
 	 * new one. You can set the role to an empty string and it will remove all
 	 * of the roles from the user.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $role Role name.
 	 */
 	public function set_role( $role ) {
-		if ( 1 === count( $this->roles ) && current( $this->roles ) == $role ) {
+		if ( 1 === count( $this->roles ) && current( $this->roles ) === $role ) {
 			return;
 		}
 
@@ -605,19 +598,36 @@ class GC_User {
 		}
 
 		$old_roles = $this->roles;
+
 		if ( ! empty( $role ) ) {
 			$this->caps[ $role ] = true;
 			$this->roles         = array( $role => true );
 		} else {
-			$this->roles = false;
+			$this->roles = array();
 		}
+
 		update_user_meta( $this->ID, $this->cap_key, $this->caps );
 		$this->get_role_caps();
 		$this->update_user_level_from_caps();
 
+		foreach ( $old_roles as $old_role ) {
+			if ( ! $old_role || $old_role === $role ) {
+				continue;
+			}
+
+			/** This action is documented in gc-includes/class-gc-user.php */
+			do_action( 'remove_user_role', $this->ID, $old_role );
+		}
+
+		if ( $role && ! in_array( $role, $old_roles, true ) ) {
+			/** This action is documented in gc-includes/class-gc-user.php */
+			do_action( 'add_user_role', $this->ID, $role );
+		}
+
 		/**
 		 * Fires after the user's role has changed.
 		 *
+		 * @since 3.6.0 Added $old_roles to include an array of the user's previous roles.
 		 *
 		 * @param int      $user_id   The user ID.
 		 * @param string   $role      The new role.
@@ -627,7 +637,7 @@ class GC_User {
 	}
 
 	/**
-	 * Choose the maximum level the user has.
+	 * Chooses the maximum level the user has.
 	 *
 	 * Will compare the level from the $item parameter against the $max
 	 * parameter. If the item is incorrect, then just the $max parameter value
@@ -638,6 +648,7 @@ class GC_User {
 	 * then the capability 'level_10' will exist and the user will get that
 	 * value.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param int    $max  Max level of user.
 	 * @param string $item Level capability name.
@@ -653,12 +664,13 @@ class GC_User {
 	}
 
 	/**
-	 * Update the maximum user level for the user.
+	 * Updates the maximum user level for the user.
 	 *
 	 * Updates the 'user_level' user metadata (includes prefix that is the
 	 * database table prefix) with the maximum user level. Gets the value from
 	 * the all of the capabilities that the user has.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 */
@@ -669,8 +681,9 @@ class GC_User {
 	}
 
 	/**
-	 * Add capability and grant or deny access to capability.
+	 * Adds capability and grant or deny access to capability.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $cap   Capability name.
 	 * @param bool   $grant Whether to grant capability to user.
@@ -683,8 +696,9 @@ class GC_User {
 	}
 
 	/**
-	 * Remove capability from user.
+	 * Removes capability from user.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $cap Capability name.
 	 */
@@ -699,7 +713,7 @@ class GC_User {
 	}
 
 	/**
-	 * Remove all of the capabilities of the user.
+	 * Removes all of the capabilities of the user.
 	 *
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -728,6 +742,8 @@ class GC_User {
 	 * While checking against a role in place of a capability is supported in part, this practice is discouraged as it
 	 * may produce unreliable results.
 	 *
+	 * @since 2.0.0
+	 * @since 5.3.0 Formalized the existing and already documented `...$args` parameter
 	 *              by adding it to the function signature.
 	 *
 	 * @see map_meta_cap()
@@ -759,6 +775,8 @@ class GC_User {
 		/**
 		 * Dynamically filter a user's capabilities.
 		 *
+		 * @since 2.0.0
+		 * @since 3.7.0 Added the `$user` parameter.
 		 *
 		 * @param bool[]   $allcaps Array of key/value pairs where keys represent a capability name
 		 *                          and boolean values represent whether the user has that capability.
@@ -791,10 +809,11 @@ class GC_User {
 	}
 
 	/**
-	 * Convert numeric level to level capability name.
+	 * Converts numeric level to level capability name.
 	 *
 	 * Prepends 'level_' to level number.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param int $level Level number, 1 to 10.
 	 * @return string
@@ -804,7 +823,7 @@ class GC_User {
 	}
 
 	/**
-	 * Set the site to operate on. Defaults to the current site.
+	 * Sets the site to operate on. Defaults to the current site.
 	 *
 	 * @deprecated 4.9.0 Use GC_User::for_site()
 	 *
@@ -819,6 +838,7 @@ class GC_User {
 	/**
 	 * Sets the site to operate on. Defaults to the current site.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -843,6 +863,7 @@ class GC_User {
 	/**
 	 * Gets the ID of the site for which the user's capabilities are currently initialized.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @return int Site ID.
 	 */
@@ -853,9 +874,10 @@ class GC_User {
 	/**
 	 * Gets the available user capabilities data.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @return bool[] List of capabilities keyed by the capability name,
-	 *                e.g. array( 'edit_posts' => true, 'delete_posts' => false ).
+	 *                e.g. `array( 'edit_posts' => true, 'delete_posts' => false )`.
 	 */
 	private function get_caps_data() {
 		$caps = get_user_meta( $this->ID, $this->cap_key, true );

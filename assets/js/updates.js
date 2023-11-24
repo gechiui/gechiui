@@ -2,10 +2,10 @@
  * Functions for ajaxified updates, deletions and installs inside the GeChiUI admin.
  *
  * @version 4.2.0
- * @output gc-admin/js/updates.js
+ * @output assets/js/updates.js
  */
 
-/* global pagenow */
+/* global pagenow, _gcThemeSettings */
 
 /**
  * @param {jQuery}  $                                        jQuery object.
@@ -34,6 +34,7 @@
 		__ = gc.i18n.__,
 		_x = gc.i18n._x,
 		_n = gc.i18n._n,
+		_nx = gc.i18n._nx,
 		sprintf = gc.i18n.sprintf;
 
 	gc = gc || {};
@@ -41,6 +42,7 @@
 	/**
 	 * The GC Updates object.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @namespace gc.updates
 	 */
@@ -49,6 +51,7 @@
 	/**
 	 * Removed in 5.5.0, needed for back-compatibility.
 	 *
+	 * @since 4.2.0
 	 * @deprecated 5.5.0
 	 *
 	 * @type {object}
@@ -123,6 +126,7 @@
 	/**
 	 * User nonce for ajax calls.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @type {string}
 	 */
@@ -131,6 +135,7 @@
 	/**
 	 * Current search term.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @type {string}
 	 */
@@ -139,6 +144,7 @@
 	/**
 	 * Whether filesystem credentials need to be requested from the user.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @type {bool}
 	 */
@@ -147,6 +153,8 @@
 	/**
 	 * Filesystem credentials to be packaged along with the request.
 	 *
+	 * @since 4.2.0
+	 * @since 4.6.0 Added `available` property to indicate whether credentials have been provided.
 	 *
 	 * @type {Object}
 	 * @property {Object} filesystemCredentials.ftp                Holds FTP credentials.
@@ -180,6 +188,8 @@
 	/**
 	 * Whether we're waiting for an Ajax request to complete.
 	 *
+	 * @since 4.2.0
+	 * @since 4.6.0 More accurately named `ajaxLocked`.
 	 *
 	 * @type {bool}
 	 */
@@ -188,6 +198,7 @@
 	/**
 	 * Admin notice template.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @type {function}
 	 */
@@ -199,6 +210,8 @@
 	 * If the user tries to update a plugin while an update is
 	 * already happening, it can be placed in this queue to perform later.
 	 *
+	 * @since 4.2.0
+	 * @since 4.6.0 More accurately named `queue`.
 	 *
 	 * @type {Array.object}
 	 */
@@ -207,6 +220,7 @@
 	/**
 	 * Holds a jQuery reference to return focus to when exiting the request credentials modal.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @type {jQuery}
 	 */
@@ -215,6 +229,7 @@
 	/**
 	 * Adds or updates an admin notice.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object}  data
 	 * @param {*=}      data.selector      Optional. Selector of an element to be replaced with the admin notice.
@@ -257,6 +272,7 @@
 	/**
 	 * Handles Ajax requests to GeChiUI.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {string} action The type of Ajax request ('update-plugin', 'install-theme', etc).
 	 * @param {Object} data   Data that needs to be passed to the ajax callback.
@@ -306,6 +322,7 @@
 	/**
 	 * Actions performed after every Ajax request.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object}  response
 	 * @param {Array=}  response.debug     Optional. Debug information.
@@ -328,6 +345,7 @@
 	/**
 	 * Refreshes update counts everywhere on the screen.
 	 *
+	 * @since 4.7.0
 	 */
 	gc.updates.refreshCount = function() {
 		var $adminBarUpdates              = $( '#gc-admin-bar-updates' ),
@@ -340,7 +358,7 @@
 		$adminBarUpdates.find( '.updates-available-text' ).text(
 			sprintf(
 				/* translators: %s: Total number of updates available. */
-				_n( '有 %s 个更新可用', '有 %s 个更新可用', settings.totals.counts.total ),
+				_n( '有 %s 个更新可用', '%s个可用更新', settings.totals.counts.total ),
 				settings.totals.counts.total
 			)
 		);
@@ -401,6 +419,7 @@
 	 * This includes the toolbar, the "Updates" menu item and the menu items
 	 * for plugins and themes.
 	 *
+	 * @since 3.9.0
 	 *
 	 * @param {string} type The type of item that was updated or deleted.
 	 *                      Can be 'plugin', 'theme'.
@@ -420,6 +439,8 @@
 	/**
 	 * Sends an Ajax request to the server to update a plugin.
 	 *
+	 * @since 4.2.0
+	 * @since 4.6.0 More accurately named `updatePlugin`.
 	 *
 	 * @param {Object}               args         Arguments.
 	 * @param {string}               args.plugin  Plugin basename.
@@ -461,13 +482,13 @@
 
 		$adminBarUpdates.addClass( 'spin' );
 
-		if ( $message.html() !== __( '正在更新…' ) ) {
+		if ( $message.html() !== __( '正在更新...'  ) ) {
 			$message.data( 'originaltext', $message.html() );
 		}
 
 		$message
 			.attr( 'aria-label', message )
-			.text( __( '正在更新…' ) );
+			.text( __( '正在更新...'  ) );
 
 		$document.trigger( 'gc-plugin-updating', args );
 
@@ -477,6 +498,9 @@
 	/**
 	 * Updates the UI appropriately after a successful plugin update.
 	 *
+	 * @since 4.2.0
+	 * @since 4.6.0 More accurately named `updatePluginSuccess`.
+	 * @since 5.5.0 Auto-update "time to next update" text cleared.
 	 *
 	 * @param {Object} response            Response from the server.
 	 * @param {string} response.slug       Slug of the plugin to be updated.
@@ -491,7 +515,7 @@
 
 		if ( 'plugins' === pagenow || 'plugins-network' === pagenow ) {
 			$pluginRow     = $( 'tr[data-plugin="' + response.plugin + '"]' )
-				.removeClass( 'update' )
+				.removeClass( 'update is-enqueued' )
 				.addClass( 'updated' );
 			$updateMessage = $pluginRow.find( '.update-message' )
 				.removeClass( 'updating-message notice-warning' )
@@ -516,13 +540,13 @@
 				'aria-label',
 				sprintf(
 					/* translators: %s: Plugin name and version. */
-					_x( '%s已更新!', 'plugin' ),
+					_x( '%s updated!', 'plugin' ),
 					response.pluginName
 				)
 			)
 			.text( _x( '已更新！', 'plugin' ) );
 
-		gc.a11y.speak( __( '更新成功完成。' ) );
+		gc.a11y.speak( __( '更新成功完成。'  ) );
 
 		gc.updates.decrementCount( 'plugin' );
 
@@ -532,6 +556,8 @@
 	/**
 	 * Updates the UI appropriately after a failed plugin update.
 	 *
+	 * @since 4.2.0
+	 * @since 4.6.0 More accurately named `updatePluginError`.
 	 *
 	 * @param {Object}  response              Response from the server.
 	 * @param {string}  response.slug         Slug of the plugin to be updated.
@@ -541,7 +567,7 @@
 	 * @param {string}  response.errorMessage The error that occurred.
 	 */
 	gc.updates.updatePluginError = function( response ) {
-		var $card, $message, errorMessage,
+		var $pluginRow, $card, $message, errorMessage,
 			$adminBarUpdates = $( '#gc-admin-bar-updates' );
 
 		if ( ! gc.updates.isValidResponse( response, 'update' ) ) {
@@ -559,6 +585,8 @@
 		);
 
 		if ( 'plugins' === pagenow || 'plugins-network' === pagenow ) {
+			$pluginRow = $( 'tr[data-plugin="' + response.plugin + '"]' ).removeClass( 'is-enqueued' );
+
 			if ( response.plugin ) {
 				$message = $( 'tr[data-plugin="' + response.plugin + '"]' ).find( '.update-message' );
 			} else {
@@ -572,7 +600,7 @@
 						'aria-label',
 						sprintf(
 							/* translators: %s: Plugin name and version. */
-							_x( '%s更新失败。', 'plugin' ),
+							_x( '%s个更新失败。', 'plugin' ),
 							response.pluginName
 						)
 					);
@@ -597,7 +625,7 @@
 						'aria-label',
 						sprintf(
 							/* translators: %s: Plugin name and version. */
-							_x( '%s更新失败。', 'plugin' ),
+							_x( '%s个更新失败。', 'plugin' ),
 							response.pluginName
 						)
 					);
@@ -630,6 +658,7 @@
 	/**
 	 * Sends an Ajax request to the server to install a plugin.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object}                args         Arguments.
 	 * @param {string}                args.slug    Plugin identifier in the www.GeChiUI.com Plugin repository.
@@ -651,7 +680,7 @@
 			$message = $( '[data-slug="' + args.slug + '"]' );
 		}
 
-		if ( $message.html() !== __( '正在安装…' ) ) {
+		if ( $message.html() !== __( '正在安装...' ) ) {
 			$message.data( 'originaltext', $message.html() );
 		}
 
@@ -665,9 +694,9 @@
 					$message.data( 'name' )
 				)
 			)
-			.text( __( '正在安装…' ) );
+			.text( __( '正在安装...' ) );
 
-		gc.a11y.speak( __( '正在安装…请稍等。' ) );
+		gc.a11y.speak( __( '正在安装... 请稍候。' ) );
 
 		// Remove previous error messages, if any.
 		$card.removeClass( 'plugin-card-install-failed' ).find( '.notice.notice-error' ).remove();
@@ -680,6 +709,7 @@
 	/**
 	 * Updates the UI appropriately after a successful plugin install.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object} response             Response from the server.
 	 * @param {string} response.slug        Slug of the installed plugin.
@@ -696,7 +726,7 @@
 				'aria-label',
 				sprintf(
 					/* translators: %s: Plugin name and version. */
-					_x( '%s已安装！', 'plugin' ),
+					_x( '%s installed!', 'plugin' ),
 					response.pluginName
 				)
 			)
@@ -720,18 +750,18 @@
 							'aria-label',
 							sprintf(
 								/* translators: %s: Plugin name. */
-								_x( '站群激活%s', 'plugin' ),
+								_x( '在系统网络中启用%s', 'plugin' ),
 								response.pluginName
 							)
 						)
-						.text( __( '在站点网络中启用' ) );
+						.text( __( '在系统网络中启用' ) );
 				} else {
 					$message
 						.attr(
 							'aria-label',
 							sprintf(
 								/* translators: %s: Plugin name. */
-								_x( '激活%s', 'plugin' ),
+								_x( '启用 %s', 'plugin' ),
 								response.pluginName
 							)
 						)
@@ -744,6 +774,7 @@
 	/**
 	 * Updates the UI appropriately after a failed plugin install.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object}  response              Response from the server.
 	 * @param {string}  response.slug         Slug of the plugin to be installed.
@@ -790,7 +821,7 @@
 				'aria-label',
 				sprintf(
 					/* translators: %s: Plugin name and version. */
-					_x( '%s安装失败', 'plugin' ),
+					_x( '%s installation failed', 'plugin' ),
 					$button.data( 'name' )
 				)
 			)
@@ -804,6 +835,7 @@
 	/**
 	 * Updates the UI appropriately after a successful importer install.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object} response             Response from the server.
 	 * @param {string} response.slug        Slug of the installed plugin.
@@ -816,7 +848,7 @@
 			className: 'notice-success is-dismissible',
 			message:   sprintf(
 				/* translators: %s: Activation URL. */
-				__( '' ),
+				__( '导入器安装成功。<a href=“%s”>运行导入器</a>' ),
 				response.activateUrl + '&from=import'
 			)
 		} );
@@ -842,6 +874,7 @@
 	/**
 	 * Updates the UI appropriately after a failed importer install.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object}  response              Response from the server.
 	 * @param {string}  response.slug         Slug of the plugin to be installed.
@@ -892,6 +925,7 @@
 	/**
 	 * Sends an Ajax request to the server to delete a plugin.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object}               args         Arguments.
 	 * @param {string}               args.plugin  Basename of the plugin to be deleted.
@@ -909,13 +943,13 @@
 			error: gc.updates.deletePluginError
 		}, args );
 
-		if ( $link.html() !== __( '删除中…' ) ) {
+		if ( $link.html() !== __( '正在删除...'  ) ) {
 			$link
 				.data( 'originaltext', $link.html() )
-				.text( __( '删除中…' ) );
+				.text( __( '正在删除...'  ) );
 		}
 
-		gc.a11y.speak( __( '删除中…' ) );
+		gc.a11y.speak( __( '正在删除...'  ) );
 
 		$document.trigger( 'gc-plugin-deleting', args );
 
@@ -925,6 +959,7 @@
 	/**
 	 * Updates the UI appropriately after a successful plugin deletion.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object} response            Response from the server.
 	 * @param {string} response.slug       Slug of the plugin that was deleted.
@@ -938,6 +973,8 @@
 			var $form            = $( '#bulk-action-form' ),
 				$views           = $( '.subsubsub' ),
 				$pluginRow       = $( this ),
+				$currentView     = $views.find( '[aria-current="page"]' ),
+				$itemsCount      = $( '.displaying-num' ),
 				columnCount      = $form.find( 'thead th:not(.hidden), thead td' ).length,
 				pluginDeletedRow = gc.template( 'item-deleted-row' ),
 				/**
@@ -945,7 +982,8 @@
 				 *
 				 * @type {Object}
 				 */
-				plugins          = settings.plugins;
+				plugins          = settings.plugins,
+				remainingCount;
 
 			// Add a success message after deleting a plugin.
 			if ( ! $pluginRow.hasClass( 'plugin-update-tr' ) ) {
@@ -1025,6 +1063,17 @@
 					$form.find( '#the-list' ).append( '<tr class="no-items"><td class="colspanchange" colspan="' + columnCount + '">' + __( '当前没有可用的插件。' ) + '</td></tr>' );
 				}
 			}
+
+			if ( $itemsCount.length && $currentView.length ) {
+				remainingCount = plugins[ $currentView.parent( 'li' ).attr('class') ].length;
+				$itemsCount.text(
+					sprintf(
+						/* translators: %s: The remaining number of plugins. */
+						_nx( '%s个项目', '%s items', 'plugin/plugins', remainingCount ),
+						remainingCount
+					)
+				);
+			}
 		} );
 
 		gc.a11y.speak( _x( '已删除！', 'plugin' ) );
@@ -1035,6 +1084,7 @@
 	/**
 	 * Updates the UI appropriately after a failed plugin deletion.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object}  response              Response from the server.
 	 * @param {string}  response.slug         Slug of the plugin to be deleted.
@@ -1091,6 +1141,7 @@
 	/**
 	 * Sends an Ajax request to the server to update a theme.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object}              args         Arguments.
 	 * @param {string}              args.slug    Theme stylesheet.
@@ -1130,12 +1181,12 @@
 			$notice = $notice.addClass( 'updating-message' ).find( 'p' );
 		}
 
-		if ( $notice.html() !== __( '正在更新…' ) ) {
+		if ( $notice.html() !== __( '正在更新...'  ) ) {
 			$notice.data( 'originaltext', $notice.html() );
 		}
 
-		gc.a11y.speak( __( '更新中…请稍等。' ) );
-		$notice.text( __( '正在更新…' ) );
+		gc.a11y.speak( __( '正在更新... 请稍候。' ) );
+		$notice.text( __( '正在更新...'  ) );
 
 		$document.trigger( 'gc-theme-updating', args );
 
@@ -1145,6 +1196,8 @@
 	/**
 	 * Updates the UI appropriately after a successful theme update.
 	 *
+	 * @since 4.6.0
+	 * @since 5.5.0 Auto-update "time to next update" text cleared.
 	 *
 	 * @param {Object} response
 	 * @param {string} response.slug       Slug of the theme to be updated.
@@ -1194,7 +1247,7 @@
 		}
 
 		gc.updates.addAdminNotice( _.extend( { selector: $notice }, updatedMessage ) );
-		gc.a11y.speak( __( '更新成功完成。' ) );
+		gc.a11y.speak( __( '更新成功完成。'  ) );
 
 		gc.updates.decrementCount( 'theme' );
 
@@ -1209,6 +1262,7 @@
 	/**
 	 * Updates the UI appropriately after a failed theme update.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object} response              Response from the server.
 	 * @param {string} response.slug         Slug of the theme to be updated.
@@ -1258,6 +1312,7 @@
 	/**
 	 * Sends an Ajax request to the server to install a theme.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object}               args
 	 * @param {string}               args.slug    Theme stylesheet.
@@ -1276,7 +1331,7 @@
 
 		$message.addClass( 'updating-message' );
 		$message.parents( '.theme' ).addClass( 'focus' );
-		if ( $message.html() !== __( '正在安装…' ) ) {
+		if ( $message.html() !== __( '正在安装...' ) ) {
 			$message.data( 'originaltext', $message.html() );
 		}
 
@@ -1289,9 +1344,9 @@
 					$message.data( 'name' )
 				)
 			)
-			.text( __( '正在安装…' ) );
+			.text( __( '正在安装...' ) );
 
-		gc.a11y.speak( __( '正在安装…请稍等。' ) );
+		gc.a11y.speak( __( '正在安装... 请稍候。' ) );
 
 		// Remove previous error messages, if any.
 		$( '.install-theme-info, [data-slug="' + args.slug + '"]' ).removeClass( 'theme-install-failed' ).find( '.notice.notice-error' ).remove();
@@ -1304,6 +1359,7 @@
 	/**
 	 * Updates the UI appropriately after a successful theme install.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object} response              Response from the server.
 	 * @param {string} response.slug         Slug of the theme to be installed.
@@ -1323,7 +1379,7 @@
 				'aria-label',
 				sprintf(
 					/* translators: %s: Theme name and version. */
-					_x( '%s已安装！', 'theme' ),
+					_x( '%s installed!', 'theme' ),
 					response.themeName
 				)
 			)
@@ -1347,18 +1403,18 @@
 							'aria-label',
 							sprintf(
 								/* translators: %s: Theme name. */
-								_x( '站群激活%s', 'theme' ),
+								_x( '在系统网络中启用%s', 'theme' ),
 								response.themeName
 							)
 						)
-						.text( __( '在站点网络中启用' ) );
+						.text( __( '在系统网络中启用' ) );
 				} else {
 					$message
 						.attr(
 							'aria-label',
 							sprintf(
 								/* translators: %s: Theme name. */
-								_x( '激活%s', 'theme' ),
+								_x( '启用 %s', 'theme' ),
 								response.themeName
 							)
 						)
@@ -1368,7 +1424,7 @@
 
 			if ( response.customizeUrl ) {
 
-				// Transform the 'Preview' button into a 'Live Preview' button.
+				// Transform the 'Preview' button into a '实时预览' button.
 				$message.siblings( '.preview' ).replaceWith( function () {
 					return $( '<a>' )
 						.attr( 'href', response.customizeUrl )
@@ -1382,6 +1438,7 @@
 	/**
 	 * Updates the UI appropriately after a failed theme install.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object} response              Response from the server.
 	 * @param {string} response.slug         Slug of the theme to be installed.
@@ -1433,7 +1490,7 @@
 				'aria-label',
 				sprintf(
 					/* translators: %s: Theme name and version. */
-					_x( '%s安装失败', 'theme' ),
+					_x( '%s installation failed', 'theme' ),
 					$button.data( 'name' )
 				)
 			)
@@ -1447,6 +1504,7 @@
 	/**
 	 * Sends an Ajax request to the server to delete a theme.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object}              args
 	 * @param {string}              args.slug    Theme stylesheet.
@@ -1469,13 +1527,13 @@
 			error: gc.updates.deleteThemeError
 		}, args );
 
-		if ( $button && $button.html() !== __( '删除中…' ) ) {
+		if ( $button && $button.html() !== __( '正在删除...'  ) ) {
 			$button
 				.data( 'originaltext', $button.html() )
-				.text( __( '删除中…' ) );
+				.text( __( '正在删除...'  ) );
 		}
 
-		gc.a11y.speak( __( '删除中…' ) );
+		gc.a11y.speak( __( '正在删除...'  ) );
 
 		// Remove previous error messages, if any.
 		$( '.theme-info .update-message' ).remove();
@@ -1488,6 +1546,7 @@
 	/**
 	 * Updates the UI appropriately after a successful theme deletion.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object} response      Response from the server.
 	 * @param {string} response.slug Slug of the theme that was deleted.
@@ -1557,6 +1616,14 @@
 			} );
 		}
 
+		// DecrementCount from update count.
+		if ( 'themes' === pagenow ) {
+		    var theme = _.find( _gcThemeSettings.themes, { id: response.slug } );
+		    if ( theme.hasUpdate ) {
+		        gc.updates.decrementCount( 'theme' );
+		    }
+		}
+
 		gc.a11y.speak( _x( '已删除！', 'theme' ) );
 
 		$document.trigger( 'gc-theme-delete-success', response );
@@ -1565,6 +1632,7 @@
 	/**
 	 * Updates the UI appropriately after a failed theme deletion.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object} response              Response from the server.
 	 * @param {string} response.slug         Slug of the theme to be deleted.
@@ -1618,6 +1686,7 @@
 	/**
 	 * Adds the appropriate callback based on the type of action and the current page.
 	 *
+	 * @since 4.6.0
 	 * @private
 	 *
 	 * @param {Object} data   Ajax payload.
@@ -1636,6 +1705,8 @@
 	/**
 	 * Pulls available jobs from the queue and runs them.
 	 *
+	 * @since 4.2.0
+	 * @since 4.6.0 Can handle multiple job types.
 	 */
 	gc.updates.queueChecker = function() {
 		var job;
@@ -1680,6 +1751,7 @@
 	/**
 	 * Requests the users filesystem credentials if they aren't already known.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param {Event=} event Optional. Event interface.
 	 */
@@ -1701,6 +1773,7 @@
 	/**
 	 * Requests the users filesystem credentials if needed and there is no lock.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Event=} event Optional. Event interface.
 	 */
@@ -1716,6 +1789,7 @@
 	 * Closes the modal when the escape key is pressed and
 	 * constrains keyboard navigation to inside the modal.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param {Event} event Event interface.
 	 */
@@ -1740,6 +1814,7 @@
 	/**
 	 * Opens the request for credentials modal.
 	 *
+	 * @since 4.2.0
 	 */
 	gc.updates.requestForCredentialsModalOpen = function() {
 		var $modal = $( '#request-filesystem-credentials-dialog' );
@@ -1753,6 +1828,7 @@
 	/**
 	 * Closes the request for credentials modal.
 	 *
+	 * @since 4.2.0
 	 */
 	gc.updates.requestForCredentialsModalClose = function() {
 		$( '#request-filesystem-credentials-dialog' ).hide();
@@ -1766,6 +1842,8 @@
 	/**
 	 * Takes care of the steps that need to happen when the modal is canceled out.
 	 *
+	 * @since 4.2.0
+	 * @since 4.6.0 Triggers an event for callbacks to listen to and add their actions.
 	 */
 	gc.updates.requestForCredentialsModalCancel = function() {
 
@@ -1788,6 +1866,7 @@
 	/**
 	 * Displays an error message in the request for credentials form.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param {string} message Error message.
 	 */
@@ -1802,6 +1881,7 @@
 	/**
 	 * Handles credential errors and runs events that need to happen in that case.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param {Object} response Ajax response.
 	 * @param {string} action   The type of request to perform.
@@ -1829,6 +1909,7 @@
 	/**
 	 * Handles credentials errors if it could not connect to the filesystem.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param {Object} response              Response from the server.
 	 * @param {string} response.errorCode    Error code for the error that occurred.
@@ -1871,7 +1952,7 @@
 		} else if ( _.isString( response ) ) {
 			error = response;
 		} else if ( 'undefined' !== typeof response.readyState && 0 === response.readyState ) {
-			error = __( '连接丢失或服务器忙，请稍后再试。' );
+			error = __( '连接丢失或服务器正忙。请稍后再试。' );
 		} else if ( _.isString( response.responseText ) && '' !== response.responseText ) {
 			error = response.responseText;
 		} else if ( _.isString( response.statusText ) ) {
@@ -1935,10 +2016,11 @@
 	 * If an update is on-going and a user attempts to leave the page,
 	 * opens an "Are you sure?" alert.
 	 *
+	 * @since 4.2.0
 	 */
 	gc.updates.beforeunload = function() {
 		if ( gc.updates.ajaxLocked ) {
-			return __( '如果您离开此页，插件更新或不会完成。' );
+			return __( '如果您离开此页面，则更新可能无法完成。' );
 		}
 	};
 
@@ -1968,6 +2050,7 @@
 		/**
 		 * File system credentials form submit noop-er / handler.
 		 *
+		 * @since 4.2.0
 		 */
 		$filesystemModal.on( 'submit', 'form', function( event ) {
 			event.preventDefault();
@@ -1992,12 +2075,14 @@
 		/**
 		 * Closes the request credentials modal when clicking the 'Cancel' button or outside of the modal.
 		 *
+		 * @since 4.2.0
 		 */
 		$filesystemModal.on( 'click', '[data-js-action="close"], .notification-dialog-background', gc.updates.requestForCredentialsModalCancel );
 
 		/**
 		 * Hide SSH fields when not selected.
 		 *
+		 * @since 4.2.0
 		 */
 		$filesystemForm.on( 'change', 'input[name="connection_type"]', function() {
 			$( '#ssh-keys' ).toggleClass( 'hidden', ( 'ssh' !== $( this ).val() ) );
@@ -2006,6 +2091,7 @@
 		/**
 		 * Handles events after the credential modal was closed.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param {Event}  event Event interface.
 		 * @param {string} job   The install/update.delete request.
@@ -2074,6 +2160,7 @@
 		/**
 		 * Click handler for plugin updates in List Table view.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @param {Event} event Event interface.
 		 */
@@ -2100,6 +2187,7 @@
 		/**
 		 * Click handler for plugin updates in plugin install view.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @param {Event} event Event interface.
 		 */
@@ -2122,6 +2210,7 @@
 		/**
 		 * Click handler for plugin installs in plugin install view.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param {Event} event Event interface.
 		 */
@@ -2155,6 +2244,7 @@
 		/**
 		 * Click handler for importer plugins installs in the Import screen.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param {Event} event Event interface.
 		 */
@@ -2200,6 +2290,7 @@
 		/**
 		 * Click handler for plugin deletions.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param {Event} event Event interface.
 		 */
@@ -2210,7 +2301,7 @@
 			if ( $pluginRow.hasClass( 'is-uninstallable' ) ) {
 				confirmMessage = sprintf(
 					/* translators: %s: Plugin name. */
-					__( '您确定要删除%s及其数据吗？' ),
+					__( '确实要删除%s及其数据吗？' ),
 					$pluginRow.find( '.plugin-title strong' ).text()
 				);
 			} else {
@@ -2239,6 +2330,7 @@
 		/**
 		 * Click handler for theme updates.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param {Event} event Event interface.
 		 */
@@ -2264,6 +2356,7 @@
 		/**
 		 * Click handler for theme deletions.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param {Event} event Event interface.
 		 */
@@ -2293,6 +2386,7 @@
 		 *
 		 * Handles both deletions and updates.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param {Event} event Event interface.
 		 */
@@ -2327,7 +2421,7 @@
 				return gc.updates.addAdminNotice( {
 					id:        'no-items-selected',
 					className: 'notice-error is-dismissible',
-					message:   __( '请为此操作选择至少一个项目。' )
+					message:   __( '请至少选择一个项目来执行此操作。')
 				} );
 			}
 
@@ -2339,8 +2433,8 @@
 
 				case 'delete-selected':
 					var confirmMessage = 'plugin' === type ?
-						__( '您确定要删除选中的插件及其数据吗？' ) :
-						__( '注意：这些主题可能已在站点网络中的其他站点上启用，您确定要继续？' );
+						__( '您确定要删除所选插件及其数据吗？' ) :
+						__( '提示：这些主题可能在网络中的其他系统上很活跃。' );
 
 					if ( ! window.confirm( confirmMessage ) ) {
 						event.preventDefault();
@@ -2375,6 +2469,13 @@
 					$checkbox.prop( 'checked', false );
 					return;
 				}
+
+				// Don't add items to the update queue again, even if the user clicks the update button several times.
+				if ( 'update-selected' === bulkAction && $itemRow.hasClass( 'is-enqueued' ) ) {
+					return;
+				}
+
+				$itemRow.addClass( 'is-enqueued' );
 
 				// Add it to the queue.
 				gc.updates.queue.push( {
@@ -2444,13 +2545,14 @@
 		 * Handles changes to the plugin search box on the new-plugin page,
 		 * searching the repository dynamically.
 		 *
+		 * @since 4.6.0
 		 */
 		$pluginInstallSearch.on( 'keyup input', _.debounce( function( event, eventtype ) {
 			var $searchTab = $( '.plugin-install-search' ), data, searchLocation;
 
 			data = {
 				_ajax_nonce: gc.updates.ajaxNonce,
-				s:           event.target.value,
+				s:           encodeURIComponent( event.target.value ),
 				tab:         'search',
 				type:        $( '#typeselector' ).val(),
 				pagenow:     pagenow
@@ -2501,12 +2603,12 @@
 				delete gc.updates.searchRequest;
 
 				if ( 0 === response.count ) {
-					gc.a11y.speak( __( '您现在还没有任何插件。' ) );
+					gc.a11y.speak( __( '您目前似乎没有任何可用的插件。' ) );
 				} else {
 					gc.a11y.speak(
 						sprintf(
 							/* translators: %s: Number of plugins. */
-							__( '找到的插件数： %d' ),
+							__( '找到的插件数量：%d' ),
 							response.count
 						)
 					);
@@ -2522,11 +2624,12 @@
 		 * Handles changes to the plugin search box on the Installed Plugins screen,
 		 * searching the plugin list dynamically.
 		 *
+		 * @since 4.6.0
 		 */
 		$pluginSearch.on( 'keyup input', _.debounce( function( event ) {
 			var data = {
 				_ajax_nonce:   gc.updates.ajaxNonce,
-				s:             event.target.value,
+				s:             encodeURIComponent( event.target.value ),
 				pagenow:       pagenow,
 				plugin_status: 'all'
 			},
@@ -2568,7 +2671,7 @@
 					sprintf(
 						/* translators: %s: Search query. */
 						__( '搜索结果：%s' ),
-						'<strong>' + _.escape( data.s ) + '</strong>'
+						'<strong>' + _.escape( decodeURIComponent( data.s ) ) + '</strong>'
 					) ),
 					$oldSubTitle = $( '.wrap .subtitle' );
 
@@ -2591,7 +2694,7 @@
 					gc.a11y.speak(
 						sprintf(
 							/* translators: %s: Number of plugins. */
-							__( '找到的插件数： %d' ),
+							__( '找到的插件数量：%d' ),
 							response.count
 						)
 					);
@@ -2602,6 +2705,7 @@
 		/**
 		 * Trigger a search event when the search form gets submitted.
 		 *
+		 * @since 4.6.0
 		 */
 		$document.on( 'submit', '.search-plugins', function( event ) {
 			event.preventDefault();
@@ -2610,8 +2714,9 @@
 		} );
 
 		/**
-		 * Trigger a search event when the "Try Again" button is clicked.
+		 * Trigger a search event when the "重试" button is clicked.
 		 *
+		 * @since 4.9.0
 		 */
 		$document.on( 'click', '.try-again', function( event ) {
 			event.preventDefault();
@@ -2621,6 +2726,7 @@
 		/**
 		 * Trigger a search event when the search type gets changed.
 		 *
+		 * @since 4.6.0
 		 */
 		$( '#typeselector' ).on( 'change', function() {
 			var $search = $( 'input[name="s"]' );
@@ -2633,6 +2739,7 @@
 		/**
 		 * Click handler for updating a plugin from the details modal on `plugin-install.php`.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @param {Event} event Event interface.
 		 */
@@ -2662,6 +2769,7 @@
 		/**
 		 * Click handler for installing a plugin from the details modal on `plugin-install.php`.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param {Event} event Event interface.
 		 */
@@ -2690,6 +2798,8 @@
 		/**
 		 * Handles postMessage events.
 		 *
+		 * @since 4.2.0
+		 * @since 4.6.0 Switched `update-plugin` action to use the queue.
 		 *
 		 * @param {Event} event Event interface.
 		 */
@@ -2737,12 +2847,14 @@
 		/**
 		 * Adds a callback to display a warning before leaving the page.
 		 *
+		 * @since 4.2.0
 		 */
 		$( window ).on( 'beforeunload', gc.updates.beforeunload );
 
 		/**
 		 * Prevents the page form scrolling when activating auto-updates with the Spacebar key.
 		 *
+		 * @since 5.5.0
 		 */
 		$document.on( 'keydown', '.column-auto-updates .toggle-auto-update, .theme-overlay .toggle-auto-update', function( event ) {
 			if ( 32 === event.which ) {
@@ -2757,6 +2869,7 @@
 		 * we want them to behave like buttons. An ARIA role `button` is added via
 		 * the JavaScript that targets elements with the CSS class `aria-button-if-js`.
 		 *
+		 * @since 5.5.0
 		 */
 		$document.on( 'click keyup', '.column-auto-updates .toggle-auto-update, .theme-overlay .toggle-auto-update', function( event ) {
 			var data, asset, type, $parent,
@@ -2804,9 +2917,9 @@
 
 			// Show loading status.
 			if ( 'enable' === action ) {
-				$label.text( __( '正在启用…' ) );
+				$label.text( __( '正在启用...'  ) );
 			} else {
-				$label.text( __( '正在禁用…' ) );
+				$label.text( __( '正在禁用...'  ) );
 			}
 
 			$toggler.find( '.dashicons-update' ).removeClass( 'hidden' );
@@ -2830,7 +2943,7 @@
 						if ( response.data && response.data.error ) {
 							errorMessage = response.data.error;
 						} else {
-							errorMessage = __( '该请求无法完成。' );
+							errorMessage = __( '请求无法完成。'  );
 						}
 
 						$parent.find( '.notice.notice-error' ).removeClass( 'hidden' ).find( 'p' ).text( errorMessage );
@@ -2894,9 +3007,9 @@
 					$parent.find( '.notice.notice-error' )
 						.removeClass( 'hidden' )
 						.find( 'p' )
-						.text( __( '该请求无法完成。' ) );
+						.text( __( '请求无法完成。'  ) );
 
-					gc.a11y.speak( __( '该请求无法完成。' ), 'assertive' );
+					gc.a11y.speak( __( '请求无法完成。'  ), 'assertive' );
 				} )
 				.always( function() {
 					$toggler.removeAttr( 'data-doing-ajax' ).find( '.dashicons-update' ).addClass( 'hidden' );

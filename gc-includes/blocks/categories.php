@@ -14,7 +14,7 @@
  */
 function render_block_core_categories( $attributes ) {
 	static $block_id = 0;
-	$block_id++;
+	++$block_id;
 
 	$args = array(
 		'echo'         => false,
@@ -22,6 +22,7 @@ function render_block_core_categories( $attributes ) {
 		'orderby'      => 'name',
 		'show_count'   => ! empty( $attributes['showPostCounts'] ),
 		'title_li'     => '',
+		'hide_empty'   => empty( $attributes['showEmpty'] ),
 	);
 	if ( ! empty( $attributes['showOnlyTopLevel'] ) && $attributes['showOnlyTopLevel'] ) {
 		$args['parent'] = 0;
@@ -31,7 +32,7 @@ function render_block_core_categories( $attributes ) {
 		$id                       = 'gc-block-categories-' . $block_id;
 		$args['id']               = $id;
 		$args['show_option_none'] = __( '选择分类' );
-		$wrapper_markup           = '<div %1$s><label class="screen-reader-text" for="' . $id . '">' . __( '分类' ) . '</label>%2$s</div>';
+		$wrapper_markup           = '<div %1$s><label class="screen-reader-text" for="' . esc_attr( $id ) . '">' . __( '分类目录' ) . '</label>%2$s</div>';
 		$items_markup             = gc_dropdown_categories( $args );
 		$type                     = 'dropdown';
 
@@ -75,7 +76,7 @@ function build_dropdown_script_block_core_categories( $dropdown_id ) {
 		var dropdown = document.getElementById( '<?php echo esc_js( $dropdown_id ); ?>' );
 		function onCatChange() {
 			if ( dropdown.options[ dropdown.selectedIndex ].value > 0 ) {
-				location.href = "<?php echo home_url(); ?>/?cat=" + dropdown.options[ dropdown.selectedIndex ].value;
+				location.href = "<?php echo esc_url( home_url() ); ?>/?cat=" + dropdown.options[ dropdown.selectedIndex ].value;
 			}
 		}
 		dropdown.onchange = onCatChange;
@@ -91,7 +92,7 @@ function build_dropdown_script_block_core_categories( $dropdown_id ) {
  */
 function register_block_core_categories() {
 	register_block_type_from_metadata(
-		ABSPATH . 'assets/blocks/categories',
+		__DIR__ . '/categories',
 		array(
 			'render_callback' => 'render_block_core_categories',
 		)

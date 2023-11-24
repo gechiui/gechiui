@@ -14,12 +14,12 @@ var hr = (function () {
     var register$1 = function (editor) {
       editor.addButton('hr', {
         icon: 'hr',
-        tooltip: 'Horizontal line',
+        tooltip: '水平线',
         cmd: 'InsertHorizontalRule'
       });
       editor.addMenuItem('hr', {
         icon: 'hr',
-        text: 'Horizontal line',
+        text: '水平线',
         cmd: 'InsertHorizontalRule',
         context: 'insert'
       });

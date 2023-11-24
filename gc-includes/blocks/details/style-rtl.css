@@ -1,0 +1,17 @@
+.gc-block-details{
+  box-sizing:border-box;
+  overflow:hidden;
+}
+
+.gc-block-details summary{
+  cursor:pointer;
+}
+
+.gc-block-details>:not(summary){
+  margin-block-end:0;
+  margin-block-start:var(--gc--style--block-gap);
+}
+
+.gc-block-details>:last-child{
+  margin-bottom:0;
+}

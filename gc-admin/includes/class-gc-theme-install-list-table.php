@@ -4,14 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Core class used to implement displaying themes to install in a list table.
- *
- *
- * @access private
  *
  * @see GC_Themes_List_Table
  */
@@ -74,6 +70,7 @@ class GC_Theme_Install_List_Table extends GC_Themes_List_Table {
 		/**
 		 * Filters tabs not associated with a menu item on the Install Themes screen.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param string[] $nonmenu_tabs The tabs that don't have a menu item on
 		 *                               the Install Themes screen.
@@ -142,6 +139,7 @@ class GC_Theme_Install_List_Table extends GC_Themes_List_Table {
 		 *  - `install_themes_table_api_args_updated`
 		 *  - `install_themes_table_api_args_upload`
 		 *
+		 * @since 3.7.0
 		 *
 		 * @param array|false $args Theme install API arguments.
 		 */
@@ -184,12 +182,14 @@ class GC_Theme_Install_List_Table extends GC_Themes_List_Table {
 
 		$display_tabs = array();
 		foreach ( (array) $tabs as $action => $text ) {
-			$current_link_attributes                    = ( $action === $tab ) ? ' class="current" aria-current="page"' : '';
-			$href                                       = self_admin_url( 'theme-install.php?tab=' . $action );
-			$display_tabs[ 'theme-install-' . $action ] = "<a href='$href'$current_link_attributes>$text</a>";
+			$display_tabs[ 'theme-install-' . $action ] = array(
+				'url'     => self_admin_url( 'theme-install.php?tab=' . $action ),
+				'label'   => $text,
+				'current' => $action === $tab,
+			);
 		}
 
-		return $display_tabs;
+		return $this->get_views_links( $display_tabs );
 	}
 
 	/**
@@ -207,7 +207,7 @@ class GC_Theme_Install_List_Table extends GC_Themes_List_Table {
 				/**
 				 * Fires in the Install Themes list table header.
 				 *
-			
+				 * @since 2.8.0
 				 */
 				do_action( 'install_themes_table_header' );
 				?>
@@ -250,15 +250,15 @@ class GC_Theme_Install_List_Table extends GC_Themes_List_Table {
 	 * @param stdClass $theme {
 	 *     An object that contains theme data returned by the www.GeChiUI.com API.
 	 *
-	 *     @type string $name           Theme name, e.g. '格尺OA办公'.
-	 *     @type string $slug           Theme slug, e.g. 'gcoa'.
-	 *     @type string $version        Theme version, e.g. '1.0.1'.
-	 *     @type string $author         Theme author username, e.g. 'gechiui'.
+	 *     @type string $name           Theme name, e.g. 'Twenty Twenty-One'.
+	 *     @type string $slug           Theme slug, e.g. 'twentytwentyone'.
+	 *     @type string $version        Theme version, e.g. '1.1'.
+	 *     @type string $author         Theme author username, e.g. 'melchoyce'.
 	 *     @type string $preview_url    Preview URL, e.g. 'https://2021.gechiui.net/'.
-	 *     @type string $screenshot_url Screenshot URL, e.g. 'https://www.gechiui.com/themes/gcoa/'.
+	 *     @type string $screenshot_url Screenshot URL, e.g. 'https://www.gechiui.com/themes/twentytwentyone/'.
 	 *     @type float  $rating         Rating score.
 	 *     @type int    $num_ratings    The number of ratings.
-	 *     @type string $homepage       Theme homepage, e.g. 'https://www.gechiui.com/themes/gcoa/'.
+	 *     @type string $homepage       Theme homepage, e.g. 'https://www.gechiui.com/themes/twentytwentyone/'.
 	 *     @type string $description    Theme description.
 	 *     @type string $download_link  Theme ZIP download URL.
 	 * }
@@ -274,7 +274,7 @@ class GC_Theme_Install_List_Table extends GC_Themes_List_Table {
 		$author = gc_kses( $theme->author, $themes_allowedtags );
 
 		/* translators: %s: Theme name. */
-		$preview_title = sprintf( __( '预览“%s”' ), $name );
+		$preview_title = sprintf( __( '预览『%s』' ), $name );
 		$preview_url   = add_query_arg(
 			array(
 				'tab'   => 'theme-information',
@@ -344,6 +344,7 @@ class GC_Theme_Install_List_Table extends GC_Themes_List_Table {
 		/**
 		 * Filters the install action links for a theme in the Install Themes list table.
 		 *
+		 * @since 3.4.0
 		 *
 		 * @param string[] $actions An array of theme action links. Defaults are
 		 *                          links to Install Now, Preview, and Details.
@@ -354,7 +355,7 @@ class GC_Theme_Install_List_Table extends GC_Themes_List_Table {
 
 		?>
 		<a class="screenshot install-theme-preview" href="<?php echo esc_url( $preview_url ); ?>" title="<?php echo esc_attr( $preview_title ); ?>">
-			<img src="<?php echo esc_url( $theme->screenshot_url ); ?>" width="150" alt="" />
+			<img src="<?php echo esc_url( $theme->screenshot_url . '?ver=' . $theme->version ); ?>" width="150" alt="" />
 		</a>
 
 		<h3><?php echo $name; ?></h3>
@@ -370,7 +371,7 @@ class GC_Theme_Install_List_Table extends GC_Themes_List_Table {
 				<?php foreach ( $actions as $action ) : ?>
 					<li><?php echo $action; ?></li>
 				<?php endforeach; ?>
-				<li class="hide-if-no-js"><a href="#" class="theme-detail"><?php _e( '详情' ); ?></a></li>
+				<li class="hide-if-no-js"><a href="#" class="theme-detail"><?php _e( '详细信息' ); ?></a></li>
 			</ul>
 		</div>
 
@@ -464,7 +465,7 @@ class GC_Theme_Install_List_Table extends GC_Themes_List_Table {
 		switch ( $status ) {
 			case 'update_available':
 				printf(
-					'<a class="theme-install button button-primary" href="%s" title="%s">%s</a>',
+					'<a class="theme-install btn btn-primary" href="%s" title="%s">%s</a>',
 					esc_url( gc_nonce_url( $update_url, 'upgrade-theme_' . $theme->slug ) ),
 					/* translators: %s: Theme version. */
 					esc_attr( sprintf( __( '更新到%s版本' ), $theme->version ) ),
@@ -482,7 +483,7 @@ class GC_Theme_Install_List_Table extends GC_Themes_List_Table {
 			case 'install':
 			default:
 				printf(
-					'<a class="theme-install button button-primary" href="%s">%s</a>',
+					'<a class="theme-install btn btn-primary" href="%s">%s</a>',
 					esc_url( gc_nonce_url( $install_url, 'install-theme_' . $theme->slug ) ),
 					__( '安装' )
 				);
@@ -497,7 +498,7 @@ class GC_Theme_Install_List_Table extends GC_Themes_List_Table {
 			?>
 			</span>
 			<?php if ( isset( $theme->screenshot_url ) ) : ?>
-				<img class="theme-screenshot" src="<?php echo esc_url( $theme->screenshot_url ); ?>" alt="" />
+				<img class="theme-screenshot" src="<?php echo esc_url( $theme->screenshot_url . '?ver=' . $theme->version ); ?>" alt="" />
 			<?php endif; ?>
 			<div class="theme-details">
 				<?php
@@ -525,6 +526,7 @@ class GC_Theme_Install_List_Table extends GC_Themes_List_Table {
 	/**
 	 * Send required variables to JavaScript land
 	 *
+	 * @since 3.4.0
 	 *
 	 * @global string $tab  Current tab within Themes->Install screen
 	 * @global string $type Type of search.
@@ -537,8 +539,9 @@ class GC_Theme_Install_List_Table extends GC_Themes_List_Table {
 	}
 
 	/**
-	 * Check to see if the theme is already installed.
+	 * Checks to see if the theme is already installed.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param stdClass $theme A www.GeChiUI.com Theme API object.
 	 * @return string Theme status.

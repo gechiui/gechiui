@@ -4,15 +4,12 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customize Themes Section class.
  *
  * A UI container for theme controls, which are displayed within sections.
- *
- *
  *
  * @see GC_Customize_Section
  */
@@ -21,6 +18,7 @@ class GC_Customize_Themes_Section extends GC_Customize_Section {
 	/**
 	 * Section type.
 	 *
+	 * @since 4.2.0
 	 * @var string
 	 */
 	public $type = 'themes';
@@ -30,6 +28,7 @@ class GC_Customize_Themes_Section extends GC_Customize_Section {
 	 *
 	 * Defines the type of themes to load (installed, gcorg, etc.).
 	 *
+	 * @since 4.9.0
 	 * @var string
 	 */
 	public $action = '';
@@ -40,6 +39,7 @@ class GC_Customize_Themes_Section extends GC_Customize_Section {
 	 * Determines whether filters are applied to loaded (local) themes or by initiating a new remote query (remote).
 	 * When filtering is local, the initial themes query is not paginated by default.
 	 *
+	 * @since 4.9.0
 	 * @var string
 	 */
 	public $filter_type = 'local';
@@ -47,6 +47,7 @@ class GC_Customize_Themes_Section extends GC_Customize_Section {
 	/**
 	 * Get section parameters for JS.
 	 *
+	 * @since 4.9.0
 	 * @return array Exported parameters.
 	 */
 	public function json() {
@@ -62,6 +63,7 @@ class GC_Customize_Themes_Section extends GC_Customize_Section {
 	 *
 	 * The template is only rendered by PHP once, so all actions are prepared at once on the server side.
 	 *
+	 * @since 4.9.0
 	 */
 	protected function render_template() {
 		?>
@@ -112,31 +114,52 @@ class GC_Customize_Themes_Section extends GC_Customize_Section {
 	 * The template is only rendered by PHP once, so all actions are prepared at once on the server side.
 	 * The filter bar container is rendered by @see `render_template()`.
 	 *
+	 * @since 4.9.0
 	 */
 	protected function filter_bar_content_template() {
 		?>
-		<button type="button" class="button button-primary customize-section-back customize-themes-mobile-back"><?php _e( '转到主题源代码' ); ?></button>
+		<button type="button" class="btn btn-primary customize-section-back customize-themes-mobile-back"><?php _e( '转到主题源代码' ); ?></button>
 		<# if ( 'gcorg' === data.action ) { #>
 			<div class="search-form">
-				<label for="gc-filter-search-input-{{ data.id }}" class="screen-reader-text"><?php _e( '搜索主题…' ); ?></label>
-				<input type="search" id="gc-filter-search-input-{{ data.id }}" placeholder="<?php esc_attr_e( '搜索主题…' ); ?>" aria-describedby="{{ data.id }}-live-search-desc" class="gc-filter-search">
+				<label for="gc-filter-search-input-{{ data.id }}" class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '搜索主题...'  );
+					?>
+				</label>
+				<input type="search" id="gc-filter-search-input-{{ data.id }}" placeholder="<?php esc_attr_e( '搜索主题...'  ); ?>" aria-describedby="{{ data.id }}-live-search-desc" class="gc-filter-search">
 				<div class="search-icon" aria-hidden="true"></div>
-				<span id="{{ data.id }}-live-search-desc" class="screen-reader-text"><?php _e( '搜索结果会随着您的输入而不断更新。' ); ?></span>
+				<span id="{{ data.id }}-live-search-desc" class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '搜索结果会随着您的输入而不断更新。' );
+					?>
+				</span>
 			</div>
 			<button type="button" class="button feature-filter-toggle">
 				<span class="filter-count-0"><?php _e( '筛选主题' ); ?></span><span class="filter-count-filters">
-				<?php
-				/* translators: %s: Number of filters selected. */
-				printf( __( '筛选主题（%s）' ), '<span class="theme-filter-count">0</span>' );
-				?>
+					<?php
+					/* translators: %s: Number of filters selected. */
+					printf( __( '筛选主题（%s）' ), '<span class="theme-filter-count">0</span>' );
+					?>
 				</span>
 			</button>
 		<# } else { #>
 			<div class="themes-filter-container">
-				<label for="{{ data.id }}-themes-filter" class="screen-reader-text"><?php _e( '搜索主题…' ); ?></label>
-				<input type="search" id="{{ data.id }}-themes-filter" placeholder="<?php esc_attr_e( '搜索主题…' ); ?>" aria-describedby="{{ data.id }}-live-search-desc" class="gc-filter-search gc-filter-search-themes" />
+				<label for="{{ data.id }}-themes-filter" class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '搜索主题...'  );
+					?>
+				</label>
+				<input type="search" id="{{ data.id }}-themes-filter" placeholder="<?php esc_attr_e( '搜索主题...'  ); ?>" aria-describedby="{{ data.id }}-live-search-desc" class="gc-filter-search gc-filter-search-themes" />
 				<div class="search-icon" aria-hidden="true"></div>
-				<span id="{{ data.id }}-live-search-desc" class="screen-reader-text"><?php _e( '搜索结果会随着您的输入而不断更新。' ); ?></span>
+				<span id="{{ data.id }}-live-search-desc" class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '搜索结果会随着您的输入而不断更新。' );
+					?>
+				</span>
 			</div>
 		<# } #>
 		<div class="filter-themes-count">
@@ -155,10 +178,13 @@ class GC_Customize_Themes_Section extends GC_Customize_Section {
 	 *
 	 * The filter bar container is rendered by @see `render_template()`.
 	 *
+	 * @since 4.9.0
 	 */
 	protected function filter_drawer_content_template() {
-		// @todo Use the .org API instead of the local core feature list.
-		// The .org API is currently outdated and will be reconciled when the .org themes directory is next redesigned.
+		/*
+		 * @todo Use the .org API instead of the local core feature list.
+		 * The .org API is currently outdated and will be reconciled when the .org themes directory is next redesigned.
+		 */
 		$feature_list = get_theme_feature_list( false );
 		?>
 		<# if ( 'gcorg' === data.action ) { #>

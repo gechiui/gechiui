@@ -1,44 +1,45 @@
 /**
- * @output gc-admin/js/appkeys.js
+ * @output assets/js/appkeys.js
  */
 
 ( function( $ ) {
-	var $appPassSection = $( '#appkeys-section' ),
-		$newAppPassForm = $appPassSection.find( '.create-appkey' ),
-		$newAppPassField = $newAppPassForm.find( '.input' ),
-		$newAppPassButton = $newAppPassForm.find( '.button' ),
-		$appPassTwrapper = $appPassSection.find( '.appkeys-list-table-wrapper' ),
-		$appPassTbody = $appPassSection.find( 'tbody' ),
-		$appPassTrNoItems = $appPassTbody.find( '.no-items' ),
+	var $appKeySection = $( '#appkeys-section' ),
+		$newAppKeyForm = $appKeySection.find( '.create-appkey' ),
+		$newAppKeyField = $newAppKeyForm.find( '#new_appname' ),
+		$newAppKeyButton = $newAppKeyForm.find( '#do_new_appkey' ),
+		$appKeyTwrapper = $appKeySection.find( '.appkeys-list-table-wrapper' ),
+		$appKeyTbody = $appKeySection.find( 'tbody' ),
+		$appKeyTrNoItems = $appKeyTbody.find( '.no-items' ),
 		$removeAllBtn = $( '#revoke-all-appkeys' ),
-		tmplNewAppPass = gc.template( 'new-appkey' ),
-		tmplAppPassRow = gc.template( 'appkey-row' ),
+		tmplNewAppKey = gc.template( 'new-appkey' ),
+		tmplAppKeyRow = gc.template( 'appkey-row' ),
 		userId = $( '#user_id' ).val();
 
-	$newAppPassButton.on( 'click', function( e ) {
+	$newAppKeyButton.on( 'click', function( e ) {
 		e.preventDefault();
 
-		if ( $newAppPassButton.prop( 'aria-disabled' ) ) {
+		if ( $newAppKeyButton.prop( 'aria-disabled' ) ) {
 			return;
 		}
 
-		var name = $newAppPassField.val();
+		var name = $newAppKeyField.val();
 
 		if ( 0 === name.length ) {
-			$newAppPassField.trigger( 'focus' );
+			$newAppKeyField.trigger( 'focus' );
 			return;
 		}
 
 		clearNotices();
-		$newAppPassButton.prop( 'aria-disabled', true ).addClass( 'disabled' );
+		$newAppKeyButton.prop( 'aria-disabled', true ).addClass( 'disabled' );
 
 		var request = {
 			name: name
 		};
 
 		/**
-		 * Filters the request data used to create a new AppKey.
+		 * Filters the request data used to create a new Application Password.
 		 *
+		 * @since 5.6.0
 		 *
 		 * @param {Object} request The request data.
 		 * @param {number} userId  The id of the user the password is added for.
@@ -50,26 +51,26 @@
 			method: 'POST',
 			data: request
 		} ).always( function() {
-			$newAppPassButton.removeProp( 'aria-disabled' ).removeClass( 'disabled' );
+			$newAppKeyButton.removeProp( 'aria-disabled' ).removeClass( 'disabled' );
 		} ).done( function( response ) {
-			$newAppPassField.val( '' );
-			$newAppPassButton.prop( 'disabled', false );
+			$newAppKeyField.val( '' );
+			$newAppKeyButton.prop( 'disabled', false );
 
-			$newAppPassForm.after( tmplNewAppPass( {
+			$newAppKeyForm.after( tmplNewAppKey( {
 				name: response.name,
 				password: response.password
 			} ) );
 			$( '.new-appkey-notice' ).trigger( 'focus' );
 
-			$appPassTbody.prepend( tmplAppPassRow( response ) );
+			$appKeyTbody.prepend( tmplAppKeyRow( response ) );
 
-			$appPassTwrapper.show();
-			$appPassTrNoItems.remove();
+			$appKeyTwrapper.show();
+			$appKeyTrNoItems.remove();
 
 			/**
-			 * Fires after an appkey has been successfully created.
+			 * Fires after an application password has been successfully created.
 			 *
-		
+			 * @since 5.6.0
 			 *
 			 * @param {Object} response The response data from the REST API.
 			 * @param {Object} request  The request data used to create the password.
@@ -78,10 +79,10 @@
 		} ).fail( handleErrorResponse );
 	} );
 
-	$appPassTbody.on( 'click', '.delete', function( e ) {
+	$appKeyTbody.on( 'click', '.delete', function( e ) {
 		e.preventDefault();
 
-		if ( ! window.confirm( gc.i18n.__( '您确定要撤销这个密码吗？此操作无法撤消。' ) ) ) {
+		if ( ! window.confirm( gc.i18n.__( '是否确定废除此密码？此操作无法撤消。' ) ) ) {
 			return;
 		}
 
@@ -100,11 +101,11 @@
 		} ).done( function( response ) {
 			if ( response.deleted ) {
 				if ( 0 === $tr.siblings().length ) {
-					$appPassTwrapper.hide();
+					$appKeyTwrapper.hide();
 				}
 				$tr.remove();
 
-				addNotice( gc.i18n.__( 'Appkey已撤消。' ), 'success' ).trigger( 'focus' );
+				addNotice( gc.i18n.__( '应用程序密码已废除。' ), 'success' ).trigger( 'focus' );
 			}
 		} ).fail( handleErrorResponse );
 	} );
@@ -128,42 +129,43 @@
 			$submitButton.prop( 'disabled', false );
 		} ).done( function( response ) {
 			if ( response.deleted ) {
-				$appPassTbody.children().remove();
-				$appPassSection.children( '.new-appkey' ).remove();
-				$appPassTwrapper.hide();
+				$appKeyTbody.children().remove();
+				$appKeySection.children( '.new-appkey' ).remove();
+				$appKeyTwrapper.hide();
 
-				addNotice( gc.i18n.__( '所有Appkey已撤消。' ), 'success' ).trigger( 'focus' );
+				addNotice( gc.i18n.__( '已撤销所有应用程序密码。' ), 'success' ).trigger( 'focus' );
 			}
 		} ).fail( handleErrorResponse );
 	} );
 
-	$appPassSection.on( 'click', '.notice-dismiss', function( e ) {
+	$appKeySection.on( 'click', '.notice-dismiss', function( e ) {
 		e.preventDefault();
 		var $el = $( this ).parent();
 		$el.removeAttr( 'role' );
 		$el.fadeTo( 100, 0, function () {
 			$el.slideUp( 100, function () {
 				$el.remove();
-				$newAppPassField.trigger( 'focus' );
+				$newAppKeyField.trigger( 'focus' );
 			} );
 		} );
 	} );
 
-	$newAppPassField.on( 'keypress', function ( e ) {
+	$newAppKeyField.on( 'keypress', function ( e ) {
 		if ( 13 === e.which ) {
 			e.preventDefault();
-			$newAppPassButton.trigger( 'click' );
+			$newAppKeyButton.trigger( 'click' );
 		}
 	} );
 
 	// If there are no items, don't display the table yet.  If there are, show it.
-	if ( 0 === $appPassTbody.children( 'tr' ).not( $appPassTrNoItems ).length ) {
-		$appPassTwrapper.hide();
+	if ( 0 === $appKeyTbody.children( 'tr' ).not( $appKeyTrNoItems ).length ) {
+		$appKeyTwrapper.hide();
 	}
 
 	/**
 	 * Handles an error response from the REST API.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param {jqXHR} xhr The XHR object from the ajax call.
 	 * @param {string} textStatus The string categorizing the ajax request's status.
@@ -180,8 +182,9 @@
 	}
 
 	/**
-	 * Displays a message in the AppKeys section.
+	 * Displays a message in the Application Passwords section.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param {string} message The message to display.
 	 * @param {string} type    The notice type. Either 'success' or 'error'.
@@ -200,16 +203,17 @@
 					.append( $( '<span></span>' ).addClass( 'screen-reader-text' ).text( gc.i18n.__( '忽略此通知。' ) ) )
 			);
 
-		$newAppPassForm.after( $notice );
+		$newAppKeyForm.after( $notice );
 
 		return $notice;
 	}
 
 	/**
-	 * Clears notice messages from the AppKeys section.
+	 * Clears notice messages from the Application Passwords section.
 	 *
+	 * @since 5.6.0
 	 */
 	function clearNotices() {
-		$( '.notice', $appPassSection ).remove();
+		$( '.notice', $appKeySection ).remove();
 	}
 }( jQuery ) );

@@ -13,7 +13,7 @@
 /**
  * Displays post submit form fields.
  *
- *
+ * @since 2.7.0
  *
  * @global string $action
  *
@@ -53,10 +53,10 @@ function post_submit_meta_box( $post, $args = array() ) {
 					$private_style = 'style="display:none"';
 				}
 				?>
-				<input <?php echo $private_style; ?> type="submit" name="save" id="save-post" value="<?php esc_attr_e( '保存草稿' ); ?>" class="button" />
+				<input <?php echo $private_style; ?> type="submit" name="save" id="save-post" value="<?php esc_attr_e( '保存草稿' ); ?>" class="btn btn-primary btn-tone btn-sm" />
 				<span class="spinner"></span>
 			<?php } elseif ( 'pending' === $post->post_status && $can_publish ) { ?>
-				<input type="submit" name="save" id="save-post" value="<?php esc_attr_e( '保存为待审' ); ?>" class="button" />
+				<input type="submit" name="save" id="save-post" value="<?php esc_attr_e( '保存为待审' ); ?>" class="btn btn-primary btn-tone btn-sm" />
 				<span class="spinner"></span>
 			<?php } ?>
 		</div>
@@ -76,7 +76,7 @@ function post_submit_meta_box( $post, $args = array() ) {
 				$preview_button = sprintf(
 					'%1$s<span class="screen-reader-text"> %2$s</span>',
 					$preview_button_text,
-					/* translators: Accessibility text. */
+					/* translators: Hidden accessibility text. */
 					__( '（在新窗口中打开）' )
 				);
 				?>
@@ -90,6 +90,7 @@ function post_submit_meta_box( $post, $args = array() ) {
 		 * Fires after the Save Draft (or Save as Pending) and Preview (or Preview Changes) buttons
 		 * in the Publish meta box.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param GC_Post $post GC_Post object for the current post.
 		 */
@@ -111,7 +112,7 @@ function post_submit_meta_box( $post, $args = array() ) {
 						_e( '已发布' );
 						break;
 					case 'future':
-						_e( '定时发布' );
+						_e( '已计划' );
 						break;
 					case 'pending':
 						_e( '等待复审' );
@@ -131,18 +132,28 @@ function post_submit_meta_box( $post, $args = array() ) {
 					$private_style = 'style="display:none"';
 				}
 				?>
-				<a href="#post_status" <?php echo $private_style; ?> class="edit-post-status hide-if-no-js" role="button"><span aria-hidden="true"><?php _e( '编辑' ); ?></span> <span class="screen-reader-text"><?php _e( '编辑状态' ); ?></span></a>
+				<a href="#post_status" <?php echo $private_style; ?> class="edit-post-status hide-if-no-js" role="button"><span aria-hidden="true"><?php _e( '编辑' ); ?></span> <span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '编辑状态' );
+					?>
+				</span></a>
 
 				<div id="post-status-select" class="hide-if-js">
 					<input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo esc_attr( ( 'auto-draft' === $post->post_status ) ? 'draft' : $post->post_status ); ?>" />
-					<label for="post_status" class="screen-reader-text"><?php _e( '设置状态' ); ?></label>
+					<label for="post_status" class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( '设置状态' );
+						?>
+					</label>
 					<select name="post_status" id="post_status">
 						<?php if ( 'publish' === $post->post_status ) : ?>
 							<option<?php selected( $post->post_status, 'publish' ); ?> value='publish'><?php _e( '已发布' ); ?></option>
 						<?php elseif ( 'private' === $post->post_status ) : ?>
 							<option<?php selected( $post->post_status, 'private' ); ?> value='publish'><?php _e( '已私密发布' ); ?></option>
 						<?php elseif ( 'future' === $post->post_status ) : ?>
-							<option<?php selected( $post->post_status, 'future' ); ?> value='future'><?php _e( '定时发布' ); ?></option>
+							<option<?php selected( $post->post_status, 'future' ); ?> value='future'><?php _e( '已计划' ); ?></option>
 						<?php endif; ?>
 							<option<?php selected( $post->post_status, 'pending' ); ?> value='pending'><?php _e( '等待复审' ); ?></option>
 						<?php if ( 'auto-draft' === $post->post_status ) : ?>
@@ -183,7 +194,12 @@ function post_submit_meta_box( $post, $args = array() ) {
 			</span>
 
 			<?php if ( $can_publish ) { ?>
-				<a href="#visibility" class="edit-visibility hide-if-no-js" role="button"><span aria-hidden="true"><?php _e( '编辑' ); ?></span> <span class="screen-reader-text"><?php _e( '编辑可见性' ); ?></span></a>
+				<a href="#visibility" class="edit-visibility hide-if-no-js" role="button"><span aria-hidden="true"><?php _e( '编辑' ); ?></span> <span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '编辑可见性' );
+					?>
+				</span></a>
 
 				<div id="post-visibility-select" class="hide-if-js">
 					<input type="hidden" name="hidden_post_password" id="hidden-post-password" value="<?php echo esc_attr( $post->post_password ); ?>" />
@@ -213,7 +229,7 @@ function post_submit_meta_box( $post, $args = array() ) {
 
 		<?php
 		/* translators: Publish box date string. 1: Date, 2: Time. See https://www.php.net/manual/datetime.format.php */
-		$date_string = __( '%1$s %2$s' );
+		$date_string = __( '%2$s, %1$s' );
 		/* translators: Publish box date format, see https://www.php.net/manual/datetime.format.php */
 		$date_format = _x( 'Y年n月j日', 'publish box date format' );
 		/* translators: Publish box time format, see https://www.php.net/manual/datetime.format.php */
@@ -256,7 +272,12 @@ function post_submit_meta_box( $post, $args = array() ) {
 				/* translators: Post revisions heading. %s: The number of available revisions. */
 				printf( __( '修订版本：%s' ), '<b>' . number_format_i18n( $args['args']['revisions_count'] ) . '</b>' );
 				?>
-				<a class="hide-if-no-js" href="<?php echo esc_url( get_edit_post_link( $args['args']['revision_id'] ) ); ?>"><span aria-hidden="true"><?php _ex( '浏览', 'revisions' ); ?></span> <span class="screen-reader-text"><?php _e( '浏览修订版本' ); ?></span></a>
+				<a class="hide-if-no-js" href="<?php echo esc_url( get_edit_post_link( $args['args']['revision_id'] ) ); ?>"><span aria-hidden="true"><?php _ex( '浏览', 'revisions' ); ?></span> <span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '浏览修订版本' );
+					?>
+				</span></a>
 			</div>
 			<?php
 		endif;
@@ -269,24 +290,30 @@ function post_submit_meta_box( $post, $args = array() ) {
 				</span>
 				<a href="#edit_timestamp" class="edit-timestamp hide-if-no-js" role="button">
 					<span aria-hidden="true"><?php _e( '编辑' ); ?></span>
-					<span class="screen-reader-text"><?php _e( '编辑日期和时间' ); ?></span>
+					<span class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( '编辑日期和时间' );
+						?>
+					</span>
 				</a>
 				<fieldset id="timestampdiv" class="hide-if-js">
-					<legend class="screen-reader-text"><?php _e( '日期和时间' ); ?></legend>
+					<legend class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( '日期和时间' );
+						?>
+					</legend>
 					<?php touch_time( ( 'edit' === $action ), 1 ); ?>
 				</fieldset>
 			</div>
 			<?php
 		endif;
 
-		if ( 'draft' === $post->post_status && get_post_meta( $post_id, '_customize_changeset_uuid', true ) ) :
-			?>
-			<div class="notice notice-info notice-alt inline">
-				<p>
-					<?php
-					printf(
+		if ( 'draft' === $post->post_status && get_post_meta( $post_id, '_customize_changeset_uuid', true ) ) {
+			$message = sprintf(
 						/* translators: %s: URL to the Customizer. */
-						__( '此草稿来自您的<a href="%s">未发布的定制修改</a>。您可以编辑，但不用马上发布。您的编辑将随着那些更改一起发布。' ),
+						__( '此草稿来自您的<a href="%s">未发布的自定义更改</a>。您现在可以进行编辑，无需发布。草稿将随着这些更改自动发布。' ),
 						esc_url(
 							add_query_arg(
 								'changeset_uuid',
@@ -295,15 +322,13 @@ function post_submit_meta_box( $post, $args = array() ) {
 							)
 						)
 					);
-					?>
-				</p>
-			</div>
-			<?php
-		endif;
+			echo setting_error( $message, 'notice-alt primary inline' );
+		}
 
 		/**
 		 * Fires after the post time/date setting in the Publish meta box.
 		 *
+		 * @since 4.4.0 Added the `$post` parameter.
 		 *
 		 * @param GC_Post $post GC_Post object for the current post.
 		 */
@@ -318,6 +343,8 @@ function post_submit_meta_box( $post, $args = array() ) {
 	/**
 	 * Fires at the beginning of the publishing actions section of the Publish meta box.
 	 *
+	 * @since 2.7.0
+	 * @since 4.9.0 Added the `$post` parameter.
 	 *
 	 * @param GC_Post|null $post GC_Post object for the current post on Edit Post screen,
 	 *                           null on Edit Link screen.
@@ -346,25 +373,25 @@ function post_submit_meta_box( $post, $args = array() ) {
 			if ( $can_publish ) :
 				if ( ! empty( $post->post_date_gmt ) && time() < strtotime( $post->post_date_gmt . ' +0000' ) ) :
 					?>
-					<input name="original_publish" type="hidden" id="original_publish" value="<?php echo esc_attr_x( '定时发布', 'post action/button label' ); ?>" />
-					<?php submit_button( _x( '定时发布', 'post action/button label' ), 'primary large', 'publish', false ); ?>
+					<input name="original_publish" type="hidden" id="original_publish" value="<?php echo esc_attr_x( '计划', 'post action/button label' ); ?>" />
+					<?php submit_button( _x( '计划', 'post action/button label' ), 'primary sm', 'publish', false ); ?>
 					<?php
 				else :
 					?>
 					<input name="original_publish" type="hidden" id="original_publish" value="<?php esc_attr_e( '发布' ); ?>" />
-					<?php submit_button( __( '发布' ), 'primary large', 'publish', false ); ?>
+					<?php submit_button( __( '发布' ), 'primary sm', 'publish', false ); ?>
 					<?php
 				endif;
 			else :
 				?>
 				<input name="original_publish" type="hidden" id="original_publish" value="<?php esc_attr_e( '提交复审' ); ?>" />
-				<?php submit_button( __( '提交复审' ), 'primary large', 'publish', false ); ?>
+				<?php submit_button( __( '提交复审' ), 'primary sm', 'publish', false ); ?>
 				<?php
 			endif;
 		} else {
 			?>
 			<input name="original_publish" type="hidden" id="original_publish" value="<?php esc_attr_e( '更新' ); ?>" />
-			<?php submit_button( __( '更新' ), 'primary large', 'save', false, array( 'id' => 'publish' ) ); ?>
+			<?php submit_button( __( '更新' ), 'primary sm', 'save', false, array( 'id' => 'publish' ) ); ?>
 			<?php
 		}
 		?>
@@ -377,11 +404,9 @@ function post_submit_meta_box( $post, $args = array() ) {
 }
 
 /**
- * Display attachment submit form fields.
+ * Displays attachment submit form fields.
  *
- *
- *
- * @param GC_Post $post
+ * @param GC_Post $post Current post object.
  */
 function attachment_submit_meta_box( $post ) {
 	?>
@@ -401,7 +426,7 @@ function attachment_submit_meta_box( $post ) {
 			<?php
 			$uploaded_on = sprintf(
 				/* translators: Publish box date string. 1: Date, 2: Time. See https://www.php.net/manual/datetime.format.php */
-				__( '%1$s %2$s' ),
+				__( '%2$s, %1$s' ),
 				/* translators: Publish box date format, see https://www.php.net/manual/datetime.format.php */
 				date_i18n( _x( 'Y年n月j日', 'publish box date format' ), strtotime( $post->post_date ) ),
 				/* translators: Publish box time format, see https://www.php.net/manual/datetime.format.php */
@@ -418,6 +443,8 @@ function attachment_submit_meta_box( $post ) {
 	 * Fires after the 'Uploaded on' section of the Save meta box
 	 * in the attachment editing screen.
 	 *
+	 * @since 3.5.0
+	 * @since 4.9.0 Added the `$post` parameter.
 	 *
 	 * @param GC_Post $post GC_Post object for the current attachment.
 	 */
@@ -432,10 +459,20 @@ function attachment_submit_meta_box( $post ) {
 	<?php
 	if ( current_user_can( 'delete_post', $post->ID ) ) {
 		if ( EMPTY_TRASH_DAYS && MEDIA_TRASH ) {
-			echo "<a class='submitdelete deletion' href='" . get_delete_post_link( $post->ID ) . "'>" . __( '移动至回收站' ) . '</a>';
+			printf(
+				'<a class="submitdelete deletion" href="%1$s">%2$s</a>',
+				get_delete_post_link( $post->ID ),
+				__( '移动至回收站' )
+			);
 		} else {
-			$delete_ays = ! MEDIA_TRASH ? " onclick='return showNotice.warn();'" : '';
-			echo "<a class='submitdelete deletion'$delete_ays href='" . get_delete_post_link( $post->ID, null, true ) . "'>" . __( '永久删除' ) . '</a>';
+			$show_confirmation = ! MEDIA_TRASH ? " onclick='return showNotice.warn();'" : '';
+
+			printf(
+				'<a class="submitdelete deletion"%1$s href="%2$s">%3$s</a>',
+				$show_confirmation,
+				get_delete_post_link( $post->ID, '', true ),
+				__( '永久删除' )
+			);
 		}
 	}
 	?>
@@ -444,7 +481,7 @@ function attachment_submit_meta_box( $post ) {
 	<div id="publishing-action">
 		<span class="spinner"></span>
 		<input name="original_publish" type="hidden" id="original_publish" value="<?php esc_attr_e( '更新' ); ?>" />
-		<input name="save" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( '更新' ); ?>" />
+		<input name="save" type="submit" class="btn btn-primary button-large" id="publish" value="<?php esc_attr_e( '更新' ); ?>" />
 	</div>
 	<div class="clear"></div>
 </div><!-- #major-publishing-actions -->
@@ -455,11 +492,9 @@ function attachment_submit_meta_box( $post ) {
 }
 
 /**
- * Display post format form elements.
+ * Displays post format form elements.
  *
- *
- *
- * @param GC_Post $post Post object.
+ * @param GC_Post $post Current post object.
  * @param array   $box {
  *     Post formats meta box arguments.
  *
@@ -485,7 +520,12 @@ function post_format_meta_box( $post, $box ) {
 			?>
 		<div id="post-formats-select">
 		<fieldset>
-			<legend class="screen-reader-text"><?php _e( '文章形式' ); ?></legend>
+			<legend class="screen-reader-text">
+				<?php
+				/* translators: Hidden accessibility text. */
+				_e( '文章形式' );
+				?>
+			</legend>
 			<input type="radio" name="post_format" class="post-format" id="post-format-0" value="0" <?php checked( $post_format, '0' ); ?> /> <label for="post-format-0" class="post-format-icon post-format-standard"><?php echo get_post_format_string( 'standard' ); ?></label>
 			<?php foreach ( $post_formats[0] as $format ) : ?>
 			<br /><input type="radio" name="post_format" class="post-format" id="post-format-<?php echo esc_attr( $format ); ?>" value="<?php echo esc_attr( $format ); ?>" <?php checked( $post_format, $format ); ?> /> <label for="post-format-<?php echo esc_attr( $format ); ?>" class="post-format-icon post-format-<?php echo esc_attr( $format ); ?>"><?php echo esc_html( get_post_format_string( $format ) ); ?></label>
@@ -498,13 +538,11 @@ endif;
 }
 
 /**
- * Display post tags form fields.
- *
- *
+ * Displays post tags form fields.
  *
  * @todo Create taxonomy-agnostic wrapper for this.
  *
- * @param GC_Post $post Post object.
+ * @param GC_Post $post Current post object.
  * @param array   $box {
  *     Tags meta box arguments.
  *
@@ -529,7 +567,7 @@ function post_tags_meta_box( $post, $box ) {
 	$tax_name              = esc_attr( $parsed_args['taxonomy'] );
 	$taxonomy              = get_taxonomy( $parsed_args['taxonomy'] );
 	$user_can_assign_terms = current_user_can( $taxonomy->cap->assign_terms );
-	$comma                 = _x( '、', 'tag delimiter' );
+	$comma                 = _x( ',', 'tag delimiter' );
 	$terms_to_edit         = get_terms_to_edit( $post->ID, $tax_name );
 	if ( ! is_string( $terms_to_edit ) ) {
 		$terms_to_edit = '';
@@ -561,13 +599,11 @@ function post_tags_meta_box( $post, $box ) {
 }
 
 /**
- * Display post categories form fields.
- *
- *
+ * Displays post categories form fields.
  *
  * @todo Create taxonomy-agnostic wrapper for this.
  *
- * @param GC_Post $post Post object.
+ * @param GC_Post $post Current post object.
  * @param array   $box {
  *     Categories meta box arguments.
  *
@@ -649,7 +685,7 @@ function post_categories_meta_box( $post, $box ) {
 					/**
 					 * Filters the arguments for the taxonomy parent dropdown on the Post Edit page.
 					 *
-				
+					 * @since 4.4.0
 					 *
 					 * @param array $parent_dropdown_args {
 					 *     Optional. Array of arguments to generate parent dropdown.
@@ -685,21 +721,24 @@ function post_categories_meta_box( $post, $box ) {
 }
 
 /**
- * Display post excerpt form fields.
+ * Displays post excerpt form fields.
  *
- *
- *
- * @param GC_Post $post
+ * @param GC_Post $post Current post object.
  */
 function post_excerpt_meta_box( $post ) {
 	?>
-<label class="screen-reader-text" for="excerpt"><?php _e( '摘要' ); ?></label><textarea rows="1" cols="40" name="excerpt" id="excerpt"><?php echo $post->post_excerpt; // textarea_escaped ?></textarea>
+<label class="screen-reader-text" for="excerpt">
+	<?php
+	/* translators: Hidden accessibility text. */
+	_e( '摘要' );
+	?>
+</label><textarea rows="1" cols="40" name="excerpt" id="excerpt"><?php echo $post->post_excerpt; // textarea_escaped ?></textarea>
 <p>
 	<?php
 	printf(
 		/* translators: %s: Documentation URL. */
 		__( '摘要是可选的手工创建的内容总结，并可在您的主题中使用。<a href="%s">了解更多关于手工摘要的信息</a>。' ),
-		__( 'https://www.gechiui.com/support/excerpt/' )
+		__( 'https://www.gechiui.com/support/what-is-an-excerpt-classic-editor/' )
 	);
 	?>
 </p>
@@ -707,18 +746,16 @@ function post_excerpt_meta_box( $post ) {
 }
 
 /**
- * Display trackback links form fields.
+ * Displays trackback links form fields.
  *
- *
- *
- * @param GC_Post $post
+ * @param GC_Post $post Current post object.
  */
 function post_trackback_meta_box( $post ) {
 	$form_trackback = '<input type="text" name="trackback_url" id="trackback_url" class="code" value="' .
 		esc_attr( str_replace( "\n", ' ', $post->to_ping ) ) . '" aria-describedby="trackback-url-desc" />';
 
 	if ( '' !== $post->pinged ) {
-		$pings          = '<p>' . __( '已ping通告过：' ) . '</p><ul>';
+		$pings          = '<p>' . __( '已 Ping 通告过：' ) . '</p><ul>';
 		$already_pinged = explode( "\n", trim( $post->pinged ) );
 		foreach ( $already_pinged as $pinged_url ) {
 			$pings .= "\n\t<li>" . esc_html( $pinged_url ) . '</li>';
@@ -728,15 +765,15 @@ function post_trackback_meta_box( $post ) {
 
 	?>
 <p>
-	<label for="trackback_url"><?php _e( '发送Trackback到：' ); ?></label>
+	<label for="trackback_url"><?php _e( '发送 Trackback 到：' ); ?></label>
 	<?php echo $form_trackback; ?>
 </p>
-<p id="trackback-url-desc" class="howto"><?php _e( '多个URL用空格分隔' ); ?></p>
+<p id="trackback-url-desc" class="howto"><?php _e( '多个 URL 用空格分隔' ); ?></p>
 <p>
 	<?php
 	printf(
 		/* translators: %s: Documentation URL. */
-		__( 'Trackback是一种通知老旧博客系统您链接到了他们的方法。如果您链接到了其他GeChiUI站点，将自动通过<a href="%s">Pingback</a>通知他们，无须其他操作。' ),
+		__( 'Trackback是一种通知老旧GC系统您链接到了他们的方法。如果您链接到了其他GeChiUI系统，将自动通过<a href="%s">Pingback</a>通知他们，无须其他操作。' ),
 		__( 'https://www.gechiui.com/support/introduction-to-blogging/#comments' )
 	);
 	?>
@@ -748,11 +785,9 @@ function post_trackback_meta_box( $post ) {
 }
 
 /**
- * Display custom fields form fields.
+ * Displays custom fields form fields.
  *
- *
- *
- * @param GC_Post $post
+ * @param GC_Post $post Current post object.
  */
 function post_custom_meta_box( $post ) {
 	?>
@@ -774,7 +809,7 @@ function post_custom_meta_box( $post ) {
 	printf(
 		/* translators: %s: Documentation URL. */
 		__( '自定义字段可为您的文章添加额外元数据，而这些字段的内容可以<a href="%s">用于您的主题中</a>。' ),
-		__( 'https://www.gechiui.com/support/custom-fields/' )
+		__( 'https://www.gechiui.com/support/assign-custom-fields/' )
 	);
 	?>
 </p>
@@ -782,11 +817,9 @@ function post_custom_meta_box( $post ) {
 }
 
 /**
- * Display comments status form fields.
+ * Displays comments status form fields.
  *
- *
- *
- * @param GC_Post $post
+ * @param GC_Post $post Current post object.
  */
 function post_comment_status_meta_box( $post ) {
 	?>
@@ -797,7 +830,7 @@ function post_comment_status_meta_box( $post ) {
 		<?php
 		printf(
 			/* translators: %s: Documentation URL. */
-			__( '允许该页面接收<a href="%s">Trackback和Pingback</a>' ),
+			__( '允许<a href="%s">Trackback和Pingback</a>' ),
 			__( 'https://www.gechiui.com/support/introduction-to-blogging/#managing-comments' )
 		);
 		?>
@@ -807,7 +840,7 @@ function post_comment_status_meta_box( $post ) {
 	 * Fires at the end of the Discussion meta box on the post editing screen.
 	 *
 	 *
-	 * @param GC_Post $post GC_Post object of the current post.
+	 * @param GC_Post $post GC_Post object for the current post.
 	 */
 	do_action( 'post_comment_status_meta_box-options', $post ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 	?>
@@ -816,11 +849,9 @@ function post_comment_status_meta_box( $post ) {
 }
 
 /**
- * Display comments for post table header
+ * Displays comments for post table header
  *
- *
- *
- * @param array $result table header rows
+ * @param array $result Table header rows.
  * @return array
  */
 function post_comment_meta_box_thead( $result ) {
@@ -829,16 +860,14 @@ function post_comment_meta_box_thead( $result ) {
 }
 
 /**
- * Display comments for post.
+ * Displays comments for post.
  *
- *
- *
- * @param GC_Post $post
+ * @param GC_Post $post Current post object.
  */
 function post_comment_meta_box( $post ) {
 	gc_nonce_field( 'get-comments', 'add_comment_nonce', false );
 	?>
-	<p class="hide-if-no-js" id="add-new-comment"><button type="button" class="button" onclick="window.commentReply && commentReply.addcomment(<?php echo $post->ID; ?>);"><?php _e( '添加评论' ); ?></button></p>
+	<p class="hide-if-no-js" id="add-new-comment"><button type="button" class="btn btn-primary btn-tone btn-sm" onclick="window.commentReply && commentReply.addcomment(<?php echo $post->ID; ?>);"><?php _e( '添加评论' ); ?></button></p>
 	<?php
 
 	$total         = get_comments(
@@ -870,35 +899,41 @@ function post_comment_meta_box( $post ) {
 }
 
 /**
- * Display slug form fields.
+ * Displays slug form fields.
  *
- *
- *
- * @param GC_Post $post
+ * @param GC_Post $post Current post object.
  */
 function post_slug_meta_box( $post ) {
 	/** This filter is documented in gc-admin/edit-tag-form.php */
 	$editable_slug = apply_filters( 'editable_slug', $post->post_name, $post );
 	?>
-<label class="screen-reader-text" for="post_name"><?php _e( '别名' ); ?></label><input name="post_name" type="text" size="13" id="post_name" value="<?php echo esc_attr( $editable_slug ); ?>" />
+<label class="screen-reader-text" for="post_name">
+	<?php
+	/* translators: Hidden accessibility text. */
+	_e( '别名' );
+	?>
+</label><input name="post_name" type="text" class="large-text" id="post_name" value="<?php echo esc_attr( $editable_slug ); ?>" />
 	<?php
 }
 
 /**
- * Display form field with list of authors.
- *
- *
+ * Displays form field with list of authors.
  *
  * @global int $user_ID
  *
- * @param GC_Post $post
+ * @param GC_Post $post Current post object.
  */
 function post_author_meta_box( $post ) {
 	global $user_ID;
 
 	$post_type_object = get_post_type_object( $post->post_type );
 	?>
-<label class="screen-reader-text" for="post_author_override"><?php _e( '作者' ); ?></label>
+<label class="screen-reader-text" for="post_author_override">
+	<?php
+	/* translators: Hidden accessibility text. */
+	_e( '作者' );
+	?>
+</label>
 	<?php
 	gc_dropdown_users(
 		array(
@@ -912,11 +947,9 @@ function post_author_meta_box( $post ) {
 }
 
 /**
- * Display list of revisions.
+ * Displays list of revisions.
  *
- *
- *
- * @param GC_Post $post
+ * @param GC_Post $post Current post object.
  */
 function post_revisions_meta_box( $post ) {
 	gc_list_post_revisions( $post );
@@ -927,11 +960,11 @@ function post_revisions_meta_box( $post ) {
 //
 
 /**
- * Display page attributes form fields.
+ * Displays page attributes form fields.
  *
+ * @since 2.7.0
  *
- *
- * @param GC_Post $post
+ * @param GC_Post $post Current post object.
  */
 function page_attributes_meta_box( $post ) {
 	if ( is_post_type_hierarchical( $post->post_type ) ) :
@@ -948,6 +981,7 @@ function page_attributes_meta_box( $post ) {
 		/**
 		 * Filters the arguments used to generate a Pages drop-down element.
 		 *
+		 * @since 3.3.0
 		 *
 		 * @see gc_dropdown_pages()
 		 *
@@ -973,6 +1007,7 @@ function page_attributes_meta_box( $post ) {
 		 * Fires immediately after the label inside the 'Template' section
 		 * of the '页面属性' meta box.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param string|false $template The template used for the current post.
 		 * @param GC_Post      $post     The current post.
@@ -985,6 +1020,7 @@ function page_attributes_meta_box( $post ) {
 		/**
 		 * Filters the title of the default page template displayed in the drop-down.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param string $label   The display value for the default page template title.
 		 * @param string $context Where the option label is displayed. Possible values
@@ -1003,6 +1039,7 @@ function page_attributes_meta_box( $post ) {
 		/**
 		 * Fires before the help hint text in the '页面属性' meta box.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param GC_Post $post The current post.
 		 */
@@ -1020,11 +1057,11 @@ function page_attributes_meta_box( $post ) {
 //
 
 /**
- * Display link create form fields.
+ * Displays link create form fields.
  *
+ * @since 2.7.0
  *
- *
- * @param object $link
+ * @param object $link Current link object.
  */
 function link_submit_meta_box( $link ) {
 	?>
@@ -1066,7 +1103,7 @@ function link_submit_meta_box( $link ) {
 			'<a class="submitdelete deletion" href="%s" onclick="return confirm( \'%s\' );">%s</a>',
 			gc_nonce_url( "link.php?action=delete&amp;link_id=$link->link_id", 'delete-bookmark_' . $link->link_id ),
 			/* translators: %s: Link name. */
-			esc_js( sprintf( __( "您将要删除此链接 '%s'\n  “取消”停止，“确定”删除。" ), $link->link_name ) ),
+			esc_js( sprintf( __( "您将删除链接『%s』\n按『取消』停止，按『确定』删除。" ), $link->link_name ) ),
 			__( '删除' )
 		);
 	}
@@ -1075,9 +1112,9 @@ function link_submit_meta_box( $link ) {
 
 <div id="publishing-action">
 	<?php if ( ! empty( $link->link_id ) ) { ?>
-	<input name="save" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( '更新链接' ); ?>" />
+	<input name="save" type="submit" class="btn btn-primary button-large" id="publish" value="<?php esc_attr_e( '更新链接' ); ?>" />
 <?php } else { ?>
-	<input name="save" type="submit" class="button button-primary button-large" id="publish" value="<?php esc_attr_e( '添加链接' ); ?>" />
+	<input name="save" type="submit" class="btn btn-primary button-large" id="publish" value="<?php esc_attr_e( '添加链接' ); ?>" />
 <?php } ?>
 </div>
 <div class="clear"></div>
@@ -1095,11 +1132,9 @@ function link_submit_meta_box( $link ) {
 }
 
 /**
- * Display link categories form fields.
+ * Displays link categories form fields.
  *
- *
- *
- * @param object $link
+ * @param object $link Current link object.
  */
 function link_categories_meta_box( $link ) {
 	?>
@@ -1130,9 +1165,14 @@ function link_categories_meta_box( $link ) {
 	<div id="category-adder" class="gc-hidden-children">
 		<a id="category-add-toggle" href="#category-add" class="taxonomy-add-new"><?php _e( '+ 新增分类' ); ?></a>
 		<p id="link-category-add" class="gc-hidden-child">
-			<label class="screen-reader-text" for="newcat"><?php _e( '+ 新增分类' ); ?></label>
+			<label class="screen-reader-text" for="newcat">
+				<?php
+				/* translators: Hidden accessibility text. */
+				_e( '+ 新增分类' );
+				?>
+			</label>
 			<input type="text" name="newcat" id="newcat" class="form-required form-input-tip" value="<?php esc_attr_e( '新的分类名称' ); ?>" aria-required="true" />
-			<input type="button" id="link-category-add-submit" data-gc-lists="add:categorychecklist:link-category-add" class="button" value="<?php esc_attr_e( '添加' ); ?>" />
+			<input type="button" id="link-category-add-submit" data-gc-lists="add:categorychecklist:link-category-add" class="btn btn-primary btn-tone btn-sm" value="<?php esc_attr_e( '添加' ); ?>" />
 			<?php gc_nonce_field( 'add-link-category', '_ajax_nonce', false ); ?>
 			<span id="category-ajax-response"></span>
 		</p>
@@ -1142,16 +1182,19 @@ function link_categories_meta_box( $link ) {
 }
 
 /**
- * Display form fields for changing link target.
+ * Displays form fields for changing link target.
  *
- *
- *
- * @param object $link
+ * @param object $link Current link object.
  */
 function link_target_meta_box( $link ) {
 
 	?>
-<fieldset><legend class="screen-reader-text"><span><?php _e( '打开方式' ); ?></span></legend>
+<fieldset><legend class="screen-reader-text"><span>
+	<?php
+	/* translators: Hidden accessibility text. */
+	_e( '打开方式' );
+	?>
+</span></legend>
 <p><label for="link_target_blank" class="selectit">
 <input id="link_target_blank" type="radio" name="link_target" value="_blank" <?php echo ( isset( $link->link_target ) && ( '_blank' === $link->link_target ) ? 'checked="checked"' : '' ); ?> />
 	<?php _e( '<code>_blank</code>——新窗口或新标签。' ); ?></label></p>
@@ -1166,13 +1209,225 @@ function link_target_meta_box( $link ) {
 	<?php
 }
 
+/**
+ * Displays 'checked' checkboxes attribute for XFN microformat options.
+ *
+ * @global object $link Current link object.
+ *
+ * @param string $xfn_relationship XFN relationship category. Possible values are:
+ *                                 'friendship', 'physical', 'professional',
+ *                                 'geographical', 'family', 'romantic', 'identity'.
+ * @param string $xfn_value        Optional. The XFN value to mark as checked
+ *                                 if it matches the current link's relationship.
+ *                                 Default empty string.
+ * @param mixed  $deprecated       Deprecated. Not used.
+ */
+function xfn_check( $xfn_relationship, $xfn_value = '', $deprecated = '' ) {
+	global $link;
+
+	if ( ! empty( $deprecated ) ) {
+		_deprecated_argument( __FUNCTION__, '2.5.0' ); // Never implemented.
+	}
+
+	$link_rel  = isset( $link->link_rel ) ? $link->link_rel : ''; // In PHP 5.3: $link_rel = $link->link_rel ?: '';
+	$link_rels = preg_split( '/\s+/', $link_rel );
+
+	// Mark the specified value as checked if it matches the current link's relationship.
+	if ( '' !== $xfn_value && in_array( $xfn_value, $link_rels, true ) ) {
+		echo ' checked="checked"';
+	}
+
+	if ( '' === $xfn_value ) {
+		// Mark the 'none' value as checked if the current link does not match the specified relationship.
+		if ( 'family' === $xfn_relationship
+			&& ! array_intersect( $link_rels, array( 'child', 'parent', 'sibling', 'spouse', 'kin' ) )
+		) {
+			echo ' checked="checked"';
+		}
+
+		if ( 'friendship' === $xfn_relationship
+			&& ! array_intersect( $link_rels, array( 'friend', 'acquaintance', 'contact' ) )
+		) {
+			echo ' checked="checked"';
+		}
+
+		if ( 'geographical' === $xfn_relationship
+			&& ! array_intersect( $link_rels, array( 'co-resident', 'neighbor' ) )
+		) {
+			echo ' checked="checked"';
+		}
+
+		// Mark the 'me' value as checked if it matches the current link's relationship.
+		if ( 'identity' === $xfn_relationship
+			&& in_array( 'me', $link_rels, true )
+		) {
+			echo ' checked="checked"';
+		}
+	}
+}
 
 /**
- * Display advanced link options form fields.
+ * Displays XFN form fields.
  *
+ * @param object $link Current link object.
+ */
+function link_xfn_meta_box( $link ) {
+	?>
+<table class="links-table">
+	<tr>
+		<th scope="row"><label for="link_rel"><?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '关系：' ); ?></label></th>
+		<td><input type="text" name="link_rel" id="link_rel" value="<?php echo ( isset( $link->link_rel ) ? esc_attr( $link->link_rel ) : '' ); ?>" /></td>
+	</tr>
+	<tr>
+		<th scope="row"><?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '同一个人' ); ?></th>
+		<td><fieldset>
+			<legend class="screen-reader-text"><span>
+				<?php
+				/* translators: Hidden accessibility text. xfn: https://gmpg.org/xfn/ */
+				_e( '同一个人' );
+				?>
+			</span></legend>
+			<label for="me">
+			<input type="checkbox" name="identity" value="me" id="me" <?php xfn_check( 'identity', 'me' ); ?> />
+			<?php _e( '我的另一个 Web 地址' ); ?></label>
+		</fieldset></td>
+	</tr>
+	<tr>
+		<th scope="row"><?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '友情' ); ?></th>
+		<td><fieldset>
+			<legend class="screen-reader-text"><span>
+				<?php
+				/* translators: Hidden accessibility text. xfn: https://gmpg.org/xfn/ */
+				_e( '友情' );
+				?>
+			</span></legend>
+			<label for="contact">
+			<input class="valinp" type="radio" name="friendship" value="contact" id="contact" <?php xfn_check( 'friendship', 'contact' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '偶有联系' ); ?>
+			</label>
+			<label for="acquaintance">
+			<input class="valinp" type="radio" name="friendship" value="acquaintance" id="acquaintance" <?php xfn_check( 'friendship', 'acquaintance' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '熟人' ); ?>
+			</label>
+			<label for="friend">
+			<input class="valinp" type="radio" name="friendship" value="friend" id="friend" <?php xfn_check( 'friendship', 'friend' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '朋友' ); ?>
+			</label>
+			<label for="friendship">
+			<input name="friendship" type="radio" class="valinp" value="" id="friendship" <?php xfn_check( 'friendship' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '无' ); ?>
+			</label>
+		</fieldset></td>
+	</tr>
+	<tr>
+		<th scope="row"> <?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '线下接触' ); ?> </th>
+		<td><fieldset>
+			<legend class="screen-reader-text"><span>
+				<?php
+				/* translators: Hidden accessibility text. xfn: https://gmpg.org/xfn/ */
+				_e( '线下接触' );
+				?>
+			</span></legend>
+			<label for="met">
+			<input class="valinp" type="checkbox" name="physical" value="met" id="met" <?php xfn_check( 'physical', 'met' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '已见过面' ); ?>
+			</label>
+		</fieldset></td>
+	</tr>
+	<tr>
+		<th scope="row"> <?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '职场关系' ); ?> </th>
+		<td><fieldset>
+			<legend class="screen-reader-text"><span>
+				<?php
+				/* translators: Hidden accessibility text. xfn: https://gmpg.org/xfn/ */
+				_e( '职场关系' );
+				?>
+			</span></legend>
+			<label for="co-worker">
+			<input class="valinp" type="checkbox" name="professional" value="co-worker" id="co-worker" <?php xfn_check( 'professional', 'co-worker' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '同事' ); ?>
+			</label>
+			<label for="colleague">
+			<input class="valinp" type="checkbox" name="professional" value="colleague" id="colleague" <?php xfn_check( 'professional', 'colleague' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '同行' ); ?>
+			</label>
+		</fieldset></td>
+	</tr>
+	<tr>
+		<th scope="row"><?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '地理关系' ); ?></th>
+		<td><fieldset>
+			<legend class="screen-reader-text"><span>
+				<?php
+				/* translators: Hidden accessibility text. xfn: https://gmpg.org/xfn/ */
+				_e( '地理关系' );
+				?>
+			</span></legend>
+			<label for="co-resident">
+			<input class="valinp" type="radio" name="geographical" value="co-resident" id="co-resident" <?php xfn_check( 'geographical', 'co-resident' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '同住' ); ?>
+			</label>
+			<label for="neighbor">
+			<input class="valinp" type="radio" name="geographical" value="neighbor" id="neighbor" <?php xfn_check( 'geographical', 'neighbor' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '邻居' ); ?>
+			</label>
+			<label for="geographical">
+			<input class="valinp" type="radio" name="geographical" value="" id="geographical" <?php xfn_check( 'geographical' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '无' ); ?>
+			</label>
+		</fieldset></td>
+	</tr>
+	<tr>
+		<th scope="row"><?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '家庭关系' ); ?></th>
+		<td><fieldset>
+			<legend class="screen-reader-text"><span>
+				<?php
+				/* translators: Hidden accessibility text. xfn: https://gmpg.org/xfn/ */
+				_e( '家庭关系' );
+				?>
+			</span></legend>
+			<label for="child">
+			<input class="valinp" type="radio" name="family" value="child" id="child" <?php xfn_check( 'family', 'child' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '子女' ); ?>
+			</label>
+			<label for="kin">
+			<input class="valinp" type="radio" name="family" value="kin" id="kin" <?php xfn_check( 'family', 'kin' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '亲戚' ); ?>
+			</label>
+			<label for="parent">
+			<input class="valinp" type="radio" name="family" value="parent" id="parent" <?php xfn_check( 'family', 'parent' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '父母' ); ?>
+			</label>
+			<label for="sibling">
+			<input class="valinp" type="radio" name="family" value="sibling" id="sibling" <?php xfn_check( 'family', 'sibling' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '兄弟姐妹' ); ?>
+			</label>
+			<label for="spouse">
+			<input class="valinp" type="radio" name="family" value="spouse" id="spouse" <?php xfn_check( 'family', 'spouse' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '配偶' ); ?>
+			</label>
+			<label for="family">
+			<input class="valinp" type="radio" name="family" value="" id="family" <?php xfn_check( 'family' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '无' ); ?>
+			</label>
+		</fieldset></td>
+	</tr>
+	<tr>
+		<th scope="row"><?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '情感关系' ); ?></th>
+		<td><fieldset>
+			<legend class="screen-reader-text"><span>
+				<?php
+				/* translators: Hidden accessibility text. xfn: https://gmpg.org/xfn/ */
+				_e( '情感关系' );
+				?>
+			</span></legend>
+			<label for="muse">
+			<input class="valinp" type="checkbox" name="romantic" value="muse" id="muse" <?php xfn_check( 'romantic', 'muse' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '灵感女神' ); ?>
+			</label>
+			<label for="crush">
+			<input class="valinp" type="checkbox" name="romantic" value="crush" id="crush" <?php xfn_check( 'romantic', 'crush' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '迷恋' ); ?>
+			</label>
+			<label for="date">
+			<input class="valinp" type="checkbox" name="romantic" value="date" id="date" <?php xfn_check( 'romantic', 'date' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '交往中' ); ?>
+			</label>
+			<label for="romantic">
+			<input class="valinp" type="checkbox" name="romantic" value="sweetheart" id="romantic" <?php xfn_check( 'romantic', 'sweetheart' ); ?> />&nbsp;<?php /* translators: xfn: https://gmpg.org/xfn/ */ _e( '恋人' ); ?>
+			</label>
+		</fieldset></td>
+	</tr>
+
+</table>
+<p><?php _e( '如果链接指向某个人，您可以用上面的表单指定您与此人的关系。如果您想了解更多，请查看：<a href="https://gmpg.org/xfn/">XFN</a>。' ); ?></p>
+	<?php
+}
+
+/**
+ * Displays advanced link options form fields.
  *
- *
- * @param object $link
+ * @param object $link Current link object.
  */
 function link_advanced_meta_box( $link ) {
 	?>
@@ -1182,7 +1437,7 @@ function link_advanced_meta_box( $link ) {
 		<td><input type="text" name="link_image" class="code" id="link_image" maxlength="255" value="<?php echo ( isset( $link->link_image ) ? esc_attr( $link->link_image ) : '' ); ?>" /></td>
 	</tr>
 	<tr>
-		<th scope="row"><label for="rss_uri"><?php _e( 'RSS地址' ); ?></label></th>
+		<th scope="row"><label for="rss_uri"><?php _e( 'RSS 地址' ); ?></label></th>
 		<td><input name="link_rss" class="code" type="text" id="rss_uri" maxlength="255" value="<?php echo ( isset( $link->link_rss ) ? esc_attr( $link->link_rss ) : '' ); ?>" /></td>
 	</tr>
 	<tr>
@@ -1209,11 +1464,9 @@ function link_advanced_meta_box( $link ) {
 }
 
 /**
- * Display post thumbnail meta box.
+ * Displays post thumbnail meta box.
  *
- *
- *
- * @param GC_Post $post A post object.
+ * @param GC_Post $post Current post object.
  */
 function post_thumbnail_meta_box( $post ) {
 	$thumbnail_id = get_post_meta( $post->ID, '_thumbnail_id', true );
@@ -1221,11 +1474,11 @@ function post_thumbnail_meta_box( $post ) {
 }
 
 /**
- * Display fields for ID3 data
+ * Displays fields for ID3 data.
  *
+ * @since 3.9.0
  *
- *
- * @param GC_Post $post A post object.
+ * @param GC_Post $post Current post object.
  */
 function attachment_id3_data_meta_box( $post ) {
 	$meta = array();
@@ -1250,7 +1503,7 @@ function attachment_id3_data_meta_box( $post ) {
 /**
  * Registers the default post meta boxes, and runs the `do_meta_boxes` actions.
  *
- *
+ * @since 5.0.0
  *
  * @param GC_Post $post The post object that these meta boxes are being generated for.
  */
@@ -1270,13 +1523,13 @@ function register_and_do_post_meta_boxes( $post ) {
 	$publish_callback_args = array( '__back_compat_meta_box' => true );
 
 	if ( post_type_supports( $post_type, 'revisions' ) && 'auto-draft' !== $post->post_status ) {
-		$revisions = gc_get_post_revisions( $post->ID, array( 'fields' => 'ids' ) );
+		$revisions = gc_get_latest_revision_id_and_total_count( $post->ID );
 
 		// We should aim to show the revisions meta box only when there are revisions.
-		if ( count( $revisions ) > 1 ) {
+		if ( ! is_gc_error( $revisions ) && $revisions['count'] > 1 ) {
 			$publish_callback_args = array(
-				'revisions_count'        => count( $revisions ),
-				'revision_id'            => reset( $revisions ),
+				'revisions_count'        => $revisions['count'],
+				'revision_id'            => $revisions['latest_id'],
 				'__back_compat_meta_box' => true,
 			);
 
@@ -1298,7 +1551,7 @@ function register_and_do_post_meta_boxes( $post ) {
 	}
 
 	if ( current_theme_supports( 'post-formats' ) && post_type_supports( $post_type, 'post-formats' ) ) {
-		add_meta_box( 'formatdiv', _x( '形式', 'post format' ), 'post_format_meta_box', null, 'side', 'core', array( '__back_compat_meta_box' => true ) );
+		add_meta_box( 'formatdiv', _x( '格式', 'post format' ), 'post_format_meta_box', null, 'side', 'core', array( '__back_compat_meta_box' => true ) );
 	}
 
 	// All taxonomies.
@@ -1343,7 +1596,7 @@ function register_and_do_post_meta_boxes( $post ) {
 	}
 
 	if ( post_type_supports( $post_type, 'trackbacks' ) ) {
-		add_meta_box( 'trackbacksdiv', __( '发送Trackback' ), 'post_trackback_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
+		add_meta_box( 'trackbacksdiv', __( '发送 Trackbacks' ), 'post_trackback_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
 	}
 
 	if ( post_type_supports( $post_type, 'custom-fields' ) ) {
@@ -1370,8 +1623,10 @@ function register_and_do_post_meta_boxes( $post ) {
 	 */
 	do_action_deprecated( 'dbx_post_advanced', array( $post ), '3.7.0', 'add_meta_boxes' );
 
-	// Allow the Discussion meta box to show up if the post type supports comments,
-	// or if comments or pings are open.
+	/*
+	 * Allow the Discussion meta box to show up if the post type supports comments,
+	 * or if comments or pings are open.
+	 */
 	if ( comments_open( $post ) || pings_open( $post ) || post_type_supports( $post_type, 'comments' ) ) {
 		add_meta_box( 'commentstatusdiv', __( '讨论' ), 'post_comment_status_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
 	}
@@ -1383,8 +1638,10 @@ function register_and_do_post_meta_boxes( $post ) {
 	$stati[] = 'private';
 
 	if ( in_array( get_post_status( $post ), $stati, true ) ) {
-		// If the post type support comments, or the post has comments,
-		// allow the Comments meta box.
+		/*
+		 * If the post type support comments, or the post has comments,
+		 * allow the Comments meta box.
+		 */
 		if ( comments_open( $post ) || pings_open( $post ) || $post->comment_count > 0 || post_type_supports( $post_type, 'comments' ) ) {
 			add_meta_box( 'commentsdiv', __( '评论' ), 'post_comment_meta_box', null, 'normal', 'core', array( '__back_compat_meta_box' => true ) );
 		}

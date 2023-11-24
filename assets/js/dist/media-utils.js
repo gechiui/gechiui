@@ -1,134 +1,81 @@
-this["gc"] = this["gc"] || {}; this["gc"]["mediaUtils"] =
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "/+yF");
-/******/ })
+/******/ (function() { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	// The require scope
+/******/ 	var __webpack_require__ = {};
+/******/ 	
 /************************************************************************/
-/******/ ({
-
-/***/ "/+yF":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	!function() {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = function(module) {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				function() { return module['default']; } :
+/******/ 				function() { return module; };
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	!function() {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = function(exports, definition) {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	!function() {
+/******/ 		__webpack_require__.o = function(obj, prop) { return Object.prototype.hasOwnProperty.call(obj, prop); }
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	!function() {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = function(exports) {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
 // ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
 
 // EXPORTS
-__webpack_require__.d(__webpack_exports__, "MediaUpload", function() { return /* reexport */ media_upload; });
-__webpack_require__.d(__webpack_exports__, "uploadMedia", function() { return /* reexport */ uploadMedia; });
+__webpack_require__.d(__webpack_exports__, {
+  "MediaUpload": function() { return /* reexport */ media_upload; },
+  "uploadMedia": function() { return /* reexport */ uploadMedia; }
+});
 
-// EXTERNAL MODULE: external "lodash"
-var external_lodash_ = __webpack_require__("YLtl");
-
-// EXTERNAL MODULE: external ["gc","element"]
-var external_gc_element_ = __webpack_require__("ewfG");
-
-// EXTERNAL MODULE: external ["gc","i18n"]
-var external_gc_i18n_ = __webpack_require__("z4sU");
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/media-utils/build-module/components/media-upload/index.js
-/**
- * External dependencies
- */
-
+;// CONCATENATED MODULE: external ["gc","element"]
+var external_gc_element_namespaceObject = window["gc"]["element"];
+;// CONCATENATED MODULE: external ["gc","i18n"]
+var external_gc_i18n_namespaceObject = window["gc"]["i18n"];
+;// CONCATENATED MODULE: ./node_modules/@gechiui/media-utils/build-module/components/media-upload/index.js
 /**
  * GeChiUI dependencies
  */
 
 
-
-const {
-  gc
-} = window;
 const DEFAULT_EMPTY_GALLERY = [];
 /**
  * Prepares the Featured Image toolbars and frames.
  *
- * @return {gc.media.view.MediaFrame.Select} The default media workflow.
+ * @return {window.gc.media.view.MediaFrame.Select} The default media workflow.
  */
 
 const getFeaturedImageMediaFrame = () => {
+  const {
+    gc
+  } = window;
   return gc.media.view.MediaFrame.Select.extend({
     /**
      * Enables the Set Featured Image Button.
@@ -177,11 +124,14 @@ const getFeaturedImageMediaFrame = () => {
 /**
  * Prepares the Gallery toolbars and frames.
  *
- * @return {gc.media.view.MediaFrame.Post} The default media workflow.
+ * @return {window.gc.media.view.MediaFrame.Post} The default media workflow.
  */
 
 
 const getGalleryDetailsMediaFrame = () => {
+  const {
+    gc
+  } = window;
   /**
    * Custom gallery details frame.
    *
@@ -189,6 +139,7 @@ const getGalleryDetailsMediaFrame = () => {
    * @class GalleryDetailsMediaFrame
    * @class
    */
+
   return gc.media.view.MediaFrame.Post.extend({
     /**
      * Set up gallery toolbar.
@@ -259,9 +210,10 @@ const getGalleryDetailsMediaFrame = () => {
         filterable: 'uploaded',
         multiple: 'add',
         editable: false,
-        library: gc.media.query(Object(external_lodash_["defaults"])({
-          type: 'image'
-        }, this.options.library))
+        library: gc.media.query({
+          type: 'image',
+          ...this.options.library
+        })
       }), new gc.media.controller.EditImage({
         model: this.options.editImage
       }), new gc.media.controller.GalleryEdit({
@@ -273,16 +225,25 @@ const getGalleryDetailsMediaFrame = () => {
       }), new gc.media.controller.GalleryAdd()]);
     }
   });
-}; // the media library image object contains numerous attributes
-// we only need this set to display the image in the library
+}; // The media library image object contains numerous attributes
+// we only need this set to display the image in the library.
 
 
 const slimImageObject = img => {
   const attrSet = ['sizes', 'mime', 'type', 'subtype', 'id', 'url', 'alt', 'link', 'caption'];
-  return Object(external_lodash_["pick"])(img, attrSet);
+  return attrSet.reduce((result, key) => {
+    if (img?.hasOwnProperty(key)) {
+      result[key] = img[key];
+    }
+
+    return result;
+  }, {});
 };
 
 const getAttachmentsCollection = ids => {
+  const {
+    gc
+  } = window;
   return gc.media.query({
     order: 'ASC',
     orderby: 'post__in',
@@ -293,22 +254,24 @@ const getAttachmentsCollection = ids => {
   });
 };
 
-class media_upload_MediaUpload extends external_gc_element_["Component"] {
-  constructor(_ref) {
-    let {
-      allowedTypes,
-      gallery = false,
-      unstableFeaturedImageFlow = false,
-      modalClass,
-      multiple = false,
-      title = Object(external_gc_i18n_["__"])('选择或上传媒体')
-    } = _ref;
+class MediaUpload extends external_gc_element_namespaceObject.Component {
+  constructor({
+    allowedTypes,
+    gallery = false,
+    unstableFeaturedImageFlow = false,
+    modalClass,
+    multiple = false,
+    title = (0,external_gc_i18n_namespaceObject.__)('选择或上传媒体')
+  }) {
     super(...arguments);
     this.openModal = this.openModal.bind(this);
     this.onOpen = this.onOpen.bind(this);
     this.onSelect = this.onSelect.bind(this);
     this.onUpdate = this.onUpdate.bind(this);
     this.onClose = this.onClose.bind(this);
+    const {
+      gc
+    } = window;
 
     if (gallery) {
       this.buildAndSetGalleryFrame();
@@ -365,6 +328,9 @@ class media_upload_MediaUpload extends external_gc_element_["Component"] {
       return;
     }
 
+    const {
+      gc
+    } = window;
     this.lastGalleryValue = value; // If a frame already existed remove it.
 
     if (this.frame) {
@@ -406,6 +372,9 @@ class media_upload_MediaUpload extends external_gc_element_["Component"] {
 
 
   buildAndSetFeatureImageFrame() {
+    const {
+      gc
+    } = window;
     const featuredImageFrame = getFeaturedImageMediaFrame();
     const attachments = getAttachmentsCollection(this.props.value);
     const selection = new gc.media.model.Selection(attachments.models, {
@@ -448,19 +417,28 @@ class media_upload_MediaUpload extends external_gc_element_["Component"] {
     const {
       onSelect,
       multiple = false
-    } = this.props; // Get media attachment details from the frame state
+    } = this.props; // Get media attachment details from the frame state.
 
     const attachment = this.frame.state().get('selection').toJSON();
     onSelect(multiple ? attachment : attachment[0]);
   }
 
   onOpen() {
-    var _this$props$value;
+    const {
+      gc
+    } = window;
+    const {
+      value
+    } = this.props;
+    this.updateCollection(); //Handle active tab in media model on model open.
 
-    this.updateCollection(); // Handle both this.props.value being either (number[]) multiple ids
+    if (this.props.mode) {
+      this.frame.content.mode(this.props.mode);
+    } // Handle both this.props.value being either (number[]) multiple ids
     // (for galleries) or a (number) singular id (e.g. image block).
 
-    const hasMedia = Array.isArray(this.props.value) ? !!((_this$props$value = this.props.value) !== null && _this$props$value !== void 0 && _this$props$value.length) : !!this.props.value;
+
+    const hasMedia = Array.isArray(value) ? !!value?.length : !!value;
 
     if (!hasMedia) {
       return;
@@ -468,20 +446,19 @@ class media_upload_MediaUpload extends external_gc_element_["Component"] {
 
     const isGallery = this.props.gallery;
     const selection = this.frame.state().get('selection');
+    const valueArray = Array.isArray(value) ? value : [value];
 
     if (!isGallery) {
-      Object(external_lodash_["castArray"])(this.props.value).forEach(id => {
+      valueArray.forEach(id => {
         selection.add(gc.media.attachment(id));
       });
     } // Load the images so they are available in the media modal.
 
 
-    const attachments = getAttachmentsCollection(Object(external_lodash_["castArray"])(this.props.value)); // Once attachments are loaded, set the current selection.
+    const attachments = getAttachmentsCollection(valueArray); // Once attachments are loaded, set the current selection.
 
     attachments.more().done(function () {
-      var _attachments$models;
-
-      if (isGallery && attachments !== null && attachments !== void 0 && (_attachments$models = attachments.models) !== null && _attachments$models !== void 0 && _attachments$models.length) {
+      if (isGallery && attachments?.models?.length) {
         selection.add(attachments.models);
       }
     });
@@ -501,11 +478,11 @@ class media_upload_MediaUpload extends external_gc_element_["Component"] {
     const frameContent = this.frame.content.get();
 
     if (frameContent && frameContent.collection) {
-      const collection = frameContent.collection; // clean all attachments we have in memory.
+      const collection = frameContent.collection; // Clean all attachments we have in memory.
 
-      collection.toArray().forEach(model => model.trigger('destroy', model)); // reset has more flag, if library had small amount of items all items may have been loaded before.
+      collection.toArray().forEach(model => model.trigger('destroy', model)); // Reset has more flag, if library had small amount of items all items may have been loaded before.
 
-      collection.mirroring._hasMore = true; // request items
+      collection.mirroring._hasMore = true; // Request items.
 
       collection.more();
     }
@@ -527,25 +504,17 @@ class media_upload_MediaUpload extends external_gc_element_["Component"] {
 
 }
 
-/* harmony default export */ var media_upload = (media_upload_MediaUpload);
+/* harmony default export */ var media_upload = (MediaUpload);
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/media-utils/build-module/components/index.js
-
-
-// EXTERNAL MODULE: external ["gc","apiFetch"]
-var external_gc_apiFetch_ = __webpack_require__("xuem");
-var external_gc_apiFetch_default = /*#__PURE__*/__webpack_require__.n(external_gc_apiFetch_);
-
-// EXTERNAL MODULE: external ["gc","blob"]
-var external_gc_blob_ = __webpack_require__("8mya");
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/media-utils/build-module/utils/upload-media.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/media-utils/build-module/components/index.js
 
 
-/**
- * External dependencies
- */
-
+;// CONCATENATED MODULE: external ["gc","apiFetch"]
+var external_gc_apiFetch_namespaceObject = window["gc"]["apiFetch"];
+var external_gc_apiFetch_default = /*#__PURE__*/__webpack_require__.n(external_gc_apiFetch_namespaceObject);
+;// CONCATENATED MODULE: external ["gc","blob"]
+var external_gc_blob_namespaceObject = window["gc"]["blob"];
+;// CONCATENATED MODULE: ./node_modules/@gechiui/media-utils/build-module/utils/upload-media.js
 /**
  * GeChiUI dependencies
  */
@@ -553,6 +522,7 @@ var external_gc_blob_ = __webpack_require__("8mya");
 
 
 
+const noop = () => {};
 /**
  * Browsers may use unexpected mime types, and they differ from browser to browser.
  * This function computes a flexible array of mime types from the mime type structured provided by the server.
@@ -567,16 +537,17 @@ var external_gc_blob_ = __webpack_require__("8mya");
  * @return {?Array} An array of mime types or the parameter passed if it was "falsy".
  */
 
+
 function getMimeTypesArray(gcMimeTypesObject) {
   if (!gcMimeTypesObject) {
     return gcMimeTypesObject;
   }
 
-  return Object(external_lodash_["flatMap"])(gcMimeTypesObject, (mime, extensionsString) => {
+  return Object.entries(gcMimeTypesObject).map(([extensionsString, mime]) => {
     const [type] = mime.split('/');
     const extensions = extensionsString.split('|');
-    return [mime, ...Object(external_lodash_["map"])(extensions, extension => `${type}/${extension}`)];
-  });
+    return [mime, ...extensions.map(extension => `${type}/${extension}`)];
+  }).flat();
 }
 /**
  *	Media Upload is used by audio, image, gallery, video, and file blocks to
@@ -594,25 +565,24 @@ function getMimeTypesArray(gcMimeTypesObject) {
  * @param {?Object}  $0.gcAllowedMimeTypes List of allowed mime types and file extensions.
  */
 
-async function uploadMedia(_ref) {
-  let {
-    allowedTypes,
-    additionalData = {},
-    filesList,
-    maxUploadFileSize,
-    onError = external_lodash_["noop"],
-    onFileChange,
-    gcAllowedMimeTypes = null
-  } = _ref;
-  // Cast filesList to array
+async function uploadMedia({
+  allowedTypes,
+  additionalData = {},
+  filesList,
+  maxUploadFileSize,
+  onError = noop,
+  onFileChange,
+  gcAllowedMimeTypes = null
+}) {
+  // Cast filesList to array.
   const files = [...filesList];
   const filesSet = [];
 
   const setAndUpdateFiles = (idx, value) => {
-    Object(external_gc_blob_["revokeBlobURL"])(Object(external_lodash_["get"])(filesSet, [idx, 'url']));
+    (0,external_gc_blob_namespaceObject.revokeBlobURL)(filesSet[idx]?.url);
     filesSet[idx] = value;
-    onFileChange(Object(external_lodash_["compact"])(filesSet));
-  }; // Allowed type specified by consumer
+    onFileChange(filesSet.filter(Boolean));
+  }; // Allowed type specified by consumer.
 
 
   const isAllowedType = fileType => {
@@ -620,30 +590,22 @@ async function uploadMedia(_ref) {
       return true;
     }
 
-    return Object(external_lodash_["some"])(allowedTypes, allowedType => {
+    return allowedTypes.some(allowedType => {
       // If a complete mimetype is specified verify if it matches exactly the mime type of the file.
-      if (Object(external_lodash_["includes"])(allowedType, '/')) {
+      if (allowedType.includes('/')) {
         return allowedType === fileType;
       } // Otherwise a general mime type is used and we should verify if the file mimetype starts with it.
 
 
-      return Object(external_lodash_["startsWith"])(fileType, `${allowedType}/`);
+      return fileType.startsWith(`${allowedType}/`);
     });
-  }; // Allowed types for the current GC_User
+  }; // Allowed types for the current GC_User.
 
 
   const allowedMimeTypesForUser = getMimeTypesArray(gcAllowedMimeTypes);
 
   const isAllowedMimeTypeForUser = fileType => {
-    return Object(external_lodash_["includes"])(allowedMimeTypesForUser, fileType);
-  }; // Build the error message including the filename
-
-
-  const triggerError = error => {
-    error.message = [Object(external_gc_element_["createElement"])("strong", {
-      key: "filename"
-    }, error.file.name), ': ', error.message];
-    onError(error);
+    return allowedMimeTypesForUser.includes(fileType);
   };
 
   const validFiles = [];
@@ -652,9 +614,10 @@ async function uploadMedia(_ref) {
     // Verify if user is allowed to upload this mime type.
     // Defer to the server when type not detected.
     if (allowedMimeTypesForUser && mediaFile.type && !isAllowedMimeTypeForUser(mediaFile.type)) {
-      triggerError({
+      onError({
         code: 'MIME_TYPE_NOT_ALLOWED_FOR_USER',
-        message: Object(external_gc_i18n_["__"])('抱歉，您无权上传此文件类型。'),
+        message: (0,external_gc_i18n_namespaceObject.sprintf)( // translators: %s: file name.
+        (0,external_gc_i18n_namespaceObject.__)('%s：抱歉，您无权上传此文件类型。'), mediaFile.name),
         file: mediaFile
       });
       continue;
@@ -663,19 +626,21 @@ async function uploadMedia(_ref) {
 
 
     if (mediaFile.type && !isAllowedType(mediaFile.type)) {
-      triggerError({
+      onError({
         code: 'MIME_TYPE_NOT_SUPPORTED',
-        message: Object(external_gc_i18n_["__"])('抱歉，不支持此文件类型。'),
+        message: (0,external_gc_i18n_namespaceObject.sprintf)( // translators: %s: file name.
+        (0,external_gc_i18n_namespaceObject.__)('%s：抱歉，不支持此文件类型。'), mediaFile.name),
         file: mediaFile
       });
       continue;
-    } // verify if file is greater than the maximum file upload size allowed for the site.
+    } // Verify if file is greater than the maximum file upload size allowed for the site.
 
 
     if (maxUploadFileSize && mediaFile.size > maxUploadFileSize) {
-      triggerError({
+      onError({
         code: 'SIZE_ABOVE_LIMIT',
-        message: Object(external_gc_i18n_["__"])('此文件超过了本站点的最大上传大小。'),
+        message: (0,external_gc_i18n_namespaceObject.sprintf)( // translators: %s: file name.
+        (0,external_gc_i18n_namespaceObject.__)('%s：此文件超过了本系统的最大上传大小。'), mediaFile.name),
         file: mediaFile
       });
       continue;
@@ -683,19 +648,20 @@ async function uploadMedia(_ref) {
 
 
     if (mediaFile.size <= 0) {
-      triggerError({
+      onError({
         code: 'EMPTY_FILE',
-        message: Object(external_gc_i18n_["__"])('此文件为空。'),
+        message: (0,external_gc_i18n_namespaceObject.sprintf)( // translators: %s: file name.
+        (0,external_gc_i18n_namespaceObject.__)('%s：此文件为空。'), mediaFile.name),
         file: mediaFile
       });
       continue;
     }
 
     validFiles.push(mediaFile); // Set temporary URL to create placeholder media file, this is replaced
-    // with final file from media gallery when upload is `done` below
+    // with final file from media gallery when upload is `done` below.
 
     filesSet.push({
-      url: Object(external_gc_blob_["createBlobURL"])(mediaFile)
+      url: (0,external_gc_blob_namespaceObject.createBlobURL)(mediaFile)
     });
     onFileChange(filesSet);
   }
@@ -704,10 +670,18 @@ async function uploadMedia(_ref) {
     const mediaFile = validFiles[idx];
 
     try {
-      const savedMedia = await createMediaFromFile(mediaFile, additionalData);
-      const mediaObject = { ...Object(external_lodash_["omit"])(savedMedia, ['alt_text', 'source_url']),
+      var _savedMedia$caption$r;
+
+      const savedMedia = await createMediaFromFile(mediaFile, additionalData); // eslint-disable-next-line camelcase
+
+      const {
+        alt_text,
+        source_url,
+        ...savedMediaProps
+      } = savedMedia;
+      const mediaObject = { ...savedMediaProps,
         alt: savedMedia.alt_text,
-        caption: Object(external_lodash_["get"])(savedMedia, ['caption', 'raw'], ''),
+        caption: (_savedMedia$caption$r = savedMedia.caption?.raw) !== null && _savedMedia$caption$r !== void 0 ? _savedMedia$caption$r : '',
         title: savedMedia.title.raw,
         url: savedMedia.source_url
       };
@@ -717,11 +691,11 @@ async function uploadMedia(_ref) {
       setAndUpdateFiles(idx, null);
       let message;
 
-      if (Object(external_lodash_["has"])(error, ['message'])) {
-        message = Object(external_lodash_["get"])(error, ['message']);
+      if (error.message) {
+        message = error.message;
       } else {
-        message = Object(external_gc_i18n_["sprintf"])( // translators: %s: file name
-        Object(external_gc_i18n_["__"])('在将文件%s上传至媒体库时出现错误。'), mediaFile.name);
+        message = (0,external_gc_i18n_namespaceObject.sprintf)( // translators: %s: file name
+        (0,external_gc_i18n_namespaceObject.__)('在将文件%s上传至媒体库时出现错误。'), mediaFile.name);
       }
 
       onError({
@@ -740,10 +714,14 @@ async function uploadMedia(_ref) {
  */
 
 function createMediaFromFile(file, additionalData) {
-  // Create upload payload
+  // Create upload payload.
   const data = new window.FormData();
   data.append('file', file, file.name || file.type.replace('/', '.'));
-  Object(external_lodash_["forEach"])(additionalData, (value, key) => data.append(key, value));
+
+  if (additionalData) {
+    Object.entries(additionalData).forEach(([key, value]) => data.append(key, value));
+  }
+
   return external_gc_apiFetch_default()({
     path: '/gc/v2/media',
     body: data,
@@ -751,49 +729,13 @@ function createMediaFromFile(file, additionalData) {
   });
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/media-utils/build-module/utils/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/media-utils/build-module/utils/index.js
 
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/media-utils/build-module/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/media-utils/build-module/index.js
 
 
 
-
-/***/ }),
-
-/***/ "8mya":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["blob"]; }());
-
-/***/ }),
-
-/***/ "YLtl":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["lodash"]; }());
-
-/***/ }),
-
-/***/ "ewfG":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["element"]; }());
-
-/***/ }),
-
-/***/ "xuem":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["apiFetch"]; }());
-
-/***/ }),
-
-/***/ "z4sU":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["i18n"]; }());
-
-/***/ })
-
-/******/ });
+(window.gc = window.gc || {}).mediaUtils = __webpack_exports__;
+/******/ })()
+;

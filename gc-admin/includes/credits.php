@@ -4,14 +4,11 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
- * Retrieve the contributor credits.
- *
- *
- *
+ * Retrieves the contributor credits.
+ * Added the `$version` and `$locale` parameters.
  *
  * @param string $version GeChiUI version. Defaults to the current version.
  * @param string $locale  GeChiUI locale. Defaults to the current user's locale.
@@ -32,8 +29,8 @@ function gc_credits( $version = '', $locale = '' ) {
 	$results = get_site_transient( 'gechiui_credits_' . $locale );
 
 	if ( ! is_array( $results )
-		|| false !== strpos( $version, '-' )
-		|| ( isset( $results['data']['version'] ) && strpos( $version, $results['data']['version'] ) !== 0 )
+		|| str_contains( $version, '-' )
+		|| ( isset( $results['data']['version'] ) && ! str_starts_with( $version, $results['data']['version'] ) )
 	) {
 		$url     = "http://api.gechiui.com/core/credits/1.1/?version={$version}&locale={$locale}";
 		$options = array( 'user-agent' => 'GeChiUI/' . $version . '; ' . home_url( '/' ) );
@@ -61,10 +58,9 @@ function gc_credits( $version = '', $locale = '' ) {
 }
 
 /**
- * Retrieve the link to a contributor's www.GeChiUI.com profile page.
+ * Retrieves the link to a contributor's www.GeChiUI.com profile page.
  *
  * @access private
- *
  *
  * @param string $display_name  The contributor's display name (passed by reference).
  * @param string $username      The contributor's username.
@@ -75,10 +71,9 @@ function _gc_credits_add_profile_link( &$display_name, $username, $profiles ) {
 }
 
 /**
- * Retrieve the link to an external library used in GeChiUI.
+ * Retrieves the link to an external library used in GeChiUI.
  *
  * @access private
- *
  *
  * @param string $data External library data (passed by reference).
  */
@@ -89,7 +84,7 @@ function _gc_credits_build_object_link( &$data ) {
 /**
  * Displays the title for a given group of contributors.
  *
- *
+ * @since 5.3.0
  *
  * @param array $group_data The current contributor group.
  */
@@ -99,7 +94,7 @@ function gc_credits_section_title( $group_data = array() ) {
 	}
 
 	if ( $group_data['name'] ) {
-		if ( '简体中文翻译贡献者' === $group_data['name'] ) {
+		if ( 'Translators' === $group_data['name'] ) {
 			// Considered a special slug in the API response. (Also, will never be returned for zh_CN.)
 			$title = _x( '简体中文翻译贡献者', 'Translate this to be the equivalent of English Translators in your language for the credits page Translators section' );
 		} elseif ( isset( $group_data['placeholders'] ) ) {
@@ -117,7 +112,7 @@ function gc_credits_section_title( $group_data = array() ) {
 /**
  * Displays a list of contributors for a given group.
  *
- *
+ * @since 5.3.0
  *
  * @param array  $credits The credits groups returned from the API.
  * @param string $slug    The current group to display.

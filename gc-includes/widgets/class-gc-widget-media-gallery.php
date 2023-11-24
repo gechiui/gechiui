@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class that implements a gallery widget.
- *
- *
  *
  * @see GC_Widget_Media
  * @see GC_Widget
@@ -20,13 +17,14 @@ class GC_Widget_Media_Gallery extends GC_Widget_Media {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.9.0
 	 */
 	public function __construct() {
 		parent::__construct(
 			'media_gallery',
-			__( '画廊' ),
+			__( '图库' ),
 			array(
-				'description' => __( '显示图片画廊。' ),
+				'description' => __( '显示图库。' ),
 				'mime_type'   => 'image',
 			)
 		);
@@ -37,7 +35,7 @@ class GC_Widget_Media_Gallery extends GC_Widget_Media {
 				'no_media_selected' => __( '未选择图片' ),
 				'add_media'         => _x( '添加图片', 'label for button in the gallery widget; should not be longer than ~13 characters long' ),
 				'replace_media'     => '',
-				'edit_media'        => _x( '编辑画廊', 'label for button in the gallery widget; should not be longer than ~13 characters long' ),
+				'edit_media'        => _x( '编辑图库', 'label for button in the gallery widget; should not be longer than ~13 characters long' ),
 			)
 		);
 	}
@@ -45,6 +43,7 @@ class GC_Widget_Media_Gallery extends GC_Widget_Media {
 	/**
 	 * Get schema for properties of a widget instance (item).
 	 *
+	 * @since 4.9.0
 	 *
 	 * @see GC_REST_Controller::get_item_schema()
 	 * @see GC_REST_Controller::get_additional_fields()
@@ -104,6 +103,7 @@ class GC_Widget_Media_Gallery extends GC_Widget_Media {
 	/**
 	 * Render the media on the frontend.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param array $instance Widget instance props.
 	 */
@@ -129,6 +129,7 @@ class GC_Widget_Media_Gallery extends GC_Widget_Media {
 	/**
 	 * Loads the required media files for the media manager and scripts for media widgets.
 	 *
+	 * @since 4.9.0
 	 */
 	public function enqueue_admin_scripts() {
 		parent::enqueue_admin_scripts();
@@ -166,6 +167,7 @@ class GC_Widget_Media_Gallery extends GC_Widget_Media {
 	/**
 	 * Render form template scripts.
 	 *
+	 * @since 4.9.0
 	 */
 	public function render_control_template_scripts() {
 		parent::render_control_template_scripts();
@@ -234,6 +236,7 @@ class GC_Widget_Media_Gallery extends GC_Widget_Media {
 	/**
 	 * Whether the widget has content to show.
 	 *
+	 * @since 4.9.0
 	 * @access protected
 	 *
 	 * @param array $instance Widget instance props.

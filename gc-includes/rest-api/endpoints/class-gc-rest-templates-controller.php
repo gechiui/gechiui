@@ -4,13 +4,13 @@
  *
  * @package    GeChiUI
  * @subpackage REST_API
- *
+ * @since 5.8.0
  */
 
 /**
  * Base Templates REST API Controller.
  *
- *
+ * @since 5.8.0
  *
  * @see GC_REST_Controller
  */
@@ -19,6 +19,7 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Post type.
 	 *
+	 * @since 5.8.0
 	 * @var string
 	 */
 	protected $post_type;
@@ -26,6 +27,7 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Constructor.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param string $post_type Post type.
 	 */
@@ -39,6 +41,8 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the controllers routes.
 	 *
+	 * @since 5.8.0
+	 * @since 6.1.0 Endpoint for fallback template content.
 	 */
 	public function register_routes() {
 		// Lists all templates.
@@ -62,6 +66,34 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 			)
 		);
 
+		// Get fallback template content.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/lookup',
+			array(
+				array(
+					'methods'             => GC_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_template_fallback' ),
+					'permission_callback' => array( $this, 'get_item_permissions_check' ),
+					'args'                => array(
+						'slug'            => array(
+							'description' => __( '获取回退所用的模板的别名：' ),
+							'type'        => 'string',
+							'required'    => true,
+						),
+						'is_custom'       => array(
+							'description' => __( '指明模板是自定义的，或是属于模板层级的一部分' ),
+							'type'        => 'boolean',
+						),
+						'template_prefix' => array(
+							'description' => __( '所创建模板的模板前缀。 这被用于提取主模板类型，例如在“taxonomy-books”中将提取“taxonomy”。' ),
+							'type'        => 'string',
+						),
+					),
+				),
+			)
+		);
+
 		// Lists/updates a single template based on the given id.
 		register_rest_route(
 			$this->namespace,
@@ -69,11 +101,13 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 			sprintf(
 				'/%s/(?P<id>%s%s)',
 				$this->rest_base,
-				// Matches theme's directory: `/themes/<subdirectory>/<theme>/` or `/themes/<theme>/`.
-				// Excludes invalid directory name characters: `/:<>*?"|`.
+				/*
+				 * Matches theme's directory: `/themes/<subdirectory>/<theme>/` or `/themes/<theme>/`.
+				 * Excludes invalid directory name characters: `/:<>*?"|`.
+				 */
 				'([^\/:<>\*\?"\|]+(?:\/[^\/:<>\*\?"\|]+)?)',
 				// Matches the template name.
-				'[\/\w-]+'
+				'[\/\w%-]+'
 			),
 			array(
 				'args'   => array(
@@ -115,19 +149,44 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	}
 
 	/**
+	 * Returns the fallback template for the given slug.
+	 *
+	 * @since 6.1.0
+	 * @since 6.3.0 Ignore empty templates.
+	 *
+	 * @param GC_REST_Request $request The request instance.
+	 * @return GC_REST_Response|GC_Error
+	 */
+	public function get_template_fallback( $request ) {
+		$hierarchy = get_template_hierarchy( $request['slug'], $request['is_custom'], $request['template_prefix'] );
+
+		do {
+			$fallback_template = resolve_block_template( $request['slug'], $hierarchy, '' );
+			array_shift( $hierarchy );
+		} while ( ! empty( $hierarchy ) && empty( $fallback_template->content ) );
+
+		$response = $this->prepare_item_for_response( $fallback_template, $request );
+
+		return rest_ensure_response( $response );
+	}
+
+	/**
 	 * Checks if the user has permissions to make the request.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
 	 */
 	protected function permissions_check( $request ) {
-		// Verify if the current user has edit_theme_options capability.
-		// This capability is required to edit/view/delete templates.
+		/*
+		 * Verify if the current user has edit_theme_options capability.
+		 * This capability is required to edit/view/delete templates.
+		 */
 		if ( ! current_user_can( 'edit_theme_options' ) ) {
 			return new GC_Error(
 				'rest_cannot_manage_templates',
-				__( '抱歉，您无法访问此站点的模板。' ),
+				__( '抱歉，您无法访问此系统的模板。' ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -138,15 +197,16 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Requesting this endpoint for a template like 'defaultbird//home'
-	 * requires using a path like /gc/v2/templates/defaultbird//home. There
+	 * Requesting this endpoint for a template like 'twentytwentytwo//home'
+	 * requires using a path like /gc/v2/templates/twentytwentytwo//home. There
 	 * are special cases when GeChiUI routing corrects the name to contain
-	 * only a single slash like 'defaultbird/home'.
+	 * only a single slash like 'twentytwentytwo/home'.
 	 *
 	 * This method doubles the last slash if it's not already doubled. It relies
 	 * on the template ID format {theme_name}//{template_slug} and the fact that
 	 * slugs cannot contain slashes.
 	 *
+	 * @since 5.9.0
 	 * @see https://core.trac.gechiui.com/ticket/54507
 	 *
 	 * @param string $id Template ID.
@@ -174,6 +234,7 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to read templates.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -185,6 +246,7 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Returns a list of templates.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request The request instance.
 	 * @return GC_REST_Response
@@ -213,6 +275,7 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to read a single template.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access for the item, GC_Error object otherwise.
@@ -224,6 +287,7 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Returns the given template
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request The request instance.
 	 * @return GC_REST_Response|GC_Error
@@ -245,6 +309,7 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to write a single template.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has write access for the item, GC_Error object otherwise.
@@ -256,6 +321,7 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Updates a single template.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -324,6 +390,7 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to create a template.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to create items, GC_Error object otherwise.
@@ -335,6 +402,7 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Creates a single template.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -386,6 +454,7 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to delete a single template.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has delete access for the item, GC_Error object otherwise.
@@ -397,6 +466,7 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Deletes a single template.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -436,8 +506,10 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 				);
 			}
 
-			// (Note that internally this falls through to `gc_delete_post()`
-			// if the Trash is disabled.)
+			/*
+			 * (Note that internally this falls through to `gc_delete_post()`
+			 * if the Trash is disabled.)
+			 */
 			$result           = gc_trash_post( $id );
 			$template->status = 'trash';
 			$response         = $this->prepare_item_for_response( $template, $request );
@@ -457,6 +529,7 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a single template for create or update.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Request object.
 	 * @return stdClass Changes to pass to gc_update_post.
@@ -468,7 +541,7 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 			$changes->post_type   = $this->post_type;
 			$changes->post_status = 'publish';
 			$changes->tax_input   = array(
-				'gc_theme' => isset( $request['theme'] ) ? $request['theme'] : gc_get_theme()->get_stylesheet(),
+				'gc_theme' => isset( $request['theme'] ) ? $request['theme'] : get_stylesheet(),
 			);
 		} elseif ( 'custom' !== $template->source ) {
 			$changes->post_name   = $template->slug;
@@ -509,12 +582,21 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 			$changes->post_excerpt = $template->description;
 		}
 
+		if ( 'gc_template' === $this->post_type && isset( $request['is_gc_suggestion'] ) ) {
+			$changes->meta_input     = gc_parse_args(
+				array(
+					'is_gc_suggestion' => $request['is_gc_suggestion'],
+				),
+				$changes->meta_input = array()
+			);
+		}
+
 		if ( 'gc_template_part' === $this->post_type ) {
 			if ( isset( $request['area'] ) ) {
 				$changes->tax_input['gc_template_part_area'] = _filter_block_template_part_area( $request['area'] );
 			} elseif ( null !== $template && 'custom' !== $template->source && $template->area ) {
 				$changes->tax_input['gc_template_part_area'] = _filter_block_template_part_area( $template->area );
-			} elseif ( ! $template->area ) {
+			} elseif ( empty( $template->area ) ) {
 				$changes->tax_input['gc_template_part_area'] = GC_TEMPLATE_PART_AREA_UNCATEGORIZED;
 			}
 		}
@@ -543,6 +625,9 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Prepare a single template output for response
 	 *
+	 * @since 5.8.0
+	 * @since 5.9.0 Renamed `$template` to `$item` to match parent class for PHP 8 named parameter support.
+	 * @since 6.3.0 Added `modified` property to the response.
 	 *
 	 * @param GC_Block_Template $item    Template instance.
 	 * @param GC_REST_Request   $request Request object.
@@ -637,6 +722,10 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 			$data['area'] = $template->area;
 		}
 
+		if ( rest_is_field_included( 'modified', $fields ) ) {
+			$data['modified'] = mysql_to_rfc3339( $template->modified );
+		}
+
 		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
 		$data    = $this->add_additional_fields_to_object( $data, $request );
 		$data    = $this->filter_response_by_context( $data, $context );
@@ -644,13 +733,15 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 		// Wrap the data in a response object.
 		$response = rest_ensure_response( $data );
 
-		$links = $this->prepare_links( $template->id );
-		$response->add_links( $links );
-		if ( ! empty( $links['self']['href'] ) ) {
-			$actions = $this->get_available_actions();
-			$self    = $links['self']['href'];
-			foreach ( $actions as $rel ) {
-				$response->add_link( $rel, $self );
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$links = $this->prepare_links( $template->id );
+			$response->add_links( $links );
+			if ( ! empty( $links['self']['href'] ) ) {
+				$actions = $this->get_available_actions();
+				$self    = $links['self']['href'];
+				foreach ( $actions as $rel ) {
+					$response->add_link( $rel, $self );
+				}
 			}
 		}
 
@@ -661,19 +752,18 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares links for the request.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param integer $id ID.
 	 * @return array Links for the given post.
 	 */
 	protected function prepare_links( $id ) {
-		$base = sprintf( '%s/%s', $this->namespace, $this->rest_base );
-
 		$links = array(
 			'self'       => array(
-				'href' => rest_url( trailingslashit( $base ) . $id ),
+				'href' => rest_url( rest_get_route_for_post( $id ) ),
 			),
 			'collection' => array(
-				'href' => rest_url( $base ),
+				'href' => rest_url( rest_get_route_for_post_type_items( $this->post_type ) ),
 			),
 			'about'      => array(
 				'href' => rest_url( 'gc/v2/types/' . $this->post_type ),
@@ -686,6 +776,7 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Get the link relations available for the post and current user.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @return string[] List of link relations.
 	 */
@@ -708,6 +799,8 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the query params for the posts collection.
 	 *
+	 * @since 5.8.0
+	 * @since 5.9.0 Added `'area'` and `'post_type'`.
 	 *
 	 * @return array Collection parameters.
 	 */
@@ -732,6 +825,8 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the block type' schema, conforming to JSON Schema.
 	 *
+	 * @since 5.8.0
+	 * @since 5.9.0 Added `'area'`.
 	 *
 	 * @return array Item schema data.
 	 */
@@ -757,7 +852,7 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 					'context'     => array( 'embed', 'view', 'edit' ),
 					'required'    => true,
 					'minLength'   => 1,
-					'pattern'     => '[a-zA-Z0-9_\-]+',
+					'pattern'     => '[a-zA-Z0-9_\%-]+',
 				),
 				'theme'          => array(
 					'description' => __( '模板的主题标识符。' ),
@@ -848,6 +943,13 @@ class GC_REST_Templates_Controller extends GC_REST_Controller {
 					'description' => __( '模板作者的 ID。' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit', 'embed' ),
+				),
+				'modified'       => array(
+					'description' => __( "已经修改模板的日期，在系统的时区中。" ),
+					'type'        => 'string',
+					'format'      => 'date-time',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
 				),
 			),
 		);

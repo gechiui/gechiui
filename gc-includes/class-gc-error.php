@@ -13,8 +13,8 @@
  * core GeChiUI functions pass this class in the event of an error and
  * if not handled properly will result in code errors.
  *
- *
  */
+#[AllowDynamicProperties]
 class GC_Error {
 	/**
 	 * Stores the list of errors.
@@ -33,6 +33,7 @@ class GC_Error {
 	/**
 	 * Stores previously added data added for error codes, oldest-to-newest by code.
 	 *
+	 * @since 5.6.0
 	 * @var array[]
 	 */
 	protected $additional_data = array();
@@ -51,7 +52,7 @@ class GC_Error {
 	 *
 	 * @param string|int $code    Error code.
 	 * @param string     $message Error message.
-	 * @param mixed      $data    Optional. Error data.
+	 * @param mixed      $data    Optional. Error data. Default empty string.
 	 */
 	public function __construct( $code = '', $message = '', $data = '' ) {
 		if ( empty( $code ) ) {
@@ -95,8 +96,9 @@ class GC_Error {
 	 * Retrieves all error messages, or the error messages for the given error code.
 	 *
 	 *
-	 * @param string|int $code Optional. Retrieve messages matching code, if exists.
-	 * @return array Error strings on success, or empty array if there are none.
+	 * @param string|int $code Optional. Error code to retrieve the messages for.
+	 *                         Default empty string.
+	 * @return string[] Error strings on success, or empty array if there are none.
 	 */
 	public function get_error_messages( $code = '' ) {
 		// Return all messages if no code specified.
@@ -123,7 +125,8 @@ class GC_Error {
 	 * given then the first code available will be used.
 	 *
 	 *
-	 * @param string|int $code Optional. Error code to retrieve message.
+	 * @param string|int $code Optional. Error code to retrieve the message for.
+	 *                         Default empty string.
 	 * @return string The error message.
 	 */
 	public function get_error_message( $code = '' ) {
@@ -141,7 +144,7 @@ class GC_Error {
 	 * Retrieves the most recently added error data for an error code.
 	 *
 	 *
-	 * @param string|int $code Optional. Error code.
+	 * @param string|int $code Optional. Error code. Default empty string.
 	 * @return mixed Error data, if it exists.
 	 */
 	public function get_error_data( $code = '' ) {
@@ -157,6 +160,7 @@ class GC_Error {
 	/**
 	 * Verifies if the instance contains errors.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @return bool If the instance contains errors.
 	 */
@@ -173,7 +177,7 @@ class GC_Error {
 	 *
 	 * @param string|int $code    Error code.
 	 * @param string     $message Error message.
-	 * @param mixed      $data    Optional. Error data.
+	 * @param mixed      $data    Optional. Error data. Default empty string.
 	 */
 	public function add( $code, $message, $data = '' ) {
 		$this->errors[ $code ][] = $message;
@@ -185,6 +189,7 @@ class GC_Error {
 		/**
 		 * Fires when an error is added to a GC_Error object.
 		 *
+		 * @since 5.6.0
 		 *
 		 * @param string|int $code     Error code.
 		 * @param string     $message  Error message.
@@ -197,6 +202,7 @@ class GC_Error {
 	/**
 	 * Adds data to an error with the given code.
 	 *
+	 * @since 5.6.0 Errors can now contain more than one item of error data. {@see GC_Error::$additional_data}.
 	 *
 	 * @param mixed      $data Error data.
 	 * @param string|int $code Error code.
@@ -216,6 +222,7 @@ class GC_Error {
 	/**
 	 * Retrieves all error data for an error code in the order in which the data was added.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param string|int $code Error code.
 	 * @return mixed[] Array of error data, if it exists.
@@ -244,6 +251,7 @@ class GC_Error {
 	 * This function removes all error messages associated with the specified
 	 * error code, along with any error data for that code.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param string|int $code Error code.
 	 */
@@ -256,6 +264,7 @@ class GC_Error {
 	/**
 	 * Merges the errors in the given error object into this one.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_Error $error Error object to merge.
 	 */
@@ -266,6 +275,7 @@ class GC_Error {
 	/**
 	 * Exports the errors in this object into the given one.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_Error $error Error object to export into.
 	 */
@@ -276,6 +286,7 @@ class GC_Error {
 	/**
 	 * Copies errors from one GC_Error instance to another.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_Error $from The GC_Error to copy from.
 	 * @param GC_Error $to   The GC_Error to copy to.

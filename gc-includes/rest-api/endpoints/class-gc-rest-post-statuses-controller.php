@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core class used to access post statuses via the REST API.
- *
- *
  *
  * @see GC_REST_Controller
  */
@@ -19,6 +16,7 @@ class GC_REST_Post_Statuses_Controller extends GC_REST_Controller {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.7.0
 	 */
 	public function __construct() {
 		$this->namespace = 'gc/v2';
@@ -28,6 +26,7 @@ class GC_REST_Post_Statuses_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the routes for post statuses.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @see register_rest_route()
 	 */
@@ -73,6 +72,7 @@ class GC_REST_Post_Statuses_Controller extends GC_REST_Controller {
 	/**
 	 * Checks whether a given request has permission to read post statuses.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -100,6 +100,7 @@ class GC_REST_Post_Statuses_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves all post statuses, depending on user context.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -126,6 +127,7 @@ class GC_REST_Post_Statuses_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to read a post status.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access for the item, GC_Error object otherwise.
@@ -157,6 +159,7 @@ class GC_REST_Post_Statuses_Controller extends GC_REST_Controller {
 	/**
 	 * Checks whether a given post status should be visible.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param object $status Post status.
 	 * @return bool True if the post status is visible, otherwise false.
@@ -182,6 +185,7 @@ class GC_REST_Post_Statuses_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves a specific post status.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -205,6 +209,8 @@ class GC_REST_Post_Statuses_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a post status object for serialization.
 	 *
+	 * @since 4.7.0
+	 * @since 5.9.0 Renamed `$status` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param stdClass        $item    Post status data.
 	 * @param GC_REST_Request $request Full details about the request.
@@ -266,6 +272,7 @@ class GC_REST_Post_Statuses_Controller extends GC_REST_Controller {
 		 *
 		 * Allows modification of the status data right before it is returned.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_REST_Response $response The response object.
 		 * @param object           $status   The original post status object.
@@ -277,6 +284,7 @@ class GC_REST_Post_Statuses_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the post status' schema, conforming to JSON Schema.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Item schema data.
 	 */
@@ -349,6 +357,7 @@ class GC_REST_Post_Statuses_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the query params for collections.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Collection parameters.
 	 */

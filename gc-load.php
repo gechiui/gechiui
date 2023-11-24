@@ -31,7 +31,7 @@ if ( function_exists( 'error_reporting' ) ) {
 	 * Initialize error reporting to a known set of levels.
 	 *
 	 * This will be adapted in gc_debug_mode() located in gc-includes/load.php based on GC_DEBUG.
-	 * @see http://php.net/manual/en/errorfunc.constants.php List of known error levels.
+	 * @see https://www.php.net/manual/en/errorfunc.constants.php List of known error levels.
 	 */
 	error_reporting( E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_ERROR | E_WARNING | E_PARSE | E_USER_ERROR | E_USER_WARNING | E_RECOVERABLE_ERROR );
 }
@@ -59,48 +59,47 @@ if ( file_exists( ABSPATH . 'gc-config.php' ) ) {
 	// A config file doesn't exist.
 
 	define( 'GCINC', 'gc-includes' );
+	require_once ABSPATH . GCINC . '/version.php';
+	require_once ABSPATH . GCINC . '/compat.php';
 	require_once ABSPATH . GCINC . '/load.php';
+
+	// Check for the required PHP version and for the MySQL extension or a database drop-in.
+	gc_check_php_mysql_versions();
 
 	// Standardize $_SERVER variables across setups.
 	gc_fix_server_vars();
 
+	define( 'GC_CONTENT_DIR', ABSPATH . 'gc-content' );
 	require_once ABSPATH . GCINC . '/functions.php';
 
 	$path = gc_guess_url() . '/gc-admin/setup-config.php';
 
-	/*
-	 * We're going to redirect to setup-config.php. While this shouldn't result
-	 * in an infinite loop, that's a silly thing to assume, don't you think? If
-	 * we're traveling in circles, our last-ditch effort is "Need more help?"
-	 */
-	if ( false === strpos( $_SERVER['REQUEST_URI'], 'setup-config' ) ) {
+	// Redirect to setup-config.php.
+	if ( ! str_contains( $_SERVER['REQUEST_URI'], 'setup-config' ) ) {
 		header( 'Location: ' . $path );
 		exit;
 	}
 
-	define( 'GC_CONTENT_DIR', ABSPATH . 'gc-content' );
-	require_once ABSPATH . GCINC . '/version.php';
-
-	gc_check_php_mysql_versions();
 	gc_load_translations_early();
 
 	// Die with an error message.
 	$die = '<p>' . sprintf(
 		/* translators: %s: gc-config.php */
-		__( "%s文件似乎不存在，我需要这文件来开始运行。" ),
+		__( "似乎没有 %s 文件。 在继续安装之前需要这个文件。" ),
 		'<code>gc-config.php</code>'
 	) . '</p>';
 	$die .= '<p>' . sprintf(
-		/* translators: %s: Documentation URL. */
-		__( "需要更多帮助？<a href='%s'>看这里</a>。" ),
-		__( 'https://www.gechiui.com/support/editing-gc-config-php/' )
+		/* translators: 1: Documentation URL, 2: gc-config.php */
+		__( '需要帮助？<a href="%1$s">阅读 %2$s 支持文章</a>。' ),
+		__( 'https://www.gechiui.com/support/editing-gc-config-php/' ),
+		'<code>gc-config.php</code>'
 	) . '</p>';
 	$die .= '<p>' . sprintf(
 		/* translators: %s: gc-config.php */
 		__( "您可以通过网页界面创建%s文件，但这并不适合所有的服务器设置。最安全的方法是手动创建该文件。" ),
 		'<code>gc-config.php</code>'
 	) . '</p>';
-	$die .= '<p><a href="' . $path . '" class="button button-large">' . __( '创建配置文件' ) . '</a></p>';
+	$die .= '<p><a href="' . $path . '" class="btn btn-primary">' . __( '创建配置文件' ) . '</a></p>';
 
 	gc_die( $die, __( 'GeChiUI &rsaquo; 错误' ) );
 }

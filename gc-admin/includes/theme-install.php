@@ -51,9 +51,7 @@ $theme_field_defaults = array(
 );
 
 /**
- * Retrieve list of GeChiUI theme features (aka theme tags).
- *
- *
+ * Retrieves the list of GeChiUI theme features (aka theme tags).
  *
  * @deprecated 3.1.0 Use get_theme_feature_list() instead.
  *
@@ -82,9 +80,7 @@ function install_themes_feature_list() {
 }
 
 /**
- * Display search form for searching themes.
- *
- *
+ * Displays search form for searching themes.
  *
  * @param bool $type_selector
  */
@@ -98,29 +94,41 @@ function install_theme_search_form( $type_selector = true ) {
 <form id="search-themes" method="get">
 	<input type="hidden" name="tab" value="search" />
 	<?php if ( $type_selector ) : ?>
-	<label class="screen-reader-text" for="typeselector"><?php _e( '搜索类型' ); ?></label>
+	<label class="screen-reader-text" for="typeselector">
+		<?php
+		/* translators: Hidden accessibility text. */
+		_e( '搜索类型' );
+		?>
+	</label>
 	<select	name="type" id="typeselector">
 	<option value="term" <?php selected( 'term', $type ); ?>><?php _e( '关键字' ); ?></option>
-	<option value="author" <?php selected( 'author', $type ); ?>><?php _e( '作者' ); ?></option>
-	<option value="tag" <?php selected( 'tag', $type ); ?>><?php _ex( '标签', 'Theme Installer' ); ?></option>
+	<option value="tag" <?php selected( 'tag', $type ); ?>><?php _ex( 'Tag', 'Theme Installer' ); ?></option>
 	</select>
 	<label class="screen-reader-text" for="s">
 		<?php
 		switch ( $type ) {
 			case 'term':
+				/* translators: Hidden accessibility text. */
 				_e( '根据关键词查找' );
 				break;
 			case 'author':
+				/* translators: Hidden accessibility text. */
 				_e( '根据作者查找' );
 				break;
 			case 'tag':
+				/* translators: Hidden accessibility text. */
 				_e( '根据标签查找' );
 				break;
 		}
 		?>
 	</label>
 	<?php else : ?>
-	<label class="screen-reader-text" for="s"><?php _e( '根据关键词查找' ); ?></label>
+	<label class="screen-reader-text" for="s">
+		<?php
+		/* translators: Hidden accessibility text. */
+		_e( '根据关键词查找' );
+		?>
+	</label>
 	<?php endif; ?>
 	<input type="search" name="s" id="s" size="30" value="<?php echo esc_attr( $term ); ?>" autofocus="autofocus" />
 	<?php submit_button( __( '搜索' ), '', 'search', false ); ?>
@@ -129,8 +137,7 @@ function install_theme_search_form( $type_selector = true ) {
 }
 
 /**
- * Display tags filter for themes.
- *
+ * Displays tags filter for themes.
  *
  */
 function install_themes_dashboard() {
@@ -175,14 +182,20 @@ function install_themes_dashboard() {
 }
 
 /**
+ * Displays a form to upload themes from zip files.
  *
  */
 function install_themes_upload() {
 	?>
 <p class="install-help"><?php _e( '如果您有.zip格式的主题，可以在这里通过上传的方式安装。' ); ?></p>
-<form method="post" enctype="multipart/form-data" class="gc-upload-form" action="<?php echo self_admin_url( 'update.php?action=upload-theme' ); ?>">
+<form method="post" enctype="multipart/form-data" class="gc-upload-form" action="<?php echo esc_url( self_admin_url( 'update.php?action=upload-theme' ) ); ?>">
 	<?php gc_nonce_field( 'theme-upload' ); ?>
-	<label class="screen-reader-text" for="themezip"><?php _e( '主题压缩文件' ); ?></label>
+	<label class="screen-reader-text" for="themezip">
+		<?php
+		/* translators: Hidden accessibility text. */
+		_e( '主题压缩文件' );
+		?>
+	</label>
 	<input type="file" id="themezip" name="themezip" accept=".zip" />
 	<?php submit_button( __( '立即安装' ), '', 'install-theme-submit', false ); ?>
 </form>
@@ -209,9 +222,7 @@ function display_theme( $theme ) {
 }
 
 /**
- * Display theme content based on theme list.
- *
- *
+ * Displays theme content based on theme list.
  *
  * @global GC_Theme_Install_List_Table $gc_list_table
  */
@@ -227,9 +238,7 @@ function display_themes() {
 }
 
 /**
- * Display theme information in dialog box form.
- *
- *
+ * Displays theme information in dialog box form.
  *
  * @global GC_Theme_Install_List_Table $gc_list_table
  */

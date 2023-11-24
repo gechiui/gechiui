@@ -2,6 +2,7 @@
 /**
  * GC_Importer base class
  */
+#[AllowDynamicProperties]
 class GC_Importer {
 	/**
 	 * Class Constructor
@@ -9,7 +10,7 @@ class GC_Importer {
 	public function __construct() {}
 
 	/**
-	 * Returns array with imported permalinks from GeChiUI database
+	 * Returns array with imported permalinks from GeChiUI database.
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -40,13 +41,13 @@ class GC_Importer {
 					$hashtable[ $r->meta_value ] = (int) $r->post_id;
 				}
 			}
-		} while ( count( $results ) == $limit );
+		} while ( count( $results ) === $limit );
 
 		return $hashtable;
 	}
 
 	/**
-	 * Return count of imported permalinks from GeChiUI database
+	 * Returns count of imported permalinks from GeChiUI database.
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -73,7 +74,7 @@ class GC_Importer {
 	}
 
 	/**
-	 * Set array with imported comments from GeChiUI database
+	 * Sets array with imported comments from GeChiUI database.
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -109,7 +110,7 @@ class GC_Importer {
 					}
 				}
 			}
-		} while ( count( $results ) == $limit );
+		} while ( count( $results ) === $limit );
 
 		return $hashtable;
 	}
@@ -175,7 +176,7 @@ class GC_Importer {
 	}
 
 	/**
-	 * Sort by strlen, longest string first
+	 * Sorts by strlen, longest string first.
 	 *
 	 * @param string $a
 	 * @param string $b
@@ -186,7 +187,7 @@ class GC_Importer {
 	}
 
 	/**
-	 * GET URL
+	 * Gets URL.
 	 *
 	 * @param string $url
 	 * @param string $username
@@ -213,7 +214,7 @@ class GC_Importer {
 	}
 
 	/**
-	 * Bump up the request timeout for http requests
+	 * Bumps up the request timeout for http requests.
 	 *
 	 * @param int $val
 	 * @return int
@@ -223,7 +224,7 @@ class GC_Importer {
 	}
 
 	/**
-	 * Check if user has exceeded disk quota
+	 * Checks if user has exceeded disk quota.
 	 *
 	 * @return bool
 	 */
@@ -238,13 +239,13 @@ class GC_Importer {
 	}
 
 	/**
-	 * Replace newlines, tabs, and multiple spaces with a single space
+	 * Replaces newlines, tabs, and multiple spaces with a single space.
 	 *
-	 * @param string $string
+	 * @param string $text
 	 * @return string
 	 */
-	public function min_whitespace( $string ) {
-		return preg_replace( '|[\r\n\t ]+|', ' ', $string );
+	public function min_whitespace( $text ) {
+		return preg_replace( '|[\r\n\t ]+|', ' ', $text );
 	}
 
 	/**

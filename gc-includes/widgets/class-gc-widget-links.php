@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class used to implement a Links widget.
- *
- *
  *
  * @see GC_Widget
  */
@@ -46,7 +43,7 @@ class GC_Widget_Links extends GC_Widget {
 		$order            = 'rating' === $orderby ? 'DESC' : 'ASC';
 		$limit            = isset( $instance['limit'] ) ? $instance['limit'] : -1;
 
-		$before_widget = preg_replace( '/id="[^"]*"/', 'id="%id"', $args['before_widget'] );
+		$before_widget = preg_replace( '/ id="[^"]*"/', ' id="%id"', $args['before_widget'] );
 
 		$widget_links_args = array(
 			'title_before'     => $args['before_title'],
@@ -67,6 +64,8 @@ class GC_Widget_Links extends GC_Widget {
 		/**
 		 * Filters the arguments for the Links widget.
 		 *
+		 * @since 2.6.0
+		 * @since 4.4.0 Added the `$instance` parameter.
 		 *
 		 * @see gc_list_bookmarks()
 		 *
@@ -140,7 +139,7 @@ class GC_Widget_Links extends GC_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id( 'category' ); ?>"><?php _e( '选择链接分类：' ); ?></label>
 			<select class="widefat" id="<?php echo $this->get_field_id( 'category' ); ?>" name="<?php echo $this->get_field_name( 'category' ); ?>">
-				<option value=""><?php _ex( '全部链接', 'links widget' ); ?></option>
+				<option value=""><?php _ex( '所有链接', 'links widget' ); ?></option>
 				<?php foreach ( $link_cats as $link_cat ) : ?>
 					<option value="<?php echo (int) $link_cat->term_id; ?>" <?php selected( $instance['category'], $link_cat->term_id ); ?>>
 						<?php echo esc_html( $link_cat->name ); ?>
@@ -152,7 +151,7 @@ class GC_Widget_Links extends GC_Widget {
 				<option value="name"<?php selected( $instance['orderby'], 'name' ); ?>><?php _e( '链接标题' ); ?></option>
 				<option value="rating"<?php selected( $instance['orderby'], 'rating' ); ?>><?php _e( '链接评级' ); ?></option>
 				<option value="id"<?php selected( $instance['orderby'], 'id' ); ?>><?php _e( '链接ID' ); ?></option>
-				<option value="rand"<?php selected( $instance['orderby'], 'rand' ); ?>><?php _ex( '随机', 'Links widget' ); ?></option>
+				<option value="rand"<?php selected( $instance['orderby'], 'rand' ); ?>><?php _ex( 'Random', 'Links widget' ); ?></option>
 			</select>
 		</p>
 

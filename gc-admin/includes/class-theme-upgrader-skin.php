@@ -4,14 +4,11 @@
  *
  * @package GeChiUI
  * @subpackage Upgrader
- *
  */
 
 /**
  * Theme Upgrader Skin for GeChiUI Theme Upgrades.
- *
- *
- *
+ * Moved to its own file from gc-admin/includes/class-gc-upgrader-skins.php.
  *
  * @see GC_Upgrader_Skin
  */
@@ -49,7 +46,7 @@ class Theme_Upgrader_Skin extends GC_Upgrader_Skin {
 	}
 
 	/**
-	 * Action to perform following a single theme update.
+	 * Performs an action following a single theme update.
 	 *
 	 */
 	public function after() {
@@ -87,7 +84,7 @@ class Theme_Upgrader_Skin extends GC_Upgrader_Skin {
 						'<span aria-hidden="true">%s</span><span class="screen-reader-text">%s</span></a>',
 						esc_url( $customize_url ),
 						__( '自定义' ),
-						/* translators: %s: Theme name. */
+						/* translators: Hidden accessibility text. %s: Theme name. */
 						sprintf( __( '自定义“%s”' ), $name )
 					);
 				}
@@ -98,7 +95,7 @@ class Theme_Upgrader_Skin extends GC_Upgrader_Skin {
 						'<span aria-hidden="true">%s</span><span class="screen-reader-text">%s</span></a>',
 						esc_url( $customize_url ),
 						__( '实时预览' ),
-						/* translators: %s: Theme name. */
+						/* translators: Hidden accessibility text. %s: Theme name. */
 						sprintf( __( '实时预览“%s”' ), $name )
 					);
 				}
@@ -108,7 +105,7 @@ class Theme_Upgrader_Skin extends GC_Upgrader_Skin {
 					'<span aria-hidden="true">%s</span><span class="screen-reader-text">%s</span></a>',
 					esc_url( $activate_link ),
 					__( '启用' ),
-					/* translators: %s: Theme name. */
+					/* translators: Hidden accessibility text. %s: Theme name. */
 					sprintf( _x( '启用“%s”', 'theme' ), $name )
 				);
 			}
@@ -127,6 +124,7 @@ class Theme_Upgrader_Skin extends GC_Upgrader_Skin {
 		/**
 		 * Filters the list of action links available following a single theme update.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param string[] $update_actions Array of theme action links.
 		 * @param string   $theme          Theme directory name.

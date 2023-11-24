@@ -3,20 +3,22 @@
  * Blocks API: GC_Block class
  *
  * @package GeChiUI
- *
+ * @since 5.5.0
  */
 
 /**
  * Class representing a parsed instance of a block.
  *
- *
+ * @since 5.5.0
  * @property array $attributes
  */
+#[AllowDynamicProperties]
 class GC_Block {
 
 	/**
 	 * Original parsed array representation of block.
 	 *
+	 * @since 5.5.0
 	 * @var array
 	 */
 	public $parsed_block;
@@ -26,6 +28,7 @@ class GC_Block {
 	 *
 	 * @example "core/paragraph"
 	 *
+	 * @since 5.5.0
 	 * @var string
 	 */
 	public $name;
@@ -33,6 +36,7 @@ class GC_Block {
 	/**
 	 * Block type associated with the instance.
 	 *
+	 * @since 5.5.0
 	 * @var GC_Block_Type
 	 */
 	public $block_type;
@@ -40,6 +44,7 @@ class GC_Block {
 	/**
 	 * Block context values.
 	 *
+	 * @since 5.5.0
 	 * @var array
 	 */
 	public $context = array();
@@ -47,6 +52,7 @@ class GC_Block {
 	/**
 	 * All available context of the current hierarchy.
 	 *
+	 * @since 5.5.0
 	 * @var array
 	 * @access protected
 	 */
@@ -55,6 +61,7 @@ class GC_Block {
 	/**
 	 * Block type registry.
 	 *
+	 * @since 5.9.0
 	 * @var GC_Block_Type_Registry
 	 * @access protected
 	 */
@@ -63,6 +70,7 @@ class GC_Block {
 	/**
 	 * List of inner blocks (of this same class)
 	 *
+	 * @since 5.5.0
 	 * @var GC_Block_List
 	 */
 	public $inner_blocks = array();
@@ -73,6 +81,7 @@ class GC_Block {
 	 *
 	 * @example "...Just <!-- gc:test /--> testing..." -> "Just testing..."
 	 *
+	 * @since 5.5.0
 	 * @var string
 	 */
 	public $inner_html = '';
@@ -86,6 +95,7 @@ class GC_Block {
 	 *   'inner_content' => array( 'Before', null, 'Inner', null, 'After' ),
 	 * )
 	 *
+	 * @since 5.5.0
 	 * @var array
 	 */
 	public $inner_content = array();
@@ -101,6 +111,7 @@ class GC_Block {
 	 * property. Only values which are configured to consumed by the block via
 	 * its registered type will be assigned to the block's `context` property.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param array                  $block             Array of parsed block properties.
 	 * @param array                  $available_context Optional array of ancestry context values.
@@ -159,6 +170,7 @@ class GC_Block {
 	 * the property is accessed. For all other inaccessible properties, a `null`
 	 * value is returned.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $name Property name.
 	 * @return array|null Prepared attributes, or null.
@@ -182,6 +194,9 @@ class GC_Block {
 	/**
 	 * Generates the render output for the block.
 	 *
+	 * @since 5.5.0
+	 *
+	 * @global GC_Post $post Global post object.
 	 *
 	 * @param array $options {
 	 *     Optional options object.
@@ -247,23 +262,31 @@ class GC_Block {
 			$post = $global_post;
 		}
 
-		if ( ! empty( $this->block_type->script ) ) {
-			gc_enqueue_script( $this->block_type->script );
+		if ( ( ! empty( $this->block_type->script_handles ) ) ) {
+			foreach ( $this->block_type->script_handles as $script_handle ) {
+				gc_enqueue_script( $script_handle );
+			}
 		}
 
-		if ( ! empty( $this->block_type->view_script ) && empty( $this->block_type->render_callback ) ) {
-			gc_enqueue_script( $this->block_type->view_script );
+		if ( ! empty( $this->block_type->view_script_handles ) ) {
+			foreach ( $this->block_type->view_script_handles as $view_script_handle ) {
+				gc_enqueue_script( $view_script_handle );
+			}
 		}
 
-		if ( ! empty( $this->block_type->style ) ) {
-			gc_enqueue_style( $this->block_type->style );
+		if ( ( ! empty( $this->block_type->style_handles ) ) ) {
+			foreach ( $this->block_type->style_handles as $style_handle ) {
+				gc_enqueue_style( $style_handle );
+			}
 		}
 
 		/**
 		 * Filters the content of a single block.
 		 *
+		 * @since 5.0.0
+		 * @since 5.9.0 The `$instance` parameter was added.
 		 *
-		 * @param string   $block_content The block content about to be appended.
+		 * @param string   $block_content The block content.
 		 * @param array    $block         The full block, including name and attributes.
 		 * @param GC_Block $instance      The block instance.
 		 */
@@ -275,8 +298,10 @@ class GC_Block {
 		 * The dynamic portion of the hook name, `$name`, refers to
 		 * the block name, e.g. "core/paragraph".
 		 *
+		 * @since 5.7.0
+		 * @since 5.9.0 The `$instance` parameter was added.
 		 *
-		 * @param string   $block_content The block content about to be appended.
+		 * @param string   $block_content The block content.
 		 * @param array    $block         The full block, including name and attributes.
 		 * @param GC_Block $instance      The block instance.
 		 */

@@ -4,15 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Singleton that registers and instantiates GC_Widget classes.
- *
- *
- *
+ * Moved to its own file from gc-includes/widgets.php
  */
+#[AllowDynamicProperties]
 class GC_Widget_Factory {
 
 	/**
@@ -25,6 +23,7 @@ class GC_Widget_Factory {
 	/**
 	 * PHP5 constructor.
 	 *
+	 * @since 4.3.0
 	 */
 	public function __construct() {
 		add_action( 'widgets_init', array( $this, '_register_widgets' ), 100 );
@@ -45,6 +44,7 @@ class GC_Widget_Factory {
 	/**
 	 * Registers a widget subclass.
 	 *
+	 * @since 4.6.0 Updated the `$widget` parameter to also accept a GC_Widget instance object
 	 *              instead of simply a `GC_Widget` subclass name.
 	 *
 	 * @param string|GC_Widget $widget Either the name of a `GC_Widget` subclass or an instance of a `GC_Widget` subclass.
@@ -60,6 +60,7 @@ class GC_Widget_Factory {
 	/**
 	 * Un-registers a widget subclass.
 	 *
+	 * @since 4.6.0 Updated the `$widget` parameter to also accept a GC_Widget instance object
 	 *              instead of simply a `GC_Widget` subclass name.
 	 *
 	 * @param string|GC_Widget $widget Either the name of a `GC_Widget` subclass or an instance of a `GC_Widget` subclass.
@@ -98,6 +99,7 @@ class GC_Widget_Factory {
 	/**
 	 * Returns the registered GC_Widget object for the given widget type.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param string $id_base Widget type ID.
 	 * @return GC_Widget|null
@@ -114,6 +116,7 @@ class GC_Widget_Factory {
 	/**
 	 * Returns the registered key for the given widget type.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param string $id_base Widget type ID.
 	 * @return string

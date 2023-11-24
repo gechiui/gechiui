@@ -18,7 +18,6 @@ global $opml;
 /**
  * XML callback function for the start of a new XML tag.
  *
- *
  * @access private
  *
  * @global array $names
@@ -61,7 +60,6 @@ function startElement( $parser, $tag_name, $attrs ) { // phpcs:ignore GeChiUI.Na
 
 /**
  * XML callback function that is called at the end of a XML tag.
- *
  *
  * @access private
  *

@@ -6,191 +6,52 @@
  */
 
 /**
- * Class GC_Block_Parser_Block
- *
- * Holds the block structure in memory
- *
- *
- */
-class GC_Block_Parser_Block {
-	/**
-	 * Name of block
-	 *
-	 * @example "core/paragraph"
-
-	 * @var string
-	 */
-	public $blockName;
-
-	/**
-	 * Optional set of attributes from block comment delimiters
-	 *
-	 * @example null
-	 * @example array( 'columns' => 3 )
-
-	 * @var array|null
-	 */
-	public $attrs;
-
-	/**
-	 * List of inner blocks (of this same class)
-
-	 * @var GC_Block_Parser_Block[]
-	 */
-	public $innerBlocks;
-
-	/**
-	 * Resultant HTML from inside block comment delimiters
-	 * after removing inner blocks
-	 *
-	 * @example "...Just <!-- gc:test /--> testing..." -> "Just testing..."
-
-	 * @var string
-	 */
-	public $innerHTML;
-
-	/**
-	 * List of string fragments and null markers where inner blocks were found
-	 *
-	 * @example array(
-	 *   'innerHTML'    => 'BeforeInnerAfter',
-	 *   'innerBlocks'  => array( block, block ),
-	 *   'innerContent' => array( 'Before', null, 'Inner', null, 'After' ),
-	 * )
-
-	 * @var array
-	 */
-	public $innerContent;
-
-	/**
-	 * Constructor.
-	 *
-	 * Will populate object properties from the provided arguments.
-
-	 *
-	 * @param string $name         Name of block.
-	 * @param array  $attrs        Optional set of attributes from block comment delimiters.
-	 * @param array  $innerBlocks  List of inner blocks (of this same class).
-	 * @param string $innerHTML    Resultant HTML from inside block comment delimiters after removing inner blocks.
-	 * @param array  $innerContent List of string fragments and null markers where inner blocks were found.
-	 */
-	function __construct( $name, $attrs, $innerBlocks, $innerHTML, $innerContent ) {
-		$this->blockName    = $name;
-		$this->attrs        = $attrs;
-		$this->innerBlocks  = $innerBlocks;
-		$this->innerHTML    = $innerHTML;
-		$this->innerContent = $innerContent;
-	}
-}
-
-/**
- * Class GC_Block_Parser_Frame
- *
- * Holds partial blocks in memory while parsing
- *
- * @internal
- *
- */
-class GC_Block_Parser_Frame {
-	/**
-	 * Full or partial block
-
-	 * @var GC_Block_Parser_Block
-	 */
-	public $block;
-
-	/**
-	 * Byte offset into document for start of parse token
-
-	 * @var int
-	 */
-	public $token_start;
-
-	/**
-	 * Byte length of entire parse token string
-
-	 * @var int
-	 */
-	public $token_length;
-
-	/**
-	 * Byte offset into document for after parse token ends
-	 * (used during reconstruction of stack into parse production)
-
-	 * @var int
-	 */
-	public $prev_offset;
-
-	/**
-	 * Byte offset into document where leading HTML before token starts
-
-	 * @var int
-	 */
-	public $leading_html_start;
-
-	/**
-	 * Constructor
-	 *
-	 * Will populate object properties from the provided arguments.
-
-	 *
-	 * @param GC_Block_Parser_Block $block              Full or partial block.
-	 * @param int                   $token_start        Byte offset into document for start of parse token.
-	 * @param int                   $token_length       Byte length of entire parse token string.
-	 * @param int                   $prev_offset        Byte offset into document for after parse token ends.
-	 * @param int                   $leading_html_start Byte offset into document where leading HTML before token starts.
-	 */
-	function __construct( $block, $token_start, $token_length, $prev_offset = null, $leading_html_start = null ) {
-		$this->block              = $block;
-		$this->token_start        = $token_start;
-		$this->token_length       = $token_length;
-		$this->prev_offset        = isset( $prev_offset ) ? $prev_offset : $token_start + $token_length;
-		$this->leading_html_start = $leading_html_start;
-	}
-}
-
-/**
  * Class GC_Block_Parser
  *
  * Parses a document and constructs a list of parsed block objects
  *
- *
- *
+ * @since 5.0.0
+ * @since 4.0.0 returns arrays not objects, all attributes are arrays
  */
 class GC_Block_Parser {
 	/**
 	 * Input document being parsed
 	 *
 	 * @example "Pre-text\n<!-- gc:paragraph -->This is inside a block!<!-- /gc:paragraph -->"
-
+	 *
+	 * @since 5.0.0
 	 * @var string
 	 */
 	public $document;
 
 	/**
 	 * Tracks parsing progress through document
-
+	 *
+	 * @since 5.0.0
 	 * @var int
 	 */
 	public $offset;
 
 	/**
 	 * List of parsed blocks
-
+	 *
+	 * @since 5.0.0
 	 * @var GC_Block_Parser_Block[]
 	 */
 	public $output;
 
 	/**
 	 * Stack of partially-parsed structures in memory during parse
-
+	 *
+	 * @since 5.0.0
 	 * @var GC_Block_Parser_Frame[]
 	 */
 	public $stack;
 
 	/**
 	 * Empty associative array, here due to PHP quirks
-
+	 *
+	 * @since 4.4.0
 	 * @var array empty associative array
 	 */
 	public $empty_attrs;
@@ -201,21 +62,22 @@ class GC_Block_Parser {
 	 * When encountering an invalid parse will return a best-effort
 	 * parse. In contrast to the specification parser this does not
 	 * return an error on invalid inputs.
-
+	 *
+	 * @since 5.0.0
 	 *
 	 * @param string $document Input document being parsed.
-	 * @return GC_Block_Parser_Block[]
+	 * @return array[]
 	 */
-	function parse( $document ) {
+	public function parse( $document ) {
 		$this->document    = $document;
 		$this->offset      = 0;
 		$this->output      = array();
 		$this->stack       = array();
 		$this->empty_attrs = json_decode( '{}', true );
 
-		do {
-			// twiddle our thumbs.
-		} while ( $this->proceed() );
+		while ( $this->proceed() ) {
+			continue;
+		}
 
 		return $this->output;
 	}
@@ -231,10 +93,10 @@ class GC_Block_Parser {
 	 * or breaking out of a level of nesting.
 	 *
 	 * @internal
-
+	 * @since 5.0.0
 	 * @return bool
 	 */
-	function proceed() {
+	public function proceed() {
 		$next_token = $this->next_token();
 		list( $token_type, $block_name, $attrs, $start_offset, $token_length ) = $next_token;
 		$stack_depth = count( $this->stack );
@@ -376,11 +238,11 @@ class GC_Block_Parser {
 	 * Returns the type of the find: kind of find, block information, attributes
 	 *
 	 * @internal
-
-
+	 * @since 5.0.0
+	 * @since 4.6.1 fixed a bug in attribute parsing which caused catastrophic backtracking on invalid block comments
 	 * @return array
 	 */
-	function next_token() {
+	public function next_token() {
 		$matches = null;
 
 		/*
@@ -450,13 +312,13 @@ class GC_Block_Parser {
 	 * Returns a new block object for freeform HTML
 	 *
 	 * @internal
-
+	 * @since 3.9.0
 	 *
-	 * @param string $innerHTML HTML content of block.
+	 * @param string $inner_html HTML content of block.
 	 * @return GC_Block_Parser_Block freeform block object.
 	 */
-	function freeform( $innerHTML ) {
-		return new GC_Block_Parser_Block( null, $this->empty_attrs, array(), $innerHTML, array( $innerHTML ) );
+	public function freeform( $inner_html ) {
+		return new GC_Block_Parser_Block( null, $this->empty_attrs, array(), $inner_html, array( $inner_html ) );
 	}
 
 	/**
@@ -464,10 +326,10 @@ class GC_Block_Parser {
 	 * to the output list as a freeform block.
 	 *
 	 * @internal
-
+	 * @since 5.0.0
 	 * @param null $length how many bytes of document text to output.
 	 */
-	function add_freeform( $length = null ) {
+	public function add_freeform( $length = null ) {
 		$length = $length ? $length : strlen( $this->document ) - $this->offset;
 
 		if ( 0 === $length ) {
@@ -482,13 +344,13 @@ class GC_Block_Parser {
 	 * a new block to the output list.
 	 *
 	 * @internal
-
+	 * @since 5.0.0
 	 * @param GC_Block_Parser_Block $block        The block to add to the output.
 	 * @param int                   $token_start  Byte offset into the document where the first token for the block starts.
 	 * @param int                   $token_length Byte length of entire block from start of opening token to end of closing token.
 	 * @param int|null              $last_offset  Last byte offset into document if continuing form earlier output.
 	 */
-	function add_inner_block( GC_Block_Parser_Block $block, $token_start, $token_length, $last_offset = null ) {
+	public function add_inner_block( GC_Block_Parser_Block $block, $token_start, $token_length, $last_offset = null ) {
 		$parent                       = $this->stack[ count( $this->stack ) - 1 ];
 		$parent->block->innerBlocks[] = (array) $block;
 		$html                         = substr( $this->document, $parent->prev_offset, $token_start - $parent->prev_offset );
@@ -506,10 +368,10 @@ class GC_Block_Parser {
 	 * Pushes the top block from the parsing stack to the output list.
 	 *
 	 * @internal
-
+	 * @since 5.0.0
 	 * @param int|null $end_offset byte offset into document for where we should stop sending text output as HTML.
 	 */
-	function add_block_from_stack( $end_offset = null ) {
+	public function add_block_from_stack( $end_offset = null ) {
 		$stack_top   = array_pop( $this->stack );
 		$prev_offset = $stack_top->prev_offset;
 
@@ -535,3 +397,17 @@ class GC_Block_Parser {
 		$this->output[] = (array) $stack_top->block;
 	}
 }
+
+/**
+ * GC_Block_Parser_Block class.
+ *
+ * Required for backward compatibility in GeChiUI Core.
+ */
+require_once __DIR__ . '/class-gc-block-parser-block.php';
+
+/**
+ * GC_Block_Parser_Frame class.
+ *
+ * Required for backward compatibility in GeChiUI Core.
+ */
+require_once __DIR__ . '/class-gc-block-parser-frame.php';

@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
@@ -12,7 +11,7 @@
  *
  * Needed to add screen options.
  *
- *
+ * @since 4.3.0
  *
  * @see GC_Customize_Panel
  */
@@ -21,6 +20,7 @@ class GC_Customize_Nav_Menus_Panel extends GC_Customize_Panel {
 	/**
 	 * Control type.
 	 *
+	 * @since 4.3.0
 	 * @var string
 	 */
 	public $type = 'nav_menus';
@@ -28,6 +28,7 @@ class GC_Customize_Nav_Menus_Panel extends GC_Customize_Panel {
 	/**
 	 * Render screen options for Menus.
 	 *
+	 * @since 4.3.0
 	 */
 	public function render_screen_options() {
 		// Adds the screen options.
@@ -44,6 +45,7 @@ class GC_Customize_Nav_Menus_Panel extends GC_Customize_Panel {
 	 *
 	 * Link title attribute added as it's a relatively advanced concept for new users.
 	 *
+	 * @since 4.3.0
 	 * @deprecated 4.5.0 Deprecated in favor of gc_nav_menu_manage_columns().
 	 */
 	public function gc_nav_menu_manage_columns() {
@@ -58,6 +60,7 @@ class GC_Customize_Nav_Menus_Panel extends GC_Customize_Panel {
 	 * Class variables for this panel class are available in the `data` JS object;
 	 * export custom variables by overriding GC_Customize_Panel::json().
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see GC_Customize_Panel::print_template()
 	 */
@@ -65,7 +68,12 @@ class GC_Customize_Nav_Menus_Panel extends GC_Customize_Panel {
 		?>
 		<li class="panel-meta customize-info accordion-section <# if ( ! data.description ) { #> cannot-expand<# } #>">
 			<button type="button" class="customize-panel-back" tabindex="-1">
-				<span class="screen-reader-text"><?php _e( '返回' ); ?></span>
+				<span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '返回' );
+					?>
+				</span>
 			</button>
 			<div class="accordion-section-title">
 				<span class="preview-notice">
@@ -75,10 +83,20 @@ class GC_Customize_Nav_Menus_Panel extends GC_Customize_Panel {
 					?>
 				</span>
 				<button type="button" class="customize-help-toggle dashicons dashicons-editor-help" aria-expanded="false">
-					<span class="screen-reader-text"><?php _e( '帮助' ); ?></span>
+					<span class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( '帮助' );
+						?>
+					</span>
 				</button>
 				<button type="button" class="customize-screen-options-toggle" aria-expanded="false">
-					<span class="screen-reader-text"><?php _e( '菜单选项' ); ?></span>
+					<span class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( '菜单选项' );
+						?>
+					</span>
 				</button>
 			</div>
 			<# if ( data.description ) { #>
@@ -93,27 +111,5 @@ class GC_Customize_Nav_Menus_Panel extends GC_Customize_Panel {
 		?>
 		<li class="customize-control-title customize-section-title-nav_menus-heading"><?php _e( '菜单' ); ?></li>
 		<?php
-	}
-
-	/**
-	 * Checks required user capabilities and whether the theme has the
-	 * feature support required by the panel.
-	 *
-	 *
-	 * @return bool False if theme doesn't support the panel or the user doesn't have the capability.
-	 */
-	public function check_capabilities() {
-		/*
-		 * GC_Customize_Panel::$theme_supports only supports checking one
-		 * theme_supports, so instead we override check_capabilities().
-		 */
-		if (
-			! current_theme_supports( 'menus' ) &&
-			! current_theme_supports( 'widgets' )
-		) {
-			return false;
-		}
-
-		return parent::check_capabilities();
 	}
 }

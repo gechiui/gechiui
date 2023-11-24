@@ -4,14 +4,11 @@
  *
  * @package GeChiUI
  * @subpackage Upgrader
- *
  */
 
 /**
  * Plugin Installer Skin for GeChiUI Plugin Installer.
- *
- *
- *
+ * Moved to its own file from gc-admin/includes/class-gc-upgrader-skins.php.
  *
  * @see GC_Upgrader_Skin
  */
@@ -46,7 +43,7 @@ class Plugin_Installer_Skin extends GC_Upgrader_Skin {
 	}
 
 	/**
-	 * Action to perform before installing a plugin.
+	 * Performs an action before installing a plugin.
 	 *
 	 */
 	public function before() {
@@ -62,9 +59,10 @@ class Plugin_Installer_Skin extends GC_Upgrader_Skin {
 	/**
 	 * Hides the `process_failed` error when updating a plugin by uploading a zip file.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_Error $gc_error GC_Error object.
-	 * @return bool
+	 * @return bool True if the error should be hidden, false otherwise.
 	 */
 	public function hide_process_failed( $gc_error ) {
 		if (
@@ -79,7 +77,7 @@ class Plugin_Installer_Skin extends GC_Upgrader_Skin {
 	}
 
 	/**
-	 * Action to perform following a plugin install.
+	 * Performs an action following a plugin install.
 	 *
 	 */
 	public function after() {
@@ -96,19 +94,19 @@ class Plugin_Installer_Skin extends GC_Upgrader_Skin {
 
 		if ( 'import' === $from ) {
 			$install_actions['activate_plugin'] = sprintf(
-				'<a class="button button-primary" href="%s" target="_parent">%s</a>',
+				'<a class="btn btn-primary" href="%s" target="_parent">%s</a>',
 				gc_nonce_url( 'plugins.php?action=activate&amp;from=import&amp;plugin=' . urlencode( $plugin_file ), 'activate-plugin_' . $plugin_file ),
 				__( '启用插件并运行导入工具' )
 			);
 		} elseif ( 'press-this' === $from ) {
 			$install_actions['activate_plugin'] = sprintf(
-				'<a class="button button-primary" href="%s" target="_parent">%s</a>',
+				'<a class="btn btn-primary" href="%s" target="_parent">%s</a>',
 				gc_nonce_url( 'plugins.php?action=activate&amp;from=press-this&amp;plugin=' . urlencode( $plugin_file ), 'activate-plugin_' . $plugin_file ),
 				__( '启用插件并转到“快速发布”页面' )
 			);
 		} else {
 			$install_actions['activate_plugin'] = sprintf(
-				'<a class="button button-primary" href="%s" target="_parent">%s</a>',
+				'<a class="btn btn-primary" href="%s" target="_parent">%s</a>',
 				gc_nonce_url( 'plugins.php?action=activate&amp;plugin=' . urlencode( $plugin_file ), 'activate-plugin_' . $plugin_file ),
 				__( '启用插件' )
 			);
@@ -116,9 +114,9 @@ class Plugin_Installer_Skin extends GC_Upgrader_Skin {
 
 		if ( is_multisite() && current_user_can( 'manage_network_plugins' ) ) {
 			$install_actions['network_activate'] = sprintf(
-				'<a class="button button-primary" href="%s" target="_parent">%s</a>',
+				'<a class="btn btn-primary" href="%s" target="_parent">%s</a>',
 				gc_nonce_url( 'plugins.php?action=activate&amp;networkwide=1&amp;plugin=' . urlencode( $plugin_file ), 'activate-plugin_' . $plugin_file ),
-				__( '在站点网络中启用' )
+				__( '在SaaS平台中启用' )
 			);
 			unset( $install_actions['activate_plugin'] );
 		}
@@ -158,7 +156,6 @@ class Plugin_Installer_Skin extends GC_Upgrader_Skin {
 		/**
 		 * Filters the list of action links available following a single plugin installation.
 		 *
-		 *
 		 * @param string[] $install_actions Array of plugin action links.
 		 * @param object   $api             Object containing www.GeChiUI.com API plugin data. Empty
 		 *                                  for non-API installs, such as when a plugin is installed
@@ -173,8 +170,9 @@ class Plugin_Installer_Skin extends GC_Upgrader_Skin {
 	}
 
 	/**
-	 * Check if the plugin can be overwritten and output the HTML for overwriting a plugin on upload.
+	 * Checks if the plugin can be overwritten and outputs the HTML for overwriting a plugin on upload.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return bool Whether the plugin can be overwritten and HTML was outputted.
 	 */
@@ -217,7 +215,7 @@ class Plugin_Installer_Skin extends GC_Upgrader_Skin {
 
 		$table  = '<table class="update-from-upload-comparison"><tbody>';
 		$table .= '<tr><th></th><th>' . esc_html_x( '当前', 'plugin' ) . '</th>';
-		$table .= '<th>' . esc_html_x( '插件已上传', 'plugin' ) . '</th></tr>';
+		$table .= '<th>' . esc_html_x( '主题已上传', 'plugin' ) . '</th></tr>';
 
 		$is_same_plugin = true; // Let's consider only these rows.
 
@@ -240,6 +238,7 @@ class Plugin_Installer_Skin extends GC_Upgrader_Skin {
 		/**
 		 * Filters the compare table output for overwriting a plugin package on upload.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param string $table               The output table with Name, Version, Author, RequiresGC, and RequiresPHP info.
 		 * @param array  $current_plugin_data Array with current plugin data.
@@ -260,7 +259,7 @@ class Plugin_Installer_Skin extends GC_Upgrader_Skin {
 			$error = sprintf(
 				/* translators: 1: Current PHP version, 2: Version required by the uploaded plugin. */
 				__( '您的服务器PHP版本为%1$s，然而上传的插件要求版本为%2$s。' ),
-				phpversion(),
+				PHP_VERSION,
 				$requires_php
 			);
 
@@ -286,7 +285,7 @@ class Plugin_Installer_Skin extends GC_Upgrader_Skin {
 			if ( $this->is_downgrading ) {
 				$warning = sprintf(
 					/* translators: %s: Documentation URL. */
-					__( '您正在上传当前插件的旧版本。您可以继续安装旧版本，但请确保已事先<a href="%s">备份您网站的数据库和文件</a>。' ),
+					__( '您正在上传当前插件的旧版本。您可以继续安装旧版本，但请确保已事先<a href="%s">备份您系统的数据库和文件</a>。' ),
 					__( 'https://www.gechiui.com/support/gechiui-backups/' )
 				);
 			} else {
@@ -302,7 +301,7 @@ class Plugin_Installer_Skin extends GC_Upgrader_Skin {
 			$overwrite = $this->is_downgrading ? 'downgrade-plugin' : 'update-plugin';
 
 			$install_actions['overwrite_plugin'] = sprintf(
-				'<a class="button button-primary update-from-upload-overwrite" href="%s" target="_parent">%s</a>',
+				'<a class="btn btn-primary update-from-upload-overwrite" href="%s" target="_parent">%s</a>',
 				gc_nonce_url( add_query_arg( 'overwrite', $overwrite, $this->url ), 'plugin-upload' ),
 				_x( '使用“上传的插件版本”代替“当前的插件版本”。', 'plugin' )
 			);
@@ -313,7 +312,7 @@ class Plugin_Installer_Skin extends GC_Upgrader_Skin {
 		$cancel_url = add_query_arg( 'action', 'upload-plugin-cancel-overwrite', $this->url );
 
 		$install_actions['plugins_page'] = sprintf(
-			'<a class="button" href="%s">%s</a>',
+			'<a class="btn btn-primary btn-tone" href="%s">%s</a>',
 			gc_nonce_url( $cancel_url, 'plugin-upload-cancel-overwrite' ),
 			__( '取消并返回' )
 		);
@@ -322,6 +321,7 @@ class Plugin_Installer_Skin extends GC_Upgrader_Skin {
 		 * Filters the list of action links available following a single plugin installation failure
 		 * when overwriting is allowed.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param string[] $install_actions Array of plugin action links.
 		 * @param object   $api             Object containing www.GeChiUI.com API plugin data.

@@ -5,7 +5,7 @@
  *	- With HTML created from JS.
  *	- With inline HTML (like GCWindowManager).
  *	- Old type iframe based dialogs.
- * For examples see the default plugins: https://github.com/tinymce/tinymce/tree/master/js/tinymce/plugins
+ * For examples see the default plugins: https://github.com/tinymce/tinymce/tree/master/vendors/tinymce/plugins
  */
 tinymce.GCWindowManager = tinymce.InlineWindowManager = function( editor ) {
 	if ( this.gc ) {

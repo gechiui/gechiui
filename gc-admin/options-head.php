@@ -14,5 +14,3 @@ if ( isset( $_GET['updated'] ) && isset( $_GET['page'] ) ) {
 	// For back-compat with plugins that don't use the Settings API and just set updated=1 in the redirect.
 	add_settings_error( 'general', 'settings_updated', __( '设置已保存。' ), 'success' );
 }
-
-settings_errors();

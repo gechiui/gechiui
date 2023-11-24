@@ -27,7 +27,10 @@ header( 'Content-Type: text/html; charset=utf-8' );
 
 if ( ! defined( 'GC_ALLOW_REPAIR' ) || ! GC_ALLOW_REPAIR ) {
 
-	echo '<h1 class="screen-reader-text">' . __( '允许自动数据库修复' ) . '</h1>';
+	echo '<h1 class="screen-reader-text">' .
+		/* translators: Hidden accessibility text. */
+		__( '允许自动数据库修复' ) .
+	'</h1>';
 
 	echo '<p>';
 	printf(
@@ -37,7 +40,17 @@ if ( ! defined( 'GC_ALLOW_REPAIR' ) || ! GC_ALLOW_REPAIR ) {
 	);
 	echo "</p><p><code>define('GC_ALLOW_REPAIR', true);</code></p>";
 
-	$default_key     = 'put your unique phrase here';
+	$default_keys    = array_unique(
+		array(
+			'将您的独特字串放在这里',
+			/*
+			 * translators: This string should only be translated if gc-config-sample.php is localized.
+			 * You can check the localized release package or
+			 * https://i18n.svn.gechiui.com/<locale code>/branches/<gc version>/dist/gc-config-sample.php
+			 */
+			__( '将您的独特字串放在这里' ),
+		)
+	);
 	$missing_key     = false;
 	$duplicated_keys = array();
 
@@ -51,9 +64,11 @@ if ( ! defined( 'GC_ALLOW_REPAIR' ) || ! GC_ALLOW_REPAIR ) {
 		}
 	}
 
-	// If at least one key uses the default value, consider it duplicated.
-	if ( isset( $duplicated_keys[ $default_key ] ) ) {
-		$duplicated_keys[ $default_key ] = true;
+	// If at least one key uses a default value, consider it duplicated.
+	foreach ( $default_keys as $default_key ) {
+		if ( isset( $duplicated_keys[ $default_key ] ) ) {
+			$duplicated_keys[ $default_key ] = true;
+		}
 	}
 
 	// Weed out all unique, non-default values.
@@ -61,26 +76,26 @@ if ( ! defined( 'GC_ALLOW_REPAIR' ) || ! GC_ALLOW_REPAIR ) {
 
 	if ( $duplicated_keys || $missing_key ) {
 
-		echo '<h2 class="screen-reader-text">' . __( '检查密钥' ) . '</h2>';
+		echo '<h2 class="screen-reader-text">' .
+			/* translators: Hidden accessibility text. */
+			__( '检查密钥' ) .
+		'</h2>';
 
 		/* translators: 1: gc-config.php, 2: Secret key service URL. */
 		echo '<p>' . sprintf( __( '当您在编辑您的%1$s文件时，请花点时间确认您有全部8个密钥，并且他们是独一无二的。您可以用<a href="%2$s">www.GeChiUI.com密钥服务</a>来生成它们。' ), '<code>gc-config.php</code>', 'https://api.gechiui.com/secret-key/1.1/salt/' ) . '</p>';
 	}
 } elseif ( isset( $_GET['repair'] ) ) {
 
-	echo '<h1 class="screen-reader-text">' . __( '数据库修复结果' ) . '</h1>';
+	echo '<h1 class="screen-reader-text">' .
+		/* translators: Hidden accessibility text. */
+		__( '数据库修复结果' ) .
+	'</h1>';
 
-	$optimize = 2 == $_GET['repair'];
+	$optimize = '2' === $_GET['repair'];
 	$okay     = true;
 	$problems = array();
 
 	$tables = $gcdb->tables();
-
-	// Sitecategories may not exist if global terms are disabled.
-	$query = $gcdb->prepare( 'SHOW TABLES LIKE %s', $gcdb->esc_like( $gcdb->sitecategories ) );
-	if ( is_multisite() && ! $gcdb->get_var( $query ) ) {
-		unset( $tables['sitecategories'] );
-	}
 
 	/**
 	 * Filters additional database tables to repair.
@@ -155,7 +170,10 @@ if ( ! defined( 'GC_ALLOW_REPAIR' ) || ! GC_ALLOW_REPAIR ) {
 	}
 } else {
 
-	echo '<h1 class="screen-reader-text">' . __( 'GeChiUI数据库修复' ) . '</h1>';
+	echo '<h1 class="screen-reader-text">' .
+		/* translators: Hidden accessibility text. */
+		__( 'GeChiUI数据库修复' ) .
+	'</h1>';
 
 	if ( isset( $_GET['referrer'] ) && 'is_blog_installed' === $_GET['referrer'] ) {
 		echo '<p>' . __( '有些数据表无效。若您希望让GeChiUI尝试修复它们，请点击“修复数据库”按钮。修复过程需要一点时间，请耐心等待。' ) . '</p>';

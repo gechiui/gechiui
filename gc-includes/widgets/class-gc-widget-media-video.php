@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class that implements a video widget.
- *
- *
  *
  * @see GC_Widget_Media
  * @see GC_Widget
@@ -20,13 +17,14 @@ class GC_Widget_Media_Video extends GC_Widget_Media {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.8.0
 	 */
 	public function __construct() {
 		parent::__construct(
 			'media_video',
 			__( '视频' ),
 			array(
-				'description' => __( '显示存在媒体库中的视频，或来自YouTube、Vimeo等其他视频网站上的视频。' ),
+				'description' => __( '显示存在媒体库中的视频。' ),
 				'mime_type'   => 'video',
 			)
 		);
@@ -40,14 +38,14 @@ class GC_Widget_Media_Video extends GC_Widget_Media {
 				'edit_media'                 => _x( '编辑视频', 'label for button in the video widget; should preferably not be longer than ~13 characters long' ),
 				'missing_attachment'         => sprintf(
 					/* translators: %s: URL to media library. */
-					__( '找不到指定的视频。请使用<a href="%s">媒体库</a>检查视频没有被删除。' ),
+					__( '找不到指定视频。检查您的<a href="%s">媒体库</a>并确保其未被删除。' ),
 					esc_url( admin_url( 'upload.php' ) )
 				),
 				/* translators: %d: Widget count. */
 				'media_library_state_multi'  => _n_noop( '视频小工具（%d）', '视频小工具（%d）' ),
 				'media_library_state_single' => __( '视频小工具' ),
 				/* translators: %s: A list of valid video file extensions. */
-				'unsupported_file_type'      => sprintf( __( '抱歉，我们未能从提供的URL载入视频。请检查该URL是否为一个支持的视频文件（%s）或视频流（如YouTube和Vimeo）。' ), '<code>.' . implode( '</code>, <code>.', gc_get_video_extensions() ) . '</code>' ),
+				'unsupported_file_type'      => sprintf( __( '抱歉，未能从提供的URL载入视频。请检查该URL是否为一个支持的视频文件（%s）或视频流。' ), '<code>.' . implode( '</code>, <code>.', gc_get_video_extensions() ) . '</code>' ),
 			)
 		);
 	}
@@ -55,6 +53,7 @@ class GC_Widget_Media_Video extends GC_Widget_Media {
 	/**
 	 * Get schema for properties of a widget instance (item).
 	 *
+	 * @since 4.8.0
 	 *
 	 * @see GC_REST_Controller::get_item_schema()
 	 * @see GC_REST_Controller::get_additional_fields()
@@ -103,6 +102,7 @@ class GC_Widget_Media_Video extends GC_Widget_Media {
 	/**
 	 * Render the media on the frontend.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param array $instance Widget instance props.
 	 */
@@ -123,10 +123,10 @@ class GC_Widget_Media_Video extends GC_Widget_Media {
 			return;
 		}
 
-		$youtube_pattern = '#^https?://(?:www\.)?(?:youtube\.com/watch|youtu\.be/)#';
+		$youku_pattern = '#^https?://(?:www\.)?(?:youku\.com/watch|youtu\.be/)#';
 		$vimeo_pattern   = '#^https?://(.+\.)?vimeo\.com/.*#';
 
-		if ( $attachment || preg_match( $youtube_pattern, $src ) || preg_match( $vimeo_pattern, $src ) ) {
+		if ( $attachment || preg_match( $youku_pattern, $src ) || preg_match( $vimeo_pattern, $src ) ) {
 			add_filter( 'gc_video_shortcode', array( $this, 'inject_video_max_width_style' ) );
 
 			echo gc_video_shortcode(
@@ -146,6 +146,7 @@ class GC_Widget_Media_Video extends GC_Widget_Media {
 	/**
 	 * Inject max-width and remove height for videos too constrained to fit inside sidebars on frontend.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param string $html Video shortcode HTML output.
 	 * @return string HTML Output.
@@ -165,6 +166,7 @@ class GC_Widget_Media_Video extends GC_Widget_Media {
 	 * selective refresh, and so it is important to unconditionally enqueue them in
 	 * case a widget does get added.
 	 *
+	 * @since 4.8.0
 	 */
 	public function enqueue_preview_scripts() {
 		/** This filter is documented in gc-includes/media.php */
@@ -178,6 +180,7 @@ class GC_Widget_Media_Video extends GC_Widget_Media {
 	/**
 	 * Loads the required scripts and styles for the widget control.
 	 *
+	 * @since 4.8.0
 	 */
 	public function enqueue_admin_scripts() {
 		parent::enqueue_admin_scripts();
@@ -215,21 +218,22 @@ class GC_Widget_Media_Video extends GC_Widget_Media {
 	/**
 	 * Render form template scripts.
 	 *
+	 * @since 4.8.0
 	 */
 	public function render_control_template_scripts() {
 		parent::render_control_template_scripts()
 		?>
 		<script type="text/html" id="tmpl-gc-media-widget-video-preview">
 			<# if ( data.error && 'missing_attachment' === data.error ) { #>
-				<div class="notice notice-error notice-alt notice-missing-attachment">
+				<div class="alert alert-danger notice-alt notice-missing-attachment">
 					<p><?php echo $this->l10n['missing_attachment']; ?></p>
 				</div>
 			<# } else if ( data.error && 'unsupported_file_type' === data.error ) { #>
-				<div class="notice notice-error notice-alt notice-missing-attachment">
+				<div class="alert alert-danger notice-alt notice-missing-attachment">
 					<p><?php echo $this->l10n['unsupported_file_type']; ?></p>
 				</div>
 			<# } else if ( data.error ) { #>
-				<div class="notice notice-error notice-alt">
+				<div class="alert alert-danger notice-alt">
 					<p><?php _e( '发生了未知错误，无法预览媒体。' ); ?></p>
 				</div>
 			<# } else if ( data.is_oembed && data.model.poster ) { #>

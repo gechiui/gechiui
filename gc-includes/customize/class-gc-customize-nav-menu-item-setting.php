@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
@@ -13,7 +12,7 @@
  * Subclass of GC_Customize_Setting to represent a nav_menu taxonomy term, and
  * the IDs for the nav_menu_items associated with the nav menu.
  *
- *
+ * @since 4.3.0
  *
  * @see GC_Customize_Setting
  */
@@ -28,6 +27,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	/**
 	 * Setting type.
 	 *
+	 * @since 4.3.0
 	 * @var string
 	 */
 	public $type = self::TYPE;
@@ -35,6 +35,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	/**
 	 * Default setting value.
 	 *
+	 * @since 4.3.0
 	 * @var array
 	 *
 	 * @see gc_setup_nav_menu_item()
@@ -52,6 +53,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 		'attr_title'       => '',
 		'description'      => '',
 		'classes'          => '',
+		'xfn'              => '',
 		'status'           => 'publish',
 		'original_title'   => '',
 		'nav_menu_term_id' => 0, // This will be supplied as the $menu_id arg for gc_update_nav_menu_item().
@@ -61,6 +63,8 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	/**
 	 * Default transport.
 	 *
+	 * @since 4.3.0
+	 * @since 4.5.0 Default changed to 'refresh'
 	 * @var string
 	 */
 	public $transport = 'refresh';
@@ -70,6 +74,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	 *
 	 * A negative value represents a placeholder ID for a new menu not yet saved.
 	 *
+	 * @since 4.3.0
 	 * @var int
 	 */
 	public $post_id;
@@ -77,6 +82,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	/**
 	 * Storage of pre-setup menu item to prevent wasted calls to gc_setup_nav_menu_item().
 	 *
+	 * @since 4.3.0
 	 * @var array|null
 	 */
 	protected $value;
@@ -89,6 +95,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	 * post ID. This value is always negative to indicate it does not refer to
 	 * a real post.
 	 *
+	 * @since 4.3.0
 	 * @var int
 	 *
 	 * @see GC_Customize_Nav_Menu_Item_Setting::update()
@@ -100,6 +107,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	 * When previewing or updating a menu item, this stores the previous nav_menu_term_id
 	 * which ensures that we can apply the proper filters.
 	 *
+	 * @since 4.3.0
 	 * @var int
 	 */
 	public $original_nav_menu_term_id;
@@ -107,6 +115,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	/**
 	 * Whether or not update() was called.
 	 *
+	 * @since 4.3.0
 	 * @var bool
 	 */
 	protected $is_updated = false;
@@ -119,6 +128,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	 * When status is inserted, the placeholder post ID is stored in $previous_post_id.
 	 * When status is error, the error is stored in $update_error.
 	 *
+	 * @since 4.3.0
 	 * @var string updated|inserted|deleted|error
 	 *
 	 * @see GC_Customize_Nav_Menu_Item_Setting::update()
@@ -129,6 +139,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	/**
 	 * Any error object returned by gc_update_nav_menu_item() when setting is updated.
 	 *
+	 * @since 4.3.0
 	 * @var GC_Error
 	 *
 	 * @see GC_Customize_Nav_Menu_Item_Setting::update()
@@ -141,6 +152,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	 *
 	 * Any supplied $args override class property defaults.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @throws Exception If $id is not valid for this setting type.
 	 *
@@ -176,6 +188,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	/**
 	 * Clear the cached value when this nav menu item is updated.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param int $menu_id       The term ID for the menu.
 	 * @param int $menu_item_id  The post ID for the menu item.
@@ -190,6 +203,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	/**
 	 * Get the instance data for a given nav_menu_item setting.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see gc_setup_nav_menu_item()
 	 *
@@ -213,7 +227,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 		} else {
 			$value = false;
 
-			// Note that a ID of less than one indicates a nav_menu not yet inserted.
+			// Note that an ID of less than one indicates a nav_menu not yet inserted.
 			if ( $this->post_id > 0 ) {
 				$post = get_post( $this->post_id );
 				if ( $post && self::POST_TYPE === $post->post_type ) {
@@ -245,6 +259,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	/**
 	 * Get original title.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param object $item Nav menu item.
 	 * @return string The original title.
@@ -280,6 +295,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	/**
 	 * Get type label.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param object $item Nav menu item.
 	 * @return string The type label.
@@ -312,6 +328,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	 *
 	 * Translates some properties added by gc_setup_nav_menu_item() and removes others.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see GC_Customize_Nav_Menu_Item_Setting::value()
 	 */
@@ -353,7 +370,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 				$this->value[ $key ] = (int) $this->value[ $key ];
 			}
 		}
-		foreach ( array( 'classes' ) as $key ) {
+		foreach ( array( 'classes', 'xfn' ) as $key ) {
 			if ( is_array( $this->value[ $key ] ) ) {
 				$this->value[ $key ] = implode( ' ', $this->value[ $key ] );
 			}
@@ -409,6 +426,8 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	/**
 	 * Handle previewing the setting.
 	 *
+	 * @since 4.3.0
+	 * @since 4.4.0 Added boolean return value.
 	 *
 	 * @see GC_Customize_Manager::post_value()
 	 *
@@ -446,6 +465,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	/**
 	 * Filters the gc_get_nav_menu_items() result to supply the previewed menu items.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see gc_get_nav_menu_items()
 	 *
@@ -521,6 +541,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	/**
 	 * Re-apply the tail logic also applied on $items by gc_get_nav_menu_items().
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see gc_get_nav_menu_items()
 	 *
@@ -558,6 +579,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	/**
 	 * Get the value emulated into a GC_Post and set up as a nav_menu_item.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @return GC_Post With gc_setup_nav_menu_item() applied.
 	 */
@@ -629,6 +651,8 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	 * Note that parent::sanitize() erroneously does gc_unslash() on $value, but
 	 * we remove that in this override.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$menu_item_value` to `$value` for PHP 8 named parameter support.
 	 *
 	 * @param array $value The menu item value to sanitize.
 	 * @return array|false|null|GC_Error Null or GC_Error if an input isn't valid. False if it is marked for deletion.
@@ -660,6 +684,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 			'attr_title'       => '',
 			'description'      => '',
 			'classes'          => '',
+			'xfn'              => '',
 			'status'           => 'publish',
 			'original_title'   => '',
 			'nav_menu_term_id' => 0,
@@ -678,7 +703,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 			$menu_item_value[ $key ] = sanitize_key( $menu_item_value[ $key ] );
 		}
 
-		foreach ( array( 'classes' ) as $key ) {
+		foreach ( array( 'xfn', 'classes' ) as $key ) {
 			$value = $menu_item_value[ $key ];
 			if ( ! is_array( $value ) ) {
 				$value = explode( ' ', $value );
@@ -700,7 +725,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 		$menu_item_value['description'] = gc_unslash( apply_filters( 'content_save_pre', gc_slash( $menu_item_value['description'] ) ) );
 
 		if ( '' !== $menu_item_value['url'] ) {
-			$menu_item_value['url'] = esc_url_raw( $menu_item_value['url'] );
+			$menu_item_value['url'] = sanitize_url( $menu_item_value['url'] );
 			if ( '' === $menu_item_value['url'] ) {
 				return new GC_Error( 'invalid_url', __( '无效URL。' ) ); // Fail sanitization if URL is invalid.
 			}
@@ -724,6 +749,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	 *
 	 * To delete a menu, the client can send false as the value.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see gc_update_nav_menu_item()
 	 *
@@ -828,6 +854,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 				'menu-item-attr-title'  => $value['attr_title'],
 				'menu-item-target'      => $value['target'],
 				'menu-item-classes'     => $value['classes'],
+				'menu-item-xfn'         => $value['xfn'],
 				'menu-item-status'      => $value['status'],
 			);
 
@@ -856,6 +883,7 @@ class GC_Customize_Nav_Menu_Item_Setting extends GC_Customize_Setting {
 	/**
 	 * Export data for the JS client.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see GC_Customize_Nav_Menu_Item_Setting::update()
 	 *

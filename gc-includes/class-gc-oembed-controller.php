@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Embeds
- *
  */
 
 /**
@@ -13,17 +12,19 @@
  * Registers the REST API route and delivers the response data.
  * The output format (XML or JSON) is handled by the REST API.
  *
- *
  */
+#[AllowDynamicProperties]
 final class GC_oEmbed_Controller {
 	/**
 	 * Register the oEmbed REST API route.
 	 *
+	 * @since 4.4.0
 	 */
 	public function register_routes() {
 		/**
 		 * Filters the maxwidth oEmbed parameter.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param int $maxwidth Maximum allowed width. Default 600.
 		 */
@@ -108,6 +109,7 @@ final class GC_oEmbed_Controller {
 	 *
 	 * Returns the JSON object for the post.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param GC_REST_Request $request Full data about the request.
 	 * @return array|GC_Error oEmbed response data or GC_Error on failure.
@@ -118,6 +120,7 @@ final class GC_oEmbed_Controller {
 		/**
 		 * Filters the determined post ID.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param int    $post_id The post ID.
 		 * @param string $url     The requested URL.
@@ -136,6 +139,7 @@ final class GC_oEmbed_Controller {
 	/**
 	 * Checks if current user can make a proxy oEmbed request.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
 	 */
@@ -151,15 +155,17 @@ final class GC_oEmbed_Controller {
 	 *
 	 * Returns the JSON object for the proxied item.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @see GC_oEmbed::get_html()
-	 * @global GC_Embed $gc_embed
+	 * @global GC_Embed   $gc_embed
+	 * @global GC_Scripts $gc_scripts
 	 *
 	 * @param GC_REST_Request $request Full data about the request.
 	 * @return object|GC_Error oEmbed response data or GC_Error on failure.
 	 */
 	public function get_proxy_item( $request ) {
-		global $gc_embed;
+		global $gc_embed, $gc_scripts;
 
 		$args = $request->get_params();
 
@@ -197,7 +203,6 @@ final class GC_oEmbed_Controller {
 			$html = $gc_embed->get_embed_handler_html( $args, $url );
 
 			if ( $html ) {
-				global $gc_scripts;
 				// Check if any scripts were enqueued by the shortcode, and include them in the response.
 				$enqueued_scripts = array();
 
@@ -224,6 +229,7 @@ final class GC_oEmbed_Controller {
 		 * Similar to the {@see 'oembed_ttl'} filter, but for the REST API
 		 * oEmbed proxy endpoint.
 		 *
+		 * @since 4.8.0
 		 *
 		 * @param int    $time    Time to live (in seconds).
 		 * @param string $url     The attempted embed URL.

@@ -10,7 +10,7 @@
 require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'manage_links' ) ) {
-	gc_die( __( '抱歉，您不能添加链接到此站点。' ) );
+	gc_die( __( '抱歉，您不能添加链接到此系统。' ) );
 }
 
 // Used in the HTML title tag.

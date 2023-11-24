@@ -1,7 +1,7 @@
 /**
  * Attempt to re-color SVG icons used in the admin menu or the toolbar
  *
- * @output gc-admin/js/svg-painter.js
+ * @output assets/js/svg-painter.js
  */
 
 window.gc = window.gc || {};

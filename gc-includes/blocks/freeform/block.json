@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/freeform",
+	"title": "经典",
+	"category": "text",
+	"description": "使用经典GeChiUI编辑器。",
+	"textdomain": "default",
+	"attributes": {
+		"content": {
+			"type": "string",
+			"source": "raw"
+		}
+	},
+	"supports": {
+		"className": false,
+		"customClassName": false,
+		"reusable": false
+	},
+	"editorStyle": "gc-block-freeform-editor"
+}

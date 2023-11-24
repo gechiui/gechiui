@@ -3,17 +3,14 @@
  * Generated classname block support flag.
  *
  * @package GeChiUI
- * @since 5.6.0
  */
 
 /**
- * Get the generated classname from a given block name.
- *
- * @since 5.6.0
+ * Gets the generated classname from a given block name.
  *
  * @access private
  *
- * @param  string $block_name Block Name.
+ * @param string $block_name Block Name.
  * @return string Generated classname.
  */
 function gc_get_block_default_classname( $block_name ) {
@@ -30,8 +27,8 @@ function gc_get_block_default_classname( $block_name ) {
 	 *
 	 * @since 5.6.0
 	 *
-	 * @param string     $class_name The current applied classname.
-	 * @param string     $block_name The block name.
+	 * @param string $class_name The current applied classname.
+	 * @param string $block_name The block name.
 	 */
 	$classname = apply_filters( 'block_default_classname', $classname, $block_name );
 
@@ -39,14 +36,11 @@ function gc_get_block_default_classname( $block_name ) {
 }
 
 /**
- * Add the generated classnames to the output.
- *
- * @since 5.6.0
+ * Adds the generated classnames to the output.
  *
  * @access private
  *
- * @param  GC_Block_Type $block_type       Block Type.
- *
+ * @param GC_Block_Type $block_type Block Type.
  * @return array Block CSS classes and inline styles.
  */
 function gc_apply_generated_classname_support( $block_type ) {

@@ -4,7 +4,7 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
+ * @since 4.0.0
  */
 
 /**
@@ -12,10 +12,11 @@
  *
  * A UI container for sections, managed by the GC_Customize_Manager.
  *
- *
+ * @since 4.0.0
  *
  * @see GC_Customize_Manager
  */
+#[AllowDynamicProperties]
 class GC_Customize_Panel {
 
 	/**
@@ -23,6 +24,7 @@ class GC_Customize_Panel {
 	 *
 	 * Used when sorting two instances whose priorities are equal.
 	 *
+	 * @since 4.1.0
 	 * @var int
 	 */
 	protected static $instance_count = 0;
@@ -30,6 +32,7 @@ class GC_Customize_Panel {
 	/**
 	 * Order in which this instance was created in relation to other instances.
 	 *
+	 * @since 4.1.0
 	 * @var int
 	 */
 	public $instance_number;
@@ -37,6 +40,7 @@ class GC_Customize_Panel {
 	/**
 	 * GC_Customize_Manager instance.
 	 *
+	 * @since 4.0.0
 	 * @var GC_Customize_Manager
 	 */
 	public $manager;
@@ -44,6 +48,7 @@ class GC_Customize_Panel {
 	/**
 	 * Unique identifier.
 	 *
+	 * @since 4.0.0
 	 * @var string
 	 */
 	public $id;
@@ -51,6 +56,7 @@ class GC_Customize_Panel {
 	/**
 	 * Priority of the panel, defining the display order of panels and sections.
 	 *
+	 * @since 4.0.0
 	 * @var int
 	 */
 	public $priority = 160;
@@ -58,6 +64,7 @@ class GC_Customize_Panel {
 	/**
 	 * Capability required for the panel.
 	 *
+	 * @since 4.0.0
 	 * @var string
 	 */
 	public $capability = 'edit_theme_options';
@@ -65,13 +72,15 @@ class GC_Customize_Panel {
 	/**
 	 * Theme features required to support the panel.
 	 *
-	 * @var string|string[]
+	 * @since 4.0.0
+	 * @var mixed[]
 	 */
 	public $theme_supports = '';
 
 	/**
 	 * Title of the panel to show in UI.
 	 *
+	 * @since 4.0.0
 	 * @var string
 	 */
 	public $title = '';
@@ -79,6 +88,7 @@ class GC_Customize_Panel {
 	/**
 	 * Description to show in the UI.
 	 *
+	 * @since 4.0.0
 	 * @var string
 	 */
 	public $description = '';
@@ -86,6 +96,7 @@ class GC_Customize_Panel {
 	/**
 	 * Auto-expand a section in a panel when the panel is expanded when the panel only has the one section.
 	 *
+	 * @since 4.7.4
 	 * @var bool
 	 */
 	public $auto_expand_sole_section = false;
@@ -93,6 +104,7 @@ class GC_Customize_Panel {
 	/**
 	 * Customizer sections for this panel.
 	 *
+	 * @since 4.0.0
 	 * @var array
 	 */
 	public $sections;
@@ -100,6 +112,7 @@ class GC_Customize_Panel {
 	/**
 	 * Type of this panel.
 	 *
+	 * @since 4.1.0
 	 * @var string
 	 */
 	public $type = 'default';
@@ -107,6 +120,7 @@ class GC_Customize_Panel {
 	/**
 	 * Active callback.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @see GC_Customize_Section::active()
 	 *
@@ -122,6 +136,7 @@ class GC_Customize_Panel {
 	 *
 	 * Any supplied $args override class property defaults.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param GC_Customize_Manager $manager Customizer bootstrap instance.
 	 * @param string               $id      A specific ID for the panel.
@@ -132,7 +147,7 @@ class GC_Customize_Panel {
 	 *                                            of panels and sections. Default 160.
 	 *     @type string          $capability      Capability required for the panel.
 	 *                                            Default `edit_theme_options`.
-	 *     @type string|string[] $theme_supports  Theme features required to support the panel.
+	 *     @type mixed[]         $theme_supports  Theme features required to support the panel.
 	 *     @type string          $title           Title of the panel to show in UI.
 	 *     @type string          $description     Description to show in the UI.
 	 *     @type string          $type            Type of the panel.
@@ -161,6 +176,7 @@ class GC_Customize_Panel {
 	/**
 	 * Check whether panel is active to current Customizer preview.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return bool Whether the panel is active to the current preview.
 	 */
@@ -171,6 +187,7 @@ class GC_Customize_Panel {
 		/**
 		 * Filters response of GC_Customize_Panel::active().
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param bool               $active Whether the Customizer panel is active.
 		 * @param GC_Customize_Panel $panel  GC_Customize_Panel instance.
@@ -186,6 +203,7 @@ class GC_Customize_Panel {
 	 * Subclasses can override this with their specific logic, or they may
 	 * provide an 'active_callback' argument to the constructor.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return bool Always true.
 	 */
@@ -196,6 +214,7 @@ class GC_Customize_Panel {
 	/**
 	 * Gather the parameters passed to client JavaScript via JSON.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return array The array to be exported to the client as JSON.
 	 */
@@ -213,6 +232,8 @@ class GC_Customize_Panel {
 	 * Checks required user capabilities and whether the theme has the
 	 * feature support required by the panel.
 	 *
+	 * @since 4.0.0
+	 * @since 5.9.0 Method was marked non-final.
 	 *
 	 * @return bool False if theme doesn't support the panel or the user doesn't have the capability.
 	 */
@@ -231,6 +252,7 @@ class GC_Customize_Panel {
 	/**
 	 * Get the panel's content template for insertion into the Customizer pane.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return string Content for the panel.
 	 */
@@ -243,6 +265,7 @@ class GC_Customize_Panel {
 	/**
 	 * Check capabilities and render the panel.
 	 *
+	 * @since 4.0.0
 	 */
 	final public function maybe_render() {
 		if ( ! $this->check_capabilities() ) {
@@ -252,6 +275,7 @@ class GC_Customize_Panel {
 		/**
 		 * Fires before rendering a Customizer panel.
 		 *
+		 * @since 4.0.0
 		 *
 		 * @param GC_Customize_Panel $panel GC_Customize_Panel instance.
 		 */
@@ -263,6 +287,7 @@ class GC_Customize_Panel {
 		 * The dynamic portion of the hook name, `$this->id`, refers to
 		 * the ID of the specific Customizer panel to be rendered.
 		 *
+		 * @since 4.0.0
 		 */
 		do_action( "customize_render_panel_{$this->id}" );
 
@@ -274,6 +299,7 @@ class GC_Customize_Panel {
 	 *
 	 * Panel containers are now rendered in JS by default, see GC_Customize_Panel::print_template().
 	 *
+	 * @since 4.0.0
 	 */
 	protected function render() {}
 
@@ -282,6 +308,7 @@ class GC_Customize_Panel {
 	 *
 	 * Panel contents are now rendered in JS by default, see GC_Customize_Panel::print_template().
 	 *
+	 * @since 4.1.0
 	 */
 	protected function render_content() {}
 
@@ -291,6 +318,7 @@ class GC_Customize_Panel {
 	 * This function is only run for panel types that have been registered with
 	 * GC_Customize_Manager::register_panel_type().
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see GC_Customize_Manager::register_panel_type()
 	 */
@@ -313,13 +341,19 @@ class GC_Customize_Panel {
 	 *
 	 * @see GC_Customize_Panel::print_template()
 	 *
+	 * @since 4.3.0
 	 */
 	protected function render_template() {
 		?>
 		<li id="accordion-panel-{{ data.id }}" class="accordion-section control-section control-panel control-panel-{{ data.type }}">
 			<h3 class="accordion-section-title" tabindex="0">
 				{{ data.title }}
-				<span class="screen-reader-text"><?php _e( '按回车键以展开此面板' ); ?></span>
+				<span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '按回车键以展开此面板' );
+					?>
+				</span>
 			</h3>
 			<ul class="accordion-sub-container control-panel-content"></ul>
 		</li>
@@ -334,11 +368,17 @@ class GC_Customize_Panel {
 	 *
 	 * @see GC_Customize_Panel::print_template()
 	 *
+	 * @since 4.3.0
 	 */
 	protected function content_template() {
 		?>
 		<li class="panel-meta customize-info accordion-section <# if ( ! data.description ) { #> cannot-expand<# } #>">
-			<button class="customize-panel-back" tabindex="-1"><span class="screen-reader-text"><?php _e( '返回' ); ?></span></button>
+			<button class="customize-panel-back" tabindex="-1"><span class="screen-reader-text">
+				<?php
+				/* translators: Hidden accessibility text. */
+				_e( '返回' );
+				?>
+			</span></button>
 			<div class="accordion-section-title">
 				<span class="preview-notice">
 				<?php
@@ -347,7 +387,12 @@ class GC_Customize_Panel {
 				?>
 				</span>
 				<# if ( data.description ) { #>
-					<button type="button" class="customize-help-toggle dashicons dashicons-editor-help" aria-expanded="false"><span class="screen-reader-text"><?php _e( '帮助' ); ?></span></button>
+					<button type="button" class="customize-help-toggle dashicons dashicons-editor-help" aria-expanded="false"><span class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( '帮助' );
+						?>
+					</span></button>
 				<# } #>
 			</div>
 			<# if ( data.description ) { #>

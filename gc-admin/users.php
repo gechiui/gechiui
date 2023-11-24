@@ -32,8 +32,8 @@ get_current_screen()->add_help_tab(
 	array(
 		'id'      => 'overview',
 		'title'   => __( '概述' ),
-		'content' => '<p>' . __( '本页面列出了您站点当前的所有用户。根据站点管理员的意愿，每位用户都有下列五种用户角色中的其中一种：站点管理员、编辑、作者、贡献者或订阅者。在用户登录到仪表盘后，权限低于管理员角色的用户，只能基于其权限看到部分选项。' ) . '</p>' .
-						'<p>' . __( '要添加一位新用户到站点中，点击屏幕上方的“添加用户”按钮，或选择左侧菜单中的“用户”→“添加用户”。' ) . '</p>',
+		'content' => '<p>' . __( '本页面列出了您系统当前的所有用户。根据系统管理员的意愿，每位用户都有下列五种用户角色中的其中一种：系统管理员、编辑、作者、贡献者或订阅者。在用户登录到仪表盘后，权限低于管理员角色的用户，只能基于其权限看到部分选项。' ) . '</p>' .
+						'<p>' . __( '要添加一位新用户到系统中，点击屏幕上方的“添加用户”按钮，或选择左侧菜单中的“用户”→“添加用户”。' ) . '</p>',
 	)
 );
 
@@ -55,9 +55,9 @@ $help = '<p>' . __( '将鼠标光标悬停在用户列表中的某一行，操�
 	'<li>' . __( '点击“<strong>编辑</strong>”可在个人资料编辑器中编辑该用户。当然，直接点击用户名也是可以的。' ) . '</li>';
 
 if ( is_multisite() ) {
-	$help .= '<li>' . __( '点击“<strong>移除</strong>”可以将用户从您的站点中移除。该操作不会删除用户之前所发布的内容。您也可以通过批量操作功能一次移除多个用户。' ) . '</li>';
+	$help .= '<li>' . __( '点击“<strong>移除</strong>”可以将用户从您的系统中移除。该操作不会删除用户之前所发布的内容。您也可以通过批量操作功能一次移除多个用户。' ) . '</li>';
 } else {
-	$help .= '<li>' . __( '“<strong>删除</strong>”链接会带您到“删除用户”确认页面。在确认页面，您可以永久从站点中删除用户，并决定是否保留他们的内容。您也可以通过批量操作功能一次删除多个用户。' ) . '</li>';
+	$help .= '<li>' . __( '“<strong>删除</strong>”链接会带您到“删除用户”确认页面。在确认页面，您可以永久从系统中删除用户，并决定是否保留他们的内容。您也可以通过批量操作功能一次删除多个用户。' ) . '</li>';
 }
 
 $help .= '</ul>';
@@ -118,7 +118,7 @@ switch ( $gc_list_table->current_action() ) {
 
 		// Mocking the `none` role so we are able to save it to the database
 		$editable_roles['none'] = array(
-			'name' => __( '—这个站点没有任何用户角色—' ),
+			'name' => __( '—这个系统没有任何用户角色—' ),
 		);
 
 		if ( ! $role || empty( $editable_roles[ $role ] ) ) {
@@ -149,7 +149,7 @@ switch ( $gc_list_table->current_action() ) {
 			if ( is_multisite() && ! is_user_member_of_blog( $id ) ) {
 				gc_die(
 					'<h1>' . __( '出现了问题。' ) . '</h1>' .
-					'<p>' . __( '选择的用户之一不是该站点的成员。' ) . '</p>',
+					'<p>' . __( '选择的用户之一不是该系统的成员。' ) . '</p>',
 					403
 				);
 			}
@@ -291,7 +291,6 @@ switch ( $gc_list_table->current_action() ) {
 		 * Filters whether the users being deleted have additional content
 		 * associated with them outside of the `post_author` and `link_owner` relationships.
 		 *
-		 *
 		 * @param bool  $users_have_additional_content Whether the users have additional content. Default false.
 		 * @param int[] $userids                       Array of IDs for users being deleted.
 		 */
@@ -309,6 +308,11 @@ switch ( $gc_list_table->current_action() ) {
 			add_action( 'admin_head', 'delete_users_add_js' );
 		}
 
+		if ( isset( $_REQUEST['error'] ) ) {
+			$message = '<strong>' . _e( '错误：' ) . '</strong>' . _e( '请选择一个选项。' );
+			add_settings_error( 'general', 'settings_updated', $message, 'danger' );
+		}
+
 		require_once ABSPATH . 'gc-admin/admin-header.php';
 		?>
 	<form method="post" name="updateusers" id="updateusers">
@@ -316,12 +320,7 @@ switch ( $gc_list_table->current_action() ) {
 		<?php echo $referer; ?>
 
 <div class="wrap">
-<h1><?php _e( '删除用户' ); ?></h1>
-		<?php if ( isset( $_REQUEST['error'] ) ) : ?>
-	<div class="error">
-		<p><strong><?php _e( '错误：' ); ?></strong> <?php _e( '请选择一个选项。' ); ?></p>
-	</div>
-		<?php endif; ?>
+<div class="page-header"><h2 class="header-title"><?php _e( '删除用户' ); ?></h2></div>
 
 		<?php if ( 1 === count( $all_userids ) ) : ?>
 	<p><?php _e( '您已指定删除此用户：' ); ?></p>
@@ -458,7 +457,7 @@ switch ( $gc_list_table->current_action() ) {
 		<?php echo $referer; ?>
 
 <div class="wrap">
-<h1><?php _e( '从站点移除用户' ); ?></h1>
+<div class="page-header"><h2 class="header-title"><?php _e( '从系统移除用户' ); ?></h2></div>
 
 		<?php if ( 1 === count( $userids ) ) : ?>
 	<p><?php _e( '您将要删除这名用户：' ); ?></p>
@@ -520,10 +519,7 @@ switch ( $gc_list_table->current_action() ) {
 			exit;
 		}
 
-		require_once ABSPATH . 'gc-admin/admin-header.php';
-
-		$messages = array();
-		if ( isset( $_GET['update'] ) ) :
+		if ( isset( $_GET['update'] ) ) {
 			switch ( $_GET['update'] ) {
 				case 'del':
 				case 'del_many':
@@ -534,7 +530,7 @@ switch ( $gc_list_table->current_action() ) {
 						/* translators: %s: Number of users. */
 						$message = _n( '已删除 %s 个用户。', '已删除 %s 个用户。', $delete_count );
 					}
-					$messages[] = '<div id="message" class="updated notice is-dismissible"><p>' . sprintf( $message, number_format_i18n( $delete_count ) ) . '</p></div>';
+					add_settings_error( 'general', 'settings_updated', sprintf( $message, number_format_i18n( $delete_count ) ), 'success' );
 					break;
 				case 'add':
 					$message = __( '新用户已创建。' );
@@ -553,8 +549,7 @@ switch ( $gc_list_table->current_action() ) {
 							__( '编辑用户' )
 						);
 					}
-
-					$messages[] = '<div id="message" class="updated notice is-dismissible"><p>' . $message . '</p></div>';
+					add_settings_error( 'general', 'settings_updated', $message, 'success' );
 					break;
 				case 'resetpassword':
 					$reset_count = isset( $_GET['reset_count'] ) ? (int) $_GET['reset_count'] : 0;
@@ -564,78 +559,66 @@ switch ( $gc_list_table->current_action() ) {
 						/* translators: %s: Number of users. */
 						$message = _n( '密码重置链接已发送给%s位用户。', '密码重置链接已发送给%s位用户。', $reset_count );
 					}
-					$messages[] = '<div id="message" class="updated notice is-dismissible"><p>' . sprintf( $message, number_format_i18n( $reset_count ) ) . '</p></div>';
+					add_settings_error( 'general', 'settings_updated', sprintf( $message, number_format_i18n( $reset_count ) ), 'success' );
 					break;
 				case 'promote':
-					$messages[] = '<div id="message" class="updated notice is-dismissible"><p>' . __( '角色已改变。' ) . '</p></div>';
+					add_settings_error( 'general', 'settings_updated', __( '角色已改变。' ), 'success' );
 					break;
 				case 'err_admin_role':
-					$messages[] = '<div id="message" class="error notice is-dismissible"><p>' . __( '当前用户角色必须有用户编辑权。' ) . '</p></div>';
-					$messages[] = '<div id="message" class="updated notice is-dismissible"><p>' . __( '其他用户的角色已更改。' ) . '</p></div>';
+					add_settings_error( 'general', 'settings_updated', __( '当前用户角色必须有用户编辑权。' ), 'danger' );
+					add_settings_error( 'general', 'settings_updated', __( '其他用户的角色已更改。' ), 'success' );
 					break;
 				case 'err_admin_del':
-					$messages[] = '<div id="message" class="error notice is-dismissible"><p>' . __( '您无法删除当前用户。' ) . '</p></div>';
-					$messages[] = '<div id="message" class="updated notice is-dismissible"><p>' . __( '其他用户已被删除。' ) . '</p></div>';
+					add_settings_error( 'general', 'settings_updated', __( '您无法删除当前用户。' ), 'danger' );
+					add_settings_error( 'general', 'settings_updated', __( '其他用户已被删除。' ), 'success' );
 					break;
 				case 'remove':
-					$messages[] = '<div id="message" class="updated notice is-dismissible fade"><p>' . __( '用户已从本站点移除。' ) . '</p></div>';
+					add_settings_error( 'general', 'settings_updated', __( '用户已从本系统移除。' ), 'success' );
 					break;
 				case 'err_admin_remove':
-					$messages[] = '<div id="message" class="error notice is-dismissible"><p>' . __( "您无法移除当前用户。" ) . '</p></div>';
-					$messages[] = '<div id="message" class="updated notice is-dismissible fade"><p>' . __( '其他用户已被移除。' ) . '</p></div>';
+					add_settings_error( 'general', 'settings_updated', __( '您无法移除当前用户。' ), 'danger' );
+					add_settings_error( 'general', 'settings_updated', __( '其他用户已被移除。' ), 'success' );
 					break;
 			}
-		endif;
-		?>
-
-		<?php if ( isset( $errors ) && is_gc_error( $errors ) ) : ?>
-		<div class="error">
-			<ul>
-			<?php
-			foreach ( $errors->get_error_messages() as $err ) {
-				echo "<li>$err</li>\n";
-			}
-			?>
-			</ul>
-		</div>
-			<?php
-	endif;
-
-		if ( ! empty( $messages ) ) {
-			foreach ( $messages as $msg ) {
-				echo $msg;
-			}
 		}
+
+		if ( isset( $errors ) && is_gc_error( $errors ) ) {
+
+			foreach ( $errors->get_error_messages() as $err ) {
+				add_settings_error( 'general', 'settings_updated', $err, 'danger' );
+			}
+
+		}
+
+		require_once ABSPATH . 'gc-admin/admin-header.php';
+
 		?>
 
 	<div class="wrap">
-	<h1 class="gc-heading-inline">
-		<?php
-		echo esc_html( $title );
-		?>
-</h1>
+	<div class="page-header">
+		<h2 class="header-title"><?php echo esc_html( $title ); ?></h2>
 
 		<?php
 		if ( current_user_can( 'create_users' ) ) {
 			?>
-	<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="page-title-action"><?php echo esc_html_x( '添加用户', 'user' ); ?></a>
-<?php } elseif ( is_multisite() && current_user_can( 'promote_users' ) ) { ?>
-	<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="page-title-action"><?php echo esc_html_x( '添加现有用户', 'user' ); ?></a>
-			<?php
-}
+		<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="btn btn-primary btn-tone btn-sm"><?php echo esc_html_x( '添加用户', 'user' ); ?></a>
+		<?php } elseif ( is_multisite() && current_user_can( 'promote_users' ) ) { ?>
+		<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="btn btn-primary btn-tone btn-sm"><?php echo esc_html_x( '添加现有用户', 'user' ); ?></a>
+				<?php
+		}
 
-if ( strlen( $usersearch ) ) {
-	echo '<span class="subtitle">';
-	printf(
-		/* translators: %s: Search query. */
-		__( '搜索结果：%s' ),
-		'<strong>' . esc_html( $usersearch ) . '</strong>'
-	);
-	echo '</span>';
-}
-?>
+		if ( strlen( $usersearch ) ) {
+			echo '<span class="subtitle">';
+			printf(
+				/* translators: %s: Search query. */
+				__( '搜索词：%s' ),
+				'<strong>' . esc_html( $usersearch ) . '</strong>'
+			);
+			echo '</span>';
+		}
+		?>
 
-<hr class="gc-header-end">
+	</div>
 
 		<?php $gc_list_table->views(); ?>
 

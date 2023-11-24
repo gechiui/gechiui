@@ -15,7 +15,7 @@ require_once ABSPATH . 'gc-admin/includes/widgets.php';
 if ( ! current_user_can( 'edit_theme_options' ) ) {
 	gc_die(
 		'<h1>' . __( '您需要更高级别的权限。' ) . '</h1>' .
-		'<p>' . __( '抱歉，您不能在此站点上编辑主题选项。' ) . '</p>',
+		'<p>' . __( '抱歉，您不能在此系统上编辑主题选项。' ) . '</p>',
 		403
 	);
 }

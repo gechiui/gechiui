@@ -13,7 +13,7 @@
  * @return string The render.
  */
 function render_block_core_site_logo( $attributes ) {
-	$adjust_width_height_filter = function ( $image ) use ( $attributes ) {
+	$adjust_width_height_filter = static function ( $image ) use ( $attributes ) {
 		if ( empty( $attributes['width'] ) || empty( $image ) || ! $image[1] || ! $image[2] ) {
 			return $image;
 		}
@@ -39,15 +39,16 @@ function render_block_core_site_logo( $attributes ) {
 	if ( $attributes['isLink'] && '_blank' === $attributes['linkTarget'] ) {
 		// Add the link target after the rel="home".
 		// Add an aria-label for informing that the page opens in a new tab.
-		$aria_label  = 'aria-label="' . esc_attr__( '（首页链接，在新标签页中打开）' ) . '"';
-		$custom_logo = str_replace( 'rel="home"', 'rel="home" target="' . $attributes['linkTarget'] . '"' . $aria_label, $custom_logo );
+		$processor = new GC_HTML_Tag_Processor( $custom_logo );
+		$processor->next_tag( 'a' );
+		if ( 'home' === $processor->get_attribute( 'rel' ) ) {
+			$processor->set_attribute( 'aria-label', __( '（首页链接，在新标签页中打开）' ) );
+			$processor->set_attribute( 'target', $attributes['linkTarget'] );
+		}
+		$custom_logo = $processor->get_updated_html();
 	}
 
 	$classnames = array();
-	if ( ! empty( $attributes['className'] ) ) {
-		$classnames[] = $attributes['className'];
-	}
-
 	if ( empty( $attributes['width'] ) ) {
 		$classnames[] = 'is-default-size';
 	}
@@ -69,7 +70,7 @@ function register_block_core_site_logo_setting() {
 				'name' => 'site_logo',
 			),
 			'type'         => 'integer',
-			'description'  => __( '站点 logo' ),
+			'description'  => __( '系统logo' ),
 		)
 	);
 }
@@ -86,7 +87,7 @@ function register_block_core_site_icon_setting() {
 		array(
 			'show_in_rest' => true,
 			'type'         => 'integer',
-			'description'  => __( '站点图标。' ),
+			'description'  => __( '系统图标。' ),
 		)
 	);
 }
@@ -98,7 +99,7 @@ add_action( 'rest_api_init', 'register_block_core_site_icon_setting', 10 );
  */
 function register_block_core_site_logo() {
 	register_block_type_from_metadata(
-		ABSPATH . 'assets/blocks/site-logo',
+		__DIR__ . '/site-logo',
 		array(
 			'render_callback' => 'render_block_core_site_logo',
 		)

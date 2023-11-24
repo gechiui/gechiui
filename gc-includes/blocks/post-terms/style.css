@@ -1,0 +1,6 @@
+.gc-block-post-terms{
+  box-sizing:border-box;
+}
+.gc-block-post-terms .gc-block-post-terms__separator{
+  white-space:pre-wrap;
+}

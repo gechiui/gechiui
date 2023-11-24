@@ -18,7 +18,7 @@ function render_block_core_post_navigation_link( $attributes, $content ) {
 		return '';
 	}
 
-	// Get the nagigation type to show the proper link. Available options are `next|previous`.
+	// Get the navigation type to show the proper link. Available options are `next|previous`.
 	$navigation_type = isset( $attributes['type'] ) ? $attributes['type'] : 'next';
 	// Allow only `next` and `previous` in `$navigation_type`.
 	if ( ! in_array( $navigation_type, array( 'next', 'previous' ), true ) ) {
@@ -31,8 +31,20 @@ function render_block_core_post_navigation_link( $attributes, $content ) {
 	$wrapper_attributes = get_block_wrapper_attributes( array( 'class' => $classes ) );
 	// Set default values.
 	$format = '%link';
-	$link   = 'next' === $navigation_type ? _x( '下一个标签', 'label for next post link' ) : _x( '上一个标签', 'label for previous post link' );
+	$link   = 'next' === $navigation_type ? _x( '下篇文章', 'label for next post link' ) : _x( '上篇文章', 'label for previous post link' );
 	$label  = '';
+
+	$arrow_map = array(
+		'none'    => '',
+		'arrow'   => array(
+			'next'     => '→',
+			'previous' => '←',
+		),
+		'chevron' => array(
+			'next'     => '»',
+			'previous' => '«',
+		),
+	);
 
 	// If a custom label is provided, make this a link.
 	// `$label` is used to prepend the provided label, if we want to show the page title as well.
@@ -49,13 +61,13 @@ function render_block_core_post_navigation_link( $attributes, $content ) {
 		 */
 		if ( ! $attributes['linkLabel'] ) {
 			if ( $label ) {
-				$format = '<span class="post-navigation-link__label">' . $label . '</span> %link';
+				$format = '<span class="post-navigation-link__label">' . gc_kses_post( $label ) . '</span> %link';
 			}
 			$link = '%title';
 		} elseif ( isset( $attributes['linkLabel'] ) && $attributes['linkLabel'] ) {
 			// If the label link option is enabled and there is a custom label, display it before the title.
 			if ( $label ) {
-				$link = '<span class="post-navigation-link__label">' . $label . '</span> <span class="post-navigation-link__title">%title</title>';
+				$link = '<span class="post-navigation-link__label">' . gc_kses_post( $label ) . '</span> <span class="post-navigation-link__title">%title</span>';
 			} else {
 				/*
 				 * If the label link option is enabled and there is no custom label,
@@ -64,10 +76,21 @@ function render_block_core_post_navigation_link( $attributes, $content ) {
 				$label = 'next' === $navigation_type ? _x( '下一篇：', 'label before the title of the next post' ) : _x( '上一篇：', 'label before the title of the previous post' );
 				$link  = sprintf(
 					'<span class="post-navigation-link__label">%1$s</span> <span class="post-navigation-link__title">%2$s</span>',
-					$label,
+					gc_kses_post( $label ),
 					'%title'
 				);
 			}
+		}
+	}
+
+	// Display arrows.
+	if ( isset( $attributes['arrow'] ) && ! empty( $attributes['arrow'] ) && 'none' !== $attributes['arrow'] ) {
+		$arrow = $arrow_map[ $attributes['arrow'] ][ $navigation_type ];
+
+		if ( 'next' === $navigation_type ) {
+			$format = '%link <span class="gc-block-post-navigation-link__arrow-next is-arrow-' . $attributes['arrow'] . '" aria-hidden="true">' . $arrow . '</span>';
+		} else {
+			$format = '<span class="gc-block-post-navigation-link__arrow-previous is-arrow-' . $attributes['arrow'] . '" aria-hidden="true">' . $arrow . '</span> %link';
 		}
 	}
 
@@ -87,7 +110,7 @@ function render_block_core_post_navigation_link( $attributes, $content ) {
  */
 function register_block_core_post_navigation_link() {
 	register_block_type_from_metadata(
-		ABSPATH . 'assets/blocks/post-navigation-link',
+		__DIR__ . '/post-navigation-link',
 		array(
 			'render_callback' => 'render_block_core_post_navigation_link',
 		)

@@ -8,7 +8,7 @@
  * @package GeChiUI
  */
 
-_deprecated_file( basename( __FILE__ ), '5.9.0', 'gc-includes/class-gc-http.php' );
+_deprecated_file( basename( __FILE__ ), '5.9.0', GCINC . '/class-gc-http.php' );
 
 /** GC_Http class */
-require_once ABSPATH . 'gc-includes/class-gc-http.php';
+require_once ABSPATH . GCINC . '/class-gc-http.php';

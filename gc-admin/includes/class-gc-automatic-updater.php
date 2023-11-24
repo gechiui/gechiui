@@ -4,15 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage Upgrader
- *
  */
 
 /**
  * Core class used for handling automatic background updates.
- *
- *
- *
+ * Moved to its own file from gc-admin/includes/class-gc-upgrader.php.
  */
+#[AllowDynamicProperties]
 class GC_Automatic_Updater {
 
 	/**
@@ -23,8 +21,11 @@ class GC_Automatic_Updater {
 	protected $update_results = array();
 
 	/**
-	 * Whether the entire automatic updater is disabled.
+	 * Determines whether the entire automatic updater is disabled.
 	 *
+	 * @since 3.7.0
+	 *
+	 * @return bool True if the automatic updater is disabled, false otherwise.
 	 */
 	public function is_disabled() {
 		// Background updates are disabled if you don't want file changes.
@@ -47,6 +48,7 @@ class GC_Automatic_Updater {
 		 *
 		 * This also disables update notification emails. That may change in the future.
 		 *
+		 * @since 3.7.0
 		 *
 		 * @param bool $disabled Whether the updater should be disabled.
 		 */
@@ -54,7 +56,55 @@ class GC_Automatic_Updater {
 	}
 
 	/**
-	 * Check for version control checkouts.
+	 * Checks whether access to a given directory is allowed.
+	 *
+	 * This is used when detecting version control checkouts. Takes into account
+	 * the PHP `open_basedir` restrictions, so that GeChiUI does not try to access
+	 * directories it is not allowed to.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @param string $dir The directory to check.
+	 * @return bool True if access to the directory is allowed, false otherwise.
+	 */
+	public function is_allowed_dir( $dir ) {
+		if ( is_string( $dir ) ) {
+			$dir = trim( $dir );
+		}
+
+		if ( ! is_string( $dir ) || '' === $dir ) {
+			_doing_it_wrong(
+				__METHOD__,
+				sprintf(
+					/* translators: %s: The "$dir" argument. */
+					__( '“%s”参数必须是非空字符串。' ),
+					'$dir'
+				),
+				'6.2.0'
+			);
+
+			return false;
+		}
+
+		$open_basedir = ini_get( 'open_basedir' );
+
+		if ( empty( $open_basedir ) ) {
+			return true;
+		}
+
+		$open_basedir_list = explode( PATH_SEPARATOR, $open_basedir );
+
+		foreach ( $open_basedir_list as $basedir ) {
+			if ( '' !== trim( $basedir ) && str_starts_with( $dir, $basedir ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks for version control checkouts.
 	 *
 	 * Checks for Subversion, Git, Mercurial, and Bazaar. It recursively looks up the
 	 * filesystem to the top of the drive, erring on the side of detecting a VCS
@@ -65,6 +115,7 @@ class GC_Automatic_Updater {
 	 * using version control *anywhere*, then you should be making decisions for
 	 * how things get updated.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param string $context The filesystem path to check, in addition to ABSPATH.
 	 * @return bool True if a VCS checkout was discovered at `$context` or ABSPATH,
@@ -94,11 +145,16 @@ class GC_Automatic_Updater {
 		}
 
 		$check_dirs = array_unique( $check_dirs );
+		$checkout   = false;
 
 		// Search all directories we've found for evidence of version control.
 		foreach ( $vcs_dirs as $vcs_dir ) {
 			foreach ( $check_dirs as $check_dir ) {
-				$checkout = @is_dir( rtrim( $check_dir, '\\/' ) . "/$vcs_dir" );
+				if ( ! $this->is_allowed_dir( $check_dir ) ) {
+					continue;
+				}
+
+				$checkout = is_dir( rtrim( $check_dir, '\\/' ) . "/$vcs_dir" );
 				if ( $checkout ) {
 					break 2;
 				}
@@ -109,6 +165,7 @@ class GC_Automatic_Updater {
 		 * Filters whether the automatic updater should consider a filesystem
 		 * location to be potentially managed by a version control system.
 		 *
+		 * @since 3.7.0
 		 *
 		 * @param bool $checkout  Whether a VCS checkout was discovered at `$context`
 		 *                        or ABSPATH, or anywhere higher.
@@ -121,6 +178,7 @@ class GC_Automatic_Updater {
 	/**
 	 * Tests to see if we can and should update a specific item.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -133,7 +191,7 @@ class GC_Automatic_Updater {
 	 */
 	public function should_update( $type, $item, $context ) {
 		// Used to see if GC_Filesystem is set up to allow unattended updates.
-		$skin = new Automatic_Upgrader_Skin;
+		$skin = new Automatic_Upgrader_Skin();
 
 		if ( $this->is_disabled() ) {
 			return false;
@@ -197,6 +255,8 @@ class GC_Automatic_Updater {
 		 * and {@see 'allow_major_auto_core_updates'} filters for a more straightforward way to
 		 * adjust core updates.
 		 *
+		 * @since 3.7.0
+		 * @since 5.5.0 The `$update` parameter accepts the value of null.
 		 *
 		 * @param bool|null $update Whether to update. The value of null is internally used
 		 *                          to detect whether nothing has hooked into this filter.
@@ -215,7 +275,7 @@ class GC_Automatic_Updater {
 		if ( 'core' === $type ) {
 			global $gcdb;
 
-			$php_compat = version_compare( phpversion(), $item->php_version, '>=' );
+			$php_compat = version_compare( PHP_VERSION, $item->php_version, '>=' );
 			if ( file_exists( GC_CONTENT_DIR . '/db.php' ) && empty( $gcdb->is_mysql ) ) {
 				$mysql_compat = true;
 			} else {
@@ -229,7 +289,7 @@ class GC_Automatic_Updater {
 
 		// If updating a plugin or theme, ensure the minimum PHP version requirements are satisfied.
 		if ( in_array( $type, array( 'plugin', 'theme' ), true ) ) {
-			if ( ! empty( $item->requires_php ) && version_compare( phpversion(), $item->requires_php, '<' ) ) {
+			if ( ! empty( $item->requires_php ) && version_compare( PHP_VERSION, $item->requires_php, '<' ) ) {
 				return false;
 			}
 		}
@@ -240,6 +300,7 @@ class GC_Automatic_Updater {
 	/**
 	 * Notifies an administrator of a core update.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param object $item The update offer.
 	 * @return bool True if the site administrator is notified of a core update,
@@ -273,6 +334,7 @@ class GC_Automatic_Updater {
 		 * This filter is also used on about.php to check if a plugin has disabled
 		 * these notifications.
 		 *
+		 * @since 3.7.0
 		 *
 		 * @param bool   $notify Whether the site administrator is notified.
 		 * @param object $item   The update offer.
@@ -286,15 +348,16 @@ class GC_Automatic_Updater {
 	}
 
 	/**
-	 * Update an item, if appropriate.
+	 * Updates an item, if appropriate.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param string $type The type of update being checked: 'core', 'theme', 'plugin', 'translation'.
 	 * @param object $item The update offer.
 	 * @return null|GC_Error
 	 */
 	public function update( $type, $item ) {
-		$skin = new Automatic_Upgrader_Skin;
+		$skin = new Automatic_Upgrader_Skin();
 
 		switch ( $type ) {
 			case 'core':
@@ -325,6 +388,7 @@ class GC_Automatic_Updater {
 		/**
 		 * Fires immediately prior to an auto-update.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param string $type    The type of update being checked: 'core', 'theme', 'plugin', or 'translation'.
 		 * @param object $item    The update offer.
@@ -370,7 +434,7 @@ class GC_Automatic_Updater {
 				/* translators: %s: Project name (plugin, theme, or GeChiUI). */
 				$item_name = sprintf( __( '%s的翻译' ), $language_item_name );
 				/* translators: 1: Project name (plugin, theme, or GeChiUI), 2: Language. */
-				$skin->feedback( sprintf( __( '正在更新%1$s（%2$s）的翻译…' ), $language_item_name, $item->language ) );
+				$skin->feedback( sprintf( __( '正在更新%1$s（%2$s）的翻译...'  ), $language_item_name, $item->language ) );
 				break;
 		}
 
@@ -403,8 +467,10 @@ class GC_Automatic_Updater {
 				&& ( 'up_to_date' === $upgrade_result->get_error_code()
 					|| 'locked' === $upgrade_result->get_error_code() )
 			) {
-				// These aren't actual errors, treat it as a skipped-update instead
-				// to avoid triggering the post-core update failure routines.
+				/*
+				 * These aren't actual errors, treat it as a skipped-update instead
+				 * to avoid triggering the post-core update failure routines.
+				 */
 				return false;
 			}
 
@@ -430,6 +496,7 @@ class GC_Automatic_Updater {
 	/**
 	 * Kicks off the background update process, looping through all pending updates.
 	 *
+	 * @since 3.7.0
 	 */
 	public function run() {
 		if ( $this->is_disabled() ) {
@@ -480,8 +547,10 @@ class GC_Automatic_Updater {
 			$this->update( 'core', $core_update );
 		}
 
-		// Clean up, and check for any pending translations.
-		// (Core_Upgrader checks for core updates.)
+		/*
+		 * Clean up, and check for any pending translations.
+		 * (Core_Upgrader checks for core updates.)
+		 */
 		$theme_stats = array();
 		if ( isset( $this->update_results['theme'] ) ) {
 			foreach ( $this->update_results['theme'] as $upgrade ) {
@@ -515,12 +584,12 @@ class GC_Automatic_Updater {
 
 		// Send debugging email to admin for all development installations.
 		if ( ! empty( $this->update_results ) ) {
-			$development_version = false !== strpos( get_bloginfo( 'version' ), '-' );
+			$development_version = str_contains( get_bloginfo( 'version' ), '-' );
 
 			/**
 			 * Filters whether to send a debugging email for each automatic background update.
 			 *
-		
+			 * @since 3.7.0
 			 *
 			 * @param bool $development_version By default, emails are sent if the
 			 *                                  install is a development version.
@@ -539,7 +608,7 @@ class GC_Automatic_Updater {
 			/**
 			 * Fires after all automatic updates have run.
 			 *
-		
+			 * @since 3.8.0
 			 *
 			 * @param array $update_results The results of all attempted updates.
 			 */
@@ -550,9 +619,10 @@ class GC_Automatic_Updater {
 	}
 
 	/**
-	 * If we tried to perform a core update, check if we should send an email,
-	 * and if we need to avoid processing future updates.
+	 * Checks whether to send an email and avoid processing future updates after
+	 * attempting a core update.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param object $update_result The result of the core update. Includes the update offer and result.
 	 */
@@ -569,16 +639,18 @@ class GC_Automatic_Updater {
 
 		$error_code = $result->get_error_code();
 
-		// Any of these GC_Error codes are critical failures, as in they occurred after we started to copy core files.
-		// We should not try to perform a background update again until there is a successful one-click update performed by the user.
+		/*
+		 * Any of these GC_Error codes are critical failures, as in they occurred after we started to copy core files.
+		 * We should not try to perform a background update again until there is a successful one-click update performed by the user.
+		 */
 		$critical = false;
-		if ( 'disk_full' === $error_code || false !== strpos( $error_code, '__copy_dir' ) ) {
+		if ( 'disk_full' === $error_code || str_contains( $error_code, '__copy_dir' ) ) {
 			$critical = true;
 		} elseif ( 'rollback_was_required' === $error_code && is_gc_error( $result->get_error_data()->rollback ) ) {
 			// A rollback is only critical if it failed too.
 			$critical        = true;
 			$rollback_result = $result->get_error_data()->rollback;
-		} elseif ( false !== strpos( $error_code, 'do_rollback' ) ) {
+		} elseif ( str_contains( $error_code, 'do_rollback' ) ) {
 			$critical = true;
 		}
 
@@ -649,6 +721,7 @@ class GC_Automatic_Updater {
 	/**
 	 * Sends an email upon the completion or failure of a background core update.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param string $type        The type of email to send. Can be one of 'success', 'fail', 'manual', 'critical'.
 	 * @param object $core_update The update offer that was attempted.
@@ -683,6 +756,7 @@ class GC_Automatic_Updater {
 		/**
 		 * Filters whether to send an email following an automatic background core update.
 		 *
+		 * @since 3.7.0
 		 *
 		 * @param bool   $send        Whether to send the email. Default true.
 		 * @param string $type        The type of email to send. Can be one of
@@ -697,7 +771,7 @@ class GC_Automatic_Updater {
 		switch ( $type ) {
 			case 'success': // We updated.
 				/* translators: Site updated notification email subject. 1: Site title, 2: GeChiUI version. */
-				$subject = __( '[%1$s] 您的站点已被更新至GeChiUI %2$s' );
+				$subject = __( '[%1$s] 您的系统已被更新至GeChiUI %2$s' );
 				break;
 
 			case 'fail':   // We tried to update but couldn't.
@@ -708,7 +782,7 @@ class GC_Automatic_Updater {
 
 			case 'critical': // We tried to update, started to copy files, then things went wrong.
 				/* translators: Site down notification email subject. 1: Site title. */
-				$subject = __( '[%1$s] 紧急：因更新失败，您的站点或已不可用' );
+				$subject = __( '[%1$s] 紧急：因更新失败，您的系统或已不可用' );
 				break;
 
 			default:
@@ -725,7 +799,7 @@ class GC_Automatic_Updater {
 			case 'success':
 				$body .= sprintf(
 					/* translators: 1: Home URL, 2: GeChiUI version. */
-					__( '您好！您的站点 %1$s 已被自动更新至GeChiUI %2$s。' ),
+					__( '您好！您的系统 %1$s 已被自动更新至GeChiUI %2$s。' ),
 					home_url(),
 					$core_update->current
 				);
@@ -737,7 +811,7 @@ class GC_Automatic_Updater {
 				// Can only reference the About screen if their update was successful.
 				list( $about_version ) = explode( '-', $core_update->current, 2 );
 				/* translators: %s: GeChiUI version. */
-				$body .= sprintf( __( '要获取更多关于%s版本的信息，请参阅“关于GeChiUI”页面：' ), $about_version );
+				$body .= sprintf( __( '详细了解 %s 版本，请参阅“关于GeChiUI”页面：' ), $about_version );
 				$body .= "\n" . admin_url( 'about.php' );
 
 				if ( $newer_version_available ) {
@@ -753,17 +827,19 @@ class GC_Automatic_Updater {
 			case 'manual':
 				$body .= sprintf(
 					/* translators: 1: Home URL, 2: GeChiUI version. */
-					__( '请升级您位于 %1$s 的站点到GeChiUI %2$s。' ),
+					__( '请升级您位于 %1$s 的系统到GeChiUI %2$s。' ),
 					home_url(),
 					$next_user_core_update->current
 				);
 
 				$body .= "\n\n";
 
-				// Don't show this message if there is a newer version available.
-				// Potential for confusion, and also not useful for them to know at this point.
+				/*
+				 * Don't show this message if there is a newer version available.
+				 * Potential for confusion, and also not useful for them to know at this point.
+				 */
 				if ( 'fail' === $type && ! $newer_version_available ) {
-					$body .= __( '我们无法自动更新您的站点。' ) . ' ';
+					$body .= __( '系统已进行尝试，但您的系统无法自动更新。' ) . ' ';
 				}
 
 				$body .= __( '升级很简单，花不了您多长时间：' );
@@ -774,22 +850,22 @@ class GC_Automatic_Updater {
 				if ( $newer_version_available ) {
 					$body .= sprintf(
 						/* translators: 1: Home URL, 2: GeChiUI version. */
-						__( '您位于 %1$s 的站点在更新至到GeChiUI %2$s的过程中遇到了严重问题。' ),
+						__( '您位于 %1$s 的系统在更新至到GeChiUI %2$s的过程中遇到了严重问题。' ),
 						home_url(),
 						$core_update->current
 					);
 				} else {
 					$body .= sprintf(
 						/* translators: 1: Home URL, 2: GeChiUI latest version. */
-						__( '您位于 %1$s 的站点在更新至GeChiUI的最新版本，%2$s的过程中遇到了严重问题。' ),
+						__( '您位于 %1$s 的系统在更新至GeChiUI的最新版本，%2$s的过程中遇到了严重问题。' ),
 						home_url(),
 						$core_update->current
 					);
 				}
 
-				$body .= "\n\n" . __( "这意味着您的站点可能已不可用或损坏。别慌，这能被修好。" );
+				$body .= "\n\n" . __( "这意味着您的系统可能已不可用或损坏。别慌，这能被修好。" );
 
-				$body .= "\n\n" . __( "请检查您的站点，有可能一切工作正常。如果它说您需要更新，请照做：" );
+				$body .= "\n\n" . __( "请检查您的系统，有可能一切工作正常。如果它说您需要更新，请照做：" );
 				$body .= "\n" . network_admin_url( 'update-core.php' );
 				break;
 		}
@@ -799,7 +875,7 @@ class GC_Automatic_Updater {
 			// Support offer if available.
 			$body .= "\n\n" . sprintf(
 				/* translators: %s: Support email address. */
-				__( 'GeChiUI团队愿意帮您。转发此邮件到%s，我们的团队将协助您保持站点正常运作。' ),
+				__( 'GeChiUI团队愿意帮您。转发此邮件到%s，我们的团队将协助您保持系统正常运作。' ),
 				$core_update->support_email
 			);
 		} else {
@@ -810,11 +886,11 @@ class GC_Automatic_Updater {
 
 		// Updates are important!
 		if ( 'success' !== $type || $newer_version_available ) {
-			$body .= "\n\n" . __( '保持更新站点对确保安全至关重要，这也会让互联网和您的读者更安全。' );
+			$body .= "\n\n" . __( '保持更新系统对确保安全至关重要，这也会让互联网和您的读者更安全。' );
 		}
 
 		if ( $critical_support ) {
-			$body .= ' ' . __( "如果您联系我们，我们也将尽力确保您不再遇到此问题。" );
+			$body .= ' ' . __( "联系 GeChiUI 核心开发人员以确保您不会再遇到这个问题。" );
 		}
 
 		// If things are successful and we're now on the latest, mention plugins and themes if any are out of date.
@@ -828,12 +904,14 @@ class GC_Automatic_Updater {
 		if ( 'critical' === $type && is_gc_error( $result ) ) {
 			$body .= "\n***\n\n";
 			/* translators: %s: GeChiUI version. */
-			$body .= sprintf( __( '您的站点正在运行%s版本。' ), get_bloginfo( 'version' ) );
-			$body .= ' ' . __( '我们有一些关于您的站点遇到的错误的信息。' );
+			$body .= sprintf( __( '您的系统正在运行%s版本。' ), get_bloginfo( 'version' ) );
+			$body .= ' ' . __( '说明此系统遇到问题的数据已进行整理。' );
 			$body .= ' ' . __( '您的主机商、支持论坛的志愿者、或一位友善的开发者将可以利用以下信息来帮您：' );
 
-			// If we had a rollback and we're still critical, then the rollback failed too.
-			// Loop through all errors (the main GC_Error, the update result, the rollback result) for code, data, etc.
+			/*
+			 * If we had a rollback and we're still critical, then the rollback failed too.
+			 * Loop through all errors (the main GC_Error, the update result, the rollback result) for code, data, etc.
+			 */
 			if ( 'rollback_was_required' === $result->get_error_code() ) {
 				$errors = array( $result, $result->get_error_data()->update, $result->get_error_data()->rollback );
 			} else {
@@ -874,6 +952,7 @@ class GC_Automatic_Updater {
 		/**
 		 * Filters the email sent following an automatic background core update.
 		 *
+		 * @since 3.7.0
 		 *
 		 * @param array $email {
 		 *     Array of email arguments that will be passed to gc_mail().
@@ -896,8 +975,9 @@ class GC_Automatic_Updater {
 
 
 	/**
-	 * If we tried to perform plugin or theme updates, check if we should send an email.
+	 * Checks whether an email should be sent after attempting plugin or theme updates.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param array $update_results The results of update tasks.
 	 */
@@ -909,8 +989,8 @@ class GC_Automatic_Updater {
 			/**
 			 * Filters whether to send an email following an automatic background plugin update.
 			 *
-		
-		
+			 * @since 5.5.0
+			 * @since 5.5.1 Added the `$update_results` parameter.
 			 *
 			 * @param bool  $enabled        True if plugin update notifications are enabled, false otherwise.
 			 * @param array $update_results The results of plugins update tasks.
@@ -932,8 +1012,8 @@ class GC_Automatic_Updater {
 			/**
 			 * Filters whether to send an email following an automatic background theme update.
 			 *
-		
-		
+			 * @since 5.5.0
+			 * @since 5.5.1 Added the `$update_results` parameter.
 			 *
 			 * @param bool  $enabled        True if theme update notifications are enabled, false otherwise.
 			 * @param array $update_results The results of theme update tasks.
@@ -967,6 +1047,7 @@ class GC_Automatic_Updater {
 	/**
 	 * Sends an email upon the completion or failure of a plugin or theme background update.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $type               The type of email to send. Can be one of 'success', 'fail', 'mixed'.
 	 * @param array  $successful_updates A list of updates that succeeded.
@@ -1019,7 +1100,7 @@ class GC_Automatic_Updater {
 					$subject = __( '[%s] 一些插件及主题已自动更新' );
 					$body[]  = sprintf(
 						/* translators: %s: Home URL. */
-						__( '您好！您的站点 %s 上的部分插件和主题已自动升级至最新版本。您不需要再进行其他操作。' ),
+						__( '您好！您的系统 %s 上的部分插件和主题已自动升级至最新版本。您不需要再进行其他操作。' ),
 						home_url()
 					);
 				} elseif ( $successful_plugins ) {
@@ -1027,7 +1108,7 @@ class GC_Automatic_Updater {
 					$subject = __( '[%s] 一些插件已自动更新' );
 					$body[]  = sprintf(
 						/* translators: %s: Home URL. */
-						__( '您好！您的站点 %s 上的部分插件已自动升级至最新版本。您不需要再进行其他操作。' ),
+						__( '您好！您的系统 %s 上的部分插件已自动升级至最新版本。您不需要再进行其他操作。' ),
 						home_url()
 					);
 				} else {
@@ -1035,7 +1116,7 @@ class GC_Automatic_Updater {
 					$subject = __( '[%s] 一些主题已自动更新' );
 					$body[]  = sprintf(
 						/* translators: %s: Home URL. */
-						__( '您好！您的站点 %s 上的部分主题已自动升级至最新版本。您不需要再进行其他操作。' ),
+						__( '您好！您的系统 %s 上的部分主题已自动升级至最新版本。您不需要再进行其他操作。' ),
 						home_url()
 					);
 				}
@@ -1048,7 +1129,7 @@ class GC_Automatic_Updater {
 					$subject = __( '[%s] 一些插件及主题无法更新' );
 					$body[]  = sprintf(
 						/* translators: %s: Home URL. */
-						__( '您好！您的站点 %s 上的插件和主题更新失败。' ),
+						__( '您好！您的系统 %s 上的插件和主题更新失败。' ),
 						home_url()
 					);
 				} elseif ( $failed_plugins ) {
@@ -1056,7 +1137,7 @@ class GC_Automatic_Updater {
 					$subject = __( '[%s] 一些插件无法更新' );
 					$body[]  = sprintf(
 						/* translators: %s: Home URL. */
-						__( '您好！您的站点 %s 上的插件更新失败。' ),
+						__( '您好！您的系统 %s 上的插件更新失败。' ),
 						home_url()
 					);
 				} else {
@@ -1064,7 +1145,7 @@ class GC_Automatic_Updater {
 					$subject = __( '[%s] 一些主题无法更新' );
 					$body[]  = sprintf(
 						/* translators: %s: Home URL. */
-						__( '您好！您的站点 %s 上的主题更新失败。' ),
+						__( '您好！您的系统 %s 上的主题更新失败。' ),
 						home_url()
 					);
 				}
@@ -1074,7 +1155,7 @@ class GC_Automatic_Updater {
 
 		if ( in_array( $type, array( 'fail', 'mixed' ), true ) ) {
 			$body[] = "\n";
-			$body[] = __( '请检查您的站点。您的站点可能一切正常。如果有可用更新，请立刻更新。' );
+			$body[] = __( '请检查您的系统。您的系统可能一切正常。如果有可用更新，请立刻更新。' );
 			$body[] = "\n";
 
 			// List failed plugin updates.
@@ -1082,22 +1163,33 @@ class GC_Automatic_Updater {
 				$body[] = __( '下列插件未能成功升级：' );
 
 				foreach ( $failed_updates['plugin'] as $item ) {
+					$body_message = '';
+					$item_url     = '';
+
+					if ( ! empty( $item->item->url ) ) {
+						$item_url = ' : ' . esc_url( $item->item->url );
+					}
+
 					if ( $item->item->current_version ) {
-						$body[] = sprintf(
-							/* translators: 1: Plugin name, 2: Current version number, 3: New version number. */
-							__( '- %1$s（从版本%2$s更新至%3$s）' ),
-							$item->name,
+						$body_message .= sprintf(
+							/* translators: 1: Plugin name, 2: Current version number, 3: New version number, 4: Plugin URL. */
+							__( '- %1$s（从版本 %2$s 更新至 %3$s）%4$s' ),
+							html_entity_decode( $item->name ),
 							$item->item->current_version,
-							$item->item->new_version
+							$item->item->new_version,
+							$item_url
 						);
 					} else {
-						$body[] = sprintf(
-							/* translators: 1: Plugin name, 2: Version number. */
-							__( '- %1$s 版本 %2$s' ),
-							$item->name,
-							$item->item->new_version
+						$body_message .= sprintf(
+							/* translators: 1: Plugin name, 2: Version number, 3: Plugin URL. */
+							__( '- %1$s 版本 %2$s %3$s' ),
+							html_entity_decode( $item->name ),
+							$item->item->new_version,
+							$item_url
 						);
 					}
+
+					$body[] = $body_message;
 
 					$past_failure_emails[ $item->item->plugin ] = $item->item->new_version;
 				}
@@ -1113,8 +1205,8 @@ class GC_Automatic_Updater {
 					if ( $item->item->current_version ) {
 						$body[] = sprintf(
 							/* translators: 1: Theme name, 2: Current version number, 3: New version number. */
-							__( '- %1$s（从版本%2$s更新至%3$s）' ),
-							$item->name,
+							__( '- %1$s（从版本 %2$s 更新至 %3$s）' ),
+							html_entity_decode( $item->name ),
 							$item->item->current_version,
 							$item->item->new_version
 						);
@@ -1122,7 +1214,7 @@ class GC_Automatic_Updater {
 						$body[] = sprintf(
 							/* translators: 1: Theme name, 2: Version number. */
 							__( '- %1$s 版本 %2$s' ),
-							$item->name,
+							html_entity_decode( $item->name ),
 							$item->item->new_version
 						);
 					}
@@ -1143,22 +1235,32 @@ class GC_Automatic_Updater {
 				$body[] = __( '这些插件均已升级为最新版本：' );
 
 				foreach ( $successful_updates['plugin'] as $item ) {
+					$body_message = '';
+					$item_url     = '';
+
+					if ( ! empty( $item->item->url ) ) {
+						$item_url = ' : ' . esc_url( $item->item->url );
+					}
+
 					if ( $item->item->current_version ) {
-						$body[] = sprintf(
-							/* translators: 1: Plugin name, 2: Current version number, 3: New version number. */
-							__( '- %1$s（从版本%2$s更新至%3$s）' ),
-							$item->name,
+						$body_message .= sprintf(
+							/* translators: 1: Plugin name, 2: Current version number, 3: New version number, 4: Plugin URL. */
+							__( '- %1$s（从版本 %2$s 更新至 %3$s）%4$s' ),
+							html_entity_decode( $item->name ),
 							$item->item->current_version,
-							$item->item->new_version
+							$item->item->new_version,
+							$item_url
 						);
 					} else {
-						$body[] = sprintf(
-							/* translators: 1: Plugin name, 2: Version number. */
-							__( '- %1$s 版本 %2$s' ),
-							$item->name,
-							$item->item->new_version
+						$body_message .= sprintf(
+							/* translators: 1: Plugin name, 2: Version number, 3: Plugin URL. */
+							__( '- %1$s 版本 %2$s %3$s' ),
+							html_entity_decode( $item->name ),
+							$item->item->new_version,
+							$item_url
 						);
 					}
+					$body[] = $body_message;
 
 					unset( $past_failure_emails[ $item->item->plugin ] );
 				}
@@ -1174,8 +1276,8 @@ class GC_Automatic_Updater {
 					if ( $item->item->current_version ) {
 						$body[] = sprintf(
 							/* translators: 1: Theme name, 2: Current version number, 3: New version number. */
-							__( '- %1$s（从版本%2$s更新至%3$s）' ),
-							$item->name,
+							__( '- %1$s（从版本 %2$s 更新至 %3$s）' ),
+							html_entity_decode( $item->name ),
 							$item->item->current_version,
 							$item->item->new_version
 						);
@@ -1183,7 +1285,7 @@ class GC_Automatic_Updater {
 						$body[] = sprintf(
 							/* translators: 1: Theme name, 2: Version number. */
 							__( '- %1$s 版本 %2$s' ),
-							$item->name,
+							html_entity_decode( $item->name ),
 							$item->item->new_version
 						);
 					}
@@ -1198,7 +1300,7 @@ class GC_Automatic_Updater {
 		if ( $failed_plugins ) {
 			$body[] = sprintf(
 				/* translators: %s: Plugins screen URL. */
-				__( '要管理您站点上的插件，请访问“插件”页面：%s' ),
+				__( '要管理您系统上的插件，请访问“插件”页面：%s' ),
 				admin_url( 'plugins.php' )
 			);
 			$body[] = "\n";
@@ -1207,7 +1309,7 @@ class GC_Automatic_Updater {
 		if ( $failed_themes ) {
 			$body[] = sprintf(
 				/* translators: %s: Themes screen URL. */
-				__( '要管理您站点上的主题，请访问“主题”页面：%s' ),
+				__( '要管理您系统上的主题，请访问“主题”页面：%s' ),
 				admin_url( 'themes.php' )
 			);
 			$body[] = "\n";
@@ -1218,9 +1320,15 @@ class GC_Automatic_Updater {
 		$body[] = __( 'https://www.gechiui.com/support/forums/' );
 		$body[] = "\n" . __( 'GeChiUI团队' );
 
+		if ( '' !== get_option( 'blogname' ) ) {
+			$site_title = gc_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+		} else {
+			$site_title = parse_url( home_url(), PHP_URL_HOST );
+		}
+
 		$body    = implode( "\n", $body );
 		$to      = get_site_option( 'admin_email' );
-		$subject = sprintf( $subject, gc_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ) );
+		$subject = sprintf( $subject, $site_title );
 		$headers = '';
 
 		$email = compact( 'to', 'subject', 'body', 'headers' );
@@ -1228,6 +1336,7 @@ class GC_Automatic_Updater {
 		/**
 		 * Filters the email sent following an automatic background update for plugins and themes.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param array  $email {
 		 *     Array of email arguments that will be passed to gc_mail().
@@ -1254,6 +1363,7 @@ class GC_Automatic_Updater {
 	/**
 	 * Prepares and sends an email of a full log of background update results, useful for debugging and geekery.
 	 *
+	 * @since 3.7.0
 	 */
 	protected function send_debug_email() {
 		$update_count = 0;
@@ -1265,7 +1375,7 @@ class GC_Automatic_Updater {
 		$failures = 0;
 
 		/* translators: %s: Network home URL. */
-		$body[] = sprintf( __( 'GeChiUI站点：%s' ), network_home_url( '/' ) );
+		$body[] = sprintf( __( 'GeChiUI系统：%s' ), network_home_url( '/' ) );
 
 		// Core.
 		if ( isset( $this->update_results['core'] ) ) {
@@ -1327,23 +1437,25 @@ class GC_Automatic_Updater {
 			$body[] = '';
 		}
 
-		$site_title = gc_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+		if ( '' !== get_bloginfo( 'name' ) ) {
+			$site_title = gc_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+		} else {
+			$site_title = parse_url( home_url(), PHP_URL_HOST );
+		}
 
 		if ( $failures ) {
 			$body[] = trim(
 				__(
-					"测试版？
+					"BETA TESTING?
 =============
 
-此调试电子邮件是在您使用GeChiUI的开发版本时发送的。
+This debugging email is sent when you are using a development version of GeChiUI.
 
-如果您认为这些故障可能是由于GeChiUI中的错误造成的，您能报告它吗？
+If you think these failures might be due to a bug in GeChiUI, could you report it?
+ * Open a thread in the support forums: https://www.gechiui.com/support/forum/alphabeta
+ * Or, if you're comfortable writing a bug report: https://core.trac.gechiui.com/
 
-*在支持论坛中打开一个帖子：https://www.gechiui.com/support/forum/alphabeta
-
-*或者，如果你喜欢写错误报告：https://core.trac.gechiui.com/
-
-谢谢!--GeChiUI团队"
+Thanks! -- The GeChiUI Team"
 				)
 			);
 			$body[] = '';
@@ -1357,8 +1469,8 @@ class GC_Automatic_Updater {
 
 		$body[] = trim(
 			__(
-				'升级日志
-========'
+				'UPDATE LOG
+=========='
 			)
 		);
 		$body[] = '';
@@ -1418,6 +1530,7 @@ class GC_Automatic_Updater {
 		 * Filters the debug email that can be sent following an automatic
 		 * background core update.
 		 *
+		 * @since 3.8.0
 		 *
 		 * @param array $email {
 		 *     Array of email arguments that will be passed to gc_mail().

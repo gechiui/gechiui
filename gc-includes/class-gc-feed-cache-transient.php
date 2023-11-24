@@ -4,14 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage Feed
- *
  */
 
 /**
  * Core class used to implement feed cache transients.
  *
- *
  */
+#[AllowDynamicProperties]
 class GC_Feed_Cache_Transient {
 
 	/**
@@ -40,6 +39,7 @@ class GC_Feed_Cache_Transient {
 	/**
 	 * Constructor.
 	 *
+	 * @since 3.2.0 Updated to use a PHP5 constructor.
 	 *
 	 * @param string $location  URL location (scheme is used to determine handler).
 	 * @param string $filename  Unique identifier for cache object.
@@ -53,6 +53,7 @@ class GC_Feed_Cache_Transient {
 		/**
 		 * Filters the transient lifetime of the feed cache.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param int    $lifetime Cache duration in seconds. Default is 43200 seconds (12 hours).
 		 * @param string $filename Unique identifier for the cache object.

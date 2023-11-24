@@ -3,7 +3,7 @@
  * HTTPS detection functions.
  *
  * @package GeChiUI
- *
+ * @since 5.7.0
  */
 
 /**
@@ -11,7 +11,7 @@
  *
  * This is based on whether both the home and site URL are using HTTPS.
  *
- *
+ * @since 5.7.0
  * @see gc_is_home_url_using_https()
  * @see gc_is_site_url_using_https()
  *
@@ -28,7 +28,7 @@ function gc_is_using_https() {
 /**
  * Checks whether the current site URL is using HTTPS.
  *
- *
+ * @since 5.7.0
  * @see home_url()
  *
  * @return bool True if using HTTPS, false otherwise.
@@ -43,15 +43,17 @@ function gc_is_home_url_using_https() {
  * This checks the URL where GeChiUI application files (e.g. gc-blog-header.php or the gc-admin/ folder)
  * are accessible.
  *
- *
+ * @since 5.7.0
  * @see site_url()
  *
  * @return bool True if using HTTPS, false otherwise.
  */
 function gc_is_site_url_using_https() {
-	// Use direct option access for 'siteurl' and manually run the 'site_url'
-	// filter because `site_url()` will adjust the scheme based on what the
-	// current request is using.
+	/*
+	 * Use direct option access for 'siteurl' and manually run the 'site_url'
+	 * filter because `site_url()` will adjust the scheme based on what the
+	 * current request is using.
+	 */
 	/** This filter is documented in gc-includes/link-template.php */
 	$site_url = apply_filters( 'site_url', get_option( 'siteurl' ), '', null, null );
 
@@ -61,7 +63,7 @@ function gc_is_site_url_using_https() {
 /**
  * Checks whether HTTPS is supported for the server and domain.
  *
- *
+ * @since 5.7.0
  *
  * @return bool True if HTTPS is supported, false otherwise.
  */
@@ -84,7 +86,7 @@ function gc_is_https_supported() {
  *
  * This internal function is called by a regular Cron hook to ensure HTTPS support is detected and maintained.
  *
- *
+ * @since 5.7.0
  * @access private
  */
 function gc_update_https_detection_errors() {
@@ -94,6 +96,7 @@ function gc_update_https_detection_errors() {
 	 * Returning a `GC_Error` from the filter will effectively short-circuit the default logic of trying a remote
 	 * request to the site over HTTPS, storing the errors array from the returned `GC_Error` instead.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param null|GC_Error $pre Error object to short-circuit detection,
 	 *                           or null to continue with the default behavior.
@@ -146,7 +149,7 @@ function gc_update_https_detection_errors() {
 		if ( 200 !== gc_remote_retrieve_response_code( $response ) ) {
 			$support_errors->add( 'bad_response_code', gc_remote_retrieve_response_message( $response ) );
 		} elseif ( false === gc_is_local_html_output( gc_remote_retrieve_body( $response ) ) ) {
-			$support_errors->add( 'bad_response_source', __( '似乎该响应并不来自于此站点。' ) );
+			$support_errors->add( 'bad_response_source', __( '似乎该响应并不来自于此系统。' ) );
 		}
 	}
 
@@ -156,7 +159,7 @@ function gc_update_https_detection_errors() {
 /**
  * Schedules the Cron hook for detecting HTTPS support.
  *
- *
+ * @since 5.7.0
  * @access private
  */
 function gc_schedule_https_detection() {
@@ -174,11 +177,11 @@ function gc_schedule_https_detection() {
  *
  * This prevents an issue if HTTPS breaks, where there would be a failed attempt to verify HTTPS.
  *
- *
+ * @since 5.7.0
  * @access private
  *
- * @param array $request The Cron request arguments.
- * @return array The filtered Cron request arguments.
+ * @param array $request The cron request arguments.
+ * @return array The filtered cron request arguments.
  */
 function gc_cron_conditionally_prevent_sslverify( $request ) {
 	if ( 'https' === gc_parse_url( $request['url'], PHP_URL_SCHEME ) ) {
@@ -194,7 +197,7 @@ function gc_cron_conditionally_prevent_sslverify( $request ) {
  * Since any of these actions may be disabled through third-party code, this function may also return null to indicate
  * that it was not possible to determine ownership.
  *
- *
+ * @since 5.7.0
  * @access private
  *
  * @param string $html Full HTML output string, e.g. from a HTTP response.
@@ -204,21 +207,14 @@ function gc_is_local_html_output( $html ) {
 	// 1. Check if HTML includes the site's Really Simple Discovery link.
 	if ( has_action( 'gc_head', 'rsd_link' ) ) {
 		$pattern = preg_replace( '#^https?:(?=//)#', '', esc_url( site_url( 'xmlrpc.php?rsd', 'rpc' ) ) ); // See rsd_link().
-		return false !== strpos( $html, $pattern );
+		return str_contains( $html, $pattern );
 	}
 
-	// 2. Check if HTML includes the site's Windows Live Writer manifest link.
-	if ( has_action( 'gc_head', 'wlwmanifest_link' ) ) {
-		// Try both HTTPS and HTTP since the URL depends on context.
-		$pattern = preg_replace( '#^https?:(?=//)#', '', includes_url( 'wlwmanifest.xml' ) ); // See wlwmanifest_link().
-		return false !== strpos( $html, $pattern );
-	}
-
-	// 3. Check if HTML includes the site's REST API link.
+	// 2. Check if HTML includes the site's REST API link.
 	if ( has_action( 'gc_head', 'rest_output_link_gc_head' ) ) {
 		// Try both HTTPS and HTTP since the URL depends on context.
 		$pattern = preg_replace( '#^https?:(?=//)#', '', esc_url( get_rest_url() ) ); // See rest_output_link_gc_head().
-		return false !== strpos( $html, $pattern );
+		return str_contains( $html, $pattern );
 	}
 
 	// Otherwise the result cannot be determined.

@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage i18n
- *
  * @deprecated 4.7.0
  */
 

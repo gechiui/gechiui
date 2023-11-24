@@ -4,7 +4,7 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
+ * @since 5.8.0
  */
 
 /**
@@ -13,7 +13,7 @@
  * This simply proxies the endpoint at http://api.gechiui.com/patterns/1.0/. That isn't necessary for
  * functionality, but is desired for privacy. It prevents api.gechiui.com from knowing the user's IP address.
  *
- *
+ * @since 5.8.0
  *
  * @see GC_REST_Controller
  */
@@ -22,15 +22,17 @@ class GC_REST_Pattern_Directory_Controller extends GC_REST_Controller {
 	/**
 	 * Constructs the controller.
 	 *
+	 * @since 5.8.0
 	 */
 	public function __construct() {
-		$this->namespace     = 'gc/v2';
-			$this->rest_base = 'pattern-directory';
+		$this->namespace = 'gc/v2';
+		$this->rest_base = 'pattern-directory';
 	}
 
 	/**
 	 * Registers the necessary REST API routes.
 	 *
+	 * @since 5.8.0
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -51,6 +53,7 @@ class GC_REST_Pattern_Directory_Controller extends GC_REST_Controller {
 	/**
 	 * Checks whether a given request has permission to view the local block pattern directory.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has permission, GC_Error object otherwise.
@@ -76,6 +79,9 @@ class GC_REST_Pattern_Directory_Controller extends GC_REST_Controller {
 	/**
 	 * Search and retrieve block patterns metadata
 	 *
+	 * @since 5.8.0
+	 * @since 6.0.0 Added 'slug' to request.
+	 * @since 6.2.0 Added 'per_page', 'page', 'offset', 'order', and 'orderby' to request.
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -88,37 +94,25 @@ class GC_REST_Pattern_Directory_Controller extends GC_REST_Controller {
 		 */
 		require ABSPATH . GCINC . '/version.php';
 
-		$query_args = array(
-			'locale'     => get_user_locale(),
-			'gc-version' => $gc_version,
+		$valid_query_args = array(
+			'offset'   => true,
+			'order'    => true,
+			'orderby'  => true,
+			'page'     => true,
+			'per_page' => true,
+			'search'   => true,
+			'slug'     => true,
 		);
+		$query_args       = array_intersect_key( $request->get_params(), $valid_query_args );
 
-		$category_id = $request['category'];
-		$keyword_id  = $request['keyword'];
-		$search_term = $request['search'];
+		$query_args['locale']             = get_user_locale();
+		$query_args['gc-version']         = $gc_version; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- it's defined in `version.php` above.
+		$query_args['pattern-categories'] = isset( $request['category'] ) ? $request['category'] : false;
+		$query_args['pattern-keywords']   = isset( $request['keyword'] ) ? $request['keyword'] : false;
 
-		if ( $category_id ) {
-			$query_args['pattern-categories'] = $category_id;
-		}
+		$query_args = array_filter( $query_args );
 
-		if ( $keyword_id ) {
-			$query_args['pattern-keywords'] = $keyword_id;
-		}
-
-		if ( $search_term ) {
-			$query_args['search'] = $search_term;
-		}
-
-		/*
-		 * Include a hash of the query args, so that different requests are stored in
-		 * separate caches.
-		 *
-		 * MD5 is chosen for its speed, low-collision rate, universal availability, and to stay
-		 * under the character limit for `_site_transient_timeout_{...}` keys.
-		 *
-		 * @link https://stackoverflow.com/questions/3665247/fastest-hash-for-non-cryptographic-uses
-		 */
-		$transient_key = 'gc_remote_block_patterns_' . md5( implode( '-', $query_args ) );
+		$transient_key = $this->get_transient_key( $query_args );
 
 		/*
 		 * Use network-wide transient to improve performance. The locale is the only site
@@ -127,11 +121,7 @@ class GC_REST_Pattern_Directory_Controller extends GC_REST_Controller {
 		$raw_patterns = get_site_transient( $transient_key );
 
 		if ( ! $raw_patterns ) {
-			$api_url = add_query_arg(
-				array_map( 'rawurlencode', $query_args ),
-				'http://api.gechiui.com/patterns/1.0/'
-			);
-
+			$api_url = 'http://api.gechiui.com/patterns/1.0/?' . build_query( $query_args );
 			if ( gc_http_supports( array( 'ssl' ) ) ) {
 				$api_url = set_url_scheme( $api_url, 'https' );
 			}
@@ -155,7 +145,7 @@ class GC_REST_Pattern_Directory_Controller extends GC_REST_Controller {
 				$raw_patterns = new GC_Error(
 					'pattern_api_failed',
 					sprintf(
-					/* translators: %s: Support forums URL. */
+						/* translators: %s: Support forums URL. */
 						__( '发生了预料之外的错误。www.GeChiUI.com或是此服务器的配置可能出了一些问题。如果您持续遇到困难，请试试<a href="%s">支持论坛</a>。' ),
 						__( 'https://www.gechiui.com/support/forums/' )
 					),
@@ -194,6 +184,8 @@ class GC_REST_Pattern_Directory_Controller extends GC_REST_Controller {
 	/**
 	 * Prepare a raw block pattern before it gets output in a REST API response.
 	 *
+	 * @since 5.8.0
+	 * @since 5.9.0 Renamed `$raw_pattern` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param object          $item    Raw pattern from api.gechiui.com, before any changes.
 	 * @param GC_REST_Request $request Request object.
@@ -207,9 +199,10 @@ class GC_REST_Pattern_Directory_Controller extends GC_REST_Controller {
 			'title'          => sanitize_text_field( $raw_pattern->title->rendered ),
 			'content'        => gc_kses_post( $raw_pattern->pattern_content ),
 			'categories'     => array_map( 'sanitize_title', $raw_pattern->category_slugs ),
-			'keywords'       => array_map( 'sanitize_title', $raw_pattern->keyword_slugs ),
+			'keywords'       => array_map( 'sanitize_text_field', explode( ',', $raw_pattern->meta->gcop_keywords ) ),
 			'description'    => sanitize_text_field( $raw_pattern->meta->gcop_description ),
 			'viewport_width' => absint( $raw_pattern->meta->gcop_viewport_width ),
+			'block_types'    => array_map( 'sanitize_text_field', $raw_pattern->meta->gcop_block_types ),
 		);
 
 		$prepared_pattern = $this->add_additional_fields_to_object( $prepared_pattern, $request );
@@ -219,6 +212,7 @@ class GC_REST_Pattern_Directory_Controller extends GC_REST_Controller {
 		/**
 		 * Filters the REST API response for a block pattern.
 		 *
+		 * @since 5.8.0
 		 *
 		 * @param GC_REST_Response $response    The response object.
 		 * @param object           $raw_pattern The unprepared block pattern.
@@ -230,6 +224,8 @@ class GC_REST_Pattern_Directory_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the block pattern's schema, conforming to JSON Schema.
 	 *
+	 * @since 5.8.0
+	 * @since 6.2.0 Added `'block_types'` to schema.
 	 *
 	 * @return array Item schema data.
 	 */
@@ -247,21 +243,21 @@ class GC_REST_Pattern_Directory_Controller extends GC_REST_Controller {
 					'description' => __( '区块样板的 ID。' ),
 					'type'        => 'integer',
 					'minimum'     => 1,
-					'context'     => array( 'view', 'embed' ),
+					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 
 				'title'          => array(
 					'description' => __( '区块样板标题，人类可读的格式。' ),
 					'type'        => 'string',
 					'minLength'   => 1,
-					'context'     => array( 'view', 'embed' ),
+					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 
 				'content'        => array(
 					'description' => __( '区块样板的内容。' ),
 					'type'        => 'string',
 					'minLength'   => 1,
-					'context'     => array( 'view', 'embed' ),
+					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 
 				'categories'     => array(
@@ -269,27 +265,35 @@ class GC_REST_Pattern_Directory_Controller extends GC_REST_Controller {
 					'type'        => 'array',
 					'uniqueItems' => true,
 					'items'       => array( 'type' => 'string' ),
-					'context'     => array( 'view', 'embed' ),
+					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 
 				'keywords'       => array(
-					'description' => __( "区块样板的关键字别名。" ),
+					'description' => __( "区块样板关键字。" ),
 					'type'        => 'array',
 					'uniqueItems' => true,
 					'items'       => array( 'type' => 'string' ),
-					'context'     => array( 'view', 'embed' ),
+					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 
 				'description'    => array(
 					'description' => __( '区块样板的描述；' ),
 					'type'        => 'string',
 					'minLength'   => 1,
-					'context'     => array( 'view', 'embed' ),
+					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 
 				'viewport_width' => array(
 					'description' => __( '预览区块样板时视口的首选宽度（以像素为单位）。' ),
 					'type'        => 'integer',
+					'context'     => array( 'view', 'edit', 'embed' ),
+				),
+
+				'block_types'    => array(
+					'description' => __( '可以使用此模式的块类型。' ),
+					'type'        => 'array',
+					'uniqueItems' => true,
+					'items'       => array( 'type' => 'string' ),
 					'context'     => array( 'view', 'embed' ),
 				),
 			),
@@ -301,16 +305,15 @@ class GC_REST_Pattern_Directory_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the search parameters for the block pattern's collection.
 	 *
+	 * @since 5.8.0
+	 * @since 6.2.0 Added 'per_page', 'page', 'offset', 'order', and 'orderby' to request.
 	 *
 	 * @return array Collection parameters.
 	 */
 	public function get_collection_params() {
 		$query_params = parent::get_collection_params();
 
-		// Pagination is not supported.
-		unset( $query_params['page'] );
-		unset( $query_params['per_page'] );
-
+		$query_params['per_page']['default'] = 100;
 		$query_params['search']['minLength'] = 1;
 		$query_params['context']['default']  = 'view';
 
@@ -326,12 +329,81 @@ class GC_REST_Pattern_Directory_Controller extends GC_REST_Controller {
 			'minimum'     => 1,
 		);
 
+		$query_params['slug'] = array(
+			'description' => __( '将结果限制为与样板（别名）匹配的结果。' ),
+			'type'        => 'array',
+		);
+
+		$query_params['offset'] = array(
+			'description' => __( '将结果集移位特定数量。' ),
+			'type'        => 'integer',
+		);
+
+		$query_params['order'] = array(
+			'description' => __( '设置排序字段升序或降序。' ),
+			'type'        => 'string',
+			'default'     => 'desc',
+			'enum'        => array( 'asc', 'desc' ),
+		);
+
+		$query_params['orderby'] = array(
+			'description' => __( '按文章属性对集合进行排序。' ),
+			'type'        => 'string',
+			'default'     => 'date',
+			'enum'        => array(
+				'author',
+				'date',
+				'id',
+				'include',
+				'modified',
+				'parent',
+				'relevance',
+				'slug',
+				'include_slugs',
+				'title',
+				'favorite_count',
+			),
+		);
+
 		/**
 		 * Filter collection parameters for the block pattern directory controller.
 		 *
+		 * @since 5.8.0
 		 *
 		 * @param array $query_params JSON Schema-formatted collection parameters.
 		 */
 		return apply_filters( 'rest_pattern_directory_collection_params', $query_params );
+	}
+
+	/*
+	 * Include a hash of the query args, so that different requests are stored in
+	 * separate caches.
+	 *
+	 * MD5 is chosen for its speed, low-collision rate, universal availability, and to stay
+	 * under the character limit for `_site_transient_timeout_{...}` keys.
+	 *
+	 * @link https://stackoverflow.com/questions/3665247/fastest-hash-for-non-cryptographic-uses
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param array $query_args Query arguments to generate a transient key from.
+	 * @return string Transient key.
+	 */
+	protected function get_transient_key( $query_args ) {
+
+		if ( isset( $query_args['slug'] ) ) {
+			// This is an additional precaution because the "sort" function expects an array.
+			$query_args['slug'] = gc_parse_list( $query_args['slug'] );
+
+			// Empty arrays should not affect the transient key.
+			if ( empty( $query_args['slug'] ) ) {
+				unset( $query_args['slug'] );
+			} else {
+				// Sort the array so that the transient key doesn't depend on the order of slugs.
+				sort( $query_args['slug'] );
+			}
+		}
+
+		return 'gc_remote_block_patterns_' . md5( serialize( $query_args ) );
 	}
 }

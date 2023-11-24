@@ -9,7 +9,6 @@
 /**
  * Resend an existing request and return the result.
  *
- *
  * @access private
  *
  * @param int $request_id Request ID.
@@ -36,7 +35,6 @@ function _gc_privacy_resend_request( $request_id ) {
 
 /**
  * Marks a request as completed by the admin and logs the current timestamp.
- *
  *
  * @access private
  *
@@ -67,7 +65,6 @@ function _gc_privacy_completed_request( $request_id ) {
 /**
  * Handle list table actions.
  *
- *
  * @access private
  */
 function _gc_personal_data_handle_actions() {
@@ -82,7 +79,7 @@ function _gc_personal_data_handle_actions() {
 				'privacy_action_email_retry',
 				'privacy_action_email_retry',
 				$result->get_error_message(),
-				'error'
+				'danger'
 			);
 		} else {
 			add_settings_error(
@@ -105,7 +102,7 @@ function _gc_personal_data_handle_actions() {
 						'action_type',
 						'action_type',
 						__( '无效的个人数据操作。' ),
-						'error'
+						'danger'
 					);
 				}
 				$action_type               = sanitize_text_field( gc_unslash( $_POST['type_of_action'] ) );
@@ -122,7 +119,7 @@ function _gc_personal_data_handle_actions() {
 						'action_type',
 						'action_type',
 						__( '无效的个人数据操作。' ),
-						'error'
+						'danger'
 					);
 				}
 
@@ -133,7 +130,7 @@ function _gc_personal_data_handle_actions() {
 							'username_or_email_for_privacy_request',
 							'username_or_email_for_privacy_request',
 							__( '无法添加该请求，您必须提供有效的电子邮箱或用户名。' ),
-							'error'
+							'danger'
 						);
 					} else {
 						$email_address = $user->user_email;
@@ -160,7 +157,7 @@ function _gc_personal_data_handle_actions() {
 						'username_or_email_for_privacy_request',
 						'username_or_email_for_privacy_request',
 						$message,
-						'error'
+						'danger'
 					);
 					break;
 				}
@@ -188,7 +185,6 @@ function _gc_personal_data_handle_actions() {
 
 /**
  * Cleans up failed and expired requests before displaying the list table.
- *
  *
  * @access private
  */
@@ -227,8 +223,7 @@ function _gc_personal_data_cleanup_requests() {
 /**
  * Generate a single group for the personal data export report.
  *
- *
- *
+ * @since 5.4.0 Added the `$group_id` and `$groups_count` parameters.
  *
  * @param array  $group_data {
  *     The group data to render.
@@ -275,7 +270,7 @@ function gc_privacy_generate_personal_data_export_group_html( $group_data, $grou
 		foreach ( (array) $group_item_data as $group_item_datum ) {
 			$value = $group_item_datum['value'];
 			// If it looks like a link, make it a link.
-			if ( false === strpos( $value, ' ' ) && ( 0 === strpos( $value, 'http://' ) || 0 === strpos( $value, 'https://' ) ) ) {
+			if ( ! str_contains( $value, ' ' ) && ( str_starts_with( $value, 'http://' ) || str_starts_with( $value, 'https://' ) ) ) {
 				$value = '<a href="' . esc_url( $value ) . '">' . esc_html( $value ) . '</a>';
 			}
 
@@ -302,8 +297,6 @@ function gc_privacy_generate_personal_data_export_group_html( $group_data, $grou
 
 /**
  * Generate the personal data export file.
- *
- *
  *
  * @param int $request_id The export request ID.
  */
@@ -365,7 +358,7 @@ function gc_privacy_generate_personal_data_export_file( $request_id ) {
 	// First, build an "About" group on the fly for this report.
 	$about_group = array(
 		/* translators: Header for the About section in a personal data export. */
-		'group_label'       => _x( '关于', 'personal data group label' ),
+		'group_label'       => _x( '关于我们', 'personal data group label' ),
 		/* translators: Description for the About section in a personal data export. */
 		'group_description' => _x( '导出报告总览。', 'personal data group description' ),
 		'items'             => array(
@@ -375,11 +368,11 @@ function gc_privacy_generate_personal_data_export_file( $request_id ) {
 					'value' => $email_address,
 				),
 				array(
-					'name'  => _x( '站点', 'website name' ),
+					'name'  => _x( '系统', 'website name' ),
 					'value' => get_bloginfo( 'name' ),
 				),
 				array(
-					'name'  => _x( '网站URL', 'website URL' ),
+					'name'  => _x( '系统URL', 'website URL' ),
 					'value' => get_bloginfo( 'url' ),
 				),
 				array(
@@ -535,7 +528,7 @@ function gc_privacy_generate_personal_data_export_file( $request_id ) {
 		gc_delete_file( $archive_pathname );
 	}
 
-	$zip = new ZipArchive;
+	$zip = new ZipArchive();
 	if ( true === $zip->open( $archive_pathname, ZipArchive::CREATE ) ) {
 		if ( ! $zip->addFile( $json_report_pathname, 'export.json' ) ) {
 			$error = __( '无法存档该个人数据导出文件（JSON格式）。' );
@@ -551,8 +544,8 @@ function gc_privacy_generate_personal_data_export_file( $request_id ) {
 			/**
 			 * Fires right after all personal data has been written to the export file.
 			 *
-		
-		
+			 * @since 4.9.6
+			 * @since 5.4.0 Added the `$json_report_pathname` parameter.
 			 *
 			 * @param string $archive_pathname     The full path to the export file on the filesystem.
 			 * @param string $archive_url          The URL of the archive file.
@@ -580,8 +573,6 @@ function gc_privacy_generate_personal_data_export_file( $request_id ) {
 /**
  * Send an email to the user with a link to the personal data export file
  *
- *
- *
  * @param int $request_id The request ID for this personal data export.
  * @return true|GC_Error True on success or `GC_Error` on failure.
  */
@@ -595,12 +586,10 @@ function gc_privacy_send_personal_data_export_email( $request_id ) {
 
 	// Localize message content for user; fallback to site default for visitors.
 	if ( ! empty( $request->user_id ) ) {
-		$locale = get_user_locale( $request->user_id );
+		$switched_locale = switch_to_user_locale( $request->user_id );
 	} else {
-		$locale = get_locale();
+		$switched_locale = switch_to_locale( get_locale() );
 	}
-
-	$switched_locale = switch_to_locale( $locale );
 
 	/** This filter is documented in gc-includes/functions.php */
 	$expiration      = apply_filters( 'gc_privacy_export_expiration', 3 * DAY_IN_SECONDS );
@@ -617,6 +606,7 @@ function gc_privacy_send_personal_data_export_email( $request_id ) {
 	 * Filters the recipient of the personal data export email notification.
 	 * Should be used with great caution to avoid sending the data export link to wrong emails.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @param string          $request_email The email address of the notification recipient.
 	 * @param GC_User_Request $request       The request that is initiating the notification.
@@ -639,6 +629,7 @@ function gc_privacy_send_personal_data_export_email( $request_id ) {
 	/**
 	 * Filters the subject of the email sent when an export request is completed.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @param string $subject    The email subject.
 	 * @param string $sitename   The name of the site.
@@ -660,16 +651,17 @@ function gc_privacy_send_personal_data_export_email( $request_id ) {
 
 	/* translators: Do not translate EXPIRATION, LINK, SITENAME, SITEURL: those are placeholders. */
 	$email_text = __(
-		'您好：
+		'Howdy,
 
-您请求的个人数据导出已经完成。您可以通过点击以下链接来下载您的个人信息。
-为了隐私和安全，我们会在###EXPIRATION###删除这些文件，
-所以请在此日期前下载。
+Your request for an export of personal data has been completed. You may
+download your personal data by clicking on the link below. For privacy
+and security, we will automatically delete the file on ###EXPIRATION###,
+so please download it before then.
 
 ###LINK###
 
-祝好，
-###SITENAME###全体成员敬上
+Regards,
+All at ###SITENAME###
 ###SITEURL###'
 	);
 
@@ -682,6 +674,8 @@ function gc_privacy_send_personal_data_export_email( $request_id ) {
 	 * ###SITENAME###           The name of the site.
 	 * ###SITEURL###            The URL to the site.
 	 *
+	 * @since 4.9.6
+	 * @since 5.3.0 Introduced the `$email_data` array.
 	 *
 	 * @param string $email_text Text in the email.
 	 * @param int    $request_id The request ID for this personal data export.
@@ -701,16 +695,17 @@ function gc_privacy_send_personal_data_export_email( $request_id ) {
 	$content = apply_filters( 'gc_privacy_personal_data_email_content', $email_text, $request_id, $email_data );
 
 	$content = str_replace( '###EXPIRATION###', $expiration_date, $content );
-	$content = str_replace( '###LINK###', esc_url_raw( $export_file_url ), $content );
+	$content = str_replace( '###LINK###', sanitize_url( $export_file_url ), $content );
 	$content = str_replace( '###EMAIL###', $request_email, $content );
 	$content = str_replace( '###SITENAME###', $site_name, $content );
-	$content = str_replace( '###SITEURL###', esc_url_raw( $site_url ), $content );
+	$content = str_replace( '###SITEURL###', sanitize_url( $site_url ), $content );
 
 	$headers = '';
 
 	/**
 	 * Filters the headers of the email sent with a personal data export file.
 	 *
+	 * @since 5.4.0
 	 *
 	 * @param string|array $headers    The email headers.
 	 * @param string       $subject    The email subject.
@@ -747,8 +742,6 @@ function gc_privacy_send_personal_data_export_email( $request_id ) {
 
 /**
  * Intercept personal data exporter page Ajax responses in order to assemble the personal data export file.
- *
- *
  *
  * @see 'gc_privacy_personal_data_export_page'
  *
@@ -853,6 +846,7 @@ function gc_privacy_process_personal_data_export_page( $response, $exporter_inde
 	/**
 	 * Generate the export file from the collected, grouped personal data.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param int $request_id The export request ID.
 	 */
@@ -890,8 +884,6 @@ function gc_privacy_process_personal_data_export_page( $response, $exporter_inde
  * This intercepts the Ajax responses to personal data eraser page requests, and
  * monitors the status of a request. Once all of the processing has finished, the
  * request is marked as completed.
- *
- *
  *
  * @see 'gc_privacy_personal_data_erasure_page'
  *
@@ -953,6 +945,7 @@ function gc_privacy_process_personal_data_erasure_page( $response, $eraser_index
 	/**
 	 * Fires immediately after a personal data erasure request has been marked completed.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param int $request_id The privacy request post ID associated with this request.
 	 */

@@ -4,14 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage Multisite
- *
  */
 
 /** Load GeChiUI Administration Bootstrap */
 require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'manage_sites' ) ) {
-	gc_die( __( '抱歉，您不能编辑此站点。' ) );
+	gc_die( __( '抱歉，您不能编辑此系统。' ) );
 }
 
 get_current_screen()->add_help_tab( get_site_screen_help_tab_args() );
@@ -20,12 +19,12 @@ get_current_screen()->set_help_sidebar( get_site_screen_help_sidebar_content() )
 $id = isset( $_REQUEST['id'] ) ? (int) $_REQUEST['id'] : 0;
 
 if ( ! $id ) {
-	gc_die( __( '站点ID无效。' ) );
+	gc_die( __( '系统ID无效。' ) );
 }
 
 $details = get_site( $id );
 if ( ! $details ) {
-	gc_die( __( '请求的站点不存在。' ) );
+	gc_die( __( '请求的系统不存在。' ) );
 }
 
 if ( ! can_edit_network( $details->site_id ) ) {
@@ -52,6 +51,7 @@ if ( isset( $_REQUEST['action'] ) && 'update-site' === $_REQUEST['action'] && is
 	/**
 	 * Fires after the site options are updated.
 	 *
+	 * @since 4.4.0 Added `$id` parameter.
 	 *
 	 * @param int $id The ID of the site being updated.
 	 */
@@ -73,26 +73,16 @@ if ( isset( $_REQUEST['action'] ) && 'update-site' === $_REQUEST['action'] && is
 if ( isset( $_GET['update'] ) ) {
 	$messages = array();
 	if ( 'updated' === $_GET['update'] ) {
-		$messages[] = __( '站点选项已更新。' );
+		$messages[] = __( '系统选项已更新。' );
 	}
 }
 
 // Used in the HTML title tag.
 /* translators: %s: Site title. */
-$title = sprintf( __( '编辑站点：%s' ), esc_html( $details->blogname ) );
+$title = sprintf( __( '编辑系统：%s' ), esc_html( $details->blogname ) );
 
 $parent_file  = 'sites.php';
 $submenu_file = 'sites.php';
-
-require_once ABSPATH . 'gc-admin/admin-header.php';
-
-?>
-
-<div class="wrap">
-<h1 id="edit-site"><?php echo $title; ?></h1>
-<p class="edit-site-actions"><a href="<?php echo esc_url( get_home_url( $id, '/' ) ); ?>"><?php _e( '访问' ); ?></a> | <a href="<?php echo esc_url( get_admin_url( $id ) ); ?>"><?php _e( '仪表盘' ); ?></a></p>
-
-<?php
 
 network_edit_site_nav(
 	array(
@@ -103,10 +93,18 @@ network_edit_site_nav(
 
 if ( ! empty( $messages ) ) {
 	foreach ( $messages as $msg ) {
-		echo '<div id="message" class="updated notice is-dismissible"><p>' . $msg . '</p></div>';
+		add_settings_error( 'general', 'message', $msg, 'success' );
 	}
 }
+
+require_once ABSPATH . 'gc-admin/admin-header.php';
+
 ?>
+
+<div class="wrap">
+<div class="page-header"><h2 id="edit-site" class="header-title"><?php echo esc_html( $title ); ?></h2></div>
+<p class="edit-site-actions"><a href="<?php echo esc_url( get_home_url( $id, '/' ) ); ?>"><?php _e( '访问' ); ?></a> | <a href="<?php echo esc_url( get_admin_url( $id ) ); ?>"><?php _e( '仪表盘' ); ?></a></p>
+
 <form method="post" action="site-settings.php?action=update-site">
 	<?php gc_nonce_field( 'edit-site' ); ?>
 	<input type="hidden" name="id" value="<?php echo esc_attr( $id ); ?>" />
@@ -141,17 +139,17 @@ if ( ! empty( $messages ) ) {
 				}
 			}
 
-			if ( strpos( $option->option_value, "\n" ) !== false ) {
+			if ( str_contains( $option->option_value, "\n" ) ) {
 				?>
 				<tr class="form-field">
-					<th scope="row"><label for="<?php echo esc_attr( $option->option_name ); ?>"><?php echo ucwords( str_replace( '_', ' ', $option->option_name ) ); ?></label></th>
+					<th scope="row"><label for="<?php echo esc_attr( $option->option_name ); ?>" class="code"><?php echo esc_html( $option->option_name ); ?></label></th>
 					<td><textarea class="<?php echo $class; ?>" rows="5" cols="40" name="option[<?php echo esc_attr( $option->option_name ); ?>]" id="<?php echo esc_attr( $option->option_name ); ?>"<?php disabled( $disabled ); ?>><?php echo esc_textarea( $option->option_value ); ?></textarea></td>
 				</tr>
 				<?php
 			} else {
 				?>
 				<tr class="form-field">
-					<th scope="row"><label for="<?php echo esc_attr( $option->option_name ); ?>"><?php echo esc_html( ucwords( str_replace( '_', ' ', $option->option_name ) ) ); ?></label></th>
+					<th scope="row"><label for="<?php echo esc_attr( $option->option_name ); ?>" class="code"><?php echo esc_html( $option->option_name ); ?></label></th>
 					<?php if ( $is_main_site && in_array( $option->option_name, array( 'siteurl', 'home' ), true ) ) { ?>
 					<td><code><?php echo esc_html( $option->option_value ); ?></code></td>
 					<?php } else { ?>
@@ -165,6 +163,7 @@ if ( ! empty( $messages ) ) {
 		/**
 		 * Fires at the end of the Edit Site form, before the submit button.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param int $id Site ID.
 		 */

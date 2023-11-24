@@ -5,21 +5,20 @@
  *
  * @package GeChiUI
  * @subpackage Taxonomy
- *
  */
 
 /**
  * Class used for querying terms.
  *
- *
- *
  * @see GC_Term_Query::__construct() for accepted arguments.
  */
+#[AllowDynamicProperties]
 class GC_Term_Query {
 
 	/**
 	 * SQL string used to perform database query.
 	 *
+	 * @since 4.6.0
 	 * @var string
 	 */
 	public $request;
@@ -27,6 +26,7 @@ class GC_Term_Query {
 	/**
 	 * Metadata query container.
 	 *
+	 * @since 4.6.0
 	 * @var GC_Meta_Query A meta query instance.
 	 */
 	public $meta_query = false;
@@ -34,6 +34,7 @@ class GC_Term_Query {
 	/**
 	 * Metadata query clauses.
 	 *
+	 * @since 4.6.0
 	 * @var array
 	 */
 	protected $meta_query_clauses;
@@ -41,6 +42,7 @@ class GC_Term_Query {
 	/**
 	 * SQL query clauses.
 	 *
+	 * @since 4.6.0
 	 * @var array
 	 */
 	protected $sql_clauses = array(
@@ -54,6 +56,7 @@ class GC_Term_Query {
 	/**
 	 * Query vars set by the user.
 	 *
+	 * @since 4.6.0
 	 * @var array
 	 */
 	public $query_vars;
@@ -61,6 +64,7 @@ class GC_Term_Query {
 	/**
 	 * Default values for query vars.
 	 *
+	 * @since 4.6.0
 	 * @var array
 	 */
 	public $query_var_defaults;
@@ -68,6 +72,7 @@ class GC_Term_Query {
 	/**
 	 * List of terms located by the query.
 	 *
+	 * @since 4.6.0
 	 * @var array
 	 */
 	public $terms;
@@ -77,6 +82,12 @@ class GC_Term_Query {
 	 *
 	 * Sets up the term query, based on the query vars passed.
 	 *
+	 * @since 4.6.0
+	 * @since 4.6.0 Introduced 'term_taxonomy_id' parameter.
+	 * @since 4.7.0 Introduced 'object_ids' parameter.
+	 * @since 4.9.0 Added 'slug__in' support for 'orderby'.
+	 * @since 5.1.0 Introduced the 'meta_compare_key' parameter.
+	 * @since 5.3.0 Introduced the 'meta_type_key' parameter.
 	 *
 	 * @param string|array $query {
 	 *     Optional. Array or query string of term query parameters. Default empty.
@@ -101,7 +112,7 @@ class GC_Term_Query {
 	 *     @type string          $order                  Whether to order terms in ascending or descending order.
 	 *                                                   Accepts 'ASC' (ascending) or 'DESC' (descending).
 	 *                                                   Default 'ASC'.
-	 *     @type bool|int        $hide_empty             是否隐藏未被指定到任何文章的项目。 Accepts
+	 *     @type bool|int        $hide_empty             Whether to hide terms not assigned to any posts. Accepts
 	 *                                                   1|true or 0|false. Default 1|true.
 	 *     @type int[]|string    $include                Array or comma/space-separated string of term IDs to include.
 	 *                                                   Default empty array.
@@ -168,15 +179,15 @@ class GC_Term_Query {
 	 *     @type string|string[] $meta_key               Meta key or keys to filter by.
 	 *     @type string|string[] $meta_value             Meta value or values to filter by.
 	 *     @type string          $meta_compare           MySQL operator used for comparing the meta value.
-	 *                                                   See GC_Meta_Query::__construct for accepted values and default value.
+	 *                                                   See GC_Meta_Query::__construct() for accepted values and default value.
 	 *     @type string          $meta_compare_key       MySQL operator used for comparing the meta key.
-	 *                                                   See GC_Meta_Query::__construct for accepted values and default value.
+	 *                                                   See GC_Meta_Query::__construct() for accepted values and default value.
 	 *     @type string          $meta_type              MySQL data type that the meta_value column will be CAST to for comparisons.
-	 *                                                   See GC_Meta_Query::__construct for accepted values and default value.
+	 *                                                   See GC_Meta_Query::__construct() for accepted values and default value.
 	 *     @type string          $meta_type_key          MySQL data type that the meta_key column will be CAST to for comparisons.
-	 *                                                   See GC_Meta_Query::__construct for accepted values and default value.
+	 *                                                   See GC_Meta_Query::__construct() for accepted values and default value.
 	 *     @type array           $meta_query             An associative array of GC_Meta_Query arguments.
-	 *                                                   See GC_Meta_Query::__construct for accepted values.
+	 *                                                   See GC_Meta_Query::__construct() for accepted values.
 	 * }
 	 */
 	public function __construct( $query = '' ) {
@@ -222,6 +233,7 @@ class GC_Term_Query {
 	/**
 	 * Parse arguments passed to the term query with default query parameters.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string|array $query GC_Term_Query arguments. See GC_Term_Query::__construct()
 	 */
@@ -237,6 +249,7 @@ class GC_Term_Query {
 		 *
 		 * Use {@see 'get_terms_args'} to filter the passed arguments.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param array    $defaults   An array of default get_terms() arguments.
 		 * @param string[] $taxonomies An array of taxonomy names.
@@ -268,6 +281,7 @@ class GC_Term_Query {
 		/**
 		 * Fires after term query vars have been parsed.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param GC_Term_Query $query Current instance of GC_Term_Query.
 		 */
@@ -280,6 +294,7 @@ class GC_Term_Query {
 	 * The return type varies depending on the value passed to `$args['fields']`. See
 	 * GC_Term_Query::get_terms() for details.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string|array $query Array or URL query string of parameters.
 	 * @return GC_Term[]|int[]|string[]|string Array of terms, or number of terms as numeric string
@@ -320,6 +335,7 @@ class GC_Term_Query {
 	 *   - 'ids'
 	 *   - 'tt_ids'
 	 *
+	 * @since 4.6.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -339,6 +355,7 @@ class GC_Term_Query {
 		/**
 		 * Fires before terms are retrieved.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param GC_Term_Query $query Current instance of GC_Term_Query (passed by reference).
 		 */
@@ -380,6 +397,7 @@ class GC_Term_Query {
 		/**
 		 * Filters the terms query arguments.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param array    $args       An array of get_terms() arguments.
 		 * @param string[] $taxonomies An array of taxonomy names.
@@ -433,7 +451,16 @@ class GC_Term_Query {
 		$order = $this->parse_order( $this->query_vars['order'] );
 
 		if ( $taxonomies ) {
-			$this->sql_clauses['where']['taxonomy'] = "tt.taxonomy IN ('" . implode( "', '", array_map( 'esc_sql', $taxonomies ) ) . "')";
+			$this->sql_clauses['where']['taxonomy'] =
+				"tt.taxonomy IN ('" . implode( "', '", array_map( 'esc_sql', $taxonomies ) ) . "')";
+		}
+
+		if ( empty( $args['exclude'] ) ) {
+			$args['exclude'] = array();
+		}
+
+		if ( empty( $args['include'] ) ) {
+			$args['include'] = array();
 		}
 
 		$exclude      = $args['exclude'];
@@ -455,6 +482,7 @@ class GC_Term_Query {
 		if ( ! empty( $exclude_tree ) ) {
 			$exclude_tree      = gc_parse_id_list( $exclude_tree );
 			$excluded_children = $exclude_tree;
+
 			foreach ( $exclude_tree as $extrunk ) {
 				$excluded_children = array_merge(
 					$excluded_children,
@@ -468,6 +496,7 @@ class GC_Term_Query {
 					)
 				);
 			}
+
 			$exclusions = array_merge( $excluded_children, $exclusions );
 		}
 
@@ -493,6 +522,7 @@ class GC_Term_Query {
 		/**
 		 * Filters the terms to exclude from the terms query.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @param string   $exclusions `NOT IN` clause of the terms query.
 		 * @param array    $args       An array of terms query arguments.
@@ -501,15 +531,19 @@ class GC_Term_Query {
 		$exclusions = apply_filters( 'list_terms_exclusions', $exclusions, $args, $taxonomies );
 
 		if ( ! empty( $exclusions ) ) {
-			// Must do string manipulation here for backward compatibility with filter.
+			// Strip leading 'AND'. Must do string manipulation here for backward compatibility with filter.
 			$this->sql_clauses['where']['exclusions'] = preg_replace( '/^\s*AND\s*/', '', $exclusions );
 		}
 
-		if (
-			( ! empty( $args['name'] ) ) ||
-			( is_string( $args['name'] ) && 0 !== strlen( $args['name'] ) )
-		) {
-			$names = (array) $args['name'];
+		if ( '' === $args['name'] ) {
+			$args['name'] = array();
+		} else {
+			$args['name'] = (array) $args['name'];
+		}
+
+		if ( ! empty( $args['name'] ) ) {
+			$names = $args['name'];
+
 			foreach ( $names as &$_name ) {
 				// `sanitize_term_field()` returns slashed data.
 				$_name = stripslashes( sanitize_term_field( 'name', $_name, 0, reset( $taxonomies ), 'db' ) );
@@ -518,43 +552,53 @@ class GC_Term_Query {
 			$this->sql_clauses['where']['name'] = "t.name IN ('" . implode( "', '", array_map( 'esc_sql', $names ) ) . "')";
 		}
 
-		if (
-			( ! empty( $args['slug'] ) ) ||
-			( is_string( $args['slug'] ) && 0 !== strlen( $args['slug'] ) )
-		) {
-			if ( is_array( $args['slug'] ) ) {
-				$slug                               = array_map( 'sanitize_title', $args['slug'] );
-				$this->sql_clauses['where']['slug'] = "t.slug IN ('" . implode( "', '", $slug ) . "')";
-			} else {
-				$slug                               = sanitize_title( $args['slug'] );
-				$this->sql_clauses['where']['slug'] = "t.slug = '$slug'";
-			}
+		if ( '' === $args['slug'] ) {
+			$args['slug'] = array();
+		} else {
+			$args['slug'] = array_map( 'sanitize_title', (array) $args['slug'] );
+		}
+
+		if ( ! empty( $args['slug'] ) ) {
+			$slug = implode( "', '", $args['slug'] );
+
+			$this->sql_clauses['where']['slug'] = "t.slug IN ('" . $slug . "')";
+		}
+
+		if ( '' === $args['term_taxonomy_id'] ) {
+			$args['term_taxonomy_id'] = array();
+		} else {
+			$args['term_taxonomy_id'] = array_map( 'intval', (array) $args['term_taxonomy_id'] );
 		}
 
 		if ( ! empty( $args['term_taxonomy_id'] ) ) {
-			if ( is_array( $args['term_taxonomy_id'] ) ) {
-				$tt_ids = implode( ',', array_map( 'intval', $args['term_taxonomy_id'] ) );
-				$this->sql_clauses['where']['term_taxonomy_id'] = "tt.term_taxonomy_id IN ({$tt_ids})";
-			} else {
-				$this->sql_clauses['where']['term_taxonomy_id'] = $gcdb->prepare( 'tt.term_taxonomy_id = %d', $args['term_taxonomy_id'] );
-			}
+			$tt_ids = implode( ',', $args['term_taxonomy_id'] );
+
+			$this->sql_clauses['where']['term_taxonomy_id'] = "tt.term_taxonomy_id IN ({$tt_ids})";
 		}
 
 		if ( ! empty( $args['name__like'] ) ) {
-			$this->sql_clauses['where']['name__like'] = $gcdb->prepare( 't.name LIKE %s', '%' . $gcdb->esc_like( $args['name__like'] ) . '%' );
+			$this->sql_clauses['where']['name__like'] = $gcdb->prepare(
+				't.name LIKE %s',
+				'%' . $gcdb->esc_like( $args['name__like'] ) . '%'
+			);
 		}
 
 		if ( ! empty( $args['description__like'] ) ) {
-			$this->sql_clauses['where']['description__like'] = $gcdb->prepare( 'tt.description LIKE %s', '%' . $gcdb->esc_like( $args['description__like'] ) . '%' );
+			$this->sql_clauses['where']['description__like'] = $gcdb->prepare(
+				'tt.description LIKE %s',
+				'%' . $gcdb->esc_like( $args['description__like'] ) . '%'
+			);
+		}
+
+		if ( '' === $args['object_ids'] ) {
+			$args['object_ids'] = array();
+		} else {
+			$args['object_ids'] = array_map( 'intval', (array) $args['object_ids'] );
 		}
 
 		if ( ! empty( $args['object_ids'] ) ) {
-			$object_ids = $args['object_ids'];
-			if ( ! is_array( $object_ids ) ) {
-				$object_ids = array( $object_ids );
-			}
+			$object_ids = implode( ', ', $args['object_ids'] );
 
-			$object_ids                               = implode( ', ', array_map( 'intval', $object_ids ) );
 			$this->sql_clauses['where']['object_ids'] = "tr.object_id IN ($object_ids)";
 		}
 
@@ -607,40 +651,27 @@ class GC_Term_Query {
 		$meta_clauses = $this->meta_query->get_clauses();
 
 		if ( ! empty( $meta_clauses ) ) {
-			$join                                    .= $mq_sql['join'];
+			$join .= $mq_sql['join'];
+
+			// Strip leading 'AND'.
 			$this->sql_clauses['where']['meta_query'] = preg_replace( '/^\s*AND\s*/', '', $mq_sql['where'] );
-			$distinct                                .= 'DISTINCT';
+
+			$distinct .= 'DISTINCT';
 
 		}
 
 		$selects = array();
 		switch ( $args['fields'] ) {
-			case 'all':
-			case 'all_with_object_id':
-			case 'tt_ids':
-			case 'slugs':
-				$selects = array( 't.*', 'tt.*' );
-				if ( 'all_with_object_id' === $args['fields'] && ! empty( $args['object_ids'] ) ) {
-					$selects[] = 'tr.object_id';
-				}
-				break;
-			case 'ids':
-			case 'id=>parent':
-				$selects = array( 't.term_id', 'tt.parent', 'tt.count', 'tt.taxonomy' );
-				break;
-			case 'names':
-				$selects = array( 't.term_id', 'tt.parent', 'tt.count', 't.name', 'tt.taxonomy' );
-				break;
 			case 'count':
 				$orderby = '';
 				$order   = '';
 				$selects = array( 'COUNT(*)' );
 				break;
-			case 'id=>name':
-				$selects = array( 't.term_id', 't.name', 'tt.parent', 'tt.count', 'tt.taxonomy' );
-				break;
-			case 'id=>slug':
-				$selects = array( 't.term_id', 't.slug', 'tt.parent', 'tt.count', 'tt.taxonomy' );
+			default:
+				$selects = array( 't.term_id' );
+				if ( 'all_with_object_id' === $args['fields'] && ! empty( $args['object_ids'] ) ) {
+					$selects[] = 'tr.object_id';
+				}
 				break;
 		}
 
@@ -656,6 +687,7 @@ class GC_Term_Query {
 		 *
 		 * Use of this filter can result in unpredictable behavior, and is not recommended.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param string[] $selects    An array of fields to select for the terms query.
 		 * @param array    $args       An array of term query arguments.
@@ -666,20 +698,34 @@ class GC_Term_Query {
 		$join .= " INNER JOIN $gcdb->term_taxonomy AS tt ON t.term_id = tt.term_id";
 
 		if ( ! empty( $this->query_vars['object_ids'] ) ) {
-			$join .= " INNER JOIN {$gcdb->term_relationships} AS tr ON tr.term_taxonomy_id = tt.term_taxonomy_id";
+			$join    .= " INNER JOIN {$gcdb->term_relationships} AS tr ON tr.term_taxonomy_id = tt.term_taxonomy_id";
+			$distinct = 'DISTINCT';
 		}
 
 		$where = implode( ' AND ', $this->sql_clauses['where'] );
 
+		$pieces = array( 'fields', 'join', 'where', 'distinct', 'orderby', 'order', 'limits' );
+
 		/**
 		 * Filters the terms query SQL clauses.
 		 *
+		 * @since 3.1.0
 		 *
-		 * @param string[] $pieces     Array of query SQL clauses.
+		 * @param string[] $clauses {
+		 *     Associative array of the clauses for the query.
+		 *
+		 *     @type string $fields   The SELECT clause of the query.
+		 *     @type string $join     The JOIN clause of the query.
+		 *     @type string $where    The WHERE clause of the query.
+		 *     @type string $distinct The DISTINCT clause of the query.
+		 *     @type string $orderby  The ORDER BY clause of the query.
+		 *     @type string $order    The ORDER clause of the query.
+		 *     @type string $limits   The LIMIT clause of the query.
+		 * }
 		 * @param string[] $taxonomies An array of taxonomy names.
 		 * @param array    $args       An array of term query arguments.
 		 */
-		$clauses = apply_filters( 'terms_clauses', compact( 'fields', 'join', 'where', 'distinct', 'orderby', 'order', 'limits' ), $taxonomies, $args );
+		$clauses = apply_filters( 'terms_clauses', compact( $pieces ), $taxonomies, $args );
 
 		$fields   = isset( $clauses['fields'] ) ? $clauses['fields'] : '';
 		$join     = isset( $clauses['join'] ) ? $clauses['join'] : '';
@@ -698,7 +744,13 @@ class GC_Term_Query {
 		$this->sql_clauses['orderby'] = $orderby ? "$orderby $order" : '';
 		$this->sql_clauses['limits']  = $limits;
 
-		$this->request = "{$this->sql_clauses['select']} {$this->sql_clauses['from']} {$where} {$this->sql_clauses['orderby']} {$this->sql_clauses['limits']}";
+		$this->request = "
+			{$this->sql_clauses['select']}
+			{$this->sql_clauses['from']}
+			{$where}
+			{$this->sql_clauses['orderby']}
+			{$this->sql_clauses['limits']}
+		";
 
 		$this->terms = null;
 
@@ -707,6 +759,7 @@ class GC_Term_Query {
 		 *
 		 * Return a non-null value to bypass GeChiUI' default term queries.
 		 *
+		 * @since 5.3.0
 		 *
 		 * @param array|null    $terms Return an array of term data to short-circuit GC's term query,
 		 *                             or null to allow GC queries to run normally.
@@ -718,14 +771,25 @@ class GC_Term_Query {
 			return $this->terms;
 		}
 
-		// $args can be anything. Only use the args defined in defaults to compute the key.
-		$key          = md5( serialize( gc_array_slice_assoc( $args, array_keys( $this->query_var_defaults ) ) ) . serialize( $taxonomies ) . $this->request );
-		$last_changed = gc_cache_get_last_changed( 'terms' );
-		$cache_key    = "get_terms:$key:$last_changed";
-		$cache        = gc_cache_get( $cache_key, 'terms' );
+		$cache_key = $this->generate_cache_key( $args, $this->request );
+		$cache     = gc_cache_get( $cache_key, 'term-queries' );
+
 		if ( false !== $cache ) {
-			if ( 'all' === $_fields || 'all_with_object_id' === $_fields ) {
-				$cache = $this->populate_terms( $cache );
+			if ( 'ids' === $_fields ) {
+				$cache = array_map( 'intval', $cache );
+			} elseif ( 'count' !== $_fields ) {
+				if ( ( 'all_with_object_id' === $_fields && ! empty( $args['object_ids'] ) )
+					|| ( 'all' === $_fields && $args['pad_counts'] )
+				) {
+					$term_ids = gc_list_pluck( $cache, 'term_id' );
+				} else {
+					$term_ids = array_map( 'intval', $cache );
+				}
+
+				_prime_term_caches( $term_ids, $args['update_term_meta_cache'] );
+
+				$term_objects = $this->populate_terms( $cache );
+				$cache        = $this->format_terms( $term_objects, $_fields );
 			}
 
 			$this->terms = $cache;
@@ -733,33 +797,27 @@ class GC_Term_Query {
 		}
 
 		if ( 'count' === $_fields ) {
-			$count = $gcdb->get_var( $this->request );
-			gc_cache_set( $cache_key, $count, 'terms' );
+			$count = $gcdb->get_var( $this->request ); // phpcs:ignore GeChiUI.DB.PreparedSQL.NotPrepared
+			gc_cache_set( $cache_key, $count, 'term-queries' );
 			return $count;
 		}
 
-		$terms = $gcdb->get_results( $this->request );
-
-		if ( 'all' === $_fields || 'all_with_object_id' === $_fields ) {
-			update_term_cache( $terms );
-		}
-
-		// Prime termmeta cache.
-		if ( $args['update_term_meta_cache'] ) {
-			$term_ids = gc_list_pluck( $terms, 'term_id' );
-			update_termmeta_cache( $term_ids );
-		}
+		$terms = $gcdb->get_results( $this->request ); // phpcs:ignore GeChiUI.DB.PreparedSQL.NotPrepared
 
 		if ( empty( $terms ) ) {
-			gc_cache_add( $cache_key, array(), 'terms' );
+			gc_cache_add( $cache_key, array(), 'term-queries' );
 			return array();
 		}
+
+		$term_ids = gc_list_pluck( $terms, 'term_id' );
+		_prime_term_caches( $term_ids, false );
+		$term_objects = $this->populate_terms( $terms );
 
 		if ( $child_of ) {
 			foreach ( $taxonomies as $_tax ) {
 				$children = _get_term_hierarchy( $_tax );
 				if ( ! empty( $children ) ) {
-					$terms = _get_term_children( $child_of, $terms, $_tax );
+					$term_objects = _get_term_children( $child_of, $term_objects, $_tax );
 				}
 			}
 		}
@@ -767,15 +825,16 @@ class GC_Term_Query {
 		// Update term counts to include children.
 		if ( $args['pad_counts'] && 'all' === $_fields ) {
 			foreach ( $taxonomies as $_tax ) {
-				_pad_term_counts( $terms, $_tax );
+				_pad_term_counts( $term_objects, $_tax );
 			}
 		}
 
 		// Make sure we show empty categories that have children.
-		if ( $hierarchical && $args['hide_empty'] && is_array( $terms ) ) {
-			foreach ( $terms as $k => $term ) {
+		if ( $hierarchical && $args['hide_empty'] && is_array( $term_objects ) ) {
+			foreach ( $term_objects as $k => $term ) {
 				if ( ! $term->count ) {
 					$children = get_term_children( $term->term_id, $term->taxonomy );
+
 					if ( is_array( $children ) ) {
 						foreach ( $children as $child_id ) {
 							$child = get_term( $child_id, $term->taxonomy );
@@ -786,91 +845,56 @@ class GC_Term_Query {
 					}
 
 					// It really is empty.
-					unset( $terms[ $k ] );
+					unset( $term_objects[ $k ] );
 				}
 			}
-		}
-
-		/*
-		 * When querying for terms connected to objects, we may get
-		 * duplicate results. The duplicates should be preserved if
-		 * `$fields` is 'all_with_object_id', but should otherwise be
-		 * removed.
-		 */
-		if ( ! empty( $args['object_ids'] ) && 'all_with_object_id' !== $_fields ) {
-			$_tt_ids = array();
-			$_terms  = array();
-			foreach ( $terms as $term ) {
-				if ( isset( $_tt_ids[ $term->term_id ] ) ) {
-					continue;
-				}
-
-				$_tt_ids[ $term->term_id ] = 1;
-				$_terms[]                  = $term;
-			}
-
-			$terms = $_terms;
-		}
-
-		$_terms = array();
-		if ( 'id=>parent' === $_fields ) {
-			foreach ( $terms as $term ) {
-				$_terms[ $term->term_id ] = $term->parent;
-			}
-		} elseif ( 'ids' === $_fields ) {
-			foreach ( $terms as $term ) {
-				$_terms[] = (int) $term->term_id;
-			}
-		} elseif ( 'tt_ids' === $_fields ) {
-			foreach ( $terms as $term ) {
-				$_terms[] = (int) $term->term_taxonomy_id;
-			}
-		} elseif ( 'names' === $_fields ) {
-			foreach ( $terms as $term ) {
-				$_terms[] = $term->name;
-			}
-		} elseif ( 'slugs' === $_fields ) {
-			foreach ( $terms as $term ) {
-				$_terms[] = $term->slug;
-			}
-		} elseif ( 'id=>name' === $_fields ) {
-			foreach ( $terms as $term ) {
-				$_terms[ $term->term_id ] = $term->name;
-			}
-		} elseif ( 'id=>slug' === $_fields ) {
-			foreach ( $terms as $term ) {
-				$_terms[ $term->term_id ] = $term->slug;
-			}
-		}
-
-		if ( ! empty( $_terms ) ) {
-			$terms = $_terms;
 		}
 
 		// Hierarchical queries are not limited, so 'offset' and 'number' must be handled now.
-		if ( $hierarchical && $number && is_array( $terms ) ) {
-			if ( $offset >= count( $terms ) ) {
-				$terms = array();
+		if ( $hierarchical && $number && is_array( $term_objects ) ) {
+			if ( $offset >= count( $term_objects ) ) {
+				$term_objects = array();
 			} else {
-				$terms = array_slice( $terms, $offset, $number, true );
+				$term_objects = array_slice( $term_objects, $offset, $number, true );
 			}
 		}
 
-		gc_cache_add( $cache_key, $terms, 'terms' );
-
-		if ( 'all' === $_fields || 'all_with_object_id' === $_fields ) {
-			$terms = $this->populate_terms( $terms );
+		// Prime termmeta cache.
+		if ( $args['update_term_meta_cache'] ) {
+			$term_ids = gc_list_pluck( $term_objects, 'term_id' );
+			gc_lazyload_term_meta( $term_ids );
 		}
 
-		$this->terms = $terms;
+		if ( 'all_with_object_id' === $_fields && ! empty( $args['object_ids'] ) ) {
+			$term_cache = array();
+			foreach ( $term_objects as $term ) {
+				$object            = new stdClass();
+				$object->term_id   = $term->term_id;
+				$object->object_id = $term->object_id;
+				$term_cache[]      = $object;
+			}
+		} elseif ( 'all' === $_fields && $args['pad_counts'] ) {
+			$term_cache = array();
+			foreach ( $term_objects as $term ) {
+				$object          = new stdClass();
+				$object->term_id = $term->term_id;
+				$object->count   = $term->count;
+				$term_cache[]    = $object;
+			}
+		} else {
+			$term_cache = gc_list_pluck( $term_objects, 'term_id' );
+		}
+
+		gc_cache_add( $cache_key, $term_cache, 'term-queries' );
+		$this->terms = $this->format_terms( $term_objects, $_fields );
+
 		return $this->terms;
 	}
 
 	/**
 	 * Parse and sanitize 'orderby' keys passed to the term query.
 	 *
-	 *
-	 * @global gcdb $gcdb GeChiUI database abstraction object.
+	 * @since 4.6.0
 	 *
 	 * @param string $orderby_raw Alias for the field to order by.
 	 * @return string|false Value to used in the ORDER clause. False otherwise.
@@ -905,6 +929,7 @@ class GC_Term_Query {
 		/**
 		 * Filters the ORDERBY clause of the terms query.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param string   $orderby    `ORDERBY` clause of the terms query.
 		 * @param array    $args       An array of term query arguments.
@@ -924,8 +949,56 @@ class GC_Term_Query {
 	}
 
 	/**
+	 * Format response depending on field requested.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param GC_Term[] $term_objects Array of term objects.
+	 * @param string    $_fields      Field to format.
+	 *
+	 * @return GC_Term[]|int[]|string[] Array of terms / strings / ints depending on field requested.
+	 */
+	protected function format_terms( $term_objects, $_fields ) {
+		$_terms = array();
+		if ( 'id=>parent' === $_fields ) {
+			foreach ( $term_objects as $term ) {
+				$_terms[ $term->term_id ] = $term->parent;
+			}
+		} elseif ( 'ids' === $_fields ) {
+			foreach ( $term_objects as $term ) {
+				$_terms[] = (int) $term->term_id;
+			}
+		} elseif ( 'tt_ids' === $_fields ) {
+			foreach ( $term_objects as $term ) {
+				$_terms[] = (int) $term->term_taxonomy_id;
+			}
+		} elseif ( 'names' === $_fields ) {
+			foreach ( $term_objects as $term ) {
+				$_terms[] = $term->name;
+			}
+		} elseif ( 'slugs' === $_fields ) {
+			foreach ( $term_objects as $term ) {
+				$_terms[] = $term->slug;
+			}
+		} elseif ( 'id=>name' === $_fields ) {
+			foreach ( $term_objects as $term ) {
+				$_terms[ $term->term_id ] = $term->name;
+			}
+		} elseif ( 'id=>slug' === $_fields ) {
+			foreach ( $term_objects as $term ) {
+				$_terms[ $term->term_id ] = $term->slug;
+			}
+		} elseif ( 'all' === $_fields || 'all_with_object_id' === $_fields ) {
+			$_terms = $term_objects;
+		}
+
+		return $_terms;
+	}
+
+	/**
 	 * Generate the ORDER BY clause for an 'orderby' param that is potentially related to a meta query.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string $orderby_raw Raw 'orderby' value passed to GC_Term_Query.
 	 * @return string ORDER BY clause.
@@ -984,6 +1057,7 @@ class GC_Term_Query {
 	/**
 	 * Parse an 'order' query variable and cast it to ASC or DESC as necessary.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string $order The 'order' query variable.
 	 * @return string The sanitized 'order' query variable.
@@ -1003,16 +1077,17 @@ class GC_Term_Query {
 	/**
 	 * Used internally to generate a SQL string related to the 'search' parameter.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
-	 * @param string $string
-	 * @return string
+	 * @param string $search Search string.
+	 * @return string Search SQL.
 	 */
-	protected function get_search_sql( $string ) {
+	protected function get_search_sql( $search ) {
 		global $gcdb;
 
-		$like = '%' . $gcdb->esc_like( $string ) . '%';
+		$like = '%' . $gcdb->esc_like( $search ) . '%';
 
 		return $gcdb->prepare( '((t.name LIKE %s) OR (t.slug LIKE %s))', $like, $like );
 	}
@@ -1022,24 +1097,67 @@ class GC_Term_Query {
 	 *
 	 * Also discards invalid term objects.
 	 *
+	 * @since 4.9.8
 	 *
-	 * @param array $term_ids Term IDs.
-	 * @return array
+	 * @param Object[]|int[] $terms List of objects or term ids.
+	 * @return GC_Term[] Array of `GC_Term` objects.
 	 */
-	protected function populate_terms( $term_ids ) {
-		$terms = array();
-
-		if ( ! is_array( $term_ids ) ) {
-			return $terms;
+	protected function populate_terms( $terms ) {
+		$term_objects = array();
+		if ( ! is_array( $terms ) ) {
+			return $term_objects;
 		}
 
-		foreach ( $term_ids as $key => $term_id ) {
-			$term = get_term( $term_id );
+		foreach ( $terms as $key => $term_data ) {
+			if ( is_object( $term_data ) && property_exists( $term_data, 'term_id' ) ) {
+				$term = get_term( $term_data->term_id );
+				if ( property_exists( $term_data, 'object_id' ) ) {
+					$term->object_id = (int) $term_data->object_id;
+				}
+				if ( property_exists( $term_data, 'count' ) ) {
+					$term->count = (int) $term_data->count;
+				}
+			} else {
+				$term = get_term( $term_data );
+			}
+
 			if ( $term instanceof GC_Term ) {
-				$terms[ $key ] = $term;
+				$term_objects[ $key ] = $term;
 			}
 		}
 
-		return $terms;
+		return $term_objects;
+	}
+
+	/**
+	 * Generate cache key.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @global gcdb $gcdb GeChiUI database abstraction object.
+	 *
+	 * @param array  $args GC_Term_Query arguments.
+	 * @param string $sql  SQL statement.
+	 *
+	 * @return string Cache key.
+	 */
+	protected function generate_cache_key( array $args, $sql ) {
+		global $gcdb;
+		// $args can be anything. Only use the args defined in defaults to compute the key.
+		$cache_args = gc_array_slice_assoc( $args, array_keys( $this->query_var_defaults ) );
+
+		unset( $cache_args['update_term_meta_cache'] );
+
+		if ( 'count' !== $args['fields'] && 'all_with_object_id' !== $args['fields'] ) {
+			$cache_args['fields'] = 'all';
+		}
+		$taxonomies = (array) $args['taxonomy'];
+
+		// Replace gcdb placeholder in the SQL statement used by the cache key.
+		$sql = $gcdb->remove_placeholder_escape( $sql );
+
+		$key          = md5( serialize( $cache_args ) . serialize( $taxonomies ) . $sql );
+		$last_changed = gc_cache_get_last_changed( 'terms' );
+		return "get_terms:$key:$last_changed";
 	}
 }

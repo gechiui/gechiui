@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Template
- *
  */
 
 /**
  * Retrieves category link URL.
- *
- *
  *
  * @see get_term_link()
  *
@@ -33,9 +30,7 @@ function get_category_link( $category ) {
 
 /**
  * Retrieves category parents with separator.
- *
- *
- *
+ * The `$visited` parameter was deprecated and renamed to `$deprecated`.
  *
  * @param int    $category_id Category ID.
  * @param bool   $link        Optional. Whether to format with link. Default false.
@@ -69,8 +64,6 @@ function get_category_parents( $category_id, $link = false, $separator = '/', $n
  * Note: This function only returns results from the default "category" taxonomy.
  * For custom taxonomies use get_the_terms().
  *
- *
- *
  * @param int $post_id Optional. The post ID. Defaults to current post ID.
  * @return GC_Term[] Array of GC_Term objects, one for each category assigned to the post.
  */
@@ -89,9 +82,10 @@ function get_the_category( $post_id = false ) {
 	/**
 	 * Filters the array of categories to return for a post.
 	 *
+	 * @since 4.4.0 Added the `$post_id` parameter.
 	 *
 	 * @param GC_Term[] $categories An array of categories to return for the post.
-	 * @param int|false $post_id    ID of the post.
+	 * @param int|false $post_id    The post ID.
 	 */
 	return apply_filters( 'get_the_categories', $categories, $post_id );
 }
@@ -99,14 +93,12 @@ function get_the_category( $post_id = false ) {
 /**
  * Retrieves category name based on category ID.
  *
- *
- *
- * @param int $cat_ID Category ID.
+ * @param int $cat_id Category ID.
  * @return string|GC_Error Category name on success, GC_Error on failure.
  */
-function get_the_category_by_ID( $cat_ID ) { // phpcs:ignore GeChiUI.NamingConventions.ValidFunctionName.FunctionNameInvalid
-	$cat_ID   = (int) $cat_ID;
-	$category = get_term( $cat_ID );
+function get_the_category_by_ID( $cat_id ) { // phpcs:ignore GeChiUI.NamingConventions.ValidFunctionName.FunctionNameInvalid
+	$cat_id   = (int) $cat_id;
+	$category = get_term( $cat_id );
 
 	if ( is_gc_error( $category ) ) {
 		return $category;
@@ -123,7 +115,7 @@ function get_the_category_by_ID( $cat_ID ) { // phpcs:ignore GeChiUI.NamingConve
  *
  * For a more powerful, list-based function, see gc_list_categories().
  *
- *
+ * @since 1.5.1
  *
  * @see gc_list_categories()
  *
@@ -131,8 +123,9 @@ function get_the_category_by_ID( $cat_ID ) { // phpcs:ignore GeChiUI.NamingConve
  *
  * @param string $separator Optional. Separator between the categories. By default, the links are placed
  *                          in an unordered list. An empty string will result in the default behavior.
- * @param string $parents   Optional. How to display the parents.
- * @param int    $post_id   Optional. Post ID to retrieve categories.
+ * @param string $parents   Optional. How to display the parents. Accepts 'multiple', 'single', or empty.
+ *                          Default empty string.
+ * @param int    $post_id   Optional. ID of the post to retrieve categories for. Defaults to the current post.
  * @return string Category list for a post.
  */
 function get_the_category_list( $separator = '', $parents = '', $post_id = false ) {
@@ -146,10 +139,11 @@ function get_the_category_list( $separator = '', $parents = '', $post_id = false
 	/**
 	 * Filters the categories before building the category list.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param GC_Term[] $categories An array of the post's categories.
-	 * @param int|bool  $post_id    ID of the post we're retrieving categories for.
-	 *                              When `false`, we assume the current post in the loop.
+	 * @param int|false $post_id    ID of the post to retrieve categories for.
+	 *                              When `false`, defaults to the current post in the loop.
 	 */
 	$categories = apply_filters( 'the_category_list', get_the_category( $post_id ), $post_id );
 
@@ -216,6 +210,7 @@ function get_the_category_list( $separator = '', $parents = '', $post_id = false
 	/**
 	 * Filters the category or list of categories.
 	 *
+	 * @since 1.2.0
 	 *
 	 * @param string $thelist   List of categories for the current post.
 	 * @param string $separator Separator used between the categories.
@@ -241,12 +236,11 @@ function get_the_category_list( $separator = '', $parents = '', $post_id = false
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
+ * @since 2.7.0 The `$post` parameter was added.
  *
  * @param int|string|int[]|string[] $category Category ID, name, slug, or array of such
  *                                            to check against.
- * @param int|object                $post     Optional. Post to check instead of the current post.
+ * @param int|GC_Post               $post     Optional. Post to check. Defaults to the current post.
  * @return bool True if the current post is in any of the given categories.
  */
 function in_category( $category, $post = null ) {
@@ -260,12 +254,11 @@ function in_category( $category, $post = null ) {
 /**
  * Displays category list for a post in either HTML list or custom format.
  *
- *
- *
  * @param string $separator Optional. Separator between the categories. By default, the links are placed
  *                          in an unordered list. An empty string will result in the default behavior.
- * @param string $parents   Optional. How to display the parents.
- * @param int    $post_id   Optional. Post ID to retrieve categories.
+ * @param string $parents   Optional. How to display the parents. Accepts 'multiple', 'single', or empty.
+ *                          Default empty string.
+ * @param int    $post_id   Optional. ID of the post to retrieve categories for. Defaults to the current post.
  */
 function the_category( $separator = '', $parents = '', $post_id = false ) {
 	echo get_the_category_list( $separator, $parents, $post_id );
@@ -273,8 +266,6 @@ function the_category( $separator = '', $parents = '', $post_id = false ) {
 
 /**
  * Retrieves category description.
- *
- *
  *
  * @param int $category Optional. Category ID. Defaults to the current category ID.
  * @return string Category description, if available.
@@ -290,10 +281,8 @@ function category_description( $category = 0 ) {
  * depth argument, unless it is true. When the argument is false, it will
  * display all of the categories. When it is enabled it will use the value in
  * the 'depth' argument.
- *
- *
- *
- *
+ * Introduced the `value_field` argument. Introduced the `required` argument.
+ * @since 6.1.0 Introduced the `aria_describedby` argument.
  *
  * @param array|string $args {
  *     Optional. Array or string of arguments to generate a categories drop-down element. See GC_Term_Query::__construct()
@@ -327,6 +316,10 @@ function category_description( $category = 0 ) {
  *                                           Default false (create select element even if no categories are found).
  *     @type bool         $required          Whether the `<select>` element should have the HTML5 'required' attribute.
  *                                           Default false.
+ *     @type Walker       $walker            Walker object to use to build the output. Default empty which results in a
+ *                                           Walker_CategoryDropdown instance being used.
+ *     @type string       $aria_describedby  The 'id' of an element that contains descriptive text for the select.
+ *                                           Default empty string.
  * }
  * @return string HTML dropdown list of categories.
  */
@@ -353,6 +346,7 @@ function gc_dropdown_categories( $args = '' ) {
 		'option_none_value' => -1,
 		'value_field'       => 'term_id',
 		'required'          => false,
+		'aria_describedby'  => '',
 	);
 
 	$defaults['selected'] = ( is_category() ) ? get_query_var( 'cat' ) : 0;
@@ -398,8 +392,10 @@ function gc_dropdown_categories( $args = '' ) {
 	$id       = $parsed_args['id'] ? esc_attr( $parsed_args['id'] ) : $name;
 	$required = $parsed_args['required'] ? 'required' : '';
 
+	$aria_describedby_attribute = $parsed_args['aria_describedby'] ? ' aria-describedby="' . esc_attr( $parsed_args['aria_describedby'] ) . '"' : '';
+
 	if ( ! $parsed_args['hide_if_empty'] || ! empty( $categories ) ) {
-		$output = "<select $required name='$name' id='$id' class='$class' $tab_index_attribute>\n";
+		$output = "<select $required name='$name' id='$id' class='$class'$tab_index_attribute$aria_describedby_attribute>\n";
 	} else {
 		$output = '';
 	}
@@ -413,6 +409,7 @@ function gc_dropdown_categories( $args = '' ) {
 		 * 'show_option_none', 'show_option_all', and various forms of the
 		 * term name.
 		 *
+		 * @since 1.2.0
 		 *
 		 * @see gc_dropdown_categories()
 		 *
@@ -471,10 +468,8 @@ function gc_dropdown_categories( $args = '' ) {
 
 /**
  * Displays or retrieves the HTML list of categories.
- *
- *
- *
- *
+ * Introduced the `hide_title_if_empty` and `separator` arguments. The `current_category` argument was modified to optionally accept an array of values.
+ * @since 6.1.0 Default value of the 'use_desc_for_title' argument was changed from 1 to 0.
  *
  * @param array|string $args {
  *     Array of optional arguments. See get_categories(), get_terms(), and GC_Term_Query::__construct()
@@ -509,9 +504,11 @@ function gc_dropdown_categories( $args = '' ) {
  *                                               categories will be output separated by `<br>` tags. Default 'list'.
  *     @type string       $taxonomy              Name of the taxonomy to retrieve. Default 'category'.
  *     @type string       $title_li              Text to use for the list title `<li>` element. Pass an empty string
- *                                               to disable. Default '分类'.
+ *                                               to disable. Default 'Categories'.
  *     @type bool|int     $use_desc_for_title    Whether to use the category description as the title attribute.
- *                                               Accepts 0, 1, or their bool equivalents. Default 1.
+ *                                               Accepts 0, 1, or their bool equivalents. Default 0.
+ *     @type Walker       $walker                Walker object to use to build the output. Default empty which results
+ *                                               in a Walker_Category instance being used.
  * }
  * @return void|string|false Void if 'echo' argument is true, HTML list of categories if 'echo' is false.
  *                           False if the taxonomy does not exist.
@@ -538,8 +535,8 @@ function gc_list_categories( $args = '' ) {
 		'show_option_none'    => __( '没有分类' ),
 		'style'               => 'list',
 		'taxonomy'            => 'category',
-		'title_li'            => __( '分类' ),
-		'use_desc_for_title'  => 1,
+		'title_li'            => __( '分类目录' ),
+		'use_desc_for_title'  => 0,
 	);
 
 	$parsed_args = gc_parse_args( $args, $defaults );
@@ -672,10 +669,7 @@ function gc_list_categories( $args = '' ) {
  *
  * Outputs a list of tags in what is called a 'tag cloud', where the size of each tag
  * is determined by how many times that particular tag has been assigned to posts.
- *
- *
- *
- *
+ * Added the `taxonomy` argument. Added the `show_count` argument.
  *
  * @param array|string $args {
  *     Optional. Array or string of arguments for displaying a tag cloud. See gc_generate_tag_cloud()
@@ -749,6 +743,7 @@ function gc_tag_cloud( $args = '' ) {
 	/**
 	 * Filters the tag cloud output.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param string|string[] $return Tag cloud as a string or an array, depending on 'format' argument.
 	 * @param array           $args   An array of tag cloud arguments. See gc_tag_cloud()
@@ -766,8 +761,6 @@ function gc_tag_cloud( $args = '' ) {
 /**
  * Default topic count scaling for tag links.
  *
- *
- *
  * @param int $count Number of posts with that tag.
  * @return int Scaled count.
  */
@@ -778,9 +771,7 @@ function default_topic_count_scale( $count ) {
 /**
  * Generates a tag cloud (heatmap) from provided data.
  *
- * @todo Complete functionality.
- *
- *
+ * @todo Complete functionality. Added the `show_count` argument.
  *
  * @param GC_Term[]    $tags Array of GC_Term objects to generate the tag cloud for.
  * @param string|array $args {
@@ -810,7 +801,7 @@ function default_topic_count_scale( $count ) {
  *                                                'DESC' (descending), or 'RAND' (random). Default 'ASC'.
  *     @type int|bool $filter                     Whether to enable filtering of the final output
  *                                                via {@see 'gc_generate_tag_cloud'}. Default 1.
- *     @type string   $topic_count_text           Nooped plural text from _n_noop() to supply to
+ *     @type array    $topic_count_text           Nooped plural text from _n_noop() to supply to
  *                                                tag counts. Default null.
  *     @type callable $topic_count_text_callback  Callback used to generate nooped plural text for
  *                                                tag counts based on the count. Default null.
@@ -854,7 +845,7 @@ function gc_generate_tag_cloud( $tags, $args = '' ) {
 		// Look for the alternative callback style. Ignore the previous default.
 		if ( 'default_topic_count_text' === $args['topic_count_text_callback'] ) {
 			/* translators: %s: Number of items (tags). */
-			$translate_nooped_plural = _n_noop( '%s项', '%s项' );
+			$translate_nooped_plural = _n_noop( '%s个项目', '%s个项目' );
 		} else {
 			$translate_nooped_plural = false;
 		}
@@ -865,7 +856,7 @@ function gc_generate_tag_cloud( $tags, $args = '' ) {
 	} else {
 		// This is the default for when no callback, plural, or argument is passed in.
 		/* translators: %s: Number of items (tags). */
-		$translate_nooped_plural = _n_noop( '%s项', '%s项' );
+		$translate_nooped_plural = _n_noop( '%s个项目', '%s个项目' );
 	}
 
 	/**
@@ -970,6 +961,7 @@ function gc_generate_tag_cloud( $tags, $args = '' ) {
 	/**
 	 * Filters the data used to generate the tag cloud.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param array[] $tags_data An array of term data arrays for terms used to generate the tag cloud.
 	 */
@@ -1018,6 +1010,7 @@ function gc_generate_tag_cloud( $tags, $args = '' ) {
 		 * The filter is only evaluated if a true value is passed
 		 * to the $filter argument in gc_generate_tag_cloud().
 		 *
+		 * @since 2.3.0
 		 *
 		 * @see gc_generate_tag_cloud()
 		 *
@@ -1038,7 +1031,6 @@ function gc_generate_tag_cloud( $tags, $args = '' ) {
  *
  * Used with `uasort()`.
  *
- *
  * @access private
  *
  * @param object $a The first object to compare.
@@ -1055,15 +1047,15 @@ function _gc_object_name_sort_cb( $a, $b ) {
  *
  * Used with `uasort()`.
  *
- *
  * @access private
  *
  * @param object $a The first object to compare.
  * @param object $b The second object to compare.
- * @return bool Whether the count value for `$a` is greater than the count value for `$b`.
+ * @return int Negative number if `$a->count` is less than `$b->count`, zero if they are equal,
+ *             or greater than zero if `$a->count` is greater than `$b->count`.
  */
 function _gc_object_count_sort_cb( $a, $b ) {
-	return ( $a->count > $b->count );
+	return ( $a->count - $b->count );
 }
 
 //
@@ -1073,8 +1065,7 @@ function _gc_object_count_sort_cb( $a, $b ) {
 /**
  * Retrieves HTML list content for category list.
  *
- *
- *
+ * @since 5.3.0 Formalized the existing `...$args` parameter by adding it
  *              to the function signature.
  *
  * @uses Walker_Category to create HTML list content.
@@ -1086,7 +1077,7 @@ function _gc_object_count_sort_cb( $a, $b ) {
 function walk_category_tree( ...$args ) {
 	// The user's options are the third parameter.
 	if ( empty( $args[2]['walker'] ) || ! ( $args[2]['walker'] instanceof Walker ) ) {
-		$walker = new Walker_Category;
+		$walker = new Walker_Category();
 	} else {
 		/**
 		 * @var Walker $walker
@@ -1099,8 +1090,7 @@ function walk_category_tree( ...$args ) {
 /**
  * Retrieves HTML dropdown (select) content for category list.
  *
- *
- *
+ * @since 5.3.0 Formalized the existing `...$args` parameter by adding it
  *              to the function signature.
  *
  * @uses Walker_CategoryDropdown to create HTML dropdown content.
@@ -1112,7 +1102,7 @@ function walk_category_tree( ...$args ) {
 function walk_category_dropdown_tree( ...$args ) {
 	// The user's options are the third parameter.
 	if ( empty( $args[2]['walker'] ) || ! ( $args[2]['walker'] instanceof Walker ) ) {
-		$walker = new Walker_CategoryDropdown;
+		$walker = new Walker_CategoryDropdown();
 	} else {
 		/**
 		 * @var Walker $walker
@@ -1129,8 +1119,6 @@ function walk_category_dropdown_tree( ...$args ) {
 /**
  * Retrieves the link to the tag.
  *
- *
- *
  * @see get_term_link()
  *
  * @param int|object $tag Tag ID or object.
@@ -1143,18 +1131,17 @@ function get_tag_link( $tag ) {
 /**
  * Retrieves the tags for a post.
  *
- *
- *
- * @param int|GC_Post $post_id Post ID or object.
+ * @param int|GC_Post $post Post ID or object.
  * @return GC_Term[]|false|GC_Error Array of GC_Term objects on success, false if there are no terms
  *                                  or the post does not exist, GC_Error on failure.
  */
-function get_the_tags( $post_id = 0 ) {
-	$terms = get_the_terms( $post_id, 'post_tag' );
+function get_the_tags( $post = 0 ) {
+	$terms = get_the_terms( $post, 'post_tag' );
 
 	/**
 	 * Filters the array of tags for the given post.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @see get_the_terms()
 	 *
@@ -1166,8 +1153,6 @@ function get_the_tags( $post_id = 0 ) {
 
 /**
  * Retrieves the tags for a post formatted as a string.
- *
- *
  *
  * @param string $before  Optional. String to use before the tags. Default empty.
  * @param string $sep     Optional. String to use between the tags. Default empty.
@@ -1182,6 +1167,7 @@ function get_the_tag_list( $before = '', $sep = '', $after = '', $post_id = 0 ) 
 	/**
 	 * Filters the tags list for a given post.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param string $tag_list List of tags.
 	 * @param string $before   String to use before the tags.
@@ -1194,8 +1180,6 @@ function get_the_tag_list( $before = '', $sep = '', $after = '', $post_id = 0 ) 
 
 /**
  * Displays the tags for a post.
- *
- *
  *
  * @param string $before Optional. String to use before the tags. Defaults to 'Tags:'.
  * @param string $sep    Optional. String to use between the tags. Default ', '.
@@ -1216,8 +1200,6 @@ function the_tags( $before = null, $sep = ', ', $after = '' ) {
 /**
  * Retrieves tag description.
  *
- *
- *
  * @param int $tag Optional. Tag ID. Defaults to the current tag ID.
  * @return string Tag description, if available.
  */
@@ -1228,8 +1210,7 @@ function tag_description( $tag = 0 ) {
 /**
  * Retrieves term description.
  *
- *
- *
+ * @since 4.9.2 The `$taxonomy` parameter was deprecated.
  *
  * @param int  $term       Optional. Term ID. Defaults to the current term ID.
  * @param null $deprecated Deprecated. Not used.
@@ -1251,8 +1232,6 @@ function term_description( $term = 0, $deprecated = null ) {
 /**
  * Retrieves the terms of the taxonomy that are attached to the post.
  *
- *
- *
  * @param int|GC_Post $post     Post ID or object.
  * @param string      $taxonomy Taxonomy name.
  * @return GC_Term[]|false|GC_Error Array of GC_Term objects on success, false if there are no terms
@@ -1260,11 +1239,13 @@ function term_description( $term = 0, $deprecated = null ) {
  */
 function get_the_terms( $post, $taxonomy ) {
 	$post = get_post( $post );
+
 	if ( ! $post ) {
 		return false;
 	}
 
 	$terms = get_object_term_cache( $post->ID, $taxonomy );
+
 	if ( false === $terms ) {
 		$terms = gc_get_object_terms( $post->ID, $taxonomy );
 		if ( ! is_gc_error( $terms ) ) {
@@ -1294,8 +1275,6 @@ function get_the_terms( $post, $taxonomy ) {
  * Retrieves a post's terms as a list with specified format.
  *
  * Terms are linked to their respective term listing pages.
- *
- *
  *
  * @param int    $post_id  Post ID.
  * @param string $taxonomy Taxonomy name.
@@ -1348,8 +1327,6 @@ function get_the_term_list( $post_id, $taxonomy, $before = '', $sep = '', $after
 
 /**
  * Retrieves term parents with separator.
- *
- *
  *
  * @param int          $term_id  Term ID.
  * @param string       $taxonomy Taxonomy name.
@@ -1414,8 +1391,6 @@ function get_term_parents_list( $term_id, $taxonomy, $args = array() ) {
 /**
  * Displays the terms for a post in a list.
  *
- *
- *
  * @param int    $post_id  Post ID.
  * @param string $taxonomy Taxonomy name.
  * @param string $before   Optional. String to use before the terms. Default empty.
@@ -1433,6 +1408,7 @@ function the_terms( $post_id, $taxonomy, $before = '', $sep = ', ', $after = '' 
 	/**
 	 * Filters the list of terms to display.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param string $term_list List of terms to display.
 	 * @param string $taxonomy  The taxonomy name.
@@ -1451,11 +1427,9 @@ function the_terms( $post_id, $taxonomy, $before = '', $sep = ', ', $after = '' 
  *
  * If no categories are given, determines if post has any categories.
  *
- *
- *
  * @param string|int|array $category Optional. The category name/term_id/slug,
  *                                   or an array of them to check for. Default empty.
- * @param int|object       $post     Optional. Post to check instead of the current post.
+ * @param int|GC_Post      $post     Optional. Post to check. Defaults to the current post.
  * @return bool True if the current post has any of the given categories
  *              (or any category, if no category specified). False otherwise.
  */
@@ -1475,14 +1449,13 @@ function has_category( $category = '', $post = null ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
+ * @since 2.7.0 Tags given as integers are only checked against
  *              the post's tags' term_ids, not names or slugs.
- *
+ * @since 2.7.0 Can be used outside of the GeChiUI Loop if `$post` is provided.
  *
  * @param string|int|array $tag  Optional. The tag name/term_id/slug,
  *                               or an array of them to check for. Default empty.
- * @param int|object       $post Optional. Post to check instead of the current post.
+ * @param int|GC_Post      $post Optional. Post to check. Defaults to the current post.
  * @return bool True if the current post has any of the given tags
  *              (or any tag, if no tag specified). False otherwise.
  */
@@ -1498,12 +1471,10 @@ function has_tag( $tag = '', $post = null ) {
  *
  * If no terms are given, determines if post has any terms.
  *
- *
- *
  * @param string|int|array $term     Optional. The term name/term_id/slug,
  *                                   or an array of them to check for. Default empty.
  * @param string           $taxonomy Optional. Taxonomy name. Default empty.
- * @param int|GC_Post      $post     Optional. Post to check instead of the current post.
+ * @param int|GC_Post      $post     Optional. Post to check. Defaults to the current post.
  * @return bool True if the current post has any of the given terms
  *              (or any term, if no term specified). False otherwise.
  */

@@ -23,7 +23,7 @@ if ( ! current_theme_supports( 'menus' ) && ! current_theme_supports( 'widgets' 
 if ( ! current_user_can( 'edit_theme_options' ) ) {
 	gc_die(
 		'<h1>' . __( '您需要更高级别的权限。' ) . '</h1>' .
-		'<p>' . __( '抱歉，您不能在此站点上编辑主题选项。' ) . '</p>',
+		'<p>' . __( '抱歉，您不能在此系统上编辑主题选项。' ) . '</p>',
 		403
 	);
 }
@@ -33,9 +33,6 @@ gc_enqueue_script( 'nav-menu' );
 if ( gc_is_mobile() ) {
 	gc_enqueue_script( 'jquery-touch-punch' );
 }
-
-// Container for any messages displayed to the user.
-$messages = array();
 
 // Container that stores the name of the active menu.
 $nav_menu_selected_title = '';
@@ -262,7 +259,8 @@ switch ( $action ) {
 		check_admin_referer( 'delete-menu_item_' . $menu_item_id );
 
 		if ( is_nav_menu_item( $menu_item_id ) && gc_delete_post( $menu_item_id, true ) ) {
-			$messages[] = '<div id="message" class="updated notice is-dismissible"><p>' . __( '菜单项已被成功删除。' ) . '</p></div>';
+			$message = __( '菜单项已被成功删除。' );
+			add_settings_error( 'general', 'settings_updated', $message, 'success' );
 		}
 
 		break;
@@ -283,9 +281,11 @@ switch ( $action ) {
 		}
 
 		if ( is_gc_error( $deletion ) ) {
-			$messages[] = '<div id="message" class="error notice is-dismissible"><p>' . $deletion->get_error_message() . '</p></div>';
+			$message = $deletion->get_error_message();
+			add_settings_error( 'general', 'settings_updated', $message, 'danger' );
 		} else {
-			$messages[] = '<div id="message" class="updated notice is-dismissible"><p>' . __( '菜单已被成功删除。' ) . '</p></div>';
+			$message = __( '菜单已被成功删除。' );
+			add_settings_error( 'general', 'settings_updated', $message, 'success' );
 		}
 
 		break;
@@ -301,13 +301,15 @@ switch ( $action ) {
 			$deletion = gc_delete_nav_menu( $menu_id_to_delete );
 
 			if ( is_gc_error( $deletion ) ) {
-				$messages[]     = '<div id="message" class="error notice is-dismissible"><p>' . $deletion->get_error_message() . '</p></div>';
+				$message = $deletion->get_error_message();
+				add_settings_error( 'general', 'settings_updated', $message, 'danger' );
 				$deletion_error = true;
 			}
 		}
 
 		if ( empty( $deletion_error ) ) {
-			$messages[] = '<div id="message" class="updated notice is-dismissible"><p>' . __( '菜单已被成功删除。' ) . '</p></div>';
+			$message = __( '菜单已被成功删除。' );
+			add_settings_error( 'general', 'settings_updated', $message, 'success' );
 		}
 
 		break;
@@ -330,7 +332,8 @@ switch ( $action ) {
 				$_nav_menu_selected_id = gc_update_nav_menu_object( 0, array( 'menu-name' => $new_menu_title ) );
 
 				if ( is_gc_error( $_nav_menu_selected_id ) ) {
-					$messages[] = '<div id="message" class="error notice is-dismissible"><p>' . $_nav_menu_selected_id->get_error_message() . '</p></div>';
+					$message = $_nav_menu_selected_id->get_error_message();
+					add_settings_error( 'general', 'settings_updated', $message, 'danger' );
 				} else {
 					$_menu_object            = gc_get_nav_menu_object( $_nav_menu_selected_id );
 					$nav_menu_selected_id    = $_nav_menu_selected_id;
@@ -381,7 +384,8 @@ switch ( $action ) {
 					exit;
 				}
 			} else {
-				$messages[] = '<div id="message" class="error notice is-dismissible"><p>' . __( '请输入有效的菜单名称。' ) . '</p></div>';
+				$message = __( '请输入有效的菜单名称。' );
+				add_settings_error( 'general', 'settings_updated', $message, 'danger' );
 			}
 
 			// Update existing menu.
@@ -403,7 +407,8 @@ switch ( $action ) {
 			$menu_title = trim( esc_html( $_POST['menu-name'] ) );
 
 			if ( ! $menu_title ) {
-				$messages[] = '<div id="message" class="error notice is-dismissible"><p>' . __( '请输入有效的菜单名称。' ) . '</p></div>';
+				$message = __( '请输入有效的菜单名称。' );
+				add_settings_error( 'general', 'settings_updated', $message, 'danger' );
 				$menu_title = $_menu_object->name;
 			}
 
@@ -412,7 +417,8 @@ switch ( $action ) {
 
 				if ( is_gc_error( $_nav_menu_selected_id ) ) {
 					$_menu_object = $_nav_menu_selected_id;
-					$messages[]   = '<div id="message" class="error notice is-dismissible"><p>' . $_nav_menu_selected_id->get_error_message() . '</p></div>';
+					$message  = $_nav_menu_selected_id->get_error_message();
+					add_settings_error( 'general', 'settings_updated', $message, 'danger' );
 				} else {
 					$_menu_object            = gc_get_nav_menu_object( $_nav_menu_selected_id );
 					$nav_menu_selected_title = $_menu_object->name;
@@ -421,7 +427,7 @@ switch ( $action ) {
 
 			// Update menu items.
 			if ( ! is_gc_error( $_menu_object ) ) {
-				$messages = array_merge( $messages, gc_nav_menu_update_menu_items( $_nav_menu_selected_id, $nav_menu_selected_title ) );
+				gc_nav_menu_update_menu_items( $_nav_menu_selected_id, $nav_menu_selected_title );
 
 				// If the menu ID changed, redirect to the new URL.
 				if ( $nav_menu_selected_id !== $_nav_menu_selected_id ) {
@@ -449,7 +455,8 @@ switch ( $action ) {
 			// Set menu locations.
 			set_theme_mod( 'nav_menu_locations', $menu_locations );
 
-			$messages[] = '<div id="message" class="updated notice is-dismissible"><p>' . __( '菜单位置已更新。' ) . '</p></div>';
+			$message = __( '菜单位置已更新。' );
+			add_settings_error( 'general', 'settings_updated', $message, 'success' );
 		}
 
 		break;
@@ -595,11 +602,8 @@ gc_nav_menu_setup();
 gc_initial_nav_menu_meta_boxes();
 
 if ( ! current_theme_supports( 'menus' ) && ! $num_locations ) {
-	$messages[] = '<div id="message" class="updated"><p>' . sprintf(
-		/* translators: %s: URL to Widgets screen. */
-		__( '当前的主题未提供原生的菜单支持，您可以通过在<a href="%s">小工具</a>添加“导航菜单”小工具来在侧栏上显示。' ),
-		admin_url( 'widgets.php' )
-	) . '</p></div>';
+	$message = sprintf( __( '当前的主题未提供原生的菜单支持，您可以通过在<a href="%s">小工具</a>添加“导航菜单”小工具来在侧栏上显示。' ), admin_url( 'widgets.php' ) );
+	add_settings_error( 'general', 'settings_updated', $message, 'primary' );
 }
 
 if ( ! $locations_screen ) : // Main tab.
@@ -675,25 +679,28 @@ get_current_screen()->set_help_sidebar(
 require_once ABSPATH . 'gc-admin/admin-header.php';
 ?>
 <div class="wrap">
-	<h1 class="gc-heading-inline"><?php esc_html_e( '菜单' ); ?></h1>
-	<?php
-	if ( current_user_can( 'customize' ) ) :
-		$focus = $locations_screen ? array( 'section' => 'menu_locations' ) : array( 'panel' => 'nav_menus' );
-		printf(
-			' <a class="page-title-action hide-if-no-customize" href="%1$s">%2$s</a>',
-			esc_url(
-				add_query_arg(
-					array(
-						array( 'autofocus' => $focus ),
-						'return' => urlencode( remove_query_arg( gc_removable_query_args(), gc_unslash( $_SERVER['REQUEST_URI'] ) ) ),
-					),
-					admin_url( 'customize.php' )
-				)
-			),
-			__( '使用实时预览管理' )
-		);
-	endif;
-
+	<div class="page-header">
+		<h2 class="header-title"><?php esc_html_e( '菜单' ); ?></h2>
+		<?php
+		if ( current_user_can( 'customize' ) ) :
+			$focus = $locations_screen ? array( 'section' => 'menu_locations' ) : array( 'panel' => 'nav_menus' );
+			printf(
+				' <a class="btn btn-primary btn-tone btn-sm hide-if-no-customize" href="%1$s">%2$s</a>',
+				esc_url(
+					add_query_arg(
+						array(
+							array( 'autofocus' => $focus ),
+							'return' => urlencode( remove_query_arg( gc_removable_query_args(), gc_unslash( $_SERVER['REQUEST_URI'] ) ) ),
+						),
+						admin_url( 'customize.php' )
+					)
+				),
+				__( '使用实时预览管理' )
+			);
+		endif;
+		?>
+	</div>
+<?php
 	$nav_tab_active_class = '';
 	$nav_aria_current     = '';
 
@@ -702,8 +709,6 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 		$nav_aria_current     = ' aria-current="page"';
 	}
 	?>
-
-	<hr class="gc-header-end">
 
 	<nav class="nav-tab-wrapper gc-clearfix" aria-label="<?php esc_attr_e( '次要菜单' ); ?>">
 		<a href="<?php echo esc_url( admin_url( 'nav-menus.php' ) ); ?>" class="nav-tab<?php echo $nav_tab_active_class; ?>"<?php echo $nav_aria_current; ?>><?php esc_html_e( '编辑菜单' ); ?></a>
@@ -722,11 +727,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 		}
 		?>
 	</nav>
-	<?php
-	foreach ( $messages as $message ) :
-		echo $message . "\n";
-	endforeach;
-	?>
+
 	<?php
 	if ( $locations_screen ) :
 		if ( 1 === $num_locations ) {
@@ -901,7 +902,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 					</option>
 				<?php endforeach; ?>
 			</select>
-			<span class="submit-btn"><input type="submit" class="button" value="<?php esc_attr_e( '选择' ); ?>"></span>
+			<span class="submit-btn"><input type="submit" class="btn btn-primary btn-tone btn-sm" value="<?php esc_attr_e( '选择' ); ?>"></span>
 			<span class="add-new-menu-action">
 				<?php
 				printf(
@@ -940,7 +941,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 			<input type="hidden" name="menu" id="nav-menu-meta-object-id" value="<?php echo esc_attr( $nav_menu_selected_id ); ?>" />
 			<input type="hidden" name="action" value="add-menu-item" />
 			<?php gc_nonce_field( 'add-menu_item', 'menu-settings-column-nonce' ); ?>
-			<h2><?php _e( '添加菜单项' ); ?></h2>
+			<h4><?php _e( '添加菜单项' ); ?></h4>
 			<?php do_accordion_sections( 'nav-menus', 'side', null ); ?>
 		</form>
 
@@ -948,7 +949,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 	<div id="menu-management-liquid">
 		<div id="menu-management">
 			<form id="update-nav-menu" method="post" enctype="multipart/form-data">
-				<h2><?php _e( '菜单结构' ); ?></h2>
+				<h4><?php _e( '菜单结构' ); ?></h4>
 				<div class="menu-edit">
 					<input type="hidden" name="nav-menu-data">
 					<?php
@@ -974,7 +975,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 							<label class="menu-name-label" for="menu-name"><?php _e( '菜单名称' ); ?></label>
 							<input name="menu-name" id="menu-name" type="text" class="menu-name regular-text menu-item-textbox form-required" required="required" <?php echo $menu_name_val . $menu_name_aria_desc; ?> />
 							<div class="publishing-action">
-								<?php submit_button( empty( $nav_menu_selected_id ) ? __( '创建菜单' ) : __( '保存菜单' ), 'primary large menu-save', 'save_menu', false, array( 'id' => 'save_menu_header' ) ); ?>
+								<?php submit_button( empty( $nav_menu_selected_id ) ? __( '创建菜单' ) : __( '保存菜单' ), 'primary sm menu-save', 'save_menu', false, array( 'id' => 'save_menu_header' ) ); ?>
 							</div><!-- END .publishing-action -->
 						</div><!-- END .major-publishing-actions -->
 					</div><!-- END .nav-menu-header -->
@@ -1139,7 +1140,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 
 							<?php endif; ?>
 							<div class="publishing-action">
-								<?php submit_button( empty( $nav_menu_selected_id ) ? __( '创建菜单' ) : __( '保存菜单' ), 'primary large menu-save', 'save_menu', false, array( 'id' => 'save_menu_footer' ) ); ?>
+								<?php submit_button( empty( $nav_menu_selected_id ) ? __( '创建菜单' ) : __( '保存菜单' ), 'primary sm menu-save', 'save_menu', false, array( 'id' => 'save_menu_footer' ) ); ?>
 							</div><!-- END .publishing-action -->
 						</div><!-- END .major-publishing-actions -->
 					</div><!-- /#nav-menu-footer -->

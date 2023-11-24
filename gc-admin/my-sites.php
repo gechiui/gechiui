@@ -10,7 +10,7 @@
 require_once __DIR__ . '/admin.php';
 
 if ( ! is_multisite() ) {
-	gc_die( __( '未启用多站点支持。' ) );
+	gc_die( __( '未启用多系统支持。' ) );
 }
 
 if ( ! current_user_can( 'read' ) ) {
@@ -30,12 +30,12 @@ if ( 'updateblogsettings' === $action && isset( $_POST['primary_blog'] ) ) {
 		update_user_meta( $current_user->ID, 'primary_blog', (int) $_POST['primary_blog'] );
 		$updated = true;
 	} else {
-		gc_die( __( '您选择的主站点不存在。' ) );
+		gc_die( __( '您选择的主系统不存在。' ) );
 	}
 }
 
 // Used in the HTML title tag.
-$title       = __( '我的站点' );
+$title       = __( '我的系统' );
 $parent_file = 'index.php';
 
 get_current_screen()->add_help_tab(
@@ -43,120 +43,111 @@ get_current_screen()->add_help_tab(
 		'id'      => 'overview',
 		'title'   => __( '概述' ),
 		'content' =>
-			'<p>' . __( '本页面向用户展示他们在本站点网络中拥有的全部站点。用户可以设置一个主站点。用户可以使用站点名称下方的链接来访问站点的前端或仪表盘。' ) . '</p>',
+			'<p>' . __( '本页面向用户展示他们在本SaaS平台中拥有的全部系统。用户可以设置一个主系统。用户可以使用系统名称下方的链接来访问系统的前端或仪表盘。' ) . '</p>',
 	)
 );
 
 get_current_screen()->set_help_sidebar(
 	'<p><strong>' . __( '更多信息：' ) . '</strong></p>' .
-	'<p>' . __( '<a href="https://codex.gechiui.com/Dashboard_My_Sites_Screen">我的站点文档</a>' ) . '</p>' .
+	'<p>' . __( '<a href="https://codex.gechiui.com/Dashboard_My_Sites_Screen">我的系统文档</a>' ) . '</p>' .
 	'<p>' . __( '<a href="https://www.gechiui.com/support/">支持</a>' ) . '</p>'
 );
 
-require_once ABSPATH . 'gc-admin/admin-header.php';
+$primary_blog = get_user_meta( $current_user->ID, 'primary_blog', true );
 
-if ( $updated ) { ?>
-	<div id="message" class="updated notice is-dismissible"><p><strong><?php _e( '设置已保存。' ); ?></strong></p></div>
-<?php } ?>
+// 添加表格CSS样式和JS脚本
+show_dataTable( '#data-table' );
 
-<div class="wrap">
-<h1 class="gc-heading-inline">
-<?php
-echo esc_html( $title );
-?>
-</h1>
-
-<?php
-if ( in_array( get_site_option( 'registration' ), array( 'all', 'blog' ), true ) ) {
-	/** This filter is documented in gc-login.php */
-	$sign_up_url = apply_filters( 'gc_signup_location', network_site_url( 'gc-signup.php' ) );
-	printf( ' <a href="%s" class="page-title-action">%s</a>', esc_url( $sign_up_url ), esc_html_x( '添加新站点', 'site' ) );
+if ( $updated ) {
+	$message = __( '设置已保存。' );
+	add_settings_error( 'general', 'settings_updated', $message, 'success' );
 }
 
+require_once ABSPATH . 'gc-admin/admin-header.php';
+?>
+
+<div class="wrap">
+	<div class="page-header">
+		<h2 class="header-title"><?php echo esc_html( $title ); ?></h2>
+		<?php
+		if ( in_array( get_site_option( 'registration' ), array( 'all', 'blog' ), true ) ) {
+			/** This filter is documented in gc-login.php */
+			$sign_up_url = apply_filters( 'gc_signup_location', network_site_url( 'gc-signup.php' ) );
+			printf( ' <a href="%s" class="btn btn-primary btn-tone btn-sm">%s</a>', esc_url( $sign_up_url ), esc_html_x( '添加新系统', 'site' ) );
+		}
+		?>
+	</div>
+<?php
 if ( empty( $blogs ) ) :
 	echo '<p>';
-	_e( '您需要先成为至少一个站点的成员才能使用本页面。' );
+	_e( '您需要先成为至少一个系统的成员才能使用本页面。' );
 	echo '</p>';
 else :
 	?>
 
-<hr class="gc-header-end">
-
 <form id="myblogs" method="post">
 	<?php
-	choose_primary_blog();
+	
 	/**
 	 * Fires before the sites list on the My Sites screen.
 	 *
+	 * @since 3.0.0
 	 */
 	do_action( 'myblogs_allblogs_options' );
 	?>
-	<br clear="all" />
-	<ul class="my-sites striped">
-	<?php
-	/**
-	 * Enable the Global Settings section on the My Sites screen.
-	 *
-	 * By default, the Global Settings section is hidden. Passing a non-empty
-	 * string to this filter will enable the section, and allow new settings
-	 * to be added, either globally or for specific sites.
-	 *
-	 * @since MU
-	 *
-	 * @param string $settings_html The settings HTML markup. Default empty.
-	 * @param string $context       Context of the setting (global or site-specific). Default 'global'.
-	 */
-	$settings_html = apply_filters( 'myblogs_options', '', 'global' );
+    <div class="card m-t-30">
+        <div class="card-body">
+            <table id="data-table" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th><?php _e('系统ID'); ?></th>
+                        <th><?php _e('系统名称'); ?></th>
+                        <th><?php _e('域名'); ?></th>
+                        <th><?php _e('操作'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php
+			    foreach ( $blogs as $user_blog ) {
+					switch_to_blog( $user_blog->userblog_id );
+			        $txt = $primary_blog == $user_blog->userblog_id ? ' '.__('主系统') : '';
+					echo '<tr>';
+			        echo "<td>{$user_blog->userblog_id}{$txt}</td>";
+					echo "<td>{$user_blog->blogname}</td>";
+			        echo "<td>{$user_blog->domain}{$user_blog->path}</td>";
 
-	if ( $settings_html ) {
-		echo '<h3>' . __( '全局设置' ) . '</h3>';
-		echo $settings_html;
-	}
+					$actions = "<a href='" . esc_url( home_url() ) . "'>" . __( '访问' ) . '</a>';
 
-	reset( $blogs );
+					if ( current_user_can( 'read' ) ) {
+						$actions .= " | <a href='" . esc_url( admin_url() ) . "'>" . __( '仪表盘' ) . '</a>';
+					}
+			        $url = gc_nonce_url( 'my-sites.php?action=updateblogsettings&primary_blog=' . $user_blog->userblog_id , 'update-my-sites');
+			        $actions .= " | <a href='" . esc_url( $url ) . "'>".__('主系统')."</a>";
 
-	foreach ( $blogs as $user_blog ) {
-		switch_to_blog( $user_blog->userblog_id );
+					/**
+					 * Filters the row links displayed for each site on the My Sites screen.
+					 *
+					 * @since MU (3.0.0)
+					 *
+					 * @param string $actions   The HTML site link markup.
+					 * @param object $user_blog An object containing the site data.
+					 */
+					$actions = apply_filters( 'myblogs_blog_actions', $actions, $user_blog );
 
-		echo '<li>';
-		echo "<h3>{$user_blog->blogname}</h3>";
+					echo "<td>" . $actions . '</td>';
 
-		$actions = "<a href='" . esc_url( home_url() ) . "'>" . __( '访问' ) . '</a>';
+					/** This filter is documented in gc-admin/my-sites.php */
+					echo apply_filters( 'myblogs_options', '', $user_blog );
 
-		if ( current_user_can( 'read' ) ) {
-			$actions .= " | <a href='" . esc_url( admin_url() ) . "'>" . __( '仪表盘' ) . '</a>';
-		}
+					echo '</tr>';
 
-		/**
-		 * Filters the row links displayed for each site on the My Sites screen.
-		 *
-		 * @since MU
-		 *
-		 * @param string $actions   The HTML site link markup.
-		 * @param object $user_blog An object containing the site data.
-		 */
-		$actions = apply_filters( 'myblogs_blog_actions', $actions, $user_blog );
-
-		echo "<p class='my-sites-actions'>" . $actions . '</p>';
-
-		/** This filter is documented in gc-admin/my-sites.php */
-		echo apply_filters( 'myblogs_options', '', $user_blog );
-
-		echo '</li>';
-
-		restore_current_blog();
-	}
-	?>
-	</ul>
-	<?php
-	if ( count( $blogs ) > 1 || has_action( 'myblogs_allblogs_options' ) || has_filter( 'myblogs_options' ) ) {
-		?>
-		<input type="hidden" name="action" value="updateblogsettings" />
-		<?php
-		gc_nonce_field( 'update-my-sites' );
-		submit_button();
-	}
-	?>
+					restore_current_blog();
+				}
+				?>    
+                </tbody>
+                </table>
+            </div>
+        </div>
 	</form>
 <?php endif; ?>
 	</div>

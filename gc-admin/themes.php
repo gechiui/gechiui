@@ -12,7 +12,7 @@ require_once __DIR__ . '/admin.php';
 if ( ! current_user_can( 'switch_themes' ) && ! current_user_can( 'edit_theme_options' ) ) {
 	gc_die(
 		'<h1>' . __( '您需要更高级别的权限。' ) . '</h1>' .
-		'<p>' . __( '抱歉，您不能在此站点上编辑主题选项。' ) . '</p>',
+		'<p>' . __( '抱歉，您不能在此系统上编辑主题选项。' ) . '</p>',
 		403
 	);
 }
@@ -149,7 +149,7 @@ if ( current_user_can( 'switch_themes' ) ) {
 // Help tab: Adding Themes.
 if ( current_user_can( 'install_themes' ) ) {
 	if ( is_multisite() ) {
-		$help_install = '<p>' . __( '只能在“管理网络”中为多站点安装主题。' ) . '</p>';
+		$help_install = '<p>' . __( '只能在“SaaS后台”中为多系统安装主题。' ) . '</p>';
 	} else {
 		$help_install = '<p>' . sprintf(
 			/* translators: %s: https://www.gechiui.com/themes/ */
@@ -231,7 +231,7 @@ gc_localize_script(
 		'l10n'     => array(
 			'addNew'            => __( '添加新主题' ),
 			'search'            => __( '搜索已安装的主题' ),
-			'searchPlaceholder' => __( '搜索已安装的主题…' ), // Placeholder (no ellipsis).
+			'searchPlaceholder' => __( '搜索已安装的主题...'  ), // Placeholder (no ellipsis).
 			/* translators: %d: Number of themes. */
 			'themesFound'       => __( '找到的主题数：%d' ),
 			'noThemesFound'     => __( '未找到主题，请重新搜索。' ),
@@ -243,67 +243,53 @@ add_thickbox();
 gc_enqueue_script( 'theme' );
 gc_enqueue_script( 'updates' );
 
-require_once ABSPATH . 'gc-admin/admin-header.php';
-?>
-
-<div class="wrap">
-	<h1 class="gc-heading-inline"><?php esc_html_e( '主题' ); ?>
-		<span class="title-count theme-count"><?php echo ! empty( $_GET['search'] ) ? __( '&hellip;' ) : count( $themes ); ?></span>
-	</h1>
-
-	<?php if ( ! is_multisite() && current_user_can( 'install_themes' ) ) : ?>
-		<a href="<?php echo esc_url( admin_url( 'theme-install.php' ) ); ?>" class="hide-if-no-js page-title-action"><?php echo esc_html_x( '安装主题', 'theme' ); ?></a>
-	<?php endif; ?>
-
-	<form class="search-form"></form>
-
-	<hr class="gc-header-end">
-<?php
 if ( ! validate_current_theme() || isset( $_GET['broken'] ) ) {
-	?>
-	<div id="message1" class="updated notice is-dismissible"><p><?php _e( '当前启用的主题已受损。自动切换回默认主题。' ); ?></p></div>
-	<?php
+	add_settings_error( 'general', 'settings_updated', __( '当前启用的主题已受损。自动切换回默认主题。' ), 'danger' );
 } elseif ( isset( $_GET['activated'] ) ) {
 	if ( isset( $_GET['previewed'] ) ) {
-		?>
-		<div id="message2" class="updated notice is-dismissible"><p><?php _e( '设置已保存，主题已启用。' ); ?> <a href="<?php echo home_url( '/' ); ?>"><?php _e( '访问站点' ); ?></a></p></div>
-		<?php
+		$message = __( '设置已保存，主题已启用。' ). '<a href="'. home_url( '/' ) .'">'. __( '访问系统' ) .'</a>';
+		add_settings_error( 'general', 'settings_updated', $message, 'success' );
 	} else {
-		?>
-		<div id="message2" class="updated notice is-dismissible"><p><?php _e( '新主题已启用。' ); ?> <a href="<?php echo home_url( '/' ); ?>"><?php _e( '访问站点' ); ?></a></p></div>
-		<?php
+		$message = __( '新主题已启用。' ). '<a href="'. home_url( '/' ) .'">'. __( '访问系统' ) .'</a>';
+		add_settings_error( 'general', 'settings_updated', $message, 'success' );
 	}
 } elseif ( isset( $_GET['deleted'] ) ) {
-	?>
-	<div id="message3" class="updated notice is-dismissible"><p><?php _e( '主题已删除。' ); ?></p></div>
-	<?php
+	add_settings_error( 'general', 'settings_updated', __( '主题已删除。' ), 'success' );
 } elseif ( isset( $_GET['delete-active-child'] ) ) {
-	?>
-	<div id="message4" class="error"><p><?php _e( '您不能删除有已启用子主题的主题。' ); ?></p></div>
-	<?php
+	add_settings_error( 'general', 'settings_updated', __( '您不能删除有已启用子主题的主题。' ), 'warning' );
 } elseif ( isset( $_GET['resumed'] ) ) {
-	?>
-	<div id="message5" class="updated notice is-dismissible"><p><?php _e( '主题已恢复。' ); ?></p></div>
-	<?php
+	add_settings_error( 'general', 'settings_updated', __( '主题已恢复。' ), 'success' );
 } elseif ( isset( $_GET['error'] ) && 'resuming' === $_GET['error'] ) {
-	?>
-	<div id="message6" class="error"><p><?php _e( '此主题不能被恢复，因其触发了一个<strong>致命错误</strong>。' ); ?></p></div>
-	<?php
+	add_settings_error( 'general', 'settings_updated', __( '此主题不能被恢复，因其触发了一个<strong>致命错误</strong>。' ), 'danger' );
 } elseif ( isset( $_GET['enabled-auto-update'] ) ) {
-	?>
-	<div id="message7" class="updated notice is-dismissible"><p><?php _e( '主题将自动更新。' ); ?></p></div>
-	<?php
+	add_settings_error( 'general', 'settings_updated', __( '主题将自动更新。' ), 'success' );
 } elseif ( isset( $_GET['disabled-auto-update'] ) ) {
-	?>
-	<div id="message8" class="updated notice is-dismissible"><p><?php _e( '主题将不再自动更新。' ); ?></p></div>
-	<?php
+	add_settings_error( 'general', 'settings_updated', __( '主题将不再自动更新。' ), 'warning' );
 }
 
 $current_theme = gc_get_theme();
 
 if ( $current_theme->errors() && ( ! is_multisite() || current_user_can( 'manage_network_themes' ) ) ) {
-	echo '<div class="error"><p>' . __( '错误：' ) . ' ' . $current_theme->errors()->get_error_message() . '</p></div>';
+	$message = __( '错误：' ) . ' ' . $current_theme->errors()->get_error_message();
+	add_settings_error( 'general', 'settings_updated', $message, 'danger' );
 }
+
+require_once ABSPATH . 'gc-admin/admin-header.php';
+?>
+
+<div class="wrap">
+	<div class="page-header">
+		<h2 class="header-title">
+			<?php esc_html_e( '主题' ); ?>
+			<span class="title-count theme-count"><?php echo ! empty( $_GET['search'] ) ? __( '&hellip;' ) : count( $themes ); ?></span>
+		</h2>
+		<?php if ( ! is_multisite() && current_user_can( 'install_themes' ) ) : ?>
+			<a href="<?php echo esc_url( admin_url( 'theme-install.php' ) ); ?>" class="hide-if-no-js btn btn-primary btn-tone btn-sm"><?php echo esc_html_x( '安装主题', 'theme' ); ?></a>
+		<?php endif; ?>
+		<form class="search-form"></form>
+	</div>
+
+<?php
 
 $current_theme_actions = array();
 
@@ -334,18 +320,18 @@ if ( is_array( $submenu ) && isset( $submenu['themes.php'] ) ) {
 			$menu_hook           = get_plugin_page_hook( $submenu[ $item[2] ][0][2], $item[2] );
 
 			if ( file_exists( GC_PLUGIN_DIR . "/{$submenu[$item[2]][0][2]}" ) || ! empty( $menu_hook ) ) {
-				$current_theme_actions[] = "<a class='button$class' href='admin.php?page={$submenu[$item[2]][0][2]}'>{$item[0]}</a>";
+				$current_theme_actions[] = "<a class='btn btn-primary btn-tone$class' href='admin.php?page={$submenu[$item[2]][0][2]}'>{$item[0]}</a>";
 			} else {
-				$current_theme_actions[] = "<a class='button$class' href='{$submenu[$item[2]][0][2]}'>{$item[0]}</a>";
+				$current_theme_actions[] = "<a class='btn btn-primary btn-tone$class' href='{$submenu[$item[2]][0][2]}'>{$item[0]}</a>";
 			}
 		} elseif ( ! empty( $item[2] ) && current_user_can( $item[1] ) ) {
 			$menu_file = $item[2];
 
 			if ( current_user_can( 'customize' ) ) {
 				if ( 'custom-header' === $menu_file ) {
-					$current_theme_actions[] = "<a class='button hide-if-no-customize$class' href='customize.php?autofocus[control]=header_image'>{$item[0]}</a>";
+					$current_theme_actions[] = "<a class='btn btn-primary btn-tone hide-if-no-customize$class' href='customize.php?autofocus[control]=header_image'>{$item[0]}</a>";
 				} elseif ( 'custom-background' === $menu_file ) {
-					$current_theme_actions[] = "<a class='button hide-if-no-customize$class' href='customize.php?autofocus[control]=background_image'>{$item[0]}</a>";
+					$current_theme_actions[] = "<a class='btn btn-primary btn-tone hide-if-no-customize$class' href='customize.php?autofocus[control]=background_image'>{$item[0]}</a>";
 				}
 			}
 
@@ -355,9 +341,9 @@ if ( is_array( $submenu ) && isset( $submenu['themes.php'] ) ) {
 			}
 
 			if ( file_exists( ABSPATH . "gc-admin/$menu_file" ) ) {
-				$current_theme_actions[] = "<a class='button$class' href='{$item[2]}'>{$item[0]}</a>";
+				$current_theme_actions[] = "<a class='btn btn-primary btn-tone$class' href='{$item[2]}'>{$item[0]}</a>";
 			} else {
-				$current_theme_actions[] = "<a class='button$class' href='themes.php?page={$item[2]}'>{$item[0]}</a>";
+				$current_theme_actions[] = "<a class='btn btn-primary btn-tone$class' href='themes.php?page={$item[2]}'>{$item[0]}</a>";
 			}
 		}
 	}
@@ -546,7 +532,7 @@ foreach ( $themes as $theme ) :
 				/* translators: %s: Theme name. */
 				$customize_aria_label = sprintf( _x( '自定义 %s', 'theme' ), $theme['name'] );
 				?>
-				<a aria-label="<?php echo esc_attr( $customize_aria_label ); ?>" class="button button-primary customize load-customize hide-if-no-customize" href="<?php echo $theme['actions']['customize']; ?>"><?php _e( '自定义' ); ?></a>
+				<a aria-label="<?php echo esc_attr( $customize_aria_label ); ?>" class="btn btn-primary btn-sm customize load-customize hide-if-no-customize" href="<?php echo $theme['actions']['customize']; ?>"><?php _e( '自定义' ); ?></a>
 			<?php } ?>
 		<?php } elseif ( $theme['compatibleGC'] && $theme['compatiblePHP'] ) { ?>
 			<?php
@@ -559,7 +545,7 @@ foreach ( $themes as $theme ) :
 				/* translators: %s: Theme name. */
 				$live_preview_aria_label = sprintf( _x( '实时预览 %s', 'theme' ), '{{ data.name }}' );
 				?>
-				<a aria-label="<?php echo esc_attr( $live_preview_aria_label ); ?>" class="button button-primary load-customize hide-if-no-customize" href="<?php echo $theme['actions']['customize']; ?>"><?php _e( '实时预览' ); ?></a>
+				<a aria-label="<?php echo esc_attr( $live_preview_aria_label ); ?>" class="btn btn-primary btn-sm load-customize hide-if-no-customize" href="<?php echo $theme['actions']['customize']; ?>"><?php _e( '实时预览' ); ?></a>
 			<?php } ?>
 		<?php } else { ?>
 			<?php
@@ -568,7 +554,7 @@ foreach ( $themes as $theme ) :
 			?>
 			<a class="button disabled" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _ex( '无法启用', 'theme' ); ?></a>
 			<?php if ( ! $theme['blockTheme'] && current_user_can( 'edit_theme_options' ) && current_user_can( 'customize' ) ) { ?>
-				<a class="button button-primary hide-if-no-customize disabled"><?php _e( '实时预览' ); ?></a>
+				<a class="btn btn-primary hide-if-no-customize disabled"><?php _e( '实时预览' ); ?></a>
 			<?php } ?>
 		<?php } ?>
 
@@ -687,7 +673,6 @@ if ( ! is_multisite() && $broken_themes ) {
  * Returns the JavaScript template used to display the auto-update setting for a theme.
  *
  *
- *
  * @return string The template for displaying the auto-update setting link.
  */
 function gc_theme_auto_update_setting_template() {
@@ -716,7 +701,7 @@ function gc_theme_auto_update_setting_template() {
 				<# } #>
 				<br />' . gc_get_auto_update_message() . '</span>
 			<# } #>
-			<div class="notice notice-error notice-alt inline hidden"><p></p></div>
+			<div class="alert alert-danger notice-alt inline hidden"><p></p></div>
 		</div>
 	';
 
@@ -822,7 +807,7 @@ function gc_theme_auto_update_setting_template() {
 	<# } #>
 
 	<# if ( ! data.compatibleGC || ! data.compatiblePHP ) { #>
-		<div class="notice notice-error notice-alt"><p>
+		<div class="alert alert-danger notice-alt"><p>
 			<# if ( ! data.compatibleGC && ! data.compatiblePHP ) { #>
 				<?php
 				_e( '此主题不能与您的GeChiUI和PHP版本一同工作。' );
@@ -904,7 +889,7 @@ function gc_theme_auto_update_setting_template() {
 					/* translators: %s: Theme name. */
 					$customize_aria_label = sprintf( _x( '自定义 %s', 'theme' ), '{{ data.name }}' );
 					?>
-					<a aria-label="<?php echo esc_attr( $customize_aria_label ); ?>" class="button button-primary customize load-customize hide-if-no-customize" href="{{{ data.actions.customize }}}"><?php _e( '自定义' ); ?></a>
+					<a aria-label="<?php echo esc_attr( $customize_aria_label ); ?>" class="btn btn-primary btn-sm customize load-customize hide-if-no-customize" href="{{{ data.actions.customize }}}"><?php _e( '自定义' ); ?></a>
 				<# } #>
 			<# } else { #>
 				<# if ( data.compatibleGC && data.compatiblePHP ) { #>
@@ -918,7 +903,7 @@ function gc_theme_auto_update_setting_template() {
 						/* translators: %s: Theme name. */
 						$live_preview_aria_label = sprintf( _x( '实时预览 %s', 'theme' ), '{{ data.name }}' );
 						?>
-						<a aria-label="<?php echo esc_attr( $live_preview_aria_label ); ?>" class="button button-primary load-customize hide-if-no-customize" href="{{{ data.actions.customize }}}"><?php _e( '实时预览' ); ?></a>
+						<a aria-label="<?php echo esc_attr( $live_preview_aria_label ); ?>" class="btn btn-primary btn-sm load-customize hide-if-no-customize" href="{{{ data.actions.customize }}}"><?php _e( '实时预览' ); ?></a>
 					<# } #>
 				<# } else { #>
 					<?php
@@ -927,7 +912,7 @@ function gc_theme_auto_update_setting_template() {
 					?>
 					<a class="button disabled" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _ex( '无法启用', 'theme' ); ?></a>
 					<# if ( ! data.blockTheme ) { #>
-						<a class="button button-primary hide-if-no-customize disabled"><?php _e( '实时预览' ); ?></a>
+						<a class="btn btn-primary hide-if-no-customize disabled"><?php _e( '实时预览' ); ?></a>
 					<# } #>
 				<# } #>
 			<# } #>
@@ -970,7 +955,7 @@ function gc_theme_auto_update_setting_template() {
 				</p>
 
 				<# if ( ! data.compatibleGC || ! data.compatiblePHP ) { #>
-					<div class="notice notice-error notice-alt notice-large"><p>
+					<div class="alert alert-danger notice-alt notice-large"><p>
 						<# if ( ! data.compatibleGC && ! data.compatiblePHP ) { #>
 							<?php
 							_e( '此主题不能与您的GeChiUI和PHP版本一同工作。' );
@@ -1026,12 +1011,12 @@ function gc_theme_auto_update_setting_template() {
 
 				<# if ( data.hasUpdate ) { #>
 					<# if ( data.updateResponse.compatibleGC && data.updateResponse.compatiblePHP ) { #>
-						<div class="notice notice-warning notice-alt notice-large">
+						<div class="alert alert-warning notice-alt notice-large">
 							<h3 class="notice-title"><?php _e( '更新可用' ); ?></h3>
 							{{{ data.update }}}
 						</div>
 					<# } else { #>
-						<div class="notice notice-error notice-alt notice-large">
+						<div class="alert alert-danger notice-alt notice-large">
 							<h3 class="notice-title"><?php _e( '更新不兼容' ); ?></h3>
 							<p>
 								<# if ( ! data.updateResponse.compatibleGC && ! data.updateResponse.compatiblePHP ) { #>
@@ -1124,7 +1109,7 @@ function gc_theme_auto_update_setting_template() {
 
 		<div class="theme-actions">
 			<div class="active-theme">
-				<a href="{{{ data.actions.customize }}}" class="button button-primary customize load-customize hide-if-no-customize"><?php _e( '自定义' ); ?></a>
+				<a href="{{{ data.actions.customize }}}" class="btn btn-primary btn-sm customize load-customize hide-if-no-customize"><?php _e( '自定义' ); ?></a>
 				<?php echo implode( ' ', $current_theme_actions ); ?>
 			</div>
 			<div class="inactive-theme">
@@ -1137,7 +1122,7 @@ function gc_theme_auto_update_setting_template() {
 						<a href="{{{ data.actions.activate }}}" class="button activate" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _e( '启用' ); ?></a>
 					<# } #>
 					<# if ( ! data.blockTheme ) { #>
-						<a href="{{{ data.actions.customize }}}" class="button button-primary load-customize hide-if-no-customize"><?php _e( '实时预览' ); ?></a>
+						<a href="{{{ data.actions.customize }}}" class="btn btn-primary btn-sm load-customize hide-if-no-customize"><?php _e( '实时预览' ); ?></a>
 					<# } #>
 				<# } else { #>
 					<?php
@@ -1148,7 +1133,7 @@ function gc_theme_auto_update_setting_template() {
 						<a class="button disabled" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _ex( '无法启用', 'theme' ); ?></a>
 					<# } #>
 					<# if ( ! data.blockTheme ) { #>
-						<a class="button button-primary hide-if-no-customize disabled"><?php _e( '实时预览' ); ?></a>
+						<a class="btn btn-primary hide-if-no-customize disabled"><?php _e( '实时预览' ); ?></a>
 					<# } #>
 				<# } #>
 			</div>

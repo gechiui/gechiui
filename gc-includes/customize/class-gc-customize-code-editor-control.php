@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customize Code Editor Control class.
- *
- *
  *
  * @see GC_Customize_Control
  */
@@ -19,6 +16,7 @@ class GC_Customize_Code_Editor_Control extends GC_Customize_Control {
 	/**
 	 * Customize control type.
 	 *
+	 * @since 4.9.0
 	 * @var string
 	 */
 	public $type = 'code_editor';
@@ -26,6 +24,7 @@ class GC_Customize_Code_Editor_Control extends GC_Customize_Control {
 	/**
 	 * Type of code that is being edited.
 	 *
+	 * @since 4.9.0
 	 * @var string
 	 */
 	public $code_type = '';
@@ -34,6 +33,7 @@ class GC_Customize_Code_Editor_Control extends GC_Customize_Control {
 	 * Code editor settings.
 	 *
 	 * @see gc_enqueue_code_editor()
+	 * @since 4.9.0
 	 * @var array|false
 	 */
 	public $editor_settings = array();
@@ -41,6 +41,7 @@ class GC_Customize_Code_Editor_Control extends GC_Customize_Control {
 	/**
 	 * Enqueue control related scripts/styles.
 	 *
+	 * @since 4.9.0
 	 */
 	public function enqueue() {
 		$this->editor_settings = gc_enqueue_code_editor(
@@ -60,6 +61,7 @@ class GC_Customize_Code_Editor_Control extends GC_Customize_Control {
 	/**
 	 * Refresh the parameters passed to the JavaScript via JSON.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @see GC_Customize_Control::json()
 	 *
@@ -75,12 +77,14 @@ class GC_Customize_Code_Editor_Control extends GC_Customize_Control {
 	/**
 	 * Don't render the control content from PHP, as it's rendered via JS on load.
 	 *
+	 * @since 4.9.0
 	 */
 	public function render_content() {}
 
 	/**
 	 * Render a JS template for control display.
 	 *
+	 * @since 4.9.0
 	 */
 	public function content_template() {
 		?>

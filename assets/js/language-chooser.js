@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/language-chooser.js
+ * @output assets/js/language-chooser.js
  */
 
 jQuery( function($) {

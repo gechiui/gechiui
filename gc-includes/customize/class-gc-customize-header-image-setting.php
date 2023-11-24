@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
@@ -12,14 +11,20 @@
  *
  * Results should be properly handled using another setting or callback.
  *
- *
- *
  * @see GC_Customize_Setting
  */
 final class GC_Customize_Header_Image_Setting extends GC_Customize_Setting {
+
+	/**
+	 * Unique string identifier for the setting.
+	 *
+	 * @since 3.4.0
+	 * @var string
+	 */
 	public $id = 'header_image_data';
 
 	/**
+	 * @since 3.4.0
 	 *
 	 * @global Custom_Image_Header $custom_image_header
 	 *
@@ -37,8 +42,10 @@ final class GC_Customize_Header_Image_Setting extends GC_Customize_Setting {
 			$custom_image_header    = new Custom_Image_Header( $admin_head_callback, $admin_preview_callback );
 		}
 
-		// If the value doesn't exist (removed or random),
-		// use the header_image value.
+		/*
+		 * If the value doesn't exist (removed or random),
+		 * use the header_image value.
+		 */
 		if ( ! $value ) {
 			$value = $this->manager->get_setting( 'header_image' )->post_value();
 		}

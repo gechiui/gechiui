@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /** Load GeChiUI Administration Bootstrap */

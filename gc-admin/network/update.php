@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Multisite
- *
  */
 
 if ( isset( $_GET['action'] ) && in_array( $_GET['action'], array( 'update-selected', 'activate-plugin', 'update-selected-themes' ), true ) ) {

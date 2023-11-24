@@ -11,18 +11,16 @@
 //
 
 /**
- * Check whether a category exists.
- *
- *
+ * Checks whether a category exists.
  *
  * @see term_exists()
  *
- * @param int|string $cat_name Category name.
- * @param int        $parent   Optional. ID of parent term.
+ * @param int|string $cat_name        Category name.
+ * @param int        $category_parent Optional. ID of parent category.
  * @return string|null Returns the category ID as a numeric string if the pairing exists, null if not.
  */
-function category_exists( $cat_name, $parent = null ) {
-	$id = term_exists( $cat_name, 'category', $parent );
+function category_exists( $cat_name, $category_parent = null ) {
+	$id = term_exists( $cat_name, 'category', $category_parent );
 	if ( is_array( $id ) ) {
 		$id = $id['term_id'];
 	}
@@ -30,9 +28,7 @@ function category_exists( $cat_name, $parent = null ) {
 }
 
 /**
- * Get category object for given ID and 'edit' filter context.
- *
- *
+ * Gets category object for given ID and 'edit' filter context.
  *
  * @param int $id
  * @return object
@@ -44,16 +40,14 @@ function get_category_to_edit( $id ) {
 }
 
 /**
- * Add a new category to the database if it does not already exist.
+ * Adds a new category to the database if it does not already exist.
  *
- *
- *
- * @param int|string $cat_name
- * @param int        $parent
+ * @param int|string $cat_name        Category name.
+ * @param int        $category_parent Optional. ID of parent category.
  * @return int|GC_Error
  */
-function gc_create_category( $cat_name, $parent = 0 ) {
-	$id = category_exists( $cat_name, $parent );
+function gc_create_category( $cat_name, $category_parent = 0 ) {
+	$id = category_exists( $cat_name, $category_parent );
 	if ( $id ) {
 		return $id;
 	}
@@ -61,15 +55,13 @@ function gc_create_category( $cat_name, $parent = 0 ) {
 	return gc_insert_category(
 		array(
 			'cat_name'        => $cat_name,
-			'category_parent' => $parent,
+			'category_parent' => $category_parent,
 		)
 	);
 }
 
 /**
- * Create categories for the given post.
- *
- *
+ * Creates categories for the given post.
  *
  * @param string[] $categories Array of category names to create.
  * @param int      $post_id    Optional. The post ID. Default empty.
@@ -98,10 +90,7 @@ function gc_create_categories( $categories, $post_id = '' ) {
 
 /**
  * Updates an existing Category or creates a new Category.
- *
- *
- *
- *
+ * $gc_error parameter was added. The 'taxonomy' argument was added.
  *
  * @param array $catarr {
  *     Array of arguments for inserting a new category.
@@ -180,20 +169,18 @@ function gc_insert_category( $catarr, $gc_error = false ) {
  * If you want to update only some fields of an existing category, call this
  * function with only the new values set inside $catarr.
  *
- *
- *
  * @param array $catarr The 'cat_ID' value is required. All other keys are optional.
  * @return int|false The ID number of the new or updated Category on success. Zero or FALSE on failure.
  */
 function gc_update_category( $catarr ) {
-	$cat_ID = (int) $catarr['cat_ID'];
+	$cat_id = (int) $catarr['cat_ID'];
 
-	if ( isset( $catarr['category_parent'] ) && ( $cat_ID == $catarr['category_parent'] ) ) {
+	if ( isset( $catarr['category_parent'] ) && ( $cat_id === (int) $catarr['category_parent'] ) ) {
 		return false;
 	}
 
 	// First, get all of the original fields.
-	$category = get_term( $cat_ID, 'category', ARRAY_A );
+	$category = get_term( $cat_id, 'category', ARRAY_A );
 	_make_cat_compat( $category );
 
 	// Escape data pulled from DB.
@@ -210,9 +197,7 @@ function gc_update_category( $catarr ) {
 //
 
 /**
- * Check whether a post tag with a given name exists.
- *
- *
+ * Checks whether a post tag with a given name exists.
  *
  * @param int|string $tag_name
  * @return mixed Returns null if the term does not exist.
@@ -224,9 +209,7 @@ function tag_exists( $tag_name ) {
 }
 
 /**
- * Add a new tag to the database if it does not already exist.
- *
- *
+ * Adds a new tag to the database if it does not already exist.
  *
  * @param int|string $tag_name
  * @return array|GC_Error
@@ -236,9 +219,7 @@ function gc_create_tag( $tag_name ) {
 }
 
 /**
- * Get comma-separated list of tags available to edit.
- *
- *
+ * Gets comma-separated list of tags available to edit.
  *
  * @param int    $post_id
  * @param string $taxonomy Optional. The taxonomy for which to retrieve terms. Default 'post_tag'.
@@ -249,9 +230,7 @@ function get_tags_to_edit( $post_id, $taxonomy = 'post_tag' ) {
 }
 
 /**
- * Get comma-separated list of terms available to edit for the given post ID.
- *
- *
+ * Gets comma-separated list of terms available to edit for the given post ID.
  *
  * @param int    $post_id
  * @param string $taxonomy Optional. The taxonomy for which to retrieve terms. Default 'post_tag'.
@@ -297,9 +276,7 @@ function get_terms_to_edit( $post_id, $taxonomy = 'post_tag' ) {
 }
 
 /**
- * Add a new term to the database if it does not already exist.
- *
- *
+ * Adds a new term to the database if it does not already exist.
  *
  * @param string $tag_name The term name.
  * @param string $taxonomy Optional. The taxonomy within which to create the term. Default 'post_tag'.

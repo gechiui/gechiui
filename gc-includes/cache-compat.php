@@ -2,7 +2,7 @@
 /**
  * Object Cache API functions missing from 3rd party object caches.
  *
- * @link https://codex.gechiui.com/Class_Reference/GC_Object_Cache
+ * @link https://developer.gechiui.com/reference/classes/gc_object_cache/
  *
  * @package GeChiUI
  * @subpackage Cache
@@ -138,6 +138,64 @@ if ( ! function_exists( 'gc_cache_flush_runtime' ) ) :
 	 * @return bool True on success, false on failure.
 	 */
 	function gc_cache_flush_runtime() {
-		return gc_using_ext_object_cache() ? false : gc_cache_flush();
+		if ( ! gc_cache_supports( 'flush_runtime' ) ) {
+			_doing_it_wrong(
+				__FUNCTION__,
+				__( '您的对象缓存实现不支持刷新内存中的运行时缓存。' ),
+				'6.1.0'
+			);
+
+			return false;
+		}
+
+		return gc_cache_flush();
+	}
+endif;
+
+if ( ! function_exists( 'gc_cache_flush_group' ) ) :
+	/**
+	 * Removes all cache items in a group, if the object cache implementation supports it.
+	 *
+	 * Before calling this function, always check for group flushing support using the
+	 * `gc_cache_supports( 'flush_group' )` function.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @see GC_Object_Cache::flush_group()
+	 * @global GC_Object_Cache $gc_object_cache Object cache global instance.
+	 *
+	 * @param string $group Name of group to remove from cache.
+	 * @return bool True if group was flushed, false otherwise.
+	 */
+	function gc_cache_flush_group( $group ) {
+		global $gc_object_cache;
+
+		if ( ! gc_cache_supports( 'flush_group' ) ) {
+			_doing_it_wrong(
+				__FUNCTION__,
+				__( '您的对象缓存实现不支持刷新单个组。' ),
+				'6.1.0'
+			);
+
+			return false;
+		}
+
+		return $gc_object_cache->flush_group( $group );
+	}
+endif;
+
+if ( ! function_exists( 'gc_cache_supports' ) ) :
+	/**
+	 * Determines whether the object cache implementation supports a particular feature.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param string $feature Name of the feature to check for. Possible values include:
+	 *                        'add_multiple', 'set_multiple', 'get_multiple', 'delete_multiple',
+	 *                        'flush_runtime', 'flush_group'.
+	 * @return bool True if the feature is supported, false otherwise.
+	 */
+	function gc_cache_supports( $feature ) {
+		return false;
 	}
 endif;

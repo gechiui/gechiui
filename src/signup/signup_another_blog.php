@@ -41,15 +41,15 @@ class GCSignup_Another_Blog {
 <?php
 $blogs = get_blogs_of_user( $current_user->ID );
 if ( ( isset($_GET[ 'action' ]) && $_GET[ 'action' ] == 'newsite' ) || empty( $blogs )) {
-    //我要新建，或者我没有站点的时候
+    //我要新建，或者我没有系统的时候
     require_once 'src/signup/signup_site.php';
 } else {
     ?>
 <div class="card-body" id="my_site">
     <div class="align-items-center justify-content-between m-b-30 text-center">
-        <h2 class="m-b-0">我的站点</h2>
+        <h2 class="m-b-0">我的系统</h2>
     </div>
-    <p><?php printf( '%s, 您已经拥有 (%s) 个站点:' ,$current_user->display_name, count($blogs) ); ?></p>
+    <p><?php printf( '%s, 您已经拥有 (%s) 个系统:' ,$current_user->display_name, count($blogs) ); ?></p>
     <ul class="list-group list-group-flush">
         <?php
         foreach ( $blogs as $blog ) {
@@ -61,7 +61,7 @@ if ( ( isset($_GET[ 'action' ]) && $_GET[ 'action' ] == 'newsite' ) || empty( $b
         }
         ?>
     </ul>
-    <div class="form-group p-t-20"> <a class="btn btn-primary btn-block" href="gc-signup.php?action=newsite" >我要创建新站点</a> </div>
+    <div class="form-group p-t-20"> <a class="btn btn-primary btn-block" href="gc-signup.php?action=newsite" >我要创建新系统</a> </div>
 </div>
 
 <?php
@@ -72,13 +72,13 @@ if ( $newblogname ) {
     if ( 'blog' === $active_signup || 'all' === $active_signup ) {
         printf(
             /* translators: %s: Site address. */
-            '<p>您正在查找的站点%s不存在，但您可以现在创建它！</p>',
+            '<p>您正在查找的系统%s不存在，但您可以现在创建它！</p>',
             '<strong>' . $newblog . '</strong>'
         );
     } else {
         printf(
             /* translators: %s: Site address. */
-            '<p>您正在查找的站点%s不存在。</p>',
+            '<p>您正在查找的系统%s不存在。</p>',
             '<strong>' . $newblog . '</strong>'
         );
     }

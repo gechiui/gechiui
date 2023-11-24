@@ -1,8 +1,8 @@
 /**
  * Handles the addition of the comment form.
  *
- *
- * @output gc-includes/js/comment-reply.js
+ * @since 2.7.0
+ * @output assets/js/comment-reply.js
  *
  * @namespace addComment
  *
@@ -56,9 +56,10 @@ window.addComment = ( function( window ) {
 	/**
 	 * Sets up object variables after the DOM is ready.
 	 *
+	 * @since 5.1.1
 	 */
 	function ready() {
-		// Initialise the events.
+		// Initialize the events.
 		init();
 
 		// Set up a MutationObserver to check for comments loaded late.
@@ -72,6 +73,7 @@ window.addComment = ( function( window ) {
 	 * required to move the comment form. To allow for lazy loading of
 	 * comments this method is exposed as window.commentReply.init().
 	 *
+	 * @since 5.1.0
 	 *
 	 * @memberOf addComment
 	 *
@@ -123,6 +125,7 @@ window.addComment = ( function( window ) {
 	/**
 	 * Return all links classed .comment-reply-link.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param {HTMLElement} context The parent DOM element to search for links.
 	 *
@@ -152,6 +155,7 @@ window.addComment = ( function( window ) {
 	/**
 	 * Cancel event handler.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param {Event} event The calling event.
 	 */
@@ -190,6 +194,7 @@ window.addComment = ( function( window ) {
 	/**
 	 * Click event handler.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param {Event} event The calling event.
 	 */
@@ -225,6 +230,7 @@ window.addComment = ( function( window ) {
 	/**
 	 * Creates a mutation observer to check for newly inserted comments.
 	 *
+	 * @since 5.1.0
 	 */
 	function observeChanges() {
 		if ( ! MutationObserver ) {
@@ -243,6 +249,7 @@ window.addComment = ( function( window ) {
 	/**
 	 * Handles DOM changes, calling init() if any new nodes are added.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param {Array} mutationRecords Array of MutationRecord objects.
 	 */
@@ -263,6 +270,7 @@ window.addComment = ( function( window ) {
 	 *
 	 * Uses element.dataset if it exists, otherwise uses getAttribute.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param {HTMLElement} Element DOM element with the attribute.
 	 * @param {string}      Attribute the attribute to get.
@@ -283,6 +291,7 @@ window.addComment = ( function( window ) {
 	 *
 	 * Local alias for document.getElementById.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param {HTMLElement} The requested element.
 	 */
@@ -293,6 +302,7 @@ window.addComment = ( function( window ) {
 	/**
 	 * Moves the reply form from its current position to the reply location.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @memberOf addComment
 	 *
@@ -405,6 +415,7 @@ window.addComment = ( function( window ) {
 	 * Places a place holder element above the #respond element for
 	 * the form to be returned to if needs be.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param {HTMLelement} respondElement the #respond element holding comment form.
 	 */

@@ -30,7 +30,7 @@ if ( ! function_exists( 'gc_install' ) ) :
 	 * @param string $blog_title    Site title.
 	 * @param string $user_name     User's username.
 	 * @param string $user_email    User's email.
-	 * @param bool   $public        Whether site is public.
+	 * @param bool   $is_public     Whether the site is public.
 	 * @param string $deprecated    Optional. Not used.
 	 * @param string $user_password Optional. User's chosen password. Default empty (random password).
 	 * @param string $language      Optional. Language chosen. Default empty.
@@ -43,7 +43,7 @@ if ( ! function_exists( 'gc_install' ) ) :
 	 *     @type string $password_message The explanatory message regarding the password.
 	 * }
 	 */
-	function gc_install( $blog_title, $user_name, $user_email, $public, $deprecated = '', $user_password = '', $language = '' ) {
+	function gc_install( $blog_title, $user_name, $user_email, $is_public, $deprecated = '', $user_password = '', $language = '' ) {
 		if ( ! empty( $deprecated ) ) {
 			_deprecated_argument( __FUNCTION__, '2.6.0' );
 		}
@@ -56,7 +56,7 @@ if ( ! function_exists( 'gc_install' ) ) :
 
 		update_option( 'blogname', $blog_title );
 		update_option( 'admin_email', $user_email );
-		update_option( 'blog_public', $public );
+		update_option( 'blog_public', $is_public );
 
 		// Freshness of site - in the future, this could get more specific about actions taken, perhaps.
 		update_option( 'fresh_site', 1 );
@@ -70,7 +70,7 @@ if ( ! function_exists( 'gc_install' ) ) :
 		update_option( 'siteurl', $guessurl );
 
 		// If not a public site, don't ping.
-		if ( ! $public ) {
+		if ( ! $is_public ) {
 			update_option( 'default_pingback_flag', 0 );
 		}
 
@@ -120,6 +120,7 @@ if ( ! function_exists( 'gc_install' ) ) :
 		/**
 		 * Fires after a site is fully installed.
 		 *
+		 * @since 3.9.0
 		 *
 		 * @param GC_User $user The site owner.
 		 */
@@ -138,7 +139,7 @@ if ( ! function_exists( 'gc_install_defaults' ) ) :
 	/**
 	 * Creates the initial content for a newly-installed site.
 	 *
-	 * Adds the default "未分类" category, the first post (with comment),
+	 * Adds the default "Uncategorized" category, the first post (with comment),
 	 * first page, and default widgets for default theme for the current version.
 	 *
 	 *
@@ -154,26 +155,9 @@ if ( ! function_exists( 'gc_install_defaults' ) ) :
 		// Default category.
 		$cat_name = __( '未分类' );
 		/* translators: Default category slug. */
-		$cat_slug = sanitize_title( _x( '未分类', 'Default category slug' ) );
+		$cat_slug = sanitize_title( _x( 'uncategorized', 'Default category slug' ) );
 
-		if ( global_terms_enabled() ) {
-			$cat_id = $gcdb->get_var( $gcdb->prepare( "SELECT cat_ID FROM {$gcdb->sitecategories} WHERE category_nicename = %s", $cat_slug ) );
-			if ( null == $cat_id ) {
-				$gcdb->insert(
-					$gcdb->sitecategories,
-					array(
-						'cat_ID'            => 0,
-						'cat_name'          => $cat_name,
-						'category_nicename' => $cat_slug,
-						'last_updated'      => current_time( 'mysql', true ),
-					)
-				);
-				$cat_id = $gcdb->insert_id;
-			}
-			update_option( 'default_category', $cat_id );
-		} else {
-			$cat_id = 1;
-		}
+		$cat_id = 1;
 
 		$gcdb->insert(
 			$gcdb->terms,
@@ -296,7 +280,7 @@ if ( ! function_exists( 'gc_install_defaults' ) ) :
 		if ( empty( $first_page ) ) {
 			$first_page = "<!-- gc:paragraph -->\n<p>";
 			/* translators: First page content. */
-			$first_page .= __( "这是示范页面。页面和博客文章不同，它的位置是固定的，通常会在站点导航栏显示。很多用户都创建一个“关于”页面，向访客介绍自己。例如：" );
+			$first_page .= __( "这是示范页面。页面和文章不同，它的位置是固定的，通常会在系统导航栏显示。很多用户都创建一个“关于”页面，向访客介绍自己。例如：" );
 			$first_page .= "</p>\n<!-- /gc:paragraph -->\n\n";
 
 			$first_page .= "<!-- gc:quote -->\n<blockquote class=\"gc-block-quote\"><p>";
@@ -311,13 +295,13 @@ if ( ! function_exists( 'gc_install_defaults' ) ) :
 
 			$first_page .= "<!-- gc:quote -->\n<blockquote class=\"gc-block-quote\"><p>";
 			/* translators: First page content. */
-			$first_page .= __( '北京格尺科技有限公司成立于2020年，自从建立以来，我们一直向社会贡献着优秀企业互联网应用。我们的公司总部位于北京。' );
+			$first_page .= __( 'XYZ Doohickey公司成立于1971年，自从建立以来，我们一直向社会贡献着优秀doohickies。我们的公司总部位于天朝魔都，有着超过两千名员工，对魔都政府税收有着巨大贡献。' );
 			$first_page .= "</p></blockquote>\n<!-- /gc:quote -->\n\n";
 
 			$first_page .= "<!-- gc:paragraph -->\n<p>";
 			$first_page .= sprintf(
 				/* translators: First page content. %s: Site admin URL. */
-				__( '而您，作为一位 GeChiUI 新用户，我们建议您转到<a href="%s">您站点的仪表盘</a>，删除本页面，然后创建包含您自己内容的新页面。祝您使用愉快！' ),
+				__( '而您，作为一位 GeChiUI 新用户，我们建议您转到<a href="%s">您系统的仪表盘</a>，删除本页面，然后创建包含您自己内容的新页面。祝您使用愉快！' ),
 				admin_url()
 			);
 			$first_page .= "</p>\n<!-- /gc:paragraph -->";
@@ -360,7 +344,7 @@ if ( ! function_exists( 'gc_install_defaults' ) ) :
 			$privacy_policy_content = get_site_option( 'default_privacy_policy_content' );
 		} else {
 			if ( ! class_exists( 'GC_Privacy_Policy_Content' ) ) {
-				include_once ABSPATH . 'gc-admin/includes/class-gc-privacy-policy-content.php';
+				require_once ABSPATH . 'gc-admin/includes/class-gc-privacy-policy-content.php';
 			}
 
 			$privacy_policy_content = GC_Privacy_Policy_Content::get_default_content();
@@ -410,7 +394,7 @@ if ( ! function_exists( 'gc_install_defaults' ) ) :
 				3              => array( 'content' => '<!-- gc:group --><div class="gc-block-group"><!-- gc:heading --><h2>' . __( '近期文章' ) . '</h2><!-- /gc:heading --><!-- gc:latest-posts /--></div><!-- /gc:group -->' ),
 				4              => array( 'content' => '<!-- gc:group --><div class="gc-block-group"><!-- gc:heading --><h2>' . __( '近期评论' ) . '</h2><!-- /gc:heading --><!-- gc:latest-comments {"displayAvatar":false,"displayDate":false,"displayExcerpt":false} /--></div><!-- /gc:group -->' ),
 				5              => array( 'content' => '<!-- gc:group --><div class="gc-block-group"><!-- gc:heading --><h2>' . __( '归档' ) . '</h2><!-- /gc:heading --><!-- gc:archives /--></div><!-- /gc:group -->' ),
-				6              => array( 'content' => '<!-- gc:group --><div class="gc-block-group"><!-- gc:heading --><h2>' . __( '分类' ) . '</h2><!-- /gc:heading --><!-- gc:categories /--></div><!-- /gc:group -->' ),
+				6              => array( 'content' => '<!-- gc:group --><div class="gc-block-group"><!-- gc:heading --><h2>' . __( '分类目录' ) . '</h2><!-- /gc:heading --><!-- gc:categories /--></div><!-- /gc:group -->' ),
 				'_multiwidget' => 1,
 			)
 		);
@@ -449,8 +433,10 @@ if ( ! function_exists( 'gc_install_defaults' ) ) :
 			$gcdb->query( $gcdb->prepare( "DELETE FROM $gcdb->usermeta WHERE user_id != %d AND meta_key = %s", $user_id, $table_prefix . 'user_level' ) );
 			$gcdb->query( $gcdb->prepare( "DELETE FROM $gcdb->usermeta WHERE user_id != %d AND meta_key = %s", $user_id, $table_prefix . 'capabilities' ) );
 
-			// Delete any caps that snuck into the previously active blog. (Hardcoded to blog 1 for now.)
-			// TODO: Get previous_blog_id.
+			/*
+			 * Delete any caps that snuck into the previously active blog. (Hardcoded to blog 1 for now.)
+			 * TODO: Get previous_blog_id.
+			 */
 			if ( ! is_super_admin( $user_id ) && 1 != $user_id ) {
 				$gcdb->delete(
 					$gcdb->usermeta,
@@ -468,8 +454,6 @@ endif;
  * Maybe enable pretty permalinks on installation.
  *
  * If after enabling pretty permalinks don't work, fallback to query-string permalinks.
- *
- *
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
@@ -515,13 +499,13 @@ function gc_install_maybe_enable_pretty_permalinks() {
 
 		/*
 		 * Send a request to the site, and check whether
-		 * the 'x-pingback' header is returned as expected.
+		 * the 'X-Pingback' header is returned as expected.
 		 *
 		 * Uses gc_remote_get() instead of gc_remote_head() because web servers
 		 * can block head requests.
 		 */
 		$response          = gc_remote_get( $test_url, array( 'timeout' => 5 ) );
-		$x_pingback_header = gc_remote_retrieve_header( $response, 'x-pingback' );
+		$x_pingback_header = gc_remote_retrieve_header( $response, 'X-Pingback' );
 		$pretty_permalinks = $x_pingback_header && get_bloginfo( 'pingback_url' ) === $x_pingback_header;
 
 		if ( $pretty_permalinks ) {
@@ -562,7 +546,7 @@ if ( ! function_exists( 'gc_new_blog_notification' ) ) :
 		$message = sprintf(
 			/* translators: New site notification email. 1: New site URL, 2: User login, 3: User password or password reset link, 4: Login URL. */
 			__(
-				'您的新GeChiUI站点已被成功建立：
+				'您的新GeChiUI系统已被成功建立：
 
 %1$s
 
@@ -572,7 +556,7 @@ if ( ! function_exists( 'gc_new_blog_notification' ) ) :
 密码：%3$s
 在此登录：%4$s
 
-我们希望您喜欢您的新站点。谢谢！
+我们希望您喜欢您的新系统。谢谢！
 
 ——GeChiUI团队
 https://www.gechiui.com/
@@ -586,7 +570,7 @@ https://www.gechiui.com/
 
 		$installed_email = array(
 			'to'      => $email,
-			'subject' => __( '新GeChiUI站点' ),
+			'subject' => __( '新GeChiUI系统' ),
 			'message' => $message,
 			'headers' => '',
 		);
@@ -594,6 +578,7 @@ https://www.gechiui.com/
 		/**
 		 * Filters the contents of the email sent to the site administrator when GeChiUI is installed.
 		 *
+		 * @since 5.6.0
 		 *
 		 * @param array $installed_email {
 		 *     Used to build gc_mail().
@@ -660,9 +645,12 @@ if ( ! function_exists( 'gc_upgrade' ) ) :
 			update_site_meta( get_current_blog_id(), 'db_last_updated', microtime() );
 		}
 
+		delete_transient( 'gc_core_block_css_files' );
+
 		/**
 		 * Fires after a site is fully upgraded.
 		 *
+		 * @since 3.9.0
 		 *
 		 * @param int $gc_db_version         The new $gc_db_version.
 		 * @param int $gc_current_db_version The old (current) $gc_db_version.
@@ -678,7 +666,6 @@ endif;
  * based on database version and GC version being updated-to.
  *
  * @ignore
- *
  *
  * @global int $gc_current_db_version The old (current) database version.
  * @global int $gc_db_version         The new database version.
@@ -832,8 +819,13 @@ function upgrade_all() {
 	if ( $gc_current_db_version < 51917 ) {
 		upgrade_590();
 	}
+
 	if ( $gc_current_db_version < 53011 ) {
 		upgrade_600();
+	}
+
+	if ( $gc_current_db_version < 55853 ) {
+		upgrade_630();
 	}
 
 	maybe_disable_link_manager();
@@ -848,7 +840,6 @@ function upgrade_all() {
  * Execute changes made in GeChiUI 1.0.
  *
  * @ignore
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  */
@@ -914,7 +905,6 @@ function upgrade_100() {
  *
  * @ignore
  *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  */
 function upgrade_101() {
@@ -934,7 +924,6 @@ function upgrade_101() {
  * Execute changes made in GeChiUI 1.2.
  *
  * @ignore
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  */
@@ -999,7 +988,6 @@ function upgrade_110() {
  * Execute changes made in GeChiUI 1.5.
  *
  * @ignore
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  */
@@ -1087,7 +1075,6 @@ function upgrade_130() {
  * Execute changes made in GeChiUI 2.0.
  *
  * @ignore
- *
  *
  * @global gcdb $gcdb                  GeChiUI database abstraction object.
  * @global int  $gc_current_db_version The old (current) database version.
@@ -1207,7 +1194,6 @@ function upgrade_160() {
  *
  * @ignore
  *
- *
  * @global int  $gc_current_db_version The old (current) database version.
  * @global gcdb $gcdb                  GeChiUI database abstraction object.
  */
@@ -1258,7 +1244,6 @@ function upgrade_210() {
  * Execute changes made in GeChiUI 2.3.
  *
  * @ignore
- *
  *
  * @global int  $gc_current_db_version The old (current) database version.
  * @global gcdb $gcdb                  GeChiUI database abstraction object.
@@ -1486,7 +1471,6 @@ function upgrade_230() {
  *
  * @ignore
  *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  */
 function upgrade_230_options_table() {
@@ -1504,7 +1488,6 @@ function upgrade_230_options_table() {
  *
  * @ignore
  *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  */
 function upgrade_230_old_tables() {
@@ -1519,7 +1502,6 @@ function upgrade_230_old_tables() {
  *
  * @ignore
  *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  */
 function upgrade_old_slugs() {
@@ -1532,7 +1514,6 @@ function upgrade_old_slugs() {
  * Execute changes made in GeChiUI 2.5.0.
  *
  * @ignore
- *
  *
  * @global int $gc_current_db_version The old (current) database version.
  */
@@ -1549,7 +1530,7 @@ function upgrade_250() {
  * Execute changes made in GeChiUI 2.5.2.
  *
  * @ignore
- *
+ * @since 2.5.2
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  */
@@ -1563,7 +1544,6 @@ function upgrade_252() {
  * Execute changes made in GeChiUI 2.6.
  *
  * @ignore
- *
  *
  * @global int $gc_current_db_version The old (current) database version.
  */
@@ -1579,7 +1559,7 @@ function upgrade_260() {
  * Execute changes made in GeChiUI 2.7.
  *
  * @ignore
- *
+ * @since 2.7.0
  *
  * @global int  $gc_current_db_version The old (current) database version.
  * @global gcdb $gcdb                  GeChiUI database abstraction object.
@@ -1601,7 +1581,6 @@ function upgrade_270() {
  * Execute changes made in GeChiUI 2.8.
  *
  * @ignore
- *
  *
  * @global int  $gc_current_db_version The old (current) database version.
  * @global gcdb $gcdb                  GeChiUI database abstraction object.
@@ -1635,15 +1614,16 @@ function upgrade_280() {
  *
  * @ignore
  *
- *
  * @global int $gc_current_db_version The old (current) database version.
  */
 function upgrade_290() {
 	global $gc_current_db_version;
 
 	if ( $gc_current_db_version < 11958 ) {
-		// Previously, setting depth to 1 would redundantly disable threading,
-		// but now 2 is the minimum depth to avoid confusion.
+		/*
+		 * Previously, setting depth to 1 would redundantly disable threading,
+		 * but now 2 is the minimum depth to avoid confusion.
+		 */
 		if ( get_option( 'thread_comments_depth' ) == '1' ) {
 			update_option( 'thread_comments_depth', 2 );
 			update_option( 'thread_comments', 0 );
@@ -1655,7 +1635,6 @@ function upgrade_290() {
  * Execute changes made in GeChiUI 3.0.
  *
  * @ignore
- *
  *
  * @global int  $gc_current_db_version The old (current) database version.
  * @global gcdb $gcdb                  GeChiUI database abstraction object.
@@ -1707,7 +1686,6 @@ function upgrade_300() {
  *
  * @ignore
  *
- *
  * @global int   $gc_current_db_version The old (current) database version.
  * @global gcdb  $gcdb                  GeChiUI database abstraction object.
  * @global array $gc_registered_widgets
@@ -1743,6 +1721,7 @@ function upgrade_330() {
 							$_sidebars_widgets[ $index ][ $i ] = $id;
 							continue;
 						}
+
 						$id = sanitize_title( $name );
 						if ( isset( $gc_registered_widgets[ $id ] ) ) {
 							$_sidebars_widgets[ $index ][ $i ] = $id;
@@ -1752,13 +1731,15 @@ function upgrade_330() {
 						$found = false;
 
 						foreach ( $gc_registered_widgets as $widget_id => $widget ) {
-							if ( strtolower( $widget['name'] ) == strtolower( $name ) ) {
+							if ( strtolower( $widget['name'] ) === strtolower( $name ) ) {
 								$_sidebars_widgets[ $index ][ $i ] = $widget['id'];
-								$found                             = true;
+
+								$found = true;
 								break;
-							} elseif ( sanitize_title( $widget['name'] ) == sanitize_title( $name ) ) {
+							} elseif ( sanitize_title( $widget['name'] ) === sanitize_title( $name ) ) {
 								$_sidebars_widgets[ $index ][ $i ] = $widget['id'];
-								$found                             = true;
+
+								$found = true;
 								break;
 							}
 						}
@@ -1787,7 +1768,6 @@ function upgrade_330() {
  * Execute changes made in GeChiUI 3.4.
  *
  * @ignore
- *
  *
  * @global int  $gc_current_db_version The old (current) database version.
  * @global gcdb $gcdb                  GeChiUI database abstraction object.
@@ -1825,7 +1805,6 @@ function upgrade_340() {
  *
  * @ignore
  *
- *
  * @global int  $gc_current_db_version The old (current) database version.
  * @global gcdb $gcdb                  GeChiUI database abstraction object.
  */
@@ -1839,7 +1818,7 @@ function upgrade_350() {
 	if ( $gc_current_db_version < 21811 && gc_should_upgrade_global_tables() ) {
 		$meta_keys = array();
 		foreach ( array_merge( get_post_types(), get_taxonomies() ) as $name ) {
-			if ( false !== strpos( $name, '-' ) ) {
+			if ( str_contains( $name, '-' ) ) {
 				$meta_keys[] = 'edit_' . str_replace( '-', '_', $name ) . '_per_page';
 			}
 		}
@@ -1862,7 +1841,6 @@ function upgrade_350() {
  *
  * @ignore
  *
- *
  * @global int $gc_current_db_version The old (current) database version.
  */
 function upgrade_370() {
@@ -1877,7 +1855,7 @@ function upgrade_370() {
  * Execute changes made in GeChiUI 3.7.2.
  *
  * @ignore
- *
+ * @since 3.7.2
  *
  * @global int $gc_current_db_version The old (current) database version.
  */
@@ -1893,7 +1871,7 @@ function upgrade_372() {
  * Execute changes made in GeChiUI 3.8.0.
  *
  * @ignore
- *
+ * @since 3.8.0
  *
  * @global int $gc_current_db_version The old (current) database version.
  */
@@ -1909,7 +1887,7 @@ function upgrade_380() {
  * Execute changes made in GeChiUI 4.0.0.
  *
  * @ignore
- *
+ * @since 4.0.0
  *
  * @global int $gc_current_db_version The old (current) database version.
  */
@@ -1931,7 +1909,6 @@ function upgrade_400() {
  * Execute changes made in GeChiUI 4.2.0.
  *
  * @ignore
- *
  */
 function upgrade_420() {}
 
@@ -1939,7 +1916,7 @@ function upgrade_420() {}
  * Executes changes made in GeChiUI 4.3.0.
  *
  * @ignore
- *
+ * @since 4.3.0
  *
  * @global int  $gc_current_db_version The old (current) database version.
  * @global gcdb $gcdb                  GeChiUI database abstraction object.
@@ -1978,7 +1955,7 @@ function upgrade_430() {
  * Executes comments changes made in GeChiUI 4.3.0.
  *
  * @ignore
- *
+ * @since 4.3.0
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  */
@@ -2027,7 +2004,7 @@ function upgrade_430_fix_comments() {
  * Executes changes made in GeChiUI 4.3.1.
  *
  * @ignore
- *
+ * @since 4.3.1
  */
 function upgrade_431() {
 	// Fix incorrect cron entries for term splitting.
@@ -2042,7 +2019,6 @@ function upgrade_431() {
  * Executes changes made in GeChiUI 4.4.0.
  *
  * @ignore
- *
  *
  * @global int  $gc_current_db_version The old (current) database version.
  * @global gcdb $gcdb                  GeChiUI database abstraction object.
@@ -2068,7 +2044,6 @@ function upgrade_440() {
  *
  * @ignore
  *
- *
  * @global int  $gc_current_db_version The old (current) database version.
  * @global gcdb $gcdb                  GeChiUI database abstraction object.
  */
@@ -2092,7 +2067,6 @@ function upgrade_450() {
  * Executes changes made in GeChiUI 4.6.0.
  *
  * @ignore
- *
  *
  * @global int $gc_current_db_version The old (current) database version.
  */
@@ -2124,7 +2098,7 @@ function upgrade_460() {
  * Executes changes made in GeChiUI 5.0.0.
  *
  * @ignore
- *
+ * @since 5.0.0
  * @deprecated 5.1.0
  */
 function upgrade_500() {
@@ -2134,7 +2108,7 @@ function upgrade_500() {
  * Executes changes made in GeChiUI 5.1.0.
  *
  * @ignore
- *
+ * @since 5.1.0
  */
 function upgrade_510() {
 	delete_site_option( 'upgrade_500_was_gutenberg_active' );
@@ -2144,7 +2118,7 @@ function upgrade_510() {
  * Executes changes made in GeChiUI 5.3.0.
  *
  * @ignore
- *
+ * @since 5.3.0
  */
 function upgrade_530() {
 	/*
@@ -2163,7 +2137,9 @@ function upgrade_530() {
  * Executes changes made in GeChiUI 5.5.0.
  *
  * @ignore
+ * @since 5.5.0
  *
+ * @global int $gc_current_db_version The old (current) database version.
  */
 function upgrade_550() {
 	global $gc_current_db_version;
@@ -2202,6 +2178,8 @@ function upgrade_550() {
  *
  * @ignore
  *
+ * @global int  $gc_current_db_version The old (current) database version.
+ * @global gcdb $gcdb                  GeChiUI database abstraction object.
  */
 function upgrade_560() {
 	global $gc_current_db_version, $gcdb;
@@ -2240,7 +2218,7 @@ function upgrade_560() {
 		$results = $gcdb->get_results(
 			$gcdb->prepare(
 				"SELECT 1 FROM {$gcdb->usermeta} WHERE meta_key = %s LIMIT 1",
-				GC_AppKeys::USERMETA_KEY_APPLICATION_PASSWORDS
+				GC_AppKeys::USERMETA_APPKEYS
 			)
 		);
 
@@ -2255,7 +2233,7 @@ function upgrade_560() {
  * Executes changes made in GeChiUI 5.9.0.
  *
  * @ignore
- *
+ * @since 5.9.0
  *
  * @global int $gc_current_db_version The old (current) database version.
  */
@@ -2274,7 +2252,7 @@ function upgrade_590() {
 }
 
 /**
- * Executes changes made in WordPress 6.0.0.
+ * Executes changes made in GeChiUI 6.0.0.
  *
  * @ignore
  * @since 6.0.0
@@ -2289,11 +2267,31 @@ function upgrade_600() {
 	}
 }
 
+/**
+ * Executes changes made in GeChiUI 6.3.0.
+ *
+ * @ignore
+ * @since 6.3.0
+ *
+ * @global int $gc_current_db_version The old (current) database version.
+ */
+function upgrade_630() {
+	global $gc_current_db_version;
+
+	if ( $gc_current_db_version < 55853 ) {
+		if ( ! is_multisite() ) {
+			// Replace non-autoload option can_compress_scripts with autoload option, see #55270
+			$can_compress_scripts = get_option( 'can_compress_scripts', false );
+			if ( false !== $can_compress_scripts ) {
+				delete_option( 'can_compress_scripts' );
+				add_option( 'can_compress_scripts', $can_compress_scripts, '', 'yes' );
+			}
+		}
+	}
+}
 
 /**
  * Executes network-level upgrade routines.
- *
- *
  *
  * @global int  $gc_current_db_version The old (current) database version.
  * @global gcdb $gcdb                  GeChiUI database abstraction object.
@@ -2453,8 +2451,6 @@ function upgrade_network() {
  * already present. It doesn't rely on MySQL's "IF NOT EXISTS" statement, but chooses
  * to query all tables first and then run the SQL statement creating the table.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param string $table_name Database table name.
@@ -2484,8 +2480,6 @@ function maybe_create_table( $table_name, $create_ddl ) {
 /**
  * Drops a specified index from a table.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param string $table Database table name.
@@ -2512,8 +2506,6 @@ function drop_index( $table, $index ) {
 /**
  * Adds an index to a specified table.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param string $table Database table name.
@@ -2531,8 +2523,6 @@ function add_clean_index( $table, $index ) {
 
 /**
  * Adds column to a database table, if it doesn't already exist.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -2565,8 +2555,6 @@ function maybe_add_column( $table_name, $column_name, $create_ddl ) {
 
 /**
  * If a table only contains utf8 or utf8mb4 columns, convert it to utf8mb4.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -2609,15 +2597,13 @@ function maybe_convert_table_to_utf8mb4( $table ) {
 /**
  * Retrieve all options as it was for 1.2.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @return stdClass List of options.
  */
 function get_alloptions_110() {
 	global $gcdb;
-	$all_options = new stdClass;
+	$all_options = new stdClass();
 	$options     = $gcdb->get_results( "SELECT option_name, option_value FROM $gcdb->options" );
 	if ( $options ) {
 		foreach ( $options as $option ) {
@@ -2634,7 +2620,7 @@ function get_alloptions_110() {
  * Utility version of get_option that is private to installation/upgrade.
  *
  * @ignore
- *
+ * @since 1.5.1
  * @access private
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -2669,8 +2655,6 @@ function __get_option( $setting ) { // phpcs:ignore GeChiUI.NamingConventions.Va
 /**
  * Filters for content to remove unnecessary slashes.
  *
- *
- *
  * @param string $content The content to modify.
  * @return string The de-slashed content.
  */
@@ -2700,7 +2684,8 @@ function deslash( $content ) {
  *
  * Useful for creating new tables and updating existing tables to a new structure.
  *
- *
+ * @since 6.1.0 Ignores display width for integer data types on MySQL 8.0.17 or later,
+ *              to match MySQL behavior. Note: This does not affect MariaDB.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -2736,19 +2721,27 @@ function dbDelta( $queries = '', $execute = true ) { // phpcs:ignore GeChiUI.Nam
 	$iqueries   = array(); // Insertion queries.
 	$for_update = array();
 
-	// Create a tablename index for an array ($cqueries) of queries.
+	// Create a tablename index for an array ($cqueries) of recognized query types.
 	foreach ( $queries as $qry ) {
 		if ( preg_match( '|CREATE TABLE ([^ ]*)|', $qry, $matches ) ) {
 			$cqueries[ trim( $matches[1], '`' ) ] = $qry;
 			$for_update[ $matches[1] ]            = 'Created table ' . $matches[1];
-		} elseif ( preg_match( '|CREATE DATABASE ([^ ]*)|', $qry, $matches ) ) {
+			continue;
+		}
+
+		if ( preg_match( '|CREATE DATABASE ([^ ]*)|', $qry, $matches ) ) {
 			array_unshift( $cqueries, $qry );
-		} elseif ( preg_match( '|INSERT INTO ([^ ]*)|', $qry, $matches ) ) {
+			continue;
+		}
+
+		if ( preg_match( '|INSERT INTO ([^ ]*)|', $qry, $matches ) ) {
 			$iqueries[] = $qry;
-		} elseif ( preg_match( '|UPDATE ([^ ]*)|', $qry, $matches ) ) {
+			continue;
+		}
+
+		if ( preg_match( '|UPDATE ([^ ]*)|', $qry, $matches ) ) {
 			$iqueries[] = $qry;
-		} else {
-			// Unrecognized query type.
+			continue;
 		}
 	}
 
@@ -2774,8 +2767,12 @@ function dbDelta( $queries = '', $execute = true ) { // phpcs:ignore GeChiUI.Nam
 
 	$text_fields = array( 'tinytext', 'text', 'mediumtext', 'longtext' );
 	$blob_fields = array( 'tinyblob', 'blob', 'mediumblob', 'longblob' );
+	$int_fields  = array( 'tinyint', 'smallint', 'mediumint', 'int', 'integer', 'bigint' );
 
-	$global_tables = $gcdb->tables( 'global' );
+	$global_tables  = $gcdb->tables( 'global' );
+	$db_version     = $gcdb->db_version();
+	$db_server_info = $gcdb->db_server_info();
+
 	foreach ( $cqueries as $table => $qry ) {
 		// Upgrade global tables only for the main site. Don't upgrade at all if conditions are not optimal.
 		if ( in_array( $table, $global_tables, true ) && ! gc_should_upgrade_global_tables() ) {
@@ -2876,27 +2873,29 @@ function dbDelta( $queries = '', $execute = true ) { // phpcs:ignore GeChiUI.Nam
 					// Normalize columns.
 					foreach ( $index_columns as $id => &$index_column ) {
 						// Extract column name and number of indexed characters (sub_part).
+						// phpcs:disable Squiz.Strings.ConcatenationSpacing.PaddingFound -- don't remove regex indentation
 						preg_match(
 							'/'
-							. '`?'                      // Name can be escaped with a backtick.
-							. '(?P<column_name>'    // 1) Name of the column.
-							. '(?:[0-9a-zA-Z$_-]|[\xC2-\xDF][\x80-\xBF])+'
-							. ')'
-							. '`?'                      // Name can be escaped with a backtick.
-							. '(?:'                     // Optional sub part.
-							. '\s*'                 // Optional white space character between name and opening bracket.
-							. '\('                  // Opening bracket for the sub part.
-							. '\s*'             // Optional white space character after opening bracket.
-							. '(?P<sub_part>'
-							. '\d+'         // 2) Number of indexed characters.
-							. ')'
-							. '\s*'             // Optional white space character before closing bracket.
-							. '\)'                 // Closing bracket for the sub part.
-							. ')?'
+							.   '`?'                      // Name can be escaped with a backtick.
+							.       '(?P<column_name>'    // 1) Name of the column.
+							.           '(?:[0-9a-zA-Z$_-]|[\xC2-\xDF][\x80-\xBF])+'
+							.       ')'
+							.   '`?'                      // Name can be escaped with a backtick.
+							.   '(?:'                     // Optional sub part.
+							.       '\s*'                 // Optional white space character between name and opening bracket.
+							.       '\('                  // Opening bracket for the sub part.
+							.           '\s*'             // Optional white space character after opening bracket.
+							.           '(?P<sub_part>'
+							.               '\d+'         // 2) Number of indexed characters.
+							.           ')'
+							.           '\s*'             // Optional white space character before closing bracket.
+							.       '\)'                  // Closing bracket for the sub part.
+							.   ')?'
 							. '/',
 							$index_column,
 							$index_column_matches
 						);
+						// phpcs:enable
 
 						// Escape the column name with backticks.
 						$index_column = '`' . $index_column_matches['column_name'] . '`';
@@ -2931,6 +2930,19 @@ function dbDelta( $queries = '', $execute = true ) { // phpcs:ignore GeChiUI.Nam
 			$tablefield_field_lowercased = strtolower( $tablefield->Field );
 			$tablefield_type_lowercased  = strtolower( $tablefield->Type );
 
+			$tablefield_type_without_parentheses = preg_replace(
+				'/'
+				. '(.+)'       // Field type, e.g. `int`.
+				. '\(\d*\)'    // Display width.
+				. '(.*)'       // Optional attributes, e.g. `unsigned`.
+				. '/',
+				'$1$2',
+				$tablefield_type_lowercased
+			);
+
+			// Get the type without attributes, e.g. `int`.
+			$tablefield_type_base = strtok( $tablefield_type_without_parentheses, ' ' );
+
 			// If the table field exists in the field array...
 			if ( array_key_exists( $tablefield_field_lowercased, $cfields ) ) {
 
@@ -2938,6 +2950,19 @@ function dbDelta( $queries = '', $execute = true ) { // phpcs:ignore GeChiUI.Nam
 				preg_match( '|`?' . $tablefield->Field . '`? ([^ ]*( unsigned)?)|i', $cfields[ $tablefield_field_lowercased ], $matches );
 				$fieldtype            = $matches[1];
 				$fieldtype_lowercased = strtolower( $fieldtype );
+
+				$fieldtype_without_parentheses = preg_replace(
+					'/'
+					. '(.+)'       // Field type, e.g. `int`.
+					. '\(\d*\)'    // Display width.
+					. '(.*)'       // Optional attributes, e.g. `unsigned`.
+					. '/',
+					'$1$2',
+					$fieldtype_lowercased
+				);
+
+				// Get the type without attributes, e.g. `int`.
+				$fieldtype_base = strtok( $fieldtype_without_parentheses, ' ' );
 
 				// Is actual field type different from the field type in query?
 				if ( $tablefield->Type != $fieldtype ) {
@@ -2950,6 +2975,21 @@ function dbDelta( $queries = '', $execute = true ) { // phpcs:ignore GeChiUI.Nam
 
 					if ( in_array( $fieldtype_lowercased, $blob_fields, true ) && in_array( $tablefield_type_lowercased, $blob_fields, true ) ) {
 						if ( array_search( $fieldtype_lowercased, $blob_fields, true ) < array_search( $tablefield_type_lowercased, $blob_fields, true ) ) {
+							$do_change = false;
+						}
+					}
+
+					if ( in_array( $fieldtype_base, $int_fields, true ) && in_array( $tablefield_type_base, $int_fields, true )
+						&& $fieldtype_without_parentheses === $tablefield_type_without_parentheses
+					) {
+						/*
+						 * MySQL 8.0.17 or later does not support display width for integer data types,
+						 * so if display width is the only difference, it can be safely ignored.
+						 * Note: This is specific to MySQL and does not affect MariaDB.
+						 */
+						if ( version_compare( $db_version, '8.0.17', '>=' )
+							&& ! str_contains( $db_server_info, 'MariaDB' )
+						) {
 							$do_change = false;
 						}
 					}
@@ -3018,16 +3058,20 @@ function dbDelta( $queries = '', $execute = true ) { // phpcs:ignore GeChiUI.Nam
 				} elseif ( $index_data['unique'] ) {
 					$index_string .= 'UNIQUE ';
 				}
+
 				if ( 'FULLTEXT' === strtoupper( $index_data['index_type'] ) ) {
 					$index_string .= 'FULLTEXT ';
 				}
+
 				if ( 'SPATIAL' === strtoupper( $index_data['index_type'] ) ) {
 					$index_string .= 'SPATIAL ';
 				}
+
 				$index_string .= 'KEY ';
 				if ( 'primary' !== $index_name ) {
 					$index_string .= '`' . $index_name . '`';
 				}
+
 				$index_columns = '';
 
 				// For each column in the index.
@@ -3081,8 +3125,6 @@ function dbDelta( $queries = '', $execute = true ) { // phpcs:ignore GeChiUI.Nam
  * By default, updates all the tables to use the latest defined schema, but can also
  * be used to update a specific set of tables in gc_get_db_schema().
  *
- *
- *
  * @uses dbDelta
  *
  * @param string $tables Optional. Which set of tables to update. Default is 'all'.
@@ -3102,8 +3144,6 @@ function make_db_current( $tables = 'all' ) {
  * By default, updates all the tables to use the latest defined schema, but can
  * also be used to update a specific set of tables in gc_get_db_schema().
  *
- *
- *
  * @see make_db_current()
  *
  * @param string $tables Optional. Which set of tables to update. Default is 'all'.
@@ -3117,15 +3157,14 @@ function make_db_current_silent( $tables = 'all' ) {
  *
  * {@internal Missing Long Description}}
  *
- *
- *
  * @param string $theme_name The name of the theme.
  * @param string $template   The directory name of the theme.
  * @return bool
  */
 function make_site_theme_from_oldschool( $theme_name, $template ) {
-	$home_path = get_home_path();
-	$site_dir  = GC_CONTENT_DIR . "/themes/$template";
+	$home_path   = get_home_path();
+	$site_dir    = GC_CONTENT_DIR . "/themes/$template";
+	$default_dir = GC_CONTENT_DIR . '/themes/' . GC_DEFAULT_THEME;
 
 	if ( ! file_exists( "$home_path/index.php" ) ) {
 		return false;
@@ -3152,8 +3191,8 @@ function make_site_theme_from_oldschool( $theme_name, $template ) {
 		// Check to make sure it's not a new index.
 		if ( 'index.php' === $oldfile ) {
 			$index = implode( '', file( "$oldpath/$oldfile" ) );
-			if ( strpos( $index, 'GC_USE_THEMES' ) !== false ) {
-				if ( ! copy( GC_CONTENT_DIR . '/themes/' . GC_DEFAULT_THEME . '/index.php', "$site_dir/$newfile" ) ) {
+			if ( str_contains( $index, 'GC_USE_THEMES' ) ) {
+				if ( ! copy( "$default_dir/$oldfile", "$site_dir/$newfile" ) ) {
 					return false;
 				}
 
@@ -3179,10 +3218,18 @@ function make_site_theme_from_oldschool( $theme_name, $template ) {
 				}
 
 				// Update stylesheet references.
-				$line = str_replace( "<?php echo __get_option('siteurl'); ?>/gc-layout.css", "<?php bloginfo('stylesheet_url'); ?>", $line );
+				$line = str_replace(
+					"<?php echo __get_option('siteurl'); ?>/gc-layout.css",
+					"<?php bloginfo('stylesheet_url'); ?>",
+					$line
+				);
 
 				// Update comments template inclusion.
-				$line = str_replace( "<?php include(ABSPATH . 'gc-comments.php'); ?>", '<?php comments_template(); ?>', $line );
+				$line = str_replace(
+					"<?php include(ABSPATH . 'gc-comments.php'); ?>",
+					'<?php comments_template(); ?>',
+					$line
+				);
 
 				fwrite( $f, "{$line}\n" );
 			}
@@ -3191,7 +3238,13 @@ function make_site_theme_from_oldschool( $theme_name, $template ) {
 	}
 
 	// Add a theme header.
-	$header = "/*\nTheme Name: $theme_name\nTheme URI: " . __get_option( 'siteurl' ) . "\nDescription: A theme automatically created by the update.\nVersion: 1.0\nAuthor: Moi\n*/\n";
+	$header = "/*\n" .
+		"Theme Name: $theme_name\n" .
+		'Theme URI: ' . __get_option( 'siteurl' ) . "\n" .
+		"Description: A theme automatically created by the update.\n" .
+		"Version: 1.0\n" .
+		"Author: Moi\n" .
+		"*/\n";
 
 	$stylelines = file_get_contents( "$site_dir/style.css" );
 	if ( $stylelines ) {
@@ -3210,8 +3263,6 @@ function make_site_theme_from_oldschool( $theme_name, $template ) {
  *
  * {@internal Missing Long Description}}
  *
- *
- *
  * @param string $theme_name The name of the theme.
  * @param string $template   The directory name of the theme.
  * @return void|false
@@ -3220,8 +3271,10 @@ function make_site_theme_from_default( $theme_name, $template ) {
 	$site_dir    = GC_CONTENT_DIR . "/themes/$template";
 	$default_dir = GC_CONTENT_DIR . '/themes/' . GC_DEFAULT_THEME;
 
-	// Copy files from the default theme to the site theme.
-	// $files = array( 'index.php', 'comments.php', 'comments-popup.php', 'footer.php', 'header.php', 'sidebar.php', 'style.css' );
+	/*
+	 * Copy files from the default theme to the site theme.
+	 * $files = array( 'index.php', 'comments.php', 'comments-popup.php', 'footer.php', 'header.php', 'sidebar.php', 'style.css' );
+	 */
 
 	$theme_dir = @opendir( $default_dir );
 	if ( $theme_dir ) {
@@ -3229,9 +3282,11 @@ function make_site_theme_from_default( $theme_name, $template ) {
 			if ( is_dir( "$default_dir/$theme_file" ) ) {
 				continue;
 			}
+
 			if ( ! copy( "$default_dir/$theme_file", "$site_dir/$theme_file" ) ) {
 				return;
 			}
+
 			chmod( "$site_dir/$theme_file", 0777 );
 		}
 
@@ -3243,20 +3298,25 @@ function make_site_theme_from_default( $theme_name, $template ) {
 	if ( $stylelines ) {
 		$f = fopen( "$site_dir/style.css", 'w' );
 
+		$headers = array(
+			'Theme Name:'  => $theme_name,
+			'Theme URI:'   => __get_option( 'url' ),
+			'Description:' => 'Your theme.',
+			'Version:'     => '1',
+			'Author:'      => 'You',
+		);
+
 		foreach ( $stylelines as $line ) {
-			if ( strpos( $line, 'Theme Name:' ) !== false ) {
-				$line = 'Theme Name: ' . $theme_name;
-			} elseif ( strpos( $line, 'Theme URI:' ) !== false ) {
-				$line = 'Theme URI: ' . __get_option( 'url' );
-			} elseif ( strpos( $line, 'Description:' ) !== false ) {
-				$line = 'Description: Your theme.';
-			} elseif ( strpos( $line, 'Version:' ) !== false ) {
-				$line = 'Version: 1';
-			} elseif ( strpos( $line, 'Author:' ) !== false ) {
-				$line = 'Author: You';
+			foreach ( $headers as $header => $value ) {
+				if ( str_contains( $line, $header ) ) {
+					$line = $header . ' ' . $value;
+					break;
+				}
 			}
+
 			fwrite( $f, $line . "\n" );
 		}
+
 		fclose( $f );
 	}
 
@@ -3272,9 +3332,11 @@ function make_site_theme_from_default( $theme_name, $template ) {
 			if ( is_dir( "$default_dir/images/$image" ) ) {
 				continue;
 			}
+
 			if ( ! copy( "$default_dir/images/$image", "$site_dir/images/$image" ) ) {
 				return;
 			}
+
 			chmod( "$site_dir/images/$image", 0777 );
 		}
 
@@ -3286,8 +3348,6 @@ function make_site_theme_from_default( $theme_name, $template ) {
  * Creates a site theme.
  *
  * {@internal Missing Long Description}}
- *
- *
  *
  * @return string|false
  */
@@ -3336,8 +3396,6 @@ function make_site_theme() {
 /**
  * Translate user level to user role name.
  *
- *
- *
  * @param int $level User level.
  * @return string User role name.
  */
@@ -3366,8 +3424,6 @@ function translate_level_to_role( $level ) {
 /**
  * Checks the version of the installed MySQL binary.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  */
 function gc_check_mysql_version() {
@@ -3380,7 +3436,6 @@ function gc_check_mysql_version() {
 
 /**
  * Disables the Automattic widgets plugin, which was merged into core.
- *
  *
  */
 function maybe_disable_automattic_widgets() {
@@ -3398,8 +3453,6 @@ function maybe_disable_automattic_widgets() {
 /**
  * Disables the Link Manager on upgrade if, at the time of upgrade, no links exist in the DB.
  *
- *
- *
  * @global int  $gc_current_db_version The old (current) database version.
  * @global gcdb $gcdb                  GeChiUI database abstraction object.
  */
@@ -3413,8 +3466,6 @@ function maybe_disable_link_manager() {
 
 /**
  * Runs before the schema is upgraded.
- *
- *
  *
  * @global int  $gc_current_db_version The old (current) database version.
  * @global gcdb $gcdb                  GeChiUI database abstraction object.
@@ -3473,32 +3524,6 @@ function pre_schema_upgrade() {
 	}
 }
 
-if ( ! function_exists( 'install_global_terms' ) ) :
-	/**
-	 * Install global terms.
-	 *
-	 *
-	 * @global gcdb   $gcdb            GeChiUI database abstraction object.
-	 * @global string $charset_collate
-	 */
-	function install_global_terms() {
-		global $gcdb, $charset_collate;
-		$ms_queries = "
-CREATE TABLE $gcdb->sitecategories (
-  cat_ID bigint(20) NOT NULL auto_increment,
-  cat_name varchar(55) NOT NULL default '',
-  category_nicename varchar(200) NOT NULL default '',
-  last_updated timestamp NOT NULL,
-  PRIMARY KEY  (cat_ID),
-  KEY category_nicename (category_nicename),
-  KEY last_updated (last_updated)
-) $charset_collate;
-";
-		// Now create tables.
-		dbDelta( $ms_queries );
-	}
-endif;
-
 /**
  * Determine if global tables should be upgraded.
  *
@@ -3513,7 +3538,7 @@ endif;
  * GeChiUI is on the main site of the main network, to avoid running queries
  * more than once in multi-site or multi-network environments.
  *
- *
+ * @since 4.3.0
  *
  * @return bool Whether to run the upgrade routines on global tables.
  */
@@ -3540,6 +3565,7 @@ function gc_should_upgrade_global_tables() {
 	/**
 	 * Filters if upgrade routines should be run on global tables.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param bool $should_upgrade Whether to run the upgrade routines on global tables.
 	 */

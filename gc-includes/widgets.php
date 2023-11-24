@@ -10,12 +10,11 @@
  * This functionality was found in a plugin before the GeChiUI 2.2 release, which
  * included it in the core from that point on.
  *
- * @link https://www.gechiui.com/support/gechiui-widgets/
+ * @link https://www.gechiui.com/support/manage-gechiui-widgets/
  * @link https://developer.gechiui.com/themes/functionality/widgets/
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 //
@@ -29,7 +28,6 @@ global $gc_registered_sidebars, $gc_registered_widgets, $gc_registered_widget_co
  * Stores the sidebars, since many themes can have more than one.
  *
  * @global array $gc_registered_sidebars Registered sidebars.
- *
  */
 $gc_registered_sidebars = array();
 
@@ -37,7 +35,6 @@ $gc_registered_sidebars = array();
  * Stores the registered widgets.
  *
  * @global array $gc_registered_widgets
- *
  */
 $gc_registered_widgets = array();
 
@@ -45,7 +42,6 @@ $gc_registered_widgets = array();
  * Stores the registered widget controls (options).
  *
  * @global array $gc_registered_widget_controls
- *
  */
 $gc_registered_widget_controls = array();
 /**
@@ -98,9 +94,7 @@ $GLOBALS['_gc_deprecated_widgets_callbacks'] = array(
  * Register a widget
  *
  * Registers a GC_Widget widget
- *
- *
- *
+ * Updated the `$widget` parameter to also accept a GC_Widget instance object
  *              instead of simply a `GC_Widget` subclass name.
  *
  * @see GC_Widget
@@ -120,9 +114,7 @@ function register_widget( $widget ) {
  *
  * Unregisters a GC_Widget widget. Useful for un-registering default widgets.
  * Run within a function hooked to the {@see 'widgets_init'} action.
- *
- *
- *
+ * Updated the `$widget` parameter to also accept a GC_Widget instance object
  *              instead of simply a `GC_Widget` subclass name.
  *
  * @see GC_Widget
@@ -143,8 +135,6 @@ function unregister_widget( $widget ) {
  * If you wanted to quickly create multiple sidebars for a theme or internally.
  * This function will allow you to do so. If you don't pass the 'name' and/or
  * 'id' in `$args`, then they will be built for you.
- *
- *
  *
  * @see register_sidebar() The second parameter is documented by register_sidebar() and is the same here.
  *
@@ -185,8 +175,10 @@ function register_sidebars( $number = 1, $args = array() ) {
 			$_args['name'] = isset( $args['name'] ) ? $args['name'] : __( '边栏' );
 		}
 
-		// Custom specified ID's are suffixed if they exist already.
-		// Automatically generated sidebar names need to be suffixed regardless starting at -0.
+		/*
+		 * Custom specified ID's are suffixed if they exist already.
+		 * Automatically generated sidebar names need to be suffixed regardless starting at -0.
+		 */
 		if ( isset( $args['id'] ) ) {
 			$_args['id'] = $args['id'];
 			$n           = 2; // Start at -2 for conflicting custom IDs.
@@ -217,10 +209,8 @@ function register_sidebars( $number = 1, $args = array() ) {
  *
  * If theme support for 'widgets' has not yet been added when this function is
  * called, it will be automatically enabled through the use of add_theme_support()
- *
- *
- *
- *
+ * Added the `before_sidebar` and `after_sidebar` arguments.
+ * @since 5.9.0 Added the `show_in_rest` argument.
  *
  * @global array $gc_registered_sidebars Registered sidebars.
  *
@@ -233,7 +223,7 @@ function register_sidebars( $number = 1, $args = array() ) {
  *                                  Default 'sidebar-$instance'.
  *     @type string $description    Description of the sidebar, displayed in the Widgets interface.
  *                                  Default empty string.
- *     @type string $class          额外的CSS类，可分配给小工具界面的侧栏。
+ *     @type string $class          Extra CSS class to assign to the sidebar in the Widgets interface.
  *                                  Default empty.
  *     @type string $before_widget  HTML content to prepend to each widget's HTML output when assigned
  *                                  to this sidebar. Receives the widget's ID attribute as `%1$s`
@@ -281,6 +271,7 @@ function register_sidebar( $args = array() ) {
 	/**
 	 * Filters the sidebar default arguments.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @see register_sidebar()
 	 *
@@ -320,8 +311,6 @@ function register_sidebar( $args = array() ) {
 /**
  * Removes a sidebar from the list.
  *
- *
- *
  * @global array $gc_registered_sidebars Registered sidebars.
  *
  * @param string|int $sidebar_id The ID of the sidebar when it was registered.
@@ -334,8 +323,6 @@ function unregister_sidebar( $sidebar_id ) {
 
 /**
  * Checks if a sidebar is registered.
- *
- *
  *
  * @global array $gc_registered_sidebars Registered sidebars.
  *
@@ -356,10 +343,9 @@ function is_registered_sidebar( $sidebar_id ) {
  * The function can also be used to un-register widgets when `$output_callback`
  * parameter is an empty string.
  *
- *
- *
+ * @since 5.3.0 Formalized the existing and already documented `...$params` parameter
  *              by adding it to the function signature.
- *
+ * @since 5.8.0 Added show_instance_in_rest option.
  *
  * @global array $gc_registered_widgets            Uses stored registered widgets.
  * @global array $gc_registered_widget_controls    Stores the registered widget controls (options).
@@ -413,6 +399,7 @@ function gc_register_sidebar_widget( $id, $name, $output_callback, $options = ar
 		/**
 		 * Fires once for each registered widget.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param array $widget An array of default widget arguments.
 		 */
@@ -427,8 +414,6 @@ function gc_register_sidebar_widget( $id, $name, $output_callback, $options = ar
  * When registering widgets, the options can also include 'description' that
  * describes the widget for display on the widget administration panel or
  * in the theme.
- *
- *
  *
  * @global array $gc_registered_widgets
  *
@@ -453,8 +438,6 @@ function gc_widget_description( $id ) {
  * When registering sidebars a 'description' parameter can be included that
  * describes the sidebar for display on the widget administration panel.
  *
- *
- *
  * @global array $gc_registered_sidebars Registered sidebars.
  *
  * @param string $id sidebar ID.
@@ -475,8 +458,6 @@ function gc_sidebar_description( $id ) {
 /**
  * Remove widget from sidebar.
  *
- *
- *
  * @param int|string $id Widget ID.
  */
 function gc_unregister_sidebar_widget( $id ) {
@@ -496,8 +477,7 @@ function gc_unregister_sidebar_widget( $id ) {
 /**
  * Registers widget control callback for customizing options.
  *
- *
- *
+ * @since 5.3.0 Formalized the existing and already documented `...$params` parameter
  *              by adding it to the function signature.
  *
  * @global array $gc_registered_widget_controls
@@ -573,8 +553,7 @@ function gc_register_widget_control( $id, $name, $control_callback, $options = a
 /**
  * Registers the update callback for a widget.
  *
- *
- *
+ * @since 5.3.0 Formalized the existing and already documented `...$params` parameter
  *              by adding it to the function signature.
  *
  * @global array $gc_registered_widget_updates
@@ -607,8 +586,7 @@ function _register_widget_update_callback( $id_base, $update_callback, $options 
 /**
  * Registers the form callback for a widget.
  *
- *
- *
+ * @since 5.3.0 Formalized the existing and already documented `...$params` parameter
  *              by adding it to the function signature.
  *
  * @global array $gc_registered_widget_controls
@@ -657,8 +635,6 @@ function _register_widget_form_callback( $id, $name, $form_callback, $options = 
 /**
  * Remove control callback for widget.
  *
- *
- *
  * @param int|string $id Widget ID.
  */
 function gc_unregister_widget_control( $id ) {
@@ -671,8 +647,6 @@ function gc_unregister_widget_control( $id ) {
  * By default this displays the default sidebar or 'sidebar-1'. If your theme specifies the 'id' or
  * 'name' parameter for its registered sidebars you can pass an ID or name as the $index parameter.
  * Otherwise, you can pass in a numerical index to display the sidebar at that index.
- *
- *
  *
  * @global array $gc_registered_sidebars Registered sidebars.
  * @global array $gc_registered_widgets  Registered widgets.
@@ -769,6 +743,7 @@ function dynamic_sidebar( $index = 1 ) {
 		 * Note: The filter is evaluated on both the front end and back end,
 		 * including for the Inactive Widgets sidebar on the Widgets screen.
 		 *
+		 * @since 2.5.0
 		 *
 		 * @see register_sidebar()
 		 *
@@ -806,6 +781,7 @@ function dynamic_sidebar( $index = 1 ) {
 		 *
 		 * The action is not fired for empty sidebars.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param array $widget {
 		 *     An associative array of widget arguments.
@@ -878,8 +854,6 @@ function dynamic_sidebar( $index = 1 ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global array $gc_registered_widgets
  *
  * @param callable|false $callback      Optional. Widget callback to check. Default false.
@@ -899,7 +873,7 @@ function is_active_widget( $callback = false, $widget_id = false, $id_base = fal
 
 	if ( is_array( $sidebars_widgets ) ) {
 		foreach ( $sidebars_widgets as $sidebar => $widgets ) {
-			if ( $skip_inactive && ( 'gc_inactive_widgets' === $sidebar || 'orphaned_widgets' === substr( $sidebar, 0, 16 ) ) ) {
+			if ( $skip_inactive && ( 'gc_inactive_widgets' === $sidebar || str_starts_with( $sidebar, 'orphaned_widgets' ) ) ) {
 				continue;
 			}
 
@@ -923,8 +897,6 @@ function is_active_widget( $callback = false, $widget_id = false, $id_base = fal
  * For more information on this and similar theme functions, check out
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- *
- *
  *
  * @global array $gc_registered_widgets  Registered widgets.
  * @global array $gc_registered_sidebars Registered sidebars.
@@ -956,8 +928,6 @@ function is_dynamic_sidebar() {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @param string|int $index Sidebar name, id or number to check.
  * @return bool True if the sidebar has widgets, false otherwise.
  */
@@ -987,7 +957,6 @@ function is_active_sidebar( $index ) {
  * Will upgrade sidebar widget list, if needed. Will also save updated list, if
  * needed.
  *
- *
  * @access private
  *
  * @global array $_gc_sidebars_widgets
@@ -1003,8 +972,10 @@ function gc_get_sidebars_widgets( $deprecated = true ) {
 
 	global $_gc_sidebars_widgets, $sidebars_widgets;
 
-	// If loading from front page, consult $_gc_sidebars_widgets rather than options
-	// to see if gc_convert_widget_settings() has made manipulations in memory.
+	/*
+	 * If loading from front page, consult $_gc_sidebars_widgets rather than options
+	 * to see if gc_convert_widget_settings() has made manipulations in memory.
+	 */
 	if ( ! is_admin() ) {
 		if ( empty( $_gc_sidebars_widgets ) ) {
 			$_gc_sidebars_widgets = get_option( 'sidebars_widgets', array() );
@@ -1022,6 +993,7 @@ function gc_get_sidebars_widgets( $deprecated = true ) {
 	/**
 	 * Filters the list of sidebars and their widgets.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param array $sidebars_widgets An associative array of sidebars and their widgets.
 	 */
@@ -1031,7 +1003,7 @@ function gc_get_sidebars_widgets( $deprecated = true ) {
 /**
  * Retrieves the registered sidebar with the given ID.
  *
- *
+ * @since 5.9.0
  *
  * @global array $gc_registered_sidebars The registered sidebars.
  *
@@ -1060,7 +1032,6 @@ function gc_get_sidebar( $id ) {
 /**
  * Set the sidebar widget option to update sidebars.
  *
- *
  * @access private
  *
  * @global array $_gc_sidebars_widgets
@@ -1082,7 +1053,6 @@ function gc_set_sidebars_widgets( $sidebars_widgets ) {
 /**
  * Retrieve default registered sidebars list.
  *
- *
  * @access private
  *
  * @global array $gc_registered_sidebars Registered sidebars.
@@ -1103,8 +1073,6 @@ function gc_get_widget_defaults() {
 
 /**
  * Converts the widget settings from single to multi-widget format.
- *
- *
  *
  * @global array $_gc_sidebars_widgets
  *
@@ -1172,8 +1140,6 @@ function gc_convert_widget_settings( $base_name, $option_name, $settings ) {
 
 /**
  * Output an arbitrary widget as a template tag.
- *
- *
  *
  * @global GC_Widget_Factory $gc_widget_factory
  *
@@ -1248,8 +1214,6 @@ function the_widget( $widget, $instance = array(), $args = array() ) {
 /**
  * Retrieves the widget ID base value.
  *
- *
- *
  * @param string $id Widget ID.
  * @return string Widget ID base.
  */
@@ -1261,7 +1225,6 @@ function _get_widget_id_base( $id ) {
  * Handle sidebars config after theme change
  *
  * @access private
- *
  *
  * @global array $sidebars_widgets
  */
@@ -1287,8 +1250,6 @@ function _gc_sidebars_changed() {
  * Despite the word "retrieve" in the name, this function actually updates the database
  * and the global `$sidebars_widgets`. For that reason it should not be run on front end,
  * unless the `$theme_changed` value is 'customize' (to bypass the database write).
- *
- *
  *
  * @global array $gc_registered_sidebars Registered sidebars.
  * @global array $sidebars_widgets
@@ -1351,8 +1312,7 @@ function retrieve_widgets( $theme_changed = false ) {
 /**
  * Compares a list of sidebars with their widgets against an allowed list.
  *
- *
- *
+ * @since 4.9.2 Always tries to restore widget assignments from previous data, not just if sidebars needed mapping.
  *
  * @param array $existing_sidebars_widgets List of sidebars and their widget instance IDs.
  * @return array Mapped sidebars widgets.
@@ -1370,7 +1330,7 @@ function gc_map_sidebars_widgets( $existing_sidebars_widgets ) {
 	}
 
 	foreach ( $existing_sidebars_widgets as $sidebar => $widgets ) {
-		if ( 'gc_inactive_widgets' === $sidebar || 'orphaned_widgets' === substr( $sidebar, 0, 16 ) ) {
+		if ( 'gc_inactive_widgets' === $sidebar || str_starts_with( $sidebar, 'orphaned_widgets' ) ) {
 			$new_sidebars_widgets['gc_inactive_widgets'] = array_merge( $new_sidebars_widgets['gc_inactive_widgets'], (array) $widgets );
 			unset( $existing_sidebars_widgets[ $sidebar ] );
 		}
@@ -1478,7 +1438,7 @@ function gc_map_sidebars_widgets( $existing_sidebars_widgets ) {
 
 		// Remove orphaned widgets, we're only interested in previously active sidebars.
 		foreach ( $old_sidebars_widgets as $sidebar => $widgets ) {
-			if ( 'orphaned_widgets' === substr( $sidebar, 0, 16 ) ) {
+			if ( str_starts_with( $sidebar, 'orphaned_widgets' ) ) {
 				unset( $old_sidebars_widgets[ $sidebar ] );
 			}
 		}
@@ -1526,8 +1486,6 @@ function gc_map_sidebars_widgets( $existing_sidebars_widgets ) {
 /**
  * Compares a list of sidebars with their widgets against an allowed list.
  *
- *
- *
  * @param array $sidebars_widgets   List of sidebars and their widget instance IDs.
  * @param array $allowed_widget_ids Optional. List of widget IDs to compare against. Default: Registered widgets.
  * @return array Sidebars with allowed widgets.
@@ -1549,8 +1507,6 @@ function _gc_remove_unregistered_widgets( $sidebars_widgets, $allowed_widget_ids
 /**
  * Display the RSS entries in a list.
  *
- *
- *
  * @param string|array|object $rss  RSS url.
  * @param array               $args Widget arguments.
  */
@@ -1566,7 +1522,7 @@ function gc_widget_rss_output( $rss, $args = array() ) {
 
 	if ( is_gc_error( $rss ) ) {
 		if ( is_admin() || current_user_can( 'manage_options' ) ) {
-			echo '<p><strong>' . __( 'RSS错误：' ) . '</strong> ' . $rss->get_error_message() . '</p>';
+			echo '<p><strong>' . __( 'RSS错误：' ) . '</strong> ' . esc_html( $rss->get_error_message() ) . '</p>';
 		}
 		return;
 	}
@@ -1615,7 +1571,7 @@ function gc_widget_rss_output( $rss, $args = array() ) {
 			$summary = $desc;
 
 			// Change existing [...] to [&hellip;].
-			if ( '[...]' === substr( $summary, -5 ) ) {
+			if ( str_ends_with( $summary, '[...]' ) ) {
 				$summary = substr( $summary, 0, -5 ) . '[&hellip;]';
 			}
 
@@ -1660,8 +1616,6 @@ function gc_widget_rss_output( $rss, $args = array() ) {
  * and are as follows: 'url', 'title', 'items', 'show_summary', 'show_author',
  * 'show_date'.
  *
- *
- *
  * @param array|string $args   Values for input fields.
  * @param array        $inputs Override default display options.
  */
@@ -1689,7 +1643,7 @@ function gc_widget_rss_form( $args, $inputs = null ) {
 	$args['show_date']    = isset( $args['show_date'] ) ? (int) $args['show_date'] : (int) $inputs['show_date'];
 
 	if ( ! empty( $args['error'] ) ) {
-		echo '<p class="widget-error"><strong>' . __( 'RSS错误：' ) . '</strong> ' . $args['error'] . '</p>';
+		echo '<p class="widget-error"><strong>' . __( 'RSS错误：' ) . '</strong> ' . esc_html( $args['error'] ) . '</p>';
 	}
 
 	$esc_number = esc_attr( $args['number'] );
@@ -1744,8 +1698,6 @@ foreach ( array_keys( $default_inputs ) as $input ) :
  * feed items, error (if any), and whether to show summary, author, and date.
  * All respectively in the order of the array elements.
  *
- *
- *
  * @param array $widget_rss RSS widget feed data. Expects unescaped data.
  * @param bool  $check_feed Optional. Whether to check feed for errors. Default true.
  * @return array
@@ -1755,7 +1707,7 @@ function gc_widget_rss_process( $widget_rss, $check_feed = true ) {
 	if ( $items < 1 || 20 < $items ) {
 		$items = 10;
 	}
-	$url          = esc_url_raw( strip_tags( $widget_rss['url'] ) );
+	$url          = sanitize_url( strip_tags( $widget_rss['url'] ) );
 	$title        = isset( $widget_rss['title'] ) ? trim( strip_tags( $widget_rss['title'] ) ) : '';
 	$show_summary = isset( $widget_rss['show_summary'] ) ? (int) $widget_rss['show_summary'] : 0;
 	$show_author  = isset( $widget_rss['show_author'] ) ? (int) $widget_rss['show_author'] : 0;
@@ -1786,7 +1738,6 @@ function gc_widget_rss_process( $widget_rss, $check_feed = true ) {
  * Registers all of the default GeChiUI widgets on startup.
  *
  * Calls {@see 'widgets_init'} action after all of the GeChiUI widgets have been registered.
- *
  *
  */
 function gc_widgets_init() {
@@ -1837,6 +1788,7 @@ function gc_widgets_init() {
 	/**
 	 * Fires after all default GeChiUI widgets have been registered.
 	 *
+	 * @since 2.2.0
 	 */
 	do_action( 'widgets_init' );
 }
@@ -1845,7 +1797,7 @@ function gc_widgets_init() {
  * Enables the widgets block editor. This is hooked into 'after_setup_theme' so
  * that the block editor is enabled by default but can be disabled by themes.
  *
- *
+ * @since 5.8.0
  *
  * @access private
  */
@@ -1858,7 +1810,7 @@ function gc_setup_widgets_block_editor() {
  * unless a theme has removed support for widgets-block-editor or a plugin has
  * filtered the return value of this function.
  *
- *
+ * @since 5.8.0
  *
  * @return bool Whether to use the block editor to manage widgets.
  */
@@ -1866,6 +1818,7 @@ function gc_use_widgets_block_editor() {
 	/**
 	 * Filters whether to use the block editor to manage widgets.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param bool $use_widgets_block_editor Whether to use the block editor to manage widgets.
 	 */
@@ -1878,7 +1831,7 @@ function gc_use_widgets_block_editor() {
 /**
  * Converts a widget ID into its id_base and number components.
  *
- *
+ * @since 5.8.0
  *
  * @param string $id Widget ID.
  * @return array Array containing a widget's id_base and number components.
@@ -1900,7 +1853,7 @@ function gc_parse_widget_id( $id ) {
 /**
  * Finds the sidebar that a given widget belongs to.
  *
- *
+ * @since 5.8.0
  *
  * @param string $widget_id The widget ID to look for.
  * @return string|null The found sidebar's ID, or null if it was not found.
@@ -1920,7 +1873,7 @@ function gc_find_widgets_sidebar( $widget_id ) {
 /**
  * Assigns a widget to the given sidebar.
  *
- *
+ * @since 5.8.0
  *
  * @param string $widget_id  The widget ID to assign.
  * @param string $sidebar_id The sidebar ID to assign to. If empty, the widget won't be added to any sidebar.
@@ -1948,7 +1901,7 @@ function gc_assign_widget_to_sidebar( $widget_id, $sidebar_id ) {
 /**
  * Calls the render callback of a widget and returns the output.
  *
- *
+ * @since 5.8.0
  *
  * @param string $widget_id Widget ID.
  * @param string $sidebar_id Sidebar ID.
@@ -2014,7 +1967,7 @@ function gc_render_widget( $widget_id, $sidebar_id ) {
 /**
  * Calls the control callback of a widget and returns the output.
  *
- *
+ * @since 5.8.0
  *
  * @param string $id Widget ID.
  * @return string|null
@@ -2050,7 +2003,7 @@ function gc_render_widget_control( $id ) {
  * editor is hidden if a block enqueues 'gc-edit-post' stylesheet.
  * See https://core.trac.gechiui.com/ticket/53569.
  *
- *
+ * @since 5.8.0
  * @access private
  *
  * @global GC_Scripts $gc_scripts
@@ -2089,5 +2042,31 @@ function gc_check_widget_editor_deps() {
 				'5.8.0'
 			);
 		}
+	}
+}
+
+/**
+ * Registers the previous theme's sidebars for the block themes.
+ *
+ * @since 6.2.0
+ * @access private
+ *
+ * @global array $gc_registered_sidebars Registered sidebars.
+ */
+function _gc_block_theme_register_classic_sidebars() {
+	global $gc_registered_sidebars;
+
+	if ( ! gc_is_block_theme() ) {
+		return;
+	}
+
+	$classic_sidebars = get_theme_mod( 'gc_classic_sidebars' );
+	if ( empty( $classic_sidebars ) ) {
+		return;
+	}
+
+	// Don't use `register_sidebar` since it will enable the `widgets` support for a theme.
+	foreach ( $classic_sidebars as $sidebar ) {
+		$gc_registered_sidebars[ $sidebar['id'] ] = $sidebar;
 	}
 }

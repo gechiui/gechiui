@@ -14,7 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 <form name="post" action="comment.php" method="post" id="post">
 <?php gc_nonce_field( 'update-comment_' . $comment->comment_ID ); ?>
 <div class="wrap">
-<h1><?php _e( '编辑评论' ); ?></h1>
+	<div class="page-header"><h2 class="header-title"><?php _e( '编辑评论' ); ?></h2></div>
+
 
 <div id="poststuff">
 <input type="hidden" name="action" value="editedcomment" />
@@ -87,7 +88,7 @@ if ( 'approved' === gc_get_comment_status( $comment ) && $comment->comment_post_
 
 <div id="postbox-container-1" class="postbox-container">
 <div id="submitdiv" class="stuffbox" >
-<h2><?php _e( '保存' ); ?></h2>
+<h4><?php _e( '保存' ); ?></h4>
 <div class="inside">
 <div class="submitbox" id="submitcomment">
 <div id="minor-publishing">
@@ -123,7 +124,7 @@ switch ( $comment->comment_approved ) {
 <?php
 $submitted = sprintf(
 	/* translators: 1: Comment date, 2: Comment time. */
-	__( '%1$s %2$s' ),
+	__( '%2$s, %1$s' ),
 	/* translators: Publish box date format, see https://www.php.net/manual/datetime.format.php */
 	date_i18n( _x( 'Y年n月j日', 'publish box date format' ), strtotime( $comment->comment_date ) ),
 	/* translators: Publish box time format, see https://www.php.net/manual/datetime.format.php */
@@ -204,7 +205,7 @@ endif;
 <?php echo "<a class='submitdelete deletion' href='" . gc_nonce_url( 'comment.php?action=' . ( ! EMPTY_TRASH_DAYS ? 'deletecomment' : 'trashcomment' ) . "&amp;c=$comment->comment_ID&amp;_gc_original_http_referer=" . urlencode( gc_get_referer() ), 'delete-comment_' . $comment->comment_ID ) . "'>" . ( ! EMPTY_TRASH_DAYS ? __( '永久删除' ) : __( '移动至回收站' ) ) . "</a>\n"; ?>
 </div>
 <div id="publishing-action">
-<?php submit_button( __( '更新' ), 'primary large', 'save', false ); ?>
+<?php submit_button( __( '更新' ), 'primary sm', 'save', false ); ?>
 </div>
 <div class="clear"></div>
 </div>
@@ -220,7 +221,6 @@ do_action( 'add_meta_boxes', 'comment', $comment );
 
 /**
  * Fires when comment-specific meta boxes are added.
- *
  *
  *
  * @param GC_Comment $comment Comment object.

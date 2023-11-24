@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/zxcvbn-async.js
+ * @output assets/js/zxcvbn-async.js
  */
 
 /* global _zxcvbnSettings */

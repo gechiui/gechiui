@@ -4,7 +4,7 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
+ * @since 4.3.0
  */
 
 /**
@@ -12,15 +12,17 @@
  *
  * Implements menu management in the Customizer.
  *
- *
+ * @since 4.3.0
  *
  * @see GC_Customize_Manager
  */
+#[AllowDynamicProperties]
 final class GC_Customize_Nav_Menus {
 
 	/**
 	 * GC_Customize_Manager instance.
 	 *
+	 * @since 4.3.0
 	 * @var GC_Customize_Manager
 	 */
 	public $manager;
@@ -28,6 +30,7 @@ final class GC_Customize_Nav_Menus {
 	/**
 	 * Original nav menu locations before the theme was switched.
 	 *
+	 * @since 4.9.0
 	 * @var array
 	 */
 	protected $original_nav_menu_locations;
@@ -35,6 +38,7 @@ final class GC_Customize_Nav_Menus {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param GC_Customize_Manager $manager Customizer bootstrap instance.
 	 */
@@ -70,6 +74,7 @@ final class GC_Customize_Nav_Menus {
 	/**
 	 * Adds a nonce for customizing menus.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param string[] $nonces Array of nonces.
 	 * @return string[] Modified array of nonces.
@@ -82,6 +87,7 @@ final class GC_Customize_Nav_Menus {
 	/**
 	 * Ajax handler for loading available menu items.
 	 *
+	 * @since 4.3.0
 	 */
 	public function ajax_load_available_items() {
 		check_ajax_referer( 'customize-menus', 'customize-menus-nonce' );
@@ -124,18 +130,19 @@ final class GC_Customize_Nav_Menus {
 	/**
 	 * Performs the post_type and taxonomy queries for loading available menu items.
 	 *
+	 * @since 4.3.0
 	 *
-	 * @param string $type   Optional. Accepts any custom object type and has built-in support for
-	 *                         'post_type' and 'taxonomy'. Default is 'post_type'.
-	 * @param string $object Optional. Accepts any registered taxonomy or post type name. Default is 'page'.
-	 * @param int    $page   Optional. The page number used to generate the query offset. Default is '0'.
+	 * @param string $object_type Optional. Accepts any custom object type and has built-in support for
+	 *                            'post_type' and 'taxonomy'. Default is 'post_type'.
+	 * @param string $object_name Optional. Accepts any registered taxonomy or post type name. Default is 'page'.
+	 * @param int    $page        Optional. The page number used to generate the query offset. Default is '0'.
 	 * @return array|GC_Error An array of menu items on success, a GC_Error object on failure.
 	 */
-	public function load_available_items_query( $type = 'post_type', $object = 'page', $page = 0 ) {
+	public function load_available_items_query( $object_type = 'post_type', $object_name = 'page', $page = 0 ) {
 		$items = array();
 
-		if ( 'post_type' === $type ) {
-			$post_type = get_post_type_object( $object );
+		if ( 'post_type' === $object_type ) {
+			$post_type = get_post_type_object( $object_name );
 			if ( ! $post_type ) {
 				return new GC_Error( 'nav_menus_invalid_post_type' );
 			}
@@ -146,7 +153,7 @@ final class GC_Customize_Nav_Menus {
 			 */
 			$important_pages   = array();
 			$suppress_page_ids = array();
-			if ( 0 === $page && 'page' === $object ) {
+			if ( 0 === $page && 'page' === $object_name ) {
 				// Insert Front Page or custom "Home" link.
 				$front_page = 'page' === get_option( 'show_on_front' ) ? (int) get_option( 'page_on_front' ) : 0;
 				if ( ! empty( $front_page ) ) {
@@ -182,15 +189,15 @@ final class GC_Customize_Nav_Menus {
 						$suppress_page_ids[] = $privacy_policy_page->ID;
 					}
 				}
-			} elseif ( 'post' !== $object && 0 === $page && $post_type->has_archive ) {
+			} elseif ( 'post' !== $object_name && 0 === $page && $post_type->has_archive ) {
 				// Add a post type archive link.
 				$items[] = array(
-					'id'         => $object . '-archive',
+					'id'         => $object_name . '-archive',
 					'title'      => $post_type->labels->archives,
 					'type'       => 'post_type_archive',
 					'type_label' => __( '文章类型归档' ),
-					'object'     => $object,
-					'url'        => get_post_type_archive_link( $object ),
+					'object'     => $object_name,
+					'url'        => get_post_type_archive_link( $object_name ),
 				);
 			}
 
@@ -210,7 +217,7 @@ final class GC_Customize_Nav_Menus {
 				'offset'      => 10 * $page,
 				'orderby'     => 'date',
 				'order'       => 'DESC',
-				'post_type'   => $object,
+				'post_type'   => $object_name,
 			);
 
 			// Add suppression array to arguments for get_posts.
@@ -247,10 +254,10 @@ final class GC_Customize_Nav_Menus {
 					'url'        => get_permalink( (int) $post->ID ),
 				);
 			}
-		} elseif ( 'taxonomy' === $type ) {
+		} elseif ( 'taxonomy' === $object_type ) {
 			$terms = get_terms(
 				array(
-					'taxonomy'     => $object,
+					'taxonomy'     => $object_name,
 					'child_of'     => 0,
 					'exclude'      => '',
 					'hide_empty'   => false,
@@ -284,13 +291,14 @@ final class GC_Customize_Nav_Menus {
 		/**
 		 * Filters the available menu items.
 		 *
+		 * @since 4.3.0
 		 *
-		 * @param array  $items  The array of menu items.
-		 * @param string $type   The object type.
-		 * @param string $object The object name.
-		 * @param int    $page   The current page number.
+		 * @param array  $items       The array of menu items.
+		 * @param string $object_type The object type.
+		 * @param string $object_name The object name.
+		 * @param int    $page        The current page number.
 		 */
-		$items = apply_filters( 'customize_nav_menu_available_items', $items, $type, $object, $page );
+		$items = apply_filters( 'customize_nav_menu_available_items', $items, $object_type, $object_name, $page );
 
 		return $items;
 	}
@@ -298,6 +306,7 @@ final class GC_Customize_Nav_Menus {
 	/**
 	 * Ajax handler for searching available menu items.
 	 *
+	 * @since 4.3.0
 	 */
 	public function ajax_search_available_items() {
 		check_ajax_referer( 'customize-menus', 'customize-menus-nonce' );
@@ -335,6 +344,7 @@ final class GC_Customize_Nav_Menus {
 	 *
 	 * Based on GC_Editor::gc_link_query().
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param array $args Optional. Accepts 'pagenum' and 's' (search) arguments.
 	 * @return array Menu items.
@@ -456,6 +466,7 @@ final class GC_Customize_Nav_Menus {
 		/**
 		 * Filters the available menu items during a search request.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @param array $items The array of menu items.
 		 * @param array $args  Includes 'pagenum' and 's' (search) arguments.
@@ -466,8 +477,9 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Enqueue scripts and styles for Customizer pane.
+	 * Enqueues scripts and styles for Customizer pane.
 	 *
+	 * @since 4.3.0
 	 */
 	public function enqueue_scripts() {
 		gc_enqueue_style( 'customize-nav-menus' );
@@ -565,6 +577,7 @@ final class GC_Customize_Nav_Menus {
 	 * to override the default false value with an array of args to pass to
 	 * the GC_Customize_Setting constructor.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param false|array $setting_args The arguments to the GC_Customize_Setting constructor.
 	 * @param string      $setting_id   ID for dynamic setting, usually coming from `$_POST['customized']`.
@@ -586,8 +599,9 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Allow non-statically created settings to be constructed with custom GC_Customize_Setting subclass.
+	 * Allows non-statically created settings to be constructed with custom GC_Customize_Setting subclass.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param string $setting_class GC_Customize_Setting or a subclass.
 	 * @param string $setting_id    ID for dynamic setting, usually coming from `$_POST['customized']`.
@@ -606,8 +620,9 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Add the customizer settings and controls.
+	 * Adds the customizer settings and controls.
 	 *
+	 * @since 4.3.0
 	 */
 	public function customize_register() {
 		$changeset = $this->manager->unsanitized_post_values();
@@ -635,7 +650,7 @@ final class GC_Customize_Nav_Menus {
 		$this->manager->register_control_type( 'GC_Customize_Nav_Menu_Item_Control' );
 
 		// Create a panel for Menus.
-		$description = '<p>' . __( '这个面板被用来管理您的站点上已发布内容的导航菜单。您可以创建菜单及添加项目到已存在的内容，如页面、文章、分类、标签、格式及自定义链接。' ) . '</p>';
+		$description = '<p>' . __( '这个面板被用来管理您的系统上已发布内容的导航菜单。您可以创建菜单及添加项目到已存在的内容，如页面、文章、分类、标签、格式及自定义链接。' ) . '</p>';
 		if ( current_theme_supports( 'widgets' ) ) {
 			$description .= '<p>' . sprintf(
 				/* translators: %s: URL to the Widgets panel of the Customizer. */
@@ -849,11 +864,12 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Get the base10 intval.
+	 * Gets the base10 intval.
 	 *
 	 * This is used as a setting's sanitize_callback; we can't use just plain
 	 * intval because the second argument is not what intval() expects.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param mixed $value Number to convert.
 	 * @return int Integer.
@@ -863,8 +879,10 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Return an array of all the available item types.
+	 * Returns an array of all the available item types.
 	 *
+	 * @since 4.3.0
+	 * @since 4.7.0  Each array item now includes a `$type_label` in addition to `$title`, `$type`, and `$object`.
 	 *
 	 * @return array The available menu item types.
 	 */
@@ -901,6 +919,8 @@ final class GC_Customize_Nav_Menus {
 		/**
 		 * Filters the available menu item types.
 		 *
+		 * @since 4.3.0
+		 * @since 4.7.0  Each array item now includes a `$type_label` in addition to `$title`, `$type`, and `$object`.
 		 *
 		 * @param array $item_types Navigation menu item types.
 		 */
@@ -910,8 +930,9 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Add a new `auto-draft` post.
+	 * Adds a new `auto-draft` post.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array $postarr {
 	 *     Post array. Note that post_status is overridden to be `auto-draft`.
@@ -965,6 +986,7 @@ final class GC_Customize_Nav_Menus {
 	/**
 	 * Ajax handler for adding a new auto-draft post.
 	 *
+	 * @since 4.7.0
 	 */
 	public function ajax_insert_auto_draft_post() {
 		if ( ! check_ajax_referer( 'customize-menus', 'customize-menus-nonce', false ) ) {
@@ -1035,10 +1057,11 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Print the JavaScript templates used to render Menu Customizer components.
+	 * Prints the JavaScript templates used to render Menu Customizer components.
 	 *
 	 * Templates are imported into the JS use gc.template.
 	 *
+	 * @since 4.3.0
 	 */
 	public function print_templates() {
 		?>
@@ -1053,7 +1076,7 @@ final class GC_Customize_Nav_Menus {
 						<button type="button" class="button-link item-add">
 							<span class="screen-reader-text">
 							<?php
-								/* translators: 1: Title of a menu item, 2: Type of a menu item. */
+								/* translators: Hidden accessibility text. 1: Title of a menu item, 2: Type of a menu item. */
 								printf( __( '添加至菜单：%1$s（%2$s）' ), '{{ data.title || gc.customize.Menus.data.l10n.untitled }}', '{{ data.type_label }}' );
 							?>
 							</span>
@@ -1087,7 +1110,7 @@ final class GC_Customize_Nav_Menus {
 
 		<script type="text/html" id="tmpl-nav-menu-submit-new-button">
 			<p id="customize-new-menu-submit-description"><?php _e( '点击“继续”来添加链接至您的新菜单。' ); ?></p>
-			<button id="customize-new-menu-submit" type="button" class="button" aria-describedby="customize-new-menu-submit-description"><?php _e( '下一步' ); ?></button>
+			<button id="customize-new-menu-submit" type="button" class="btn btn-primary btn-tone btn-sm" aria-describedby="customize-new-menu-submit-description"><?php _e( '下一步' ); ?></button>
 		</script>
 
 		<script type="text/html" id="tmpl-nav-menu-locations-header">
@@ -1097,7 +1120,7 @@ final class GC_Customize_Nav_Menus {
 
 		<script type="text/html" id="tmpl-nav-menu-create-menu-section-title">
 			<p class="add-new-menu-notice">
-				<?php _e( '看起来您的站点还没有任何菜单。想要新建一个？单击按钮开始。' ); ?>
+				<?php _e( '您的系统似乎还没有任何菜单。想要新建一个吗？单击按钮开始。' ); ?>
 			</p>
 			<p class="add-new-menu-notice">
 				<?php _e( '您将要创建一个菜单，指定显示位置，并向其中加入菜单项目，如页面或分类链接。如果您的主题有多个菜单区域，则您可能需要创建多于一个菜单。' ); ?>
@@ -1112,15 +1135,21 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Print the HTML template used to render the add-menu-item frame.
+	 * Prints the HTML template used to render the add-menu-item frame.
 	 *
+	 * @since 4.3.0
 	 */
 	public function available_items_template() {
 		?>
 		<div id="available-menu-items" class="accordion-container">
 			<div class="customize-section-title">
 				<button type="button" class="customize-section-back" tabindex="-1">
-					<span class="screen-reader-text"><?php _e( '返回' ); ?></span>
+					<span class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( '返回' );
+						?>
+					</span>
 				</button>
 				<h3>
 					<span class="customize-action">
@@ -1134,13 +1163,28 @@ final class GC_Customize_Nav_Menus {
 			</div>
 			<div id="available-menu-items-search" class="accordion-section cannot-expand">
 				<div class="accordion-section-title">
-					<label class="screen-reader-text" for="menu-items-search"><?php _e( '搜索菜单项' ); ?></label>
+					<label class="screen-reader-text" for="menu-items-search">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( '搜索菜单项' );
+						?>
+					</label>
 					<input type="text" id="menu-items-search" placeholder="<?php esc_attr_e( '搜索菜单项&hellip;' ); ?>" aria-describedby="menu-items-search-desc" />
-					<p class="screen-reader-text" id="menu-items-search-desc"><?php _e( '搜索结果会随着您的输入而不断更新。' ); ?></p>
+					<p class="screen-reader-text" id="menu-items-search-desc">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( '搜索结果会随着您的输入而不断更新。' );
+						?>
+					</p>
 					<span class="spinner"></span>
 				</div>
 				<div class="search-icon" aria-hidden="true"></div>
-				<button type="button" class="clear-results"><span class="screen-reader-text"><?php _e( '清空结果' ); ?></span></button>
+				<button type="button" class="clear-results"><span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '清空结果' );
+					?>
+				</span></button>
 				<ul class="accordion-section-content available-menu-items-list" data-type="search"></ul>
 			</div>
 			<?php
@@ -1169,13 +1213,13 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Print the markup for new menu items.
+	 * Prints the markup for new menu items.
 	 *
 	 * To be used in the template #available-menu-items.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array $available_item_type Menu item data to output, including title, type, and label.
-	 * @return void
 	 */
 	protected function print_post_type_container( $available_item_type ) {
 		$id = sprintf( 'available-menu-items-%s-%s', $available_item_type['type'], $available_item_type['object'] );
@@ -1213,10 +1257,9 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Print the markup for available menu item custom links.
+	 * Prints the markup for available menu item custom links.
 	 *
-	 *
-	 * @return void
+	 * @since 4.7.0
 	 */
 	protected function print_custom_links_available_menu_item() {
 		?>
@@ -1224,7 +1267,12 @@ final class GC_Customize_Nav_Menus {
 			<h4 class="accordion-section-title" role="presentation">
 				<?php _e( '自定义链接' ); ?>
 				<button type="button" class="button-link" aria-expanded="false">
-					<span class="screen-reader-text"><?php _e( '切换小节：自定义链接' ); ?></span>
+					<span class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( '切换小节：自定义链接' );
+						?>
+					</span>
 					<span class="toggle-indicator" aria-hidden="true"></span>
 				</button>
 			</h4>
@@ -1240,7 +1288,7 @@ final class GC_Customize_Nav_Menus {
 				</p>
 				<p class="button-controls">
 					<span class="add-to-menu">
-						<input type="submit" class="button submit-add-to-menu right" value="<?php esc_attr_e( '添加至菜单' ); ?>" name="add-custom-menu-item" id="custom-menu-item-submit">
+						<input type="submit" class="btn btn-primary btn-tone submit-add-to-menu float-right" value="<?php esc_attr_e( '添加至菜单' ); ?>" name="add-custom-menu-item" id="custom-menu-item-submit">
 						<span class="spinner"></span>
 					</span>
 				</p>
@@ -1256,6 +1304,7 @@ final class GC_Customize_Nav_Menus {
 	/**
 	 * Nav menu args used for each instance, keyed by the args HMAC.
 	 *
+	 * @since 4.3.0
 	 * @var array
 	 */
 	public $preview_nav_menu_instance_args = array();
@@ -1263,6 +1312,7 @@ final class GC_Customize_Nav_Menus {
 	/**
 	 * Filters arguments for dynamic nav_menu selective refresh partials.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param array|false $partial_args Partial args.
 	 * @param string      $partial_id   Partial ID.
@@ -1290,20 +1340,22 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Add hooks for the Customizer preview.
+	 * Adds hooks for the Customizer preview.
 	 *
+	 * @since 4.3.0
 	 */
 	public function customize_preview_init() {
 		add_action( 'gc_enqueue_scripts', array( $this, 'customize_preview_enqueue_deps' ) );
 		add_filter( 'gc_nav_menu_args', array( $this, 'filter_gc_nav_menu_args' ), 1000 );
 		add_filter( 'gc_nav_menu', array( $this, 'filter_gc_nav_menu' ), 10, 2 );
-		add_filter( 'gc_footer', array( $this, 'export_preview_data' ), 1 );
+		add_action( 'gc_footer', array( $this, 'export_preview_data' ), 1 );
 		add_filter( 'customize_render_partials_response', array( $this, 'export_partial_rendered_nav_menu_instances' ) );
 	}
 
 	/**
-	 * Make the auto-draft status protected so that it can be queried.
+	 * Makes the auto-draft status protected so that it can be queried.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @global stdClass[] $gc_post_statuses List of post statuses.
 	 */
@@ -1313,8 +1365,9 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Sanitize post IDs for posts created for nav menu items to be published.
+	 * Sanitizes post IDs for posts created for nav menu items to be published.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array $value Post IDs.
 	 * @return array Post IDs.
@@ -1342,13 +1395,14 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Publish the auto-draft posts that were created for nav menu items.
+	 * Publishes the auto-draft posts that were created for nav menu items.
 	 *
 	 * The post IDs will have been sanitized by already by
 	 * `GC_Customize_Nav_Menu_Items::sanitize_nav_menus_created_posts()` to
 	 * remove any post IDs for which the user cannot publish or for which the
 	 * post is not an auto-draft.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_Customize_Setting $setting Customizer setting object.
 	 */
@@ -1382,8 +1436,9 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Keep track of the arguments that are being passed to gc_nav_menu().
+	 * Keeps track of the arguments that are being passed to gc_nav_menu().
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see gc_nav_menu()
 	 * @see GC_Customize_Widgets::filter_dynamic_sidebar_params()
@@ -1417,7 +1472,7 @@ final class GC_Customize_Nav_Menus {
 			(
 				! empty( $args['container'] )
 				||
-				( isset( $args['items_wrap'] ) && '<' === substr( $args['items_wrap'], 0, 1 ) )
+				( isset( $args['items_wrap'] ) && str_starts_with( $args['items_wrap'], '<' ) )
 			)
 		);
 		$args['can_partial_refresh'] = $can_partial_refresh;
@@ -1451,6 +1506,7 @@ final class GC_Customize_Nav_Menus {
 	 *
 	 * Injects attributes into container element.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see gc_nav_menu()
 	 *
@@ -1474,6 +1530,7 @@ final class GC_Customize_Nav_Menus {
 	 *
 	 * Note that the array is expected to be pre-sorted.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param array $args The arguments to hash.
 	 * @return string Hashed nav menu arguments.
@@ -1483,8 +1540,9 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Enqueue scripts for the Customizer preview.
+	 * Enqueues scripts for the Customizer preview.
 	 *
+	 * @since 4.3.0
 	 */
 	public function customize_preview_enqueue_deps() {
 		gc_enqueue_script( 'customize-preview-nav-menus' ); // Note that we have overridden this.
@@ -1493,6 +1551,7 @@ final class GC_Customize_Nav_Menus {
 	/**
 	 * Exports data from PHP to JS.
 	 *
+	 * @since 4.3.0
 	 */
 	public function export_preview_data() {
 
@@ -1504,8 +1563,9 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Export any gc_nav_menu() calls during the rendering of any partials.
+	 * Exports any gc_nav_menu() calls during the rendering of any partials.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param array $response Response.
 	 * @return array Response.
@@ -1516,8 +1576,9 @@ final class GC_Customize_Nav_Menus {
 	}
 
 	/**
-	 * Render a specific menu via gc_nav_menu() using the supplied arguments.
+	 * Renders a specific menu via gc_nav_menu() using the supplied arguments.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see gc_nav_menu()
 	 *

@@ -1,0 +1,49 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/comment-edit-link",
+	"title": "评论编辑链接",
+	"category": "theme",
+	"ancestor": [ "core/comment-template" ],
+	"description": "显示一个通向 GeChiUI 仪表盘中编辑评论的链接。此链接仅对于具有编辑权限的用户可见。",
+	"textdomain": "default",
+	"usesContext": [ "commentId" ],
+	"attributes": {
+		"linkTarget": {
+			"type": "string",
+			"default": "_self"
+		},
+		"textAlign": {
+			"type": "string"
+		}
+	},
+	"supports": {
+		"html": false,
+		"color": {
+			"link": true,
+			"gradients": true,
+			"text": false,
+			"__experimentalDefaultControls": {
+				"background": true,
+				"link": true
+			}
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalTextTransform": true,
+			"__experimentalTextDecoration": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		}
+	}
+}

@@ -7,7 +7,6 @@
  *
  * @package GeChiUI
  * @subpackage oEmbed
- *
  */
 
 get_header( 'embed' );

@@ -49,8 +49,7 @@
 }
 
 #dashboard-widgets .meta-box-sortables {
-  display: flow-root;
-  /* avoid margin collapsing between parent and first/last child elements */
+  display: flow-root; /* avoid margin collapsing between parent and first/last child elements */
   /* Required min-height to make the jQuery UI Sortable drop zone work. */
   min-height: 100px;
   margin: 0 8px 20px;
@@ -111,28 +110,20 @@
   max-width: 100%;
 }
 
+/* Screen meta exception for when the "Dashboard" heading is missing or located below the Welcome Panel. */
+.index-php #screen-meta-links {
+  margin: 0 20px 8px 0;
+}
+
 /* Welcome Panel */
 .welcome-panel {
   position: relative;
   overflow: auto;
   margin: 16px 0;
-  background: #2271b1 url(../images/about-texture.png) center repeat;
-  background-size: 500px 500px;
-  background-blend-mode: overlay;
+  background-color: #151515;
   font-size: 14px;
   line-height: 1.3;
-}
-
-.welcome-panel::before {
-  content: "";
-  position: absolute;
-  top: -16px;
-  right: 96px;
-  z-index: 0;
-  width: 300px;
-  height: 382px;
-  background: url(../images/about-header-about.svg) no-repeat center;
-  background-size: contain;
+  clear: both;
 }
 
 .welcome-panel h2 {
@@ -140,7 +131,6 @@
   font-size: 48px;
   font-weight: 600;
   line-height: 1.25;
-  color: #fff;
 }
 
 .welcome-panel h3 {
@@ -156,16 +146,40 @@
 }
 
 .welcome-panel-header {
+  position: relative;
   color: #fff;
 }
 
-.welcome-panel-header a {
-  color: #fff;
+.welcome-panel-header-image {
+  position: absolute !important;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0 !important;
+  overflow: hidden;
+}
+
+.welcome-panel-header-image svg {
+  display: block;
+  margin: auto;
+  width: 100%;
+  height: 100%;
+}
+
+.rtl .welcome-panel-header-image svg {
+  transform: scaleX(-1);
+}
+
+.welcome-panel-header * {
+  color: inherit;
+  position: relative;
+  z-index: 1;
 }
 
 .welcome-panel-header a:focus,
 .welcome-panel-header a:hover {
-  color: #f5e6ab;
+  color: inherit;
   text-decoration: none;
 }
 
@@ -188,9 +202,9 @@
   right: 10px;
   padding: 10px 15px 10px 24px;
   font-size: 13px;
-  line-height: 1.23076923;
-  /* Chrome rounding, needs to be 16px equivalent */
+  line-height: 1.23076923; /* Chrome rounding, needs to be 16px equivalent */
   text-decoration: none;
+  z-index: 1; /* Raise above the version image. */
 }
 
 .welcome-panel .welcome-panel-close:before {
@@ -211,7 +225,7 @@
 .welcome-panel .welcome-panel-close:focus,
 .welcome-panel .welcome-panel-close:hover::before,
 .welcome-panel .welcome-panel-close:focus::before {
-  color: #f5e6ab;
+  color: #fff972;
 }
 
 /* @deprecated 5.9.0 -- Button removed from panel. */
@@ -236,8 +250,7 @@
   margin-right: auto;
   max-width: 1500px;
   width: 100%;
-  /* 408px = 300px (balloon width) + 96px (offset from edge) + 16px (spacing). */
-  padding: 48px 408px 48px 48px;
+  padding: 48px 0 80px 48px;
 }
 
 .welcome-panel .welcome-panel-column-container {
@@ -246,7 +259,6 @@
   clear: both;
   display: grid;
   z-index: 1;
-  margin-top: 32px;
   padding: 48px;
   grid-template-columns: repeat(3, 1fr);
   gap: 32px;
@@ -257,11 +269,14 @@
 [class*=welcome-panel-icon] {
   height: 60px;
   width: 60px;
-  background-color: #1d2327;
   background-position: center;
   background-size: 24px 24px;
   background-repeat: no-repeat;
   border-radius: 100%;
+}
+
+.welcome-panel-column > svg {
+  margin-top: 4px;
 }
 
 .welcome-panel-column {
@@ -391,10 +406,8 @@
 /* Right Now specific Icons styles */
 #dashboard_right_now .search-engines-info:before,
 #dashboard_right_now li a:before,
-#dashboard_right_now li > span:before {
-  /* get only the first level span to exclude screen-reader-text in mu-storage */
-  content: "\f159";
-  /* generic icon for items added by CPTs ? */
+#dashboard_right_now li > span:before { /* get only the first level span to exclude screen-reader-text in mu-storage */
+  content: "\f159"; /* generic icon for items added by CPTs ? */
   padding: 0 5px 0 0;
 }
 
@@ -546,8 +559,7 @@
   height: 18px;
   padding-right: 10px;
   width: 18px;
-  display: none;
-  /* Hide on smaller screens */
+  display: none; /* Hide on smaller screens */
 }
 
 .event-icon:before {
@@ -595,8 +607,7 @@
 
 #dashboard_primary .widget-loading {
   padding: 12px 12px 0;
-  margin-bottom: 1em !important;
-  /* Needs to override `.postbox .inside > p:last-child` in common.css */
+  margin-bottom: 1em !important; /* Needs to override `.postbox .inside > p:last-child` in common.css */
 }
 
 /* Notice when JS is off. */
@@ -865,37 +876,37 @@ body #dashboard-widgets .postbox form .submit {
 
 #dashboard_activity .subsubsub a .count,
 #dashboard_activity .subsubsub a.current .count {
-  color: #646970;
-  /* white background on the dashboard but #f0f0f1 on list tables */
+  color: #646970; /* white background on the dashboard but #f0f0f1 on list tables */
 }
 
 #future-posts ul,
 #published-posts ul {
-  clear: both;
-  margin-bottom: 0;
+  margin: 8px -12px 0 -12px;
 }
 
 #future-posts li,
 #published-posts li {
-  margin-bottom: 8px;
+  display: grid;
+  grid-template-columns: clamp(160px, 2vw + 140px, 200px) auto;
+  column-gap: 10px;
+  color: #646970;
+  padding: 4px 12px;
 }
 
-#future-posts ul span,
-#published-posts ul span {
-  display: inline-block;
-  margin-right: 5px;
-  min-width: 150px;
-  color: #646970;
+#future-posts li:nth-child(odd),
+#published-posts li:nth-child(odd) {
+  background-color: #f6f7f7;
 }
 
 .activity-block {
   border-bottom: 1px solid #f0f0f1;
-  margin: 0 -12px;
+  margin: 0 -12px 6px -12px;
   padding: 8px 12px 4px;
 }
 
 .activity-block:last-child {
   border-bottom: none;
+  margin-bottom: 0;
 }
 
 .activity-block .subsubsub li {
@@ -1173,7 +1184,8 @@ a.rsswidget {
   padding-right: 6px;
 }
 
-#dashboard_php_nag.php-insecure .dashicons-warning {
+#dashboard_php_nag.php-no-security-updates .dashicons-warning,
+#dashboard_php_nag.php-version-lower-than-future-minimum .dashicons-warning {
   color: #d63638;
 }
 
@@ -1185,12 +1197,13 @@ a.rsswidget {
   margin: 12px 0;
 }
 
-#dashboard_php_nag h3 {
-  font-weight: 600;
-}
-
 #dashboard_php_nag .button .dashicons-external {
   line-height: 25px;
+}
+
+.bigger-bolder-text {
+  font-weight: 600;
+  font-size: 14px;
 }
 
 /* =Media Queries
@@ -1200,7 +1213,6 @@ a.rsswidget {
     display: flex;
     justify-content: center;
   }
-
   .welcome-panel-column {
     width: 100%;
     max-width: 460px;
@@ -1211,15 +1223,12 @@ a.rsswidget {
   #gcbody-content #dashboard-widgets .postbox-container {
     width: 100%;
   }
-
   #dashboard-widgets .meta-box-sortables {
     min-height: 0;
   }
-
   .is-dragging-metaboxes #dashboard-widgets .meta-box-sortables {
     min-height: 100px;
   }
-
   #dashboard-widgets .meta-box-sortables.empty-container {
     margin-bottom: 0;
   }
@@ -1229,49 +1238,41 @@ a.rsswidget {
   #gcbody-content #dashboard-widgets .postbox-container {
     width: 49.5%;
   }
-
   #gcbody-content #dashboard-widgets #postbox-container-2,
-#gcbody-content #dashboard-widgets #postbox-container-3,
-#gcbody-content #dashboard-widgets #postbox-container-4 {
+  #gcbody-content #dashboard-widgets #postbox-container-3,
+  #gcbody-content #dashboard-widgets #postbox-container-4 {
     float: right;
     width: 50.5%;
   }
-
   #dashboard-widgets #postbox-container-3 .empty-container,
-#dashboard-widgets #postbox-container-4 .empty-container {
+  #dashboard-widgets #postbox-container-4 .empty-container {
     outline: none;
     height: 0;
     min-height: 0;
     margin-bottom: 0;
   }
-
   #dashboard-widgets #postbox-container-3 .empty-container:after,
-#dashboard-widgets #postbox-container-4 .empty-container:after {
+  #dashboard-widgets #postbox-container-4 .empty-container:after {
     display: none;
   }
-
   #gcbody #gcbody-content #dashboard-widgets.columns-1 .postbox-container {
     width: 100%;
   }
-
   #gcbody #dashboard-widgets .metabox-holder.columns-1 .postbox-container .empty-container {
     outline: none;
     height: 0;
     min-height: 0;
     margin-bottom: 0;
   }
-
   /* show the radio buttons for column prefs only for one or two columns */
   .index-php .screen-layout,
-.index-php .columns-prefs {
+  .index-php .columns-prefs {
     display: block;
   }
-
   .columns-prefs .columns-prefs-3,
-.columns-prefs .columns-prefs-4 {
+  .columns-prefs .columns-prefs-4 {
     display: none;
   }
-
   #dashboard-widgets .postbox-container .empty-container:after {
     display: block;
   }
@@ -1281,27 +1282,22 @@ a.rsswidget {
   #gcbody-content #dashboard-widgets .postbox-container {
     width: 33.5%;
   }
-
   #gcbody-content #dashboard-widgets #postbox-container-1 {
     width: 33%;
   }
-
   #gcbody-content #dashboard-widgets #postbox-container-3,
-#gcbody-content #dashboard-widgets #postbox-container-4 {
+  #gcbody-content #dashboard-widgets #postbox-container-4 {
     float: right;
   }
-
   #dashboard-widgets #postbox-container-4 .empty-container {
     outline: none;
     height: 0;
     min-height: 0;
     margin-bottom: 0;
   }
-
   #dashboard-widgets #postbox-container-4 .empty-container:after {
     display: none;
   }
-
   #dashboard-widgets .postbox-container .empty-container:after {
     display: block;
   }
@@ -1318,7 +1314,6 @@ a.rsswidget {
     display: inline-block;
     margin-right: 13px;
   }
-
   /* @deprecated 5.9.0 -- Lists removed from welcome panel. */
   .welcome-panel .welcome-panel-column ul {
     margin: 0.4em 0 0;
@@ -1328,34 +1323,21 @@ a.rsswidget {
   .welcome-panel-column {
     grid-template-columns: 1fr;
   }
-
-  [class*=welcome-panel-icon] {
+  [class*=welcome-panel-icon],
+  .welcome-panel-column > svg {
     display: none;
   }
 }
 @media screen and (max-width: 782px) {
-  .welcome-panel::before {
-    width: 240px;
-    height: 305px;
-    right: 32px;
-  }
-
-  .welcome-panel-header {
-    /* 288px = 240px (balloon width) + 32px (offset from edge) + 16px (spacing). */
-    padding: 32px 288px 32px 32px;
-  }
-
   .welcome-panel .welcome-panel-column-container {
     grid-template-columns: 1fr;
     box-sizing: border-box;
     padding: 32px;
     width: 100%;
   }
-
   .welcome-panel .welcome-panel-column-content {
     max-width: 520px;
   }
-
   /* Keep the close icon from overlapping the Welcome text. */
   .welcome-panel .welcome-panel-close {
     overflow: hidden;
@@ -1367,39 +1349,32 @@ a.rsswidget {
     top: 5px;
     right: 5px;
   }
-
   .welcome-panel .welcome-panel-close::before {
     top: 5px;
     left: -35px;
   }
-
   #dashboard-widgets h2 {
     padding: 12px;
   }
-
   #dashboard_recent_comments #the-comment-list .comment-item .avatar {
     height: 30px;
     width: 30px;
     margin: 4px 10px 5px 0;
   }
-
   .community-events-toggle-location {
     height: 38px;
     vertical-align: baseline;
   }
-
   .community-events-form .regular-text {
     height: 32px;
   }
-
   #community-events-submit {
     margin-bottom: 0;
     /* Override .gc-core-ui .button */
     vertical-align: top;
   }
-
   .community-events-form label,
-#dashboard-widgets .community-events-cancel.button-link {
+  #dashboard-widgets .community-events-cancel.button-link {
     /* Same properties as the submit button for cross-browsers alignment. */
     font-size: 14px;
     line-height: normal;
@@ -1407,19 +1382,17 @@ a.rsswidget {
     padding: 6px 0;
     border: 1px solid transparent;
   }
-
   .community-events .spinner {
     margin-top: 7px;
   }
 }
 /* Smartphone */
 @media screen and (max-width: 600px) {
-  .welcome-panel::before {
-    display: none;
-  }
-
   .welcome-panel-header {
-    padding: 32px;
+    padding: 32px 32px 64px;
+  }
+  .welcome-panel-header-image {
+    display: none;
   }
 }
 @media screen and (max-width: 480px) {
@@ -1431,8 +1404,8 @@ a.rsswidget {
   .welcome-panel-column {
     grid-template-columns: 1fr;
   }
-
-  [class*=welcome-panel-icon] {
+  [class*=welcome-panel-icon],
+  .welcome-panel-column > svg {
     display: none;
   }
 }
@@ -1442,23 +1415,19 @@ a.rsswidget {
     float: left;
     max-width: 59%;
   }
-
   .event-icon,
-.event-icon[aria-hidden=true] {
+  .event-icon[aria-hidden=true] {
     display: table-cell;
   }
-
   .event-info-inner {
     display: table-cell;
   }
-
   .community-events .event-date-time {
     float: right;
     max-width: 39%;
   }
-
   .community-events .event-date,
-.community-events .event-time {
+  .community-events .event-time {
     text-align: right;
   }
 }

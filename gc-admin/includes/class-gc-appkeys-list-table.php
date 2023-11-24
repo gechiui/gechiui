@@ -4,14 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
- * Class for displaying the list of appkey items.
- *
- *
- * @access private
+ * Class for displaying the list of application password items.
  *
  * @see GC_List_Table
  */
@@ -20,12 +16,13 @@ class GC_AppKeys_List_Table extends GC_List_Table {
 	/**
 	 * Gets the list of columns.
 	 *
+	 * @since 5.6.0
 	 *
-	 * @return array
+	 * @return string[] Array of column titles keyed by their column name.
 	 */
 	public function get_columns() {
 		return array(
-			'name'      => __( '显示名称' ),
+			'name'      => __( '名称' ),
 			'created'   => __( '创建日期' ),
 			'last_used' => __( '最后使用' ),
 			'last_ip'   => __( '最后登录IP地址' ),
@@ -36,6 +33,7 @@ class GC_AppKeys_List_Table extends GC_List_Table {
 	/**
 	 * Prepares the list of items for displaying.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @global int $user_id User ID.
 	 */
@@ -47,8 +45,9 @@ class GC_AppKeys_List_Table extends GC_List_Table {
 	/**
 	 * Handles the name column output.
 	 *
+	 * @since 5.6.0
 	 *
-	 * @param array $item The current appkey item.
+	 * @param array $item The current application password item.
 	 */
 	public function column_name( $item ) {
 		echo esc_html( $item['name'] );
@@ -57,8 +56,9 @@ class GC_AppKeys_List_Table extends GC_List_Table {
 	/**
 	 * Handles the created column output.
 	 *
+	 * @since 5.6.0
 	 *
-	 * @param array $item The current appkey item.
+	 * @param array $item The current application password item.
 	 */
 	public function column_created( $item ) {
 		if ( empty( $item['created'] ) ) {
@@ -71,8 +71,9 @@ class GC_AppKeys_List_Table extends GC_List_Table {
 	/**
 	 * Handles the last used column output.
 	 *
+	 * @since 5.6.0
 	 *
-	 * @param array $item The current appkey item.
+	 * @param array $item The current application password item.
 	 */
 	public function column_last_used( $item ) {
 		if ( empty( $item['last_used'] ) ) {
@@ -85,8 +86,9 @@ class GC_AppKeys_List_Table extends GC_List_Table {
 	/**
 	 * Handles the last ip column output.
 	 *
+	 * @since 5.6.0
 	 *
-	 * @param array $item The current appkey item.
+	 * @param array $item The current application password item.
 	 */
 	public function column_last_ip( $item ) {
 		if ( empty( $item['last_ip'] ) ) {
@@ -99,15 +101,16 @@ class GC_AppKeys_List_Table extends GC_List_Table {
 	/**
 	 * Handles the revoke column output.
 	 *
+	 * @since 5.6.0
 	 *
-	 * @param array $item The current appkey item.
+	 * @param array $item The current application password item.
 	 */
 	public function column_revoke( $item ) {
 		$name = 'revoke-appkey-' . $item['uuid'];
 		printf(
-			'<button type="button" name="%1$s" id="%1$s" class="button delete" aria-label="%2$s">%3$s</button>',
+			'<button type="button" name="%1$s" id="%1$s" class="btn btn-primary btn-tone btn-sm delete" aria-label="%2$s">%3$s</button>',
 			esc_attr( $name ),
-			/* translators: %s: the appkey's given name. */
+			/* translators: %s: the application password's given name. */
 			esc_attr( sprintf( __( '撤销“%s”' ), $item['name'] ) ),
 			__( '撤销' )
 		);
@@ -116,19 +119,21 @@ class GC_AppKeys_List_Table extends GC_List_Table {
 	/**
 	 * Generates content for a single row of the table
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param array  $item        The current item.
 	 * @param string $column_name The current column name.
 	 */
 	protected function column_default( $item, $column_name ) {
 		/**
-		 * Fires for each custom column in the AppKeys list table.
+		 * Fires for each custom column in the Application Passwords list table.
 		 *
 		 * Custom columns are registered using the {@see 'manage_appkeys-user_columns'} filter.
 		 *
+		 * @since 5.6.0
 		 *
 		 * @param string $column_name Name of the custom column.
-		 * @param array  $item        The appkey item.
+		 * @param array  $item        The application password item.
 		 */
 		do_action( "manage_{$this->screen->id}_custom_column", $column_name, $item );
 	}
@@ -136,6 +141,7 @@ class GC_AppKeys_List_Table extends GC_List_Table {
 	/**
 	 * Generates custom table navigation to prevent conflicting nonces.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param string $which The location of the bulk actions: 'top' or 'bottom'.
 	 */
@@ -144,7 +150,7 @@ class GC_AppKeys_List_Table extends GC_List_Table {
 		<div class="tablenav <?php echo esc_attr( $which ); ?>">
 			<?php if ( 'bottom' === $which ) : ?>
 				<div class="alignright">
-					<button type="button" name="revoke-all-appkeys" id="revoke-all-appkeys" class="button delete"><?php _e( '撤消所有Appkey' ); ?></button>
+					<button type="button" name="revoke-all-appkeys" id="revoke-all-appkeys" class="btn btn-primary btn-tone btn-sm delete"><?php _e( '吊销所有应用程序密码' ); ?></button>
 				</div>
 			<?php endif; ?>
 			<div class="alignleft actions bulkactions">
@@ -162,6 +168,7 @@ class GC_AppKeys_List_Table extends GC_List_Table {
 	/**
 	 * Generates content for a single row of the table.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param array $item The current item.
 	 */
@@ -174,6 +181,7 @@ class GC_AppKeys_List_Table extends GC_List_Table {
 	/**
 	 * Gets the name of the default primary column.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @return string Name of the default primary column, in this case, 'name'.
 	 */
@@ -184,6 +192,7 @@ class GC_AppKeys_List_Table extends GC_List_Table {
 	/**
 	 * Prints the JavaScript template for the new row item.
 	 *
+	 * @since 5.6.0
 	 */
 	public function print_js_template_row() {
 		list( $columns, $hidden, , $primary ) = $this->get_column_info();
@@ -220,19 +229,19 @@ class GC_AppKeys_List_Table extends GC_List_Table {
 					break;
 				case 'revoke':
 					printf(
-						'<button type="button" class="button delete" aria-label="%1$s">%2$s</button>',
-						/* translators: %s: the appkey's given name. */
+						'<button type="button" class="btn btn-primary btn-tone btn-sm delete" aria-label="%1$s">%2$s</button>',
+						/* translators: %s: the application password's given name. */
 						esc_attr( sprintf( __( '撤销“%s”' ), '{{ data.name }}' ) ),
 						esc_html__( '撤销' )
 					);
 					break;
 				default:
 					/**
-					 * Fires in the JavaScript row template for each custom column in the AppKeys list table.
+					 * Fires in the JavaScript row template for each custom column in the Application Passwords list table.
 					 *
 					 * Custom columns are registered using the {@see 'manage_appkeys-user_columns'} filter.
 					 *
-				
+					 * @since 5.6.0
 					 *
 					 * @param string $column_name Name of the custom column.
 					 */
@@ -241,7 +250,10 @@ class GC_AppKeys_List_Table extends GC_List_Table {
 			}
 
 			if ( $is_primary ) {
-				echo '<button type="button" class="toggle-row"><span class="screen-reader-text">' . __( '显示详情' ) . '</span></button>';
+				echo '<button type="button" class="toggle-row"><span class="screen-reader-text">' .
+					/* translators: Hidden accessibility text. */
+					__( '显示详情' ) .
+				'</span></button>';
 			}
 
 			echo '</td>';

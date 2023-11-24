@@ -1,7 +1,7 @@
 /**
  * Utility functions for parsing and handling shortcodes in JavaScript.
  *
- * @output gc-includes/js/shortcode.js
+ * @output assets/js/shortcode.js
  */
 
 /**

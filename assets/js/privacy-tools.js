@@ -1,7 +1,7 @@
 /**
  * Interactions used by the User Privacy tools in GeChiUI.
  *
- * @output gc-admin/js/privacy-tools.js
+ * @output assets/js/privacy-tools.js
  */
 
 // Privacy request action handling.
@@ -97,7 +97,7 @@ jQuery( function( $ ) {
 		}
 
 		function onExportFailure( errorMessage ) {
-			var summaryMessage = __( '在试图导出个人数据时发生错误。' );
+			var summaryMessage = __( '尝试导出个人数据时出错。' );
 
 			setActionState( $action, 'export-personal-data-failed' );
 
@@ -182,23 +182,23 @@ jQuery( function( $ ) {
 		setErasureProgress( 0 );
 
 		function onErasureDoneSuccess() {
-			var summaryMessage = __( '未找到此用户的个人数据。' ),
+			var summaryMessage = __( '找不到此用户的个人数据。' ),
 				classes = 'notice-success';
 
 			setActionState( $action, 'remove-personal-data-success' );
 
 			if ( false === hasRemoved ) {
 				if ( false === hasRetained ) {
-					summaryMessage = __( '未找到此用户的个人数据。' );
+					summaryMessage = __( '找不到此用户的个人数据。' );
 				} else {
-					summaryMessage = __( '找到了此用户的个人数据，但并未抹除。' );
+					summaryMessage = __( '已找到此用户的个人数据，但未删除。' );
 					classes = 'notice-warning';
 				}
 			} else {
 				if ( false === hasRetained ) {
-					summaryMessage = __( '此用户的所有个人数据均已抹除。' );
+					summaryMessage = __( '为该用户找到的所有个人数据都已删除。' );
 				} else {
-					summaryMessage = __( '找到了此用户的个人数据，但其中一些数据并未抹除。' );
+					summaryMessage = __( '找到了该用户的个人数据，但发现的一些个人数据没有被删除。' );
 					classes = 'notice-warning';
 				}
 			}
@@ -208,7 +208,7 @@ jQuery( function( $ ) {
 		}
 
 		function onErasureFailure() {
-			var summaryMessage = __( '在试图查找并抹除个人数据时发生错误。' );
+			var summaryMessage = __( '试图查找和删除个人数据时出错。' );
 
 			setActionState( $action, 'remove-personal-data-failed' );
 
@@ -314,7 +314,7 @@ jQuery( function( $ ) {
 
 					// Display and speak notice to indicate action complete.
 					copiedNotice.addClass( 'visible' );
-					gc.a11y.speak( __( '建议的《隐私政策》文本已被复制到您的剪贴板。' ) );
+					gc.a11y.speak( __( '建议的策略文本已复制到剪贴板。'  ) );
 
 					// Delay notice dismissal.
 					copiedNoticeTimeout = setTimeout( function() {

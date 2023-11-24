@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/widgets/custom-html-widgets.js
+ * @output assets/js/widgets/custom-html-widgets.js
  */
 
 /* global gc */

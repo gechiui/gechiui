@@ -16,7 +16,7 @@ if ( ! defined( 'IFRAME_REQUEST' ) && isset( $_GET['tab'] ) && ( 'plugin-informa
 require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'install_plugins' ) ) {
-	gc_die( __( '抱歉，您不能在此站点上安装插件。' ) );
+	gc_die( __( '抱歉，您不能在此系统上安装插件。' ) );
 }
 
 if ( is_multisite() && ! is_network_admin() ) {
@@ -76,7 +76,6 @@ gc_enqueue_script( 'updates' );
  *  - `install_plugins_pre_search`
  *  - `install_plugins_pre_upload`
  *
- *
  */
 do_action( "install_plugins_pre_{$tab}" );
 
@@ -135,25 +134,19 @@ get_current_screen()->set_screen_reader_content(
 require_once ABSPATH . 'gc-admin/admin-header.php';
 ?>
 <div class="wrap <?php echo esc_attr( "plugin-install-tab-$tab" ); ?>">
-<h1 class="gc-heading-inline">
-<?php
-echo esc_html( $title );
-?>
-</h1>
-
-<?php
-if ( ! empty( $tabs['upload'] ) && current_user_can( 'upload_plugins' ) ) {
-	printf(
-		' <a href="%s" class="upload-view-toggle page-title-action"><span class="upload">%s</span><span class="browse">%s</span></a>',
-		( 'upload' === $tab ) ? self_admin_url( 'plugin-install.php' ) : self_admin_url( 'plugin-install.php?tab=upload' ),
-		__( '上传插件' ),
-		__( '浏览插件' )
-	);
-}
-?>
-
-<hr class="gc-header-end">
-
+	<div class="page-header">
+		<h2 class="header-title"><?php echo esc_html( $title ); ?></h2>
+		<?php
+		if ( ! empty( $tabs['upload'] ) && current_user_can( 'upload_plugins' ) ) {
+			printf(
+				' <a href="%s" class="upload-view-toggle btn btn-primary btn-tone btn-sm"><span class="upload">%s</span><span class="browse">%s</span></a>',
+				( 'upload' === $tab ) ? self_admin_url( 'plugin-install.php' ) : self_admin_url( 'plugin-install.php?tab=upload' ),
+				__( '上传插件' ),
+				__( '浏览插件' )
+			);
+		}
+		?>
+	</div>
 <?php
 /*
  * Output the upload plugin form on every non-upload plugin installation screen, so it can be
@@ -186,7 +179,6 @@ if ( 'upload' !== $tab ) {
  *  - `install_plugins_all`
  *  - `install_plugins_search`
  *  - `install_plugins_upload`
- *
  *
  *
  * @param int $paged The current page number of the plugins list table.

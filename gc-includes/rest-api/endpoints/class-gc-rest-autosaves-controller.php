@@ -4,13 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
+ * @since 5.0.0
  */
 
 /**
  * Core class used to access autosaves via the REST API.
  *
- *
+ * @since 5.0.0
  *
  * @see GC_REST_Revisions_Controller
  * @see GC_REST_Controller
@@ -20,6 +20,7 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 	/**
 	 * Parent post type.
 	 *
+	 * @since 5.0.0
 	 * @var string
 	 */
 	private $parent_post_type;
@@ -27,6 +28,7 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 	/**
 	 * Parent post controller.
 	 *
+	 * @since 5.0.0
 	 * @var GC_REST_Controller
 	 */
 	private $parent_controller;
@@ -34,6 +36,7 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 	/**
 	 * Revision controller.
 	 *
+	 * @since 5.0.0
 	 * @var GC_REST_Revisions_Controller
 	 */
 	private $revisions_controller;
@@ -41,6 +44,7 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 	/**
 	 * The base of the parent controller's route.
 	 *
+	 * @since 5.0.0
 	 * @var string
 	 */
 	private $parent_base;
@@ -48,6 +52,7 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 	/**
 	 * Constructor.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param string $parent_post_type Post type of the parent.
 	 */
@@ -63,13 +68,14 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 		$this->parent_controller    = $parent_controller;
 		$this->revisions_controller = new GC_REST_Revisions_Controller( $parent_post_type );
 		$this->rest_base            = 'autosaves';
-		$this->namespace            = ! empty( $post_type_object->rest_namespace ) ? $post_type_object->rest_namespace : 'gc/v2';
 		$this->parent_base          = ! empty( $post_type_object->rest_base ) ? $post_type_object->rest_base : $post_type_object->name;
+		$this->namespace            = ! empty( $post_type_object->rest_namespace ) ? $post_type_object->rest_namespace : 'gc/v2';
 	}
 
 	/**
 	 * Registers the routes for autosaves.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @see register_rest_route()
 	 */
@@ -131,6 +137,7 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 	/**
 	 * Get the parent post.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param int $parent_id Supplied ID.
 	 * @return GC_Post|GC_Error Post object if ID is valid, GC_Error otherwise.
@@ -142,6 +149,7 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 	/**
 	 * Checks if a given request has access to get autosaves.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -169,6 +177,7 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 	 * Autosave revisions inherit permissions from the parent post,
 	 * check if the current user has permission to edit the post.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to create the item, GC_Error object otherwise.
@@ -190,6 +199,7 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 	/**
 	 * Creates, updates or deletes an autosave revision.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -210,9 +220,19 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 		$prepared_post->ID = $post->ID;
 		$user_id           = get_current_user_id();
 
-		if ( ( 'draft' === $post->post_status || 'auto-draft' === $post->post_status ) && $post->post_author == $user_id ) {
-			// Draft posts for the same author: autosaving updates the post and does not create a revision.
-			// Convert the post object to an array and add slashes, gc_update_post() expects escaped array.
+		// We need to check post lock to ensure the original author didn't leave their browser tab open.
+		if ( ! function_exists( 'gc_check_post_lock' ) ) {
+			require_once ABSPATH . 'gc-admin/includes/post.php';
+		}
+
+		$post_lock = gc_check_post_lock( $post->ID );
+		$is_draft  = 'draft' === $post->post_status || 'auto-draft' === $post->post_status;
+
+		if ( $is_draft && (int) $post->post_author === $user_id && ! $post_lock ) {
+			/*
+			 * Draft posts for the same author: autosaving updates the post and does not create a revision.
+			 * Convert the post object to an array and add slashes, gc_update_post() expects escaped array.
+			 */
 			$autosave_id = gc_update_post( gc_slash( (array) $prepared_post ), true );
 		} else {
 			// Non-draft posts: create or update the post autosave.
@@ -235,6 +255,7 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 	/**
 	 * Get the autosave, if the ID is valid.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_Post|GC_Error Revision post object if ID is valid, GC_Error otherwise.
@@ -269,6 +290,7 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 	 *
 	 * Contains the user's autosave, for empty if it doesn't exist.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -284,7 +306,7 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 		$revisions = gc_get_post_revisions( $parent_id, array( 'check_enabled' => false ) );
 
 		foreach ( $revisions as $revision ) {
-			if ( false !== strpos( $revision->post_name, "{$parent_id}-autosave" ) ) {
+			if ( str_contains( $revision->post_name, "{$parent_id}-autosave" ) ) {
 				$data       = $this->prepare_item_for_response( $revision, $request );
 				$response[] = $this->prepare_response_for_collection( $data );
 			}
@@ -297,6 +319,7 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 	/**
 	 * Retrieves the autosave's schema, conforming to JSON Schema.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @return array Item schema data.
 	 */
@@ -325,6 +348,7 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 	 *
 	 * From gc-admin/post.php.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param array $post_data Associative array containing the post data.
 	 * @return mixed The autosave revision ID or GC_Error.
@@ -338,34 +362,30 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 			return $post;
 		}
 
+		// Only create an autosave when it is different from the saved post.
+		$autosave_is_different = false;
+		$new_autosave          = _gc_post_revision_data( $post_data, true );
+
+		foreach ( array_intersect( array_keys( $new_autosave ), array_keys( _gc_post_revision_fields( $post ) ) ) as $field ) {
+			if ( normalize_whitespace( $new_autosave[ $field ] ) !== normalize_whitespace( $post->$field ) ) {
+				$autosave_is_different = true;
+				break;
+			}
+		}
+
 		$user_id = get_current_user_id();
 
 		// Store one autosave per author. If there is already an autosave, overwrite it.
 		$old_autosave = gc_get_post_autosave( $post_id, $user_id );
 
+		if ( ! $autosave_is_different && $old_autosave ) {
+			// Nothing to save, return the existing autosave.
+			return $old_autosave->ID;
+		}
+
 		if ( $old_autosave ) {
-			$new_autosave                = _gc_post_revision_data( $post_data, true );
 			$new_autosave['ID']          = $old_autosave->ID;
 			$new_autosave['post_author'] = $user_id;
-
-			// If the new autosave has the same content as the post, delete the autosave.
-			$autosave_is_different = false;
-
-			foreach ( array_intersect( array_keys( $new_autosave ), array_keys( _gc_post_revision_fields( $post ) ) ) as $field ) {
-				if ( normalize_whitespace( $new_autosave[ $field ] ) !== normalize_whitespace( $post->$field ) ) {
-					$autosave_is_different = true;
-					break;
-				}
-			}
-
-			if ( ! $autosave_is_different ) {
-				gc_delete_post_revision( $old_autosave->ID );
-				return new GC_Error(
-					'rest_autosave_no_changes',
-					__( '没有什么要保存的。自动保存和当前的文章内容相同。' ),
-					array( 'status' => 400 )
-				);
-			}
 
 			/** This filter is documented in gc-admin/post.php */
 			do_action( 'gc_creating_autosave', $new_autosave );
@@ -381,6 +401,8 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 	/**
 	 * Prepares the revision for the REST response.
 	 *
+	 * @since 5.0.0
+	 * @since 5.9.0 Renamed `$post` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Post         $item    Post revision object.
 	 * @param GC_REST_Request $request Request object.
@@ -415,6 +437,7 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 		 *
 		 * Allows modification of the revision right before it is returned.
 		 *
+		 * @since 5.0.0
 		 *
 		 * @param GC_REST_Response $response The response object.
 		 * @param GC_Post          $post     The original revision object.
@@ -426,6 +449,7 @@ class GC_REST_Autosaves_Controller extends GC_REST_Revisions_Controller {
 	/**
 	 * Retrieves the query params for the autosaves collection.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @return array Collection parameters.
 	 */

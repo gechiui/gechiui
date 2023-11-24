@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/customize-views.js
+ * @output assets/js/customize-views.js
  */
 
 (function( $, gc, _ ) {

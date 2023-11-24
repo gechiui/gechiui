@@ -13,7 +13,7 @@ echo '<?xml version="1.0" encoding="' . get_option( 'blog_charset' ) . '"?' . '>
 /**
  * Fires between the xml and rss tags in a feed.
  *
- *
+ * @since 4.0.0
  *
  * @param string $context Type of feed. Possible values include 'rss2', 'rss2-comments',
  *                        'rdf', 'atom', and 'atom-comments'.
@@ -31,6 +31,7 @@ do_action( 'rss_tag_pre', 'rss2' );
 	/**
 	 * Fires at the end of the RSS root to add namespaces.
 	 *
+	 * @since 2.0.0
 	 */
 	do_action( 'rss2_ns' );
 	?>
@@ -50,6 +51,7 @@ do_action( 'rss_tag_pre', 'rss2' );
 		/**
 		 * Filters how often to update the RSS feed.
 		 *
+		 * @since 2.1.0
 		 *
 		 * @param string $duration The update period. Accepts 'hourly', 'daily', 'weekly', 'monthly',
 		 *                         'yearly'. Default 'hourly'.
@@ -64,6 +66,7 @@ do_action( 'rss_tag_pre', 'rss2' );
 		/**
 		 * Filters the RSS update frequency.
 		 *
+		 * @since 2.1.0
 		 *
 		 * @param string $frequency An integer passed as a string representing the frequency
 		 *                          of RSS updates within the update period. Default '1'.
@@ -75,6 +78,7 @@ do_action( 'rss_tag_pre', 'rss2' );
 	/**
 	 * Fires at the end of the RSS2 Feed Header.
 	 *
+	 * @since 2.0.0
 	 */
 	do_action( 'rss2_head' );
 
@@ -116,6 +120,7 @@ do_action( 'rss_tag_pre', 'rss2' );
 		/**
 		 * Fires at the end of each RSS2 feed item.
 		 *
+		 * @since 2.0.0
 		 */
 		do_action( 'rss2_item' );
 		?>

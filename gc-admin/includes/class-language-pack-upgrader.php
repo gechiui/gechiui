@@ -4,15 +4,12 @@
  *
  * @package GeChiUI
  * @subpackage Upgrader
- *
  */
 
 /**
  * Core class used for updating/installing language packs (translations)
  * for plugins, themes, and core.
- *
- *
- *
+ * Moved to its own file from gc-admin/includes/class-gc-upgrader.php.
  *
  * @see GC_Upgrader
  */
@@ -21,6 +18,7 @@ class Language_Pack_Upgrader extends GC_Upgrader {
 	/**
 	 * Result of the language pack upgrade.
 	 *
+	 * @since 3.7.0
 	 * @var array|GC_Error $result
 	 * @see GC_Upgrader::$result
 	 */
@@ -29,6 +27,7 @@ class Language_Pack_Upgrader extends GC_Upgrader {
 	/**
 	 * Whether a bulk upgrade/installation is being performed.
 	 *
+	 * @since 3.7.0
 	 * @var bool $bulk
 	 */
 	public $bulk = true;
@@ -38,6 +37,7 @@ class Language_Pack_Upgrader extends GC_Upgrader {
 	 *
 	 * Hooked to the {@see 'upgrader_process_complete'} action by default.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param false|GC_Upgrader $upgrader Optional. GC_Upgrader instance or false. If `$upgrader` is
 	 *                                    a Language_Pack_Upgrader instance, the method will bail to
@@ -59,7 +59,7 @@ class Language_Pack_Upgrader extends GC_Upgrader {
 		 * Avoid messing with VCS installations, at least for now.
 		 * Noted: this is not the ideal way to accomplish this.
 		 */
-		$check_vcs = new GC_Automatic_Updater;
+		$check_vcs = new GC_Automatic_Updater();
 		if ( $check_vcs->is_vcs_checkout( GC_CONTENT_DIR ) ) {
 			return;
 		}
@@ -70,7 +70,7 @@ class Language_Pack_Upgrader extends GC_Upgrader {
 			/**
 			 * Filters whether to asynchronously update translation for core, a plugin, or a theme.
 			 *
-		
+			 * @since 4.0.0
 			 *
 			 * @param bool   $update          Whether to update.
 			 * @param object $language_update The update offer.
@@ -102,25 +102,27 @@ class Language_Pack_Upgrader extends GC_Upgrader {
 	}
 
 	/**
-	 * Initialize the upgrade strings.
+	 * Initializes the upgrade strings.
 	 *
+	 * @since 3.7.0
 	 */
 	public function upgrade_strings() {
 		$this->strings['starting_upgrade'] = __( '一些翻译需要更新，请稍等。' );
 		$this->strings['up_to_date']       = __( '您的所有翻译均为最新版本。' );
 		$this->strings['no_package']       = __( '升级包不可用。' );
 		/* translators: %s: Package URL. */
-		$this->strings['downloading_package'] = sprintf( __( '正在从 %s 下载翻译…' ), '<span class="code">%s</span>' );
+		$this->strings['downloading_package'] = sprintf( __( '正在从 %s 下载翻译...'  ), '<span class="code pre">%s</span>' );
 		$this->strings['unpack_package']      = __( '正在解压缩升级文件&#8230;' );
 		$this->strings['process_failed']      = __( '翻译升级失败。' );
 		$this->strings['process_success']     = __( '翻译升级成功。' );
-		$this->strings['remove_old']          = __( '移除旧版本的翻译…' );
+		$this->strings['remove_old']          = __( '移除旧版本的翻译...'  );
 		$this->strings['remove_old_failed']   = __( '未能移除旧翻译。' );
 	}
 
 	/**
-	 * Upgrade a language pack.
+	 * Upgrades a language pack.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param string|false $update Optional. Whether an update offer is available. Default false.
 	 * @param array        $args   Optional. Other optional arguments, see
@@ -142,8 +144,9 @@ class Language_Pack_Upgrader extends GC_Upgrader {
 	}
 
 	/**
-	 * Bulk upgrade language packs.
+	 * Upgrades several language packs at once.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
 	 *
@@ -308,6 +311,7 @@ class Language_Pack_Upgrader extends GC_Upgrader {
 	 * Hooked to the {@see 'upgrader_source_selection'} filter by
 	 * Language_Pack_Upgrader::bulk_upgrade().
 	 *
+	 * @since 3.7.0
 	 *
 	 * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
 	 *
@@ -329,9 +333,9 @@ class Language_Pack_Upgrader extends GC_Upgrader {
 		$po = false;
 		$mo = false;
 		foreach ( (array) $files as $file => $filedata ) {
-			if ( '.po' === substr( $file, -3 ) ) {
+			if ( str_ends_with( $file, '.po' ) ) {
 				$po = true;
-			} elseif ( '.mo' === substr( $file, -3 ) ) {
+			} elseif ( str_ends_with( $file, '.mo' ) ) {
 				$mo = true;
 			}
 		}
@@ -353,8 +357,9 @@ class Language_Pack_Upgrader extends GC_Upgrader {
 	}
 
 	/**
-	 * Get the name of an item being updated.
+	 * Gets the name of an item being updated.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param object $update The data for an update.
 	 * @return string The name of the item being updated.
@@ -384,6 +389,7 @@ class Language_Pack_Upgrader extends GC_Upgrader {
 	/**
 	 * Clears existing translations where this item is going to be installed into.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
 	 *

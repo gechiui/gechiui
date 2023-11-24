@@ -2,16 +2,12 @@
 /**
  * These functions are needed to load Multisite.
  *
- *
- *
  * @package GeChiUI
  * @subpackage Multisite
  */
 
 /**
  * Whether a subdomain configuration is enabled.
- *
- *
  *
  * @return bool True if subdomain configuration is enabled, false otherwise.
  */
@@ -31,7 +27,6 @@ function is_subdomain_install() {
  *
  * @access private
  *
- *
  * @return string[] Array of absolute paths to files to include.
  */
 function gc_get_active_network_plugins() {
@@ -46,7 +41,7 @@ function gc_get_active_network_plugins() {
 
 	foreach ( $active_plugins as $plugin ) {
 		if ( ! validate_file( $plugin )                     // $plugin must validate as file.
-			&& '.php' === substr( $plugin, -4 )             // $plugin must end with '.php'.
+			&& str_ends_with( $plugin, '.php' )             // $plugin must end with '.php'.
 			&& file_exists( GC_PLUGIN_DIR . '/' . $plugin ) // $plugin must exist.
 			) {
 			$plugins[] = GC_PLUGIN_DIR . '/' . $plugin;
@@ -66,8 +61,6 @@ function gc_get_active_network_plugins() {
  * To change the default message when a blog does not pass the check,
  * use the gc-content/blog-deleted.php, blog-inactive.php and
  * blog-suspended.php drop-ins.
- *
- *
  *
  * @return true|string Returns true on success, or drop-in file to include.
  */
@@ -95,7 +88,7 @@ function ms_site_check() {
 		if ( file_exists( GC_CONTENT_DIR . '/blog-deleted.php' ) ) {
 			return GC_CONTENT_DIR . '/blog-deleted.php';
 		} else {
-			gc_die( __( '该站点已不再可用。' ), '', array( 'response' => 410 ) );
+			gc_die( __( '该系统已不再可用。' ), '', array( 'response' => 410 ) );
 		}
 	}
 
@@ -107,7 +100,7 @@ function ms_site_check() {
 			gc_die(
 				sprintf(
 					/* translators: %s: Admin email link. */
-					__( '此站点还未被激活。如果您在激活站点时遇到困难，请联系%s。' ),
+					__( '此系统还未被激活。如果您在激活系统时遇到困难，请联系%s。' ),
 					sprintf( '<a href="mailto:%1$s">%1$s</a>', $admin_email )
 				)
 			);
@@ -118,7 +111,7 @@ function ms_site_check() {
 		if ( file_exists( GC_CONTENT_DIR . '/blog-suspended.php' ) ) {
 			return GC_CONTENT_DIR . '/blog-suspended.php';
 		} else {
-			gc_die( __( '该站点已被归档或挂起。' ), '', array( 'response' => 410 ) );
+			gc_die( __( '该系统已被归档或挂起。' ), '', array( 'response' => 410 ) );
 		}
 	}
 
@@ -126,9 +119,9 @@ function ms_site_check() {
 }
 
 /**
- * Retrieve the closest matching network for a domain and path.
+ * Retrieves the closest matching network for a domain and path.
  *
- *
+ * @since 3.9.0
  *
  * @internal In 4.4.0, converted to a wrapper for GC_Network::get_by_path()
  *
@@ -151,8 +144,7 @@ function get_network_by_path( $domain, $path, $segments = null ) {
  * The intent of this method is to match a site object during bootstrap for a
  * requested site address
  *
- *
- *
+ * @since 3.9.0 Updated to always return a `GC_Site` object.
  *
  * @param string   $domain   Domain to check.
  * @param string   $path     Path to check.
@@ -188,7 +180,7 @@ function get_site_by_path( $domain, $path, $segments = null ) {
 	$paths[] = '/';
 
 	/**
-	 * Determine a site by its domain and path.
+	 * Determines a site by its domain and path.
 	 *
 	 * This allows one to short-circuit the default logic, perhaps by
 	 * replacing it with a routine that is more optimal for your setup.
@@ -223,10 +215,12 @@ function get_site_by_path( $domain, $path, $segments = null ) {
 	 * then cache whether we can just always ignore paths.
 	 */
 
-	// Either www or non-www is supported, not both. If a www domain is requested,
-	// query for both to provide the proper redirect.
+	/*
+	 * Either www or non-www is supported, not both. If a www domain is requested,
+	 * query for both to provide the proper redirect.
+	 */
 	$domains = array( $domain );
-	if ( 'www.' === substr( $domain, 0, 4 ) ) {
+	if ( str_starts_with( $domain, 'www.' ) ) {
 		$domains[] = substr( $domain, 4 );
 	}
 
@@ -275,7 +269,6 @@ function get_site_by_path( $domain, $path, $segments = null ) {
  * If neither a network or site is found, `false` or a URL string will be returned
  * so that either an error can be shown or a redirect can occur.
  *
- *
  * @access private
  *
  * @global GC_Network $current_site The current network.
@@ -294,7 +287,7 @@ function ms_load_current_site_and_network( $domain, $path, $subdomain = false ) 
 
 	// If the network is defined in gc-config.php, we can simply use that.
 	if ( defined( 'DOMAIN_CURRENT_SITE' ) && defined( 'PATH_CURRENT_SITE' ) ) {
-		$current_site         = new stdClass;
+		$current_site         = new stdClass();
 		$current_site->id     = defined( 'SITE_ID_CURRENT_SITE' ) ? SITE_ID_CURRENT_SITE : 1;
 		$current_site->domain = DOMAIN_CURRENT_SITE;
 		$current_site->path   = PATH_CURRENT_SITE;
@@ -307,8 +300,10 @@ function ms_load_current_site_and_network( $domain, $path, $subdomain = false ) 
 		if ( 0 === strcasecmp( $current_site->domain, $domain ) && 0 === strcasecmp( $current_site->path, $path ) ) {
 			$current_blog = get_site_by_path( $domain, $path );
 		} elseif ( '/' !== $current_site->path && 0 === strcasecmp( $current_site->domain, $domain ) && 0 === stripos( $path, $current_site->path ) ) {
-			// If the current network has a path and also matches the domain and path of the request,
-			// we need to look for a site using the first path segment following the network's path.
+			/*
+			 * If the current network has a path and also matches the domain and path of the request,
+			 * we need to look for a site using the first path segment following the network's path.
+			 */
 			$current_blog = get_site_by_path( $domain, $path, 1 + count( explode( '/', trim( $current_site->path, '/' ) ) ) );
 		} else {
 			// Otherwise, use the first path segment (as usual).
@@ -344,7 +339,7 @@ function ms_load_current_site_and_network( $domain, $path, $subdomain = false ) 
 			 * At the time of this action, the only recourse is to redirect somewhere
 			 * and exit. If you want to declare a particular network, do so earlier.
 			 *
-		
+			 * @since 4.4.0
 			 *
 			 * @param string $domain       The domain used to search for a network.
 			 * @param string $path         The path used to search for a path.
@@ -384,7 +379,7 @@ function ms_load_current_site_and_network( $domain, $path, $subdomain = false ) 
 
 	// During activation of a new subdomain, the requested site does not yet exist.
 	if ( empty( $current_blog ) && gc_installing() ) {
-		$current_blog          = new stdClass;
+		$current_blog          = new stdClass();
 		$current_blog->blog_id = 1;
 		$blog_id               = 1;
 		$current_blog->public  = 1;
@@ -402,6 +397,7 @@ function ms_load_current_site_and_network( $domain, $path, $subdomain = false ) 
 		 * At the time of this action, the only recourse is to redirect somewhere
 		 * and exit. If you want to declare a particular site, do so earlier.
 		 *
+		 * @since 3.9.0
 		 *
 		 * @param GC_Network $current_site The network that had been determined.
 		 * @param string     $domain       The domain used to search for a site.
@@ -446,9 +442,7 @@ function ms_load_current_site_and_network( $domain, $path, $subdomain = false ) 
  *
  * Used when a blog's tables do not exist. Checks for a missing $gcdb->site table as well.
  *
- * @access private
- *
- *
+ * @access private The `$domain` and `$path` parameters were added.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -467,19 +461,19 @@ function ms_not_installed( $domain, $path ) {
 	$title = __( '建立数据库连接时出错' );
 
 	$msg   = '<h1>' . $title . '</h1>';
-	$msg  .= '<p>' . __( '如果这是您的站点，请联系站点网络管理员。' ) . '';
-	$msg  .= ' ' . __( '如果您是本网络的管理员，请检查MySQL服务是否正常运行，以及数据表中是否包含错误。' ) . '</p>';
+	$msg  .= '<p>' . __( '如果这是您的系统，请联系系统平台管理员。' ) . '';
+	$msg  .= ' ' . __( '如果您是此系统网络的管理员，请检查您主机上的数据库服务器是否正常运行，以及数据表中是否包含错误。' ) . '</p>';
 	$query = $gcdb->prepare( 'SHOW TABLES LIKE %s', $gcdb->esc_like( $gcdb->site ) );
 	if ( ! $gcdb->get_var( $query ) ) {
 		$msg .= '<p>' . sprintf(
 			/* translators: %s: Table name. */
-			__( '<strong>缺少数据库表。</strong>这意味着MySQL未在运行、GeChiUI未被正确安装或有人删除了%s。您现在需要好好看看您的数据库。' ),
+			__( '<strong>数据库表缺失。</strong>这意味着您主机上的数据库服务器未在运行、GeChiUI未被正确安装，或有人删除了 %s 表。您需要立即检查您的数据库。' ),
 			'<code>' . $gcdb->site . '</code>'
 		) . '</p>';
 	} else {
 		$msg .= '<p>' . sprintf(
 			/* translators: 1: Site URL, 2: Table name, 3: Database name. */
-			__( '<strong>无法找到站点%1$s。</strong>在数据库%3$s中搜索了数据表%2$s，这对吗？' ),
+			__( '<strong>无法找到系统%1$s。</strong>在数据库%3$s中搜索了数据表%2$s，这对吗？' ),
 			'<code>' . rtrim( $domain . $path, '/' ) . '</code>',
 			'<code>' . $gcdb->blogs . '</code>',
 			'<code>' . DB_NAME . '</code>'
@@ -488,10 +482,10 @@ function ms_not_installed( $domain, $path ) {
 	$msg .= '<p><strong>' . __( '怎么办？' ) . '</strong> ';
 	$msg .= sprintf(
 		/* translators: %s: Documentation URL. */
-		__( '阅读<a href="%s" target="_blank">调试 GeChiUI 站点网络</a>的文章。其中的一些建议可能会帮助您找出故障的原因。' ),
+		__( '阅读<a href="%s" target="_blank">调试 GeChiUI 系统网络</a>的文章。其中的一些建议可能会帮助您找出故障的原因。' ),
 		__( 'https://www.gechiui.com/support/debugging-a-gechiui-network/' )
 	);
-	$msg .= ' ' . __( '如果您仍然卡在本界面，请核对您的数据库是否含有下列数据表：' ) . '</p><ul>';
+	$msg .= ' ' . __( '如果您仍然看到此信息，请检查您系统的数据库中是否包含以下表：' ) . '</p><ul>';
 	foreach ( $gcdb->tables( 'global' ) as $t => $table ) {
 		if ( 'sitecategories' === $t ) {
 			continue;
@@ -510,7 +504,6 @@ function ms_not_installed( $domain, $path ) {
  * The bootstrap takes care of setting site_name.
  *
  * @access private
- *
  * @deprecated 3.9.0 Use get_current_site() instead.
  *
  * @param GC_Network $current_site
@@ -528,7 +521,6 @@ function get_current_site_name( $current_site ) {
  * well as setting the global $current_site object.
  *
  * @access private
- *
  * @deprecated 3.9.0
  *
  * @global GC_Network $current_site
@@ -542,10 +534,10 @@ function gcmu_current_site() {
 }
 
 /**
- * Retrieve an object containing information about the requested network.
+ * Retrieves an object containing information about the requested network.
  *
- *
- * @deprecated 4.7.0 Use `get_network()`
+ * @since 3.9.0
+ * @deprecated 4.7.0 Use get_network()
  * @see get_network()
  *
  * @internal In 4.6.0, converted to use get_network()

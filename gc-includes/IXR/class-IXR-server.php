@@ -4,7 +4,6 @@
  * IXR_Server
  *
  * @package IXR
- *
  */
 class IXR_Server
 {

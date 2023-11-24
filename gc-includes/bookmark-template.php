@@ -1,6 +1,6 @@
 <?php
 /**
- * Bookmark Template Functions for usage in Themes
+ * Bookmark Template Functions for usage in Themes.
  *
  * @package GeChiUI
  * @subpackage Template
@@ -18,7 +18,6 @@
  *
  * This function is used internally by gc_list_bookmarks() and should not be
  * used by themes.
- *
  *
  * @access private
  *
@@ -83,7 +82,7 @@ function _walk_bookmarks( $bookmarks, $args = '' ) {
 		$title = $desc;
 
 		if ( $parsed_args['show_updated'] ) {
-			if ( '00' !== substr( $bookmark->link_updated_f, 0, 2 ) ) {
+			if ( ! str_starts_with( $bookmark->link_updated_f, '00' ) ) {
 				$title .= ' (';
 				$title .= sprintf(
 					/* translators: %s: Date and time of last update. */
@@ -125,7 +124,7 @@ function _walk_bookmarks( $bookmarks, $args = '' ) {
 		$output .= $parsed_args['link_before'];
 
 		if ( null != $bookmark->link_image && $parsed_args['show_images'] ) {
-			if ( strpos( $bookmark->link_image, 'http' ) === 0 ) {
+			if ( str_starts_with( $bookmark->link_image, 'http' ) ) {
 				$output .= "<img src=\"$bookmark->link_image\" $alt $title />";
 			} else { // If it's a relative path.
 				$output .= '<img src="' . get_option( 'siteurl' ) . "$bookmark->link_image\" $alt $title />";
@@ -164,15 +163,13 @@ function _walk_bookmarks( $bookmarks, $args = '' ) {
 }
 
 /**
- * Retrieve or echo all of the bookmarks.
+ * Retrieves or echoes all of the bookmarks.
  *
  * List of default arguments are as follows:
  *
  * These options define how the Category name will appear before the category
  * links are displayed, if 'categorize' is 1. If 'categorize' is 0, then it will
  * display for only the 'title_li' string and only if 'title_li' is not empty.
- *
- *
  *
  * @see _walk_bookmarks()
  *
@@ -197,7 +194,7 @@ function _walk_bookmarks( $bookmarks, $args = '' ) {
  *                                          Accepts 1|true (by category) or 0|false (one column). Default 1|true.
  *     @type int|bool     $show_description Whether to show the bookmark descriptions. Accepts 1|true or 0|false.
  *                                          Default 0|false.
- *     @type string       $title_li         What to show before the links appear. Default '书签'.
+ *     @type string       $title_li         What to show before the links appear. Default 'Bookmarks'.
  *     @type string       $title_before     The HTML or text to prepend to the $title_li string. Default '<h2>'.
  *     @type string       $title_after      The HTML or text to append to the $title_li string. Default '</h2>'.
  *     @type string|array $class            The CSS class or an array of classes to use for the $title_li.
@@ -281,7 +278,7 @@ function gc_list_bookmarks( $args = '' ) {
 			/**
 			 * Filters the category name.
 			 *
-		
+			 * @since 2.2.0
 			 *
 			 * @param string $cat_name The category name.
 			 */

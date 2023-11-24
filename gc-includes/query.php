@@ -14,26 +14,24 @@
 /**
  * Retrieves the value of a query variable in the GC_Query class.
  *
- *
- *
+ * @since 3.9.0 The `$default_value` argument was introduced.
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
- * @param string $var       The variable key to retrieve.
- * @param mixed  $default   Optional. Value to return if the query variable is not set. Default empty.
+ * @param string $query_var     The variable key to retrieve.
+ * @param mixed  $default_value Optional. Value to return if the query variable is not set.
+ *                              Default empty string.
  * @return mixed Contents of the query variable.
  */
-function get_query_var( $var, $default = '' ) {
+function get_query_var( $query_var, $default_value = '' ) {
 	global $gc_query;
-	return $gc_query->get( $var, $default );
+	return $gc_query->get( $query_var, $default_value );
 }
 
 /**
  * Retrieves the currently queried object.
  *
  * Wrapper for GC_Query::get_queried_object().
- *
- *
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -49,8 +47,6 @@ function get_queried_object() {
  *
  * Wrapper for GC_Query::get_queried_object_id().
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @return int ID of the queried object.
@@ -63,16 +59,14 @@ function get_queried_object_id() {
 /**
  * Sets the value of a query variable in the GC_Query class.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
- * @param string $var   Query variable key.
- * @param mixed  $value Query variable value.
+ * @param string $query_var Query variable key.
+ * @param mixed  $value     Query variable value.
  */
-function set_query_var( $var, $value ) {
+function set_query_var( $query_var, $value ) {
 	global $gc_query;
-	$gc_query->set( $var, $value );
+	$gc_query->set( $query_var, $value );
 }
 
 /**
@@ -85,8 +79,6 @@ function set_query_var( $var, $value ) {
  * action within GC_Query.
  *
  * This must not be used within the GeChiUI Loop.
- *
- *
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -105,8 +97,6 @@ function query_posts( $query ) {
  * This will remove obscure bugs that occur when the previous GC_Query object
  * is not destroyed properly before another is set up.
  *
- *
- *
  * @global GC_Query $gc_query     GeChiUI Query object.
  * @global GC_Query $gc_the_query Copy of the global GC_Query instance created during gc_reset_query().
  */
@@ -118,8 +108,6 @@ function gc_reset_query() {
 /**
  * After looping through a separate query, this function restores
  * the $post global to the current post in the main query.
- *
- *
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  */
@@ -144,8 +132,6 @@ function gc_reset_postdata() {
  * For more information on this and similar theme functions, check out
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- *
- *
  *
  * @see is_category()
  * @see is_tag()
@@ -175,8 +161,6 @@ function is_archive() {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @param string|string[] $post_types Optional. Post type or array of posts types
@@ -200,8 +184,6 @@ function is_post_type_archive( $post_types = '' ) {
  * For more information on this and similar theme functions, check out
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- *
- *
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -230,8 +212,6 @@ function is_attachment( $attachment = '' ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @param int|string|int[]|string[] $author Optional. User ID, nickname, nicename, or array of such
@@ -259,8 +239,6 @@ function is_author( $author = '' ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @param int|string|int[]|string[] $category Optional. Category ID, name, slug, or array of such
@@ -287,8 +265,6 @@ function is_category( $category = '' ) {
  * For more information on this and similar theme functions, check out
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- *
- *
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -321,8 +297,6 @@ function is_tag( $tag = '' ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @param string|string[]           $taxonomy Optional. Taxonomy slug or slugs to check against.
@@ -351,8 +325,6 @@ function is_tax( $taxonomy = '', $term = '' ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @return bool Whether the query is for an existing date archive.
@@ -377,8 +349,6 @@ function is_date() {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @return bool Whether the query is for an existing day archive.
@@ -401,8 +371,6 @@ function is_day() {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @param string|string[] $feeds Optional. Feed type or array of feed types
@@ -422,8 +390,6 @@ function is_feed( $feeds = '' ) {
 
 /**
  * Is the query for a comments feed?
- *
- *
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -456,8 +422,6 @@ function is_comment_feed() {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @return bool Whether the query is for the front page of the site.
@@ -488,8 +452,6 @@ function is_front_page() {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @see is_front_page()
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -519,7 +481,7 @@ function is_home() {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
+ * @since 5.2.0
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -542,8 +504,6 @@ function is_privacy_policy() {
  * For more information on this and similar theme functions, check out
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- *
- *
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -569,8 +529,6 @@ function is_month() {
  * For more information on this and similar theme functions, check out
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- *
- *
  *
  * @see is_single()
  * @see is_singular()
@@ -598,8 +556,6 @@ function is_page( $page = '' ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @return bool Whether the query is for a paged result.
@@ -622,8 +578,6 @@ function is_paged() {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @return bool Whether the query is for a post or page preview.
@@ -641,8 +595,6 @@ function is_preview() {
 
 /**
  * Is the query for the robots.txt file?
- *
- *
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -662,7 +614,7 @@ function is_robots() {
 /**
  * Is the query for the favicon.ico file?
  *
- *
+ * @since 5.4.0
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -685,8 +637,6 @@ function is_favicon() {
  * For more information on this and similar theme functions, check out
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- *
- *
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -714,8 +664,6 @@ function is_search() {
  * For more information on this and similar theme functions, check out
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- *
- *
  *
  * @see is_page()
  * @see is_singular()
@@ -747,8 +695,6 @@ function is_single( $post = '' ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @see is_page()
  * @see is_single()
  * @global GC_Query $gc_query GeChiUI Query object.
@@ -776,8 +722,6 @@ function is_singular( $post_types = '' ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @return bool Whether the query is for a specific time.
@@ -799,8 +743,6 @@ function is_time() {
  * For more information on this and similar theme functions, check out
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- *
- *
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -824,8 +766,6 @@ function is_trackback() {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @return bool Whether the query is for an existing year archive.
@@ -848,8 +788,6 @@ function is_year() {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @return bool Whether the query is a 404 error.
@@ -867,8 +805,6 @@ function is_404() {
 
 /**
  * Is the query for an embedded post?
- *
- *
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -892,14 +828,17 @@ function is_embed() {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @return bool Whether the query is the main query.
  */
 function is_main_query() {
 	global $gc_query;
+
+	if ( ! isset( $gc_query ) ) {
+		_doing_it_wrong( __FUNCTION__, __( '条件标签在运行查询之前使用是无效的。这样做的话，返回值只会为false。' ), '6.1.0' );
+		return false;
+	}
 
 	if ( 'pre_get_posts' === current_filter() ) {
 		_doing_it_wrong(
@@ -926,14 +865,17 @@ function is_main_query() {
 /**
  * Determines whether current GeChiUI query has posts to loop over.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @return bool True if posts are available, false if end of the loop.
  */
 function have_posts() {
 	global $gc_query;
+
+	if ( ! isset( $gc_query ) ) {
+		return false;
+	}
+
 	return $gc_query->have_posts();
 }
 
@@ -944,38 +886,47 @@ function have_posts() {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @return bool True if caller is within loop, false if loop hasn't started or ended.
  */
 function in_the_loop() {
 	global $gc_query;
+
+	if ( ! isset( $gc_query ) ) {
+		return false;
+	}
+
 	return $gc_query->in_the_loop;
 }
 
 /**
  * Rewind the loop posts.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  */
 function rewind_posts() {
 	global $gc_query;
+
+	if ( ! isset( $gc_query ) ) {
+		return;
+	}
+
 	$gc_query->rewind_posts();
 }
 
 /**
  * Iterate the post index in the loop.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  */
 function the_post() {
 	global $gc_query;
+
+	if ( ! isset( $gc_query ) ) {
+		return;
+	}
+
 	$gc_query->the_post();
 }
 
@@ -986,36 +937,39 @@ function the_post() {
 /**
  * Determines whether current GeChiUI query has comments to loop over.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @return bool True if comments are available, false if no more comments.
  */
 function have_comments() {
 	global $gc_query;
+
+	if ( ! isset( $gc_query ) ) {
+		return false;
+	}
+
 	return $gc_query->have_comments();
 }
 
 /**
  * Iterate comment index in the comment loop.
  *
- *
- *
  * @global GC_Query $gc_query GeChiUI Query object.
- *
- * @return null
  */
 function the_comment() {
 	global $gc_query;
-	return $gc_query->the_comment();
+
+	if ( ! isset( $gc_query ) ) {
+		return;
+	}
+
+	$gc_query->the_comment();
 }
 
 /**
  * Redirect old slugs to the correct permalink.
  *
  * Attempts to find the current slug from the past slugs.
- *
  *
  */
 function gc_old_slug_redirect() {
@@ -1052,6 +1006,7 @@ function gc_old_slug_redirect() {
 		/**
 		 * Filters the old slug redirect post ID.
 		 *
+		 * @since 4.9.3
 		 *
 		 * @param int $id The redirect post ID.
 		 */
@@ -1072,6 +1027,7 @@ function gc_old_slug_redirect() {
 		/**
 		 * Filters the old slug redirect URL.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param string $link The redirect URL.
 		 */
@@ -1089,7 +1045,7 @@ function gc_old_slug_redirect() {
 /**
  * Find the post ID for redirecting an old slug.
  *
- *
+ * @since 4.9.3
  * @access private
  *
  * @see gc_old_slug_redirect()
@@ -1103,8 +1059,10 @@ function _find_post_by_old_slug( $post_type ) {
 
 	$query = $gcdb->prepare( "SELECT post_id FROM $gcdb->postmeta, $gcdb->posts WHERE ID = post_id AND post_type = %s AND meta_key = '_gc_old_slug' AND meta_value = %s", $post_type, get_query_var( 'name' ) );
 
-	// If year, monthnum, or day have been specified, make our query more precise
-	// just in case there are multiple identical _gc_old_slug values.
+	/*
+	 * If year, monthnum, or day have been specified, make our query more precise
+	 * just in case there are multiple identical _gc_old_slug values.
+	 */
 	if ( get_query_var( 'year' ) ) {
 		$query .= $gcdb->prepare( ' AND YEAR(post_date) = %d', get_query_var( 'year' ) );
 	}
@@ -1115,7 +1073,16 @@ function _find_post_by_old_slug( $post_type ) {
 		$query .= $gcdb->prepare( ' AND DAYOFMONTH(post_date) = %d', get_query_var( 'day' ) );
 	}
 
-	$id = (int) $gcdb->get_var( $query );
+	$key          = md5( $query );
+	$last_changed = gc_cache_get_last_changed( 'posts' );
+	$cache_key    = "find_post_by_old_slug:$key:$last_changed";
+	$cache        = gc_cache_get( $cache_key, 'post-queries' );
+	if ( false !== $cache ) {
+		$id = $cache;
+	} else {
+		$id = (int) $gcdb->get_var( $query );
+		gc_cache_set( $cache_key, $id, 'post-queries' );
+	}
 
 	return $id;
 }
@@ -1123,7 +1090,7 @@ function _find_post_by_old_slug( $post_type ) {
 /**
  * Find the post ID for redirecting an old date.
  *
- *
+ * @since 4.9.3
  * @access private
  *
  * @see gc_old_slug_redirect()
@@ -1148,11 +1115,20 @@ function _find_post_by_old_date( $post_type ) {
 
 	$id = 0;
 	if ( $date_query ) {
-		$id = (int) $gcdb->get_var( $gcdb->prepare( "SELECT post_id FROM $gcdb->postmeta AS pm_date, $gcdb->posts WHERE ID = post_id AND post_type = %s AND meta_key = '_gc_old_date' AND post_name = %s" . $date_query, $post_type, get_query_var( 'name' ) ) );
-
-		if ( ! $id ) {
-			// Check to see if an old slug matches the old date.
-			$id = (int) $gcdb->get_var( $gcdb->prepare( "SELECT ID FROM $gcdb->posts, $gcdb->postmeta AS pm_slug, $gcdb->postmeta AS pm_date WHERE ID = pm_slug.post_id AND ID = pm_date.post_id AND post_type = %s AND pm_slug.meta_key = '_gc_old_slug' AND pm_slug.meta_value = %s AND pm_date.meta_key = '_gc_old_date'" . $date_query, $post_type, get_query_var( 'name' ) ) );
+		$query        = $gcdb->prepare( "SELECT post_id FROM $gcdb->postmeta AS pm_date, $gcdb->posts WHERE ID = post_id AND post_type = %s AND meta_key = '_gc_old_date' AND post_name = %s" . $date_query, $post_type, get_query_var( 'name' ) );
+		$key          = md5( $query );
+		$last_changed = gc_cache_get_last_changed( 'posts' );
+		$cache_key    = "find_post_by_old_date:$key:$last_changed";
+		$cache        = gc_cache_get( $cache_key, 'post-queries' );
+		if ( false !== $cache ) {
+			$id = $cache;
+		} else {
+			$id = (int) $gcdb->get_var( $query );
+			if ( ! $id ) {
+				// Check to see if an old slug matches the old date.
+				$id = (int) $gcdb->get_var( $gcdb->prepare( "SELECT ID FROM $gcdb->posts, $gcdb->postmeta AS pm_slug, $gcdb->postmeta AS pm_date WHERE ID = pm_slug.post_id AND ID = pm_date.post_id AND post_type = %s AND pm_slug.meta_key = '_gc_old_slug' AND pm_slug.meta_value = %s AND pm_date.meta_key = '_gc_old_date'" . $date_query, $post_type, get_query_var( 'name' ) ) );
+			}
+			gc_cache_set( $cache_key, $id, 'post-queries' );
 		}
 	}
 
@@ -1161,9 +1137,7 @@ function _find_post_by_old_date( $post_type ) {
 
 /**
  * Set up global post data.
- *
- *
- *
+ * Added the ability to pass a post ID to `$post`.
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -1183,7 +1157,7 @@ function setup_postdata( $post ) {
 /**
  * Generates post data.
  *
- *
+ * @since 5.2.0
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *

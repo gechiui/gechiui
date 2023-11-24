@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/widgets/media-widgets.js
+ * @output assets/js/widgets/media-widgets.js
  */
 
 /* eslint consistent-this: [ "error", "control" ] */
@@ -98,6 +98,7 @@ gc.mediaWidgets = ( function( $ ) {
 		/**
 		 * Initialize.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {Object} options - Options.
 		 * @return {void}
@@ -172,7 +173,7 @@ gc.mediaWidgets = ( function( $ ) {
 					/**
 					 * Update oEmbed.
 					 *
-				
+					 * @since 4.9.0
 					 *
 					 * @return {void}
 					 */
@@ -236,11 +237,11 @@ gc.mediaWidgets = ( function( $ ) {
 							return;
 						}
 
-						// Support YouTube embed links.
-						re = /https?:\/\/www\.youtube\.com\/embed\/([^/]+)/;
+						// Support YouKu embed links.
+						re = /https?:\/\/player\.youku\.com\/embed\/([^/]+)/;
 						youTubeEmbedMatch = re.exec( url );
 						if ( youTubeEmbedMatch ) {
-							url = 'https://www.youtube.com/watch?v=' + youTubeEmbedMatch[ 1 ];
+							url = 'https://www.youku.com/watch?v=' + youTubeEmbedMatch[ 1 ];
 							// silently change url to proper oembed-able version.
 							embedLinkView.model.attributes.url = url;
 						}
@@ -271,7 +272,7 @@ gc.mediaWidgets = ( function( $ ) {
 					/**
 					 * Handle render failure.
 					 *
-					 * Overrides the {EmbedLink#renderFail()} method to prevent showing the "Link Text" field.
+					 * Overrides the {EmbedLink#renderFail()} method to prevent showing the "链接文字" field.
 					 * The element is getting display:none in the stylesheet, but the underlying method uses
 					 * uses {jQuery.fn.show()} which adds an inline style. This avoids the need for !important.
 					 *

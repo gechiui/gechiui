@@ -2,7 +2,7 @@
 /**
  * Session API
  *
- *
+ * @since 4.0.0
  * @deprecated 4.7.0
  */
 

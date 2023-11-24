@@ -11,7 +11,6 @@
 /**
  * Executing Ajax process.
  *
- *
  */
 define( 'DOING_AJAX', true );
 if ( ! defined( 'GC_ADMIN' ) ) {
@@ -27,8 +26,8 @@ send_origin_headers();
 header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
 header( 'X-Robots-Tag: noindex' );
 
-// Require an action parameter.
-if ( empty( $_REQUEST['action'] ) ) {
+// Require a valid action parameter.
+if ( empty( $_REQUEST['action'] ) || ! is_scalar( $_REQUEST['action'] ) ) {
 	gc_die( '0', 400 );
 }
 
@@ -153,7 +152,8 @@ $core_actions_post_deprecated = array(
 	'health-check-background-updates',
 	'health-check-loopback-requests',
 );
-$core_actions_post            = array_merge( $core_actions_post, $core_actions_post_deprecated );
+
+$core_actions_post = array_merge( $core_actions_post, $core_actions_post_deprecated );
 
 // Register core Ajax calls.
 if ( ! empty( $_GET['action'] ) && in_array( $_GET['action'], $core_actions_get, true ) ) {
@@ -168,7 +168,7 @@ add_action( 'gc_ajax_nopriv_generate-password', 'gc_ajax_nopriv_generate_passwor
 
 add_action( 'gc_ajax_nopriv_heartbeat', 'gc_ajax_nopriv_heartbeat', 1 );
 
-$action = ( isset( $_REQUEST['action'] ) ) ? $_REQUEST['action'] : '';
+$action = $_REQUEST['action'];
 
 if ( is_user_logged_in() ) {
 	// If no action is registered, return a Bad Request response.
@@ -199,5 +199,6 @@ if ( is_user_logged_in() ) {
 	 */
 	do_action( "gc_ajax_nopriv_{$action}" );
 }
+
 // Default status.
 gc_die( '0' );

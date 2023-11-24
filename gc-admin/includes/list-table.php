@@ -4,22 +4,18 @@
  *
  * @package GeChiUI
  * @subpackage List_Table
- *
  */
 
 /**
  * Fetches an instance of a GC_List_Table class.
  *
- * @access private
- *
- *
  * @global string $hook_suffix
  *
- * @param string $class The type of the list table, which is the class name.
- * @param array  $args  Optional. Arguments to pass to the class. Accepts 'screen'.
+ * @param string $class_name The type of the list table, which is the class name.
+ * @param array  $args       Optional. Arguments to pass to the class. Accepts 'screen'.
  * @return GC_List_Table|false List table object on success, false if the class does not exist.
  */
-function _get_list_table( $class, $args = array() ) {
+function _get_list_table( $class_name, $args = array() ) {
 	$core_classes = array(
 		// Site Admin.
 		'GC_Posts_List_Table'                         => 'posts',
@@ -45,8 +41,8 @@ function _get_list_table( $class, $args = array() ) {
 		'GC_Privacy_Data_Removal_Requests_List_Table' => 'privacy-data-removal-requests',
 	);
 
-	if ( isset( $core_classes[ $class ] ) ) {
-		foreach ( (array) $core_classes[ $class ] as $required ) {
+	if ( isset( $core_classes[ $class_name ] ) ) {
+		foreach ( (array) $core_classes[ $class_name ] as $required ) {
 			require_once ABSPATH . 'gc-admin/includes/class-gc-' . $required . '-list-table.php';
 		}
 
@@ -58,7 +54,21 @@ function _get_list_table( $class, $args = array() ) {
 			$args['screen'] = null;
 		}
 
-		return new $class( $args );
+		/**
+		 * Filters the list table class to instantiate.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param string $class_name The list table class to use.
+		 * @param array  $args       An array containing _get_list_table() arguments.
+		 */
+		$custom_class_name = apply_filters( 'gc_list_table_class_name', $class_name, $args );
+
+		if ( is_string( $custom_class_name ) && class_exists( $custom_class_name ) ) {
+			$class_name = $custom_class_name;
+		}
+
+		return new $class_name( $args );
 	}
 
 	return false;
@@ -69,7 +79,7 @@ function _get_list_table( $class, $args = array() ) {
  *
  * @see get_column_headers(), print_column_headers(), get_hidden_columns()
  *
- *
+ * @since 2.7.0
  *
  * @param string    $screen The handle for the screen to register column headers for. This is
  *                          usually the hook name returned by the `add_*_page()` functions.
@@ -83,7 +93,7 @@ function register_column_headers( $screen, $columns ) {
 /**
  * Prints column headers for a particular screen.
  *
- *
+ * @since 2.7.0
  *
  * @param string|GC_Screen $screen  The screen hook name or screen object.
  * @param bool             $with_id Whether to set the ID attribute or not.

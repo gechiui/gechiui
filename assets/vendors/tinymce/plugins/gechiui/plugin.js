@@ -12,7 +12,7 @@ tinymce.PluginManager.add( 'gechiui', function( editor ) {
 		__ = editor.editorManager.i18n.translate,
 		$ = window.jQuery,
 		gc = window.gc,
-		hasWpautop = ( gc && gc.editor && gc.editor.autop && editor.getParam( 'gcautop', true ) ),
+		hasGcautop = ( gc && gc.editor && gc.editor.autop && editor.getParam( 'gcautop', true ) ),
 		gcTooltips = false;
 
 	if ( $ ) {
@@ -82,7 +82,7 @@ tinymce.PluginManager.add( 'gechiui', function( editor ) {
 
 	// Add the kitchen sink button :)
 	editor.addButton( 'gc_adv', {
-		tooltip: 'Toolbar Toggle',
+		tooltip: '显示/隐藏工具栏',
 		cmd: 'GC_Adv',
 		onPostRender: function() {
 			gcAdvButton = this;
@@ -112,7 +112,7 @@ tinymce.PluginManager.add( 'gechiui', function( editor ) {
 
 		if ( event.content ) {
 			if ( event.content.indexOf( '<!--more' ) !== -1 ) {
-				title = __( '阅读更多…' );
+				title = __( '阅读更多...'  );
 
 				event.content = event.content.replace( /<!--more(.*?)-->/g, function( match, moretext ) {
 					return '<img src="' + tinymce.Env.transparentSrc + '" data-gc-more="more" data-gc-more-text="' + moretext + '" ' +
@@ -129,7 +129,7 @@ tinymce.PluginManager.add( 'gechiui', function( editor ) {
 			}
 
 			if ( event.load && event.format !== 'raw' ) {
-				if ( hasWpautop ) {
+				if ( hasGcautop ) {
 					event.content = gc.editor.autop( event.content );
 				} else {
 					// Prevent creation of paragraphs out of multiple HTML comments.
@@ -212,7 +212,7 @@ tinymce.PluginManager.add( 'gechiui', function( editor ) {
 
 		tag = tag || 'more';
 		classname += ' mce-gc-' + tag;
-		title = tag === 'more' ? 'Read more...' : 'Next page';
+		title = tag === 'more' ? '阅读更多...'  : '下一页';
 		title = __( title );
 		html = '<img src="' + tinymce.Env.transparentSrc + '" alt="" title="' + title + '" class="' + classname + '" ' +
 			'data-gc-more="' + tag + '" data-mce-resize="false" data-mce-placeholder="1" />';
@@ -253,7 +253,7 @@ tinymce.PluginManager.add( 'gechiui', function( editor ) {
 
 	editor.addCommand( 'GC_Help', function() {
 		var access = tinymce.Env.mac ? __( 'Ctrl+Alt+字母：' ) : __( 'Shift+Alt+字母：' ),
-			meta = tinymce.Env.mac ? __( 'Cmd+字母：' ) : __( 'Ctrl+字母：' ),
+			meta = tinymce.Env.mac ? __( '⌘ + 字母：' ) : __( 'Ctrl+字母：' ),
 			table1 = [],
 			table2 = [],
 			row1 = {},
@@ -348,20 +348,20 @@ tinymce.PluginManager.add( 'gechiui', function( editor ) {
 			html = html +
 				'<h2>' + __( '当使用这些格式快捷键后跟空格来创建新段落时，这些格式会被自动应用。按退格或退出键来撤销。' ) + '</h2>' +
 				'<table class="gc-help-th-center fixed">' +
-					tr({ '*':  'Bullet list', '1.':  'Numbered list' }) +
-					tr({ '-':  'Bullet list', '1)':  'Numbered list' }) +
+					tr({ '*':  'Bullet list', '1.':  '编号列表' }) +
+					tr({ '-':  'Bullet list', '1)':  '编号列表' }) +
 				'</table>';
 
 			html = html +
 				'<h2>' + __( '以下格式捷径在按回车键时被替换。请按退出或撤销键来撤销。' ) + '</h2>' +
 				'<table class="gc-help-single">' +
 					tr({ '>': 'Blockquote' }) +
-					tr({ '##': 'Heading 2' }) +
-					tr({ '###': 'Heading 3' }) +
-					tr({ '####': 'Heading 4' }) +
-					tr({ '#####': 'Heading 5' }) +
-					tr({ '######': 'Heading 6' }) +
-					tr({ '---': 'Horizontal line' }) +
+					tr({ '##': '二级标题' }) +
+					tr({ '###': '三级标题' }) +
+					tr({ '####': '四级标题' }) +
+					tr({ '#####': '五级标题' }) +
+					tr({ '######': '六级标题' }) +
+					tr({ '---': '水平线' }) +
 				'</table>';
 		}
 
@@ -371,15 +371,15 @@ tinymce.PluginManager.add( 'gechiui', function( editor ) {
 			'<table class="gc-help-single">' +
 				tr({ 'Alt + F8':  '内联工具栏（当图片、链接或预览被选中时）' }) +
 				tr({ 'Alt + F9':  '编辑菜单（如被启用）' }) +
-				tr({ 'Alt + F10': 'Editor toolbar' }) +
-				tr({ 'Alt + F11': 'Elements path' }) +
+				tr({ 'Alt + F10': '编辑工具栏' }) +
+				tr({ 'Alt + F11': '元素路径' }) +
 			'</table>' +
 			'<p>' + __( '要移动焦点到其他按钮，请使用Tab或箭头键；要将焦点移回编辑器，请按Esc或使用任意一个按钮。' ) + '</p>';
 
 		html += '</div>';
 
 		dialog = editor.windowManager.open( {
-			title: editor.settings.classic_block_editor ? '传统区块键盘快捷键' : 'Keyboard Shortcuts',
+			title: editor.settings.classic_block_editor ? '传统区块键盘快捷键' : '键盘快捷键',
 			items: {
 				type: 'container',
 				classes: 'gc-help',
@@ -424,14 +424,14 @@ tinymce.PluginManager.add( 'gechiui', function( editor ) {
 	});
 
 	editor.addButton( 'gc_page', {
-		tooltip: 'Page break',
+		tooltip: '分页符',
 		onclick: function() {
 			editor.execCommand( 'GC_More', 'nextpage' );
 		}
 	});
 
 	editor.addButton( 'gc_help', {
-		tooltip: 'Keyboard Shortcuts',
+		tooltip: '键盘快捷键',
 		cmd: 'GC_Help'
 	});
 
@@ -444,13 +444,13 @@ tinymce.PluginManager.add( 'gechiui', function( editor ) {
 	// Insert->Add Media.
 	if ( gc && gc.media && gc.media.editor ) {
 		editor.addButton( 'gc_add_media', {
-			tooltip: 'Add Media',
+			tooltip: '添加媒体',
 			icon: 'dashicon dashicons-admin-media',
 			cmd: 'GC_Medialib'
 		} );
 
 		editor.addMenuItem( 'add_media', {
-			text: 'Add Media',
+			text: '添加媒体',
 			icon: 'gc-media-library',
 			context: 'insert',
 			cmd: 'GC_Medialib'
@@ -467,9 +467,9 @@ tinymce.PluginManager.add( 'gechiui', function( editor ) {
 		}
 	});
 
-	// Insert "Next Page".
+	// Insert "下一页".
 	editor.addMenuItem( 'gc_page', {
-		text: 'Page break',
+		text: '分页符',
 		icon: 'gc_page',
 		context: 'insert',
 		onclick: function() {
@@ -600,7 +600,7 @@ tinymce.PluginManager.add( 'gechiui', function( editor ) {
 		// Keep empty paragraphs :(
 		event.content = event.content.replace( /<p>(?:<br ?\/?>|\u00a0|\uFEFF| )*<\/p>/g, '<p>&nbsp;</p>' );
 
-		if ( hasWpautop ) {
+		if ( hasGcautop ) {
 			event.content = gc.editor.removep( event.content );
 		} else {
 			// Restore formatting of block boundaries.

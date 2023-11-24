@@ -4,14 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage Comments
- *
  */
 
 /**
  * Core class used to organize comments as instantiated objects with defined members.
  *
- *
  */
+#[AllowDynamicProperties]
 final class GC_Comment {
 
 	/**
@@ -19,6 +18,7 @@ final class GC_Comment {
 	 *
 	 * A numeric string, for compatibility reasons.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $comment_ID;
@@ -28,6 +28,7 @@ final class GC_Comment {
 	 *
 	 * A numeric string, for compatibility reasons.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $comment_post_ID = 0;
@@ -35,6 +36,7 @@ final class GC_Comment {
 	/**
 	 * Comment author name.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $comment_author = '';
@@ -42,6 +44,7 @@ final class GC_Comment {
 	/**
 	 * Comment author email address.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $comment_author_email = '';
@@ -49,6 +52,7 @@ final class GC_Comment {
 	/**
 	 * Comment author URL.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $comment_author_url = '';
@@ -56,6 +60,7 @@ final class GC_Comment {
 	/**
 	 * Comment author IP address (IPv4 format).
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $comment_author_IP = '';
@@ -63,6 +68,7 @@ final class GC_Comment {
 	/**
 	 * Comment date in YYYY-MM-DD HH:MM:SS format.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $comment_date = '0000-00-00 00:00:00';
@@ -70,6 +76,7 @@ final class GC_Comment {
 	/**
 	 * Comment GMT date in YYYY-MM-DD HH::MM:SS format.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $comment_date_gmt = '0000-00-00 00:00:00';
@@ -77,6 +84,7 @@ final class GC_Comment {
 	/**
 	 * Comment content.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $comment_content;
@@ -86,6 +94,7 @@ final class GC_Comment {
 	 *
 	 * A numeric string, for compatibility reasons.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $comment_karma = 0;
@@ -93,6 +102,7 @@ final class GC_Comment {
 	/**
 	 * Comment approval status.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $comment_approved = '1';
@@ -100,6 +110,7 @@ final class GC_Comment {
 	/**
 	 * Comment author HTTP user agent.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $comment_agent = '';
@@ -107,6 +118,8 @@ final class GC_Comment {
 	/**
 	 * Comment type.
 	 *
+	 * @since 4.4.0
+	 * @since 5.5.0 Default value changed to `comment`.
 	 * @var string
 	 */
 	public $comment_type = 'comment';
@@ -116,6 +129,7 @@ final class GC_Comment {
 	 *
 	 * A numeric string, for compatibility reasons.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $comment_parent = 0;
@@ -125,6 +139,7 @@ final class GC_Comment {
 	 *
 	 * A numeric string, for compatibility reasons.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $user_id = 0;
@@ -132,6 +147,7 @@ final class GC_Comment {
 	/**
 	 * Comment children.
 	 *
+	 * @since 4.4.0
 	 * @var array
 	 */
 	protected $children;
@@ -139,6 +155,7 @@ final class GC_Comment {
 	/**
 	 * Whether children have been populated for this comment object.
 	 *
+	 * @since 4.4.0
 	 * @var bool
 	 */
 	protected $populated_children = false;
@@ -146,6 +163,7 @@ final class GC_Comment {
 	/**
 	 * Post fields.
 	 *
+	 * @since 4.4.0
 	 * @var array
 	 */
 	protected $post_fields = array( 'post_author', 'post_date', 'post_date_gmt', 'post_content', 'post_title', 'post_excerpt', 'post_status', 'comment_status', 'ping_status', 'post_name', 'to_ping', 'pinged', 'post_modified', 'post_modified_gmt', 'post_content_filtered', 'post_parent', 'guid', 'menu_order', 'post_type', 'post_mime_type', 'comment_count' );
@@ -153,6 +171,7 @@ final class GC_Comment {
 	/**
 	 * Retrieves a GC_Comment instance.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -187,6 +206,7 @@ final class GC_Comment {
 	 *
 	 * Populates properties with object vars.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param GC_Comment $comment Comment object.
 	 */
@@ -197,8 +217,9 @@ final class GC_Comment {
 	}
 
 	/**
-	 * Convert object to array.
+	 * Converts object to array.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return array Object as array.
 	 */
@@ -207,8 +228,9 @@ final class GC_Comment {
 	}
 
 	/**
-	 * Get the children of a comment.
+	 * Gets the children of a comment.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $args {
 	 *     Array of arguments used to pass to get_comments() and determine format.
@@ -278,10 +300,11 @@ final class GC_Comment {
 	}
 
 	/**
-	 * Add a child to the comment.
+	 * Adds a child to the comment.
 	 *
 	 * Used by `GC_Comment_Query` when bulk-filling descendants.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param GC_Comment $child Child comment.
 	 */
@@ -290,8 +313,9 @@ final class GC_Comment {
 	}
 
 	/**
-	 * Get a child comment by ID.
+	 * Gets a child comment by ID.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param int $child_id ID of the child.
 	 * @return GC_Comment|false Returns the comment object if found, otherwise false.
@@ -305,11 +329,12 @@ final class GC_Comment {
 	}
 
 	/**
-	 * Set the 'populated_children' flag.
+	 * Sets the 'populated_children' flag.
 	 *
 	 * This flag is important for ensuring that calling `get_children()` on a childless comment will not trigger
 	 * unneeded database queries.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param bool $set Whether the comment's children have already been populated.
 	 */
@@ -318,10 +343,11 @@ final class GC_Comment {
 	}
 
 	/**
-	 * Check whether a non-public property is set.
+	 * Determines whether a non-public property is set.
 	 *
 	 * If `$name` matches a post field, the comment post will be loaded and the post's value checked.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $name Property name.
 	 * @return bool
@@ -338,6 +364,7 @@ final class GC_Comment {
 	 *
 	 * If `$name` matches a post field, the comment post will be loaded and the post's value returned.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $name
 	 * @return mixed

@@ -4,20 +4,19 @@
  *
  * @package GeChiUI
  * @subpackage Post
- *
  */
 
 /**
  * Core class used for interacting with post types.
  *
- *
- *
  * @see register_post_type()
  */
+#[AllowDynamicProperties]
 final class GC_Post_Type {
 	/**
 	 * Post type key.
 	 *
+	 * @since 4.6.0
 	 * @var string $name
 	 */
 	public $name;
@@ -25,6 +24,7 @@ final class GC_Post_Type {
 	/**
 	 * Name of the post type shown in the menu. Usually plural.
 	 *
+	 * @since 4.6.0
 	 * @var string $label
 	 */
 	public $label;
@@ -37,15 +37,25 @@ final class GC_Post_Type {
 	 *
 	 * @see get_post_type_labels()
 	 *
+	 * @since 4.6.0
 	 * @var stdClass $labels
 	 */
 	public $labels;
+
+	/**
+	 * Default labels.
+	 *
+	 * @since 6.0.0
+	 * @var (string|null)[][] $default_labels
+	 */
+	protected static $default_labels = array();
 
 	/**
 	 * A short descriptive summary of what the post type is.
 	 *
 	 * Default empty.
 	 *
+	 * @since 4.6.0
 	 * @var string $description
 	 */
 	public $description = '';
@@ -58,6 +68,7 @@ final class GC_Post_Type {
 	 *
 	 * Default false.
 	 *
+	 * @since 4.6.0
 	 * @var bool $public
 	 */
 	public $public = false;
@@ -67,6 +78,7 @@ final class GC_Post_Type {
 	 *
 	 * Default false.
 	 *
+	 * @since 4.6.0
 	 * @var bool $hierarchical
 	 */
 	public $hierarchical = false;
@@ -77,6 +89,7 @@ final class GC_Post_Type {
 	 *
 	 * Default is the opposite value of $public.
 	 *
+	 * @since 4.6.0
 	 * @var bool $exclude_from_search
 	 */
 	public $exclude_from_search = null;
@@ -92,6 +105,7 @@ final class GC_Post_Type {
 	 *
 	 * Default is the value of $public.
 	 *
+	 * @since 4.6.0
 	 * @var bool $publicly_queryable
 	 */
 	public $publicly_queryable = null;
@@ -101,6 +115,7 @@ final class GC_Post_Type {
 	 *
 	 * Default is the value of $public.
 	 *
+	 * @since 4.6.0
 	 * @var bool $show_ui
 	 */
 	public $show_ui = null;
@@ -114,6 +129,7 @@ final class GC_Post_Type {
 	 *
 	 * Default is the value of $show_ui.
 	 *
+	 * @since 4.6.0
 	 * @var bool|string $show_in_menu
 	 */
 	public $show_in_menu = null;
@@ -123,6 +139,7 @@ final class GC_Post_Type {
 	 *
 	 * Default is the value $public.
 	 *
+	 * @since 4.6.0
 	 * @var bool $show_in_nav_menus
 	 */
 	public $show_in_nav_menus = null;
@@ -132,6 +149,7 @@ final class GC_Post_Type {
 	 *
 	 * Default is the value of $show_in_menu.
 	 *
+	 * @since 4.6.0
 	 * @var bool $show_in_admin_bar
 	 */
 	public $show_in_admin_bar = null;
@@ -141,6 +159,7 @@ final class GC_Post_Type {
 	 *
 	 * To work, $show_in_menu must be true. Default null (at the bottom).
 	 *
+	 * @since 4.6.0
 	 * @var int $menu_position
 	 */
 	public $menu_position = null;
@@ -155,6 +174,7 @@ final class GC_Post_Type {
 	 *
 	 * Defaults to use the posts icon.
 	 *
+	 * @since 4.6.0
 	 * @var string $menu_icon
 	 */
 	public $menu_icon = null;
@@ -166,6 +186,7 @@ final class GC_Post_Type {
 	 * this argument as a base to construct the capabilities, e.g.
 	 * array( 'story', 'stories' ). Default 'post'.
 	 *
+	 * @since 4.6.0
 	 * @var string $capability_type
 	 */
 	public $capability_type = 'post';
@@ -175,6 +196,7 @@ final class GC_Post_Type {
 	 *
 	 * Default false.
 	 *
+	 * @since 4.6.0
 	 * @var bool $map_meta_cap
 	 */
 	public $map_meta_cap = false;
@@ -184,6 +206,7 @@ final class GC_Post_Type {
 	 *
 	 * Do `remove_meta_box()` and `add_meta_box()` calls in the callback. Default null.
 	 *
+	 * @since 4.6.0
 	 * @var callable $register_meta_box_cb
 	 */
 	public $register_meta_box_cb = null;
@@ -195,7 +218,8 @@ final class GC_Post_Type {
 	 *
 	 * Default empty array.
 	 *
-	 * @var array $taxonomies
+	 * @since 4.6.0
+	 * @var string[] $taxonomies
 	 */
 	public $taxonomies = array();
 
@@ -204,6 +228,7 @@ final class GC_Post_Type {
 	 *
 	 * Will generate the proper rewrite rules if $rewrite is enabled. Default false.
 	 *
+	 * @since 4.6.0
 	 * @var bool|string $has_archive
 	 */
 	public $has_archive = false;
@@ -214,6 +239,7 @@ final class GC_Post_Type {
 	 * Defaults to $post_type key. If false, a post type cannot be loaded at `?{query_var}={post_slug}`.
 	 * If specified as a string, the query `?{query_var_string}={post_slug}` will be valid.
 	 *
+	 * @since 4.6.0
 	 * @var string|bool $query_var
 	 */
 	public $query_var;
@@ -223,6 +249,7 @@ final class GC_Post_Type {
 	 *
 	 * Default true.
 	 *
+	 * @since 4.6.0
 	 * @var bool $can_export
 	 */
 	public $can_export = true;
@@ -237,6 +264,7 @@ final class GC_Post_Type {
 	 *
 	 * Default null.
 	 *
+	 * @since 4.6.0
 	 * @var bool $delete_with_user
 	 */
 	public $delete_with_user = null;
@@ -250,7 +278,8 @@ final class GC_Post_Type {
 	 *
 	 * @link https://developer.gechiui.com/block-editor/developers/block-api/block-templates/
 	 *
-	 * @var array $template
+	 * @since 5.0.0
+	 * @var array[] $template
 	 */
 	public $template = array();
 
@@ -266,6 +295,7 @@ final class GC_Post_Type {
 	 *
 	 * @link https://developer.gechiui.com/block-editor/developers/block-api/block-templates/
 	 *
+	 * @since 5.0.0
 	 * @var string|false $template_lock
 	 */
 	public $template_lock = false;
@@ -275,6 +305,7 @@ final class GC_Post_Type {
 	 *
 	 * Default false.
 	 *
+	 * @since 4.6.0
 	 * @var bool $_builtin
 	 */
 	public $_builtin = false;
@@ -284,6 +315,7 @@ final class GC_Post_Type {
 	 *
 	 * Default 'post.php?post=%d'.
 	 *
+	 * @since 4.6.0
 	 * @var string $_edit_link
 	 */
 	public $_edit_link = 'post.php?post=%d';
@@ -291,6 +323,7 @@ final class GC_Post_Type {
 	/**
 	 * Post type capabilities.
 	 *
+	 * @since 4.6.0
 	 * @var stdClass $cap
 	 */
 	public $cap;
@@ -300,6 +333,7 @@ final class GC_Post_Type {
 	 *
 	 * Defaults to true, using $post_type as slug.
 	 *
+	 * @since 4.6.0
 	 * @var array|false $rewrite
 	 */
 	public $rewrite;
@@ -307,6 +341,7 @@ final class GC_Post_Type {
 	/**
 	 * The features supported by the post type.
 	 *
+	 * @since 4.6.0
 	 * @var array|bool $supports
 	 */
 	public $supports;
@@ -317,6 +352,7 @@ final class GC_Post_Type {
 	 * Default false. If true, standard endpoints will be registered with
 	 * respect to $rest_base and $rest_controller_class.
 	 *
+	 * @since 4.7.4
 	 * @var bool $show_in_rest
 	 */
 	public $show_in_rest;
@@ -324,6 +360,7 @@ final class GC_Post_Type {
 	/**
 	 * The base path for this post type's REST API endpoints.
 	 *
+	 * @since 4.7.4
 	 * @var string|bool $rest_base
 	 */
 	public $rest_base;
@@ -331,6 +368,7 @@ final class GC_Post_Type {
 	/**
 	 * The namespace for this post type's REST API endpoints.
 	 *
+	 * @since 5.9.0
 	 * @var string|bool $rest_namespace
 	 */
 	public $rest_namespace;
@@ -340,6 +378,7 @@ final class GC_Post_Type {
 	 *
 	 * Custom controllers must extend GC_REST_Controller.
 	 *
+	 * @since 4.7.4
 	 * @var string|bool $rest_controller_class
 	 */
 	public $rest_controller_class;
@@ -349,6 +388,7 @@ final class GC_Post_Type {
 	 *
 	 * Lazily computed. Should be accessed using {@see GC_Post_Type::get_rest_controller()}.
 	 *
+	 * @since 5.3.0
 	 * @var GC_REST_Controller $rest_controller
 	 */
 	public $rest_controller;
@@ -361,11 +401,13 @@ final class GC_Post_Type {
 	 * Will populate object properties from the provided arguments and assign other
 	 * default properties based on that information.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @see register_post_type()
 	 *
 	 * @param string       $post_type Post type key.
 	 * @param array|string $args      Optional. Array or string of arguments for registering a post type.
+	 *                                See register_post_type() for information on accepted arguments.
 	 *                                Default empty array.
 	 */
 	public function __construct( $post_type, $args = array() ) {
@@ -379,6 +421,7 @@ final class GC_Post_Type {
 	 *
 	 * See the register_post_type() function for accepted arguments for `$args`.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param array|string $args Array or string of arguments for registering a post type.
 	 */
@@ -388,12 +431,33 @@ final class GC_Post_Type {
 		/**
 		 * Filters the arguments for registering a post type.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param array  $args      Array of arguments for registering a post type.
 		 *                          See the register_post_type() function for accepted arguments.
 		 * @param string $post_type Post type key.
 		 */
 		$args = apply_filters( 'register_post_type_args', $args, $this->name );
+
+		$post_type = $this->name;
+
+		/**
+		 * Filters the arguments for registering a specific post type.
+		 *
+		 * The dynamic portion of the filter name, `$post_type`, refers to the post type key.
+		 *
+		 * Possible hook names include:
+		 *
+		 *  - `register_post_post_type_args`
+		 *  - `register_page_post_type_args`
+		 *
+		 * @since 6.0.0
+		 *
+		 * @param array  $args      Array of arguments for registering a post type.
+		 *                          See the register_post_type() function for accepted arguments.
+		 * @param string $post_type Post type key.
+		 */
+		$args = apply_filters( "register_{$post_type}_post_type_args", $args, $this->name );
 
 		$has_edit_link = ! empty( $args['_edit_link'] );
 
@@ -539,6 +603,7 @@ final class GC_Post_Type {
 	/**
 	 * Sets the features support for the post type.
 	 *
+	 * @since 4.6.0
 	 */
 	public function add_supports() {
 		if ( ! empty( $this->supports ) ) {
@@ -559,6 +624,7 @@ final class GC_Post_Type {
 	/**
 	 * Adds the necessary rewrite rules for the post type.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
 	 * @global GC         $gc         Current GeChiUI environment instance.
@@ -605,6 +671,7 @@ final class GC_Post_Type {
 	/**
 	 * Registers the post type meta box if a custom callback was specified.
 	 *
+	 * @since 4.6.0
 	 */
 	public function register_meta_boxes() {
 		if ( $this->register_meta_box_cb ) {
@@ -615,6 +682,7 @@ final class GC_Post_Type {
 	/**
 	 * Adds the future post hook action for the post type.
 	 *
+	 * @since 4.6.0
 	 */
 	public function add_hooks() {
 		add_action( 'future_' . $this->name, '_future_post_hook', 5, 2 );
@@ -623,6 +691,7 @@ final class GC_Post_Type {
 	/**
 	 * Registers the taxonomies for the post type.
 	 *
+	 * @since 4.6.0
 	 */
 	public function register_taxonomies() {
 		foreach ( $this->taxonomies as $taxonomy ) {
@@ -633,6 +702,7 @@ final class GC_Post_Type {
 	/**
 	 * Removes the features support for the post type.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @global array $_gc_post_type_features Post type features.
 	 */
@@ -645,6 +715,7 @@ final class GC_Post_Type {
 	/**
 	 * Removes any rewrite rules, permastructs, and rules for the post type.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @global GC_Rewrite $gc_rewrite          GeChiUI rewrite component.
 	 * @global GC         $gc                  Current GeChiUI environment instance.
@@ -663,7 +734,7 @@ final class GC_Post_Type {
 			remove_rewrite_tag( "%$this->name%" );
 			remove_permastruct( $this->name );
 			foreach ( $gc_rewrite->extra_rules_top as $regex => $query ) {
-				if ( false !== strpos( $query, "index.php?post_type=$this->name" ) ) {
+				if ( str_contains( $query, "index.php?post_type=$this->name" ) ) {
 					unset( $gc_rewrite->extra_rules_top[ $regex ] );
 				}
 			}
@@ -678,6 +749,7 @@ final class GC_Post_Type {
 	/**
 	 * Unregisters the post type meta box if a custom callback was specified.
 	 *
+	 * @since 4.6.0
 	 */
 	public function unregister_meta_boxes() {
 		if ( $this->register_meta_box_cb ) {
@@ -688,6 +760,7 @@ final class GC_Post_Type {
 	/**
 	 * Removes the post type from all taxonomies.
 	 *
+	 * @since 4.6.0
 	 */
 	public function unregister_taxonomies() {
 		foreach ( get_object_taxonomies( $this->name ) as $taxonomy ) {
@@ -698,6 +771,7 @@ final class GC_Post_Type {
 	/**
 	 * Removes the future post hook action for the post type.
 	 *
+	 * @since 4.6.0
 	 */
 	public function remove_hooks() {
 		remove_action( 'future_' . $this->name, '_future_post_hook', 5 );
@@ -708,6 +782,7 @@ final class GC_Post_Type {
 	 *
 	 * Will only instantiate the controller class once per request.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @return GC_REST_Controller|null The controller instance, or null if the post type
 	 *                                 is set not to show in rest.
@@ -736,5 +811,71 @@ final class GC_Post_Type {
 		}
 
 		return $this->rest_controller;
+	}
+
+	/**
+	 * Returns the default labels for post types.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @return (string|null)[][] The default labels for post types.
+	 */
+	public static function get_default_labels() {
+		if ( ! empty( self::$default_labels ) ) {
+			return self::$default_labels;
+		}
+
+		self::$default_labels = array(
+			'name'                     => array( _x( '文章', 'post type general name' ), _x( '页面', 'post type general name' ) ),
+			'singular_name'            => array( _x( '文章', 'post type singular name' ), _x( '页面', 'post type singular name' ) ),
+			'add_new'                  => array( _x( '写文章', 'post' ), _x( '新建页面', 'page' ) ),
+			'add_new_item'             => array( __( '撰写新文章' ), __( '创建页面' ) ),
+			'edit_item'                => array( __( '编辑文章' ), __( '编辑页面' ) ),
+			'new_item'                 => array( __( '写文章' ), __( '新建页面' ) ),
+			'view_item'                => array( __( '查看文章' ), __( '查看页面' ) ),
+			'view_items'               => array( __( '查看文章' ), __( '查看页面' ) ),
+			'search_items'             => array( __( '搜索文章' ), __( '搜索页面' ) ),
+			'not_found'                => array( __( '未找到文章。' ), __( '未找到页面。' ) ),
+			'not_found_in_trash'       => array( __( '回收站中没有文章。' ), __( '回收站中没有页面。' ) ),
+			'parent_item_colon'        => array( null, __( '父页：' ) ),
+			'all_items'                => array( __( '所有文章' ), __( '所有页面' ) ),
+			'archives'                 => array( __( '文章归档' ), __( '页面归档' ) ),
+			'attributes'               => array( __( '文章属性' ), __( '页面属性' ) ),
+			'insert_into_item'         => array( __( '插入至文章' ), __( '插入至页面' ) ),
+			'uploaded_to_this_item'    => array( __( '上传到本文章的' ), __( '上传到本页面的' ) ),
+			'featured_image'           => array( _x( '特色图片', 'post' ), _x( '特色图片', 'page' ) ),
+			'set_featured_image'       => array( _x( '设置特色图片', 'post' ), _x( '设置特色图片', 'page' ) ),
+			'remove_featured_image'    => array( _x( '移除特色图片', 'post' ), _x( '移除特色图片', 'page' ) ),
+			'use_featured_image'       => array( _x( '用作特色图片', 'post' ), _x( '用作特色图片', 'page' ) ),
+			'filter_items_list'        => array( __( '筛选文章列表' ), __( '筛选页面列表' ) ),
+			'filter_by_date'           => array( __( '按日期筛选' ), __( '按日期筛选' ) ),
+			'items_list_navigation'    => array( __( '文章列表导航' ), __( '页面列表导航' ) ),
+			'items_list'               => array( __( '文章列表' ), __( '页面列表' ) ),
+			'item_published'           => array( __( '文章已发布。' ), __( '页面已发布。' ) ),
+			'item_published_privately' => array( __( '文章已私密发布。' ), __( '页面已私密发布。' ) ),
+			'item_reverted_to_draft'   => array( __( '文章已恢复为草稿。' ), __( '页面已恢复为草稿。' ) ),
+			'item_trashed'             => array( __( 'Post trashed.' ), __( 'Page trashed.' ) ),
+			'item_scheduled'           => array( __( '文章已排入发布计划。' ), __( '页面已排入发布计划。' ) ),
+			'item_updated'             => array( __( '文章已更新。' ), __( '页面已更新。' ) ),
+			'item_link'                => array(
+				_x( '文章链接', 'navigation link block title' ),
+				_x( '页面链接', 'navigation link block title' ),
+			),
+			'item_link_description'    => array(
+				_x( '目标文章的链接。', 'navigation link block description' ),
+				_x( '目标页面的链接。', 'navigation link block description' ),
+			),
+		);
+
+		return self::$default_labels;
+	}
+
+	/**
+	 * Resets the cache for the default labels.
+	 *
+	 * @since 6.0.0
+	 */
+	public static function reset_default_labels() {
+		self::$default_labels = array();
 	}
 }

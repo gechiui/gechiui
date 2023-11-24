@@ -2,7 +2,7 @@
  * This file is used on media-upload.php which has been replaced by media-new.php and upload.php
  *
  * @deprecated 3.5.0
- * @output gc-admin/js/media-gallery.js
+ * @output assets/js/media-gallery.js
  */
 
  /* global ajaxurl */

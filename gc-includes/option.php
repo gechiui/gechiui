@@ -28,10 +28,11 @@
  * as string equivalents.
  *
  * Exceptions:
- * 1. When the option has not been saved in the database, the `$default` value
+ *
+ * 1. When the option has not been saved in the database, the `$default_value` value
  *    is returned if provided. If not, boolean `false` is returned.
- * 2. When one of the Options API filters is used: {@see 'pre_option_{$option}'},
- *    {@see 'default_option_{$option}'}, or {@see 'option_{$option}'}, the returned
+ * 2. When one of the Options API filters is used: {@see 'pre_option_$option'},
+ *    {@see 'default_option_$option'}, or {@see 'option_$option'}, the returned
  *    value may not match the expected type.
  * 3. When the option has just been saved in the database, and get_option()
  *    is used right after, non-string scalar and null values are not converted to
@@ -39,42 +40,40 @@
  *
  * Examples:
  *
- * When adding options like this: `add_option( 'my_option_name', 'value' );`
- * and then retrieving them with `get_option( 'my_option_name' );`, the returned
+ * When adding options like this: `add_option( 'my_option_name', 'value' )`
+ * and then retrieving them with `get_option( 'my_option_name' )`, the returned
  * values will be:
  *
- * `false` returns `string(0) ""`
- * `true`  returns `string(1) "1"`
- * `0`     returns `string(1) "0"`
- * `1`     returns `string(1) "1"`
- * `'0'`   returns `string(1) "0"`
- * `'1'`   returns `string(1) "1"`
- * `null`  returns `string(0) ""`
+ *   - `false` returns `string(0) ""`
+ *   - `true`  returns `string(1) "1"`
+ *   - `0`     returns `string(1) "0"`
+ *   - `1`     returns `string(1) "1"`
+ *   - `'0'`   returns `string(1) "0"`
+ *   - `'1'`   returns `string(1) "1"`
+ *   - `null`  returns `string(0) ""`
  *
  * When adding options with non-scalar values like
- * `add_option( 'my_array', array( false, 'str', null ) );`, the returned value
+ * `add_option( 'my_array', array( false, 'str', null ) )`, the returned value
  * will be identical to the original as it is serialized before saving
  * it in the database:
  *
- *    array(3) {
- *        [0] => bool(false)
- *        [1] => string(3) "str"
- *        [2] => NULL
- *    }
- *
- *
+ *     array(3) {
+ *         [0] => bool(false)
+ *         [1] => string(3) "str"
+ *         [2] => NULL
+ *     }
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
- * @param string $option  Name of the option to retrieve. Expected to not be SQL-escaped.
- * @param mixed  $default Optional. Default value to return if the option does not exist.
+ * @param string $option        Name of the option to retrieve. Expected to not be SQL-escaped.
+ * @param mixed  $default_value Optional. Default value to return if the option does not exist.
  * @return mixed Value of the option. A value of any type may be returned, including
  *               scalar (string, boolean, float, integer), null, array, object.
  *               Scalar and null values will be returned as strings as long as they originate
  *               from a database stored option value. If there is no option in the database,
  *               boolean `false` is returned.
  */
-function get_option( $option, $default = false ) {
+function get_option( $option, $default_value = false ) {
 	global $gcdb;
 
 	if ( is_scalar( $option ) ) {
@@ -94,7 +93,7 @@ function get_option( $option, $default = false ) {
 		'comment_whitelist' => 'comment_previously_approved',
 	);
 
-	if ( ! gc_installing() && isset( $deprecated_keys[ $option ] ) ) {
+	if ( isset( $deprecated_keys[ $option ] ) && ! gc_installing() ) {
 		_deprecated_argument(
 			__FUNCTION__,
 			'5.5.0',
@@ -105,7 +104,7 @@ function get_option( $option, $default = false ) {
 				$deprecated_keys[ $option ]
 			)
 		);
-		return get_option( $deprecated_keys[ $option ], $default );
+		return get_option( $deprecated_keys[ $option ], $default_value );
 	}
 
 	/**
@@ -113,19 +112,40 @@ function get_option( $option, $default = false ) {
 	 *
 	 * The dynamic portion of the hook name, `$option`, refers to the option name.
 	 *
+	 * Returning a value other than false from the filter will short-circuit retrieval
+	 * and return that value instead.
+	 *
+	 * @since 1.5.0
+	 * @since 4.4.0 The `$option` parameter was added.
+	 * @since 4.9.0 The `$default_value` parameter was added.
+	 *
+	 * @param mixed  $pre_option    The value to return instead of the option value. This differs from
+	 *                              `$default_value`, which is used as the fallback value in the event
+	 *                              the option doesn't exist elsewhere in get_option().
+	 *                              Default false (to skip past the short-circuit).
+	 * @param string $option        Option name.
+	 * @param mixed  $default_value The fallback value to return if the option does not exist.
+	 *                              Default false.
+	 */
+	$pre = apply_filters( "pre_option_{$option}", false, $option, $default_value );
+
+	/**
+	 * Filters the value of all existing options before it is retrieved.
+	 *
 	 * Returning a truthy value from the filter will effectively short-circuit retrieval
 	 * and return the passed value instead.
 	 *
+	 * @since 6.1.0
 	 *
-	 * @param mixed  $pre_option The value to return instead of the option value. This differs
-	 *                           from `$default`, which is used as the fallback value in the event
-	 *                           the option doesn't exist elsewhere in get_option().
-	 *                           Default false (to skip past the short-circuit).
-	 * @param string $option     Option name.
-	 * @param mixed  $default    The fallback value to return if the option does not exist.
-	 *                           Default false.
+	 * @param mixed  $pre_option    The value to return instead of the option value. This differs from
+	 *                              `$default_value`, which is used as the fallback value in the event
+	 *                              the option doesn't exist elsewhere in get_option().
+	 *                              Default false (to skip past the short-circuit).
+	 * @param string $option        Name of the option.
+	 * @param mixed  $default_value The fallback value to return if the option does not exist.
+	 *                              Default false.
 	 */
-	$pre = apply_filters( "pre_option_{$option}", false, $option, $default );
+	$pre = apply_filters( 'pre_option', $pre, $option, $default_value );
 
 	if ( false !== $pre ) {
 		return $pre;
@@ -142,22 +162,28 @@ function get_option( $option, $default = false ) {
 		// Prevent non-existent options from triggering multiple queries.
 		$notoptions = gc_cache_get( 'notoptions', 'options' );
 
+		// Prevent non-existent `notoptions` key from triggering multiple key lookups.
+		if ( ! is_array( $notoptions ) ) {
+			$notoptions = array();
+			gc_cache_set( 'notoptions', $notoptions, 'options' );
+		}
+
 		if ( isset( $notoptions[ $option ] ) ) {
 			/**
 			 * Filters the default value for an option.
 			 *
 			 * The dynamic portion of the hook name, `$option`, refers to the option name.
 			 *
-		
-		
-		
+			 * @since 3.4.0
+			 * @since 4.4.0 The `$option` parameter was added.
+			 * @since 4.7.0 The `$passed_default` parameter was added to distinguish between a `false` value and the default parameter value.
 			 *
-			 * @param mixed  $default The default value to return if the option does not exist
-			 *                        in the database.
-			 * @param string $option  Option name.
+			 * @param mixed  $default_value  The default value to return if the option does not exist
+			 *                               in the database.
+			 * @param string $option         Option name.
 			 * @param bool   $passed_default Was `get_option()` passed a default value?
 			 */
-			return apply_filters( "default_option_{$option}", $default, $option, $passed_default );
+			return apply_filters( "default_option_{$option}", $default_value, $option, $passed_default );
 		}
 
 		$alloptions = gc_load_alloptions();
@@ -183,7 +209,7 @@ function get_option( $option, $default = false ) {
 					gc_cache_set( 'notoptions', $notoptions, 'options' );
 
 					/** This filter is documented in gc-includes/option.php */
-					return apply_filters( "default_option_{$option}", $default, $option, $passed_default );
+					return apply_filters( "default_option_{$option}", $default_value, $option, $passed_default );
 				}
 			}
 		}
@@ -196,7 +222,7 @@ function get_option( $option, $default = false ) {
 			$value = $row->option_value;
 		} else {
 			/** This filter is documented in gc-includes/option.php */
-			return apply_filters( "default_option_{$option}", $default, $option, $passed_default );
+			return apply_filters( "default_option_{$option}", $default_value, $option, $passed_default );
 		}
 	}
 
@@ -214,6 +240,8 @@ function get_option( $option, $default = false ) {
 	 *
 	 * The dynamic portion of the hook name, `$option`, refers to the option name.
 	 *
+	 * @since 1.5.0 As 'option_' . $setting
+	 * @since 4.4.0 The `$option` parameter was added.
 	 *
 	 * @param mixed  $value  Value of the option. If stored serialized, it will be
 	 *                       unserialized prior to being returned.
@@ -227,8 +255,6 @@ function get_option( $option, $default = false ) {
  *
  * Will die if $option is in protected list. Protected options are 'alloptions'
  * and 'notoptions' options.
- *
- *
  *
  * @param string $option Option name.
  */
@@ -247,8 +273,6 @@ function gc_protect_special_option( $option ) {
 /**
  * Prints option value after sanitizing for forms.
  *
- *
- *
  * @param string $option Option name.
  */
 function form_option( $option ) {
@@ -258,8 +282,7 @@ function form_option( $option ) {
 /**
  * Loads and caches all autoloaded options, if available or all options.
  *
- *
- *
+ * @since 5.3.1 The `$force_cache` parameter was added.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -269,6 +292,22 @@ function form_option( $option ) {
  */
 function gc_load_alloptions( $force_cache = false ) {
 	global $gcdb;
+
+	/**
+	 * Filters the array of alloptions before it is populated.
+	 *
+	 * Returning an array from the filter will effectively short circuit
+	 * gc_load_alloptions(), returning that value instead.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @param array|null $alloptions  An array of alloptions. Default null.
+	 * @param bool       $force_cache Whether to force an update of the local cache from the persistent cache. Default false.
+	 */
+	$alloptions = apply_filters( 'pre_gc_load_alloptions', null, $force_cache );
+	if ( is_array( $alloptions ) ) {
+		return $alloptions;
+	}
 
 	if ( ! gc_installing() || ! is_multisite() ) {
 		$alloptions = gc_cache_get( 'alloptions', 'options', $force_cache );
@@ -293,7 +332,7 @@ function gc_load_alloptions( $force_cache = false ) {
 			/**
 			 * Filters all options before caching them.
 			 *
-		
+			 * @since 4.9.0
 			 *
 			 * @param array $alloptions Array with all options.
 			 */
@@ -306,6 +345,7 @@ function gc_load_alloptions( $force_cache = false ) {
 	/**
 	 * Filters all options after retrieving them.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param array $alloptions Array with all options.
 	 */
@@ -313,18 +353,18 @@ function gc_load_alloptions( $force_cache = false ) {
 }
 
 /**
- * Loads and caches certain often requested site options if is_multisite() and a persistent cache is not being used.
+ * Loads and primes caches of certain often requested network options if is_multisite().
  *
- *
+ * @since 6.3.0 Also prime caches for network options when persistent object cache is enabled.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
- * @param int $network_id Optional site ID for which to query the options. Defaults to the current site.
+ * @param int $network_id Optional. Network ID of network for which to prime network options cache. Defaults to current network.
  */
 function gc_load_core_site_options( $network_id = null ) {
 	global $gcdb;
 
-	if ( ! is_multisite() || gc_using_ext_object_cache() || gc_installing() ) {
+	if ( ! is_multisite() || gc_installing() ) {
 		return;
 	}
 
@@ -333,6 +373,16 @@ function gc_load_core_site_options( $network_id = null ) {
 	}
 
 	$core_options = array( 'site_name', 'siteurl', 'active_sitewide_plugins', '_site_transient_timeout_theme_roots', '_site_transient_theme_roots', 'site_admins', 'can_compress_scripts', 'global_terms_enabled', 'ms_files_rewriting' );
+
+	if ( gc_using_ext_object_cache() ) {
+		$cache_keys = array();
+		foreach ( $core_options as $option ) {
+			$cache_keys[] = "{$network_id}:{$option}";
+		}
+		gc_cache_get_multiple( $cache_keys, 'site-options' );
+
+		return;
+	}
 
 	$core_options_in = "'" . implode( "', '", $core_options ) . "'";
 	$options         = $gcdb->get_results( $gcdb->prepare( "SELECT meta_key, meta_value FROM $gcdb->sitemeta WHERE meta_key IN ($core_options_in) AND site_id = %d", $network_id ) );
@@ -359,9 +409,7 @@ function gc_load_core_site_options( $network_id = null ) {
 
  * This function is designed to work with or without a logged-in user. In terms of security,
  * plugin developers should check the current user's capabilities before updating any options.
- *
- *
- *
+ * The `$autoload` parameter was added.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -393,7 +441,7 @@ function update_option( $option, $value, $autoload = null ) {
 		'comment_whitelist' => 'comment_previously_approved',
 	);
 
-	if ( ! gc_installing() && isset( $deprecated_keys[ $option ] ) ) {
+	if ( isset( $deprecated_keys[ $option ] ) && ! gc_installing() ) {
 		_deprecated_argument(
 			__FUNCTION__,
 			'5.5.0',
@@ -421,6 +469,8 @@ function update_option( $option, $value, $autoload = null ) {
 	 *
 	 * The dynamic portion of the hook name, `$option`, refers to the option name.
 	 *
+	 * @since 2.6.0
+	 * @since 4.4.0 The `$option` parameter was added.
 	 *
 	 * @param mixed  $value     The new, unserialized option value.
 	 * @param mixed  $old_value The old option value.
@@ -466,6 +516,7 @@ function update_option( $option, $value, $autoload = null ) {
 	/**
 	 * Fires immediately before an option value is updated.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param string $option    Name of the option to update.
 	 * @param mixed  $old_value The old option value.
@@ -508,6 +559,8 @@ function update_option( $option, $value, $autoload = null ) {
 	 *
 	 * The dynamic portion of the hook name, `$option`, refers to the option name.
 	 *
+	 * @since 2.0.1
+	 * @since 4.4.0 The `$option` parameter was added.
 	 *
 	 * @param mixed  $old_value The old option value.
 	 * @param mixed  $value     The new option value.
@@ -518,6 +571,7 @@ function update_option( $option, $value, $autoload = null ) {
 	/**
 	 * Fires after the value of an option has been successfully updated.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param string $option    Name of the updated option.
 	 * @param mixed  $old_value The old option value.
@@ -539,8 +593,6 @@ function update_option( $option, $value, $autoload = null ) {
  * Existing options will not be updated and checks are performed to ensure that you
  * aren't adding a protected GeChiUI option. Care should be taken to not name
  * options the same as the ones which are protected.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -576,7 +628,7 @@ function add_option( $option, $value = '', $deprecated = '', $autoload = 'yes' )
 		'comment_whitelist' => 'comment_previously_approved',
 	);
 
-	if ( ! gc_installing() && isset( $deprecated_keys[ $option ] ) ) {
+	if ( isset( $deprecated_keys[ $option ] ) && ! gc_installing() ) {
 		_deprecated_argument(
 			__FUNCTION__,
 			'5.5.0',
@@ -598,8 +650,10 @@ function add_option( $option, $value = '', $deprecated = '', $autoload = 'yes' )
 
 	$value = sanitize_option( $option, $value );
 
-	// Make sure the option doesn't already exist.
-	// We can check the 'notoptions' cache before we ask for a DB query.
+	/*
+	 * Make sure the option doesn't already exist.
+	 * We can check the 'notoptions' cache before we ask for a DB query.
+	 */
 	$notoptions = gc_cache_get( 'notoptions', 'options' );
 
 	if ( ! is_array( $notoptions ) || ! isset( $notoptions[ $option ] ) ) {
@@ -615,6 +669,7 @@ function add_option( $option, $value = '', $deprecated = '', $autoload = 'yes' )
 	/**
 	 * Fires before an option is added.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param string $option Name of the option to add.
 	 * @param mixed  $value  Value of the option.
@@ -648,7 +703,7 @@ function add_option( $option, $value = '', $deprecated = '', $autoload = 'yes' )
 	 * Fires after a specific option has been added.
 	 *
 	 * The dynamic portion of the hook name, `$option`, refers to the option name.
-	 *
+	 * As "add_option_{$name}"
 	 *
 	 * @param string $option Name of the option to add.
 	 * @param mixed  $value  Value of the option.
@@ -658,6 +713,7 @@ function add_option( $option, $value = '', $deprecated = '', $autoload = 'yes' )
 	/**
 	 * Fires after an option has been added.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param string $option Name of the added option.
 	 * @param mixed  $value  Value of the option.
@@ -668,9 +724,7 @@ function add_option( $option, $value = '', $deprecated = '', $autoload = 'yes' )
 }
 
 /**
- * Removes option by name. Prevents removal of protected GeChiUI options.
- *
- *
+ * Removes an option by name. Prevents removal of protected GeChiUI options.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -699,6 +753,7 @@ function delete_option( $option ) {
 	/**
 	 * Fires immediately before an option is deleted.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param string $option Name of the option to delete.
 	 */
@@ -725,6 +780,7 @@ function delete_option( $option ) {
 		 *
 		 * The dynamic portion of the hook name, `$option`, refers to the option name.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param string $option Name of the deleted option.
 		 */
@@ -732,7 +788,6 @@ function delete_option( $option ) {
 
 		/**
 		 * Fires after an option has been deleted.
-		 *
 		 *
 		 * @param string $option Name of the deleted option.
 		 */
@@ -746,8 +801,6 @@ function delete_option( $option ) {
 
 /**
  * Deletes a transient.
- *
- *
  *
  * @param string $transient Transient name. Expected to not be SQL-escaped.
  * @return bool True if the transient was deleted, false otherwise.
@@ -781,6 +834,7 @@ function delete_transient( $transient ) {
 		/**
 		 * Fires after a transient is deleted.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param string $transient Deleted transient name.
 		 */
@@ -796,8 +850,6 @@ function delete_transient( $transient ) {
  * If the transient does not exist, does not have a value, or has expired,
  * then the return value will be false.
  *
- *
- *
  * @param string $transient Transient name. Expected to not be SQL-escaped.
  * @return mixed Value of transient.
  */
@@ -808,9 +860,10 @@ function get_transient( $transient ) {
 	 *
 	 * The dynamic portion of the hook name, `$transient`, refers to the transient name.
 	 *
-	 * Returning a truthy value from the filter will effectively short-circuit retrieval
-	 * and return the passed value instead.
+	 * Returning a value other than false from the filter will short-circuit retrieval
+	 * and return that value instead.
 	 *
+	 * @since 4.4.0 The `$transient` parameter was added
 	 *
 	 * @param mixed  $pre_transient The default value to return if the transient does not exist.
 	 *                              Any value other than false will short-circuit the retrieval
@@ -851,6 +904,7 @@ function get_transient( $transient ) {
 	 *
 	 * The dynamic portion of the hook name, `$transient`, refers to the transient name.
 	 *
+	 * @since 4.4.0 The `$transient` parameter was added
 	 *
 	 * @param mixed  $value     Value of transient.
 	 * @param string $transient Transient name.
@@ -863,8 +917,6 @@ function get_transient( $transient ) {
  *
  * You do not need to serialize values. If the value needs to be serialized,
  * then it will be serialized before it is set.
- *
- *
  *
  * @param string $transient  Transient name. Expected to not be SQL-escaped.
  *                           Must be 172 characters or fewer in length.
@@ -882,6 +934,8 @@ function set_transient( $transient, $value, $expiration = 0 ) {
 	 *
 	 * The dynamic portion of the hook name, `$transient`, refers to the transient name.
 	 *
+	 * @since 4.2.0 The `$expiration` parameter was added.
+	 * @since 4.4.0 The `$transient` parameter was added.
 	 *
 	 * @param mixed  $value      New value of transient.
 	 * @param int    $expiration Time until expiration in seconds.
@@ -894,6 +948,7 @@ function set_transient( $transient, $value, $expiration = 0 ) {
 	 *
 	 * The dynamic portion of the hook name, `$transient`, refers to the transient name.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param int    $expiration Time until expiration in seconds. Use 0 for no expiration.
 	 * @param mixed  $value      New value of transient.
@@ -915,8 +970,10 @@ function set_transient( $transient, $value, $expiration = 0 ) {
 			}
 			$result = add_option( $transient_option, $value, '', $autoload );
 		} else {
-			// If expiration is requested, but the transient has no timeout option,
-			// delete, then re-create transient rather than update.
+			/*
+			 * If expiration is requested, but the transient has no timeout option,
+			 * delete, then re-create transient rather than update.
+			 */
 			$update = true;
 
 			if ( $expiration ) {
@@ -943,6 +1000,9 @@ function set_transient( $transient, $value, $expiration = 0 ) {
 		 *
 		 * The dynamic portion of the hook name, `$transient`, refers to the transient name.
 		 *
+		 * @since 3.0.0
+		 * @since 3.6.0 The `$value` and `$expiration` parameters were added.
+		 * @since 4.4.0 The `$transient` parameter was added.
 		 *
 		 * @param mixed  $value      Transient value.
 		 * @param int    $expiration Time until expiration in seconds.
@@ -953,6 +1013,8 @@ function set_transient( $transient, $value, $expiration = 0 ) {
 		/**
 		 * Fires after the value for a transient has been set.
 		 *
+		 * @since 3.0.0
+		 * @since 3.6.0 The `$value` and `$expiration` parameters were added.
 		 *
 		 * @param string $transient  The name of the transient.
 		 * @param mixed  $value      Transient value.
@@ -967,10 +1029,12 @@ function set_transient( $transient, $value, $expiration = 0 ) {
 /**
  * Deletes all expired transients.
  *
+ * Note that this function won't do anything if an external object cache is in use.
+ *
  * The multi-table delete syntax is used to delete the transient record
  * from table a, and the corresponding transient_timeout record from table b.
  *
- *
+ * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param bool $force_db Optional. Force cleanup to run against the database even when an external object cache is used.
  */
@@ -1032,7 +1096,7 @@ function delete_expired_transients( $force_db = false ) {
  * cookie exists (different browser used), adds the last saved cookie restoring
  * the settings.
  *
- *
+ * @since 2.7.0
  */
 function gc_user_settings() {
 
@@ -1072,34 +1136,32 @@ function gc_user_settings() {
 
 	// The cookie is not set in the current browser or the saved value is newer.
 	$secure = ( 'https' === parse_url( admin_url(), PHP_URL_SCHEME ) );
-	setcookie( 'gc-settings-' . $user_id, $settings, time() + YEAR_IN_SECONDS, SITECOOKIEPATH, null, $secure );
-	setcookie( 'gc-settings-time-' . $user_id, time(), time() + YEAR_IN_SECONDS, SITECOOKIEPATH, null, $secure );
+	setcookie( 'gc-settings-' . $user_id, $settings, time() + YEAR_IN_SECONDS, SITECOOKIEPATH, '', $secure );
+	setcookie( 'gc-settings-time-' . $user_id, time(), time() + YEAR_IN_SECONDS, SITECOOKIEPATH, '', $secure );
 	$_COOKIE[ 'gc-settings-' . $user_id ] = $settings;
 }
 
 /**
  * Retrieves user interface setting value based on setting name.
  *
+ * @since 2.7.0
  *
- *
- * @param string       $name    The name of the setting.
- * @param string|false $default Optional. Default value to return when $name is not set. Default false.
+ * @param string       $name          The name of the setting.
+ * @param string|false $default_value Optional. Default value to return when $name is not set. Default false.
  * @return mixed The last saved user setting or the default value/false if it doesn't exist.
  */
-function get_user_setting( $name, $default = false ) {
+function get_user_setting( $name, $default_value = false ) {
 	$all_user_settings = get_all_user_settings();
 
-	return isset( $all_user_settings[ $name ] ) ? $all_user_settings[ $name ] : $default;
+	return isset( $all_user_settings[ $name ] ) ? $all_user_settings[ $name ] : $default_value;
 }
 
 /**
  * Adds or updates user interface setting.
  *
- * Both $name and $value can contain only ASCII letters, numbers, hyphens, and underscores.
+ * Both `$name` and `$value` can contain only ASCII letters, numbers, hyphens, and underscores.
  *
- * This function has to be used before any output has started as it calls setcookie().
- *
- *
+ * This function has to be used before any output has started as it calls `setcookie()`.
  *
  * @param string $name  The name of the setting.
  * @param string $value The value for the setting.
@@ -1122,9 +1184,9 @@ function set_user_setting( $name, $value ) {
  *
  * Deleting settings would reset them to the defaults.
  *
- * This function has to be used before any output has started as it calls setcookie().
+ * This function has to be used before any output has started as it calls `setcookie()`.
  *
- *
+ * @since 2.7.0
  *
  * @param string $names The name or array of names of the setting to be deleted.
  * @return bool|null True if deleted successfully, false otherwise.
@@ -1156,7 +1218,7 @@ function delete_user_setting( $names ) {
 /**
  * Retrieves all user interface settings.
  *
- *
+ * @since 2.7.0
  *
  * @global array $_updated_user_settings
  *
@@ -1196,7 +1258,6 @@ function get_all_user_settings() {
 
 /**
  * Private. Sets all user interface settings.
- *
  *
  * @access private
  *
@@ -1240,7 +1301,7 @@ function gc_set_all_user_settings( $user_settings ) {
 /**
  * Deletes the user settings of the current user.
  *
- *
+ * @since 2.7.0
  */
 function delete_all_user_settings() {
 	$user_id = get_current_user_id();
@@ -1254,29 +1315,24 @@ function delete_all_user_settings() {
 
 /**
  * Retrieve an option value for the current network based on name of option.
- *
- *
- *
- *
+ * The `$use_cache` parameter was deprecated. Modified into wrapper for get_network_option()
  *
  * @see get_network_option()
  *
- * @param string $option     Name of the option to retrieve. Expected to not be SQL-escaped.
- * @param mixed  $default    Optional. Value to return if the option doesn't exist. Default false.
- * @param bool   $deprecated Whether to use cache. Multisite only. Always set to true.
+ * @param string $option        Name of the option to retrieve. Expected to not be SQL-escaped.
+ * @param mixed  $default_value Optional. Value to return if the option doesn't exist. Default false.
+ * @param bool   $deprecated    Whether to use cache. Multisite only. Always set to true.
  * @return mixed Value set for the option.
  */
-function get_site_option( $option, $default = false, $deprecated = true ) {
-	return get_network_option( null, $option, $default );
+function get_site_option( $option, $default_value = false, $deprecated = true ) {
+	return get_network_option( null, $option, $default_value );
 }
 
 /**
  * Adds a new option for the current network.
  *
  * Existing options will not be updated. Note that prior to 3.3 this wasn't the case.
- *
- *
- *
+ * Modified into wrapper for add_network_option()
  *
  * @see add_network_option()
  *
@@ -1289,10 +1345,8 @@ function add_site_option( $option, $value ) {
 }
 
 /**
- * Removes a option by name for the current network.
- *
- *
- *
+ * Removes an option by name for the current network.
+ * Modified into wrapper for delete_network_option()
  *
  * @see delete_network_option()
  *
@@ -1305,9 +1359,7 @@ function delete_site_option( $option ) {
 
 /**
  * Updates the value of an option that was already added for the current network.
- *
- *
- *
+ * Modified into wrapper for update_network_option()
  *
  * @see update_network_option()
  *
@@ -1322,18 +1374,16 @@ function update_site_option( $option, $value ) {
 /**
  * Retrieves a network's option value based on the option name.
  *
- *
- *
  * @see get_option()
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
- * @param int    $network_id ID of the network. Can be null to default to the current network ID.
- * @param string $option     Name of the option to retrieve. Expected to not be SQL-escaped.
- * @param mixed  $default    Optional. Value to return if the option doesn't exist. Default false.
+ * @param int    $network_id    ID of the network. Can be null to default to the current network ID.
+ * @param string $option        Name of the option to retrieve. Expected to not be SQL-escaped.
+ * @param mixed  $default_value Optional. Value to return if the option doesn't exist. Default false.
  * @return mixed Value set for the option.
  */
-function get_network_option( $network_id, $option, $default = false ) {
+function get_network_option( $network_id, $option, $default_value = false ) {
 	global $gcdb;
 
 	if ( $network_id && ! is_numeric( $network_id ) ) {
@@ -1352,20 +1402,24 @@ function get_network_option( $network_id, $option, $default = false ) {
 	 *
 	 * The dynamic portion of the hook name, `$option`, refers to the option name.
 	 *
-	 * Returning a truthy value from the filter will effectively short-circuit retrieval
-	 * and return the passed value instead.
+	 * Returning a value other than false from the filter will short-circuit retrieval
+	 * and return that value instead.
 	 *
+	 * @since 2.9.0 As 'pre_site_option_' . $key
+	 * @since 4.4.0 The `$option` parameter was added.
+	 * @since 4.7.0 The `$network_id` parameter was added.
+	 * @since 4.9.0 The `$default_value` parameter was added.
 	 *
-	 * @param mixed  $pre_option The value to return instead of the option value. This differs
-	 *                           from `$default`, which is used as the fallback value in the event
-	 *                           the option doesn't exist elsewhere in get_network_option().
-	 *                           Default false (to skip past the short-circuit).
-	 * @param string $option     Option name.
-	 * @param int    $network_id ID of the network.
-	 * @param mixed  $default    The fallback value to return if the option does not exist.
-	 *                           Default false.
+	 * @param mixed  $pre_option    The value to return instead of the option value. This differs from
+	 *                              `$default_value`, which is used as the fallback value in the event
+	 *                              the option doesn't exist elsewhere in get_network_option().
+	 *                              Default false (to skip past the short-circuit).
+	 * @param string $option        Option name.
+	 * @param int    $network_id    ID of the network.
+	 * @param mixed  $default_value The fallback value to return if the option does not exist.
+	 *                              Default false.
 	 */
-	$pre = apply_filters( "pre_site_option_{$option}", false, $option, $network_id, $default );
+	$pre = apply_filters( "pre_site_option_{$option}", false, $option, $network_id, $default_value );
 
 	if ( false !== $pre ) {
 		return $pre;
@@ -1378,23 +1432,26 @@ function get_network_option( $network_id, $option, $default = false ) {
 	if ( is_array( $notoptions ) && isset( $notoptions[ $option ] ) ) {
 
 		/**
-		 * Filters a specific default network option.
+		 * Filters the value of a specific default network option.
 		 *
 		 * The dynamic portion of the hook name, `$option`, refers to the option name.
 		 *
+		 * @since 3.4.0
+		 * @since 4.4.0 The `$option` parameter was added.
+		 * @since 4.7.0 The `$network_id` parameter was added.
 		 *
-		 * @param mixed  $default    The value to return if the site option does not exist
-		 *                           in the database.
-		 * @param string $option     Option name.
-		 * @param int    $network_id ID of the network.
+		 * @param mixed  $default_value The value to return if the site option does not exist
+		 *                              in the database.
+		 * @param string $option        Option name.
+		 * @param int    $network_id    ID of the network.
 		 */
-		return apply_filters( "default_site_option_{$option}", $default, $option, $network_id );
+		return apply_filters( "default_site_option_{$option}", $default_value, $option, $network_id );
 	}
 
 	if ( ! is_multisite() ) {
 		/** This filter is documented in gc-includes/option.php */
-		$default = apply_filters( 'default_site_option_' . $option, $default, $option, $network_id );
-		$value   = get_option( $option, $default );
+		$default_value = apply_filters( 'default_site_option_' . $option, $default_value, $option, $network_id );
+		$value         = get_option( $option, $default_value );
 	} else {
 		$cache_key = "$network_id:$option";
 		$value     = gc_cache_get( $cache_key, 'site-options' );
@@ -1416,7 +1473,7 @@ function get_network_option( $network_id, $option, $default = false ) {
 				gc_cache_set( $notoptions_key, $notoptions, 'site-options' );
 
 				/** This filter is documented in gc-includes/option.php */
-				$value = apply_filters( 'default_site_option_' . $option, $default, $option, $network_id );
+				$value = apply_filters( 'default_site_option_' . $option, $default_value, $option, $network_id );
 			}
 		}
 	}
@@ -1431,6 +1488,9 @@ function get_network_option( $network_id, $option, $default = false ) {
 	 *
 	 * The dynamic portion of the hook name, `$option`, refers to the option name.
 	 *
+	 * @since 2.9.0 As 'site_option_' . $key
+	 * @since 4.4.0 The `$option` parameter was added.
+	 * @since 4.7.0 The `$network_id` parameter was added.
 	 *
 	 * @param mixed  $value      Value of network option.
 	 * @param string $option     Option name.
@@ -1443,8 +1503,6 @@ function get_network_option( $network_id, $option, $default = false ) {
  * Adds a new network option.
  *
  * Existing options will not be updated.
- *
- *
  *
  * @see add_option()
  *
@@ -1476,6 +1534,9 @@ function add_network_option( $network_id, $option, $value ) {
 	 *
 	 * The dynamic portion of the hook name, `$option`, refers to the option name.
 	 *
+	 * @since 2.9.0 As 'pre_add_site_option_' . $key
+	 * @since 4.4.0 The `$option` parameter was added.
+	 * @since 4.7.0 The `$network_id` parameter was added.
 	 *
 	 * @param mixed  $value      Value of network option.
 	 * @param string $option     Option name.
@@ -1490,8 +1551,10 @@ function add_network_option( $network_id, $option, $value ) {
 	} else {
 		$cache_key = "$network_id:$option";
 
-		// Make sure the option doesn't already exist.
-		// We can check the 'notoptions' cache before we ask for a DB query.
+		/*
+		 * Make sure the option doesn't already exist.
+		 * We can check the 'notoptions' cache before we ask for a DB query.
+		 */
 		$notoptions = gc_cache_get( $notoptions_key, 'site-options' );
 
 		if ( ! is_array( $notoptions ) || ! isset( $notoptions[ $option ] ) ) {
@@ -1533,7 +1596,9 @@ function add_network_option( $network_id, $option, $value ) {
 		 * Fires after a specific network option has been successfully added.
 		 *
 		 * The dynamic portion of the hook name, `$option`, refers to the option name.
-		 *
+		 * As "add_site_option_{$key}"
+		 * @since 3.0.0
+		 * @since 4.7.0 The `$network_id` parameter was added.
 		 *
 		 * @param string $option     Name of the network option.
 		 * @param mixed  $value      Value of the network option.
@@ -1544,6 +1609,8 @@ function add_network_option( $network_id, $option, $value ) {
 		/**
 		 * Fires after a network option has been successfully added.
 		 *
+		 * @since 3.0.0
+		 * @since 4.7.0 The `$network_id` parameter was added.
 		 *
 		 * @param string $option     Name of the network option.
 		 * @param mixed  $value      Value of the network option.
@@ -1559,8 +1626,6 @@ function add_network_option( $network_id, $option, $value ) {
 
 /**
  * Removes a network option by name.
- *
- *
  *
  * @see delete_option()
  *
@@ -1589,6 +1654,8 @@ function delete_network_option( $network_id, $option ) {
 	 *
 	 * The dynamic portion of the hook name, `$option`, refers to the option name.
 	 *
+	 * @since 4.4.0 The `$option` parameter was added.
+	 * @since 4.7.0 The `$network_id` parameter was added.
 	 *
 	 * @param string $option     Option name.
 	 * @param int    $network_id ID of the network.
@@ -1620,7 +1687,9 @@ function delete_network_option( $network_id, $option ) {
 		 * Fires after a specific network option has been deleted.
 		 *
 		 * The dynamic portion of the hook name, `$option`, refers to the option name.
-		 *
+		 * As "delete_site_option_{$key}"
+		 * @since 3.0.0
+		 * @since 4.7.0 The `$network_id` parameter was added.
 		 *
 		 * @param string $option     Name of the network option.
 		 * @param int    $network_id ID of the network.
@@ -1630,6 +1699,8 @@ function delete_network_option( $network_id, $option ) {
 		/**
 		 * Fires after a network option has been deleted.
 		 *
+		 * @since 3.0.0
+		 * @since 4.7.0 The `$network_id` parameter was added.
 		 *
 		 * @param string $option     Name of the network option.
 		 * @param int    $network_id ID of the network.
@@ -1644,8 +1715,6 @@ function delete_network_option( $network_id, $option ) {
 
 /**
  * Updates the value of a network option that was already added.
- *
- *
  *
  * @see update_option()
  *
@@ -1679,6 +1748,9 @@ function update_network_option( $network_id, $option, $value ) {
 	 *
 	 * The dynamic portion of the hook name, `$option`, refers to the option name.
 	 *
+	 * @since 2.9.0 As 'pre_update_site_option_' . $key
+	 * @since 4.4.0 The `$option` parameter was added.
+	 * @since 4.7.0 The `$network_id` parameter was added.
 	 *
 	 * @param mixed  $value      New value of the network option.
 	 * @param mixed  $old_value  Old value of the network option.
@@ -1739,7 +1811,9 @@ function update_network_option( $network_id, $option, $value ) {
 		 * Fires after the value of a specific network option has been successfully updated.
 		 *
 		 * The dynamic portion of the hook name, `$option`, refers to the option name.
-		 *
+		 * As "update_site_option_{$key}"
+		 * @since 3.0.0
+		 * @since 4.7.0 The `$network_id` parameter was added.
 		 *
 		 * @param string $option     Name of the network option.
 		 * @param mixed  $value      Current value of the network option.
@@ -1751,6 +1825,8 @@ function update_network_option( $network_id, $option, $value ) {
 		/**
 		 * Fires after the value of a network option has been successfully updated.
 		 *
+		 * @since 3.0.0
+		 * @since 4.7.0 The `$network_id` parameter was added.
 		 *
 		 * @param string $option     Name of the network option.
 		 * @param mixed  $value      Current value of the network option.
@@ -1767,8 +1843,6 @@ function update_network_option( $network_id, $option, $value ) {
 
 /**
  * Deletes a site transient.
- *
- *
  *
  * @param string $transient Transient name. Expected to not be SQL-escaped.
  * @return bool True if the transient was deleted, false otherwise.
@@ -1802,6 +1876,7 @@ function delete_site_transient( $transient ) {
 		/**
 		 * Fires after a transient is deleted.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param string $transient Deleted transient name.
 		 */
@@ -1817,8 +1892,6 @@ function delete_site_transient( $transient ) {
  * If the transient does not exist, does not have a value, or has expired,
  * then the return value will be false.
  *
- *
- *
  * @see get_transient()
  *
  * @param string $transient Transient name. Expected to not be SQL-escaped.
@@ -1831,9 +1904,11 @@ function get_site_transient( $transient ) {
 	 *
 	 * The dynamic portion of the hook name, `$transient`, refers to the transient name.
 	 *
-	 * Returning a truthy value from the filter will effectively short-circuit retrieval
-	 * and return the passed value instead.
+	 * Returning a value other than boolean false will short-circuit retrieval and
+	 * return that value instead.
 	 *
+	 * @since 2.9.0
+	 * @since 4.4.0 The `$transient` parameter was added.
 	 *
 	 * @param mixed  $pre_site_transient The default value to return if the site transient does not exist.
 	 *                                   Any value other than false will short-circuit the retrieval
@@ -1872,6 +1947,8 @@ function get_site_transient( $transient ) {
 	 *
 	 * The dynamic portion of the hook name, `$transient`, refers to the transient name.
 	 *
+	 * @since 2.9.0
+	 * @since 4.4.0 The `$transient` parameter was added.
 	 *
 	 * @param mixed  $value     Value of site transient.
 	 * @param string $transient Transient name.
@@ -1884,8 +1961,6 @@ function get_site_transient( $transient ) {
  *
  * You do not need to serialize values. If the value needs to be serialized,
  * then it will be serialized before it is set.
- *
- *
  *
  * @see set_transient()
  *
@@ -1902,6 +1977,7 @@ function set_site_transient( $transient, $value, $expiration = 0 ) {
 	 *
 	 * The dynamic portion of the hook name, `$transient`, refers to the transient name.
 	 *
+	 * @since 4.4.0 The `$transient` parameter was added.
 	 *
 	 * @param mixed  $value     New value of site transient.
 	 * @param string $transient Transient name.
@@ -1915,6 +1991,7 @@ function set_site_transient( $transient, $value, $expiration = 0 ) {
 	 *
 	 * The dynamic portion of the hook name, `$transient`, refers to the transient name.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param int    $expiration Time until expiration in seconds. Use 0 for no expiration.
 	 * @param mixed  $value      New value of site transient.
@@ -1948,6 +2025,8 @@ function set_site_transient( $transient, $value, $expiration = 0 ) {
 		 *
 		 * The dynamic portion of the hook name, `$transient`, refers to the transient name.
 		 *
+		 * @since 3.0.0
+		 * @since 4.4.0 The `$transient` parameter was added
 		 *
 		 * @param mixed  $value      Site transient value.
 		 * @param int    $expiration Time until expiration in seconds.
@@ -1958,6 +2037,7 @@ function set_site_transient( $transient, $value, $expiration = 0 ) {
 		/**
 		 * Fires after the value for a site transient has been set.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param string $transient  The name of the site transient.
 		 * @param mixed  $value      Site transient value.
@@ -1975,7 +2055,7 @@ function set_site_transient( $transient, $value, $expiration = 0 ) {
  * The settings registered here are primarily useful for the REST API, so this
  * does not encompass all settings available in GeChiUI.
  *
- *
+ * @since 6.0.1 The `show_on_front`, `page_on_front`, and `page_for_posts` options were added.
  */
 function register_initial_settings() {
 	register_setting(
@@ -1986,7 +2066,7 @@ function register_initial_settings() {
 				'name' => 'title',
 			),
 			'type'         => 'string',
-			'description'  => __( '站点标题。' ),
+			'description'  => __( '系统标题。' ),
 		)
 	);
 
@@ -1998,7 +2078,7 @@ function register_initial_settings() {
 				'name' => 'description',
 			),
 			'type'         => 'string',
-			'description'  => __( '站点副标题。' ),
+			'description'  => __( '系统副标题。' ),
 		)
 	);
 
@@ -2014,7 +2094,7 @@ function register_initial_settings() {
 					),
 				),
 				'type'         => 'string',
-				'description'  => __( '站点URL。' ),
+				'description'  => __( '系统URL。' ),
 			)
 		);
 	}
@@ -2128,8 +2208,38 @@ function register_initial_settings() {
 		array(
 			'show_in_rest' => true,
 			'type'         => 'integer',
-			'description'  => __( '最多显示的博客页面数量。' ),
+			'description'  => __( '最多显示的前端页面数量。' ),
 			'default'      => 10,
+		)
+	);
+
+	register_setting(
+		'reading',
+		'show_on_front',
+		array(
+			'show_in_rest' => true,
+			'type'         => 'string',
+			'description'  => __( '需要在首页上显示的项目' ),
+		)
+	);
+
+	register_setting(
+		'reading',
+		'page_on_front',
+		array(
+			'show_in_rest' => true,
+			'type'         => 'integer',
+			'description'  => __( '需要在首页上显示的页面 ID' ),
+		)
+	);
+
+	register_setting(
+		'reading',
+		'page_for_posts',
+		array(
+			'show_in_rest' => true,
+			'type'         => 'integer',
+			'description'  => __( '需要显示最新文章的页面 ID' ),
 		)
 	);
 
@@ -2143,7 +2253,7 @@ function register_initial_settings() {
 				),
 			),
 			'type'         => 'string',
-			'description'  => __( '允许其他博客发送链接通知（pingback和trackback）到新文章。' ),
+			'description'  => __( '允许其他GC系统发送链接通知（pingback和trackback）到新文章。' ),
 		)
 	);
 
@@ -2165,12 +2275,9 @@ function register_initial_settings() {
 /**
  * Registers a setting and its data.
  *
- *
- *
- *
- *
- *
- *              请考虑编写更具包容性的代码。
+ * @since 2.7.0 The `misc` option group was deprecated. The `privacy` option group was deprecated. `$args` can be passed to set flags on the setting, similar to `register_meta()`.
+ * @since 5.5.0 `$new_whitelist_options` was renamed to `$new_allowed_options`.
+ *              Please consider writing more inclusive code.
  *
  * @global array $new_allowed_options
  * @global array $gc_registered_settings
@@ -2197,7 +2304,7 @@ function register_setting( $option_group, $option_name, $args = array() ) {
 
 	/*
 	 * In 5.5.0, the `$new_whitelist_options` global variable was renamed to `$new_allowed_options`.
-	 * 请考虑编写更具包容性的代码。
+	 * Please consider writing more inclusive code.
 	 */
 	$GLOBALS['new_whitelist_options'] = &$new_allowed_options;
 
@@ -2219,6 +2326,7 @@ function register_setting( $option_group, $option_name, $args = array() ) {
 	/**
 	 * Filters the registration arguments when registering a setting.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array  $args         Array of setting registration arguments.
 	 * @param array  $defaults     Array of default arguments.
@@ -2276,6 +2384,7 @@ function register_setting( $option_group, $option_name, $args = array() ) {
 	/**
 	 * Fires immediately before the setting is registered but after its filters are in place.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $option_group Setting group.
 	 * @param string $option_name  Setting name.
@@ -2289,10 +2398,9 @@ function register_setting( $option_group, $option_name, $args = array() ) {
 /**
  * Unregisters a setting.
  *
- *
- *
- *
- *              请考虑编写更具包容性的代码。
+ * @since 2.7.0 `$sanitize_callback` was deprecated. The callback from `register_setting()` is now used instead.
+ * @since 5.5.0 `$new_whitelist_options` was renamed to `$new_allowed_options`.
+ *              Please consider writing more inclusive code.
  *
  * @global array $new_allowed_options
  * @global array $gc_registered_settings
@@ -2306,7 +2414,7 @@ function unregister_setting( $option_group, $option_name, $deprecated = '' ) {
 
 	/*
 	 * In 5.5.0, the `$new_whitelist_options` global variable was renamed to `$new_allowed_options`.
-	 * 请考虑编写更具包容性的代码。
+	 * Please consider writing more inclusive code.
 	 */
 	$GLOBALS['new_whitelist_options'] = &$new_allowed_options;
 
@@ -2370,6 +2478,7 @@ function unregister_setting( $option_group, $option_name, $deprecated = '' ) {
 		/**
 		 * Fires immediately before the setting is unregistered and after its filters have been removed.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param string $option_group Setting group.
 		 * @param string $option_name  Setting name.
@@ -2382,8 +2491,6 @@ function unregister_setting( $option_group, $option_name, $deprecated = '' ) {
 
 /**
  * Retrieves an array of registered settings.
- *
- *
  *
  * @global array $gc_registered_settings
  *
@@ -2405,21 +2512,19 @@ function get_registered_settings() {
  * For settings which register a default setting in `register_setting()`, this
  * function is added as a filter to `default_option_{$option}`.
  *
- *
- *
- * @param mixed  $default        Existing default value to return.
+ * @param mixed  $default_value  Existing default value to return.
  * @param string $option         Option name.
  * @param bool   $passed_default Was `get_option()` passed a default value?
  * @return mixed Filtered default value.
  */
-function filter_default_option( $default, $option, $passed_default ) {
+function filter_default_option( $default_value, $option, $passed_default ) {
 	if ( $passed_default ) {
-		return $default;
+		return $default_value;
 	}
 
 	$registered = get_registered_settings();
 	if ( empty( $registered[ $option ] ) ) {
-		return $default;
+		return $default_value;
 	}
 
 	return $registered[ $option ]['default'];

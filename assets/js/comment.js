@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/comment.js
+ * @output assets/js/comment.js
  */
 
 /* global postboxes */
@@ -7,7 +7,7 @@
 /**
  * Binds to the document ready event.
  *
- *
+ * @since 2.5.0
  *
  * @param {jQuery} $ The jQuery object.
  */
@@ -84,7 +84,7 @@ jQuery( function($) {
 		}
 
 		$timestamp.html(
-			gc.i18n.__( '提交于：' ) + ' <b>' +
+			gc.i18n.__( '提交日期：' ) + ' <b>' +
 			/* translators: 1: Month, 2: Day, 3: Year, 4: Hour, 5: Minute. */
 			gc.i18n.__( '%3$s年%1$s%2$s日%4$s:%5$s' )
 				.replace( '%1$s', $( 'option[value="' + mm + '"]', '#mm' ).attr( 'data-text' ) )

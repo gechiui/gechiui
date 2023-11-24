@@ -4,15 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage Upgrader
- *
  */
 
 /**
  * Generic Skin for the GeChiUI Upgrader classes. This skin is designed to be extended for specific purposes.
- *
- *
- *
+ * Moved to its own file from gc-admin/includes/class-gc-upgrader-skins.php.
  */
+#[AllowDynamicProperties]
 class GC_Upgrader_Skin {
 
 	/**
@@ -104,6 +102,7 @@ class GC_Upgrader_Skin {
 	 * Displays a form to the user to request for their FTP/SSH details in order
 	 * to connect to the filesystem.
 	 *
+	 * @since 4.6.0 The `$context` parameter default changed from `false` to an empty string.
 	 *
 	 * @see request_filesystem_credentials()
 	 *
@@ -136,7 +135,7 @@ class GC_Upgrader_Skin {
 		}
 		$this->done_header = true;
 		echo '<div class="wrap">';
-		echo '<h1>' . $this->options['title'] . '</h1>';
+		echo '<div class="page-header"><h2 class="header-title">' . $this->options['title'] . '</h2></div>';
 	}
 
 	/**
@@ -171,6 +170,7 @@ class GC_Upgrader_Skin {
 	}
 
 	/**
+	 * @since 5.9.0 Renamed `$string` (a PHP reserved keyword) to `$feedback` for PHP 8 named parameter support.
 	 *
 	 * @param string $feedback Message data.
 	 * @param mixed  ...$args  Optional text replacements.
@@ -180,7 +180,7 @@ class GC_Upgrader_Skin {
 			$feedback = $this->upgrader->strings[ $feedback ];
 		}
 
-		if ( strpos( $feedback, '%' ) !== false ) {
+		if ( str_contains( $feedback, '%' ) ) {
 			if ( $args ) {
 				$args     = array_map( 'strip_tags', $args );
 				$args     = array_map( 'esc_html', $args );
@@ -194,19 +194,19 @@ class GC_Upgrader_Skin {
 	}
 
 	/**
-	 * Action to perform before an update.
+	 * Performs an action before an update.
 	 *
 	 */
 	public function before() {}
 
 	/**
-	 * Action to perform following an update.
+	 * Performs and action following an update.
 	 *
 	 */
 	public function after() {}
 
 	/**
-	 * Output JavaScript that calls function to decrement the update counts.
+	 * Outputs JavaScript that calls function to decrement the update counts.
 	 *
 	 *
 	 * @param string $type Type of update count to decrement. Likely values include 'plugin',
@@ -245,9 +245,10 @@ class GC_Upgrader_Skin {
 	/**
 	 * Hides the `process_failed` error message when updating by uploading a zip file.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_Error $gc_error GC_Error object.
-	 * @return bool
+	 * @return bool True if the error should be hidden, false otherwise.
 	 */
 	public function hide_process_failed( $gc_error ) {
 		return false;

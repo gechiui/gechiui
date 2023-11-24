@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class used to implement a Pages widget.
- *
- *
  *
  * @see GC_Widget
  */
@@ -23,7 +20,7 @@ class GC_Widget_Pages extends GC_Widget {
 	public function __construct() {
 		$widget_ops = array(
 			'classname'                   => 'widget_pages',
-			'description'                 => __( '您站点的文章列表。' ),
+			'description'                 => __( '您系统的文章列表。' ),
 			'customize_selective_refresh' => true,
 			'show_instance_in_rest'       => true,
 		);
@@ -45,6 +42,7 @@ class GC_Widget_Pages extends GC_Widget {
 		/**
 		 * Filters the widget title.
 		 *
+		 * @since 2.6.0
 		 *
 		 * @param string $title    The widget title. Default 'Pages'.
 		 * @param array  $instance Array of settings for the current widget.
@@ -63,8 +61,8 @@ class GC_Widget_Pages extends GC_Widget {
 			/**
 			 * Filters the arguments for the Pages widget.
 			 *
-		
-		
+			 * @since 2.8.0
+			 * @since 4.9.0 Added the `$instance` parameter.
 			 *
 			 * @see gc_list_pages()
 			 *

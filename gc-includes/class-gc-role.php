@@ -4,18 +4,18 @@
  *
  * @package GeChiUI
  * @subpackage Users
- *
  */
 
 /**
  * Core class used to extend the user roles API.
  *
- *
  */
+#[AllowDynamicProperties]
 class GC_Role {
 	/**
 	 * Role name.
 	 *
+	 * @since 2.0.0
 	 * @var string
 	 */
 	public $name;
@@ -23,6 +23,7 @@ class GC_Role {
 	/**
 	 * List of capabilities the role contains.
 	 *
+	 * @since 2.0.0
 	 * @var bool[] Array of key/value pairs where keys represent a capability name and boolean values
 	 *             represent whether the role has that capability.
 	 */
@@ -34,6 +35,7 @@ class GC_Role {
 	 * The list of capabilities must have the key as the name of the capability
 	 * and the value a boolean of whether it is granted to the role.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $role         Role name.
 	 * @param bool[] $capabilities Array of key/value pairs where keys represent a capability name and boolean values
@@ -47,6 +49,7 @@ class GC_Role {
 	/**
 	 * Assign role a capability.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $cap   Capability name.
 	 * @param bool   $grant Whether role has capability privilege.
@@ -59,6 +62,7 @@ class GC_Role {
 	/**
 	 * Removes a capability from a role.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $cap Capability name.
 	 */
@@ -70,6 +74,7 @@ class GC_Role {
 	/**
 	 * Determines whether the role has the given capability.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $cap Capability name.
 	 * @return bool Whether the role has the given capability.
@@ -78,6 +83,7 @@ class GC_Role {
 		/**
 		 * Filters which capabilities a role has.
 		 *
+		 * @since 2.0.0
 		 *
 		 * @param bool[] $capabilities Array of key/value pairs where keys represent a capability name and boolean values
 		 *                             represent whether the role has that capability.

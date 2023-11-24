@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Multisite
- *
  */
 
 /** Load GeChiUI Administration Bootstrap */
@@ -84,7 +83,7 @@ if ( isset( $_GET['action'] ) ) {
 									gc_die(
 										sprintf(
 											/* translators: %s: User login. */
-											__( '警告！无法修改%s，该用户是网络管理员。' ),
+											__( '警告！无法修改%s，该用户是平台管理员。' ),
 											esc_html( $user->user_login )
 										)
 									);
@@ -94,7 +93,7 @@ if ( isset( $_GET['action'] ) ) {
 								$blogs        = get_blogs_of_user( $user_id, true );
 
 								foreach ( (array) $blogs as $details ) {
-									if ( get_network()->site_id != $details->userblog_id ) { // Main blog is not a spam!
+									if ( ! is_main_site( $details->userblog_id ) ) { // Main site is not a spam!
 										update_blog_status( $details->userblog_id, 'spam', '1' );
 									}
 								}
@@ -228,8 +227,8 @@ get_current_screen()->add_help_tab(
 		'id'      => 'overview',
 		'title'   => __( '概述' ),
 		'content' =>
-			'<p>' . __( '本表格列出了站点网络中的所有用户，以及它们所在的站点。' ) . '</p>' .
-			'<p>' . __( '将鼠标移至用户的上方，将出现编辑链接。左侧的编辑链接是编辑用户信息的；而右侧的编辑链接用于编辑其所属站点的信息。' ) . '</p>' .
+			'<p>' . __( '本表格列出了SaaS平台中的所有用户，以及它们所在的系统。' ) . '</p>' .
+			'<p>' . __( '将鼠标移至用户的上方，将出现编辑链接。左侧的编辑链接是编辑用户信息的；而右侧的编辑链接用于编辑其所属系统的信息。' ) . '</p>' .
 			'<p>' . __( '您也可以通过点击用户名转到用户的个人资料页面。' ) . '</p>' .
 			'<p>' . __( '您可以点击表头来排序，也可以使用用户列表上方的图标来切换列表和摘要视图。' ) . '</p>' .
 			'<p>' . __( '批量操作将永久删除选中的用户，或标记/取消标记选择的用户为垃圾用户。垃圾用户发布的文章将被移除，并无法再使用相同的电子邮箱注册。' ) . '</p>' .
@@ -238,9 +237,8 @@ get_current_screen()->add_help_tab(
 );
 
 get_current_screen()->set_help_sidebar(
-	'<p><strong>' . __( '更多信息：' ) . '</strong></p>' .
-	'<p>' . __( '<a href="https://codex.gechiui.com/Network_Admin_Users_Screen">站点网络用户文档</a>' ) . '</p>' .
-	'<p>' . __( '<a href="https://www.gechiui.com/support/forum/issues/multisite/">支持论坛</a>' ) . '</p>'
+		'<p><strong>' . __( '更多信息：' ) . '</strong></p>' .
+	'<p>' . __( '<a href="https://codex.gechiui.com/Network_Admin_Users_Screen">SaaS平台用户文档</a>' ) . '</p>' 
 );
 
 get_current_screen()->set_screen_reader_content(
@@ -251,56 +249,52 @@ get_current_screen()->set_screen_reader_content(
 	)
 );
 
-require_once ABSPATH . 'gc-admin/admin-header.php';
+if ( isset( $_REQUEST['updated'] ) && 'true' === $_REQUEST['updated'] && ! empty( $_REQUEST['action'] ) ) {
 
-if ( isset( $_REQUEST['updated'] ) && 'true' == $_REQUEST['updated'] && ! empty( $_REQUEST['action'] ) ) {
-	?>
-	<div id="message" class="updated notice is-dismissible"><p>
-		<?php
-		switch ( $_REQUEST['action'] ) {
-			case 'delete':
-				_e( '用户已删除。' );
-				break;
-			case 'all_spam':
-				_e( '用户已被标记为垃圾用户。' );
-				break;
-			case 'all_notspam':
-				_e( '多个用户已被从垃圾用户列表中移除。' );
-				break;
-			case 'all_delete':
-				_e( '用户已被删除。' );
-				break;
-			case 'add':
-				_e( '用户已添加。' );
-				break;
-		}
-		?>
-	</p></div>
-	<?php
+	switch ( $_REQUEST['action'] ) {
+		case 'delete':
+			$message = __( '用户已删除。' );
+			break;
+		case 'all_spam':
+			$message = __( '用户已被标记为垃圾用户。' );
+			break;
+		case 'all_notspam':
+			$message = __( '多个用户已被从垃圾用户列表中移除。' );
+			break;
+		case 'all_delete':
+			$message = __( '用户已被删除。' );
+			break;
+		case 'add':
+			$message = __( '用户已添加。' );
+			break;
+	}
+	add_settings_error( 'general', 'message', $message, 'success' );
 }
+
+require_once ABSPATH . 'gc-admin/admin-header.php';
 ?>
 <div class="wrap">
-	<h1 class="gc-heading-inline"><?php esc_html_e( '用户' ); ?></h1>
+	<div class="page-header">
+		<h2 class="header-title"><?php esc_html_e( '用户' ); ?></h2>
 
-	<?php
-	if ( current_user_can( 'create_users' ) ) :
-		?>
-		<a href="<?php echo esc_url( network_admin_url( 'user-new.php' ) ); ?>" class="page-title-action"><?php echo esc_html_x( '添加用户', 'user' ); ?></a>
 		<?php
-	endif;
+		if ( current_user_can( 'create_users' ) ) :
+			?>
+			<a href="<?php echo esc_url( network_admin_url( 'user-new.php' ) ); ?>" class="btn btn-primary btn-tone btn-sm"><?php echo esc_html_x( '添加用户', 'user' ); ?></a>
+			<?php
+		endif;
 
-	if ( strlen( $usersearch ) ) {
-		echo '<span class="subtitle">';
-		printf(
-			/* translators: %s: Search query. */
-			__( '搜索结果：%s' ),
-			'<strong>' . esc_html( $usersearch ) . '</strong>'
-		);
-		echo '</span>';
-	}
-	?>
-
-	<hr class="gc-header-end">
+		if ( strlen( $usersearch ) ) {
+			echo '<span class="subtitle">';
+			printf(
+				/* translators: %s: Search query. */
+				__( '搜索词：%s' ),
+				'<strong>' . esc_html( $usersearch ) . '</strong>'
+			);
+			echo '</span>';
+		}
+		?>
+	</div>
 
 	<?php $gc_list_table->views(); ?>
 

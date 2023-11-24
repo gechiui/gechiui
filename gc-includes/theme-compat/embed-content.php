@@ -7,7 +7,6 @@
  *
  * @package GeChiUI
  * @subpackage Theme_Compat
- *
  */
 ?>
 	<div <?php post_class( 'gc-embed' ); ?>>
@@ -25,6 +24,7 @@
 		/**
 		 * Filters the thumbnail image ID for use in the embed template.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param int|false $thumbnail_id Attachment ID, or false if there is none.
 		 */
@@ -49,8 +49,8 @@
 			/**
 			 * Filters the thumbnail image size for use in the embed template.
 			 *
-		
-		
+			 * @since 4.4.0
+			 * @since 4.5.0 Added `$thumbnail_id` parameter.
 			 *
 			 * @param string $image_size   Thumbnail image size.
 			 * @param int    $thumbnail_id Attachment ID.
@@ -65,8 +65,8 @@
 			 * Rectangular images are shown above the title while square images
 			 * are shown next to the content.
 			 *
-		
-		
+			 * @since 4.4.0
+			 * @since 4.5.0 Added `$thumbnail_id` parameter.
 			 *
 			 * @param string $shape        Thumbnail image shape. Either 'rectangular' or 'square'.
 			 * @param int    $thumbnail_id Attachment ID.
@@ -103,6 +103,7 @@
 		/**
 		 * Prints additional content after the embed excerpt.
 		 *
+		 * @since 4.4.0
 		 */
 		do_action( 'embed_content' );
 		?>
@@ -115,7 +116,7 @@
 				/**
 				 * Prints additional meta content in the embed template.
 				 *
-			
+				 * @since 4.4.0
 				 */
 				do_action( 'embed_content_meta' );
 				?>

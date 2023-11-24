@@ -43,7 +43,6 @@
 		/**
 		 * Fires before the password reset procedure is validated.
 		 *
-		 *
 		 * @param GC_Error         $errors GC Error object.
 		 * @param GC_User|GC_Error $user   GC_User object if the login and reset key match. GC_Error object otherwise.
 		 */
@@ -107,8 +106,8 @@
 			?>
 			<input type="hidden" name="rp_key" value="<?php echo esc_attr( $rp_key ); ?>" />
 			<p class="submit reset-pass-submit">
-				<button type="button" class="button gc-generate-pw hide-if-no-js" aria-expanded="true"><?php _e( '生成密码' ); ?></button>
-				<input type="submit" name="gc-submit" id="gc-submit" class="button button-primary button-large" value="<?php esc_attr_e( '保存密码' ); ?>" />
+				<button type="button" class="btn btn-primary btn-tone btn-sm hide-if-no-js" aria-expanded="true"><?php _e( '生成密码' ); ?></button>
+				<input type="submit" name="gc-submit" id="gc-submit" class="btn btn-primary button-large" value="<?php esc_attr_e( '保存密码' ); ?>" />
 			</p>
 		</form>
 

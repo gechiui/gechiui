@@ -4,17 +4,15 @@
  *
  * @package GeChiUI
  * @subpackage HTTP
- *
  */
 
 /**
  * Bridge to connect Requests internal hooks to GeChiUI actions.
  *
- *
- *
- * @see Requests_Hooks
+ * @see GcOrg\Requests\Hooks
  */
-class GC_HTTP_Requests_Hooks extends Requests_Hooks {
+#[AllowDynamicProperties]
+class GC_HTTP_Requests_Hooks extends GcOrg\Requests\Hooks {
 	/**
 	 * Requested URL.
 	 *
@@ -65,6 +63,7 @@ class GC_HTTP_Requests_Hooks extends Requests_Hooks {
 		 *
 		 * @see https://github.com/GeChiUI/Requests/blob/master/docs/hooks.md
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param array $parameters Parameters from Requests internal hook.
 		 * @param array $request Request data in GC_Http format.

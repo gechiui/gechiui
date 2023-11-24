@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/widgets/media-gallery-widget.js
+ * @output assets/js/widgets/media-gallery-widget.js
  */
 
 /* eslint consistent-this: [ "error", "control" ] */
@@ -11,6 +11,7 @@
 	/**
 	 * Custom gallery details frame.
 	 *
+	 * @since 4.9.0
 	 * @class    gc.mediaWidgets~GalleryDetailsMediaFrame
 	 * @augments gc.media.view.MediaFrame.Post
 	 */
@@ -19,6 +20,7 @@
 		/**
 		 * Create the default states.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		createStates: function createStates() {
@@ -54,6 +56,7 @@
 	 *
 	 * See GC_Widget_Gallery::enqueue_admin_scripts() for amending prototype from PHP exports.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @class    gc.mediaWidgets.modelConstructors.media_gallery
 	 * @augments gc.mediaWidgets.MediaWidgetModel
@@ -65,6 +68,7 @@
 		/**
 		 * View events.
 		 *
+		 * @since 4.9.0
 		 * @type {object}
 		 */
 		events: _.extend( {}, component.MediaWidgetControl.prototype.events, {
@@ -79,6 +83,7 @@
 		 * @constructs gc.mediaWidgets.controlConstructors.media_gallery
 		 * @augments   gc.mediaWidgets.MediaWidgetControl
 		 *
+		 * @since 4.9.0
 		 * @param {Object}         options - Options.
 		 * @param {Backbone.Model} options.model - Model.
 		 * @param {jQuery}         options.el - Control field container element.
@@ -116,6 +121,7 @@
 		/**
 		 * Update the selected attachments if necessary.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		updateSelectedAttachments: function updateSelectedAttachments() {
@@ -148,6 +154,7 @@
 		/**
 		 * Render preview.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		renderPreview: function renderPreview() {
@@ -168,6 +175,7 @@
 		/**
 		 * Determine whether there are selected attachments.
 		 *
+		 * @since 4.9.0
 		 * @return {boolean} Selected.
 		 */
 		isSelected: function isSelected() {
@@ -183,6 +191,7 @@
 		/**
 		 * Open the media select frame to edit images.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		editMedia: function editMedia() {
@@ -245,6 +254,7 @@
 		/**
 		 * Open the media select frame to chose an item.
 		 *
+		 * @since 4.9.0
 		 * @return {void}
 		 */
 		selectMedia: function selectMedia() {
@@ -309,6 +319,7 @@
 		/**
 		 * Clear the selected attachment when it is deleted in the media select frame.
 		 *
+		 * @since 4.9.0
 		 * @param {gc.media.models.Attachment} attachment - Attachment.
 		 * @return {void}
 		 */

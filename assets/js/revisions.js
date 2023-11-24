@@ -2,7 +2,7 @@
  * @file Revisions interface functions, Backbone classes and
  * the revisions.php document.ready bootstrap.
  *
- * @output gc-admin/js/revisions.js
+ * @output assets/js/revisions.js
  */
 
 /* global isRtl */

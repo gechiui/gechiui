@@ -4,14 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Core class used to implement displaying installed plugins in a list table.
- *
- *
- * @access private
  *
  * @see GC_List_Table
  */
@@ -19,6 +15,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 	/**
 	 * Whether to show the auto-updates UI.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @var bool True if auto-updates UI is to be shown, false otherwise.
 	 */
@@ -60,8 +57,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 
 		$this->show_autoupdates = gc_is_auto_update_enabled_for_type( 'plugin' )
 			&& current_user_can( 'update_plugins' )
-			&& ( ! is_multisite() || $this->screen->in_admin( 'network' ) )
-			&& ! in_array( $status, array( 'mustuse', 'dropins' ), true );
+			&& ( ! is_multisite() || $this->screen->in_admin( 'network' ) );
 	}
 
 	/**
@@ -95,6 +91,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 		/**
 		 * Filters the full array of plugins to list in the Plugins list table.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @see get_plugins()
 		 *
@@ -133,7 +130,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 			 * The $type parameter allows you to differentiate between the type of advanced
 			 * plugins to filter the display of. Contexts include 'mustuse' and 'dropins'.
 			 *
-		
+			 * @since 3.0.0
 			 *
 			 * @param bool   $show Whether to show the advanced plugins for the specified
 			 *                     plugin type. Default true.
@@ -169,7 +166,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 			 *
 			 * Plugins cannot be network-activated or network-deactivated from this screen.
 			 *
-		
+			 * @since 4.4.0
 			 *
 			 * @param bool $show Whether to show network-active plugins. Default is whether the current
 			 *                   user can manage network plugins (ie. a Super Admin).
@@ -260,8 +257,10 @@ class GC_Plugins_List_Table extends GC_List_Table {
 				}
 			} elseif ( ( ! $screen->in_admin( 'network' ) && is_plugin_active( $plugin_file ) )
 				|| ( $screen->in_admin( 'network' ) && is_plugin_active_for_network( $plugin_file ) ) ) {
-				// On the non-network screen, populate the active list with plugins that are individually activated.
-				// On the network admin screen, populate the active list with plugins that are network-activated.
+				/*
+				 * On the non-network screen, populate the active list with plugins that are individually activated.
+				 * On the network admin screen, populate the active list with plugins that are network-activated.
+				 */
 				$plugins['active'][ $plugin_file ] = $plugin_data;
 
 				if ( ! $screen->in_admin( 'network' ) && is_plugin_paused( $plugin_file ) ) {
@@ -294,6 +293,15 @@ class GC_Plugins_List_Table extends GC_List_Table {
 			$status            = 'search';
 			$plugins['search'] = array_filter( $plugins['all'], array( $this, '_search_callback' ) );
 		}
+
+		/**
+		 * Filters the array of plugins for the list table.
+		 *
+		 * @since 6.3.0
+		 *
+		 * @param array[] $plugins An array of arrays of plugin data, keyed by context.
+		 */
+		$plugins = apply_filters( 'plugins_list', $plugins );
 
 		$totals = array();
 		foreach ( $plugins as $type => $list ) {
@@ -401,7 +409,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 		global $plugins;
 
 		if ( ! empty( $_REQUEST['s'] ) ) {
-			$s = esc_html( gc_unslash( $_REQUEST['s'] ) );
+			$s = esc_html( urldecode( gc_unslash( $_REQUEST['s'] ) ) );
 
 			/* translators: %s: Plugin search term. */
 			printf( __( '找不到用于%s的插件。' ), '<strong>' . $s . '</strong>' );
@@ -420,6 +428,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 	/**
 	 * Displays the search box.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string $text     The 'submit' button label.
 	 * @param string $input_id ID attribute value for the search input field.
@@ -440,7 +449,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 		?>
 		<p class="search-box">
 			<label class="screen-reader-text" for="<?php echo esc_attr( $input_id ); ?>"><?php echo $text; ?>:</label>
-			<input type="search" id="<?php echo esc_attr( $input_id ); ?>" class="gc-filter-search" name="s" value="<?php _admin_search_query(); ?>" placeholder="<?php esc_attr_e( '搜索已安装的插件…' ); ?>" />
+			<input type="search" id="<?php echo esc_attr( $input_id ); ?>" class="gc-filter-search" name="s" value="<?php _admin_search_query(); ?>" placeholder="<?php esc_attr_e( '搜索已安装的插件...'  ); ?>" />
 			<?php submit_button( $text, 'hide-if-js', '', false, array( 'id' => 'search-submit' ) ); ?>
 		</p>
 		<?php
@@ -448,7 +457,8 @@ class GC_Plugins_List_Table extends GC_List_Table {
 
 	/**
 	 * @global string $status
-	 * @return array
+	 *
+	 * @return string[] Array of column titles keyed by their column name.
 	 */
 	public function get_columns() {
 		global $status;
@@ -459,7 +469,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 			'description' => __( '描述' ),
 		);
 
-		if ( $this->show_autoupdates ) {
+		if ( $this->show_autoupdates && ! in_array( $status, array( 'mustuse', 'dropins' ), true ) ) {
 			$columns['auto-updates'] = __( '自动更新' );
 		}
 
@@ -572,16 +582,15 @@ class GC_Plugins_List_Table extends GC_List_Table {
 			}
 
 			if ( 'search' !== $type ) {
-				$status_links[ $type ] = sprintf(
-					"<a href='%s'%s>%s</a>",
-					add_query_arg( 'plugin_status', $type, 'plugins.php' ),
-					( $type === $status ) ? ' class="current" aria-current="page"' : '',
-					sprintf( $text, number_format_i18n( $count ) )
+				$status_links[ $type ] = array(
+					'url'     => add_query_arg( 'plugin_status', $type, 'plugins.php' ),
+					'label'   => sprintf( $text, number_format_i18n( $count ) ),
+					'current' => $type === $status,
 				);
 			}
 		}
 
-		return $status_links;
+		return $this->get_views_links( $status_links );
 	}
 
 	/**
@@ -594,11 +603,11 @@ class GC_Plugins_List_Table extends GC_List_Table {
 		$actions = array();
 
 		if ( 'active' !== $status ) {
-			$actions['activate-selected'] = $this->screen->in_admin( 'network' ) ? __( '在站点网络中启用' ) : __( '启用' );
+			$actions['activate-selected'] = $this->screen->in_admin( 'network' ) ? __( '在SaaS平台中启用' ) : __( '启用' );
 		}
 
 		if ( 'inactive' !== $status && 'recent' !== $status ) {
-			$actions['deactivate-selected'] = $this->screen->in_admin( 'network' ) ? __( '在站点网络中禁用' ) : __( '禁用' );
+			$actions['deactivate-selected'] = $this->screen->in_admin( 'network' ) ? __( '在SaaS平台中禁用' ) : __( '禁用' );
 		}
 
 		if ( ! is_multisite() || $this->screen->in_admin( 'network' ) ) {
@@ -748,7 +757,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 			$plugin_name = $plugin_file;
 
 			if ( $plugin_file !== $plugin_data['Name'] ) {
-				$plugin_name .= '<br/>' . $plugin_data['Name'];
+				$plugin_name .= '<br />' . $plugin_data['Name'];
 			}
 
 			if ( true === ( $dropins[ $plugin_file ][1] ) ) { // Doesn't require a constant.
@@ -768,8 +777,8 @@ class GC_Plugins_List_Table extends GC_List_Table {
 					) . '</p>';
 			}
 
-			if ( $plugin_data['description'] ) {
-				$description .= '<p>' . $plugin_data['description'] . '</p>';
+			if ( $plugin_data['Description'] ) {
+				$description .= '<p>' . $plugin_data['Description'] . '</p>';
 			}
 		} else {
 			if ( $screen->in_admin( 'network' ) ) {
@@ -788,8 +797,8 @@ class GC_Plugins_List_Table extends GC_List_Table {
 							gc_nonce_url( 'plugins.php?action=deactivate&amp;plugin=' . urlencode( $plugin_file ) . '&amp;plugin_status=' . $context . '&amp;paged=' . $page . '&amp;s=' . $s, 'deactivate-plugin_' . $plugin_file ),
 							esc_attr( $plugin_id_attr ),
 							/* translators: %s: Plugin name. */
-							esc_attr( sprintf( _x( '在站点网络中禁用%s', 'plugin' ), $plugin_data['Name'] ) ),
-							__( '在站点网络中禁用' )
+							esc_attr( sprintf( _x( '在SaaS平台中禁用%s', 'plugin' ), $plugin_data['Name'] ) ),
+							__( '在SaaS平台中禁用' )
 						);
 					}
 				} else {
@@ -800,8 +809,8 @@ class GC_Plugins_List_Table extends GC_List_Table {
 								gc_nonce_url( 'plugins.php?action=activate&amp;plugin=' . urlencode( $plugin_file ) . '&amp;plugin_status=' . $context . '&amp;paged=' . $page . '&amp;s=' . $s, 'activate-plugin_' . $plugin_file ),
 								esc_attr( $plugin_id_attr ),
 								/* translators: %s: Plugin name. */
-								esc_attr( sprintf( _x( '在站点网络中启用%s', 'plugin' ), $plugin_data['Name'] ) ),
-								__( '在站点网络中启用' )
+								esc_attr( sprintf( _x( '在SaaS平台中启用%s', 'plugin' ), $plugin_data['Name'] ) ),
+								__( '在SaaS平台中启用' )
 							);
 						} else {
 							$actions['activate'] = sprintf(
@@ -825,11 +834,11 @@ class GC_Plugins_List_Table extends GC_List_Table {
 			} else {
 				if ( $restrict_network_active ) {
 					$actions = array(
-						'network_active' => __( '在站点网络中启用' ),
+						'network_active' => __( '在SaaS平台中启用' ),
 					);
 				} elseif ( $restrict_network_only ) {
 					$actions = array(
-						'network_only' => __( '仅站点网络' ),
+						'network_only' => __( '仅SaaS平台' ),
 					);
 				} elseif ( $is_active ) {
 					if ( current_user_can( 'deactivate_plugin', $plugin_file ) ) {
@@ -861,7 +870,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 								gc_nonce_url( 'plugins.php?action=activate&amp;plugin=' . urlencode( $plugin_file ) . '&amp;plugin_status=' . $context . '&amp;paged=' . $page . '&amp;s=' . $s, 'activate-plugin_' . $plugin_file ),
 								esc_attr( $plugin_id_attr ),
 								/* translators: %s: Plugin name. */
-								esc_attr( sprintf( _x( '启用%s', 'plugin' ), $plugin_data['Name'] ) ),
+								esc_attr( sprintf( _x( '启用 %s', 'plugin' ), $plugin_data['Name'] ) ),
 								__( '启用' )
 							);
 						} else {
@@ -893,12 +902,12 @@ class GC_Plugins_List_Table extends GC_List_Table {
 			/**
 			 * Filters the action links displayed for each plugin in the Network Admin Plugins list table.
 			 *
-		
+			 * @since 3.1.0
 			 *
 			 * @param string[] $actions     An array of plugin action links. By default this can include
 			 *                              'activate', 'deactivate', and 'delete'.
 			 * @param string   $plugin_file Path to the plugin file relative to the plugins directory.
-			 * @param array    $plugin_data An array of plugin data. See `get_plugin_data()`
+			 * @param array    $plugin_data An array of plugin data. See get_plugin_data()
 			 *                              and the {@see 'plugin_row_meta'} filter for the list
 			 *                              of possible values.
 			 * @param string   $context     The plugin context. By default this can include 'all',
@@ -913,12 +922,12 @@ class GC_Plugins_List_Table extends GC_List_Table {
 			 * The dynamic portion of the hook name, `$plugin_file`, refers to the path
 			 * to the plugin file, relative to the plugins directory.
 			 *
-		
+			 * @since 3.1.0
 			 *
 			 * @param string[] $actions     An array of plugin action links. By default this can include
 			 *                              'activate', 'deactivate', and 'delete'.
 			 * @param string   $plugin_file Path to the plugin file relative to the plugins directory.
-			 * @param array    $plugin_data An array of plugin data. See `get_plugin_data()`
+			 * @param array    $plugin_data An array of plugin data. See get_plugin_data()
 			 *                              and the {@see 'plugin_row_meta'} filter for the list
 			 *                              of possible values.
 			 * @param string   $context     The plugin context. By default this can include 'all',
@@ -932,15 +941,15 @@ class GC_Plugins_List_Table extends GC_List_Table {
 			/**
 			 * Filters the action links displayed for each plugin in the Plugins list table.
 			 *
-		
-		
-		
+			 * @since 2.5.0
+			 * @since 2.6.0 The `$context` parameter was added.
+			 * @since 4.9.0 The 'Edit' link was removed from the list of action links.
 			 *
 			 * @param string[] $actions     An array of plugin action links. By default this can include
 			 *                              'activate', 'deactivate', and 'delete'. With Multisite active
 			 *                              this can also include 'network_active' and 'network_only' items.
 			 * @param string   $plugin_file Path to the plugin file relative to the plugins directory.
-			 * @param array    $plugin_data An array of plugin data. See `get_plugin_data()`
+			 * @param array    $plugin_data An array of plugin data. See get_plugin_data()
 			 *                              and the {@see 'plugin_row_meta'} filter for the list
 			 *                              of possible values.
 			 * @param string   $context     The plugin context. By default this can include 'all',
@@ -955,14 +964,14 @@ class GC_Plugins_List_Table extends GC_List_Table {
 			 * The dynamic portion of the hook name, `$plugin_file`, refers to the path
 			 * to the plugin file, relative to the plugins directory.
 			 *
-		
-		
+			 * @since 2.7.0
+			 * @since 4.9.0 The 'Edit' link was removed from the list of action links.
 			 *
 			 * @param string[] $actions     An array of plugin action links. By default this can include
 			 *                              'activate', 'deactivate', and 'delete'. With Multisite active
 			 *                              this can also include 'network_active' and 'network_only' items.
 			 * @param string   $plugin_file Path to the plugin file relative to the plugins directory.
-			 * @param array    $plugin_data An array of plugin data. See `get_plugin_data()`
+			 * @param array    $plugin_data An array of plugin data. See get_plugin_data()
 			 *                              and the {@see 'plugin_row_meta'} filter for the list
 			 *                              of possible values.
 			 * @param string   $context     The plugin context. By default this can include 'all',
@@ -980,17 +989,17 @@ class GC_Plugins_List_Table extends GC_List_Table {
 			$checkbox = '';
 		} else {
 			$checkbox = sprintf(
-				'<label class="screen-reader-text" for="%1$s">%2$s</label>' .
+				'<label class="label-covers-full-cell" for="%1$s"><span class="screen-reader-text">%2$s</span></label>' .
 				'<input type="checkbox" name="checked[]" value="%3$s" id="%1$s" />',
 				$checkbox_id,
-				/* translators: %s: Plugin name. */
+				/* translators: Hidden accessibility text. %s: Plugin name. */
 				sprintf( __( '选择%s' ), $plugin_data['Name'] ),
 				esc_attr( $plugin_file )
 			);
 		}
 
 		if ( 'dropins' !== $context ) {
-			$description = '<p>' . ( $plugin_data['description'] ? $plugin_data['description'] : '&nbsp;' ) . '</p>';
+			$description = '<p>' . ( $plugin_data['Description'] ? $plugin_data['Description'] : '&nbsp;' ) . '</p>';
 			$plugin_name = $plugin_data['Name'];
 		}
 
@@ -1019,8 +1028,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 
 		list( $columns, $hidden, $sortable, $primary ) = $this->get_column_info();
 
-		$auto_updates      = (array) get_site_option( 'auto_update_plugins', array() );
-		$available_updates = get_site_transient( 'update_plugins' );
+		$auto_updates = (array) get_site_option( 'auto_update_plugins', array() );
 
 		foreach ( $columns as $column_name => $column_display_name ) {
 			$extra_classes = '';
@@ -1075,7 +1083,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 						);
 					} elseif ( ! empty( $plugin_data['PluginURI'] ) ) {
 						/* translators: %s: Plugin name. */
-						$aria_label = sprintf( __( '访问 %s 的插件站点' ), $plugin_name );
+						$aria_label = sprintf( __( '访问 %s 的插件系统' ), $plugin_name );
 
 						$plugin_meta[] = sprintf(
 							'<a href="%s" aria-label="%s">%s</a>',
@@ -1088,7 +1096,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 					/**
 					 * Filters the array of row meta for each plugin in the Plugins list table.
 					 *
-				
+					 * @since 2.8.0
 					 *
 					 * @param string[] $plugin_meta An array of the plugin's metadata, including
 					 *                              the version, author, author URI, and plugin URI.
@@ -1118,7 +1126,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 					 *     @type string   $AuthorURI        Plugin author URI.
 					 *     @type string   $TextDomain       Plugin textdomain.
 					 *     @type string   $DomainPath       Relative path to the plugin's .mo file(s).
-					 *     @type bool     $Network          插件是否只能在站点网络中启用。
+					 *     @type bool     $Network          Whether the plugin can only be activated network-wide.
 					 *     @type string   $RequiresGC       The version of GeChiUI which the plugin requires.
 					 *     @type string   $RequiresPHP      The version of PHP which the plugin requires.
 					 *     @type string   $UpdateURI        ID of the plugin for update purposes, should be a URI.
@@ -1152,7 +1160,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 					echo '</td>';
 					break;
 				case 'auto-updates':
-					if ( ! $this->show_autoupdates ) {
+					if ( ! $this->show_autoupdates || in_array( $status, array( 'mustuse', 'dropins' ), true ) ) {
 						break;
 					}
 
@@ -1219,19 +1227,19 @@ class GC_Plugins_List_Table extends GC_List_Table {
 					/**
 					 * Filters the HTML of the auto-updates setting for each plugin in the Plugins list table.
 					 *
-				
+					 * @since 5.5.0
 					 *
 					 * @param string $html        The HTML of the plugin's auto-update column content,
 					 *                            including toggle auto-update action links and
 					 *                            time to next update.
 					 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
-					 * @param array  $plugin_data An array of plugin data. See `get_plugin_data()`
+					 * @param array  $plugin_data An array of plugin data. See get_plugin_data()
 					 *                            and the {@see 'plugin_row_meta'} filter for the list
 					 *                            of possible values.
 					 */
 					echo apply_filters( 'plugin_auto_update_setting_html', $html, $plugin_file, $plugin_data );
 
-					echo '<div class="notice notice-error notice-alt inline hidden"><p></p></div>';
+					echo '<div class="alert alert-danger notice-alt inline hidden"><p></p></div>';
 					echo '</td>';
 
 					break;
@@ -1243,11 +1251,11 @@ class GC_Plugins_List_Table extends GC_List_Table {
 					/**
 					 * Fires inside each custom column of the Plugins list table.
 					 *
-				
+					 * @since 3.1.0
 					 *
 					 * @param string $column_name Name of the column.
 					 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
-					 * @param array  $plugin_data An array of plugin data. See `get_plugin_data()`
+					 * @param array  $plugin_data An array of plugin data. See get_plugin_data()
 					 *                            and the {@see 'plugin_row_meta'} filter for the list
 					 *                            of possible values.
 					 */
@@ -1268,7 +1276,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 			);
 
 			if ( ! $compatible_php && ! $compatible_gc ) {
-				_e( '此插件不能与您的GeChiUI和PHP版本相兼容。' );
+				_e( '此插件不适用于您的 GeChiUI 和 PHP 版本。' );
 				if ( current_user_can( 'update_core' ) && current_user_can( 'update_php' ) ) {
 					printf(
 						/* translators: 1: URL to GeChiUI Updates screen, 2: URL to Update PHP page. */
@@ -1292,7 +1300,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 					gc_update_php_annotation( '</p><p><em>', '</em>' );
 				}
 			} elseif ( ! $compatible_gc ) {
-				_e( '此插件不能与您的GeChiUI版本相兼容。' );
+				_e( '该插件不适用于您的 GeChiUI 版本。' );
 				if ( current_user_can( 'update_core' ) ) {
 					printf(
 						/* translators: %s: URL to GeChiUI Updates screen. */
@@ -1301,7 +1309,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 					);
 				}
 			} elseif ( ! $compatible_php ) {
-				_e( '此插件不能与您的PHP版本相兼容。' );
+				_e( '此插件不适用于您的 PHP 版本。' );
 				if ( current_user_can( 'update_php' ) ) {
 					printf(
 						/* translators: %s: URL to Update PHP page. */
@@ -1318,10 +1326,12 @@ class GC_Plugins_List_Table extends GC_List_Table {
 		/**
 		 * Fires after each row in the Plugins list table.
 		 *
+		 * @since 2.3.0
+		 * @since 5.5.0 Added 'auto-update-enabled' and 'auto-update-disabled'
 		 *              to possible values for `$status`.
 		 *
 		 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
-		 * @param array  $plugin_data An array of plugin data. See `get_plugin_data()`
+		 * @param array  $plugin_data An array of plugin data. See get_plugin_data()
 		 *                            and the {@see 'plugin_row_meta'} filter for the list
 		 *                            of possible values.
 		 * @param string $status      Status filter currently applied to the plugin list.
@@ -1337,10 +1347,11 @@ class GC_Plugins_List_Table extends GC_List_Table {
 		 * The dynamic portion of the hook name, `$plugin_file`, refers to the path
 		 * to the plugin file, relative to the plugins directory.
 		 *
+		 * @since 5.5.0 Added 'auto-update-enabled' and 'auto-update-disabled'
 		 *              to possible values for `$status`.
 		 *
 		 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
-		 * @param array  $plugin_data An array of plugin data. See `get_plugin_data()`
+		 * @param array  $plugin_data An array of plugin data. See get_plugin_data()
 		 *                            and the {@see 'plugin_row_meta'} filter for the list
 		 *                            of possible values.
 		 * @param string $status      Status filter currently applied to the plugin list.
@@ -1354,6 +1365,7 @@ class GC_Plugins_List_Table extends GC_List_Table {
 	/**
 	 * Gets the name of the primary column for this specific list table.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @return string Unalterable name for the primary column, in this case, 'name'.
 	 */

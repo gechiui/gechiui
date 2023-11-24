@@ -6,7 +6,6 @@
  *
  * @package GeChiUI
  * @subpackage i18n
- *
  */
 
 __( 'Africa', 'continents-cities' );
@@ -427,7 +426,7 @@ __( 'Zulu', 'continents-cities' );
 __( 'Europe', 'continents-cities' );
 __( 'Amsterdam', 'continents-cities' );
 __( 'Andorra', 'continents-cities' );
-__( 'Astrakhan', 'continents-cities' );
+__( 'Adaptivekhan', 'continents-cities' );
 __( 'Athens', 'continents-cities' );
 __( 'Belfast', 'continents-cities' );
 __( 'Belgrade', 'continents-cities' );
@@ -448,6 +447,7 @@ __( 'Istanbul', 'continents-cities' );
 __( 'Jersey', 'continents-cities' );
 __( 'Kaliningrad', 'continents-cities' );
 __( 'Kiev', 'continents-cities' );
+__( 'Kyiv', 'continents-cities' );
 __( 'Kirov', 'continents-cities' );
 __( 'Lisbon', 'continents-cities' );
 __( 'Ljubljana', 'continents-cities' );
@@ -519,6 +519,7 @@ __( 'Guadalcanal', 'continents-cities' );
 __( 'Guam', 'continents-cities' );
 __( 'Honolulu', 'continents-cities' );
 __( 'Johnston', 'continents-cities' );
+__( 'Kanton', 'continents-cities' );
 __( 'Kiritimati', 'continents-cities' );
 __( 'Kosrae', 'continents-cities' );
 __( 'Kwajalein', 'continents-cities' );

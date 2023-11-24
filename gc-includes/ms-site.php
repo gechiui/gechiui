@@ -4,13 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage Multisite
- *
+ * @since 5.1.0
  */
 
 /**
  * Inserts a new site into the database.
  *
- *
+ * @since 5.1.0
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -32,7 +32,7 @@
  *     @type int    $lang_id      The site's language ID. Currently unused. Default 0.
  *     @type int    $user_id      User ID for the site administrator. Passed to the
  *                                `gc_initialize_site` hook.
- *     @type string $title        Site title. Default is 'Site %d' where %d is the site ID. Passed
+ *     @type string $title        Site title. Default is '系统%d' where %d is the site ID. Passed
  *                                to the `gc_initialize_site` hook.
  *     @type array  $options      Custom option $key => $value pairs to use. Default empty array. Passed
  *                                to the `gc_initialize_site` hook.
@@ -66,7 +66,7 @@ function gc_insert_site( array $data ) {
 	}
 
 	if ( false === $gcdb->insert( $gcdb->blogs, $prepared_data ) ) {
-		return new GC_Error( 'db_insert_error', __( '未能在数据库中插入站点。' ), $gcdb->last_error );
+		return new GC_Error( 'db_insert_error', __( '未能在数据库中插入系统。' ), $gcdb->last_error );
 	}
 
 	$site_id = (int) $gcdb->insert_id;
@@ -76,12 +76,13 @@ function gc_insert_site( array $data ) {
 	$new_site = get_site( $site_id );
 
 	if ( ! $new_site ) {
-		return new GC_Error( 'get_site_error', __( '未能获取站点数据。' ) );
+		return new GC_Error( 'get_site_error', __( '未能获取系统数据。' ) );
 	}
 
 	/**
 	 * Fires once a site has been inserted into the database.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param GC_Site $new_site New site object.
 	 */
@@ -96,6 +97,7 @@ function gc_insert_site( array $data ) {
 	/**
 	 * Fires when a site's initialization routine should be executed.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param GC_Site $new_site New site object.
 	 * @param array   $args     Arguments for the initialization.
@@ -112,16 +114,18 @@ function gc_insert_site( array $data ) {
 			$meta['GCLANG'] = get_network_option( $new_site->network_id, 'GCLANG' );
 		}
 
-		// Rebuild the data expected by the `gcmu_new_blog` hook prior to 5.1.0 using allowed keys.
-		// The `$allowed_data_fields` matches the one used in `gcmu_create_blog()`.
+		/*
+		 * Rebuild the data expected by the `gcmu_new_blog` hook prior to 5.1.0 using allowed keys.
+		 * The `$allowed_data_fields` matches the one used in `gcmu_create_blog()`.
+		 */
 		$allowed_data_fields = array( 'public', 'archived', 'mature', 'spam', 'deleted', 'lang_id' );
 		$meta                = array_merge( array_intersect_key( $data, array_flip( $allowed_data_fields ) ), $meta );
 
 		/**
 		 * Fires immediately after a new site is created.
 		 *
-		 * @since MU
-		 * @deprecated 5.1.0 Use {@see 'gc_insert_site'} instead.
+		 * @since MU (3.0.0)
+		 * @deprecated 5.1.0 Use {@see 'gc_initialize_site'} instead.
 		 *
 		 * @param int    $site_id    Site ID.
 		 * @param int    $user_id    User ID.
@@ -134,7 +138,7 @@ function gc_insert_site( array $data ) {
 			'gcmu_new_blog',
 			array( $new_site->id, $user_id, $new_site->domain, $new_site->path, $new_site->network_id, $meta ),
 			'5.1.0',
-			'gc_insert_site'
+			'gc_initialize_site'
 		);
 	}
 
@@ -144,7 +148,7 @@ function gc_insert_site( array $data ) {
 /**
  * Updates a site in the database.
  *
- *
+ * @since 5.1.0
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -156,12 +160,12 @@ function gc_update_site( $site_id, array $data ) {
 	global $gcdb;
 
 	if ( empty( $site_id ) ) {
-		return new GC_Error( 'site_empty_id', __( '站点ID不能为空。' ) );
+		return new GC_Error( 'site_empty_id', __( '系统ID不能为空。' ) );
 	}
 
 	$old_site = get_site( $site_id );
 	if ( ! $old_site ) {
-		return new GC_Error( 'site_not_exist', __( '站点不存在。' ) );
+		return new GC_Error( 'site_not_exist', __( '系统不存在。' ) );
 	}
 
 	$defaults                 = $old_site->to_array();
@@ -175,7 +179,7 @@ function gc_update_site( $site_id, array $data ) {
 	}
 
 	if ( false === $gcdb->update( $gcdb->blogs, $data, array( 'blog_id' => $old_site->id ) ) ) {
-		return new GC_Error( 'db_update_error', __( '未能在数据库中更新站点。' ), $gcdb->last_error );
+		return new GC_Error( 'db_update_error', __( '未能在数据库中更新系统。' ), $gcdb->last_error );
 	}
 
 	clean_blog_cache( $old_site );
@@ -185,6 +189,7 @@ function gc_update_site( $site_id, array $data ) {
 	/**
 	 * Fires once a site has been updated in the database.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param GC_Site $new_site New site object.
 	 * @param GC_Site $old_site Old site object.
@@ -197,7 +202,7 @@ function gc_update_site( $site_id, array $data ) {
 /**
  * Deletes a site from the database.
  *
- *
+ * @since 5.1.0
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -208,12 +213,12 @@ function gc_delete_site( $site_id ) {
 	global $gcdb;
 
 	if ( empty( $site_id ) ) {
-		return new GC_Error( 'site_empty_id', __( '站点ID不能为空。' ) );
+		return new GC_Error( 'site_empty_id', __( '系统ID不能为空。' ) );
 	}
 
 	$old_site = get_site( $site_id );
 	if ( ! $old_site ) {
-		return new GC_Error( 'site_not_exist', __( '站点不存在。' ) );
+		return new GC_Error( 'site_not_exist', __( '系统不存在。' ) );
 	}
 
 	$errors = new GC_Error();
@@ -224,6 +229,7 @@ function gc_delete_site( $site_id ) {
 	 * Plugins should amend the `$errors` object via its `GC_Error::add()` method. If any errors
 	 * are present, the site will not be deleted.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param GC_Error $errors   Error object to add validation errors to.
 	 * @param GC_Site  $old_site The site object to be deleted.
@@ -237,7 +243,7 @@ function gc_delete_site( $site_id ) {
 	/**
 	 * Fires before a site is deleted.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 * @deprecated 5.1.0
 	 *
 	 * @param int  $site_id The site ID.
@@ -248,6 +254,7 @@ function gc_delete_site( $site_id ) {
 	/**
 	 * Fires when a site's uninitialization routine should be executed.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param GC_Site $old_site Deleted site object.
 	 */
@@ -261,7 +268,7 @@ function gc_delete_site( $site_id ) {
 	}
 
 	if ( false === $gcdb->delete( $gcdb->blogs, array( 'blog_id' => $old_site->id ) ) ) {
-		return new GC_Error( 'db_delete_error', __( '未能在数据库中删除站点。' ), $gcdb->last_error );
+		return new GC_Error( 'db_delete_error', __( '未能在数据库中删除系统。' ), $gcdb->last_error );
 	}
 
 	clean_blog_cache( $old_site );
@@ -269,6 +276,7 @@ function gc_delete_site( $site_id ) {
 	/**
 	 * Fires once a site has been deleted from the database.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param GC_Site $old_site Deleted site object.
 	 */
@@ -277,6 +285,7 @@ function gc_delete_site( $site_id ) {
 	/**
 	 * Fires after the site is deleted from the network.
 	 *
+	 * @since 4.8.0
 	 * @deprecated 5.1.0
 	 *
 	 * @param int  $site_id The site ID.
@@ -292,8 +301,6 @@ function gc_delete_site( $site_id ) {
  *
  * Site data will be cached and returned after being passed through a filter.
  * If the provided site is empty, the current site global will be used.
- *
- *
  *
  * @param GC_Site|int|null $site Optional. Site to retrieve. Default is the current site.
  * @return GC_Site|null The site object or null if not found.
@@ -318,6 +325,7 @@ function get_site( $site = null ) {
 	/**
 	 * Fires after a site is retrieved.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param GC_Site $_site Site data.
 	 */
@@ -329,9 +337,9 @@ function get_site( $site = null ) {
 /**
  * Adds any sites from the given IDs to the cache that do not already exist in cache.
  *
- *
- *
- * @access private
+ * @since 5.1.0 Introduced the `$update_meta_cache` parameter.
+ * @since 6.1.0 This function is no longer marked as "private".
+ * @since 6.3.0 Use gc_lazyload_site_meta() for lazy-loading of site meta.
  *
  * @see update_site_cache()
  * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -346,15 +354,33 @@ function _prime_site_caches( $ids, $update_meta_cache = true ) {
 	if ( ! empty( $non_cached_ids ) ) {
 		$fresh_sites = $gcdb->get_results( sprintf( "SELECT * FROM $gcdb->blogs WHERE blog_id IN (%s)", implode( ',', array_map( 'intval', $non_cached_ids ) ) ) ); // phpcs:ignore GeChiUI.DB.PreparedSQL.NotPrepared
 
-		update_site_cache( $fresh_sites, $update_meta_cache );
+		update_site_cache( $fresh_sites, false );
 	}
+
+	if ( $update_meta_cache ) {
+		gc_lazyload_site_meta( $ids );
+	}
+}
+
+/**
+ * Queue site meta for lazy-loading.
+ *
+ * @since 6.3.0
+ *
+ * @param array $site_ids List of site IDs.
+ */
+function gc_lazyload_site_meta( array $site_ids ) {
+	if ( empty( $site_ids ) ) {
+		return;
+	}
+	$lazyloader = gc_metadata_lazyloader();
+	$lazyloader->queue_objects( 'blog', $site_ids );
 }
 
 /**
  * Updates sites in cache.
  *
- *
- *
+ * @since 5.1.0 Introduced the `$update_meta_cache` parameter.
  *
  * @param array $sites             Array of site objects.
  * @param bool  $update_meta_cache Whether to update site meta cache. Default true.
@@ -363,12 +389,17 @@ function update_site_cache( $sites, $update_meta_cache = true ) {
 	if ( ! $sites ) {
 		return;
 	}
-	$site_ids = array();
+	$site_ids          = array();
+	$site_data         = array();
+	$blog_details_data = array();
 	foreach ( $sites as $site ) {
-		$site_ids[] = $site->blog_id;
-		gc_cache_add( $site->blog_id, $site, 'sites' );
-		gc_cache_add( $site->blog_id . 'short', $site, 'blog-details' );
+		$site_ids[]                                    = $site->blog_id;
+		$site_data[ $site->blog_id ]                   = $site;
+		$blog_details_data[ $site->blog_id . 'short' ] = $site;
+
 	}
+	gc_cache_add_multiple( $site_data, 'sites' );
+	gc_cache_add_multiple( $blog_details_data, 'blog-details' );
 
 	if ( $update_meta_cache ) {
 		update_sitemeta_cache( $site_ids );
@@ -381,7 +412,7 @@ function update_site_cache( $sites, $update_meta_cache = true ) {
  * Performs SQL query to retrieve all metadata for the sites matching `$site_ids` and stores them in the cache.
  * Subsequent calls to `get_site_meta()` will not need to query the database.
  *
- *
+ * @since 5.1.0
  *
  * @param array $site_ids List of site IDs.
  * @return array|false An array of metadata on success, false if there is nothing to update.
@@ -396,9 +427,7 @@ function update_sitemeta_cache( $site_ids ) {
 
 /**
  * Retrieves a list of sites matching requested arguments.
- *
- *
- *
+ * Introduced the 'lang_id', 'lang__in', and 'lang__not_in' parameters.
  *
  * @see GC_Site_Query::parse_query()
  *
@@ -416,7 +445,7 @@ function get_sites( $args = array() ) {
 /**
  * Prepares site data for insertion or update in the database.
  *
- *
+ * @since 5.1.0
  *
  * @param array        $data     Associative array of site data passed to the respective function.
  *                               See {@see gc_insert_site()} for the possibly included data.
@@ -439,6 +468,7 @@ function gc_prepare_site_data( $data, $defaults, $old_site = null ) {
 	/**
 	 * Filters passed site data in order to normalize it.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param array $data Associative array of site data passed to the respective function.
 	 *                    See {@see gc_insert_site()} for the possibly included data.
@@ -455,6 +485,7 @@ function gc_prepare_site_data( $data, $defaults, $old_site = null ) {
 	 *
 	 * Plugins should amend the `$errors` object via its `GC_Error::add()` method.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param GC_Error     $errors   Error object to add validation errors to.
 	 * @param array        $data     Associative array of complete site data. See {@see gc_insert_site()}
@@ -478,7 +509,7 @@ function gc_prepare_site_data( $data, $defaults, $old_site = null ) {
 /**
  * Normalizes data for a site prior to inserting or updating in the database.
  *
- *
+ * @since 5.1.0
  *
  * @param array $data Associative array of site data passed to the respective function.
  *                    See {@see gc_insert_site()} for the possibly included data.
@@ -530,7 +561,7 @@ function gc_normalize_site_data( $data ) {
 /**
  * Validates data for a site prior to inserting or updating in the database.
  *
- *
+ * @since 5.1.0
  *
  * @param GC_Error     $errors   Error object, passed by reference. Will contain validation errors if
  *                               any occurred.
@@ -542,17 +573,17 @@ function gc_normalize_site_data( $data ) {
 function gc_validate_site_data( $errors, $data, $old_site = null ) {
 	// A domain must always be present.
 	if ( empty( $data['domain'] ) ) {
-		$errors->add( 'site_empty_domain', __( '站点域名不能为空。' ) );
+		$errors->add( 'site_empty_domain', __( '系统域名不能为空。' ) );
 	}
 
 	// A path must always be present.
 	if ( empty( $data['path'] ) ) {
-		$errors->add( 'site_empty_path', __( '站点路径不能为空。' ) );
+		$errors->add( 'site_empty_path', __( '系统路径不能为空。' ) );
 	}
 
 	// A network ID must always be present.
 	if ( empty( $data['network_id'] ) ) {
-		$errors->add( 'site_empty_network_id', __( '必须提供站点网络ID。' ) );
+		$errors->add( 'site_empty_network_id', __( '必须提供系统网络ID。' ) );
 	}
 
 	// Both registration and last updated dates must always be present and valid.
@@ -587,7 +618,7 @@ function gc_validate_site_data( $errors, $data, $old_site = null ) {
 		|| $data['network_id'] !== $old_site->network_id
 	) {
 		if ( domain_exists( $data['domain'], $data['path'], $data['network_id'] ) ) {
-			$errors->add( 'site_taken', __( '抱歉，该站点已存在！' ) );
+			$errors->add( 'site_taken', __( '抱歉，该系统已存在！' ) );
 		}
 	}
 }
@@ -598,7 +629,7 @@ function gc_validate_site_data( $errors, $data, $old_site = null ) {
  * This process includes creating the site's database tables and
  * populating them with defaults.
  *
- *
+ * @since 5.1.0
  *
  * @global gcdb     $gcdb     GeChiUI database abstraction object.
  * @global GC_Roles $gc_roles GeChiUI role management object.
@@ -608,7 +639,7 @@ function gc_validate_site_data( $errors, $data, $old_site = null ) {
  *     Optional. Arguments to modify the initialization behavior.
  *
  *     @type int    $user_id Required. User ID for the site administrator.
- *     @type string $title   Site title. Default is 'Site %d' where %d is the
+ *     @type string $title   Site title. Default is '系统%d' where %d is the
  *                           site ID.
  *     @type array  $options Custom option $key => $value pairs to use. Default
  *                           empty array.
@@ -621,16 +652,16 @@ function gc_initialize_site( $site_id, array $args = array() ) {
 	global $gcdb, $gc_roles;
 
 	if ( empty( $site_id ) ) {
-		return new GC_Error( 'site_empty_id', __( '站点ID不能为空。' ) );
+		return new GC_Error( 'site_empty_id', __( '系统ID不能为空。' ) );
 	}
 
 	$site = get_site( $site_id );
 	if ( ! $site ) {
-		return new GC_Error( 'site_invalid_id', __( '不存在具有此ID的站点。' ) );
+		return new GC_Error( 'site_invalid_id', __( '不存在具有此ID的系统。' ) );
 	}
 
 	if ( gc_is_site_initialized( $site ) ) {
-		return new GC_Error( 'site_already_initialized', __( '此站点看起来已被初始化。' ) );
+		return new GC_Error( 'site_already_initialized', __( '此系统看起来已被初始化。' ) );
 	}
 
 	$network = get_network( $site->network_id );
@@ -643,7 +674,7 @@ function gc_initialize_site( $site_id, array $args = array() ) {
 		array(
 			'user_id' => 0,
 			/* translators: %d: Site ID. */
-			'title'   => sprintf( __( '站点%d' ), $site->id ),
+			'title'   => sprintf( __( '系统%d' ), $site->id ),
 			'options' => array(),
 			'meta'    => array(),
 		)
@@ -652,6 +683,7 @@ function gc_initialize_site( $site_id, array $args = array() ) {
 	/**
 	 * Filters the arguments for initializing a site.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param array      $args    Arguments to modify the initialization behavior.
 	 * @param GC_Site    $site    Site that is being initialized.
@@ -740,7 +772,7 @@ function gc_initialize_site( $site_id, array $args = array() ) {
  *
  * This process includes dropping the site's database tables and deleting its uploads directory.
  *
- *
+ * @since 5.1.0
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -751,16 +783,16 @@ function gc_uninitialize_site( $site_id ) {
 	global $gcdb;
 
 	if ( empty( $site_id ) ) {
-		return new GC_Error( 'site_empty_id', __( '站点ID不能为空。' ) );
+		return new GC_Error( 'site_empty_id', __( '系统ID不能为空。' ) );
 	}
 
 	$site = get_site( $site_id );
 	if ( ! $site ) {
-		return new GC_Error( 'site_invalid_id', __( '不存在具有此ID的站点。' ) );
+		return new GC_Error( 'site_invalid_id', __( '不存在具有此ID的系统。' ) );
 	}
 
 	if ( ! gc_is_site_initialized( $site ) ) {
-		return new GC_Error( 'site_already_uninitialized', __( '此站点看起来没有初始化。' ) );
+		return new GC_Error( 'site_already_uninitialized', __( '此系统看起来没有初始化。' ) );
 	}
 
 	$users = get_users(
@@ -790,7 +822,7 @@ function gc_uninitialize_site( $site_id ) {
 	/**
 	 * Filters the tables to drop when the site is deleted.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param string[] $tables  Array of names of the site tables to be dropped.
 	 * @param int      $site_id The ID of the site to drop tables for.
@@ -804,7 +836,7 @@ function gc_uninitialize_site( $site_id ) {
 	/**
 	 * Filters the upload base directory to delete when the site is deleted.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param string $basedir Uploads path without subdirectory. @see gc_upload_dir()
 	 * @param int    $site_id The site ID.
@@ -862,7 +894,7 @@ function gc_uninitialize_site( $site_id ) {
  *
  * A site is considered initialized when its database tables are present.
  *
- *
+ * @since 5.1.0
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -883,6 +915,7 @@ function gc_is_site_initialized( $site_id ) {
 	 * Returning a non-null value will effectively short-circuit the function, returning
 	 * that value instead.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param bool|null $pre     The value to return instead. Default null
 	 *                           to continue with the check.
@@ -914,8 +947,6 @@ function gc_is_site_initialized( $site_id ) {
 
 /**
  * Clean the blog cache
- *
- *
  *
  * @global bool $_gc_suspend_cache_invalidation
  *
@@ -963,6 +994,7 @@ function clean_blog_cache( $blog ) {
 	/**
 	 * Fires immediately after a site has been removed from the object cache.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string  $id              Site ID as a numeric string.
 	 * @param GC_Site $blog            Site object.
@@ -970,11 +1002,12 @@ function clean_blog_cache( $blog ) {
 	 */
 	do_action( 'clean_site_cache', $blog_id, $blog, $domain_path_key );
 
-	gc_cache_set( 'last_changed', microtime(), 'sites' );
+	gc_cache_set_sites_last_changed();
 
 	/**
 	 * Fires after the blog details cache is cleared.
 	 *
+	 * @since 3.4.0
 	 * @deprecated 4.9.0 Use {@see 'clean_site_cache'} instead.
 	 *
 	 * @param int $blog_id Blog ID.
@@ -985,7 +1018,7 @@ function clean_blog_cache( $blog ) {
 /**
  * Adds metadata to a site.
  *
- *
+ * @since 5.1.0
  *
  * @param int    $site_id    Site ID.
  * @param string $meta_key   Metadata name.
@@ -1005,7 +1038,7 @@ function add_site_meta( $site_id, $meta_key, $meta_value, $unique = false ) {
  * value, will keep from removing duplicate metadata with the same key. It also
  * allows removing all metadata matching key, if needed.
  *
- *
+ * @since 5.1.0
  *
  * @param int    $site_id    Site ID.
  * @param string $meta_key   Metadata name.
@@ -1021,7 +1054,7 @@ function delete_site_meta( $site_id, $meta_key, $meta_value = '' ) {
 /**
  * Retrieves metadata for a site.
  *
- *
+ * @since 5.1.0
  *
  * @param int    $site_id Site ID.
  * @param string $key     Optional. The meta key to retrieve. By default,
@@ -1046,7 +1079,7 @@ function get_site_meta( $site_id, $key = '', $single = false ) {
  *
  * If the meta field for the site does not exist, it will be added.
  *
- *
+ * @since 5.1.0
  *
  * @param int    $site_id    Site ID.
  * @param string $meta_key   Metadata key.
@@ -1065,7 +1098,7 @@ function update_site_meta( $site_id, $meta_key, $meta_value, $prev_value = '' ) 
 /**
  * Deletes everything from site meta matching meta key.
  *
- *
+ * @since 5.1.0
  *
  * @param string $meta_key Metadata key to search for when deleting.
  * @return bool Whether the site meta key was deleted from the database.
@@ -1077,7 +1110,7 @@ function delete_site_meta_by_key( $meta_key ) {
 /**
  * Updates the count of sites for a network based on a changed site.
  *
- *
+ * @since 5.1.0
  *
  * @param GC_Site      $new_site The site object that has been inserted, updated or deleted.
  * @param GC_Site|null $old_site Optional. If $new_site has been updated, this must be the previous
@@ -1098,7 +1131,7 @@ function gc_maybe_update_network_site_counts_on_update( $new_site, $old_site = n
 /**
  * Triggers actions on site status updates.
  *
- *
+ * @since 5.1.0
  *
  * @param GC_Site      $new_site The site object after the update.
  * @param GC_Site|null $old_site Optional. If $new_site has been updated, this must be the previous
@@ -1118,7 +1151,7 @@ function gc_maybe_transition_site_statuses_on_update( $new_site, $old_site = nul
 			/**
 			 * Fires when the 'spam' status is added to a site.
 			 *
-			 * @since MU
+			 * @since MU (3.0.0)
 			 *
 			 * @param int $site_id Site ID.
 			 */
@@ -1128,7 +1161,7 @@ function gc_maybe_transition_site_statuses_on_update( $new_site, $old_site = nul
 			/**
 			 * Fires when the 'spam' status is removed from a site.
 			 *
-			 * @since MU
+			 * @since MU (3.0.0)
 			 *
 			 * @param int $site_id Site ID.
 			 */
@@ -1142,7 +1175,7 @@ function gc_maybe_transition_site_statuses_on_update( $new_site, $old_site = nul
 			/**
 			 * Fires when the 'mature' status is added to a site.
 			 *
-		
+			 * @since 3.1.0
 			 *
 			 * @param int $site_id Site ID.
 			 */
@@ -1152,7 +1185,7 @@ function gc_maybe_transition_site_statuses_on_update( $new_site, $old_site = nul
 			/**
 			 * Fires when the 'mature' status is removed from a site.
 			 *
-		
+			 * @since 3.1.0
 			 *
 			 * @param int $site_id Site ID.
 			 */
@@ -1166,7 +1199,7 @@ function gc_maybe_transition_site_statuses_on_update( $new_site, $old_site = nul
 			/**
 			 * Fires when the 'archived' status is added to a site.
 			 *
-			 * @since MU
+			 * @since MU (3.0.0)
 			 *
 			 * @param int $site_id Site ID.
 			 */
@@ -1176,7 +1209,7 @@ function gc_maybe_transition_site_statuses_on_update( $new_site, $old_site = nul
 			/**
 			 * Fires when the 'archived' status is removed from a site.
 			 *
-			 * @since MU
+			 * @since MU (3.0.0)
 			 *
 			 * @param int $site_id Site ID.
 			 */
@@ -1190,7 +1223,7 @@ function gc_maybe_transition_site_statuses_on_update( $new_site, $old_site = nul
 			/**
 			 * Fires when the 'deleted' status is added to a site.
 			 *
-		
+			 * @since 3.5.0
 			 *
 			 * @param int $site_id Site ID.
 			 */
@@ -1200,7 +1233,7 @@ function gc_maybe_transition_site_statuses_on_update( $new_site, $old_site = nul
 			/**
 			 * Fires when the 'deleted' status is removed from a site.
 			 *
-		
+			 * @since 3.5.0
 			 *
 			 * @param int $site_id Site ID.
 			 */
@@ -1213,10 +1246,11 @@ function gc_maybe_transition_site_statuses_on_update( $new_site, $old_site = nul
 		/**
 		 * Fires after the current blog's 'public' setting is updated.
 		 *
-		 * @since MU
+		 * @since MU (3.0.0)
 		 *
-		 * @param int    $site_id Site ID.
-		 * @param string $value   The value of the site status.
+		 * @param int    $site_id   Site ID.
+		 * @param string $is_public Whether the site is public. A numeric string,
+		 *                          for compatibility reasons. Accepts '1' or '0'.
 		 */
 		do_action( 'update_blog_public', $site_id, $new_site->public );
 	}
@@ -1225,10 +1259,10 @@ function gc_maybe_transition_site_statuses_on_update( $new_site, $old_site = nul
 /**
  * Cleans the necessary caches after specific site data has been updated.
  *
- *
+ * @since 5.1.0
  *
  * @param GC_Site $new_site The site object after the update.
- * @param GC_Site $old_site The site obejct prior to the update.
+ * @param GC_Site $old_site The site object prior to the update.
  */
 function gc_maybe_clean_new_site_cache_on_update( $new_site, $old_site ) {
 	if ( $old_site->domain !== $new_site->domain || $old_site->path !== $new_site->path ) {
@@ -1239,34 +1273,35 @@ function gc_maybe_clean_new_site_cache_on_update( $new_site, $old_site ) {
 /**
  * Updates the `blog_public` option for a given site ID.
  *
+ * @since 5.1.0
  *
- *
- * @param int    $site_id Site ID.
- * @param string $public  The value of the site status.
+ * @param int    $site_id   Site ID.
+ * @param string $is_public Whether the site is public. A numeric string,
+ *                          for compatibility reasons. Accepts '1' or '0'.
  */
-function gc_update_blog_public_option_on_site_update( $site_id, $public ) {
+function gc_update_blog_public_option_on_site_update( $site_id, $is_public ) {
 
 	// Bail if the site's database tables do not exist (yet).
 	if ( ! gc_is_site_initialized( $site_id ) ) {
 		return;
 	}
 
-	update_blog_option( $site_id, 'blog_public', $public );
+	update_blog_option( $site_id, 'blog_public', $is_public );
 }
 
 /**
  * Sets the last changed time for the 'sites' cache group.
  *
- *
+ * @since 5.1.0
  */
 function gc_cache_set_sites_last_changed() {
-	gc_cache_set( 'last_changed', microtime(), 'sites' );
+	gc_cache_set_last_changed( 'sites' );
 }
 
 /**
  * Aborts calls to site meta if it is not supported.
  *
- *
+ * @since 5.1.0
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -1276,7 +1311,7 @@ function gc_cache_set_sites_last_changed() {
 function gc_check_site_meta_support_prefilter( $check ) {
 	if ( ! is_site_meta_supported() ) {
 		/* translators: %s: Database table name. */
-		_doing_it_wrong( __FUNCTION__, sprintf( __( '%s表未被安装。请进行站点网络数据库升级。' ), $GLOBALS['gcdb']->blogmeta ), '5.1.0' );
+		_doing_it_wrong( __FUNCTION__, sprintf( __( '%s表未被安装。请进行系统网络数据库升级。' ), $GLOBALS['gcdb']->blogmeta ), '5.1.0' );
 		return false;
 	}
 

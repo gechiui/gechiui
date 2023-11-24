@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Upgrader
- *
  */
 
 /**
@@ -12,9 +11,7 @@
  *
  * It is designed to upgrade/install plugins from a local zip, remote zip URL,
  * or uploaded zip file.
- *
- *
- *
+ * Moved to its own file from gc-admin/includes/class-gc-upgrader.php.
  *
  * @see GC_Upgrader
  */
@@ -32,6 +29,7 @@ class Plugin_Upgrader extends GC_Upgrader {
 	/**
 	 * Whether a bulk upgrade/installation is being performed.
 	 *
+	 * @since 2.9.0
 	 * @var bool $bulk
 	 */
 	public $bulk = false;
@@ -39,6 +37,7 @@ class Plugin_Upgrader extends GC_Upgrader {
 	/**
 	 * New plugin info.
 	 *
+	 * @since 5.5.0
 	 * @var array $new_plugin_data
 	 *
 	 * @see check_package()
@@ -46,14 +45,14 @@ class Plugin_Upgrader extends GC_Upgrader {
 	public $new_plugin_data = array();
 
 	/**
-	 * Initialize the upgrade strings.
+	 * Initializes the upgrade strings.
 	 *
 	 */
 	public function upgrade_strings() {
 		$this->strings['up_to_date'] = __( '插件已是最新版。' );
 		$this->strings['no_package'] = __( '升级包不可用。' );
 		/* translators: %s: Package URL. */
-		$this->strings['downloading_package']  = sprintf( __( '正在从 %s 下载更新…' ), '<span class="code">%s</span>' );
+		$this->strings['downloading_package']  = sprintf( __( '正在从 %s 下载更新...'  ), '<span class="code pre">%s</span>' );
 		$this->strings['unpack_package']       = __( '正在解压缩升级文件&#8230;' );
 		$this->strings['remove_old']           = __( '正在移除插件的旧版本&#8230;' );
 		$this->strings['remove_old_failed']    = __( '无法移除旧插件。' );
@@ -63,13 +62,13 @@ class Plugin_Upgrader extends GC_Upgrader {
 	}
 
 	/**
-	 * Initialize the installation strings.
+	 * Initializes the installation strings.
 	 *
 	 */
 	public function install_strings() {
 		$this->strings['no_package'] = __( '安装包不可用。' );
 		/* translators: %s: Package URL. */
-		$this->strings['downloading_package'] = sprintf( __( '正在从 %s 下载安装包…' ), '<span class="code">%s</span>' );
+		$this->strings['downloading_package'] = sprintf( __( '正在从 %s 下载安装包...'  ), '<span class="code pre">%s</span>' );
 		$this->strings['unpack_package']      = __( '正在解压缩安装包&#8230;' );
 		$this->strings['installing_package']  = __( '正在安装插件&#8230;' );
 		$this->strings['remove_old']          = __( '正在删除当前版本插件&#8230;' );
@@ -78,11 +77,11 @@ class Plugin_Upgrader extends GC_Upgrader {
 		$this->strings['process_failed']      = __( '插件安装失败。' );
 		$this->strings['process_success']     = __( '插件安装成功。' );
 		/* translators: 1: Plugin name, 2: Plugin version. */
-		$this->strings['process_success_specific'] = __( '成功安装插件<strong>%1$s %2$s</strong>。' );
+		$this->strings['process_success_specific'] = __( '安装插件 <strong>%1$s %2$s</strong> 成功。' );
 
 		if ( ! empty( $this->skin->overwrite ) ) {
 			if ( 'update-plugin' === $this->skin->overwrite ) {
-				$this->strings['installing_package'] = __( '正在升级插件…' );
+				$this->strings['installing_package'] = __( '正在升级插件...'  );
 				$this->strings['process_failed']     = __( '插件升级失败。' );
 				$this->strings['process_success']    = __( '插件升级成功。' );
 			}
@@ -98,6 +97,7 @@ class Plugin_Upgrader extends GC_Upgrader {
 	/**
 	 * Install a plugin package.
 	 *
+	 * @since 3.7.0 The `$args` parameter was added, making clearing the plugin update cache optional.
 	 *
 	 * @param string $package The full local path or URI of the package.
 	 * @param array  $args {
@@ -153,7 +153,7 @@ class Plugin_Upgrader extends GC_Upgrader {
 			 * Fires when the upgrader has successfully overwritten a currently installed
 			 * plugin or theme with an uploaded zip package.
 			 *
-		
+			 * @since 5.5.0
 			 *
 			 * @param string  $package      The package file.
 			 * @param array   $data         The new plugin or theme data.
@@ -166,8 +166,9 @@ class Plugin_Upgrader extends GC_Upgrader {
 	}
 
 	/**
-	 * Upgrade a plugin.
+	 * Upgrades a plugin.
 	 *
+	 * @since 3.7.0 The `$args` parameter was added, making clearing the plugin update cache optional.
 	 *
 	 * @param string $plugin Path to the plugin file relative to the plugins directory.
 	 * @param array  $args {
@@ -203,8 +204,10 @@ class Plugin_Upgrader extends GC_Upgrader {
 		add_filter( 'upgrader_pre_install', array( $this, 'active_before' ), 10, 2 );
 		add_filter( 'upgrader_clear_destination', array( $this, 'delete_old_plugin' ), 10, 4 );
 		add_filter( 'upgrader_post_install', array( $this, 'active_after' ), 10, 2 );
-		// There's a Trac ticket to move up the directory for zips which are made a bit differently, useful for non-.org plugins.
-		// 'source_selection' => array( $this, 'source_selection' ),
+		/*
+		 * There's a Trac ticket to move up the directory for zips which are made a bit differently, useful for non-.org plugins.
+		 * 'source_selection' => array( $this, 'source_selection' ),
+		 */
 		if ( $parsed_args['clear_update_cache'] ) {
 			// Clear cache so gc_update_plugins() knows about the new plugin.
 			add_action( 'upgrader_process_complete', 'gc_clean_plugins_cache', 9, 0 );
@@ -217,14 +220,19 @@ class Plugin_Upgrader extends GC_Upgrader {
 				'clear_destination' => true,
 				'clear_working'     => true,
 				'hook_extra'        => array(
-					'plugin' => $plugin,
-					'type'   => 'plugin',
-					'action' => 'update',
+					'plugin'      => $plugin,
+					'type'        => 'plugin',
+					'action'      => 'update',
+					'temp_backup' => array(
+						'slug' => dirname( $plugin ),
+						'src'  => GC_PLUGIN_DIR,
+						'dir'  => 'plugins',
+					),
 				),
 			)
 		);
 
-		// Cleanup our hooks, in case something else does a upgrade on this connection.
+		// Cleanup our hooks, in case something else does an upgrade on this connection.
 		remove_action( 'upgrader_process_complete', 'gc_clean_plugins_cache', 9 );
 		remove_filter( 'upgrader_pre_install', array( $this, 'deactivate_plugin_before_upgrade' ) );
 		remove_filter( 'upgrader_pre_install', array( $this, 'active_before' ) );
@@ -238,8 +246,10 @@ class Plugin_Upgrader extends GC_Upgrader {
 		// Force refresh of plugin update information.
 		gc_clean_plugins_cache( $parsed_args['clear_update_cache'] );
 
-		// Ensure any future auto-update failures trigger a failure email by removing
-		// the last failure notification from the list when plugins update successfully.
+		/*
+		 * Ensure any future auto-update failures trigger a failure email by removing
+		 * the last failure notification from the list when plugins update successfully.
+		 */
 		$past_failure_emails = get_option( 'auto_plugin_theme_update_emails', array() );
 
 		if ( isset( $past_failure_emails[ $plugin ] ) ) {
@@ -251,8 +261,9 @@ class Plugin_Upgrader extends GC_Upgrader {
 	}
 
 	/**
-	 * Bulk upgrade several plugins at once.
+	 * Upgrades several plugins at once.
 	 *
+	 * @since 3.7.0 The `$args` parameter was added, making clearing the plugin update cache optional.
 	 *
 	 * @param string[] $plugins Array of paths to plugin files relative to the plugins directory.
 	 * @param array    $args {
@@ -331,7 +342,12 @@ class Plugin_Upgrader extends GC_Upgrader {
 					'clear_working'     => true,
 					'is_multi'          => true,
 					'hook_extra'        => array(
-						'plugin' => $plugin,
+						'plugin'      => $plugin,
+						'temp_backup' => array(
+							'slug' => dirname( $plugin ),
+							'src'  => GC_PLUGIN_DIR,
+							'dir'  => 'plugins',
+						),
 					),
 				)
 			);
@@ -365,11 +381,13 @@ class Plugin_Upgrader extends GC_Upgrader {
 
 		$this->skin->footer();
 
-		// Cleanup our hooks, in case something else does a upgrade on this connection.
+		// Cleanup our hooks, in case something else does an upgrade on this connection.
 		remove_filter( 'upgrader_clear_destination', array( $this, 'delete_old_plugin' ) );
 
-		// Ensure any future auto-update failures trigger a failure email by removing
-		// the last failure notification from the list when plugins update successfully.
+		/*
+		 * Ensure any future auto-update failures trigger a failure email by removing
+		 * the last failure notification from the list when plugins update successfully.
+		 */
 		$past_failure_emails = get_option( 'auto_plugin_theme_update_emails', array() );
 
 		foreach ( $results as $plugin => $result ) {
@@ -435,7 +453,7 @@ class Plugin_Upgrader extends GC_Upgrader {
 			$error = sprintf(
 				/* translators: 1: Current PHP version, 2: Version required by the uploaded plugin. */
 				__( '您的服务器PHP版本为%1$s，然而上传的插件要求版本为%2$s。' ),
-				phpversion(),
+				PHP_VERSION,
 				$requires_php
 			);
 
@@ -457,7 +475,7 @@ class Plugin_Upgrader extends GC_Upgrader {
 	}
 
 	/**
-	 * Retrieve the path to the file that contains the plugin info.
+	 * Retrieves the path to the file that contains the plugin info.
 	 *
 	 * This isn't used internally in the class, but is called by the skins.
 	 *
@@ -489,20 +507,21 @@ class Plugin_Upgrader extends GC_Upgrader {
 	 *
 	 * Hooked to the {@see 'upgrader_pre_install'} filter by Plugin_Upgrader::upgrade().
 	 *
+	 * @since 4.1.0 Added a return value.
 	 *
-	 * @param bool|GC_Error $return Upgrade offer return.
-	 * @param array         $plugin Plugin package arguments.
-	 * @return bool|GC_Error The passed in $return param or GC_Error.
+	 * @param bool|GC_Error $response The installation response before the installation has started.
+	 * @param array         $plugin   Plugin package arguments.
+	 * @return bool|GC_Error The original `$response` parameter or GC_Error.
 	 */
-	public function deactivate_plugin_before_upgrade( $return, $plugin ) {
+	public function deactivate_plugin_before_upgrade( $response, $plugin ) {
 
-		if ( is_gc_error( $return ) ) { // Bypass.
-			return $return;
+		if ( is_gc_error( $response ) ) { // Bypass.
+			return $response;
 		}
 
 		// When in cron (background updates) don't deactivate the plugin, as we require a browser to reactivate it.
 		if ( gc_doing_cron() ) {
-			return $return;
+			return $response;
 		}
 
 		$plugin = isset( $plugin['plugin'] ) ? $plugin['plugin'] : '';
@@ -515,7 +534,7 @@ class Plugin_Upgrader extends GC_Upgrader {
 			deactivate_plugins( $plugin, true );
 		}
 
-		return $return;
+		return $response;
 	}
 
 	/**
@@ -523,26 +542,27 @@ class Plugin_Upgrader extends GC_Upgrader {
 	 *
 	 * Hooked to the {@see 'upgrader_pre_install'} filter by Plugin_Upgrader::upgrade().
 	 *
+	 * @since 5.4.0
 	 *
-	 * @param bool|GC_Error $return Upgrade offer return.
-	 * @param array         $plugin Plugin package arguments.
-	 * @return bool|GC_Error The passed in $return param or GC_Error.
+	 * @param bool|GC_Error $response The installation response before the installation has started.
+	 * @param array         $plugin   Plugin package arguments.
+	 * @return bool|GC_Error The original `$response` parameter or GC_Error.
 	 */
-	public function active_before( $return, $plugin ) {
-		if ( is_gc_error( $return ) ) {
-			return $return;
+	public function active_before( $response, $plugin ) {
+		if ( is_gc_error( $response ) ) {
+			return $response;
 		}
 
 		// Only enable maintenance mode when in cron (background update).
 		if ( ! gc_doing_cron() ) {
-			return $return;
+			return $response;
 		}
 
 		$plugin = isset( $plugin['plugin'] ) ? $plugin['plugin'] : '';
 
 		// Only run if plugin is active.
 		if ( ! is_plugin_active( $plugin ) ) {
-			return $return;
+			return $response;
 		}
 
 		// Change to maintenance mode. Bulk edit handles this separately.
@@ -550,7 +570,7 @@ class Plugin_Upgrader extends GC_Upgrader {
 			$this->maintenance_mode( true );
 		}
 
-		return $return;
+		return $response;
 	}
 
 	/**
@@ -558,26 +578,27 @@ class Plugin_Upgrader extends GC_Upgrader {
 	 *
 	 * Hooked to the {@see 'upgrader_post_install'} filter by Plugin_Upgrader::upgrade().
 	 *
+	 * @since 5.4.0
 	 *
-	 * @param bool|GC_Error $return Upgrade offer return.
-	 * @param array         $plugin Plugin package arguments.
-	 * @return bool|GC_Error The passed in $return param or GC_Error.
+	 * @param bool|GC_Error $response The installation response after the installation has finished.
+	 * @param array         $plugin   Plugin package arguments.
+	 * @return bool|GC_Error The original `$response` parameter or GC_Error.
 	 */
-	public function active_after( $return, $plugin ) {
-		if ( is_gc_error( $return ) ) {
-			return $return;
+	public function active_after( $response, $plugin ) {
+		if ( is_gc_error( $response ) ) {
+			return $response;
 		}
 
 		// Only disable maintenance mode when in cron (background update).
 		if ( ! gc_doing_cron() ) {
-			return $return;
+			return $response;
 		}
 
 		$plugin = isset( $plugin['plugin'] ) ? $plugin['plugin'] : '';
 
-		// Only run if plugin is active
+		// Only run if plugin is active.
 		if ( ! is_plugin_active( $plugin ) ) {
-			return $return;
+			return $response;
 		}
 
 		// Time to remove maintenance mode. Bulk edit handles this separately.
@@ -585,7 +606,7 @@ class Plugin_Upgrader extends GC_Upgrader {
 			$this->maintenance_mode( false );
 		}
 
-		return $return;
+		return $response;
 	}
 
 	/**
@@ -623,8 +644,10 @@ class Plugin_Upgrader extends GC_Upgrader {
 			return $removed;
 		}
 
-		// If plugin is in its own directory, recursively delete the directory.
-		// Base check on if plugin includes directory separator AND that it's not the root plugin folder.
+		/*
+		 * If plugin is in its own directory, recursively delete the directory.
+		 * Base check on if plugin includes directory separator AND that it's not the root plugin folder.
+		 */
 		if ( strpos( $plugin, '/' ) && $this_plugin_dir !== $plugins_dir ) {
 			$deleted = $gc_filesystem->delete( $this_plugin_dir, true );
 		} else {

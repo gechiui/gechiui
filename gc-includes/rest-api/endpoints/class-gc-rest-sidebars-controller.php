@@ -6,13 +6,13 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
+ * @since 5.8.0
  */
 
 /**
  * Core class used to manage a site's sidebars.
  *
- *
+ * @since 5.8.0
  *
  * @see GC_REST_Controller
  */
@@ -21,6 +21,7 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 	/**
 	 * Tracks whether {@see retrieve_widgets()} has been called in the current request.
 	 *
+	 * @since 5.9.0
 	 * @var bool
 	 */
 	protected $widgets_retrieved = false;
@@ -28,6 +29,7 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 	/**
 	 * Sidebars controller constructor.
 	 *
+	 * @since 5.8.0
 	 */
 	public function __construct() {
 		$this->namespace = 'gc/v2';
@@ -37,6 +39,7 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the controllers routes.
 	 *
+	 * @since 5.8.0
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -85,6 +88,7 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to get sidebars.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -109,6 +113,7 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the list of sidebars (active or inactive).
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response Response object on success.
@@ -141,6 +146,7 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to get a single sidebar.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -159,6 +165,7 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a sidebar can be read publicly.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param array $sidebar The registered sidebar configuration.
 	 * @return bool Whether the side can be read.
@@ -170,6 +177,7 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves one sidebar from the collection.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -188,6 +196,7 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to update sidebars.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -199,6 +208,7 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 	/**
 	 * Updates a sidebar.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response Response object on success, or GC_Error object on failure.
@@ -233,6 +243,7 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 		/**
 		 * Fires after a sidebar is updated via the REST API.
 		 *
+		 * @since 5.8.0
 		 *
 		 * @param array           $sidebar The updated sidebar.
 		 * @param GC_REST_Request $request Request object.
@@ -245,12 +256,15 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if the user has permissions to make the request.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
 	 */
 	protected function do_permissions_check() {
-		// Verify if the current user has edit_theme_options capability.
-		// This capability is required to access the widgets screen.
+		/*
+		 * Verify if the current user has edit_theme_options capability.
+		 * This capability is required to access the widgets screen.
+		 */
 		if ( ! current_user_can( 'edit_theme_options' ) ) {
 			return new GC_Error(
 				'rest_cannot_manage_widgets',
@@ -265,6 +279,7 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the registered sidebar with the given id.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param string|int $id ID of the sidebar.
 	 * @return array|null The discovered sidebar, or null if it is not registered.
@@ -276,6 +291,7 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 	/**
 	 * Looks for "lost" widgets once per request.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @see retrieve_widgets()
 	 */
@@ -289,6 +305,8 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a single sidebar output for response.
 	 *
+	 * @since 5.8.0
+	 * @since 5.9.0 Renamed `$raw_sidebar` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @global array $gc_registered_sidebars The registered sidebars.
 	 * @global array $gc_registered_widgets  The registered widgets.
@@ -323,6 +341,10 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 			$sidebar['class']       = '';
 		}
 
+		if ( gc_is_block_theme() ) {
+			$sidebar['status'] = 'inactive';
+		}
+
 		$fields = $this->get_fields_for_response( $request );
 		if ( rest_is_field_included( 'widgets', $fields ) ) {
 			$sidebars = gc_get_sidebars_widgets();
@@ -352,11 +374,14 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 
 		$response = rest_ensure_response( $data );
 
-		$response->add_links( $this->prepare_links( $sidebar ) );
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$response->add_links( $this->prepare_links( $sidebar ) );
+		}
 
 		/**
 		 * Filters the REST API response for a sidebar.
 		 *
+		 * @since 5.8.0
 		 *
 		 * @param GC_REST_Response $response    The response object.
 		 * @param array            $raw_sidebar The raw sidebar data.
@@ -368,6 +393,7 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares links for the sidebar.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param array $sidebar Sidebar.
 	 * @return array Links for the given widget.
@@ -390,6 +416,7 @@ class GC_REST_Sidebars_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the block type' schema, conforming to JSON Schema.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @return array Item schema data.
 	 */

@@ -3,19 +3,21 @@
  * Error Protection API: GC_Recovery_Mode_Cookie_Service class
  *
  * @package GeChiUI
- *
+ * @since 5.2.0
  */
 
 /**
  * Core class used to set, validate, and clear cookies that identify a Recovery Mode session.
  *
- *
+ * @since 5.2.0
  */
+#[AllowDynamicProperties]
 final class GC_Recovery_Mode_Cookie_Service {
 
 	/**
 	 * Checks whether the recovery mode cookie is set.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return bool True if the cookie is set, false otherwise.
 	 */
@@ -28,6 +30,7 @@ final class GC_Recovery_Mode_Cookie_Service {
 	 *
 	 * This must be immediately followed by exiting the request.
 	 *
+	 * @since 5.2.0
 	 */
 	public function set_cookie() {
 
@@ -36,6 +39,7 @@ final class GC_Recovery_Mode_Cookie_Service {
 		/**
 		 * Filters the length of time a Recovery Mode cookie is valid for.
 		 *
+		 * @since 5.2.0
 		 *
 		 * @param int $length Length in seconds.
 		 */
@@ -53,6 +57,7 @@ final class GC_Recovery_Mode_Cookie_Service {
 	/**
 	 * Clears the recovery mode cookie.
 	 *
+	 * @since 5.2.0
 	 */
 	public function clear_cookie() {
 		setcookie( RECOVERY_MODE_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
@@ -62,6 +67,7 @@ final class GC_Recovery_Mode_Cookie_Service {
 	/**
 	 * Validates the recovery mode cookie.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param string $cookie Optionally specify the cookie string.
 	 *                       If omitted, it will be retrieved from the super global.
@@ -111,6 +117,7 @@ final class GC_Recovery_Mode_Cookie_Service {
 	 *
 	 * The cookie should be validated before calling this API.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param string $cookie Optionally specify the cookie string.
 	 *                       If omitted, it will be retrieved from the super global.
@@ -138,6 +145,7 @@ final class GC_Recovery_Mode_Cookie_Service {
 	/**
 	 * Parses the cookie into its four parts.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param string $cookie Cookie content.
 	 * @return array|GC_Error Cookie parts array, or error object on failure.
@@ -165,6 +173,7 @@ final class GC_Recovery_Mode_Cookie_Service {
 	 * rand is a randomly generated password that is also used as a session identifier
 	 * and signature is an hmac of the preceding 3 parts.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return string Generated cookie content.
 	 */
@@ -183,12 +192,25 @@ final class GC_Recovery_Mode_Cookie_Service {
 	 *
 	 * This tries to use the `AUTH` salts first, but if they aren't valid specific salts will be generated and stored.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param string $data Data to hash.
 	 * @return string|false The hashed $data, or false on failure.
 	 */
 	private function recovery_mode_hash( $data ) {
-		if ( ! defined( 'AUTH_KEY' ) || AUTH_KEY === 'put your unique phrase here' ) {
+		$default_keys = array_unique(
+			array(
+				'将您的独特字串放在这里',
+				/*
+				 * translators: This string should only be translated if gc-config-sample.php is localized.
+				 * You can check the localized release package or
+				 * https://i18n.svn.gechiui.com/<locale code>/branches/<gc version>/dist/gc-config-sample.php
+				 */
+				__( '将您的独特字串放在这里' ),
+			)
+		);
+
+		if ( ! defined( 'AUTH_KEY' ) || in_array( AUTH_KEY, $default_keys, true ) ) {
 			$auth_key = get_site_option( 'recovery_mode_auth_key' );
 
 			if ( ! $auth_key ) {
@@ -203,7 +225,7 @@ final class GC_Recovery_Mode_Cookie_Service {
 			$auth_key = AUTH_KEY;
 		}
 
-		if ( ! defined( 'AUTH_SALT' ) || AUTH_SALT === 'put your unique phrase here' || AUTH_SALT === $auth_key ) {
+		if ( ! defined( 'AUTH_SALT' ) || in_array( AUTH_SALT, $default_keys, true ) || AUTH_SALT === $auth_key ) {
 			$auth_salt = get_site_option( 'recovery_mode_auth_salt' );
 
 			if ( ! $auth_salt ) {

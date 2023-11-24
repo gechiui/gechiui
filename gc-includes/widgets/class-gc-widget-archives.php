@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class used to implement the Archives widget.
- *
- *
  *
  * @see GC_Widget
  */
@@ -23,7 +20,7 @@ class GC_Widget_Archives extends GC_Widget {
 	public function __construct() {
 		$widget_ops = array(
 			'classname'                   => 'widget_archive',
-			'description'                 => __( '您站点文章的月度归档。' ),
+			'description'                 => __( '您文章的月度归档。' ),
 			'customize_selective_refresh' => true,
 			'show_instance_in_rest'       => true,
 		);
@@ -63,8 +60,8 @@ class GC_Widget_Archives extends GC_Widget {
 			/**
 			 * Filters the arguments for the Archives widget drop-down.
 			 *
-		
-		
+			 * @since 2.8.0
+			 * @since 4.9.0 Added the `$instance` parameter.
 			 *
 			 * @see gc_get_archives()
 			 *
@@ -141,8 +138,8 @@ class GC_Widget_Archives extends GC_Widget {
 					/**
 					 * Filters the arguments for the Archives widget.
 					 *
-				
-				
+					 * @since 2.8.0
+					 * @since 4.9.0 Added the `$instance` parameter.
 					 *
 					 * @see gc_get_archives()
 					 *
@@ -219,7 +216,7 @@ class GC_Widget_Archives extends GC_Widget {
 		<p>
 			<input class="checkbox" type="checkbox"<?php checked( $instance['dropdown'] ); ?> id="<?php echo $this->get_field_id( 'dropdown' ); ?>" name="<?php echo $this->get_field_name( 'dropdown' ); ?>" />
 			<label for="<?php echo $this->get_field_id( 'dropdown' ); ?>"><?php _e( '以下拉菜单显示' ); ?></label>
-			<br/>
+			<br />
 			<input class="checkbox" type="checkbox"<?php checked( $instance['count'] ); ?> id="<?php echo $this->get_field_id( 'count' ); ?>" name="<?php echo $this->get_field_name( 'count' ); ?>" />
 			<label for="<?php echo $this->get_field_id( 'count' ); ?>"><?php _e( '显示文章数目' ); ?></label>
 		</p>

@@ -4,7 +4,7 @@
  *
  * @package GeChiUI
  * @subpackage Theme
- *
+ * @since 5.9.0
  */
 
 /**
@@ -14,9 +14,10 @@
  * This is a low-level API that may need to do breaking changes. Please,
  * use get_global_settings, get_global_styles, and get_global_stylesheet instead.
  *
- *
+ * @since 5.9.0
  * @access private
  */
+#[AllowDynamicProperties]
 class GC_Theme_JSON_Schema {
 
 	/**
@@ -33,6 +34,7 @@ class GC_Theme_JSON_Schema {
 	/**
 	 * Function that migrates a given theme.json structure to the last version.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param array $theme_json The structure to migrate.
 	 *
@@ -61,6 +63,7 @@ class GC_Theme_JSON_Schema {
 	 * 'spacing.customPadding'       => 'spacing.padding',
 	 * 'typography.customLineHeight' => 'typography.lineHeight',
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param array $old Data to migrate.
 	 *
@@ -84,6 +87,7 @@ class GC_Theme_JSON_Schema {
 	/**
 	 * Processes the settings subtree.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param array $settings        Array to process.
 	 * @param array $paths_to_rename Paths to rename.
@@ -109,6 +113,7 @@ class GC_Theme_JSON_Schema {
 	/**
 	 * Processes a settings array, renaming or moving properties.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param array $settings        Reference to settings either defaults or an individual block's.
 	 * @param array $paths_to_rename Paths to rename.
@@ -129,11 +134,10 @@ class GC_Theme_JSON_Schema {
 	/**
 	 * Removes a property from within the provided settings by its path.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param array $settings Reference to the current settings array.
 	 * @param array $path Path to the property to be removed.
-	 *
-	 * @return void
 	 */
 	private static function unset_setting_by_path( &$settings, $path ) {
 		$tmp_settings = &$settings; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable

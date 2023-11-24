@@ -4,7 +4,7 @@
  * For deleting tags it makes a request to the server to delete the tag.
  * For adding tags it makes a request to the server to add the tag.
  *
- * @output gc-admin/js/tags.js
+ * @output assets/js/tags.js
  */
 
  /* global ajaxurl, gcAjax, showNotice, validateForm */
@@ -18,6 +18,7 @@ jQuery( function($) {
 	 *
 	 * Cancels default event handling and event bubbling.
 	 *
+	 * @since 2.8.0
 	 *
 	 * @return {boolean} Always returns false to cancel the default event handling.
 	 */
@@ -72,6 +73,7 @@ jQuery( function($) {
 	/**
 	 * Adds a deletion confirmation when removing a tag.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @return {void}
 	 */
@@ -92,14 +94,12 @@ jQuery( function($) {
 	 *
 	 * Cancels default event handling and event bubbling.
 	 *
+	 * @since 2.8.0
 	 *
 	 * @return {boolean} Always returns false to cancel the default event handling.
 	 */
 	$('#submit').on( 'click', function(){
 		var form = $(this).parents('form');
-
-		if ( ! validateForm( form ) )
-			return false;
 
 		if ( addingTerm ) {
 			// If we're adding a term, noop the button to avoid duplicate requests.
@@ -124,8 +124,14 @@ jQuery( function($) {
 
 			$('#ajax-response').empty();
 			res = gcAjax.parseAjaxResponse( r, 'ajax-response' );
-			if ( ! res || res.errors )
+
+			if ( res.errors && res.responses[0].errors[0].code === 'empty_term_name' ) {
+				validateForm( form );
+			}
+
+			if ( ! res || res.errors ) {
 				return;
+			}
 
 			parent = form.find( 'select#parent' ).val();
 
@@ -152,7 +158,7 @@ jQuery( function($) {
 				form.find( 'select#parent option:selected' ).after( '<option value="' + term.term_id + '">' + indent + term.name + '</option>' );
 			}
 
-			$('input[type="text"]:visible, textarea:visible', form).val('');
+			$('input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]):visible, textarea:visible', form).val('');
 		});
 
 		return false;

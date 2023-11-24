@@ -9,7 +9,7 @@ return array(
 	'title'      => _x( '网格', 'Block pattern title' ),
 	'blockTypes' => array( 'core/query' ),
 	'categories' => array( 'query' ),
-	'content'    => '<!-- gc:query {"query":{"perPage":6,"pages":0,"offset":0,"postType":"post","categoryIds":[],"tagIds":[],"order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"exclude","inherit":false},"displayLayout":{"type":"flex","columns":3}} -->
+	'content'    => '<!-- gc:query {"query":{"perPage":6,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"exclude","inherit":false},"displayLayout":{"type":"flex","columns":3}} -->
 					<div class="gc-block-query">
 					<!-- gc:post-template -->
 					<!-- gc:group {"style":{"spacing":{"padding":{"top":"30px","right":"30px","bottom":"30px","left":"30px"}}},"layout":{"inherit":false}} -->

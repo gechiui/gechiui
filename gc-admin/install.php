@@ -27,7 +27,6 @@ if ( false ) {
 /**
  * We are installing GeChiUI.
  *
- *
  * @var bool
  */
 define( 'GC_INSTALLING', true );
@@ -50,7 +49,6 @@ $step = isset( $_GET['step'] ) ? (int) $_GET['step'] : 0;
 
 /**
  * Display installation header.
- *
  *
  *
  * @param string $body_classes
@@ -83,7 +81,6 @@ function display_header( $body_classes = '' ) {
  * Display installer setup form.
  *
  *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param string|null $error
@@ -111,7 +108,7 @@ function display_setup_form( $error = null ) {
 <form id="setup" method="post" action="install.php?step=2" novalidate="novalidate">
 	<table class="form-table" role="presentation">
 		<tr>
-			<th scope="row"><label for="weblog_title"><?php _e( '站点标题' ); ?></label></th>
+			<th scope="row"><label for="weblog_title"><?php _e( '系统标题' ); ?></label></th>
 			<td><input name="weblog_title" type="text" id="weblog_title" size="25" value="<?php echo esc_attr( $weblog_title ); ?>" /></td>
 		</tr>
 		<tr>
@@ -140,12 +137,15 @@ function display_setup_form( $error = null ) {
 			<td>
 				<div class="gc-pwd">
 					<?php $initial_password = isset( $_POST['admin_password'] ) ? stripslashes( $_POST['admin_password'] ) : gc_generate_password( 18 ); ?>
-					<input type="password" name="admin_password" id="pass1" class="regular-text" autocomplete="off" data-reveal="1" data-pw="<?php echo esc_attr( $initial_password ); ?>" aria-describedby="pass-strength-result" />
+					<span class="password-input-wrapper">
+						<input type="password" name="admin_password" id="pass1" class="regular-text" autocomplete="off" data-reveal="1" data-pw="<?php echo esc_attr( $initial_password ); ?>" aria-describedby="pass-strength-result" />
+						<div id="pass-strength-result" aria-live="polite"></div>
+					</span>
 					<button type="button" class="button gc-hide-pw hide-if-no-js" data-start-masked="<?php echo (int) isset( $_POST['admin_password'] ); ?>" data-toggle="0" aria-label="<?php esc_attr_e( '隐藏密码' ); ?>">
 						<span class="dashicons dashicons-hidden"></span>
 						<span class="text"><?php _e( '隐藏' ); ?></span>
 					</button>
-					<div id="pass-strength-result" aria-live="polite"></div>
+					
 				</div>
 				<p><span class="description important hide-if-no-js">
 				<strong><?php _e( '重要：' ); ?></strong>
@@ -179,32 +179,32 @@ function display_setup_form( $error = null ) {
 			<p><?php _e( '请仔细检查电子邮箱后再继续。' ); ?></p></td>
 		</tr>
 		<tr>
-			<th scope="row"><?php has_action( 'blog_privacy_selector' ) ? _e( '站点可见性' ) : _e( '对搜索引擎的可见性' ); ?></th>
+			<th scope="row"><?php has_action( 'blog_privacy_selector' ) ? _e( '系统可见性' ) : _e( '搜索引擎' ); ?></th>
 			<td>
 				<fieldset>
-					<legend class="screen-reader-text"><span><?php has_action( 'blog_privacy_selector' ) ? _e( '站点可见性' ) : _e( '对搜索引擎的可见性' ); ?> </span></legend>
+					<legend class="screen-reader-text"><span><?php has_action( 'blog_privacy_selector' ) ? _e( '系统可见性' ) : _e( '搜索引擎' ); ?> </span></legend>
 					<?php
 					if ( has_action( 'blog_privacy_selector' ) ) {
 						?>
 						<input id="blog-public" type="radio" name="blog_public" value="1" <?php checked( 1, $blog_public ); ?> />
-						<label for="blog-public"><?php _e( '允许搜索引擎索引本站点' ); ?></label><br/>
+						<label for="blog-public"><?php _e( '允许搜索引擎索引本系统' ); ?></label><br/>
 						<input id="blog-norobots" type="radio" name="blog_public" value="0" <?php checked( 0, $blog_public ); ?> />
-						<label for="blog-norobots"><?php _e( '建议搜索引擎不索引本站点' ); ?></label>
-						<p class="description"><?php _e( '注意：这些设置并不能彻底防止搜索引擎访问您的站点——具体行为还取决于它们是否遵循您的要求。' ); ?></p>
+						<label for="blog-norobots"><?php _e( '建议搜索引擎不索引本系统' ); ?></label>
+						<p class="description"><?php _e( '注意：这些设置并不能彻底防止搜索引擎访问您的系统——具体行为还取决于它们是否遵循您的要求。' ); ?></p>
 						<?php
 						/** This action is documented in gc-admin/options-reading.php */
 						do_action( 'blog_privacy_selector' );
 					} else {
 						?>
 						<label for="blog_public"><input name="blog_public" type="checkbox" id="blog_public" value="0" <?php checked( 0, $blog_public ); ?> />
-						<?php _e( '建议搜索引擎不索引本站点' ); ?></label>
+						<?php _e( '建议搜索引擎不索引本系统' ); ?></label>
 						<p class="description"><?php _e( '搜索引擎将本着自觉自愿的原则对待GeChiUI提出的请求。并不是所有搜索引擎都会遵守这类请求。' ); ?></p>
 					<?php } ?>
 				</fieldset>
 			</td>
 		</tr>
 	</table>
-	<p class="step"><?php submit_button( __( '安装GeChiUI' ), 'large', 'Submit', false, array( 'id' => 'submit' ) ); ?></p>
+	<p class="step"><?php submit_button( __( '安装GeChiUI' ), 'primary', 'Submit', false, array( 'id' => 'submit' ) ); ?></p>
 	<input type="hidden" name="language" value="<?php echo isset( $_REQUEST['language'] ) ? esc_attr( $_REQUEST['language'] ) : ''; ?>" />
 </form>
 	<?php
@@ -216,7 +216,7 @@ if ( is_blog_installed() ) {
 	die(
 		'<h1>' . __( '已安装过' ) . '</h1>' .
 		'<p>' . __( '您的GeChiUI看起来已经安装妥当。如果想重新安装，请删除数据库中的旧数据表。' ) . '</p>' .
-		'<p class="step"><a href="' . esc_url( gc_login_url() ) . '" class="button button-large">' . __( '登录' ) . '</a></p>' .
+		'<p class="step"><a href="' . esc_url( gc_login_url() ) . '" class="btn btn-primary">' . __( '登录' ) . '</a></p>' .
 		'</body></html>'
 	);
 }
@@ -355,9 +355,9 @@ switch ( $step ) {
 		display_header();
 		?>
 <h1><?php _ex( '欢迎', 'Howdy' ); ?></h1>
-<p><?php _e( '欢迎使用著名的GeChiUI五分钟安装程序！请简单地填写下面的表单，来开始使用这个世界上最具扩展性、最强大的个人信息发布平台。' ); ?></p>
+<p><?php _e( '欢迎使用GeChiUI五分钟安装程序！请简单地填写下面的表单，来开始使用格尺・后台开发框架。' ); ?></p>
 
-<h2><?php _e( '需要信息' ); ?></h2>
+<h4><?php _e( '需要信息' ); ?></h4>
 <p><?php _e( '您需要填写一些基本信息。无需担心填错，这些信息以后可以再次修改。' ); ?></p>
 
 		<?php
@@ -434,7 +434,7 @@ switch ( $step ) {
 	</tr>
 </table>
 
-<p class="step"><a href="<?php echo esc_url( gc_login_url() ); ?>" class="button button-large"><?php _e( '登录' ); ?></a></p>
+<p class="step"><a href="<?php echo esc_url( gc_login_url() ); ?>" class="btn btn-primary"><?php _e( '登录' ); ?></a></p>
 
 			<?php
 		}

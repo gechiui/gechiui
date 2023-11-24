@@ -1,0 +1,92 @@
+.gc-block[data-align=center]>.gc-block-button{
+  margin-left:auto;
+  margin-right:auto;
+  text-align:center;
+}
+
+.gc-block[data-align=right]>.gc-block-button{
+  text-align:right;
+}
+
+.gc-block-button{
+  cursor:text;
+  position:relative;
+}
+.gc-block-button:focus{
+  box-shadow:0 0 0 1px #fff, 0 0 0 3px var(--gc-admin-theme-color);
+  outline:2px solid transparent;
+  outline-offset:-2px;
+}
+.gc-block-button[data-rich-text-placeholder]:after{
+  opacity:.8;
+}
+
+.gc-block-button__inline-link{
+  color:#757575;
+  height:0;
+  max-width:290px;
+  overflow:hidden;
+}
+.gc-block-button__inline-link-input__suggestions{
+  max-width:290px;
+}
+@media (min-width:782px){
+  .gc-block-button__inline-link,.gc-block-button__inline-link-input__suggestions{
+    max-width:260px;
+  }
+}
+@media (min-width:960px){
+  .gc-block-button__inline-link,.gc-block-button__inline-link-input__suggestions{
+    max-width:290px;
+  }
+}
+.is-selected .gc-block-button__inline-link{
+  height:auto;
+  overflow:visible;
+}
+
+.gc-button-label__width .components-button-group{
+  display:block;
+}
+.gc-button-label__width .components-base-control__field{
+  margin-bottom:12px;
+}
+
+div[data-type="core/button"]{
+  display:table;
+}
+
+.editor-styles-wrapper .gc-block-button[style*=text-decoration] .gc-block-button__link{
+  text-decoration:inherit;
+}
+
+.editor-styles-wrapper .gc-block-button .gc-block-button__link:where(.has-border-color){
+  border-width:initial;
+}
+.editor-styles-wrapper .gc-block-button .gc-block-button__link:where([style*=border-top-color]){
+  border-top-width:medium;
+}
+.editor-styles-wrapper .gc-block-button .gc-block-button__link:where([style*=border-right-color]){
+  border-right-width:medium;
+}
+.editor-styles-wrapper .gc-block-button .gc-block-button__link:where([style*=border-bottom-color]){
+  border-bottom-width:medium;
+}
+.editor-styles-wrapper .gc-block-button .gc-block-button__link:where([style*=border-left-color]){
+  border-left-width:medium;
+}
+.editor-styles-wrapper .gc-block-button .gc-block-button__link:where([style*=border-style]){
+  border-width:initial;
+}
+.editor-styles-wrapper .gc-block-button .gc-block-button__link:where([style*=border-top-style]){
+  border-top-width:medium;
+}
+.editor-styles-wrapper .gc-block-button .gc-block-button__link:where([style*=border-right-style]){
+  border-right-width:medium;
+}
+.editor-styles-wrapper .gc-block-button .gc-block-button__link:where([style*=border-bottom-style]){
+  border-bottom-width:medium;
+}
+.editor-styles-wrapper .gc-block-button .gc-block-button__link:where([style*=border-left-style]){
+  border-left-width:medium;
+}

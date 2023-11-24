@@ -9,8 +9,6 @@
 /**
  * GeChiUI Image Editor Class for Image Manipulation through Imagick PHP Module
  *
- *
- *
  * @see GC_Image_Editor
  */
 class GC_Image_Editor_Imagick extends GC_Image_Editor {
@@ -35,6 +33,7 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	 * We require Imagick 2.2.0 or greater, based on whether the queryFormats()
 	 * method can be called statically.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param array $args
 	 * @return bool
@@ -89,6 +88,7 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	/**
 	 * Checks to see if editor supports the mime-type specified.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param string $mime_type
 	 * @return bool
@@ -100,8 +100,10 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 			return false;
 		}
 
-		// setIteratorIndex is optional unless mime is an animated format.
-		// Here, we just say no if you are missing it and aren't loading a jpeg.
+		/*
+		 * setIteratorIndex is optional unless mime is an animated format.
+		 * Here, we just say no if you are missing it and aren't loading a jpeg.
+		 */
 		if ( ! method_exists( 'Imagick', 'setIteratorIndex' ) && 'image/jpeg' !== $mime_type ) {
 				return false;
 		}
@@ -117,6 +119,7 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	/**
 	 * Loads image from $this->file into new Imagick Object.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @return true|GC_Error True if loaded; GC_Error on failure.
 	 */
@@ -180,6 +183,7 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	/**
 	 * Sets Image Compression quality on a 1-100% scale.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param int $quality Compression Quality. Range: [1,100]
 	 * @return true|GC_Error True if set successfully; GC_Error on failure.
@@ -222,6 +226,7 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	/**
 	 * Sets or updates current image size.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param int $width
 	 * @param int $height
@@ -249,16 +254,67 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	}
 
 	/**
+	 * Sets Imagick time limit.
+	 *
+	 * Depending on configuration, Imagick processing may take time.
+	 *
+	 * Multiple problems exist if PHP times out before ImageMagick completed:
+	 * 1. Temporary files aren't cleaned by ImageMagick garbage collection.
+	 * 2. No clear error is provided.
+	 * 3. The cause of such timeout can be hard to pinpoint.
+	 *
+	 * This function, which is expected to be run before heavy image routines, resolves
+	 * point 1 above by aligning Imagick's timeout with PHP's timeout, assuming it is set.
+	 *
+	 * However seems it introduces more problems than it fixes,
+	 * see https://core.trac.gechiui.com/ticket/58202.
+	 *
+	 * Note:
+	 *  - Imagick resource exhaustion does not issue catchable exceptions (yet).
+	 *    See https://github.com/Imagick/imagick/issues/333.
+	 *  - The resource limit is not saved/restored. It applies to subsequent
+	 *    image operations within the time of the HTTP request.
+	 *
+	 * @since 6.2.0
+	 * @since 6.3.0 This method was deprecated.
+	 *
+	 * @return int|null The new limit on success, null on failure.
+	 */
+	public static function set_imagick_time_limit() {
+		_deprecated_function( __METHOD__, '6.3.0' );
+
+		if ( ! defined( 'Imagick::RESOURCETYPE_TIME' ) ) {
+			return null;
+		}
+
+		// Returns PHP_FLOAT_MAX if unset.
+		$imagick_timeout = Imagick::getResourceLimit( Imagick::RESOURCETYPE_TIME );
+
+		// Convert to an integer, keeping in mind that: 0 === (int) PHP_FLOAT_MAX.
+		$imagick_timeout = $imagick_timeout > PHP_INT_MAX ? PHP_INT_MAX : (int) $imagick_timeout;
+
+		$php_timeout = (int) ini_get( 'max_execution_time' );
+
+		if ( $php_timeout > 1 && $php_timeout < $imagick_timeout ) {
+			$limit = (float) 0.8 * $php_timeout;
+			Imagick::setResourceLimit( Imagick::RESOURCETYPE_TIME, $limit );
+
+			return $limit;
+		}
+	}
+
+	/**
 	 * Resizes current image.
 	 *
 	 * At minimum, either a height or width must be provided.
 	 * If one of the two is set to null, the resize will
 	 * maintain aspect ratio according to the provided dimension.
 	 *
+	 * @since 3.5.0
 	 *
-	 * @param int|null $max_w Image width.
-	 * @param int|null $max_h Image height.
-	 * @param bool     $crop
+	 * @param int|null   $max_w Image width.
+	 * @param int|null   $max_h Image height.
+	 * @param bool|array $crop
 	 * @return true|GC_Error
 	 */
 	public function resize( $max_w, $max_h, $crop = false ) {
@@ -292,6 +348,7 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	 * This is a GeChiUI specific implementation of Imagick::thumbnailImage(),
 	 * which resizes an image to given dimensions and removes any associated profiles.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param int    $dst_w       The destination width.
 	 * @param int    $dst_h       The destination height.
@@ -334,6 +391,7 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 		 * This filter only applies when resizing using the Imagick editor since GD
 		 * always strips profiles by default.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @param bool $strip_meta Whether to strip image metadata during resizing. Default true.
 		 */
@@ -427,6 +485,7 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	 * the new images one at a time and allows for the meta data to be saved after
 	 * each new image is created.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param array $sizes {
 	 *     An array of image size data arrays.
@@ -435,12 +494,12 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	 *     If one of the two is set to null, the resize will
 	 *     maintain aspect ratio according to the provided dimension.
 	 *
-	 *     @type array $size {
+	 *     @type array ...$0 {
 	 *         Array of height, width values, and whether to crop.
 	 *
-	 *         @type int  $width  Image width. Optional if `$height` is specified.
-	 *         @type int  $height Image height. Optional if `$width` is specified.
-	 *         @type bool $crop   Optional. Whether to crop the image. Default false.
+	 *         @type int        $width  Image width. Optional if `$height` is specified.
+	 *         @type int        $height Image height. Optional if `$width` is specified.
+	 *         @type bool|array $crop   Optional. Whether to crop the image. Default false.
 	 *     }
 	 * }
 	 * @return array An array of resized images' metadata by size.
@@ -462,13 +521,14 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	/**
 	 * Create an image sub-size and return the image meta data value for it.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @param array $size_data {
 	 *     Array of size data.
 	 *
-	 *     @type int  $width  The maximum width in pixels.
-	 *     @type int  $height The maximum height in pixels.
-	 *     @type bool $crop   Whether to crop the image to exact dimensions.
+	 *     @type int        $width  The maximum width in pixels.
+	 *     @type int        $height The maximum height in pixels.
+	 *     @type bool|array $crop   Whether to crop the image to exact dimensions.
 	 * }
 	 * @return array|GC_Error The image data array for inclusion in the `sizes` array in the image meta,
 	 *                        GC_Error object on error.
@@ -491,6 +551,10 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 
 		if ( ! isset( $size_data['crop'] ) ) {
 			$size_data['crop'] = false;
+		}
+
+		if ( ( $this->size['width'] === $size_data['width'] ) && ( $this->size['height'] === $size_data['height'] ) ) {
+			return new GC_Error( 'image_subsize_create_error', __( '该图片已经具有了要求的尺寸。' ) );
 		}
 
 		$resized = $this->resize( $size_data['width'], $size_data['height'], $size_data['crop'] );
@@ -518,6 +582,7 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	/**
 	 * Crops Image.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param int  $src_x   The start x position to crop from.
 	 * @param int  $src_y   The start y position to crop from.
@@ -539,8 +604,10 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 			$this->image->setImagePage( $src_w, $src_h, 0, 0 );
 
 			if ( $dst_w || $dst_h ) {
-				// If destination width/height isn't specified,
-				// use same as width/height from source.
+				/*
+				 * If destination width/height isn't specified,
+				 * use same as width/height from source.
+				 */
 				if ( ! $dst_w ) {
 					$dst_w = $src_w;
 				}
@@ -565,6 +632,7 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	/**
 	 * Rotates current image counter-clockwise by $angle.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param float $angle
 	 * @return true|GC_Error
@@ -599,6 +667,7 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	/**
 	 * Flips current image.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param bool $horz Flip along Horizontal Axis
 	 * @param bool $vert Flip along Vertical Axis
@@ -631,6 +700,7 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	 * As ImageMagick copies the EXIF data to the flipped/rotated image, proceed only
 	 * if EXIF Orientation can be reset afterwards.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @return bool|GC_Error True if the image was rotated. False if no EXIF data or if the image doesn't need rotation.
 	 *                       GC_Error if error while rotating.
@@ -646,10 +716,21 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	/**
 	 * Saves current image to file.
 	 *
+	 * @since 3.5.0
+	 * @since 6.0.0 The `$filesize` value was added to the returned array.
 	 *
 	 * @param string $destfilename Optional. Destination filename. Default null.
 	 * @param string $mime_type    Optional. The mime-type. Default null.
-	 * @return array|GC_Error {'path'=>string, 'file'=>string, 'width'=>int, 'height'=>int, 'mime-type'=>string}
+	 * @return array|GC_Error {
+	 *     Array on success or GC_Error if the file failed to save.
+	 *
+	 *     @type string $path      Path to the image file.
+	 *     @type string $file      Name of the image file.
+	 *     @type int    $width     Image width.
+	 *     @type int    $height    Image height.
+	 *     @type string $mime-type The mime type of the image.
+	 *     @type int    $filesize  File size of the image.
+	 * }
 	 */
 	public function save( $destfilename = null, $mime_type = null ) {
 		$saved = $this->_save( $this->image, $destfilename, $mime_type );
@@ -669,10 +750,22 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	}
 
 	/**
+	 * @since 3.5.0
+	 * @since 6.0.0 The `$filesize` value was added to the returned array.
+	 *
 	 * @param Imagick $image
 	 * @param string  $filename
 	 * @param string  $mime_type
-	 * @return array|GC_Error
+	 * @return array|GC_Error {
+	 *     Array on success or GC_Error if the file failed to save.
+	 *
+	 *     @type string $path      Path to the image file.
+	 *     @type string $file      Name of the image file.
+	 *     @type int    $width     Image width.
+	 *     @type int    $height    Image height.
+	 *     @type string $mime-type The mime type of the image.
+	 *     @type int    $filesize  File size of the image.
+	 * }
 	 */
 	protected function _save( $image, $filename = null, $mime_type = null ) {
 		list( $filename, $extension, $mime_type ) = $this->get_output_format( $filename, $mime_type );
@@ -714,12 +807,14 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 			'width'     => $this->size['width'],
 			'height'    => $this->size['height'],
 			'mime-type' => $mime_type,
+			'filesize'  => gc_filesize( $filename ),
 		);
 	}
 
 	/**
 	 * Writes an image to a file or stream.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param Imagick $image
 	 * @param string  $filename The destination filename or stream URL.
@@ -769,6 +864,7 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	/**
 	 * Streams current image to browser.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param string $mime_type The mime type of the image.
 	 * @return true|GC_Error True on success, GC_Error object on failure.
@@ -796,6 +892,7 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	/**
 	 * Strips all image meta except color profiles from an image.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @return true|GC_Error True if stripping metadata was successful. GC_Error object on error.
 	 */
@@ -858,13 +955,16 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	 * Sets up Imagick for PDF processing.
 	 * Increases rendering DPI and only loads first page.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return string|GC_Error File to load or GC_Error on failure.
 	 */
 	protected function pdf_setup() {
 		try {
-			// By default, PDFs are rendered in a very low resolution.
-			// We want the thumbnail to be readable, so increase the rendering DPI.
+			/*
+			 * By default, PDFs are rendered in a very low resolution.
+			 * We want the thumbnail to be readable, so increase the rendering DPI.
+			 */
 			$this->image->setResolution( 128, 128 );
 
 			// Only load the first page.
@@ -880,6 +980,7 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 	 * Includes a workaround for a bug in Ghostscript 8.70 that prevents processing of some PDF files
 	 * when `use-cropbox` is set.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @return true|GC_Error
 	 */
@@ -891,12 +992,16 @@ class GC_Image_Editor_Imagick extends GC_Image_Editor {
 		}
 
 		try {
-			// When generating thumbnails from cropped PDF pages, Imagemagick uses the uncropped
-			// area (resulting in unnecessary whitespace) unless the following option is set.
+			/*
+			 * When generating thumbnails from cropped PDF pages, Imagemagick uses the uncropped
+			 * area (resulting in unnecessary whitespace) unless the following option is set.
+			 */
 			$this->image->setOption( 'pdf:use-cropbox', true );
 
-			// Reading image after Imagick instantiation because `setResolution`
-			// only applies correctly before the image is read.
+			/*
+			 * Reading image after Imagick instantiation because `setResolution`
+			 * only applies correctly before the image is read.
+			 */
 			$this->image->readImage( $filename );
 		} catch ( Exception $e ) {
 			// Attempt to run `gs` without the `use-cropbox` option. See #48853.

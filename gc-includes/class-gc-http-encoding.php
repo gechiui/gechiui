@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage HTTP
- *
  */
 
 /**
@@ -12,8 +11,8 @@
  *
  * Includes RFC 1950, RFC 1951, and RFC 1952.
  *
- *
  */
+#[AllowDynamicProperties]
 class GC_Http_Encoding {
 
 	/**
@@ -89,6 +88,7 @@ class GC_Http_Encoding {
 	 * takes place. For a simple pragmatic way to determine the magic offset in use, see:
 	 * https://core.trac.gechiui.com/ticket/18273
 	 *
+	 * @since 2.8.1
 	 *
 	 * @link https://core.trac.gechiui.com/ticket/18273
 	 * @link https://www.php.net/manual/en/function.gzinflate.php#70875
@@ -100,7 +100,7 @@ class GC_Http_Encoding {
 	public static function compatible_gzinflate( $gz_data ) {
 
 		// Compressed data might contain a full header, if so strip it for gzinflate().
-		if ( "\x1f\x8b\x08" === substr( $gz_data, 0, 3 ) ) {
+		if ( str_starts_with( $gz_data, "\x1f\x8b\x08" ) ) {
 			$i   = 10;
 			$flg = ord( substr( $gz_data, 3, 1 ) );
 			if ( $flg > 0 ) {
@@ -170,6 +170,7 @@ class GC_Http_Encoding {
 		/**
 		 * Filters the allowed encoding types.
 		 *
+		 * @since 3.6.0
 		 *
 		 * @param string[] $type Array of what encoding types to accept and their priority values.
 		 * @param string   $url  URL of the HTTP request.

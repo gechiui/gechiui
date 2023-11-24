@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  * @deprecated 4.9.0 This file is no longer used as of the menu creation UX introduced in #40104.
  */
 
@@ -13,7 +12,7 @@ _deprecated_file( basename( __FILE__ ), '4.9.0' );
 /**
  * Customize control class for new menus.
  *
- *
+ * @since 4.3.0
  * @deprecated 4.9.0 This class is no longer used as of the menu creation UX introduced in #40104.
  *
  * @see GC_Customize_Control
@@ -23,6 +22,7 @@ class GC_Customize_New_Menu_Control extends GC_Customize_Control {
 	/**
 	 * Control type.
 	 *
+	 * @since 4.3.0
 	 * @var string
 	 */
 	public $type = 'new_menu';
@@ -30,6 +30,7 @@ class GC_Customize_New_Menu_Control extends GC_Customize_Control {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.9.0
 	 * @deprecated 4.9.0
 	 *
 	 * @see GC_Customize_Control::__construct()
@@ -48,12 +49,13 @@ class GC_Customize_New_Menu_Control extends GC_Customize_Control {
 	/**
 	 * Render the control's content.
 	 *
+	 * @since 4.3.0
 	 * @deprecated 4.9.0
 	 */
 	public function render_content() {
 		_deprecated_function( __METHOD__, '4.9.0' );
 		?>
-		<button type="button" class="button button-primary" id="create-new-menu-submit"><?php _e( '创建菜单' ); ?></button>
+		<button type="button" class="btn btn-primary" id="create-new-menu-submit"><?php _e( '创建菜单' ); ?></button>
 		<span class="spinner"></span>
 		<?php
 	}

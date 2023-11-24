@@ -10,31 +10,27 @@
  * Core class used to implement the Toolbar API.
  *
  */
+#[AllowDynamicProperties]
 class GC_Admin_Bar {
 	private $nodes = array();
 	private $bound = false;
 	public $user;
 
 	/**
-	 * @param string $name
-	 * @return string|array|void
+	 * Deprecated menu property.
+	 *
+	 * @deprecated 3.3.0 Modify admin bar nodes with GC_Admin_Bar::get_node(),
+	 *                   GC_Admin_Bar::add_node(), and GC_Admin_Bar::remove_node().
+	 * @var array
 	 */
-	public function __get( $name ) {
-		switch ( $name ) {
-			case 'proto':
-				return is_ssl() ? 'https://' : 'http://';
-
-			case 'menu':
-				_deprecated_argument( 'GC_Admin_Bar', '3.3.0', 'Modify admin bar nodes with GC_Admin_Bar::get_node(), GC_Admin_Bar::add_node(), and GC_Admin_Bar::remove_node(), not the <code>menu</code> property.' );
-				return array(); // Sorry, folks.
-		}
-	}
+	public $menu = array();
 
 	/**
+	 * Initializes the admin bar.
+	 *
 	 */
 	public function initialize() {
-
-		$this->user = new stdClass;
+		$this->user = new stdClass();
 
 		if ( is_user_logged_in() ) {
 			/* Populate settings we need for the menu based on the current user. */
@@ -68,17 +64,21 @@ class GC_Admin_Bar {
 		}
 
 		add_action( 'gc_head', $header_callback );
-		
+
+		gc_enqueue_script( 'admin-bar' );
+		gc_enqueue_style( 'admin-bar' );
+
 		/**
 		 * Fires after GC_Admin_Bar is initialized.
 		 *
+		 * @since 3.1.0
 		 */
 		do_action( 'admin_bar_init' );
 	}
 
 	/**
-	 * Add a node (menu item) to the Admin Bar menu.
-	 * 
+	 * Adds a node (menu item) to the admin bar menu.
+	 *
 	 *
 	 * @param array $node The attributes that define the node.
 	 */
@@ -87,8 +87,8 @@ class GC_Admin_Bar {
 	}
 
 	/**
-	 * Remove a node from the admin bar.
-	 * 
+	 * Removes a node from the admin bar.
+	 *
 	 *
 	 * @param string $id The menu slug to remove.
 	 */
@@ -98,7 +98,8 @@ class GC_Admin_Bar {
 
 	/**
 	 * Adds a node to the menu.
-	 *  
+	 *
+	 * @since 4.5.0 Added the ability to pass 'lang' and 'dir' meta data.
 	 *
 	 * @param array $args {
 	 *     Arguments for adding a node.
@@ -170,6 +171,7 @@ class GC_Admin_Bar {
 	}
 
 	/**
+	 *
 	 * @param array $args
 	 */
 	final protected function _set_node( $args ) {
@@ -178,6 +180,7 @@ class GC_Admin_Bar {
 
 	/**
 	 * Gets a node.
+	 *
 	 *
 	 * @param string $id
 	 * @return object|void Node.
@@ -190,6 +193,7 @@ class GC_Admin_Bar {
 	}
 
 	/**
+	 *
 	 * @param string $id
 	 * @return object|void
 	 */
@@ -208,6 +212,7 @@ class GC_Admin_Bar {
 	}
 
 	/**
+	 *
 	 * @return array|void
 	 */
 	final public function get_nodes() {
@@ -223,6 +228,7 @@ class GC_Admin_Bar {
 	}
 
 	/**
+	 *
 	 * @return array|void
 	 */
 	final protected function _get_nodes() {
@@ -234,10 +240,10 @@ class GC_Admin_Bar {
 	}
 
 	/**
-	 * Add a group to a toolbar menu node.
+	 * Adds a group to a toolbar menu node.
 	 *
 	 * Groups can be used to organize toolbar items into distinct sections of a toolbar menu.
-	 * 
+	 *
 	 *
 	 * @param array $args {
 	 *     Array of arguments for adding a group.
@@ -257,6 +263,7 @@ class GC_Admin_Bar {
 	/**
 	 * Remove a node.
 	 *
+	 *
 	 * @param string $id The ID of the item.
 	 */
 	public function remove_node( $id ) {
@@ -264,6 +271,7 @@ class GC_Admin_Bar {
 	}
 
 	/**
+	 *
 	 * @param string $id
 	 */
 	final protected function _unset_node( $id ) {
@@ -280,6 +288,7 @@ class GC_Admin_Bar {
 	}
 
 	/**
+	 *
 	 * @return object|void
 	 */
 	final protected function _bind() {
@@ -287,8 +296,10 @@ class GC_Admin_Bar {
 			return;
 		}
 
-		// Add the root node.
-		// Clear it first, just in case. Don't mess with The Root.
+		/*
+		 * Add the root node.
+		 * Clear it first, just in case. Don't mess with The Root.
+		 */
 		$this->remove_node( 'root' );
 		$this->add_node(
 			array(
@@ -336,11 +347,15 @@ class GC_Admin_Bar {
 				$default_id = $parent->id . '-default';
 				$default    = $this->_get_node( $default_id );
 
-				// The default group is added here to allow groups that are
-				// added before standard menu items to render first.
+				/*
+				 * The default group is added here to allow groups that are
+				 * added before standard menu items to render first.
+				 */
 				if ( ! $default ) {
-					// Use _set_node because add_node can be overloaded.
-					// Make sure to specify default settings for all properties.
+					/*
+					 * Use _set_node because add_node can be overloaded.
+					 * Make sure to specify default settings for all properties.
+					 */
 					$this->_set_node(
 						array(
 							'id'       => $default_id,
@@ -359,16 +374,20 @@ class GC_Admin_Bar {
 				}
 				$parent = $default;
 
-				// Groups in groups aren't allowed. Add a special 'container' node.
-				// The container will invisibly wrap both groups.
+				/*
+				 * Groups in groups aren't allowed. Add a special 'container' node.
+				 * The container will invisibly wrap both groups.
+				 */
 			} elseif ( 'group' === $parent->type && 'group' === $node->type ) {
 				$container_id = $parent->id . '-container';
 				$container    = $this->_get_node( $container_id );
 
 				// We need to create a container for this group, life is sad.
 				if ( ! $container ) {
-					// Use _set_node because add_node can be overloaded.
-					// Make sure to specify default settings for all properties.
+					/*
+					 * Use _set_node because add_node can be overloaded.
+					 * Make sure to specify default settings for all properties.
+					 */
 					$this->_set_node(
 						array(
 							'id'       => $container_id,
@@ -416,24 +435,30 @@ class GC_Admin_Bar {
 	}
 
 	/**
+	 *
 	 * @param object $root
 	 */
 	final protected function _render( $root ) {
-        global $current_screen,$gc_roles, $menu, $submenu;
-        
-		// Add browser classes.
-		// We have to do this here since admin bar shows on the front end.
+		global $current_screen, $gc_roles, $menu, $submenu;
+		/*
+		 * Add browser classes.
+		 * We have to do this here since admin bar shows on the front end.
+		 */
+		if( empty($gc_roles) )
+			$gc_roles = new GC_Roles();
+
 		$class = 'nojq nojs';
 		if ( gc_is_mobile() ) {
 			$class .= ' mobile';
 		}
-        
-        $user_id = get_current_user_id();
-        $current_user = gc_get_current_user();
+		$user_id = get_current_user_id();
+        $current_user = get_userdata($user_id);
+
         //用户角色名称
+
         $role_name = translate_user_role( $gc_roles->roles[ array_shift($current_user->roles) ]['name'] );
 
-        //用户的站点列表
+        //用户的SaaS列表
         $blogs = get_blogs_of_user( $user_id );
         
         //加载头部样式
@@ -460,7 +485,7 @@ class GC_Admin_Bar {
                     <?php if(is_multisite()) :?>
                     <li class="dropdown dropdown-animated scale-right">
                         <div class="pointer" data-toggle="dropdown">
-                            <p class="m-b-0 text-dark font-size-13"> <i class="anticon anticon-global m-l-20"></i> <?php _e( '我的站点'); ?></p>
+                            <p class="m-b-0 text-dark font-size-13"> <i class="anticon anticon-global m-l-20"></i> <?php _e( '我的系统'); ?></p>
                         </div>
                         <div class="p-b-15 p-t-20 dropdown-menu">
                             <?php
@@ -522,7 +547,16 @@ class GC_Admin_Bar {
                         <div class="p-b-15 p-t-20 dropdown-menu pop-profile">
                             <div class="p-h-20 p-b-15 m-b-10 border-bottom">
                                 <div class="d-flex m-r-50">
-                                    <div class="avatar avatar-icon avatar-blue"> <i class="anticon anticon-user"></i> </div>
+                                    <div class="avatar avatar-icon avatar-blue"> 
+                                    	<?php
+                                    	$local_avatars = get_user_meta( $user_id, 'simple_local_avatar', true );
+        
+								        if ( empty( $local_avatars ) || empty( $local_avatars['full'] ) )
+								            echo '<i class="anticon anticon-user"></i> ';
+								        else
+                                    	 	echo get_avatar( $user_id, 40 ); 
+                                    	?>
+                                    </div>
                                     <div class="m-l-10">
                                         <p class="m-b-0 text-dark font-weight-semibold"><?php echo $current_user->display_name; ?></p>
                                         <p class="m-b-0 opacity-07"><span class="badge badge-pill badge-warning"><?php echo $role_name;?></span></p>
@@ -569,7 +603,7 @@ class GC_Admin_Bar {
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header justify-content-between align-items-center">
-                        <h5 class="modal-title"><?php _e('产品与服务');  ?></h5>
+                        <h5 class="modal-title"><?php is_network_admin() ? _e('SaaS后台') :  _e('产品与服务');  ?></h5>
                         <button type="button" class="close" data-dismiss="modal">
                             <i class="anticon anticon-close"></i>
                         </button>
@@ -604,6 +638,7 @@ class GC_Admin_Bar {
 	}
 
 	/**
+	 *
 	 * @param object $node
 	 */
 	final protected function _render_container( $node ) {
@@ -619,6 +654,7 @@ class GC_Admin_Bar {
 	}
 
 	/**
+	 *
 	 * @param object $node
 	 */
 	final protected function _render_group( $node ) {
@@ -630,20 +666,21 @@ class GC_Admin_Bar {
 			return;
 		}
 
-//		if ( ! empty( $node->meta['class'] ) ) {
-//			$class = ' class="nav-item ' . esc_attr( trim( $node->meta['class'] ) ) . '"';
-//		} else {
-//			$class = 'nav-item';
-//		}
+		if ( ! empty( $node->meta['class'] ) ) {
+			$class = ' class="' . esc_attr( trim( $node->meta['class'] ) ) . '"';
+		} else {
+			$class = '';
+		}
 
-//		echo "<ul id='" . esc_attr( 'gc-admin-bar-' . $node->id ) . "'$class>";
+		echo "<ul id='" . esc_attr( 'gc-admin-bar-' . $node->id ) . "'$class>";
 		foreach ( $node->children as $item ) {
 			$this->_render_item( $item );
 		}
-//		echo '</ul>';
+		echo '</ul>';
 	}
 
 	/**
+	 *
 	 * @param object $node
 	 */
 	final protected function _render_item( $node ) {
@@ -731,7 +768,7 @@ class GC_Admin_Bar {
 
 	/**
 	 * Renders toolbar items recursively.
-	 * 
+	 *
 	 * @deprecated 3.3.0 Use GC_Admin_Bar::_render_item() or GC_Admin_bar::render() instead.
 	 * @see GC_Admin_Bar::_render_item()
 	 * @see GC_Admin_Bar::render()
@@ -745,37 +782,47 @@ class GC_Admin_Bar {
 	}
 
 	/**
+	 * Adds menus to the admin bar.
+	 *
+	 * @since 6.3
 	 */
 	public function add_menus() {
 		// User-related, aligned right.
-//		add_action( 'admin_bar_menu', 'gc_admin_bar_my_account_menu', 0 ); //个人信息菜单
-//		add_action( 'admin_bar_menu', 'gc_admin_bar_search_menu', 4 );
-//		add_action( 'admin_bar_menu', 'gc_admin_bar_my_account_item', 7 );  //您好，**部分
-		add_action( 'admin_bar_menu', 'gc_admin_bar_recovery_mode_menu', 8 ); //恢复模式功能组
+		// gongenlin
+
+		// add_action( 'admin_bar_menu', 'gc_admin_bar_my_account_menu', 0 ); //个人信息菜单
+		// add_action( 'admin_bar_menu', 'gc_admin_bar_search_menu', 4 );
+		// add_action( 'admin_bar_menu', 'gc_admin_bar_my_account_item', 7 );  //您好，**部分
+		add_action( 'admin_bar_menu', 'gc_admin_bar_recovery_mode_menu', 8 );  //恢复模式功能组
+
+		if ( !is_network_admin() && current_user_can( 'manage_network' ) ) {
+			add_action( 'admin_bar_menu', 'gc_admin_bar_network_menu', 10 ); // 超级管理员组菜单
+		}
 
 		// Site-related.
-//		add_action( 'admin_bar_menu', 'gc_admin_bar_sidebar_toggle', 0 ); //显示一个菜单按钮，用于移动端
-        if(!is_network_admin()) {
-		  add_action( 'admin_bar_menu', 'gc_admin_bar_network_menu', 10 ); // 超级管理员组菜单
-        }
-        add_action( 'admin_bar_menu', 'gc_admin_bar_my_sites_menu', 10 ); // 我的站点菜单
-//		add_action( 'admin_bar_menu', 'gc_admin_bar_site_menu', 30 );  //当前站点链接
+		// add_action( 'admin_bar_menu', 'gc_admin_bar_sidebar_toggle', 0 ); //显示一个菜单按钮，用于移动端
+		
+		add_action( 'admin_bar_menu', 'gc_admin_bar_my_sites_menu', 20 );  // 我的GC多系统菜单
+
+		// add_action( 'admin_bar_menu', 'gc_admin_bar_site_menu', 30 );  //当前系统链接
+		// add_action( 'admin_bar_menu', 'gc_admin_bar_edit_site_menu', 40 ); // 编辑系统（new）
 		add_action( 'admin_bar_menu', 'gc_admin_bar_customize_menu', 40 );  //自定义菜单
-//		add_action( 'admin_bar_menu', 'gc_admin_bar_updates_menu', 50 );  //升级链接
+		// add_action( 'admin_bar_menu', 'gc_admin_bar_updates_menu', 50 );  //升级链接
 
 		// Content-related.
-		if ( ! is_network_admin() && ! is_user_admin() ) {
-//			add_action( 'admin_bar_menu', 'gc_admin_bar_comments_menu', 60 ); //显示评论
-//			add_action( 'admin_bar_menu', 'gc_admin_bar_new_content_menu', 70 ); //常用功能
-		}
+		// if ( ! is_network_admin() && ! is_user_admin() ) {
+			// add_action( 'admin_bar_menu', 'gc_admin_bar_comments_menu', 60 ); //显示评论
+			// add_action( 'admin_bar_menu', 'gc_admin_bar_new_content_menu', 70 );  //常用功能
+		// }
 		add_action( 'admin_bar_menu', 'gc_admin_bar_edit_menu', 80 );
-        add_action( 'admin_bar_menu', 'gc_admin_bar_gc_menu', 200 );  //关于格尺，系列的菜单
+		add_action( 'admin_bar_menu', 'gc_admin_bar_gc_menu', 200 );  //关于格尺，系列的菜单
 
-//		add_action( 'admin_bar_menu', 'gc_admin_bar_add_secondary_groups', 200 ); 
+		// add_action( 'admin_bar_menu', 'gc_admin_bar_add_secondary_groups', 200 );
 
 		/**
 		 * Fires after menus are added to the menu bar.
 		 *
+		 * @since 3.1.0
 		 */
 		do_action( 'add_admin_bar_menus' );
 	}

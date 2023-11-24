@@ -64,7 +64,7 @@ foreach ( $load as $handle ) {
 		continue;
 	}
 
-	$path = ABSPATH . 'assets' . $style->src;
+	$path = ABSPATH . $style->src;
 
 	if ( $rtl && ! empty( $style->extra['rtl'] ) ) {
 		// All default styles have fully independent RTL files.
@@ -76,7 +76,7 @@ foreach ( $load as $handle ) {
 
 	if ( strpos( $style->src, '/css/' ) === 0 ) {
 		$content = str_replace( '../images/', '../assets/images/', $content );
-		$content = str_replace( '../js/tinymce/', '../assets/vendors/tinymce/', $content );
+		$content = str_replace( '../vendors/tinymce/', '../assets/vendors/tinymce/', $content );
 		$content = str_replace( '../fonts/', '../assets/fonts/', $content );
 		$out    .= $content;
 	} else {

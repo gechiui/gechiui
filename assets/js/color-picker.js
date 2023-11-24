@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/color-picker.js
+ * @output assets/js/color-picker.js
  */
 
 ( function( $, undef ) {
@@ -18,6 +18,7 @@
 	 *
 	 * @class $.widget.gc.gcColorPicker
 	 *
+	 * @since 3.5.0
 	 */
 	ColorPicker = /** @lends $.widget.gc.gcColorPicker.prototype */{
 		options: {
@@ -34,6 +35,7 @@
 		/**
 		 * Creates a color picker that only allows you to adjust the hue.
 		 *
+		 * @since 3.5.0
 		 * @access private
 		 *
 		 * @return {void}
@@ -76,6 +78,7 @@
 		/**
 		 * Creates the color picker, sets default values, css classes and wraps it all in HTML.
 		 *
+		 * @since 3.5.0
 		 * @access private
 		 *
 		 * @return {void}
@@ -115,7 +118,7 @@
 				// Insert the default label text.
 				self.wrappingLabelText = $( _wrappingLabelText )
 					.insertBefore( el )
-					.text( __( '颜色值' ) );
+					.text( __( '色值' ) );
 			}
 
 			/*
@@ -144,12 +147,12 @@
 				self.button
 					.addClass( 'gc-picker-default' )
 					.val( __( '默认' ) )
-					.attr( 'aria-label', __( '选择默认颜色' ) );
+					.attr( 'aria-label', __( '选择默认色' ) );
 			} else {
 				self.button
 					.addClass( 'gc-picker-clear' )
 					.val( __( '清除' ) )
-					.attr( 'aria-label', __( '清除颜色' ) );
+					.attr( 'aria-label', __( '透明色' ) );
 			}
 
 			// Wrap the wrapping label in its wrapper and append the Clear/Default button.
@@ -174,7 +177,7 @@
 				 * Handles the onChange event if one has been defined in the options and additionally
 				 * sets the background color for the toggler element.
 				 *
-			
+				 * @since 3.5.0
 				 *
 				 * @ignore
 				 *
@@ -203,6 +206,7 @@
 		/**
 		 * Binds event listeners to the color picker.
 		 *
+		 * @since 3.5.0
 		 * @access private
 		 *
 		 * @return {void}
@@ -213,7 +217,7 @@
 			/**
 			 * Prevent any clicks inside this widget from leaking to the top and closing it.
 			 *
-		
+			 * @since 3.5.0
 			 *
 			 * @param {Event} event The event that's being called.
 			 *
@@ -226,7 +230,7 @@
 			/**
 			 * Open or close the color picker depending on the class.
 			 *
-		
+			 * @since 3.5.0
 			 */
 			self.toggler.on( 'click', function(){
 				if ( self.toggler.hasClass( 'gc-picker-open' ) ) {
@@ -240,7 +244,7 @@
 			 * Checks if value is empty when changing the color in the color picker.
 			 * If so, the background color is cleared.
 			 *
-		
+			 * @since 3.5.0
 			 *
 			 * @param {Event} event The event that's being called.
 			 *
@@ -262,7 +266,7 @@
 			/**
 			 * Enables the user to either clear the color in the color picker or revert back to the default color.
 			 *
-		
+			 * @since 3.5.0
 			 *
 			 * @param {Event} event The event that's being called.
 			 *
@@ -284,6 +288,7 @@
 		/**
 		 * Opens the color picker dialog.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @return {void}
 		 */
@@ -299,6 +304,7 @@
 		/**
 		 * Closes the color picker dialog.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @return {void}
 		 */
@@ -316,6 +322,7 @@
 		 *
 		 * @param newColor {string|*} The new color to use. Can be undefined.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @return {string} The element's color.
 		 */
@@ -331,6 +338,7 @@
 		 *
 		 * @param newDefaultColor {string|*} The new default color to use. Can be undefined.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @return {boolean|string} The element's color.
 		 */

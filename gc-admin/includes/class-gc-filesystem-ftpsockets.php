@@ -9,8 +9,6 @@
 /**
  * GeChiUI Filesystem Class for implementing FTP Sockets.
  *
- *
- *
  * @see GC_Filesystem_Base
  */
 class GC_Filesystem_ftpsockets extends GC_Filesystem_Base {
@@ -31,7 +29,7 @@ class GC_Filesystem_ftpsockets extends GC_Filesystem_Base {
 		$this->errors = new GC_Error();
 
 		// Check if possible to use ftp functions.
-		if ( ! include_once ABSPATH . 'gc-admin/includes/class-ftp.php' ) {
+		if ( ! require_once ABSPATH . 'gc-admin/includes/class-ftp.php' ) {
 			return;
 		}
 
@@ -44,20 +42,20 @@ class GC_Filesystem_ftpsockets extends GC_Filesystem_Base {
 		}
 
 		if ( empty( $opt['hostname'] ) ) {
-			$this->errors->add( 'empty_hostname', __( 'FTP主机名必填' ) );
+			$this->errors->add( 'empty_hostname', __( 'FTP 主机名必填' ) );
 		} else {
 			$this->options['hostname'] = $opt['hostname'];
 		}
 
 		// Check if the options provided are OK.
 		if ( empty( $opt['username'] ) ) {
-			$this->errors->add( 'empty_username', __( 'FTP用户名必填' ) );
+			$this->errors->add( 'empty_username', __( 'FTP 用户名必填' ) );
 		} else {
 			$this->options['username'] = $opt['username'];
 		}
 
 		if ( empty( $opt['password'] ) ) {
-			$this->errors->add( 'empty_password', __( 'FTP密码必填' ) );
+			$this->errors->add( 'empty_password', __( 'FTP 密码必填' ) );
 		} else {
 			$this->options['password'] = $opt['password'];
 		}
@@ -81,7 +79,7 @@ class GC_Filesystem_ftpsockets extends GC_Filesystem_Base {
 				'connect',
 				sprintf(
 					/* translators: %s: hostname:port */
-					__( '未能连接到FTP服务器%s' ),
+					__( '未能连接到 FTP 服务器 %s' ),
 					$this->options['hostname'] . ':' . $this->options['port']
 				)
 			);
@@ -94,7 +92,7 @@ class GC_Filesystem_ftpsockets extends GC_Filesystem_Base {
 				'connect',
 				sprintf(
 					/* translators: %s: hostname:port */
-					__( '未能连接到FTP服务器%s' ),
+					__( '未能连接到 FTP 服务器 %s' ),
 					$this->options['hostname'] . ':' . $this->options['port']
 				)
 			);
@@ -107,7 +105,7 @@ class GC_Filesystem_ftpsockets extends GC_Filesystem_Base {
 				'auth',
 				sprintf(
 					/* translators: %s: Username. */
-					__( '%s用户名和密码错误' ),
+					__( '%s 用户名和密码错误' ),
 					$this->options['username']
 				)
 			);
@@ -355,12 +353,19 @@ class GC_Filesystem_ftpsockets extends GC_Filesystem_Base {
 	}
 
 	/**
-	 * Moves a file.
+	 * Moves a file or directory.
+	 *
+	 * After moving files or directories, OPcache will need to be invalidated.
+	 *
+	 * If moving a directory fails, `copy_dir()` can be used for a recursive copy.
+	 *
+	 * Use `move_dir()` for moving directories with OPcache invalidation and a
+	 * fallback to `copy_dir()`.
 	 *
 	 *
-	 * @param string $source      Path to the source file.
-	 * @param string $destination Path to the destination file.
-	 * @param bool   $overwrite   Optional. Whether to overwrite the destination file if it exists.
+	 * @param string $source      Path to the source file or directory.
+	 * @param string $destination Path to the destination file or directory.
+	 * @param bool   $overwrite   Optional. Whether to overwrite the destination if it exists.
 	 *                            Default false.
 	 * @return bool True on success, false on failure.
 	 */
@@ -398,14 +403,25 @@ class GC_Filesystem_ftpsockets extends GC_Filesystem_Base {
 	/**
 	 * Checks if a file or directory exists.
 	 *
+	 * @since 6.3.0 Returns false for an empty path.
 	 *
-	 * @param string $file Path to file or directory.
-	 * @return bool Whether $file exists or not.
+	 * @param string $path Path to file or directory.
+	 * @return bool Whether $path exists or not.
 	 */
-	public function exists( $file ) {
-		$list = $this->ftp->nlist( $file );
+	public function exists( $path ) {
+		/*
+		 * Check for empty path. If ftp::nlist() receives an empty path,
+		 * it checks the current working directory and may return true.
+		 *
+		 * See https://core.trac.gechiui.com/ticket/33058.
+		 */
+		if ( '' === $path ) {
+			return false;
+		}
 
-		if ( empty( $list ) && $this->is_dir( $file ) ) {
+		$list = $this->ftp->nlist( $path );
+
+		if ( empty( $list ) && $this->is_dir( $path ) ) {
 			return true; // File is an empty directory.
 		}
 
@@ -465,10 +481,10 @@ class GC_Filesystem_ftpsockets extends GC_Filesystem_Base {
 	 * Checks if a file or directory is writable.
 	 *
 	 *
-	 * @param string $file Path to file or directory.
-	 * @return bool Whether $file is writable.
+	 * @param string $path Path to file or directory.
+	 * @return bool Whether $path is writable.
 	 */
-	public function is_writable( $file ) {
+	public function is_writable( $path ) {
 		return true;
 	}
 
@@ -578,18 +594,28 @@ class GC_Filesystem_ftpsockets extends GC_Filesystem_Base {
 	 * @param bool   $recursive      Optional. Whether to recursively include file details in nested directories.
 	 *                               Default false.
 	 * @return array|false {
-	 *     Array of files. False if unable to list directory contents.
+	 *     Array of arrays containing file information. False if unable to list directory contents.
 	 *
-	 *     @type string $name        Name of the file or directory.
-	 *     @type string $perms       *nix representation of permissions.
-	 *     @type string $permsn      Octal representation of permissions.
-	 *     @type string $owner       Owner name or ID.
-	 *     @type int    $size        Size of file in bytes.
-	 *     @type int    $lastmodunix Last modified unix timestamp.
-	 *     @type mixed  $lastmod     Last modified month (3 letter) and day (without leading 0).
-	 *     @type int    $time        Last modified time.
-	 *     @type string $type        Type of resource. 'f' for file, 'd' for directory.
-	 *     @type mixed  $files       If a directory and `$recursive` is true, contains another array of files.
+	 *     @type array $0... {
+	 *         Array of file information. Note that some elements may not be available on all filesystems.
+	 *
+	 *         @type string           $name        Name of the file or directory.
+	 *         @type string           $perms       *nix representation of permissions.
+	 *         @type string           $permsn      Octal representation of permissions.
+	 *         @type int|string|false $number      File number. May be a numeric string. False if not available.
+	 *         @type string|false     $owner       Owner name or ID, or false if not available.
+	 *         @type string|false     $group       File permissions group, or false if not available.
+	 *         @type int|string|false $size        Size of file in bytes. May be a numeric string.
+	 *                                             False if not available.
+	 *         @type int|string|false $lastmodunix Last modified unix timestamp. May be a numeric string.
+	 *                                             False if not available.
+	 *         @type string|false     $lastmod     Last modified month (3 letters) and day (without leading 0), or
+	 *                                             false if not available.
+	 *         @type string|false     $time        Last modified time, or false if not available.
+	 *         @type string           $type        Type of resource. 'f' for file, 'd' for directory, 'l' for link.
+	 *         @type array|false      $files       If a directory and `$recursive` is true, contains another array of
+	 *                                             files. False if unable to list directory contents.
+	 *     }
 	 * }
 	 */
 	public function dirlist( $path = '.', $include_hidden = true, $recursive = false ) {
@@ -611,7 +637,8 @@ class GC_Filesystem_ftpsockets extends GC_Filesystem_Base {
 			return false;
 		}
 
-		$ret = array();
+		$path = trailingslashit( $path );
+		$ret  = array();
 
 		foreach ( $list as $struc ) {
 
@@ -629,7 +656,7 @@ class GC_Filesystem_ftpsockets extends GC_Filesystem_Base {
 
 			if ( 'd' === $struc['type'] ) {
 				if ( $recursive ) {
-					$struc['files'] = $this->dirlist( $path . '/' . $struc['name'], $include_hidden, $recursive );
+					$struc['files'] = $this->dirlist( $path . $struc['name'], $include_hidden, $recursive );
 				} else {
 					$struc['files'] = array();
 				}

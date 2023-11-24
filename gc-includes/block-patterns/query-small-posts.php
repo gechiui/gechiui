@@ -9,7 +9,7 @@ return array(
 	'title'      => _x( '小图片和标题', 'Block pattern title' ),
 	'blockTypes' => array( 'core/query' ),
 	'categories' => array( 'query' ),
-	'content'    => '<!-- gc:query {"query":{"perPage":3,"pages":0,"offset":0,"postType":"post","categoryIds":[],"tagIds":[],"order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":false}} -->
+	'content'    => '<!-- gc:query {"query":{"perPage":3,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":false}} -->
 					<div class="gc-block-query">
 					<!-- gc:post-template -->
 					<!-- gc:columns {"verticalAlignment":"center"} -->

@@ -4,21 +4,20 @@
  *
  * @package GeChiUI
  * @subpackage Taxonomy
- *
  */
 
 /**
  * Core class used to implement the GC_Term object.
  *
- *
- *
  * @property-read object $data Sanitized term data.
  */
+#[AllowDynamicProperties]
 final class GC_Term {
 
 	/**
 	 * Term ID.
 	 *
+	 * @since 4.4.0
 	 * @var int
 	 */
 	public $term_id;
@@ -26,6 +25,7 @@ final class GC_Term {
 	/**
 	 * The term's name.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $name = '';
@@ -33,6 +33,7 @@ final class GC_Term {
 	/**
 	 * The term's slug.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $slug = '';
@@ -40,6 +41,7 @@ final class GC_Term {
 	/**
 	 * The term's term_group.
 	 *
+	 * @since 4.4.0
 	 * @var int
 	 */
 	public $term_group = '';
@@ -47,6 +49,7 @@ final class GC_Term {
 	/**
 	 * Term Taxonomy ID.
 	 *
+	 * @since 4.4.0
 	 * @var int
 	 */
 	public $term_taxonomy_id = 0;
@@ -54,6 +57,7 @@ final class GC_Term {
 	/**
 	 * The term's taxonomy name.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $taxonomy = '';
@@ -61,6 +65,7 @@ final class GC_Term {
 	/**
 	 * The term's description.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $description = '';
@@ -68,6 +73,7 @@ final class GC_Term {
 	/**
 	 * ID of a term's parent term.
 	 *
+	 * @since 4.4.0
 	 * @var int
 	 */
 	public $parent = 0;
@@ -75,6 +81,7 @@ final class GC_Term {
 	/**
 	 * Cached object count for this term.
 	 *
+	 * @since 4.4.0
 	 * @var int
 	 */
 	public $count = 0;
@@ -84,6 +91,7 @@ final class GC_Term {
 	 *
 	 * Does not correspond to a database field.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $filter = 'raw';
@@ -91,6 +99,7 @@ final class GC_Term {
 	/**
 	 * Retrieve GC_Term instance.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -178,6 +187,7 @@ final class GC_Term {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param GC_Term|object $term Term object.
 	 */
@@ -190,6 +200,7 @@ final class GC_Term {
 	/**
 	 * Sanitizes term fields, according to the filter type provided.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $filter Filter context. Accepts 'edit', 'db', 'display', 'attribute', 'js', 'rss', or 'raw'.
 	 */
@@ -200,6 +211,7 @@ final class GC_Term {
 	/**
 	 * Converts an object to array.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return array Object as array.
 	 */
@@ -210,6 +222,7 @@ final class GC_Term {
 	/**
 	 * Getter.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $key Property to get.
 	 * @return mixed Property value.

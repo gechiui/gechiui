@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customize Nav Menu Locations Control Class.
- *
- *
  *
  * @see GC_Customize_Control
  */
@@ -19,6 +16,7 @@ class GC_Customize_Nav_Menu_Locations_Control extends GC_Customize_Control {
 	/**
 	 * Control type.
 	 *
+	 * @since 4.9.0
 	 * @var string
 	 */
 	public $type = 'nav_menu_locations';
@@ -26,12 +24,14 @@ class GC_Customize_Nav_Menu_Locations_Control extends GC_Customize_Control {
 	/**
 	 * Don't render the control's content - it uses a JS template instead.
 	 *
+	 * @since 4.9.0
 	 */
 	public function render_content() {}
 
 	/**
 	 * JS/Underscore template for the control UI.
 	 *
+	 * @since 4.9.0
 	 */
 	public function content_template() {
 		if ( current_theme_supports( 'menus' ) ) :
@@ -47,11 +47,11 @@ class GC_Customize_Nav_Menu_Locations_Control extends GC_Customize_Control {
 							printf(
 								/* translators: 1: Documentation URL, 2: Additional link attributes, 3: Accessibility text. */
 								_x( '（如果您希望使用菜单<a href="%1$s" %2$s>小工具%3$s</a>，跳过这一步。）', 'menu locations' ),
-								__( 'https://www.gechiui.com/support/gechiui-widgets/' ),
+								__( 'https://www.gechiui.com/support/manage-gechiui-widgets/' ),
 								' class="external-link" target="_blank"',
 								sprintf(
 									'<span class="screen-reader-text"> %s</span>',
-									/* translators: Accessibility text. */
+									/* translators: Hidden accessibility text. */
 									__( '（在新窗口中打开）' )
 								)
 							);

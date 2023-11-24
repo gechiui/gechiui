@@ -27,8 +27,7 @@ function render_block_core_block( $attributes ) {
 	if ( isset( $seen_refs[ $attributes['ref'] ] ) ) {
 		// GC_DEBUG_DISPLAY must only be honored when GC_DEBUG. This precedent
 		// is set in `gc_debug_mode()`.
-		$is_debug = defined( 'GC_DEBUG' ) && GC_DEBUG &&
-			defined( 'GC_DEBUG_DISPLAY' ) && GC_DEBUG_DISPLAY;
+		$is_debug = GC_DEBUG && GC_DEBUG_DISPLAY;
 
 		return $is_debug ?
 			// translators: Visible only in the front end, this warning takes the place of a faulty block.
@@ -42,9 +41,14 @@ function render_block_core_block( $attributes ) {
 
 	$seen_refs[ $attributes['ref'] ] = true;
 
-	$result = do_blocks( $reusable_block->post_content );
+	// Handle embeds for reusable blocks.
+	global $gc_embed;
+	$content = $gc_embed->run_shortcode( $reusable_block->post_content );
+	$content = $gc_embed->autoembed( $content );
+
+	$content = do_blocks( $content );
 	unset( $seen_refs[ $attributes['ref'] ] );
-	return $result;
+	return $content;
 }
 
 /**
@@ -52,7 +56,7 @@ function render_block_core_block( $attributes ) {
  */
 function register_block_core_block() {
 	register_block_type_from_metadata(
-		ABSPATH . 'assets/blocks/block',
+		__DIR__ . '/block',
 		array(
 			'render_callback' => 'render_block_core_block',
 		)

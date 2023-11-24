@@ -8,7 +8,7 @@
 /**
  * Schedules an event to run only once.
  *
- * Schedules a hook which will be triggered by GeChiUI at the specified time.
+ * Schedules a hook which will be triggered by GeChiUI at the specified UTC time.
  * The action will trigger when someone visits your GeChiUI site if the scheduled
  * time has passed.
  *
@@ -20,10 +20,9 @@
  *
  * Use gc_schedule_event() to schedule a recurring event.
  *
- *
- *
+ * @since 5.1.0 Return value modified to boolean indicating success or failure,
  *              {@see 'pre_schedule_event'} filter added to short-circuit the function.
- *
+ * @since 5.7.0 The `$gc_error` parameter was added.
  *
  * @link https://developer.gechiui.com/reference/functions/gc_schedule_single_event/
  *
@@ -73,16 +72,18 @@ function gc_schedule_single_event( $timestamp, $hook, $args = array(), $gc_error
 	 *
 	 * Return true if the event was scheduled, false or a GC_Error if not.
 	 *
+	 * @since 5.1.0
+	 * @since 5.7.0 The `$gc_error` parameter was added, and a `GC_Error` object can now be returned.
 	 *
-	 * @param null|bool|GC_Error $pre      Value to return instead. Default null to continue adding the event.
-	 * @param stdClass           $event    {
+	 * @param null|bool|GC_Error $result   The value to return instead. Default null to continue adding the event.
+	 * @param object             $event    {
 	 *     An object containing an event's data.
 	 *
 	 *     @type string       $hook      Action hook to execute when the event is run.
 	 *     @type int          $timestamp Unix timestamp (UTC) for when to next run the event.
 	 *     @type string|false $schedule  How often the event should subsequently recur.
 	 *     @type array        $args      Array containing each separate argument to pass to the hook's callback function.
-	 *     @type int          $interval  The interval time in seconds for the schedule. Only present for recurring events.
+	 *     @type int          $interval  Optional. The interval time in seconds for the schedule. Only present for recurring events.
 	 * }
 	 * @param bool               $gc_error Whether to return a GC_Error on failure.
 	 */
@@ -117,9 +118,6 @@ function gc_schedule_single_event( $timestamp, $hook, $args = array(), $gc_error
 	 * are considered duplicates.
 	 */
 	$crons = _get_cron_array();
-	if ( ! is_array( $crons ) ) {
-		$crons = array();
-	}
 
 	$key       = md5( serialize( $event->args ) );
 	$duplicate = false;
@@ -164,19 +162,19 @@ function gc_schedule_single_event( $timestamp, $hook, $args = array(), $gc_error
 	 * Modify an event before it is scheduled.
 	 *
 	 *
-	 * @param stdClass|false $event {
+	 * @param object|false $event {
 	 *     An object containing an event's data, or boolean false to prevent the event from being scheduled.
 	 *
 	 *     @type string       $hook      Action hook to execute when the event is run.
 	 *     @type int          $timestamp Unix timestamp (UTC) for when to next run the event.
 	 *     @type string|false $schedule  How often the event should subsequently recur.
 	 *     @type array        $args      Array containing each separate argument to pass to the hook's callback function.
-	 *     @type int          $interval  The interval time in seconds for the schedule. Only present for recurring events.
+	 *     @type int          $interval  Optional. The interval time in seconds for the schedule. Only present for recurring events.
 	 * }
 	 */
 	$event = apply_filters( 'schedule_event', $event );
 
-	// 一个插件禁用了该事件。
+	// A plugin disallowed this event.
 	if ( ! $event ) {
 		if ( $gc_error ) {
 			return new GC_Error(
@@ -207,18 +205,13 @@ function gc_schedule_single_event( $timestamp, $hook, $args = array(), $gc_error
  * Valid values for the recurrence are 'hourly', 'daily', and 'twicedaily'. These can
  * be extended using the {@see 'cron_schedules'} filter in gc_get_schedules().
  *
- * Note that scheduling an event to occur within 10 minutes of an existing event
- * with the same action hook will be ignored unless you pass unique `$args` values
- * for each scheduled event.
- *
  * Use gc_next_scheduled() to prevent duplicate events.
  *
  * Use gc_schedule_single_event() to schedule a non-recurring event.
  *
- *
- *
+ * @since 5.1.0 Return value modified to boolean indicating success or failure,
  *              {@see 'pre_schedule_event'} filter added to short-circuit the function.
- *
+ * @since 5.7.0 The `$gc_error` parameter was added.
  *
  * @link https://developer.gechiui.com/reference/functions/gc_schedule_event/
  *
@@ -288,7 +281,7 @@ function gc_schedule_event( $timestamp, $recurrence, $hook, $args = array(), $gc
 	/** This filter is documented in gc-includes/cron.php */
 	$event = apply_filters( 'schedule_event', $event );
 
-	// 一个插件禁用了该事件。
+	// A plugin disallowed this event.
 	if ( ! $event ) {
 		if ( $gc_error ) {
 			return new GC_Error(
@@ -303,9 +296,6 @@ function gc_schedule_event( $timestamp, $recurrence, $hook, $args = array(), $gc
 	$key = md5( serialize( $event->args ) );
 
 	$crons = _get_cron_array();
-	if ( ! is_array( $crons ) ) {
-		$crons = array();
-	}
 
 	$crons[ $event->timestamp ][ $event->hook ][ $key ] = array(
 		'schedule' => $event->schedule,
@@ -320,16 +310,15 @@ function gc_schedule_event( $timestamp, $recurrence, $hook, $args = array(), $gc
 /**
  * Reschedules a recurring event.
  *
- * Mainly for internal use, this takes the time stamp of a previously run
+ * Mainly for internal use, this takes the UTC timestamp of a previously run
  * recurring event and reschedules it for its next run.
  *
  * To change upcoming scheduled events, use gc_schedule_event() to
  * change the recurrence frequency.
  *
- *
- *
+ * @since 5.1.0 Return value modified to boolean indicating success or failure,
  *              {@see 'pre_reschedule_event'} filter added to short-circuit the function.
- *
+ * @since 5.7.0 The `$gc_error` parameter was added.
  *
  * @param int    $timestamp  Unix timestamp (UTC) for when the event was scheduled.
  * @param string $recurrence How often the event should subsequently recur.
@@ -380,24 +369,26 @@ function gc_reschedule_event( $timestamp, $recurrence, $hook, $args = array(), $
 	);
 
 	/**
-	 * Filter to preflight or hijack rescheduling of events.
+	 * Filter to preflight or hijack rescheduling of a recurring event.
 	 *
 	 * Returning a non-null value will short-circuit the normal rescheduling
 	 * process, causing the function to return the filtered value instead.
 	 *
 	 * For plugins replacing gc-cron, return true if the event was successfully
-	 * rescheduled, false if not.
+	 * rescheduled, false or a GC_Error if not.
 	 *
+	 * @since 5.1.0
+	 * @since 5.7.0 The `$gc_error` parameter was added, and a `GC_Error` object can now be returned.
 	 *
 	 * @param null|bool|GC_Error $pre      Value to return instead. Default null to continue adding the event.
-	 * @param stdClass           $event    {
+	 * @param object             $event    {
 	 *     An object containing an event's data.
 	 *
-	 *     @type string       $hook      Action hook to execute when the event is run.
-	 *     @type int          $timestamp Unix timestamp (UTC) for when to next run the event.
-	 *     @type string|false $schedule  How often the event should subsequently recur.
-	 *     @type array        $args      Array containing each separate argument to pass to the hook's callback function.
-	 *     @type int          $interval  The interval time in seconds for the schedule. Only present for recurring events.
+	 *     @type string $hook      Action hook to execute when the event is run.
+	 *     @type int    $timestamp Unix timestamp (UTC) for when to next run the event.
+	 *     @type string $schedule  How often the event should subsequently recur.
+	 *     @type array  $args      Array containing each separate argument to pass to the hook's callback function.
+	 *     @type int    $interval  The interval time in seconds for the schedule.
 	 * }
 	 * @param bool               $gc_error Whether to return a GC_Error on failure.
 	 */
@@ -442,15 +433,14 @@ function gc_reschedule_event( $timestamp, $recurrence, $hook, $args = array(), $
 }
 
 /**
- * Unschedule a previously scheduled event.
+ * Unschedules a previously scheduled event.
  *
- * The $timestamp and $hook parameters are required so that the event can be
+ * The `$timestamp` and `$hook` parameters are required so that the event can be
  * identified.
  *
- *
- *
+ * @since 5.1.0 Return value modified to boolean indicating success or failure,
  *              {@see 'pre_unschedule_event'} filter added to short-circuit the function.
- *
+ * @since 5.7.0 The `$gc_error` parameter was added.
  *
  * @param int    $timestamp Unix timestamp (UTC) of the event.
  * @param string $hook      Action hook of the event.
@@ -481,8 +471,10 @@ function gc_unschedule_event( $timestamp, $hook, $args = array(), $gc_error = fa
 	 * process, causing the function to return the filtered value instead.
 	 *
 	 * For plugins replacing gc-cron, return true if the event was successfully
-	 * unscheduled, false if not.
+	 * unscheduled, false or a GC_Error if not.
 	 *
+	 * @since 5.1.0
+	 * @since 5.7.0 The `$gc_error` parameter was added, and a `GC_Error` object can now be returned.
 	 *
 	 * @param null|bool|GC_Error $pre       Value to return instead. Default null to continue unscheduling the event.
 	 * @param int                $timestamp Timestamp for when to run the event.
@@ -528,10 +520,9 @@ function gc_unschedule_event( $timestamp, $hook, $args = array(), $gc_error = fa
  * {@link https://www.php.net/manual/en/language.types.boolean.php PHP documentation}. Use
  * the `===` operator for testing the return value of this function.
  *
- *
- *
+ * @since 5.1.0 Return value modified to indicate success or failure,
  *              {@see 'pre_clear_scheduled_hook'} filter added to short-circuit the function.
- *
+ * @since 5.7.0 The `$gc_error` parameter was added.
  *
  * @param string $hook     Action hook, the execution of which will be unscheduled.
  * @param array  $args     Optional. Array containing each separate argument to pass to the hook's callback function.
@@ -544,10 +535,12 @@ function gc_unschedule_event( $timestamp, $hook, $args = array(), $gc_error = fa
  *                            if unscheduling one or more events fail.
  */
 function gc_clear_scheduled_hook( $hook, $args = array(), $gc_error = false ) {
-	// Backward compatibility.
-	// Previously, this function took the arguments as discrete vars rather than an array like the rest of the API.
+	/*
+	 * Backward compatibility.
+	 * Previously, this function took the arguments as discrete vars rather than an array like the rest of the API.
+	 */
 	if ( ! is_array( $args ) ) {
-		_deprecated_argument( __FUNCTION__, '3.0.0', __( '为了和其他cron计划任务函数的行为相匹配，这个参数已被改为一个数组。' ) );
+		_deprecated_argument( __FUNCTION__, '3.0.0', __( '为了和其他 cron 计划任务函数的行为相匹配，这个参数已被改为一个数组。' ) );
 		$args     = array_slice( func_get_args(), 1 ); // phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
 		$gc_error = false;
 	}
@@ -560,8 +553,10 @@ function gc_clear_scheduled_hook( $hook, $args = array(), $gc_error = false ) {
 	 *
 	 * For plugins replacing gc-cron, return the number of events successfully
 	 * unscheduled (zero if no events were registered with the hook) or false
-	 * if unscheduling one or more events fails.
+	 * or a GC_Error if unscheduling one or more events fails.
 	 *
+	 * @since 5.1.0
+	 * @since 5.7.0 The `$gc_error` parameter was added, and a `GC_Error` object can now be returned.
 	 *
 	 * @param null|int|false|GC_Error $pre      Value to return instead. Default null to continue unscheduling the event.
 	 * @param string                  $hook     Action hook, the execution of which will be unscheduled.
@@ -630,9 +625,8 @@ function gc_clear_scheduled_hook( $hook, $args = array(), $gc_error = false ) {
  * {@link https://www.php.net/manual/en/language.types.boolean.php PHP documentation}. Use
  * the `===` operator for testing the return value of this function.
  *
- *
- *
- *
+ * @since 5.1.0 Return value added to indicate success or failure.
+ * @since 5.7.0 The `$gc_error` parameter was added.
  *
  * @param string $hook     Action hook, the execution of which will be unscheduled.
  * @param bool   $gc_error Optional. Whether to return a GC_Error on failure. Default false.
@@ -650,6 +644,8 @@ function gc_unschedule_hook( $hook, $gc_error = false ) {
 	 * unscheduled (zero if no events were registered with the hook) or false
 	 * if unscheduling one or more events fails.
 	 *
+	 * @since 5.1.0
+	 * @since 5.7.0 The `$gc_error` parameter was added, and a `GC_Error` object can now be returned.
 	 *
 	 * @param null|int|false|GC_Error $pre      Value to return instead. Default null to continue unscheduling the hook.
 	 * @param string                  $hook     Action hook, the execution of which will be unscheduled.
@@ -707,12 +703,12 @@ function gc_unschedule_hook( $hook, $gc_error = false ) {
 }
 
 /**
- * Retrieve a scheduled event.
+ * Retrieves a scheduled event.
  *
- * Retrieve the full event object for a given event, if no timestamp is specified the next
+ * Retrieves the full event object for a given event, if no timestamp is specified the next
  * scheduled event is returned.
  *
- *
+ * @since 5.1.0
  *
  * @param string   $hook      Action hook of the event.
  * @param array    $args      Optional. Array containing each separate argument to pass to the hook's callback function.
@@ -721,7 +717,15 @@ function gc_unschedule_hook( $hook, $gc_error = false ) {
  *                            Default empty array.
  * @param int|null $timestamp Optional. Unix timestamp (UTC) of the event. If not specified, the next scheduled event
  *                            is returned. Default null.
- * @return object|false The event object. False if the event does not exist.
+ * @return object|false {
+ *     The event object. False if the event does not exist.
+ *
+ *     @type string       $hook      Action hook to execute when the event is run.
+ *     @type int          $timestamp Unix timestamp (UTC) for when to next run the event.
+ *     @type string|false $schedule  How often the event should subsequently recur.
+ *     @type array        $args      Array containing each separate argument to pass to the hook's callback function.
+ *     @type int          $interval  Optional. The interval time in seconds for the schedule. Only present for recurring events.
+ * }
  */
 function gc_get_scheduled_event( $hook, $args = array(), $timestamp = null ) {
 	/**
@@ -733,6 +737,7 @@ function gc_get_scheduled_event( $hook, $args = array(), $timestamp = null ) {
 	 * Return false if the event does not exist, otherwise an event object
 	 * should be returned.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param null|false|object $pre  Value to return instead. Default null to continue retrieving the event.
 	 * @param string            $hook Action hook of the event.
@@ -790,9 +795,7 @@ function gc_get_scheduled_event( $hook, $args = array(), $timestamp = null ) {
 }
 
 /**
- * Retrieve the next timestamp for an event.
- *
- *
+ * Retrieves the next timestamp for an event.
  *
  * @param string $hook Action hook of the event.
  * @param array  $args Optional. Array containing each separate argument to pass to the hook's callback function.
@@ -813,8 +816,7 @@ function gc_next_scheduled( $hook, $args = array() ) {
 /**
  * Sends a request to run cron through HTTP request that doesn't halt page loading.
  *
- *
- *
+ * @since 5.1.0 Return values added.
  *
  * @param int $gmt_time Optional. Unix timestamp (UTC). Default 0 (current time is used).
  * @return bool True if spawned, false if no events spawned.
@@ -873,7 +875,7 @@ function spawn_cron( $gmt_time = 0 ) {
 		gc_ob_end_flush_all();
 		flush();
 
-		include_once ABSPATH . 'gc-cron.php';
+		require_once ABSPATH . 'gc-cron.php';
 		return true;
 	}
 
@@ -884,6 +886,8 @@ function spawn_cron( $gmt_time = 0 ) {
 	/**
 	 * Filters the cron request arguments.
 	 *
+	 * @since 3.5.0
+	 * @since 4.5.0 The `$doing_gc_cron` parameter was added.
 	 *
 	 * @param array $cron_request_array {
 	 *     An array of cron request URL arguments.
@@ -920,7 +924,7 @@ function spawn_cron( $gmt_time = 0 ) {
 }
 
 /**
- * Register _gc_cron() to run on the {@see 'gc_loaded'} action.
+ * Registers _gc_cron() to run on the {@see 'gc_loaded'} action.
  *
  * If the {@see 'gc_loaded'} action has already fired, this function calls
  * _gc_cron() directly.
@@ -930,9 +934,8 @@ function spawn_cron( $gmt_time = 0 ) {
  * {@link https://www.php.net/manual/en/language.types.boolean.php PHP documentation}. Use
  * the `===` operator for testing the return value of this function.
  *
- *
- *
- *
+ * @since 5.1.0 Return value added to indicate success or failure.
+ * @since 5.7.0 Functionality moved to _gc_cron() to which this becomes a wrapper.
  *
  * @return bool|int|void On success an integer indicating number of events spawned (0 indicates no
  *                       events needed to be spawned), false if spawning fails for one or more events or
@@ -947,14 +950,14 @@ function gc_cron() {
 }
 
 /**
- * Run scheduled callbacks or spawn cron for all scheduled events.
+ * Runs scheduled callbacks or spawns cron for all scheduled events.
  *
  * Warning: This function may return Boolean FALSE, but may also return a non-Boolean
  * value which evaluates to FALSE. For information about casting to booleans see the
  * {@link https://www.php.net/manual/en/language.types.boolean.php PHP documentation}. Use
  * the `===` operator for testing the return value of this function.
  *
- *
+ * @since 5.7.0
  * @access private
  *
  * @return int|false On success an integer indicating number of events spawned (0 indicates no
@@ -962,7 +965,7 @@ function gc_cron() {
  */
 function _gc_cron() {
 	// Prevent infinite loops caused by lack of gc-cron.php.
-	if ( strpos( $_SERVER['REQUEST_URI'], '/gc-cron.php' ) !== false || ( defined( 'DISABLE_GC_CRON' ) && DISABLE_GC_CRON ) ) {
+	if ( str_contains( $_SERVER['REQUEST_URI'], '/gc-cron.php' ) || ( defined( 'DISABLE_GC_CRON' ) && DISABLE_GC_CRON ) ) {
 		return 0;
 	}
 
@@ -999,7 +1002,7 @@ function _gc_cron() {
 }
 
 /**
- * Retrieve supported event recurrence schedules.
+ * Retrieves supported event recurrence schedules.
  *
  * The default supported recurrences are 'hourly', 'twicedaily', 'daily', and 'weekly'.
  * A plugin may add more by hooking into the {@see 'cron_schedules'} filter.
@@ -1012,7 +1015,7 @@ function _gc_cron() {
  * the value would be `MONTH_IN_SECONDS` (30 * 24 * 60 * 60 or 2592000).
  *
  * The 'display' is the description. For the 'monthly' key, the 'display'
- * would be `__( '每月一次' )`.
+ * would be `__( 'Once Monthly' )`.
  *
  * For your plugin, you will be passed an array. You can easily add your
  * schedule by doing the following.
@@ -1020,13 +1023,21 @@ function _gc_cron() {
  *     // Filter parameter variable name is 'array'.
  *     $array['monthly'] = array(
  *         'interval' => MONTH_IN_SECONDS,
- *         'display'  => __( '每月一次' )
+ *         'display'  => __( 'Once Monthly' )
  *     );
  *
+ * @since 5.4.0 The 'weekly' schedule was added.
  *
+ * @return array {
+ *     The array of cron schedules keyed by the schedule name.
  *
+ *     @type array ...$0 {
+ *         Cron schedule information.
  *
- * @return array[]
+ *         @type int    $interval The schedule interval in seconds.
+ *         @type string $display  The schedule display name.
+ *     }
+ * }
  */
 function gc_get_schedules() {
 	$schedules = array(
@@ -1052,18 +1063,26 @@ function gc_get_schedules() {
 	 * Filters the non-default cron schedules.
 	 *
 	 *
-	 * @param array[] $new_schedules An array of non-default cron schedule arrays. Default empty.
+	 * @param array $new_schedules {
+	 *     An array of non-default cron schedules keyed by the schedule name. Default empty array.
+	 *
+	 *     @type array ...$0 {
+	 *         Cron schedule information.
+	 *
+	 *         @type int    $interval The schedule interval in seconds.
+	 *         @type string $display  The schedule display name.
+	 *     }
+	 * }
 	 */
 	return array_merge( apply_filters( 'cron_schedules', array() ), $schedules );
 }
 
 /**
- * Retrieve the recurrence schedule for an event.
+ * Retrieves the name of the recurrence schedule for an event.
  *
  * @see gc_get_schedules() for available schedules.
  *
- *
- *
+ * @since 5.1.0 {@see 'get_schedule'} filter added.
  *
  * @param string $hook Action hook to identify the event.
  * @param array  $args Optional. Arguments passed to the event's callback function.
@@ -1079,8 +1098,9 @@ function gc_get_schedule( $hook, $args = array() ) {
 	}
 
 	/**
-	 * Filters the schedule for a hook.
+	 * Filters the schedule name for a hook.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param string|false $schedule Schedule for the hook. False if not found.
 	 * @param string       $hook     Action hook to execute when cron is run.
@@ -1090,12 +1110,12 @@ function gc_get_schedule( $hook, $args = array() ) {
 }
 
 /**
- * Retrieve cron jobs ready to be run.
+ * Retrieves cron jobs ready to be run.
  *
  * Returns the results of _get_cron_array() limited to events ready to be run,
  * ie, with a timestamp in the past.
  *
- *
+ * @since 5.1.0
  *
  * @return array[] Array of cron job arrays ready to be run.
  */
@@ -1106,31 +1126,26 @@ function gc_get_ready_cron_jobs() {
 	 * Returning an array will short-circuit the normal retrieval of ready
 	 * cron jobs, causing the function to return the filtered value instead.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param null|array[] $pre Array of ready cron tasks to return instead. Default null
 	 *                          to continue using results from _get_cron_array().
 	 */
 	$pre = apply_filters( 'pre_get_ready_cron_jobs', null );
+
 	if ( null !== $pre ) {
 		return $pre;
 	}
 
-	$crons = _get_cron_array();
-	if ( ! is_array( $crons ) ) {
-		return array();
-	}
-
+	$crons    = _get_cron_array();
 	$gmt_time = microtime( true );
-	$keys     = array_keys( $crons );
-	if ( isset( $keys[0] ) && $keys[0] > $gmt_time ) {
-		return array();
-	}
+	$results  = array();
 
-	$results = array();
 	foreach ( $crons as $timestamp => $cronhooks ) {
 		if ( $timestamp > $gmt_time ) {
 			break;
 		}
+
 		$results[ $timestamp ] = $cronhooks;
 	}
 
@@ -1142,17 +1157,17 @@ function gc_get_ready_cron_jobs() {
 //
 
 /**
- * Retrieve cron info array option.
+ * Retrieves cron info array option.
  *
- *
+ * @since 6.1.0 Return type modified to consistently return an array.
  * @access private
  *
- * @return array[]|false Array of cron info arrays on success, false on failure.
+ * @return array[] Array of cron events.
  */
 function _get_cron_array() {
 	$cron = get_option( 'cron' );
 	if ( ! is_array( $cron ) ) {
-		return false;
+		return array();
 	}
 
 	if ( ! isset( $cron['version'] ) ) {
@@ -1167,9 +1182,8 @@ function _get_cron_array() {
 /**
  * Updates the cron option with the new cron array.
  *
- *
- *
- *
+ * @since 5.1.0 Return value modified to outcome of update_option().
+ * @since 5.7.0 The `$gc_error` parameter was added.
  *
  * @access private
  *
@@ -1188,7 +1202,7 @@ function _set_cron_array( $cron, $gc_error = false ) {
 	if ( $gc_error && ! $result ) {
 		return new GC_Error(
 			'could_not_set',
-			__( '无法保存Cron事件列表。' )
+			__( '无法保存 Cron 事件列表。' )
 		);
 	}
 
@@ -1196,15 +1210,14 @@ function _set_cron_array( $cron, $gc_error = false ) {
 }
 
 /**
- * Upgrade a Cron info array.
+ * Upgrades a cron info array.
  *
- * This function upgrades the Cron info array to version 2.
- *
+ * This function upgrades the cron info array to version 2.
  *
  * @access private
  *
  * @param array $cron Cron info array from _get_cron_array().
- * @return array An upgraded Cron info array.
+ * @return array An upgraded cron info array.
  */
 function _upgrade_cron_array( $cron ) {
 	if ( isset( $cron['version'] ) && 2 == $cron['version'] ) {

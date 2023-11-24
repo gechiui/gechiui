@@ -4,15 +4,12 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class used to implement a Meta widget.
  *
  * Displays log in/out, RSS feed links, etc.
- *
- *
  *
  * @see GC_Widget
  */
@@ -29,7 +26,7 @@ class GC_Widget_Meta extends GC_Widget {
 			'customize_selective_refresh' => true,
 			'show_instance_in_rest'       => true,
 		);
-		parent::__construct( 'meta', __( '功能' ), $widget_ops );
+		parent::__construct( 'meta', __( '其他' ), $widget_ops );
 	}
 
 	/**
@@ -41,7 +38,7 @@ class GC_Widget_Meta extends GC_Widget {
 	 * @param array $instance Settings for the current Meta widget instance.
 	 */
 	public function widget( $args, $instance ) {
-		$default_title = __( '功能' );
+		$default_title = __( '其他' );
 		$title         = ! empty( $instance['title'] ) ? $instance['title'] : $default_title;
 
 		/** This filter is documented in gc-includes/widgets/class-gc-widget-pages.php */
@@ -76,8 +73,8 @@ class GC_Widget_Meta extends GC_Widget {
 			/**
 			 * Filters the "www.GeChiUI.com" list item HTML in the Meta widget.
 			 *
-		
-		
+			 * @since 3.6.0
+			 * @since 4.9.0 Added the `$instance` parameter.
 			 *
 			 * @param string $html     Default HTML for the www.GeChiUI.com list item.
 			 * @param array  $instance Array of settings for the current widget.

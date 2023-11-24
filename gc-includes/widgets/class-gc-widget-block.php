@@ -4,13 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
+ * @since 5.8.0
  */
 
 /**
  * Core class used to implement a Block widget.
  *
- *
+ * @since 5.8.0
  *
  * @see GC_Widget
  */
@@ -19,6 +19,7 @@ class GC_Widget_Block extends GC_Widget {
 	/**
 	 * Default instance.
 	 *
+	 * @since 5.8.0
 	 * @var array
 	 */
 	protected $default_instance = array(
@@ -28,6 +29,7 @@ class GC_Widget_Block extends GC_Widget {
 	/**
 	 * Sets up a new Block widget instance.
 	 *
+	 * @since 5.8.0
 	 */
 	public function __construct() {
 		$widget_ops  = array(
@@ -48,6 +50,7 @@ class GC_Widget_Block extends GC_Widget {
 	/**
 	 * Outputs the content for the current Block widget instance.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param array $args     Display arguments including 'before_title', 'after_title',
 	 *                        'before_widget', and 'after_widget'.
@@ -65,6 +68,7 @@ class GC_Widget_Block extends GC_Widget {
 		/**
 		 * Filters the content of the Block widget before output.
 		 *
+		 * @since 5.8.0
 		 *
 		 * @param string          $content  The widget content.
 		 * @param array           $instance Array of settings for the current widget.
@@ -91,6 +95,7 @@ class GC_Widget_Block extends GC_Widget {
 	 * we display that legacy widget's class name. This helps with theme
 	 * backwards compatibility.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param string $content The HTML content of the current block widget.
 	 * @return string The classname to use in the block widget's container HTML.
@@ -152,6 +157,7 @@ class GC_Widget_Block extends GC_Widget {
 		 *
 		 * This can be set according to the name of the block contained by the block widget.
 		 *
+		 * @since 5.8.0
 		 *
 		 * @param string $classname  The classname to be used in the block widget's container HTML,
 		 *                           e.g. 'widget_block widget_text'.
@@ -164,6 +170,7 @@ class GC_Widget_Block extends GC_Widget {
 	/**
 	 * Handles updating settings for the current Block widget instance.
 	 *
+	 * @since 5.8.0
 
 	 * @param array $new_instance New settings for this instance as input by the user via
 	 *                            GC_Widget::form().
@@ -185,6 +192,7 @@ class GC_Widget_Block extends GC_Widget {
 	/**
 	 * Outputs the Block widget settings form.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @see GC_Widget_Custom_HTML::render_control_template_scripts()
 	 *
@@ -208,13 +216,14 @@ class GC_Widget_Block extends GC_Widget {
 	/**
 	 * Makes sure no block widget is considered to be wide.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param bool   $is_wide   Whether the widget is considered wide.
 	 * @param string $widget_id Widget ID.
 	 * @return bool Updated `is_wide` value.
 	 */
 	public function set_is_wide_widget_in_customizer( $is_wide, $widget_id ) {
-		if ( strpos( $widget_id, 'block-' ) === 0 ) {
+		if ( str_starts_with( $widget_id, 'block-' ) ) {
 			return false;
 		}
 

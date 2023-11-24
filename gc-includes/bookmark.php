@@ -7,9 +7,7 @@
  */
 
 /**
- * Retrieve Bookmark data
- *
- *
+ * Retrieves bookmark data.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -65,13 +63,11 @@ function get_bookmark( $bookmark, $output = OBJECT, $filter = 'raw' ) {
 }
 
 /**
- * Retrieve single bookmark data item or field.
- *
- *
+ * Retrieves single bookmark data item or field.
  *
  * @param string $field    The name of the data field to return.
  * @param int    $bookmark The bookmark ID to get field.
- * @param string $context  Optional. The context of how the field will be used.
+ * @param string $context  Optional. The context of how the field will be used. Default 'display'.
  * @return string|GC_Error
  */
 function get_bookmark_field( $field, $bookmark, $context = 'display' ) {
@@ -94,13 +90,11 @@ function get_bookmark_field( $field, $bookmark, $context = 'display' ) {
 }
 
 /**
- * Retrieves the list of bookmarks
+ * Retrieves the list of bookmarks.
  *
  * Attempts to retrieve from the cache first based on MD5 hash of arguments. If
  * that fails, then the query will be built from the arguments and executed. The
  * results will be stored to the cache.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -164,7 +158,7 @@ function get_bookmarks( $args = '' ) {
 			 * link category is passed but does not exist. The third evaluation returns
 			 * the full cached results.
 			 *
-		
+			 * @since 2.1.0
 			 *
 			 * @see get_bookmarks()
 			 *
@@ -324,8 +318,6 @@ function get_bookmarks( $args = '' ) {
 /**
  * Sanitizes all bookmark fields.
  *
- *
- *
  * @param stdClass|array $bookmark Bookmark row.
  * @param string         $context  Optional. How to filter the fields. Default 'display'.
  * @return stdClass|array Same type as $bookmark but with fields sanitized.
@@ -386,8 +378,6 @@ function sanitize_bookmark( $bookmark, $context = 'display' ) {
  * The 'display' context is the final context and has the `$field` has the filter name
  * and is passed the `$value`, `$bookmark_id`, and `$context`, respectively.
  *
- *
- *
  * @param string $field       The bookmark field.
  * @param mixed  $value       The bookmark field value.
  * @param int    $bookmark_id Bookmark ID.
@@ -404,8 +394,10 @@ function sanitize_bookmark_field( $field, $value, $bookmark_id, $context ) {
 	switch ( $field ) {
 		case 'link_category': // array( ints )
 			$value = array_map( 'absint', (array) $value );
-			// We return here so that the categories aren't filtered.
-			// The 'link_category' filter is for the name of a link category, not an array of a link's link categories.
+			/*
+			 * We return here so that the categories aren't filtered.
+			 * The 'link_category' filter is for the name of a link category, not an array of a link's link categories.
+			 */
 			return $value;
 
 		case 'link_visible': // bool stored as Y|N
@@ -457,7 +449,7 @@ function sanitize_bookmark_field( $field, $value, $bookmark_id, $context ) {
 /**
  * Deletes the bookmark cache.
  *
- *
+ * @since 2.7.0
  *
  * @param int $bookmark_id Bookmark ID.
  */

@@ -195,7 +195,7 @@ var textcolor = (function () {
       };
       colors = TextColor.mapColors(colorMap);
       colors.push({
-        text: global$3.translate('No color'),
+        text: global$3.translate('无颜色'),
         color: 'transparent'
       });
       html = '<table class="mce-grid mce-grid-border mce-colorbutton-grid" role="list" cellspacing="0"><tbody>';
@@ -217,7 +217,7 @@ var textcolor = (function () {
         html += '<tr>' + '<td colspan="' + cols + '" class="mce-custom-color-btn">' + '<div id="' + id + '-c" class="mce-widget mce-btn mce-btn-small mce-btn-flat" ' + 'role="button" tabindex="-1" aria-labelledby="' + id + '-c" style="width: 100%">' + '<button type="button" role="presentation" tabindex="-1">' + global$3.translate('Custom...') + '</button>' + '</div>' + '</td>' + '</tr>';
         html += '<tr>';
         for (x = 0; x < cols; x++) {
-          html += getColorCellHtml('', 'Custom color');
+          html += getColorCellHtml('', '自定义颜色');
         }
         html += '</tr>';
       }
@@ -320,7 +320,7 @@ var textcolor = (function () {
       });
       editor.addButton('backcolor', {
         type: 'colorbutton',
-        tooltip: 'Background color',
+        tooltip: '背景颜色',
         format: 'hilitecolor',
         panel: {
           role: 'application',

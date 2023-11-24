@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Nav_Menus
- *
  */
 
 /**
  * Core class used to implement an HTML list of nav menu items.
- *
- *
  *
  * @see Walker
  */
@@ -63,15 +60,34 @@ class Walker_Nav_Menu extends Walker {
 		/**
 		 * Filters the CSS class(es) applied to a menu list element.
 		 *
+		 * @since 4.8.0
 		 *
 		 * @param string[] $classes Array of the CSS classes that are applied to the menu `<ul>` element.
 		 * @param stdClass $args    An object of `gc_nav_menu()` arguments.
 		 * @param int      $depth   Depth of menu item. Used for padding.
 		 */
 		$class_names = implode( ' ', apply_filters( 'nav_menu_submenu_css_class', $classes, $args, $depth ) );
-		$class_names = $class_names ? ' class="' . esc_attr( $class_names ) . '"' : '';
 
-		$output .= "{$n}{$indent}<ul$class_names>{$n}";
+		$atts          = array();
+		$atts['class'] = ! empty( $class_names ) ? $class_names : '';
+
+		/**
+		 * Filters the HTML attributes applied to a menu list element.
+		 *
+		 * @since 6.3.0
+		 *
+		 * @param array $atts {
+		 *     The HTML attributes applied to the `<ul>` element, empty strings are ignored.
+		 *
+		 *     @type string $class    HTML CSS class attribute.
+		 * }
+		 * @param stdClass $args      An object of `gc_nav_menu()` arguments.
+		 * @param int      $depth     Depth of menu item. Used for padding.
+		 */
+		$atts       = apply_filters( 'nav_menu_submenu_attributes', $atts, $args, $depth );
+		$attributes = $this->build_atts( $atts );
+
+		$output .= "{$n}{$indent}<ul{$attributes}>{$n}";
 	}
 
 	/**
@@ -99,6 +115,8 @@ class Walker_Nav_Menu extends Walker {
 	/**
 	 * Starts the element output.
 	 *
+	 * @since 4.4.0 The {@see 'nav_menu_item_args'} filter was added.
+	 * @since 5.9.0 Renamed `$item` to `$data_object` and `$id` to `$current_object_id`
 	 *              to match parent class for PHP 8 named parameter support.
 	 *
 	 * @see Walker::start_el()
@@ -128,6 +146,7 @@ class Walker_Nav_Menu extends Walker {
 		/**
 		 * Filters the arguments for a single nav menu item.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param stdClass $args      An object of gc_nav_menu() arguments.
 		 * @param GC_Post  $menu_item Menu item data object.
@@ -138,6 +157,8 @@ class Walker_Nav_Menu extends Walker {
 		/**
 		 * Filters the CSS classes applied to a menu item's list item element.
 		 *
+		 * @since 3.0.0
+		 * @since 4.1.0 The `$depth` parameter was added.
 		 *
 		 * @param string[] $classes   Array of the CSS classes that are applied to the menu item's `<li>` element.
 		 * @param GC_Post  $menu_item The current menu item object.
@@ -145,32 +166,70 @@ class Walker_Nav_Menu extends Walker {
 		 * @param int      $depth     Depth of menu item. Used for padding.
 		 */
 		$class_names = implode( ' ', apply_filters( 'nav_menu_css_class', array_filter( $classes ), $menu_item, $args, $depth ) );
-		$class_names = $class_names ? ' class="' . esc_attr( $class_names ) . '"' : '';
 
 		/**
-		 * Filters the ID applied to a menu item's list item element.
+		 * Filters the ID attribute applied to a menu item's list item element.
 		 *
+		 * @since 3.0.1
+		 * @since 4.1.0 The `$depth` parameter was added.
 		 *
-		 * @param string   $menu_id   The ID that is applied to the menu item's `<li>` element.
-		 * @param GC_Post  $menu_item The current menu item.
+		 * @param string   $menu_item_id The ID attribute applied to the menu item's `<li>` element.
+		 * @param GC_Post  $menu_item    The current menu item.
+		 * @param stdClass $args         An object of gc_nav_menu() arguments.
+		 * @param int      $depth        Depth of menu item. Used for padding.
+		 */
+		$id = apply_filters( 'nav_menu_item_id', 'menu-item-' . $menu_item->ID, $menu_item, $args, $depth );
+
+		$li_atts          = array();
+		$li_atts['id']    = ! empty( $id ) ? $id : '';
+		$li_atts['class'] = ! empty( $class_names ) ? $class_names : '';
+
+		/**
+		 * Filters the HTML attributes applied to a menu's list item element.
+		 *
+		 * @since 6.3.0
+		 *
+		 * @param array $li_atts {
+		 *     The HTML attributes applied to the menu item's `<li>` element, empty strings are ignored.
+		 *
+		 *     @type string $class        HTML CSS class attribute.
+		 *     @type string $id           HTML id attribute.
+		 * }
+		 * @param GC_Post  $menu_item The current menu item object.
 		 * @param stdClass $args      An object of gc_nav_menu() arguments.
 		 * @param int      $depth     Depth of menu item. Used for padding.
 		 */
-		$id = apply_filters( 'nav_menu_item_id', 'menu-item-' . $menu_item->ID, $menu_item, $args, $depth );
-		$id = $id ? ' id="' . esc_attr( $id ) . '"' : '';
+		$li_atts       = apply_filters( 'nav_menu_item_attributes', $li_atts, $menu_item, $args, $depth );
+		$li_attributes = $this->build_atts( $li_atts );
 
-		$output .= $indent . '<li' . $id . $class_names . '>';
+		$output .= $indent . '<li' . $li_attributes . '>';
 
 		$atts           = array();
 		$atts['title']  = ! empty( $menu_item->attr_title ) ? $menu_item->attr_title : '';
 		$atts['target'] = ! empty( $menu_item->target ) ? $menu_item->target : '';
-		$atts['rel'] = 'noopener';
-		$atts['href']         = ! empty( $menu_item->url ) ? $menu_item->url : '';
+		if ( '_blank' === $menu_item->target && empty( $menu_item->xfn ) ) {
+			$atts['rel'] = 'noopener';
+		} else {
+			$atts['rel'] = $menu_item->xfn;
+		}
+
+		if ( ! empty( $menu_item->url ) ) {
+			if ( get_privacy_policy_url() === $menu_item->url ) {
+				$atts['rel'] = empty( $atts['rel'] ) ? 'privacy-policy' : $atts['rel'] . ' privacy-policy';
+			}
+
+			$atts['href'] = $menu_item->url;
+		} else {
+			$atts['href'] = '';
+		}
+
 		$atts['aria-current'] = $menu_item->current ? 'page' : '';
 
 		/**
 		 * Filters the HTML attributes applied to a menu item's anchor element.
 		 *
+		 * @since 3.6.0
+		 * @since 4.1.0 The `$depth` parameter was added.
 		 *
 		 * @param array $atts {
 		 *     The HTML attributes applied to the menu item's `<a>` element, empty strings are ignored.
@@ -185,15 +244,8 @@ class Walker_Nav_Menu extends Walker {
 		 * @param stdClass $args      An object of gc_nav_menu() arguments.
 		 * @param int      $depth     Depth of menu item. Used for padding.
 		 */
-		$atts = apply_filters( 'nav_menu_link_attributes', $atts, $menu_item, $args, $depth );
-
-		$attributes = '';
-		foreach ( $atts as $attr => $value ) {
-			if ( is_scalar( $value ) && '' !== $value && false !== $value ) {
-				$value       = ( 'href' === $attr ) ? esc_url( $value ) : esc_attr( $value );
-				$attributes .= ' ' . $attr . '="' . $value . '"';
-			}
-		}
+		$atts       = apply_filters( 'nav_menu_link_attributes', $atts, $menu_item, $args, $depth );
+		$attributes = $this->build_atts( $atts );
 
 		/** This filter is documented in gc-includes/post-template.php */
 		$title = apply_filters( 'the_title', $menu_item->title, $menu_item->ID );
@@ -201,6 +253,7 @@ class Walker_Nav_Menu extends Walker {
 		/**
 		 * Filters a menu item's title.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param string   $title     The menu item's title.
 		 * @param GC_Post  $menu_item The current menu item object.
@@ -222,6 +275,7 @@ class Walker_Nav_Menu extends Walker {
 		 * the menu item's title, the closing `</a>`, and `$args->after`. Currently, there is
 		 * no filter for modifying the opening and closing `<li>` for a menu item.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param string   $item_output The menu item's starting HTML output.
 		 * @param GC_Post  $menu_item   Menu item data object.
@@ -234,6 +288,7 @@ class Walker_Nav_Menu extends Walker {
 	/**
 	 * Ends the element output, if needed.
 	 *
+	 * @since 5.9.0 Renamed `$item` to `$data_object` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @see Walker::end_el()
 	 *
@@ -253,4 +308,23 @@ class Walker_Nav_Menu extends Walker {
 		$output .= "</li>{$n}";
 	}
 
+	/**
+	 * Builds a string of HTML attributes from an array of key/value pairs.
+	 * Empty values are ignored.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @param  array $atts Optional. An array of HTML attribute key/value pairs. Default empty array.
+	 * @return string A string of HTML attributes.
+	 */
+	protected function build_atts( $atts = array() ) {
+		$attribute_string = '';
+		foreach ( $atts as $attr => $value ) {
+			if ( false !== $value && '' !== $value && is_scalar( $value ) ) {
+				$value             = ( 'href' === $attr ) ? esc_url( $value ) : esc_attr( $value );
+				$attribute_string .= ' ' . $attr . '="' . $value . '"';
+			}
+		}
+		return $attribute_string;
+	}
 }

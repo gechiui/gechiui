@@ -4,7 +4,6 @@
  * IXR_IntrospectionServer
  *
  * @package IXR
- *
  */
 class IXR_IntrospectionServer extends IXR_Server
 {

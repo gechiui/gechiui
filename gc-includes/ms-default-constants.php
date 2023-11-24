@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Multisite
- *
  */
 
 /**
@@ -12,7 +11,6 @@
  *
  * Exists for backward compatibility with legacy file-serving through
  * gc-includes/ms-files.php (gc-content/blogs.php in MU).
- *
  *
  */
 function ms_upload_constants() {
@@ -28,8 +26,10 @@ function ms_upload_constants() {
 		define( 'UPLOADBLOGSDIR', 'gc-content/blogs.dir' );
 	}
 
-	// Note, the main site in a post-MU network uses gc-content/uploads.
-	// This is handled in gc_upload_dir() by ignoring UPLOADS for this case.
+	/*
+	 * Note, the main site in a post-MU network uses gc-content/uploads.
+	 * This is handled in gc_upload_dir() by ignoring UPLOADS for this case.
+	 */
 	if ( ! defined( 'UPLOADS' ) ) {
 		$site_id = get_current_blog_id();
 
@@ -45,24 +45,26 @@ function ms_upload_constants() {
 /**
  * Defines Multisite cookie constants.
  *
- *
  */
 function ms_cookie_constants() {
 	$current_network = get_network();
 
 	/**
+	 * @since 1.2.0
 	 */
 	if ( ! defined( 'COOKIEPATH' ) ) {
 		define( 'COOKIEPATH', $current_network->path );
 	}
 
 	/**
+	 * @since 1.5.0
 	 */
 	if ( ! defined( 'SITECOOKIEPATH' ) ) {
 		define( 'SITECOOKIEPATH', $current_network->path );
 	}
 
 	/**
+	 * @since 2.6.0
 	 */
 	if ( ! defined( 'ADMIN_COOKIE_PATH' ) ) {
 		$site_path = parse_url( get_option( 'siteurl' ), PHP_URL_PATH );
@@ -74,6 +76,7 @@ function ms_cookie_constants() {
 	}
 
 	/**
+	 * @since 2.0.0
 	 */
 	if ( ! defined( 'COOKIE_DOMAIN' ) && is_subdomain_install() ) {
 		if ( ! empty( $current_network->cookie_domain ) ) {
@@ -89,7 +92,6 @@ function ms_cookie_constants() {
  *
  * Exists for backward compatibility with legacy file-serving through
  * gc-includes/ms-files.php (gc-content/blogs.php in MU).
- *
  *
  */
 function ms_file_constants() {
@@ -118,7 +120,6 @@ function ms_file_constants() {
  * On first call, the constants are checked and defined. On second call,
  * we will have translations loaded and can trigger warnings easily.
  *
- *
  */
 function ms_subdomain_constants() {
 	static $subdomain_error      = null;
@@ -137,11 +138,21 @@ function ms_subdomain_constants() {
 			'<code>gc-config.php</code>',
 			'<code>is_subdomain_install()</code>'
 		);
+
 		if ( $subdomain_error_warn ) {
-			trigger_error( __( '<strong>常量VHOST与SUBDOMAIN_INSTALL的值相冲突。</strong>GeChiUI将使用SUBDOMAIN_INSTALL的值来运行。' ) . ' ' . $vhost_deprecated, E_USER_WARNING );
+			trigger_error(
+				sprintf(
+					/* translators: 1: VHOST, 2: SUBDOMAIN_INSTALL */
+					__( '<strong>常量 %1$s 与 %2$s 的值发生冲突。</strong> %2$s 的值将被视为您子域名的配置。' ),
+					'<code>VHOST</code>',
+					'<code>SUBDOMAIN_INSTALL</code>'
+				) . ' ' . $vhost_deprecated,
+				E_USER_WARNING
+			);
 		} else {
 			_deprecated_argument( 'define()', '3.0.0', $vhost_deprecated );
 		}
+
 		return;
 	}
 

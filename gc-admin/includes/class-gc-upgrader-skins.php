@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Upgrader
- *
  * @deprecated 4.7.0
  */
 

@@ -77,14 +77,12 @@ body:not(.ready) #customize-save-button-wrapper .save {
 #customize-save-button-wrapper .save {
   float: left;
   border-radius: 3px;
-  box-shadow: none;
-  /* @todo Adjust box shadow based on the disable states of paired button. */
+  box-shadow: none; /* @todo Adjust box shadow based on the disable states of paired button. */
   margin-top: 0;
 }
 
 #customize-save-button-wrapper .save:focus, #publish-settings:focus {
-  box-shadow: 0 1px 0 #2271b1, 0 0 2px 1px #72aee6;
-  /* This is default box shadow for focus */
+  box-shadow: 0 1px 0 #2271b1, 0 0 2px 1px #72aee6; /* This is default box shadow for focus */
 }
 
 #customize-save-button-wrapper .save.has-next-sibling {
@@ -167,8 +165,7 @@ body:not(.ready) #customize-save-button-wrapper .save {
   border-radius: 0 3px 3px 0;
   padding-left: 0;
   padding-right: 0;
-  box-shadow: none;
-  /* @todo Adjust box shadow based on the disable states of paired button. */
+  box-shadow: none; /* @todo Adjust box shadow based on the disable states of paired button. */
   font-size: 14px;
   width: 30px;
   float: left;
@@ -302,8 +299,7 @@ body.trashing #publish-settings {
 }
 
 #customize-control-changeset_preview_link input {
-  line-height: 2.85714286;
-  /* 40px */
+  line-height: 2.85714286; /* 40px */
   border-top: 1px solid #dcdcde;
   border-left: none;
   border-right: none;
@@ -478,7 +474,6 @@ body.trashing #publish-settings {
   height: 20px;
   cursor: pointer;
   box-shadow: none;
-  -webkit-appearance: none;
   background: transparent;
   color: #50575e;
   border: none;
@@ -557,7 +552,7 @@ body.trashing #publish-settings {
 
 @media (prefers-reduced-motion: reduce) {
   #customize-theme-controls .accordion-section-title,
-#customize-outer-theme-controls .accordion-section-title {
+  #customize-outer-theme-controls .accordion-section-title {
     transition: none;
   }
 }
@@ -656,14 +651,13 @@ body.trashing #publish-settings {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  transition: 0.18s transform cubic-bezier(0.645, 0.045, 0.355, 1);
-  /* easeInOutCubic */
+  transition: 0.18s transform cubic-bezier(0.645, 0.045, 0.355, 1); /* easeInOutCubic */
 }
 
 @media (prefers-reduced-motion: reduce) {
   #customize-info,
-#customize-theme-controls .customize-pane-parent,
-#customize-theme-controls .customize-pane-child {
+  #customize-theme-controls .customize-pane-parent,
+  #customize-theme-controls .customize-pane-child {
     transition: none;
   }
 }
@@ -989,7 +983,7 @@ p.customize-section-description {
 
 .customize-section-description a.external-link:after {
   font: 16px/11px dashicons;
-  content: "\f310";
+  content: "\f504";
   top: 3px;
   position: relative;
   padding-left: 3px;
@@ -1138,8 +1132,7 @@ p.customize-section-description {
 /**
  * Notifications
  */
-#customize-controls .customize-control-notifications-container {
-  /* Scoped to #customize-controls for specificity over notification styles in common.css. */
+#customize-controls .customize-control-notifications-container { /* Scoped to #customize-controls for specificity over notification styles in common.css. */
   margin: 4px 0 8px;
   padding: 0;
   cursor: default;
@@ -1243,8 +1236,7 @@ p.customize-section-description {
 #customize-controls .notice.notification-overlay,
 #customize-controls #customize-notifications-area .notice.notification-overlay {
   margin: 0;
-  border-left: 0;
-  /* @todo Appropriate styles could be added for notice-error, notice-warning, notice-success, etc */
+  border-left: 0; /* @todo Appropriate styles could be added for notice-error, notice-warning, notice-success, etc */
 }
 
 #customize-controls .customize-control-notifications-container.has-overlay-notifications {
@@ -1600,8 +1592,6 @@ p.customize-section-description {
   font-family: Consolas, Monaco, monospace;
   font-size: 12px;
   padding: 6px 8px;
-  -moz-tab-size: 2;
-  -o-tab-size: 2;
   tab-size: 2;
 }
 
@@ -1665,7 +1655,6 @@ p.customize-section-description {
   .customize-section-description-container + #customize-control-custom_css:last-child {
     margin-right: 0;
   }
-
   .customize-section-description-container + #customize-control-custom_css:last-child textarea {
     height: calc(100vh - 140px);
   }
@@ -1687,8 +1676,7 @@ p.customize-section-description {
   border-left: none;
   border-right: none;
   margin: 0 0 15px;
-  padding-right: 100px;
-  /* Space for the button */
+  padding-right: 100px; /* Space for the button */
 }
 
 #customize-theme-controls .control-section-themes .customize-themes-panel .accordion-section-title:first-child:hover,
@@ -1708,8 +1696,7 @@ p.customize-section-description {
 
 #customize-controls .control-section-themes .accordion-section-title,
 #customize-controls .customize-themes-panel .accordion-section-title {
-  padding-right: 100px;
-  /* Space for the button */
+  padding-right: 100px; /* Space for the button */
 }
 
 .control-panel-themes .accordion-section-title span.customize-action,
@@ -1726,6 +1713,12 @@ p.customize-section-description {
   right: 10px;
   top: 50%;
   margin-top: -14px;
+  font-weight: 400;
+}
+
+#customize-notifications-area .notification-message button.switch-to-editor {
+  display: block;
+  margin-top: 6px;
   font-weight: 400;
 }
 
@@ -1784,15 +1777,13 @@ p.customize-section-description {
 }
 
 .gc-full-overlay.in-themes-panel {
-  background: #f0f0f1;
-  /* Prevents a black flash when fading in the panel */
+  background: #f0f0f1; /* Prevents a black flash when fading in the panel */
 }
 
 .in-themes-panel #customize-save-button-wrapper,
 .in-themes-panel #customize-header-actions .spinner,
 .in-themes-panel #customize-header-actions .customize-controls-preview-toggle {
-  margin-top: -46px;
-  /* Height of header actions bar */
+  margin-top: -46px; /* Height of header actions bar */
 }
 
 .in-themes-panel #customize-footer-actions,
@@ -1893,14 +1884,12 @@ p.customize-section-description {
 }
 
 .customize-themes-full-container .customize-themes-section {
-  display: none !important;
-  /* There is unknown JS that perpetually tries to show all theme sections when more items are added. */
+  display: none !important; /* There is unknown JS that perpetually tries to show all theme sections when more items are added. */
   overflow: hidden;
 }
 
 .customize-themes-full-container .customize-themes-section.current-section {
-  display: list-item !important;
-  /* There is unknown JS that perpetually tries to show all theme sections when more items are added. */
+  display: list-item !important; /* There is unknown JS that perpetually tries to show all theme sections when more items are added. */
 }
 
 .control-section .customize-section-text-before {
@@ -1965,8 +1954,7 @@ p.customize-section-description {
   box-sizing: border-box;
   width: 20px;
   height: 20px;
-  padding: 3px 3px 1px 1px;
-  /* Re-align the icon to the smaller grid */
+  padding: 3px 3px 1px 1px; /* Re-align the icon to the smaller grid */
   border-radius: 100%;
   position: absolute;
   top: 9px;
@@ -2004,8 +1992,7 @@ p.customize-section-description {
 }
 
 .themes-section-installed_themes .theme .notice-success:not(.updated-message) {
-  display: none;
-  /* Hide "installed" notice on installed themes tab. */
+  display: none; /* Hide "installed" notice on installed themes tab. */
 }
 
 .customize-control-theme .theme {
@@ -2020,12 +2007,10 @@ p.customize-section-description {
   border: none;
 }
 
-.customize-control.customize-control-theme {
-  /* override most properties on .customize-control */
+.customize-control.customize-control-theme { /* override most properties on .customize-control */
   box-sizing: border-box;
   width: 25%;
-  max-width: 600px;
-  /* Max. screenshot size / 2 */
+  max-width: 600px; /* Max. screenshot size / 2 */
   margin: 0 25px 25px 0;
   padding: 0;
   clear: none;
@@ -2034,8 +2019,7 @@ p.customize-section-description {
 /* 5 columns above 2100px */
 @media screen and (min-width: 2101px) {
   .customize-control.customize-control-theme {
-    width: calc((100% - 125px) / 5 - 1px);
-    /* 1px offset accounts for browser rounding, typical all grids */
+    width: calc((100% - 125px) / 5 - 1px); /* 1px offset accounts for browser rounding, typical all grids */
   }
 }
 /* 4 columns up to 2100px */
@@ -2126,16 +2110,13 @@ p.customize-section-description {
     width: 100%;
     margin: 0 0 25px;
   }
-
   .filter-drawer {
     top: 46px;
   }
-
   .gc-customizer .theme-browser .themes {
     padding: 0 0 25px 25px;
     overflow: hidden;
   }
-
   .control-panel-themes .customize-themes-full-container {
     margin-top: 0;
     padding: 0;
@@ -2153,17 +2134,14 @@ p.customize-section-description {
     height: 86px;
     padding-top: 46px;
   }
-
   .themes-filter-bar .gc-filter-search {
     width: calc(100% - 50px);
     margin: 0;
     min-width: 200px;
   }
-
   .filter-drawer {
     top: 86px;
   }
-
   .control-panel-themes .filter-themes-count {
     float: left;
   }
@@ -2182,12 +2160,10 @@ p.customize-section-description {
   .filter-drawer {
     top: 132px;
   }
-
   .gc-full-overlay.showing-themes .control-panel-themes .filter-themes-count .filter-themes {
     display: block;
     float: right;
   }
-
   .control-panel-themes .customize-themes-full-container {
     width: 100%;
     margin: 0;
@@ -2196,11 +2172,9 @@ p.customize-section-description {
     z-index: 1;
     display: none;
   }
-
   .showing-themes .control-panel-themes .customize-themes-full-container {
     display: block;
   }
-
   .gc-customizer .showing-themes .control-panel-themes .customize-themes-mobile-back {
     display: block;
     position: fixed;
@@ -2223,7 +2197,6 @@ p.customize-section-description {
     font-size: 0;
     overflow: hidden;
   }
-
   .gc-customizer .showing-themes .control-panel-themes .customize-themes-mobile-back:before {
     left: 0;
     top: 0;
@@ -2234,9 +2207,8 @@ p.customize-section-description {
     padding: 0 8px;
     border-right: 1px solid #dcdcde;
   }
-
   .gc-customizer .showing-themes .control-panel-themes .customize-themes-mobile-back:hover,
-.gc-customizer .showing-themes .control-panel-themes .customize-themes-mobile-back:focus {
+  .gc-customizer .showing-themes .control-panel-themes .customize-themes-mobile-back:focus {
     color: #2271b1;
     background: #f6f7f7;
     border-left-color: #2271b1;
@@ -2245,11 +2217,9 @@ p.customize-section-description {
     outline: 2px solid transparent;
     outline-offset: -2px;
   }
-
   .showing-themes #customize-header-actions {
     display: none;
   }
-
   #customize-controls {
     width: 100%;
   }
@@ -2304,8 +2274,7 @@ p.customize-section-description {
 }
 
 .gc-customizer .theme-overlay .theme-actions {
-  text-align: right;
-  /* Because there're only one or two actions, match the UI pattern of media modals and right-align the action. */
+  text-align: right; /* Because there're only one or two actions, match the UI pattern of media modals and right-align the action. */
   padding: 10px 25px;
   background: #f0f0f1;
   border-top: 1px solid #dcdcde;
@@ -2316,16 +2285,14 @@ p.customize-section-description {
 }
 
 .control-panel-themes .theme-actions .delete-theme {
-  left: 15px;
-  /* these override themes.css on mobile */
+  left: 15px; /* these override themes.css on mobile */
   right: auto;
   bottom: auto;
   position: absolute;
 }
 
 .modal-open .in-themes-panel #customize-controls .gc-full-overlay-sidebar-content {
-  overflow: visible;
-  /* Prevent the top-level Customizer controls from becoming visible when elements on the right of the details modal are focused. */
+  overflow: visible; /* Prevent the top-level Customizer controls from becoming visible when elements on the right of the details modal are focused. */
 }
 
 .gc-customizer .theme-header {
@@ -2369,7 +2336,6 @@ p.customize-section-description {
     top: 0;
     bottom: 0;
   }
-
   .gc-customizer .theme-browser .themes {
     padding-right: 25px;
   }
@@ -2422,8 +2388,7 @@ body.cheatin p {
 .reordering .add-new-menu-item {
   opacity: 0.2;
   pointer-events: none;
-  cursor: not-allowed;
-  /* doesn't work in conjunction with pointer-events */
+  cursor: not-allowed; /* doesn't work in conjunction with pointer-events */
 }
 
 .add-new-widget:before,
@@ -2467,8 +2432,7 @@ body.cheatin p {
   overflow: hidden;
   float: left;
   display: block;
-  width: 33px;
-  /* was 42px for mobile */
+  width: 33px; /* was 42px for mobile */
   height: 43px;
   color: #8c8f94;
   text-indent: -9999px;
@@ -2533,8 +2497,7 @@ body.cheatin p {
  * New widget and Add-menu-items modes and panels
  */
 .gc-full-overlay-main {
-  right: auto;
-  /* this overrides a right: 0; which causes the preview to resize, I'd rather have it go off screen at the normal size. */
+  right: auto; /* this overrides a right: 0; which causes the preview to resize, I'd rather have it go off screen at the normal size. */
   width: 100%;
 }
 
@@ -2616,16 +2579,14 @@ body.adding-widget .add-new-widget:before,
 
 #available-widgets-filter input::-ms-clear,
 #available-menu-items-search input::-ms-clear {
-  display: none;
-  /* remove the "x" in IE, which conflicts with the "x" icon on button.clear-results */
+  display: none; /* remove the "x" in IE, which conflicts with the "x" icon on button.clear-results */
 }
 
 #available-menu-items-search .search-icon,
 #available-widgets-filter .search-icon {
   display: block;
   position: absolute;
-  top: 15px;
-  /* 13 container padding +1 input margin +1 input border */
+  top: 15px; /* 13 container padding +1 input margin +1 input border */
   left: 16px;
   width: 30px;
   height: 30px;
@@ -2637,8 +2598,7 @@ body.adding-widget .add-new-widget:before,
 #available-widgets-filter .clear-results,
 #available-menu-items-search .clear-results {
   position: absolute;
-  top: 15px;
-  /* 13 container padding +1 input margin +1 input border */
+  top: 15px; /* 13 container padding +1 input margin +1 input border */
   right: 16px;
   width: 30px;
   height: 30px;
@@ -2749,76 +2709,62 @@ body.adding-widget .add-new-widget:before,
 
 @media only screen and (max-width: 782px) {
   .gc-customizer .theme:not(.active):hover .theme-actions,
-.gc-customizer .theme:not(.active):focus .theme-actions {
+  .gc-customizer .theme:not(.active):focus .theme-actions {
     display: block;
   }
-
   .gc-customizer .theme-browser .theme.active .theme-name span {
     display: inline;
   }
-
   .customize-control-header button.random .dice {
     margin-top: 0;
   }
-
   .customize-control-radio .customize-inside-control-row,
-.customize-control-checkbox .customize-inside-control-row,
-.customize-control-nav_menu_auto_add .customize-inside-control-row {
+  .customize-control-checkbox .customize-inside-control-row,
+  .customize-control-nav_menu_auto_add .customize-inside-control-row {
     margin-left: 32px;
   }
-
   .customize-control-radio input,
-.customize-control-checkbox input,
-.customize-control-nav_menu_auto_add input {
+  .customize-control-checkbox input,
+  .customize-control-nav_menu_auto_add input {
     margin-left: -32px;
   }
-
   .customize-control input[type=radio] + label + br,
-.customize-control input[type=checkbox] + label + br {
-    line-height: 2.5;
-    /* For widgets checkboxes */
+  .customize-control input[type=checkbox] + label + br {
+    line-height: 2.5; /* For widgets checkboxes */
   }
-
   .customize-control .date-time-fields select {
     height: 39px;
   }
-
   .date-time-fields .date-input.month {
     width: 79px;
   }
-
   .date-time-fields .date-input.day,
-.date-time-fields .date-input.hour,
-.date-time-fields .date-input.minute {
+  .date-time-fields .date-input.hour,
+  .date-time-fields .date-input.minute {
     width: 55px;
   }
-
   .date-time-fields .date-input.year {
     width: 80px;
   }
-
   #customize-control-changeset_preview_link a {
     bottom: 16px;
   }
-
   .preview-link-wrapper .customize-copy-preview-link.preview-control-element.button {
     bottom: 10px;
   }
-
   .media-widget-control .media-widget-buttons .button.edit-media,
-.media-widget-control .media-widget-buttons .button.change-media,
-.media-widget-control .media-widget-buttons .button.select-media {
+  .media-widget-control .media-widget-buttons .button.change-media,
+  .media-widget-control .media-widget-buttons .button.select-media {
     margin-top: 12px;
   }
-
   .gc-core-ui .themes-filter-bar .feature-filter-toggle {
     margin: 3px 0 3px 25px;
   }
 }
 @media screen and (max-width: 1200px) {
   .outer-section-open .gc-full-overlay.expanded.preview-mobile .gc-full-overlay-main,
-.adding-menu-items .gc-full-overlay.expanded.preview-mobile .gc-full-overlay-main,
-.adding-widget .gc-full-overlay.expanded.preview-mobile .gc-full-overlay-main {
+  .adding-menu-items .gc-full-overlay.expanded.preview-mobile .gc-full-overlay-main,
+  .adding-widget .gc-full-overlay.expanded.preview-mobile .gc-full-overlay-main {
     left: 67%;
   }
 }
@@ -2828,11 +2774,9 @@ body.adding-widget .add-new-widget:before,
   .gc-full-overlay.collapsed #customize-controls {
     margin-left: 0;
   }
-
   .gc-full-overlay-sidebar .gc-full-overlay-sidebar-content {
     bottom: 0;
   }
-
   .customize-controls-preview-toggle {
     display: block;
     position: absolute;
@@ -2851,40 +2795,33 @@ body.adding-widget .add-new-widget:before,
     cursor: pointer;
     transition: color 0.1s ease-in-out, background 0.1s ease-in-out;
   }
-
   #customize-footer-actions,
-.customize-controls-preview-toggle .controls,
-.preview-only .gc-full-overlay-sidebar-content,
-.preview-only .customize-controls-preview-toggle .preview {
+  .customize-controls-preview-toggle .controls,
+  .preview-only .gc-full-overlay-sidebar-content,
+  .preview-only .customize-controls-preview-toggle .preview {
     display: none;
   }
-
   .preview-only #customize-save-button-wrapper {
     margin-top: -46px;
   }
-
   .customize-controls-preview-toggle .preview:before,
-.customize-controls-preview-toggle .controls:before {
+  .customize-controls-preview-toggle .controls:before {
     font: normal 20px/1 dashicons;
     content: "\f177";
     position: relative;
     top: 4px;
     margin-right: 6px;
   }
-
   .customize-controls-preview-toggle .controls:before {
     content: "\f540";
   }
-
   .preview-only #customize-controls {
     height: 45px;
   }
-
   .preview-only #customize-preview,
-.preview-only .customize-controls-preview-toggle .controls {
+  .preview-only .customize-controls-preview-toggle .controls {
     display: block;
   }
-
   .gc-core-ui.gc-customizer .button {
     min-height: 30px;
     padding: 0 14px;
@@ -2892,30 +2829,25 @@ body.adding-widget .add-new-widget:before,
     font-size: 14px;
     vertical-align: middle;
   }
-
   #customize-control-changeset_status .customize-inside-control-row {
     padding-top: 15px;
   }
-
   body.adding-widget div#available-widgets,
-body.adding-menu-items div#available-menu-items,
-body.outer-section-open div#customize-sidebar-outer-content {
+  body.adding-menu-items div#available-menu-items,
+  body.outer-section-open div#customize-sidebar-outer-content {
     width: 100%;
   }
-
   #available-widgets .customize-section-title,
-#available-menu-items .customize-section-title {
+  #available-menu-items .customize-section-title {
     display: block;
     margin: 0;
   }
-
   #available-widgets .customize-section-back,
-#available-menu-items .customize-section-back {
+  #available-menu-items .customize-section-back {
     height: 69px;
   }
-
   #available-widgets .customize-section-title h3,
-#available-menu-items .customize-section-title h3 {
+  #available-menu-items .customize-section-title h3 {
     font-size: 20px;
     font-weight: 200;
     padding: 9px 10px 12px 14px;
@@ -2927,9 +2859,8 @@ body.outer-section-open div#customize-sidebar-outer-content {
     white-space: nowrap;
     text-overflow: ellipsis;
   }
-
   #available-widgets .customize-section-title .customize-action,
-#available-menu-items .customize-section-title .customize-action {
+  #available-menu-items .customize-section-title .customize-action {
     font-size: 13px;
     display: block;
     font-weight: 400;
@@ -2937,28 +2868,22 @@ body.outer-section-open div#customize-sidebar-outer-content {
     white-space: nowrap;
     text-overflow: ellipsis;
   }
-
   #available-widgets-filter {
     position: relative;
     width: 100%;
     height: auto;
   }
-
   #available-widgets-list {
     top: 130px;
   }
-
   #available-menu-items-search .clear-results,
-#available-menu-items-search .search-icon {
-    top: 85px;
-    /* 70 section title height + 13 container padding +1 input margin +1 input border */
+  #available-menu-items-search .search-icon {
+    top: 85px; /* 70 section title height + 13 container padding +1 input margin +1 input border */
   }
-
   .reorder,
-.reordering .reorder-done {
+  .reordering .reorder-done {
     padding: 8px;
   }
-
   .gc-core-ui .themes-filter-bar .feature-filter-toggle {
     margin: 0;
   }
@@ -2967,18 +2892,15 @@ body.outer-section-open div#customize-sidebar-outer-content {
   .gc-full-overlay.expanded {
     margin-left: 0;
   }
-
   body.adding-widget div#available-widgets,
-body.adding-menu-items div#available-menu-items,
-body.outer-section-open div#customize-sidebar-outer-content {
+  body.adding-menu-items div#available-menu-items,
+  body.outer-section-open div#customize-sidebar-outer-content {
     top: 46px;
     z-index: 10;
   }
-
   body.gc-customizer .gc-full-overlay.expanded #customize-sidebar-outer-content {
     left: -100%;
   }
-
   body.gc-customizer.outer-section-open .gc-full-overlay.expanded #customize-sidebar-outer-content {
     left: 0;
   }

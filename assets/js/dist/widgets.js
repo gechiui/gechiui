@@ -1,145 +1,13 @@
-this["gc"] = this["gc"] || {}; this["gc"]["widgets"] =
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "fhe0");
-/******/ })
-/************************************************************************/
-/******/ ({
+/******/ (function() { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
 
-/***/ "CBCh":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("ewfG");
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("Gz8V");
-/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__);
-
-
-/**
- * GeChiUI dependencies
- */
-
-const group = Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["SVG"], {
-  viewBox: "0 0 24 24",
-  xmlns: "http://www.w3.org/2000/svg"
-}, Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["Path"], {
-  d: "M18 4h-7c-1.1 0-2 .9-2 2v3H6c-1.1 0-2 .9-2 2v7c0 1.1.9 2 2 2h7c1.1 0 2-.9 2-2v-3h3c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-4.5 14c0 .3-.2.5-.5.5H6c-.3 0-.5-.2-.5-.5v-7c0-.3.2-.5.5-.5h3V13c0 1.1.9 2 2 2h2.5v3zm0-4.5H11c-.3 0-.5-.2-.5-.5v-2.5H13c.3 0 .5.2.5.5v2.5zm5-.5c0 .3-.2.5-.5.5h-3V11c0-1.1-.9-2-2-2h-2.5V6c0-.3.2-.5.5-.5h7c.3 0 .5.2.5.5v7z"
-}));
-/* harmony default export */ __webpack_exports__["a"] = (group);
-
-
-/***/ }),
-
-/***/ "Gz8V":
+/***/ 4403:
 /***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["primitives"]; }());
-
-/***/ }),
-
-/***/ "IgLd":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["data"]; }());
-
-/***/ }),
-
-/***/ "NxuN":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["coreData"]; }());
-
-/***/ }),
-
-/***/ "TSYQ":
-/***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-  Copyright (c) 2018 Jed Watson.
-  Licensed under the MIT License (MIT), see
-  http://jedwatson.github.io/classnames
+	Copyright (c) 2018 Jed Watson.
+	Licensed under the MIT License (MIT), see
+	http://jedwatson.github.io/classnames
 */
 /* global define */
 
@@ -147,6 +15,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 	'use strict';
 
 	var hasOwn = {}.hasOwnProperty;
+	var nativeCodeString = '[native code]';
 
 	function classNames() {
 		var classes = [];
@@ -167,14 +36,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 					}
 				}
 			} else if (argType === 'object') {
-				if (arg.toString === Object.prototype.toString) {
-					for (var key in arg) {
-						if (hasOwn.call(arg, key) && arg[key]) {
-							classes.push(key);
-						}
-					}
-				} else {
+				if (arg.toString !== Object.prototype.toString && !arg.toString.toString().includes('[native code]')) {
 					classes.push(arg.toString());
+					continue;
+				}
+
+				for (var key in arg) {
+					if (hasOwn.call(arg, key) && arg[key]) {
+						classes.push(key);
+					}
 				}
 			}
 		}
@@ -190,129 +60,166 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 		!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = (function () {
 			return classNames;
 		}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	} else {}
 }());
 
 
-/***/ }),
+/***/ })
 
-/***/ "W2Kb":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["notices"]; }());
-
-/***/ }),
-
-/***/ "YLtl":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["lodash"]; }());
-
-/***/ }),
-
-/***/ "dMTb":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["compose"]; }());
-
-/***/ }),
-
-/***/ "ewfG":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["element"]; }());
-
-/***/ }),
-
-/***/ "fhe0":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	!function() {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = function(module) {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				function() { return module['default']; } :
+/******/ 				function() { return module; };
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	!function() {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = function(exports, definition) {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	!function() {
+/******/ 		__webpack_require__.o = function(obj, prop) { return Object.prototype.hasOwnProperty.call(obj, prop); }
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	!function() {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = function(exports) {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+!function() {
 "use strict";
 // ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
 
 // EXPORTS
-__webpack_require__.d(__webpack_exports__, "MoveToWidgetArea", function() { return /* reexport */ MoveToWidgetArea; });
-__webpack_require__.d(__webpack_exports__, "getWidgetIdFromBlock", function() { return /* reexport */ getWidgetIdFromBlock; });
-__webpack_require__.d(__webpack_exports__, "addWidgetIdToBlock", function() { return /* reexport */ addWidgetIdToBlock; });
-__webpack_require__.d(__webpack_exports__, "registerLegacyWidgetBlock", function() { return /* binding */ registerLegacyWidgetBlock; });
-__webpack_require__.d(__webpack_exports__, "registerWidgetGroupBlock", function() { return /* binding */ registerWidgetGroupBlock; });
-__webpack_require__.d(__webpack_exports__, "registerLegacyWidgetVariations", function() { return /* reexport */ registerLegacyWidgetVariations; });
+__webpack_require__.d(__webpack_exports__, {
+  "MoveToWidgetArea": function() { return /* reexport */ MoveToWidgetArea; },
+  "addWidgetIdToBlock": function() { return /* reexport */ addWidgetIdToBlock; },
+  "getWidgetIdFromBlock": function() { return /* reexport */ getWidgetIdFromBlock; },
+  "registerLegacyWidgetBlock": function() { return /* binding */ registerLegacyWidgetBlock; },
+  "registerLegacyWidgetVariations": function() { return /* reexport */ registerLegacyWidgetVariations; },
+  "registerWidgetGroupBlock": function() { return /* binding */ registerWidgetGroupBlock; }
+});
 
 // NAMESPACE OBJECT: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/index.js
 var legacy_widget_namespaceObject = {};
 __webpack_require__.r(legacy_widget_namespaceObject);
-__webpack_require__.d(legacy_widget_namespaceObject, "metadata", function() { return legacy_widget_metadata; });
-__webpack_require__.d(legacy_widget_namespaceObject, "name", function() { return legacy_widget_name; });
-__webpack_require__.d(legacy_widget_namespaceObject, "settings", function() { return legacy_widget_settings; });
+__webpack_require__.d(legacy_widget_namespaceObject, {
+  "metadata": function() { return metadata; },
+  "name": function() { return legacy_widget_name; },
+  "settings": function() { return settings; }
+});
 
 // NAMESPACE OBJECT: ./node_modules/@gechiui/widgets/build-module/blocks/widget-group/index.js
 var widget_group_namespaceObject = {};
 __webpack_require__.r(widget_group_namespaceObject);
-__webpack_require__.d(widget_group_namespaceObject, "metadata", function() { return widget_group_metadata; });
-__webpack_require__.d(widget_group_namespaceObject, "name", function() { return widget_group_name; });
-__webpack_require__.d(widget_group_namespaceObject, "settings", function() { return widget_group_settings; });
+__webpack_require__.d(widget_group_namespaceObject, {
+  "metadata": function() { return widget_group_metadata; },
+  "name": function() { return widget_group_name; },
+  "settings": function() { return widget_group_settings; }
+});
 
-// EXTERNAL MODULE: external ["gc","blocks"]
-var external_gc_blocks_ = __webpack_require__("n68F");
-
-// EXTERNAL MODULE: external ["gc","element"]
-var external_gc_element_ = __webpack_require__("ewfG");
-
-// EXTERNAL MODULE: external ["gc","primitives"]
-var external_gc_primitives_ = __webpack_require__("Gz8V");
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/widget.js
+;// CONCATENATED MODULE: external ["gc","blocks"]
+var external_gc_blocks_namespaceObject = window["gc"]["blocks"];
+;// CONCATENATED MODULE: external ["gc","element"]
+var external_gc_element_namespaceObject = window["gc"]["element"];
+;// CONCATENATED MODULE: external ["gc","primitives"]
+var external_gc_primitives_namespaceObject = window["gc"]["primitives"];
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/widget.js
 
 
 /**
  * GeChiUI dependencies
  */
 
-const widget_widget = Object(external_gc_element_["createElement"])(external_gc_primitives_["SVG"], {
+const widget = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
   xmlns: "http://www.w3.org/2000/svg",
   viewBox: "0 0 24 24"
-}, Object(external_gc_element_["createElement"])(external_gc_primitives_["Path"], {
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
   d: "M6 3H8V5H16V3H18V5C19.1046 5 20 5.89543 20 7V19C20 20.1046 19.1046 21 18 21H6C4.89543 21 4 20.1046 4 19V7C4 5.89543 4.89543 5 6 5V3ZM18 6.5H6C5.72386 6.5 5.5 6.72386 5.5 7V8H18.5V7C18.5 6.72386 18.2761 6.5 18 6.5ZM18.5 9.5H5.5V19C5.5 19.2761 5.72386 19.5 6 19.5H18C18.2761 19.5 18.5 19.2761 18.5 19V9.5ZM11 11H13V13H11V11ZM7 11V13H9V11H7ZM15 13V11H17V13H15Z"
 }));
-/* harmony default export */ var library_widget = (widget_widget);
+/* harmony default export */ var library_widget = (widget);
 
 // EXTERNAL MODULE: ./node_modules/classnames/index.js
-var classnames = __webpack_require__("TSYQ");
+var classnames = __webpack_require__(4403);
 var classnames_default = /*#__PURE__*/__webpack_require__.n(classnames);
-
-// EXTERNAL MODULE: external ["gc","blockEditor"]
-var external_gc_blockEditor_ = __webpack_require__("nLrk");
-
-// EXTERNAL MODULE: external ["gc","components"]
-var external_gc_components_ = __webpack_require__("jd0n");
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/brush.js
+;// CONCATENATED MODULE: external ["gc","blockEditor"]
+var external_gc_blockEditor_namespaceObject = window["gc"]["blockEditor"];
+;// CONCATENATED MODULE: external ["gc","components"]
+var external_gc_components_namespaceObject = window["gc"]["components"];
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/brush.js
 
 
 /**
  * GeChiUI dependencies
  */
 
-const brush = Object(external_gc_element_["createElement"])(external_gc_primitives_["SVG"], {
+const brush = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
   xmlns: "http://www.w3.org/2000/svg",
   viewBox: "0 0 24 24"
-}, Object(external_gc_element_["createElement"])(external_gc_primitives_["Path"], {
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
   d: "M4 20h8v-1.5H4V20zM18.9 3.5c-.6-.6-1.5-.6-2.1 0l-7.2 7.2c-.4-.1-.7 0-1.1.1-.5.2-1.5.7-1.9 2.2-.4 1.7-.8 2.2-1.1 2.7-.1.1-.2.3-.3.4l-.6 1.1H6c2 0 3.4-.4 4.7-1.4.8-.6 1.2-1.4 1.3-2.3 0-.3 0-.5-.1-.7L19 5.7c.5-.6.5-1.6-.1-2.2zM9.7 14.7c-.7.5-1.5.8-2.4 1 .2-.5.5-1.2.8-2.3.2-.6.4-1 .8-1.1.5-.1 1 .1 1.3.3.2.2.3.5.2.8 0 .3-.1.9-.7 1.3z"
 }));
 /* harmony default export */ var library_brush = (brush);
 
-// EXTERNAL MODULE: external ["gc","i18n"]
-var external_gc_i18n_ = __webpack_require__("z4sU");
-
-// EXTERNAL MODULE: external ["gc","data"]
-var external_gc_data_ = __webpack_require__("IgLd");
-
-// EXTERNAL MODULE: external ["gc","coreData"]
-var external_gc_coreData_ = __webpack_require__("NxuN");
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/edit/widget-type-selector.js
+;// CONCATENATED MODULE: external ["gc","i18n"]
+var external_gc_i18n_namespaceObject = window["gc"]["i18n"];
+;// CONCATENATED MODULE: external ["gc","data"]
+var external_gc_data_namespaceObject = window["gc"]["data"];
+;// CONCATENATED MODULE: external ["gc","coreData"]
+var external_gc_coreData_namespaceObject = window["gc"]["coreData"];
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/edit/widget-type-selector.js
 
 
 /**
@@ -323,34 +230,34 @@ var external_gc_coreData_ = __webpack_require__("NxuN");
 
 
 
-function WidgetTypeSelector(_ref) {
-  let {
-    selectedId,
-    onSelect
-  } = _ref;
-  const widgetTypes = Object(external_gc_data_["useSelect"])(select => {
-    var _select$getSettings$w, _select$getSettings, _select$getWidgetType;
+function WidgetTypeSelector({
+  selectedId,
+  onSelect
+}) {
+  const widgetTypes = (0,external_gc_data_namespaceObject.useSelect)(select => {
+    var _select$getSettings$w;
 
-    const hiddenIds = (_select$getSettings$w = (_select$getSettings = select(external_gc_blockEditor_["store"]).getSettings()) === null || _select$getSettings === void 0 ? void 0 : _select$getSettings.widgetTypesToHideFromLegacyWidgetBlock) !== null && _select$getSettings$w !== void 0 ? _select$getSettings$w : [];
-    return (_select$getWidgetType = select(external_gc_coreData_["store"]).getWidgetTypes({
+    const hiddenIds = (_select$getSettings$w = select(external_gc_blockEditor_namespaceObject.store).getSettings()?.widgetTypesToHideFromLegacyWidgetBlock) !== null && _select$getSettings$w !== void 0 ? _select$getSettings$w : [];
+    return select(external_gc_coreData_namespaceObject.store).getWidgetTypes({
       per_page: -1
-    })) === null || _select$getWidgetType === void 0 ? void 0 : _select$getWidgetType.filter(widgetType => !hiddenIds.includes(widgetType.id));
+    })?.filter(widgetType => !hiddenIds.includes(widgetType.id));
   }, []);
 
   if (!widgetTypes) {
-    return Object(external_gc_element_["createElement"])(external_gc_components_["Spinner"], null);
+    return (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Spinner, null);
   }
 
   if (widgetTypes.length === 0) {
-    return Object(external_gc_i18n_["__"])('没有可用的小工具。');
+    return (0,external_gc_i18n_namespaceObject.__)('没有可用的小工具。');
   }
 
-  return Object(external_gc_element_["createElement"])(external_gc_components_["SelectControl"], {
-    label: Object(external_gc_i18n_["__"])('选择要显示的旧版小工具：'),
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.SelectControl, {
+    __nextHasNoMarginBottom: true,
+    label: (0,external_gc_i18n_namespaceObject.__)('选择要显示的旧版小工具：'),
     value: selectedId !== null && selectedId !== void 0 ? selectedId : '',
     options: [{
       value: '',
-      label: Object(external_gc_i18n_["__"])('选择小工具')
+      label: (0,external_gc_i18n_namespaceObject.__)('选择小工具')
     }, ...widgetTypes.map(widgetType => ({
       value: widgetType.id,
       label: widgetType.name
@@ -371,38 +278,27 @@ function WidgetTypeSelector(_ref) {
   });
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/edit/inspector-card.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/edit/inspector-card.js
 
-function InspectorCard(_ref) {
-  let {
-    name,
-    description
-  } = _ref;
-  return Object(external_gc_element_["createElement"])("div", {
+function InspectorCard({
+  name,
+  description
+}) {
+  return (0,external_gc_element_namespaceObject.createElement)("div", {
     className: "gc-block-legacy-widget-inspector-card"
-  }, Object(external_gc_element_["createElement"])("h3", {
+  }, (0,external_gc_element_namespaceObject.createElement)("h3", {
     className: "gc-block-legacy-widget-inspector-card__name"
-  }, name), Object(external_gc_element_["createElement"])("span", null, description));
+  }, name), (0,external_gc_element_namespaceObject.createElement)("span", null, description));
 }
 
-// EXTERNAL MODULE: external ["gc","notices"]
-var external_gc_notices_ = __webpack_require__("W2Kb");
-
-// EXTERNAL MODULE: external ["gc","compose"]
-var external_gc_compose_ = __webpack_require__("dMTb");
-
-// EXTERNAL MODULE: external "lodash"
-var external_lodash_ = __webpack_require__("YLtl");
-
-// EXTERNAL MODULE: external ["gc","apiFetch"]
-var external_gc_apiFetch_ = __webpack_require__("xuem");
-var external_gc_apiFetch_default = /*#__PURE__*/__webpack_require__.n(external_gc_apiFetch_);
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/edit/control.js
-/**
- * External dependencies
- */
-
+;// CONCATENATED MODULE: external ["gc","notices"]
+var external_gc_notices_namespaceObject = window["gc"]["notices"];
+;// CONCATENATED MODULE: external ["gc","compose"]
+var external_gc_compose_namespaceObject = window["gc"]["compose"];
+;// CONCATENATED MODULE: external ["gc","apiFetch"]
+var external_gc_apiFetch_namespaceObject = window["gc"]["apiFetch"];
+var external_gc_apiFetch_default = /*#__PURE__*/__webpack_require__.n(external_gc_apiFetch_namespaceObject);
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/edit/control.js
 /**
  * GeChiUI dependencies
  */
@@ -419,7 +315,7 @@ var external_gc_apiFetch_default = /*#__PURE__*/__webpack_require__.n(external_g
  * @property {Element} element The control's DOM element.
  */
 
-class control_Control {
+class Control {
   /**
    * Creates and loads a new control.
    *
@@ -432,15 +328,14 @@ class control_Control {
    * @param {Function} params.onChangeHasPreview
    * @param {Function} params.onError
    */
-  constructor(_ref) {
-    let {
-      id,
-      idBase,
-      instance,
-      onChangeInstance,
-      onChangeHasPreview,
-      onError
-    } = _ref;
+  constructor({
+    id,
+    idBase,
+    instance,
+    onChangeInstance,
+    onChangeHasPreview,
+    onError
+  }) {
     this.id = id;
     this.idBase = idBase;
     this._instance = instance;
@@ -452,7 +347,7 @@ class control_Control {
     // a fake but unique number.
 
     this.number = ++lastNumber;
-    this.handleFormChange = Object(external_lodash_["debounce"])(this.handleFormChange.bind(this), 200);
+    this.handleFormChange = (0,external_gc_compose_namespaceObject.debounce)(this.handleFormChange.bind(this), 200);
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
     this.initDOM();
     this.bindEvents();
@@ -520,7 +415,7 @@ class control_Control {
     this.id && el('button', {
       class: 'button is-primary',
       type: 'submit'
-    }, Object(external_gc_i18n_["__"])('保存'))])])]);
+    }, (0,external_gc_i18n_namespaceObject.__)('保存'))])])]);
   }
   /**
    * Adds the control's event listeners.
@@ -738,9 +633,7 @@ class control_Control {
 }
 let lastNumber = 0;
 
-function el(tagName) {
-  let attributes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  let content = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+function el(tagName, attributes = {}, content = null) {
   const element = document.createElement(tagName);
 
   for (const [attribute, value] of Object.entries(attributes)) {
@@ -760,8 +653,7 @@ function el(tagName) {
   return element;
 }
 
-async function saveWidget(id) {
-  let formData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+async function saveWidget(id, formData = null) {
   let widget;
 
   if (formData) {
@@ -784,13 +676,12 @@ async function saveWidget(id) {
   };
 }
 
-async function encodeWidget(_ref2) {
-  let {
-    idBase,
-    instance,
-    number,
-    formData = null
-  } = _ref2;
+async function encodeWidget({
+  idBase,
+  instance,
+  number,
+  formData = null
+}) {
   const response = await external_gc_apiFetch_default()({
     path: `/gc/v2/widget-types/${idBase}/encode`,
     method: 'POST',
@@ -843,7 +734,7 @@ function serializeForm(form) {
   return new window.URLSearchParams(Array.from(new window.FormData(form))).toString();
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/edit/form.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/edit/form.js
 
 
 /**
@@ -865,35 +756,34 @@ function serializeForm(form) {
  */
 
 
-function Form(_ref) {
-  let {
-    title,
-    isVisible,
-    id,
-    idBase,
-    instance,
-    isWide,
-    onChangeInstance,
-    onChangeHasPreview
-  } = _ref;
-  const ref = Object(external_gc_element_["useRef"])();
-  const isMediumLargeViewport = Object(external_gc_compose_["useViewportMatch"])('small'); // We only want to remount the control when the instance changes
+function Form({
+  title,
+  isVisible,
+  id,
+  idBase,
+  instance,
+  isWide,
+  onChangeInstance,
+  onChangeHasPreview
+}) {
+  const ref = (0,external_gc_element_namespaceObject.useRef)();
+  const isMediumLargeViewport = (0,external_gc_compose_namespaceObject.useViewportMatch)('small'); // We only want to remount the control when the instance changes
   // *externally*. For example, if the user performs an undo. To do this, we
   // keep track of changes made to instance by the control itself and then
   // ignore those.
 
-  const outgoingInstances = Object(external_gc_element_["useRef"])(new Set());
-  const incomingInstances = Object(external_gc_element_["useRef"])(new Set());
+  const outgoingInstances = (0,external_gc_element_namespaceObject.useRef)(new Set());
+  const incomingInstances = (0,external_gc_element_namespaceObject.useRef)(new Set());
   const {
     createNotice
-  } = Object(external_gc_data_["useDispatch"])(external_gc_notices_["store"]);
-  Object(external_gc_element_["useEffect"])(() => {
+  } = (0,external_gc_data_namespaceObject.useDispatch)(external_gc_notices_namespaceObject.store);
+  (0,external_gc_element_namespaceObject.useEffect)(() => {
     if (incomingInstances.current.has(instance)) {
       incomingInstances.current.delete(instance);
       return;
     }
 
-    const control = new control_Control({
+    const control = new Control({
       id,
       idBase,
       instance,
@@ -908,9 +798,9 @@ function Form(_ref) {
 
       onError(error) {
         window.console.error(error);
-        createNotice('error', Object(external_gc_i18n_["sprintf"])(
+        createNotice('error', (0,external_gc_i18n_namespaceObject.sprintf)(
         /* translators: %s: the name of the affected block. */
-        Object(external_gc_i18n_["__"])('“%s”区块受错误影响，可能无法正常运行。请检查开发者工具以了解更多详情。'), idBase || id));
+        (0,external_gc_i18n_namespaceObject.__)('“%s”区块受错误影响，可能无法正常运行。请检查开发者工具以了解更多详情。'), idBase || id));
       }
 
     });
@@ -926,33 +816,36 @@ function Form(_ref) {
   }, [id, idBase, instance, onChangeInstance, onChangeHasPreview, isMediumLargeViewport]);
 
   if (isWide && isMediumLargeViewport) {
-    return Object(external_gc_element_["createElement"])("div", {
+    return (0,external_gc_element_namespaceObject.createElement)("div", {
       className: classnames_default()({
         'gc-block-legacy-widget__container': isVisible
       })
-    }, isVisible && Object(external_gc_element_["createElement"])("h3", {
+    }, isVisible && (0,external_gc_element_namespaceObject.createElement)("h3", {
       className: "gc-block-legacy-widget__edit-form-title"
-    }, title), Object(external_gc_element_["createElement"])(external_gc_components_["Popover"], {
+    }, title), (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Popover, {
       focusOnMount: false,
-      position: "middle right",
-      __unstableForceXAlignment: true
-    }, Object(external_gc_element_["createElement"])("div", {
+      placement: "right",
+      offset: 32,
+      resize: false,
+      flip: false,
+      shift: true
+    }, (0,external_gc_element_namespaceObject.createElement)("div", {
       ref: ref,
       className: "gc-block-legacy-widget__edit-form",
       hidden: !isVisible
     })));
   }
 
-  return Object(external_gc_element_["createElement"])("div", {
+  return (0,external_gc_element_namespaceObject.createElement)("div", {
     ref: ref,
     className: "gc-block-legacy-widget__edit-form",
     hidden: !isVisible
-  }, Object(external_gc_element_["createElement"])("h3", {
+  }, (0,external_gc_element_namespaceObject.createElement)("h3", {
     className: "gc-block-legacy-widget__edit-form-title"
   }, title));
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/edit/preview.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/edit/preview.js
 
 
 /**
@@ -968,15 +861,14 @@ function Form(_ref) {
 
 
 
-function Preview(_ref) {
-  let {
-    idBase,
-    instance,
-    isVisible
-  } = _ref;
-  const [isLoaded, setIsLoaded] = Object(external_gc_element_["useState"])(false);
-  const [srcDoc, setSrcDoc] = Object(external_gc_element_["useState"])('');
-  Object(external_gc_element_["useEffect"])(() => {
+function Preview({
+  idBase,
+  instance,
+  isVisible
+}) {
+  const [isLoaded, setIsLoaded] = (0,external_gc_element_namespaceObject.useState)(false);
+  const [srcDoc, setSrcDoc] = (0,external_gc_element_namespaceObject.useState)('');
+  (0,external_gc_element_namespaceObject.useEffect)(() => {
     const abortController = typeof window.AbortController === 'undefined' ? undefined : new window.AbortController();
 
     async function fetchPreviewHTML() {
@@ -984,7 +876,7 @@ function Preview(_ref) {
       return await external_gc_apiFetch_default()({
         path: restRoute,
         method: 'POST',
-        signal: abortController === null || abortController === void 0 ? void 0 : abortController.signal,
+        signal: abortController?.signal,
         data: instance ? {
           instance
         } : {}
@@ -1001,10 +893,10 @@ function Preview(_ref) {
 
       throw error;
     });
-    return () => abortController === null || abortController === void 0 ? void 0 : abortController.abort();
+    return () => abortController?.abort();
   }, [idBase, instance]); // Resize the iframe on either the load event, or when the iframe becomes visible.
 
-  const ref = Object(external_gc_compose_["useRefEffect"])(iframe => {
+  const ref = (0,external_gc_compose_namespaceObject.useRefEffect)(iframe => {
     // Only set height if the iframe is loaded,
     // or it will grow to an unexpected large height in Safari if it's hidden initially.
     if (!isLoaded) {
@@ -1015,9 +907,15 @@ function Preview(_ref) {
 
 
     function setHeight() {
+      var _iframe$contentDocume, _iframe$contentDocume2;
+
       // Pick the maximum of these two values to account for margin collapsing.
-      const height = Math.max(iframe.contentDocument.documentElement.offsetHeight, iframe.contentDocument.body.offsetHeight);
-      iframe.style.height = `${height}px`;
+      const height = Math.max((_iframe$contentDocume = iframe.contentDocument.documentElement?.offsetHeight) !== null && _iframe$contentDocume !== void 0 ? _iframe$contentDocume : 0, (_iframe$contentDocume2 = iframe.contentDocument.body?.offsetHeight) !== null && _iframe$contentDocume2 !== void 0 ? _iframe$contentDocume2 : 0); // Fallback to a height of 100px if the height cannot be determined.
+      // This ensures the block is still selectable. 100px should hopefully
+      // be not so big that it's annoying, and not so small that nothing
+      // can be seen.
+
+      iframe.style.height = `${height !== 0 ? height : 100}px`;
     }
 
     const {
@@ -1025,9 +923,7 @@ function Preview(_ref) {
     } = iframe.ownerDocument.defaultView; // Observe for intersections that might cause a change in the height of
     // the iframe, e.g. a Widget Area becoming expanded.
 
-    const intersectionObserver = new IntersectionObserver(_ref2 => {
-      let [entry] = _ref2;
-
+    const intersectionObserver = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
         setHeight();
       }
@@ -1041,15 +937,15 @@ function Preview(_ref) {
       iframe.removeEventListener('load', setHeight);
     };
   }, [isLoaded]);
-  return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, isVisible && !isLoaded && Object(external_gc_element_["createElement"])(external_gc_components_["Placeholder"], null, Object(external_gc_element_["createElement"])(external_gc_components_["Spinner"], null)), Object(external_gc_element_["createElement"])("div", {
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_element_namespaceObject.Fragment, null, isVisible && !isLoaded && (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Placeholder, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Spinner, null)), (0,external_gc_element_namespaceObject.createElement)("div", {
     className: classnames_default()('gc-block-legacy-widget__edit-preview', {
       'is-offscreen': !isVisible || !isLoaded
     })
-  }, Object(external_gc_element_["createElement"])(external_gc_components_["Disabled"], null, Object(external_gc_element_["createElement"])("iframe", {
+  }, (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Disabled, null, (0,external_gc_element_namespaceObject.createElement)("iframe", {
     ref: ref,
     className: "gc-block-legacy-widget__edit-preview-iframe",
     tabIndex: "-1",
-    title: Object(external_gc_i18n_["__"])('旧版小工具预览'),
+    title: (0,external_gc_i18n_namespaceObject.__)('旧版小工具预览'),
     srcDoc: srcDoc,
     onLoad: event => {
       // To hide the scrollbars of the preview frame for some edge cases,
@@ -1063,23 +959,22 @@ function Preview(_ref) {
   }))));
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/edit/no-preview.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/edit/no-preview.js
 
 
 /**
  * GeChiUI dependencies
  */
 
-function NoPreview(_ref) {
-  let {
-    name
-  } = _ref;
-  return Object(external_gc_element_["createElement"])("div", {
+function NoPreview({
+  name
+}) {
+  return (0,external_gc_element_namespaceObject.createElement)("div", {
     className: "gc-block-legacy-widget__edit-no-preview"
-  }, name && Object(external_gc_element_["createElement"])("h3", null, name), Object(external_gc_element_["createElement"])("p", null, Object(external_gc_i18n_["__"])('没有可用预览。')));
+  }, name && (0,external_gc_element_namespaceObject.createElement)("h3", null, name), (0,external_gc_element_namespaceObject.createElement)("p", null, (0,external_gc_i18n_namespaceObject.__)('没有可用预览。')));
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/edit/convert-to-blocks-button.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/edit/convert-to-blocks-button.js
 
 
 /**
@@ -1090,32 +985,31 @@ function NoPreview(_ref) {
 
 
 
-function ConvertToBlocksButton(_ref) {
-  let {
-    clientId,
-    rawInstance
-  } = _ref;
+function ConvertToBlocksButton({
+  clientId,
+  rawInstance
+}) {
   const {
     replaceBlocks
-  } = Object(external_gc_data_["useDispatch"])(external_gc_blockEditor_["store"]);
-  return Object(external_gc_element_["createElement"])(external_gc_components_["ToolbarButton"], {
+  } = (0,external_gc_data_namespaceObject.useDispatch)(external_gc_blockEditor_namespaceObject.store);
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.ToolbarButton, {
     onClick: () => {
       if (rawInstance.title) {
-        replaceBlocks(clientId, [Object(external_gc_blocks_["createBlock"])('core/heading', {
+        replaceBlocks(clientId, [(0,external_gc_blocks_namespaceObject.createBlock)('core/heading', {
           content: rawInstance.title
-        }), ...Object(external_gc_blocks_["rawHandler"])({
+        }), ...(0,external_gc_blocks_namespaceObject.rawHandler)({
           HTML: rawInstance.text
         })]);
       } else {
-        replaceBlocks(clientId, Object(external_gc_blocks_["rawHandler"])({
+        replaceBlocks(clientId, (0,external_gc_blocks_namespaceObject.rawHandler)({
           HTML: rawInstance.text
         }));
       }
     }
-  }, Object(external_gc_i18n_["__"])('转换为区块'));
+  }, (0,external_gc_i18n_namespaceObject.__)('转换为区块'));
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/edit/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/edit/index.js
 
 
 /**
@@ -1151,35 +1045,35 @@ function Edit(props) {
   const {
     isWide = false
   } = props;
-  const blockProps = Object(external_gc_blockEditor_["useBlockProps"])({
+  const blockProps = (0,external_gc_blockEditor_namespaceObject.useBlockProps)({
     className: classnames_default()({
       'is-wide-widget': isWide
     })
   });
-  return Object(external_gc_element_["createElement"])("div", blockProps, !id && !idBase ? Object(external_gc_element_["createElement"])(Empty, props) : Object(external_gc_element_["createElement"])(NotEmpty, props));
+  return (0,external_gc_element_namespaceObject.createElement)("div", { ...blockProps
+  }, !id && !idBase ? (0,external_gc_element_namespaceObject.createElement)(Empty, { ...props
+  }) : (0,external_gc_element_namespaceObject.createElement)(NotEmpty, { ...props
+  }));
 }
 
-function Empty(_ref) {
-  let {
-    attributes: {
-      id,
-      idBase
-    },
-    setAttributes
-  } = _ref;
-  return Object(external_gc_element_["createElement"])(external_gc_components_["Placeholder"], {
-    icon: Object(external_gc_element_["createElement"])(external_gc_blockEditor_["BlockIcon"], {
+function Empty({
+  attributes: {
+    id,
+    idBase
+  },
+  setAttributes
+}) {
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Placeholder, {
+    icon: (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.BlockIcon, {
       icon: library_brush
     }),
-    label: Object(external_gc_i18n_["__"])('旧版小工具')
-  }, Object(external_gc_element_["createElement"])(WidgetTypeSelector, {
+    label: (0,external_gc_i18n_namespaceObject.__)('旧版小工具')
+  }, (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Flex, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.FlexBlock, null, (0,external_gc_element_namespaceObject.createElement)(WidgetTypeSelector, {
     selectedId: id !== null && id !== void 0 ? id : idBase,
-    onSelect: _ref2 => {
-      let {
-        selectedId,
-        isMulti
-      } = _ref2;
-
+    onSelect: ({
+      selectedId,
+      isMulti
+    }) => {
       if (!selectedId) {
         setAttributes({
           id: null,
@@ -1200,63 +1094,56 @@ function Empty(_ref) {
         });
       }
     }
-  }));
+  }))));
 }
 
-function NotEmpty(_ref3) {
-  let {
-    attributes: {
-      id,
-      idBase,
-      instance
-    },
-    setAttributes,
-    clientId,
-    isSelected,
-    isWide = false
-  } = _ref3;
-  const [hasPreview, setHasPreview] = Object(external_gc_element_["useState"])(null);
+function NotEmpty({
+  attributes: {
+    id,
+    idBase,
+    instance
+  },
+  setAttributes,
+  clientId,
+  isSelected,
+  isWide = false
+}) {
+  const [hasPreview, setHasPreview] = (0,external_gc_element_namespaceObject.useState)(null);
+  const widgetTypeId = id !== null && id !== void 0 ? id : idBase;
   const {
-    widgetType,
-    hasResolvedWidgetType,
-    isNavigationMode
-  } = Object(external_gc_data_["useSelect"])(select => {
-    const widgetTypeId = id !== null && id !== void 0 ? id : idBase;
-    return {
-      widgetType: select(external_gc_coreData_["store"]).getWidgetType(widgetTypeId),
-      hasResolvedWidgetType: select(external_gc_coreData_["store"]).hasFinishedResolution('getWidgetType', [widgetTypeId]),
-      isNavigationMode: select(external_gc_blockEditor_["store"]).isNavigationMode()
-    };
-  }, [id, idBase]);
-  const setInstance = Object(external_gc_element_["useCallback"])(nextInstance => {
+    record: widgetType,
+    hasResolved: hasResolvedWidgetType
+  } = (0,external_gc_coreData_namespaceObject.useEntityRecord)('root', 'widgetType', widgetTypeId);
+  const isNavigationMode = (0,external_gc_data_namespaceObject.useSelect)(select => select(external_gc_blockEditor_namespaceObject.store).isNavigationMode(), []);
+  const setInstance = (0,external_gc_element_namespaceObject.useCallback)(nextInstance => {
     setAttributes({
       instance: nextInstance
     });
   }, []);
 
   if (!widgetType && hasResolvedWidgetType) {
-    return Object(external_gc_element_["createElement"])(external_gc_components_["Placeholder"], {
-      icon: Object(external_gc_element_["createElement"])(external_gc_blockEditor_["BlockIcon"], {
+    return (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Placeholder, {
+      icon: (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.BlockIcon, {
         icon: library_brush
       }),
-      label: Object(external_gc_i18n_["__"])('旧版小工具')
-    }, Object(external_gc_i18n_["__"])('小工具丢失。'));
+      label: (0,external_gc_i18n_namespaceObject.__)('旧版小工具')
+    }, (0,external_gc_i18n_namespaceObject.__)('小工具丢失。'));
   }
 
   if (!hasResolvedWidgetType) {
-    return Object(external_gc_element_["createElement"])(external_gc_components_["Placeholder"], null, Object(external_gc_element_["createElement"])(external_gc_components_["Spinner"], null));
+    return (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Placeholder, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Spinner, null));
   }
 
   const mode = idBase && (isNavigationMode || !isSelected) ? 'preview' : 'edit';
-  return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, idBase === 'text' && Object(external_gc_element_["createElement"])(external_gc_blockEditor_["BlockControls"], {
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_element_namespaceObject.Fragment, null, idBase === 'text' && (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.BlockControls, {
     group: "other"
-  }, Object(external_gc_element_["createElement"])(ConvertToBlocksButton, {
+  }, (0,external_gc_element_namespaceObject.createElement)(ConvertToBlocksButton, {
     clientId: clientId,
     rawInstance: instance.raw
-  })), Object(external_gc_element_["createElement"])(external_gc_blockEditor_["InspectorControls"], null, Object(external_gc_element_["createElement"])(InspectorCard, {
+  })), (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.InspectorControls, null, (0,external_gc_element_namespaceObject.createElement)(InspectorCard, {
     name: widgetType.name,
     description: widgetType.description
-  })), Object(external_gc_element_["createElement"])(Form, {
+  })), (0,external_gc_element_namespaceObject.createElement)(Form, {
     title: widgetType.name,
     isVisible: mode === 'edit',
     id: id,
@@ -1265,16 +1152,16 @@ function NotEmpty(_ref3) {
     isWide: isWide,
     onChangeInstance: setInstance,
     onChangeHasPreview: setHasPreview
-  }), idBase && Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, hasPreview === null && mode === 'preview' && Object(external_gc_element_["createElement"])(external_gc_components_["Placeholder"], null, Object(external_gc_element_["createElement"])(external_gc_components_["Spinner"], null)), hasPreview === true && Object(external_gc_element_["createElement"])(Preview, {
+  }), idBase && (0,external_gc_element_namespaceObject.createElement)(external_gc_element_namespaceObject.Fragment, null, hasPreview === null && mode === 'preview' && (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Placeholder, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Spinner, null)), hasPreview === true && (0,external_gc_element_namespaceObject.createElement)(Preview, {
     idBase: idBase,
     instance: instance,
     isVisible: mode === 'preview'
-  }), hasPreview === false && mode === 'preview' && Object(external_gc_element_["createElement"])(NoPreview, {
+  }), hasPreview === false && mode === 'preview' && (0,external_gc_element_namespaceObject.createElement)(NoPreview, {
     name: widgetType.name
   })));
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/transforms.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/transforms.js
 /**
  * GeChiUI dependencies
  */
@@ -1288,22 +1175,18 @@ const legacyWidgetTransforms = [{
 }, {
   block: 'core/html',
   widget: 'custom_html',
-  transform: _ref => {
-    let {
-      content
-    } = _ref;
-    return {
-      content
-    };
-  }
+  transform: ({
+    content
+  }) => ({
+    content
+  })
 }, {
   block: 'core/archives',
   widget: 'archives',
-  transform: _ref2 => {
-    let {
-      count,
-      dropdown
-    } = _ref2;
+  transform: ({
+    count,
+    dropdown
+  }) => {
     return {
       displayAsDropdown: !!dropdown,
       showPostCounts: !!count
@@ -1312,11 +1195,10 @@ const legacyWidgetTransforms = [{
 }, {
   block: 'core/latest-posts',
   widget: 'recent-posts',
-  transform: _ref3 => {
-    let {
-      show_date: displayPostDate,
-      number
-    } = _ref3;
+  transform: ({
+    show_date: displayPostDate,
+    number
+  }) => {
     return {
       displayPostDate: !!displayPostDate,
       postsToShow: number
@@ -1325,10 +1207,9 @@ const legacyWidgetTransforms = [{
 }, {
   block: 'core/latest-comments',
   widget: 'recent-comments',
-  transform: _ref4 => {
-    let {
-      number
-    } = _ref4;
+  transform: ({
+    number
+  }) => {
     return {
       commentsToShow: number
     };
@@ -1336,11 +1217,10 @@ const legacyWidgetTransforms = [{
 }, {
   block: 'core/tag-cloud',
   widget: 'tag_cloud',
-  transform: _ref5 => {
-    let {
-      taxonomy,
-      count
-    } = _ref5;
+  transform: ({
+    taxonomy,
+    count
+  }) => {
     return {
       showTagCounts: !!count,
       taxonomy
@@ -1349,12 +1229,11 @@ const legacyWidgetTransforms = [{
 }, {
   block: 'core/categories',
   widget: 'categories',
-  transform: _ref6 => {
-    let {
-      count,
-      dropdown,
-      hierarchical
-    } = _ref6;
+  transform: ({
+    count,
+    dropdown,
+    hierarchical
+  }) => {
     return {
       displayAsDropdown: !!dropdown,
       showPostCounts: !!count,
@@ -1364,13 +1243,12 @@ const legacyWidgetTransforms = [{
 }, {
   block: 'core/audio',
   widget: 'media_audio',
-  transform: _ref7 => {
-    let {
-      url,
-      preload,
-      loop,
-      attachment_id: id
-    } = _ref7;
+  transform: ({
+    url,
+    preload,
+    loop,
+    attachment_id: id
+  }) => {
     return {
       src: url,
       id,
@@ -1381,13 +1259,12 @@ const legacyWidgetTransforms = [{
 }, {
   block: 'core/video',
   widget: 'media_video',
-  transform: _ref8 => {
-    let {
-      url,
-      preload,
-      loop,
-      attachment_id: id
-    } = _ref8;
+  transform: ({
+    url,
+    preload,
+    loop,
+    attachment_id: id
+  }) => {
     return {
       src: url,
       id,
@@ -1398,21 +1275,20 @@ const legacyWidgetTransforms = [{
 }, {
   block: 'core/image',
   widget: 'media_image',
-  transform: _ref9 => {
-    let {
-      alt,
-      attachment_id: id,
-      caption,
-      height,
-      link_classes: linkClass,
-      link_rel: rel,
-      link_target_blank: targetBlack,
-      link_type: linkDestination,
-      link_url: link,
-      size: sizeSlug,
-      url,
-      width
-    } = _ref9;
+  transform: ({
+    alt,
+    attachment_id: id,
+    caption,
+    height,
+    link_classes: linkClass,
+    link_rel: rel,
+    link_target_blank: targetBlack,
+    link_type: linkDestination,
+    link_url: link,
+    size: sizeSlug,
+    url,
+    width
+  }) => {
     return {
       alt,
       caption,
@@ -1431,13 +1307,12 @@ const legacyWidgetTransforms = [{
 }, {
   block: 'core/gallery',
   widget: 'media_gallery',
-  transform: _ref10 => {
-    let {
-      ids,
-      link_type: linkTo,
-      size,
-      number
-    } = _ref10;
+  transform: ({
+    ids,
+    link_type: linkTo,
+    size,
+    number
+  }) => {
     return {
       ids,
       columns: number,
@@ -1451,14 +1326,13 @@ const legacyWidgetTransforms = [{
 }, {
   block: 'core/rss',
   widget: 'rss',
-  transform: _ref11 => {
-    let {
-      url,
-      show_author: displayAuthor,
-      show_date: displayDate,
-      show_summary: displayExcerpt,
-      items
-    } = _ref11;
+  transform: ({
+    url,
+    show_author: displayAuthor,
+    show_date: displayDate,
+    show_summary: displayExcerpt,
+    items
+  }) => {
     return {
       feedURL: url,
       displayAuthor: !!displayAuthor,
@@ -1467,35 +1341,30 @@ const legacyWidgetTransforms = [{
       itemsToShow: items
     };
   }
-}].map(_ref12 => {
-  let {
-    block,
-    widget,
-    transform
-  } = _ref12;
+}].map(({
+  block,
+  widget,
+  transform
+}) => {
   return {
     type: 'block',
     blocks: [block],
-    isMatch: _ref13 => {
-      let {
-        idBase,
-        instance
-      } = _ref13;
-      return idBase === widget && !!(instance !== null && instance !== void 0 && instance.raw);
+    isMatch: ({
+      idBase,
+      instance
+    }) => {
+      return idBase === widget && !!instance?.raw;
     },
-    transform: _ref14 => {
-      var _instance$raw;
+    transform: ({
+      instance
+    }) => {
+      const transformedBlock = (0,external_gc_blocks_namespaceObject.createBlock)(block, transform ? transform(instance.raw) : undefined);
 
-      let {
-        instance
-      } = _ref14;
-      const transformedBlock = Object(external_gc_blocks_["createBlock"])(block, transform ? transform(instance.raw) : undefined);
-
-      if (!((_instance$raw = instance.raw) !== null && _instance$raw !== void 0 && _instance$raw.title)) {
+      if (!instance.raw?.title) {
         return transformedBlock;
       }
 
-      return [Object(external_gc_blocks_["createBlock"])('core/heading', {
+      return [(0,external_gc_blocks_namespaceObject.createBlock)('core/heading', {
         content: instance.raw.title
       }), transformedBlock];
     }
@@ -1506,7 +1375,7 @@ const transforms = {
 };
 /* harmony default export */ var legacy_widget_transforms = (transforms);
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/legacy-widget/index.js
 /**
  * GeChiUI dependencies
  */
@@ -1515,8 +1384,8 @@ const transforms = {
  * Internal dependencies
  */
 
-const legacy_widget_metadata = {
-  apiVersion: 2,
+const metadata = {
+  apiVersion: 3,
   name: "core/legacy-widget",
   title: "旧版小工具",
   category: "widgets",
@@ -1547,18 +1416,30 @@ const legacy_widget_metadata = {
 
 const {
   name: legacy_widget_name
-} = legacy_widget_metadata;
+} = metadata;
 
-const legacy_widget_settings = {
+const settings = {
   icon: library_widget,
   edit: Edit,
   transforms: legacy_widget_transforms
 };
 
-// EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/library/group.js
-var group = __webpack_require__("CBCh");
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/group.js
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/widget-group/edit.js
+
+/**
+ * GeChiUI dependencies
+ */
+
+const group = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
+  viewBox: "0 0 24 24",
+  xmlns: "http://www.w3.org/2000/svg"
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
+  d: "M18 4h-7c-1.1 0-2 .9-2 2v3H6c-1.1 0-2 .9-2 2v7c0 1.1.9 2 2 2h7c1.1 0 2-.9 2-2v-3h3c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-4.5 14c0 .3-.2.5-.5.5H6c-.3 0-.5-.2-.5-.5v-7c0-.3.2-.5.5-.5h3V13c0 1.1.9 2 2 2h2.5v3zm0-4.5H11c-.3 0-.5-.2-.5-.5v-2.5H13c.3 0 .5.2.5.5v2.5zm5-.5c0 .3-.2.5-.5.5h-3V11c0-1.1-.9-2-2-2h-2.5V6c0-.3.2-.5.5-.5h7c.3 0 .5.2.5.5v7z"
+}));
+/* harmony default export */ var library_group = (group);
+
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/widget-group/edit.js
 
 
 /**
@@ -1575,67 +1456,102 @@ function edit_Edit(props) {
   } = props;
   const {
     innerBlocks
-  } = Object(external_gc_data_["useSelect"])(select => select(external_gc_blockEditor_["store"]).getBlock(clientId), [clientId]);
-  return Object(external_gc_element_["createElement"])("div", Object(external_gc_blockEditor_["useBlockProps"])({
-    className: 'widget'
-  }), innerBlocks.length === 0 ? Object(external_gc_element_["createElement"])(PlaceholderContent, props) : Object(external_gc_element_["createElement"])(PreviewContent, props));
+  } = (0,external_gc_data_namespaceObject.useSelect)(select => select(external_gc_blockEditor_namespaceObject.store).getBlock(clientId), [clientId]);
+  return (0,external_gc_element_namespaceObject.createElement)("div", { ...(0,external_gc_blockEditor_namespaceObject.useBlockProps)({
+      className: 'widget'
+    })
+  }, innerBlocks.length === 0 ? (0,external_gc_element_namespaceObject.createElement)(PlaceholderContent, { ...props
+  }) : (0,external_gc_element_namespaceObject.createElement)(PreviewContent, { ...props
+  }));
 }
 
-function PlaceholderContent(_ref) {
-  let {
-    clientId
-  } = _ref;
-  return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(external_gc_components_["Placeholder"], {
+function PlaceholderContent({
+  clientId
+}) {
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_element_namespaceObject.Fragment, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Placeholder, {
     className: "gc-block-widget-group__placeholder",
-    icon: Object(external_gc_element_["createElement"])(external_gc_blockEditor_["BlockIcon"], {
-      icon: group["a" /* default */]
+    icon: (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.BlockIcon, {
+      icon: library_group
     }),
-    label: Object(external_gc_i18n_["__"])('小工具组')
-  }, Object(external_gc_element_["createElement"])(external_gc_blockEditor_["ButtonBlockAppender"], {
+    label: (0,external_gc_i18n_namespaceObject.__)('小工具组')
+  }, (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.ButtonBlockAppender, {
     rootClientId: clientId
-  })), Object(external_gc_element_["createElement"])(external_gc_blockEditor_["InnerBlocks"], {
+  })), (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.InnerBlocks, {
     renderAppender: false
   }));
 }
 
-function PreviewContent(_ref2) {
+function PreviewContent({
+  attributes,
+  setAttributes
+}) {
   var _attributes$title;
 
-  let {
-    attributes,
-    setAttributes
-  } = _ref2;
-  return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichText"], {
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_element_namespaceObject.Fragment, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichText, {
     tagName: "h2",
     className: "widget-title",
     allowedFormats: [],
-    placeholder: Object(external_gc_i18n_["__"])('标题'),
+    placeholder: (0,external_gc_i18n_namespaceObject.__)('标题'),
     value: (_attributes$title = attributes.title) !== null && _attributes$title !== void 0 ? _attributes$title : '',
     onChange: title => setAttributes({
       title
     })
-  }), Object(external_gc_element_["createElement"])(external_gc_blockEditor_["InnerBlocks"], null));
+  }), (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.InnerBlocks, null));
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/widget-group/save.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/widget-group/save.js
 
 
 /**
  * GeChiUI dependencies
  */
 
-function save(_ref) {
-  let {
-    attributes
-  } = _ref;
-  return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichText"].Content, {
+function save({
+  attributes
+}) {
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_element_namespaceObject.Fragment, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichText.Content, {
     tagName: "h2",
     className: "widget-title",
     value: attributes.title
-  }), Object(external_gc_element_["createElement"])(external_gc_blockEditor_["InnerBlocks"].Content, null));
+  }), (0,external_gc_element_namespaceObject.createElement)("div", {
+    className: "gc-widget-group__inner-blocks"
+  }, (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.InnerBlocks.Content, null)));
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/widget-group/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/widget-group/deprecated.js
+
+
+/**
+ * GeChiUI dependencies
+ */
+
+const v1 = {
+  attributes: {
+    title: {
+      type: 'string'
+    }
+  },
+  supports: {
+    html: false,
+    inserter: true,
+    customClassName: true,
+    reusable: false
+  },
+
+  save({
+    attributes
+  }) {
+    return (0,external_gc_element_namespaceObject.createElement)(external_gc_element_namespaceObject.Fragment, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichText.Content, {
+      tagName: "h2",
+      className: "widget-title",
+      value: attributes.title
+    }), (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.InnerBlocks.Content, null));
+  }
+
+};
+/* harmony default export */ var deprecated = ([v1]);
+
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/blocks/widget-group/index.js
 /**
  * GeChiUI dependencies
  */
@@ -1647,7 +1563,7 @@ function save(_ref) {
  */
 
 const widget_group_metadata = {
-  apiVersion: 2,
+  apiVersion: 3,
   name: "core/widget-group",
   category: "widgets",
   attributes: {
@@ -1666,20 +1582,18 @@ const widget_group_metadata = {
 };
 
 
+
 const {
   name: widget_group_name
 } = widget_group_metadata;
 
 const widget_group_settings = {
-  title: Object(external_gc_i18n_["__"])('小工具组'),
-  description: Object(external_gc_i18n_["__"])('创建一个经典的小工具布局，其标题由您的主题为小工具区设定。'),
-  icon: group["a" /* default */],
-  __experimentalLabel: _ref => {
-    let {
-      name: label
-    } = _ref;
-    return label;
-  },
+  title: (0,external_gc_i18n_namespaceObject.__)('小工具组'),
+  description: (0,external_gc_i18n_namespaceObject.__)('创建一个经典的小工具布局，其标题由您的主题为小工具区设定。'),
+  icon: library_group,
+  __experimentalLabel: ({
+    name: label
+  }) => label,
   edit: edit_Edit,
   save: save,
   transforms: {
@@ -1696,7 +1610,7 @@ const widget_group_settings = {
       __experimentalConvert(blocks) {
         // Put the selected blocks inside the new Widget Group's innerBlocks.
         let innerBlocks = [...blocks.map(block => {
-          return Object(external_gc_blocks_["createBlock"])(block.name, block.attributes, block.innerBlocks);
+          return (0,external_gc_blocks_namespaceObject.createBlock)(block.name, block.attributes, block.innerBlocks);
         })]; // If the first block is a heading then assume this is intended
         // to be the Widget's "title".
 
@@ -1704,32 +1618,33 @@ const widget_group_settings = {
         // it's content into the Widget Group's title attribute.
 
         innerBlocks = innerBlocks.filter(block => block !== firstHeadingBlock);
-        return Object(external_gc_blocks_["createBlock"])('core/widget-group', { ...(firstHeadingBlock && {
+        return (0,external_gc_blocks_namespaceObject.createBlock)('core/widget-group', { ...(firstHeadingBlock && {
             title: firstHeadingBlock.attributes.content
           })
         }, innerBlocks);
       }
 
     }]
-  }
+  },
+  deprecated: deprecated
 };
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/move-to.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/move-to.js
 
 
 /**
  * GeChiUI dependencies
  */
 
-const moveTo = Object(external_gc_element_["createElement"])(external_gc_primitives_["SVG"], {
+const moveTo = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
   xmlns: "http://www.w3.org/2000/svg",
   viewBox: "0 0 24 24"
-}, Object(external_gc_element_["createElement"])(external_gc_primitives_["Path"], {
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
   d: "M19.75 9c0-1.257-.565-2.197-1.39-2.858-.797-.64-1.827-1.017-2.815-1.247-1.802-.42-3.703-.403-4.383-.396L11 4.5V6l.177-.001c.696-.006 2.416-.02 4.028.356.887.207 1.67.518 2.216.957.52.416.829.945.829 1.688 0 .592-.167.966-.407 1.23-.255.281-.656.508-1.236.674-1.19.34-2.82.346-4.607.346h-.077c-1.692 0-3.527 0-4.942.404-.732.209-1.424.545-1.935 1.108-.526.579-.796 1.33-.796 2.238 0 1.257.565 2.197 1.39 2.858.797.64 1.827 1.017 2.815 1.247 1.802.42 3.703.403 4.383.396L13 19.5h.714V22L18 18.5 13.714 15v3H13l-.177.001c-.696.006-2.416.02-4.028-.356-.887-.207-1.67-.518-2.216-.957-.52-.416-.829-.945-.829-1.688 0-.592.167-.966.407-1.23.255-.281.656-.508 1.237-.674 1.189-.34 2.819-.346 4.606-.346h.077c1.692 0 3.527 0 4.941-.404.732-.209 1.425-.545 1.936-1.108.526-.579.796-1.33.796-2.238z"
 }));
 /* harmony default export */ var move_to = (moveTo);
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/components/move-to-widget-area/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/components/move-to-widget-area/index.js
 
 
 /**
@@ -1738,41 +1653,37 @@ const moveTo = Object(external_gc_element_["createElement"])(external_gc_primiti
 
 
 
-function MoveToWidgetArea(_ref) {
-  let {
-    currentWidgetAreaId,
-    widgetAreas,
-    onSelect
-  } = _ref;
-  return Object(external_gc_element_["createElement"])(external_gc_components_["ToolbarGroup"], null, Object(external_gc_element_["createElement"])(external_gc_components_["ToolbarItem"], null, toggleProps => Object(external_gc_element_["createElement"])(external_gc_components_["DropdownMenu"], {
+function MoveToWidgetArea({
+  currentWidgetAreaId,
+  widgetAreas,
+  onSelect
+}) {
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.ToolbarGroup, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.ToolbarItem, null, toggleProps => (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.DropdownMenu, {
     icon: move_to,
-    label: Object(external_gc_i18n_["__"])('移至小工具区'),
+    label: (0,external_gc_i18n_namespaceObject.__)('移至小工具区'),
     toggleProps: toggleProps
-  }, _ref2 => {
-    let {
-      onClose
-    } = _ref2;
-    return Object(external_gc_element_["createElement"])(external_gc_components_["MenuGroup"], {
-      label: Object(external_gc_i18n_["__"])('移动至')
-    }, Object(external_gc_element_["createElement"])(external_gc_components_["MenuItemsChoice"], {
-      choices: widgetAreas.map(widgetArea => ({
-        value: widgetArea.id,
-        label: widgetArea.name,
-        info: widgetArea.description
-      })),
-      value: currentWidgetAreaId,
-      onSelect: value => {
-        onSelect(value);
-        onClose();
-      }
-    }));
-  })));
+  }, ({
+    onClose
+  }) => (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.MenuGroup, {
+    label: (0,external_gc_i18n_namespaceObject.__)('移动至')
+  }, (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.MenuItemsChoice, {
+    choices: widgetAreas.map(widgetArea => ({
+      value: widgetArea.id,
+      label: widgetArea.name,
+      info: widgetArea.description
+    })),
+    value: currentWidgetAreaId,
+    onSelect: value => {
+      onSelect(value);
+      onClose();
+    }
+  })))));
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/components/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/components/index.js
 
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/utils.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/utils.js
 // @ts-check
 
 /**
@@ -1805,7 +1716,7 @@ function addWidgetIdToBlock(block, widgetId) {
   };
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/register-legacy-widget-variations.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/register-legacy-widget-variations.js
 /**
  * GeChiUI dependencies
  */
@@ -1813,17 +1724,17 @@ function addWidgetIdToBlock(block, widgetId) {
 
 
 function registerLegacyWidgetVariations(settings) {
-  const unsubscribe = Object(external_gc_data_["subscribe"])(() => {
-    var _settings$widgetTypes, _select$getWidgetType;
+  const unsubscribe = (0,external_gc_data_namespaceObject.subscribe)(() => {
+    var _settings$widgetTypes;
 
-    const hiddenIds = (_settings$widgetTypes = settings === null || settings === void 0 ? void 0 : settings.widgetTypesToHideFromLegacyWidgetBlock) !== null && _settings$widgetTypes !== void 0 ? _settings$widgetTypes : [];
-    const widgetTypes = (_select$getWidgetType = Object(external_gc_data_["select"])(external_gc_coreData_["store"]).getWidgetTypes({
+    const hiddenIds = (_settings$widgetTypes = settings?.widgetTypesToHideFromLegacyWidgetBlock) !== null && _settings$widgetTypes !== void 0 ? _settings$widgetTypes : [];
+    const widgetTypes = (0,external_gc_data_namespaceObject.select)(external_gc_coreData_namespaceObject.store).getWidgetTypes({
       per_page: -1
-    })) === null || _select$getWidgetType === void 0 ? void 0 : _select$getWidgetType.filter(widgetType => !hiddenIds.includes(widgetType.id));
+    })?.filter(widgetType => !hiddenIds.includes(widgetType.id));
 
     if (widgetTypes) {
       unsubscribe();
-      Object(external_gc_data_["dispatch"])(external_gc_blocks_["store"]).addBlockVariations('core/legacy-widget', widgetTypes.map(widgetType => ({
+      (0,external_gc_data_namespaceObject.dispatch)(external_gc_blocks_namespaceObject.store).addBlockVariations('core/legacy-widget', widgetTypes.map(widgetType => ({
         name: widgetType.id,
         title: widgetType.name,
         description: widgetType.description,
@@ -1838,7 +1749,7 @@ function registerLegacyWidgetVariations(settings) {
   });
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/widgets/build-module/index.js
 /**
  * GeChiUI dependencies
  */
@@ -1857,73 +1768,49 @@ function registerLegacyWidgetVariations(settings) {
  * Note that for the block to be useful, any scripts required by a widget must
  * be loaded into the page.
  *
+ * @param {Object} supports Block support settings.
  * @see https://developer.gechiui.com/block-editor/how-to-guides/widgets/legacy-widget-block/
  */
 
-function registerLegacyWidgetBlock() {
+function registerLegacyWidgetBlock(supports = {}) {
   const {
     metadata,
     settings,
     name
   } = legacy_widget_namespaceObject;
-  Object(external_gc_blocks_["registerBlockType"])({
+  (0,external_gc_blocks_namespaceObject.registerBlockType)({
     name,
     ...metadata
-  }, settings);
+  }, { ...settings,
+    supports: { ...settings.supports,
+      ...supports
+    }
+  });
 }
 /**
  * Registers the Widget Group block.
+ *
+ * @param {Object} supports Block support settings.
  */
 
-function registerWidgetGroupBlock() {
+function registerWidgetGroupBlock(supports = {}) {
   const {
     metadata,
     settings,
     name
   } = widget_group_namespaceObject;
-  Object(external_gc_blocks_["registerBlockType"])({
+  (0,external_gc_blocks_namespaceObject.registerBlockType)({
     name,
     ...metadata
-  }, settings);
+  }, { ...settings,
+    supports: { ...settings.supports,
+      ...supports
+    }
+  });
 }
 
 
-
-/***/ }),
-
-/***/ "jd0n":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["components"]; }());
-
-/***/ }),
-
-/***/ "n68F":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["blocks"]; }());
-
-/***/ }),
-
-/***/ "nLrk":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["blockEditor"]; }());
-
-/***/ }),
-
-/***/ "xuem":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["apiFetch"]; }());
-
-/***/ }),
-
-/***/ "z4sU":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["i18n"]; }());
-
-/***/ })
-
-/******/ });
+}();
+(window.gc = window.gc || {}).widgets = __webpack_exports__;
+/******/ })()
+;

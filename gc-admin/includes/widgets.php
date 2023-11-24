@@ -9,8 +9,6 @@
 /**
  * Display list of the available widgets.
  *
- *
- *
  * @global array $gc_registered_widgets
  * @global array $gc_registered_widget_controls
  */
@@ -64,9 +62,10 @@ function gc_list_widgets() {
 /**
  * Callback to sort array by a 'name' key.
  *
- *
  * @access private
  *
+ * @param array $a First array.
+ * @param array $b Second array.
  * @return int
  */
 function _sort_name_callback( $a, $b ) {
@@ -76,8 +75,6 @@ function _sort_name_callback( $a, $b ) {
 /**
  * Show the widgets and their settings for a sidebar.
  * Used in the admin widget config screen.
- *
- *
  *
  * @param string $sidebar      Sidebar ID.
  * @param string $sidebar_name Optional. Sidebar name. Default empty.
@@ -121,8 +118,6 @@ function gc_list_widget_controls( $sidebar, $sidebar_name = '' ) {
 
 /**
  * Retrieves the widget control arguments.
- *
- *
  *
  * @global array $gc_registered_widgets
  *
@@ -175,8 +170,6 @@ function next_widget_id_number( $id_base ) {
  * Meta widget used to display the control form for a widget.
  *
  * Called from dynamic_sidebar().
- *
- *
  *
  * @global array $gc_registered_widgets
  * @global array $gc_registered_widget_controls
@@ -245,13 +238,13 @@ function gc_widget_control( $sidebar_args ) {
 		<button type="button" class="widget-action hide-if-no-js" aria-expanded="false">
 			<span class="screen-reader-text edit">
 				<?php
-				/* translators: %s: Widget title. */
+				/* translators: Hidden accessibility text. %s: Widget title. */
 				printf( __( '编辑小工具：%s' ), $widget_title );
 				?>
 			</span>
 			<span class="screen-reader-text add">
 				<?php
-				/* translators: %s: Widget title. */
+				/* translators: Hidden accessibility text. %s: Widget title. */
 				printf( __( '添加小工具：%s' ), $widget_title );
 				?>
 			</span>

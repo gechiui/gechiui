@@ -8,7 +8,6 @@
  *
  * @package GeChiUI
  * @subpackage Filesystem
- *
  */
 
 /** The descriptions for theme files. */
@@ -19,8 +18,9 @@ $gc_file_descriptions = array(
 	'sidebar.php'           => __( '边栏' ),
 	'comments.php'          => __( '评论' ),
 	'searchform.php'        => __( '搜索框' ),
-	'404.php'               => __( '404模板' ),
+	'404.php'               => __( '404 模板' ),
 	'link.php'              => __( '链接模板' ),
+	'theme.json'            => __( '主题样式和区块设置' ),
 	// Archives.
 	'index.php'             => __( '首页模板' ),
 	'archive.php'           => __( '归档' ),
@@ -53,7 +53,7 @@ $gc_file_descriptions = array(
 	'style.css'             => __( '样式表' ),
 	'editor-style.css'      => __( '可视化编辑器样式表' ),
 	'editor-style-rtl.css'  => __( '用于可视化编辑器的右至左书写顺序样式表' ),
-	'rtl.css'               => __( 'RTL样式表' ),
+	'rtl.css'               => __( 'RTL 样式表' ),
 	// Other.
 	'my-hacks.php'          => __( 'my-hacks.php（老式hack支持）' ),
 	'.htaccess'             => __( '.htaccess（重写规则）' ),
@@ -66,8 +66,6 @@ $gc_file_descriptions = array(
 
 /**
  * Gets the description for standard GeChiUI theme files.
- *
- *
  *
  * @global array $gc_file_descriptions Theme file descriptions.
  * @global array $allowed_files        List of allowed files.
@@ -99,8 +97,6 @@ function get_file_description( $file ) {
 /**
  * Gets the absolute filesystem path to the root of the GeChiUI installation.
  *
- *
- *
  * @return string Full filesystem path to the root of the GeChiUI installation.
  */
 function get_home_path() {
@@ -123,16 +119,17 @@ function get_home_path() {
  * Returns a listing of all files in the specified folder and all subdirectories up to 100 levels deep.
  *
  * The depth of the recursiveness can be controlled by the $levels param.
+ * Added the `$exclusions` parameter.
+ * @since 6.3.0 Added the `$include_hidden` parameter.
  *
- *
- *
- *
- * @param string   $folder     Optional. Full path to folder. Default empty.
- * @param int      $levels     Optional. Levels of folders to follow, Default 100 (PHP Loop limit).
- * @param string[] $exclusions Optional. List of folders and files to skip.
+ * @param string   $folder         Optional. Full path to folder. Default empty.
+ * @param int      $levels         Optional. Levels of folders to follow, Default 100 (PHP Loop limit).
+ * @param string[] $exclusions     Optional. List of folders and files to skip.
+ * @param bool     $include_hidden Optional. Whether to include details of hidden ("." prefixed) files.
+ *                                 Default false.
  * @return string[]|false Array of files on success, false on failure.
  */
-function list_files( $folder = '', $levels = 100, $exclusions = array() ) {
+function list_files( $folder = '', $levels = 100, $exclusions = array(), $include_hidden = false ) {
 	if ( empty( $folder ) ) {
 		return false;
 	}
@@ -155,12 +152,12 @@ function list_files( $folder = '', $levels = 100, $exclusions = array() ) {
 			}
 
 			// Skip hidden and excluded files.
-			if ( '.' === $file[0] || in_array( $file, $exclusions, true ) ) {
+			if ( ( ! $include_hidden && '.' === $file[0] ) || in_array( $file, $exclusions, true ) ) {
 				continue;
 			}
 
 			if ( is_dir( $folder . $file ) ) {
-				$files2 = list_files( $folder . $file, $levels - 1 );
+				$files2 = list_files( $folder . $file, $levels - 1, array(), $include_hidden );
 				if ( $files2 ) {
 					$files = array_merge( $files, $files2 );
 				} else {
@@ -179,8 +176,6 @@ function list_files( $folder = '', $levels = 100, $exclusions = array() ) {
 
 /**
  * Gets the list of file extensions that are editable in plugins.
- *
- *
  *
  * @param string $plugin Path to the plugin file relative to the plugins directory.
  * @return string[] Array of editable file extensions.
@@ -225,6 +220,7 @@ function gc_get_plugin_file_editable_extensions( $plugin ) {
 	/**
 	 * Filters the list of file types allowed for editing in the plugin file editor.
 	 *
+	 * @since 4.9.0 Added the `$plugin` parameter.
 	 *
 	 * @param string[] $default_types An array of editable plugin file extensions.
 	 * @param string   $plugin        Path to the plugin file relative to the plugins directory.
@@ -236,8 +232,6 @@ function gc_get_plugin_file_editable_extensions( $plugin ) {
 
 /**
  * Gets the list of file extensions that are editable for a given theme.
- *
- *
  *
  * @param GC_Theme $theme Theme object.
  * @return string[] Array of editable file extensions.
@@ -282,6 +276,7 @@ function gc_get_theme_file_editable_extensions( $theme ) {
 	/**
 	 * Filters the list of file types allowed for editing in the theme file editor.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string[] $default_types An array of editable theme file extensions.
 	 * @param GC_Theme $theme         The active theme object.
@@ -294,7 +289,6 @@ function gc_get_theme_file_editable_extensions( $theme ) {
 
 /**
  * Prints file editor templates (for plugins and themes).
- *
  *
  */
 function gc_print_file_editor_templates() {
@@ -330,12 +324,17 @@ function gc_print_file_editor_templates() {
 					<p>
 						<# var elementId = 'el-' + String( Math.random() ); #>
 						<input id="{{ elementId }}"  type="checkbox">
-						<label for="{{ elementId }}"><?php _e( '仍然更新，即使这可能损坏您的站点？' ); ?></label>
+						<label for="{{ elementId }}"><?php _e( '仍然更新，即使这可能损坏您的系统？' ); ?></label>
 					</p>
 				<# } #>
 			<# } #>
 			<# if ( data.dismissible ) { #>
-				<button type="button" class="notice-dismiss"><span class="screen-reader-text"><?php _e( '不再显示' ); ?></span></button>
+				<button type="button" class="notice-dismiss"><span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '不再显示' );
+					?>
+				</span></button>
 			<# } #>
 		</div>
 	</script>
@@ -348,8 +347,6 @@ function gc_print_file_editor_templates() {
  * When editing a PHP file, loopback requests will be made to the admin and the homepage
  * to attempt to see if there is a fatal error introduced. If so, the PHP change will be
  * reverted.
- *
- *
  *
  * @param string[] $args {
  *     Args. Note that all of the arg values are already unslashed. They are, however,
@@ -391,7 +388,7 @@ function gc_edit_theme_plugin_file( $args ) {
 		$plugin = $args['plugin'];
 
 		if ( ! current_user_can( 'edit_plugins' ) ) {
-			return new GC_Error( 'unauthorized', __( '抱歉，您不能编辑此站点的插件。' ) );
+			return new GC_Error( 'unauthorized', __( '抱歉，您不能编辑此系统的插件。' ) );
 		}
 
 		if ( ! gc_verify_nonce( $args['nonce'], 'edit-plugin_' . $file ) ) {
@@ -424,7 +421,7 @@ function gc_edit_theme_plugin_file( $args ) {
 		}
 
 		if ( ! current_user_can( 'edit_themes' ) ) {
-			return new GC_Error( 'unauthorized', __( '抱歉，您不能在此站点上编辑模板。' ) );
+			return new GC_Error( 'unauthorized', __( '抱歉，您不能在此系统上编辑模板。' ) );
 		}
 
 		$theme = gc_get_theme( $stylesheet );
@@ -536,10 +533,12 @@ function gc_edit_theme_plugin_file( $args ) {
 		}
 
 		// Make sure PHP process doesn't die before loopback requests complete.
-		set_time_limit( 300 );
+		if ( function_exists( 'set_time_limit' ) ) {
+			set_time_limit( 5 * MINUTE_IN_SECONDS );
+		}
 
 		// Time to wait for loopback requests to finish.
-		$timeout = 100;
+		$timeout = 100; // 100 seconds.
 
 		$needle_start = "###### gc_scraping_result_start:$scrape_key ######";
 		$needle_end   = "###### gc_scraping_result_end:$scrape_key ######";
@@ -560,8 +559,10 @@ function gc_edit_theme_plugin_file( $args ) {
 		}
 
 		if ( function_exists( 'session_status' ) && PHP_SESSION_ACTIVE === session_status() ) {
-			// Close any active session to prevent HTTP requests from timing out
-			// when attempting to connect back to the site.
+			/*
+			 * Close any active session to prevent HTTP requests from timing out
+			 * when attempting to connect back to the site.
+			 */
 			session_write_close();
 		}
 
@@ -572,7 +573,7 @@ function gc_edit_theme_plugin_file( $args ) {
 
 		$loopback_request_failure = array(
 			'code'    => 'loopback_request_failed',
-			'message' => __( '无法与站点通信来检查致命错误，因此PHP修改已被回滚。您需要采用其他方式（如SFTP）上传您修改的PHP文件。' ),
+			'message' => __( '无法与系统通信来检查致命错误，因此PHP修改已被回滚。您需要采用其他方式（如SFTP）上传您修改的PHP文件。' ),
 		);
 		$json_parse_failure       = array(
 			'code' => 'json_parse_error',
@@ -646,8 +647,6 @@ function gc_edit_theme_plugin_file( $args ) {
  * while the directory can either be passed as well, or by leaving it blank, default to a writable
  * temporary directory.
  *
- *
- *
  * @param string $filename Optional. Filename to base the Unique file off. Default empty.
  * @param string $dir      Optional. Directory to store the file in. Default empty.
  * @return string A writable filename.
@@ -673,7 +672,25 @@ function gc_tempnam( $filename = '', $dir = '' ) {
 	// Suffix some random data to avoid filename conflicts.
 	$temp_filename .= '-' . gc_generate_password( 6, false );
 	$temp_filename .= '.tmp';
-	$temp_filename  = $dir . gc_unique_filename( $dir, $temp_filename );
+	$temp_filename  = gc_unique_filename( $dir, $temp_filename );
+
+	/*
+	 * Filesystems typically have a limit of 255 characters for a filename.
+	 *
+	 * If the generated unique filename exceeds this, truncate the initial
+	 * filename and try again.
+	 *
+	 * As it's possible that the truncated filename may exist, producing a
+	 * suffix of "-1" or "-10" which could exceed the limit again, truncate
+	 * it to 252 instead.
+	 */
+	$characters_over_limit = strlen( $temp_filename ) - 252;
+	if ( $characters_over_limit > 0 ) {
+		$filename = substr( $filename, 0, -$characters_over_limit );
+		return gc_tempnam( $filename, $dir );
+	}
+
+	$temp_filename = $dir . $temp_filename;
 
 	$fp = @fopen( $temp_filename, 'x' );
 
@@ -693,8 +710,6 @@ function gc_tempnam( $filename = '', $dir = '' ) {
  *
  * Function will die if you are not allowed to edit the file.
  *
- *
- *
  * @param string   $file          File the user is attempting to edit.
  * @param string[] $allowed_files Optional. Array of allowed files to edit.
  *                                `$file` must match an entry exactly.
@@ -712,7 +727,7 @@ function validate_file_to_edit( $file, $allowed_files = array() ) {
 			gc_die( __( '抱歉，不能编辑那个文件。' ) );
 
 			// case 2 :
-			// gc_die( __('抱歉，无法使用文件的实际路径调用文件。' ));
+			// gc_die( __('对不起，无法使用文件的真实路径调用文件。' ));
 
 		case 3:
 			gc_die( __( '抱歉，不能编辑那个文件。' ) );
@@ -726,7 +741,7 @@ function validate_file_to_edit( $file, $allowed_files = array() ) {
  * to the appropriate directory within the uploads directory.
  *
  * @access private
- *
+ * @since 4.0.0
  *
  * @see gc_handle_upload_error
  *
@@ -783,6 +798,8 @@ function _gc_handle_upload( &$file, $overrides, $time, $action ) {
 	 *  - `gc_handle_sideload_prefilter`
 	 *  - `gc_handle_upload_prefilter`
 	 *
+	 * @since 2.9.0 as 'gc_handle_upload_prefilter'.
+	 * @since 4.0.0 Converted to a dynamic hook with `$action`.
 	 *
 	 * @param array $file {
 	 *     Reference to a single element from `$_FILES`.
@@ -806,6 +823,7 @@ function _gc_handle_upload( &$file, $overrides, $time, $action ) {
 	 *  - `gc_handle_sideload_overrides`
 	 *  - `gc_handle_upload_overrides`
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param array|false $overrides An array of override parameters for this file. Boolean false if none are
 	 *                               provided. @see _gc_handle_upload().
@@ -876,7 +894,7 @@ function _gc_handle_upload( &$file, $overrides, $time, $action ) {
 
 	// If you override this, you must provide $ext and $type!!
 	$test_type = isset( $overrides['test_type'] ) ? $overrides['test_type'] : true;
-	$mimes     = isset( $overrides['mimes'] ) ? $overrides['mimes'] : false;
+	$mimes     = isset( $overrides['mimes'] ) ? $overrides['mimes'] : null;
 
 	// A correct form post will pass this test.
 	if ( $test_form && ( ! isset( $_POST['action'] ) || $_POST['action'] !== $action ) ) {
@@ -955,6 +973,7 @@ function _gc_handle_upload( &$file, $overrides, $time, $action ) {
 	 * If a non-null value is returned from the filter, moving the file and any related
 	 * error reporting will be completely skipped.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param mixed    $move_new_file If null (default) move the file after the upload.
 	 * @param array    $file          {
@@ -982,7 +1001,7 @@ function _gc_handle_upload( &$file, $overrides, $time, $action ) {
 		}
 
 		if ( false === $move_new_file ) {
-			if ( 0 === strpos( $uploads['basedir'], ABSPATH ) ) {
+			if ( str_starts_with( $uploads['basedir'], ABSPATH ) ) {
 				$error_path = str_replace( ABSPATH, '', $uploads['basedir'] ) . $uploads['subdir'];
 			} else {
 				$error_path = basename( $uploads['basedir'] ) . $uploads['subdir'];
@@ -992,7 +1011,7 @@ function _gc_handle_upload( &$file, $overrides, $time, $action ) {
 				$file,
 				sprintf(
 					/* translators: %s: Destination file path. */
-					__( '无法将上传的文件移动至%s。' ),
+					__( '无法将上传的文件移动至 %s。' ),
 					$error_path
 				)
 			);
@@ -1040,8 +1059,6 @@ function _gc_handle_upload( &$file, $overrides, $time, $action ) {
  *
  * Passes the {@see 'gc_handle_upload'} action.
  *
- *
- *
  * @see _gc_handle_upload()
  *
  * @param array       $file      Reference to a single element of `$_FILES`.
@@ -1070,8 +1087,6 @@ function gc_handle_upload( &$file, $overrides = false, $time = null ) {
  * Wrapper for _gc_handle_upload().
  *
  * Passes the {@see 'gc_handle_sideload'} action.
- *
- *
  *
  * @see _gc_handle_upload()
  *
@@ -1102,9 +1117,8 @@ function gc_handle_sideload( &$file, $overrides = false, $time = null ) {
  *
  * Please note that the calling function must unlink() the file.
  *
- *
- *
- *
+ * @since 5.2.0 Signature Verification with SoftFail was added.
+ * @since 5.9.0 Support for Content-Disposition filename was added.
  *
  * @param string $url                    The URL of the file to download.
  * @param int    $timeout                The timeout for the request to download the file.
@@ -1116,7 +1130,7 @@ function gc_handle_sideload( &$file, $overrides = false, $time = null ) {
 function download_url( $url, $timeout = 300, $signature_verification = false ) {
 	// WARNING: The file is not automatically deleted, the script must unlink() the file.
 	if ( ! $url ) {
-		return new GC_Error( 'http_no_url', __( '提供的URL无效。' ) );
+		return new GC_Error( 'http_no_url', __( '提供的 URL 无效。' ) );
 	}
 
 	$url_path     = parse_url( $url, PHP_URL_PATH );
@@ -1158,7 +1172,7 @@ function download_url( $url, $timeout = 300, $signature_verification = false ) {
 			/**
 			 * Filters the maximum error response body size in `download_url()`.
 			 *
-		
+			 * @since 5.1.0
 			 *
 			 * @see download_url()
 			 *
@@ -1175,12 +1189,12 @@ function download_url( $url, $timeout = 300, $signature_verification = false ) {
 		return new GC_Error( 'http_404', trim( gc_remote_retrieve_response_message( $response ) ), $data );
 	}
 
-	$content_disposition = gc_remote_retrieve_header( $response, 'content-disposition' );
+	$content_disposition = gc_remote_retrieve_header( $response, 'Content-Disposition' );
 
 	if ( $content_disposition ) {
 		$content_disposition = strtolower( $content_disposition );
 
-		if ( 0 === strpos( $content_disposition, 'attachment; filename=' ) ) {
+		if ( str_starts_with( $content_disposition, 'attachment; filename=' ) ) {
 			$tmpfname_disposition = sanitize_file_name( substr( $content_disposition, 21 ) );
 		} else {
 			$tmpfname_disposition = '';
@@ -1191,7 +1205,7 @@ function download_url( $url, $timeout = 300, $signature_verification = false ) {
 			&& ( 0 === validate_file( $tmpfname_disposition ) )
 		) {
 			$tmpfname_disposition = dirname( $tmpfname ) . '/' . $tmpfname_disposition;
-		
+
 			if ( rename( $tmpfname, $tmpfname_disposition ) ) {
 				$tmpfname = $tmpfname_disposition;
 			}
@@ -1202,7 +1216,7 @@ function download_url( $url, $timeout = 300, $signature_verification = false ) {
 		}
 	}
 
-	$content_md5 = gc_remote_retrieve_header( $response, 'content-md5' );
+	$content_md5 = gc_remote_retrieve_header( $response, 'Content-MD5' );
 
 	if ( $content_md5 ) {
 		$md5_check = verify_file_md5( $tmpfname, $content_md5 );
@@ -1218,6 +1232,7 @@ function download_url( $url, $timeout = 300, $signature_verification = false ) {
 		/**
 		 * Filters the list of hosts which should have Signature Verification attempted on.
 		 *
+		 * @since 5.2.0
 		 *
 		 * @param string[] $hostnames List of hostnames.
 		 */
@@ -1228,22 +1243,24 @@ function download_url( $url, $timeout = 300, $signature_verification = false ) {
 
 	// Perform signature valiation if supported.
 	if ( $signature_verification ) {
-		$signature = gc_remote_retrieve_header( $response, 'x-content-signature' );
+		$signature = gc_remote_retrieve_header( $response, 'X-Content-Signature' );
 
 		if ( ! $signature ) {
-			// Retrieve signatures from a file if the header wasn't included.
-			// www.GeChiUI.com stores signatures at $package_url.sig.
+			/*
+			 * Retrieve signatures from a file if the header wasn't included.
+			 * www.GeChiUI.com stores signatures at $package_url.sig.
+			 */
 
 			$signature_url = false;
 
-			if ( is_string( $url_path ) && ( '.zip' === substr( $url_path, -4 ) || '.tar.gz' === substr( $url_path, -7 ) ) ) {
+			if ( is_string( $url_path ) && ( str_ends_with( $url_path, '.zip' ) || str_ends_with( $url_path, '.tar.gz' ) ) ) {
 				$signature_url = str_replace( $url_path, $url_path . '.sig', $url );
 			}
 
 			/**
 			 * Filters the URL where the signature for a file is located.
 			 *
-		
+			 * @since 5.2.0
 			 *
 			 * @param false|string $signature_url The URL where signatures can be found for a file, or false if none are known.
 			 * @param string $url                 The URL being verified.
@@ -1275,7 +1292,7 @@ function download_url( $url, $timeout = 300, $signature_verification = false ) {
 			 *
 			 * WARNING: This may be removed from a future release.
 			 *
-		
+			 * @since 5.2.0
 			 *
 			 * @param bool   $signature_softfail If a softfail is allowed.
 			 * @param string $url                The url being accessed.
@@ -1296,8 +1313,6 @@ function download_url( $url, $timeout = 300, $signature_verification = false ) {
 
 /**
  * Calculates and compares the MD5 of a file to its expected value.
- *
- *
  *
  * @param string $filename     The filename to check the MD5 of.
  * @param string $expected_md5 The expected MD5 of the file, either a base64-encoded raw md5,
@@ -1334,7 +1349,7 @@ function verify_file_md5( $filename, $expected_md5 ) {
 /**
  * Verifies the contents of a file against its ED25519 signature.
  *
- *
+ * @since 5.2.0
  *
  * @param string       $filename            The file to validate.
  * @param string|array $signatures          A Signature provided for the file.
@@ -1360,14 +1375,16 @@ function verify_file_signature( $filename, $signatures, $filename_for_errors = f
 		);
 	}
 
-	// Check for a edge-case affecting PHP Maths abilities.
+	// Check for an edge-case affecting PHP Maths abilities.
 	if (
 		! extension_loaded( 'sodium' ) &&
 		in_array( PHP_VERSION_ID, array( 70200, 70201, 70202 ), true ) &&
 		extension_loaded( 'opcache' )
 	) {
-		// Sodium_Compat isn't compatible with PHP 7.2.0~7.2.2 due to a bug in the PHP Opcache extension, bail early as it'll fail.
-		// https://bugs.php.net/bug.php?id=75938
+		/*
+		 * Sodium_Compat isn't compatible with PHP 7.2.0~7.2.2 due to a bug in the PHP Opcache extension, bail early as it'll fail.
+		 * https://bugs.php.net/bug.php?id=75938
+		 */
 		return new GC_Error(
 			'signature_verification_unsupported',
 			sprintf(
@@ -1376,7 +1393,7 @@ function verify_file_signature( $filename, $signatures, $filename_for_errors = f
 				'<span class="code">' . esc_html( $filename_for_errors ) . '</span>'
 			),
 			array(
-				'php'    => phpversion(),
+				'php'    => PHP_VERSION,
 				'sodium' => defined( 'SODIUM_LIBRARY_VERSION' ) ? SODIUM_LIBRARY_VERSION : ( defined( 'ParagonIE_Sodium_Compat::VERSION_STRING' ) ? ParagonIE_Sodium_Compat::VERSION_STRING : false ),
 			)
 		);
@@ -1400,8 +1417,10 @@ function verify_file_signature( $filename, $signatures, $filename_for_errors = f
 			// phpcs:enable
 		}
 
-		// This cannot be performed in a reasonable amount of time.
-		// https://github.com/paragonie/sodium_compat#help-sodium_compat-is-slow-how-can-i-make-it-fast
+		/*
+		 * This cannot be performed in a reasonable amount of time.
+		 * https://github.com/paragonie/sodium_compat#help-sodium_compat-is-slow-how-can-i-make-it-fast
+		 */
 		if ( ! $sodium_compat_is_fast ) {
 			return new GC_Error(
 				'signature_verification_unsupported',
@@ -1411,7 +1430,7 @@ function verify_file_signature( $filename, $signatures, $filename_for_errors = f
 					'<span class="code">' . esc_html( $filename_for_errors ) . '</span>'
 				),
 				array(
-					'php'                => phpversion(),
+					'php'                => PHP_VERSION,
 					'sodium'             => defined( 'SODIUM_LIBRARY_VERSION' ) ? SODIUM_LIBRARY_VERSION : ( defined( 'ParagonIE_Sodium_Compat::VERSION_STRING' ) ? ParagonIE_Sodium_Compat::VERSION_STRING : false ),
 					'polyfill_is_fast'   => false,
 					'max_execution_time' => ini_get( 'max_execution_time' ),
@@ -1484,7 +1503,7 @@ function verify_file_signature( $filename, $signatures, $filename_for_errors = f
 			'hash'        => bin2hex( $file_hash ),
 			'skipped_key' => $skipped_key,
 			'skipped_sig' => $skipped_signature,
-			'php'         => phpversion(),
+			'php'         => PHP_VERSION,
 			'sodium'      => defined( 'SODIUM_LIBRARY_VERSION' ) ? SODIUM_LIBRARY_VERSION : ( defined( 'ParagonIE_Sodium_Compat::VERSION_STRING' ) ? ParagonIE_Sodium_Compat::VERSION_STRING : false ),
 		)
 	);
@@ -1493,7 +1512,7 @@ function verify_file_signature( $filename, $signatures, $filename_for_errors = f
 /**
  * Retrieves the list of signing keys trusted by GeChiUI.
  *
- *
+ * @since 5.2.0
  *
  * @return string[] Array of base64-encoded signing keys.
  */
@@ -1510,6 +1529,7 @@ function gc_trusted_keys() {
 	/**
 	 * Filters the valid signing keys used to verify the contents of files.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param string[] $trusted_keys The trusted keys that may sign packages.
 	 */
@@ -1525,8 +1545,6 @@ function gc_trusted_keys() {
  *
  * Attempts to increase the PHP memory limit to 256M before uncompressing. However,
  * the most memory required shouldn't be much larger than the archive itself.
- *
- *
  *
  * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
  *
@@ -1595,7 +1613,6 @@ function unzip_file( $file, $to ) {
  *
  * Assumes that GC_Filesystem() has already been called and set up.
  *
- *
  * @access private
  *
  * @see unzip_file()
@@ -1627,7 +1644,7 @@ function _unzip_file_ziparchive( $file, $to, $needed_dirs = array() ) {
 			return new GC_Error( 'stat_failed_ziparchive', __( '无法从压缩文件中获取文件。' ) );
 		}
 
-		if ( '__MACOSX/' === substr( $info['name'], 0, 9 ) ) { // Skip the OS X-created __MACOSX directory.
+		if ( str_starts_with( $info['name'], '__MACOSX/' ) ) { // Skip the OS X-created __MACOSX directory.
 			continue;
 		}
 
@@ -1640,7 +1657,7 @@ function _unzip_file_ziparchive( $file, $to, $needed_dirs = array() ) {
 
 		$dirname = dirname( $info['name'] );
 
-		if ( '/' === substr( $info['name'], -1 ) ) {
+		if ( str_ends_with( $info['name'], '/' ) ) {
 			// Directory.
 			$needed_dirs[] = $to . untrailingslashit( $info['name'] );
 		} elseif ( '.' !== $dirname ) {
@@ -1674,7 +1691,7 @@ function _unzip_file_ziparchive( $file, $to, $needed_dirs = array() ) {
 			continue;
 		}
 
-		if ( strpos( $dir, $to ) === false ) { // If the directory is not within the working directory, skip it.
+		if ( ! str_contains( $dir, $to ) ) { // If the directory is not within the working directory, skip it.
 			continue;
 		}
 
@@ -1695,7 +1712,7 @@ function _unzip_file_ziparchive( $file, $to, $needed_dirs = array() ) {
 	foreach ( $needed_dirs as $_dir ) {
 		// Only check to see if the Dir exists upon creation failure. Less I/O this way.
 		if ( ! $gc_filesystem->mkdir( $_dir, FS_CHMOD_DIR ) && ! $gc_filesystem->is_dir( $_dir ) ) {
-			return new GC_Error( 'mkdir_failed_ziparchive', __( '无法创建目录。' ), substr( $_dir, strlen( $to ) ) );
+			return new GC_Error( 'mkdir_failed_ziparchive', __( '无法创建目录。' ), $_dir );
 		}
 	}
 	unset( $needed_dirs );
@@ -1707,11 +1724,11 @@ function _unzip_file_ziparchive( $file, $to, $needed_dirs = array() ) {
 			return new GC_Error( 'stat_failed_ziparchive', __( '无法从压缩文件中获取文件。' ) );
 		}
 
-		if ( '/' === substr( $info['name'], -1 ) ) { // Directory.
+		if ( str_ends_with( $info['name'], '/' ) ) { // Directory.
 			continue;
 		}
 
-		if ( '__MACOSX/' === substr( $info['name'], 0, 9 ) ) { // Don't extract the OS X-created __MACOSX directory files.
+		if ( str_starts_with( $info['name'], '__MACOSX/' ) ) { // Don't extract the OS X-created __MACOSX directory files.
 			continue;
 		}
 
@@ -1742,7 +1759,6 @@ function _unzip_file_ziparchive( $file, $to, $needed_dirs = array() ) {
  * This function should not be called directly, use `unzip_file()` instead.
  *
  * Assumes that GC_Filesystem() has already been called and set up.
- *
  *
  * @access private
  *
@@ -1781,7 +1797,7 @@ function _unzip_file_pclzip( $file, $to, $needed_dirs = array() ) {
 
 	// Determine any children directories needed (From within the archive).
 	foreach ( $archive_files as $file ) {
-		if ( '__MACOSX/' === substr( $file['filename'], 0, 9 ) ) { // Skip the OS X-created __MACOSX directory.
+		if ( str_starts_with( $file['filename'], '__MACOSX/' ) ) { // Skip the OS X-created __MACOSX directory.
 			continue;
 		}
 
@@ -1815,7 +1831,7 @@ function _unzip_file_pclzip( $file, $to, $needed_dirs = array() ) {
 			continue;
 		}
 
-		if ( strpos( $dir, $to ) === false ) { // If the directory is not within the working directory, skip it.
+		if ( ! str_contains( $dir, $to ) ) { // If the directory is not within the working directory, skip it.
 			continue;
 		}
 
@@ -1836,7 +1852,7 @@ function _unzip_file_pclzip( $file, $to, $needed_dirs = array() ) {
 	foreach ( $needed_dirs as $_dir ) {
 		// Only check to see if the dir exists upon creation failure. Less I/O this way.
 		if ( ! $gc_filesystem->mkdir( $_dir, FS_CHMOD_DIR ) && ! $gc_filesystem->is_dir( $_dir ) ) {
-			return new GC_Error( 'mkdir_failed_pclzip', __( '无法创建目录。' ), substr( $_dir, strlen( $to ) ) );
+			return new GC_Error( 'mkdir_failed_pclzip', __( '无法创建目录。' ), $_dir );
 		}
 	}
 	unset( $needed_dirs );
@@ -1847,7 +1863,7 @@ function _unzip_file_pclzip( $file, $to, $needed_dirs = array() ) {
 			continue;
 		}
 
-		if ( '__MACOSX/' === substr( $file['filename'], 0, 9 ) ) { // Don't extract the OS X-created __MACOSX directory files.
+		if ( str_starts_with( $file['filename'], '__MACOSX/' ) ) { // Don't extract the OS X-created __MACOSX directory files.
 			continue;
 		}
 
@@ -1870,8 +1886,6 @@ function _unzip_file_pclzip( $file, $to, $needed_dirs = array() ) {
  *
  * Assumes that GC_Filesystem() has already been called and setup.
  *
- *
- *
  * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
  *
  * @param string   $from      Source directory.
@@ -1885,11 +1899,19 @@ function copy_dir( $from, $to, $skip_list = array() ) {
 	$dirlist = $gc_filesystem->dirlist( $from );
 
 	if ( false === $dirlist ) {
-		return new GC_Error( 'dirlist_failed_copy_dir', __( '无法显示目录列表。' ), basename( $to ) );
+		return new GC_Error( 'dirlist_failed_copy_dir', __( '无法显示目录列表。' ), basename( $from ) );
 	}
 
 	$from = trailingslashit( $from );
 	$to   = trailingslashit( $to );
+
+	if ( ! $gc_filesystem->exists( $to ) && ! $gc_filesystem->mkdir( $to ) ) {
+		return new GC_Error(
+			'mkdir_destination_failed_copy_dir',
+			__( '无法创建目标目录。' ),
+			basename( $to )
+		);
+	}
 
 	foreach ( (array) $dirlist as $filename => $fileinfo ) {
 		if ( in_array( $filename, $skip_list, true ) ) {
@@ -1918,7 +1940,7 @@ function copy_dir( $from, $to, $skip_list = array() ) {
 			$sub_skip_list = array();
 
 			foreach ( $skip_list as $skip_item ) {
-				if ( 0 === strpos( $skip_item, $filename . '/' ) ) {
+				if ( str_starts_with( $skip_item, $filename . '/' ) ) {
 					$sub_skip_list[] = preg_replace( '!^' . preg_quote( $filename, '!' ) . '/!i', '', $skip_item );
 				}
 			}
@@ -1935,14 +1957,85 @@ function copy_dir( $from, $to, $skip_list = array() ) {
 }
 
 /**
+ * Moves a directory from one location to another.
+ *
+ * Recursively invalidates OPcache on success.
+ *
+ * If the renaming failed, falls back to copy_dir().
+ *
+ * Assumes that GC_Filesystem() has already been called and setup.
+ *
+ * This function is not designed to merge directories, copy_dir() should be used instead.
+ *
+ * @since 6.2.0
+ *
+ * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
+ *
+ * @param string $from      Source directory.
+ * @param string $to        Destination directory.
+ * @param bool   $overwrite Optional. Whether to overwrite the destination directory if it exists.
+ *                          Default false.
+ * @return true|GC_Error True on success, GC_Error on failure.
+ */
+function move_dir( $from, $to, $overwrite = false ) {
+	global $gc_filesystem;
+
+	if ( trailingslashit( strtolower( $from ) ) === trailingslashit( strtolower( $to ) ) ) {
+		return new GC_Error( 'source_destination_same_move_dir', __( '来源和目标相同。' ) );
+	}
+
+	if ( $gc_filesystem->exists( $to ) ) {
+		if ( ! $overwrite ) {
+			return new GC_Error( 'destination_already_exists_move_dir', __( '目标目录已存在。' ), $to );
+		} elseif ( ! $gc_filesystem->delete( $to, true ) ) {
+			// Can't overwrite if the destination couldn't be deleted.
+			return new GC_Error( 'destination_not_deleted_move_dir', __( '目标目录已经存在且无法移除。' ) );
+		}
+	}
+
+	if ( $gc_filesystem->move( $from, $to ) ) {
+		/*
+		 * When using an environment with shared folders,
+		 * there is a delay in updating the filesystem's cache.
+		 *
+		 * This is a known issue in environments with a VirtualBox provider.
+		 *
+		 * A 200ms delay gives time for the filesystem to update its cache,
+		 * prevents "Operation not permitted", and "No such file or directory" warnings.
+		 *
+		 * This delay is used in other projects, including Composer.
+		 * @link https://github.com/composer/composer/blob/2.5.1/src/Composer/Util/Platform.php#L228-L233
+		 */
+		usleep( 200000 );
+		gc_opcache_invalidate_directory( $to );
+
+		return true;
+	}
+
+	// Fall back to a recursive copy.
+	if ( ! $gc_filesystem->is_dir( $to ) ) {
+		if ( ! $gc_filesystem->mkdir( $to, FS_CHMOD_DIR ) ) {
+			return new GC_Error( 'mkdir_failed_move_dir', __( '无法创建目录。' ), $to );
+		}
+	}
+
+	$result = copy_dir( $from, $to, array( basename( $to ) ) );
+
+	// Clear the source directory.
+	if ( true === $result ) {
+		$gc_filesystem->delete( $from, true );
+	}
+
+	return $result;
+}
+
+/**
  * Initializes and connects the GeChiUI Filesystem Abstraction classes.
  *
  * This function will include the chosen transport and attempt connecting.
  *
  * Plugins may add extra transports, And force GeChiUI to use them by returning
  * the filename via the {@see 'filesystem_method_file'} filter.
- *
- *
  *
  * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
  *
@@ -1972,6 +2065,7 @@ function GC_Filesystem( $args = false, $context = false, $allow_relaxed_file_own
 		/**
 		 * Filters the path for a specific filesystem method class file.
 		 *
+		 * @since 2.6.0
 		 *
 		 * @see get_filesystem_method()
 		 *
@@ -1995,10 +2089,10 @@ function GC_Filesystem( $args = false, $context = false, $allow_relaxed_file_own
 	 * to allow for per-transport overriding of the default.
 	 */
 	if ( ! defined( 'FS_CONNECT_TIMEOUT' ) ) {
-		define( 'FS_CONNECT_TIMEOUT', 30 );
+		define( 'FS_CONNECT_TIMEOUT', 30 ); // 30 seconds.
 	}
 	if ( ! defined( 'FS_TIMEOUT' ) ) {
-		define( 'FS_TIMEOUT', 30 );
+		define( 'FS_TIMEOUT', 30 ); // 30 seconds.
 	}
 
 	if ( is_gc_error( $gc_filesystem->errors ) && $gc_filesystem->errors->has_errors() ) {
@@ -2034,8 +2128,6 @@ function GC_Filesystem( $args = false, $context = false, $allow_relaxed_file_own
  * @link https://www.gechiui.com/support/editing-gc-config-php/#gechiui-upgrade-constants
  *
  * Plugins may define a custom transport handler, See GC_Filesystem().
- *
- *
  *
  * @global callable $_gc_filesystem_direct_method
  *
@@ -2110,6 +2202,7 @@ function get_filesystem_method( $args = array(), $context = '', $allow_relaxed_f
 	/**
 	 * Filters the filesystem method to use.
 	 *
+	 * @since 2.6.0
 	 *
 	 * @param string $method                       Filesystem method to return.
 	 * @param array  $args                         An array of connection details for the method.
@@ -2129,11 +2222,9 @@ function get_filesystem_method( $args = array(), $context = '', $allow_relaxed_f
  * to specify an alternate FTP/SSH port.
  *
  * Plugins may override this form by returning true|false via the {@see 'request_filesystem_credentials'} filter.
+ * The `$context` parameter default changed from `false` to an empty string.
  *
- *
- *
- *
- * @global string $pagenow
+ * @global string $pagenow The filename of the current screen.
  *
  * @param string        $form_post                    The URL to post the form to.
  * @param string        $type                         Optional. Chosen type of filesystem. Default empty.
@@ -2161,6 +2252,7 @@ function request_filesystem_credentials( $form_post, $type = '', $error = false,
 	 * A filter should return true if no filesystem credentials are required, false if they are required but have not been
 	 * provided, or an array of credentials if they are required and have been provided.
 	 *
+	 * @since 4.6.0 The `$context` parameter default changed from `false` to an empty string.
 	 *
 	 * @param mixed         $credentials                  Credentials to return instead. Default empty string.
 	 * @param string        $form_post                    The URL to post the form to.
@@ -2220,8 +2312,10 @@ function request_filesystem_credentials( $form_post, $type = '', $error = false,
 		'private_key' => 'FTP_PRIKEY',
 	);
 
-	// If defined, set it to that. Else, if POST'd, set it to that. If not, set it to an empty string.
-	// Otherwise, keep it as it previously was (saved details in option).
+	/*
+	 * If defined, set it to that. Else, if POST'd, set it to that. If not, set it to an empty string.
+	 * Otherwise, keep it as it previously was (saved details in option).
+	 */
 	foreach ( $ftp_constants as $key => $constant ) {
 		if ( defined( $constant ) ) {
 			$credentials[ $key ] = constant( $constant );
@@ -2287,7 +2381,7 @@ function request_filesystem_credentials( $form_post, $type = '', $error = false,
 	$connection_type = isset( $credentials['connection_type'] ) ? $credentials['connection_type'] : '';
 
 	if ( $error ) {
-		$error_string = __( '<strong>错误：</strong>无法连接到服务器，请确认设置是否正确。' );
+		$error_string = __( '<strong>错误：</strong>无法连接到服务器。请确认设置是否正确。' );
 		if ( is_gc_error( $error ) ) {
 			$error_string = esc_html( $error->get_error_message() );
 		}
@@ -2308,6 +2402,8 @@ function request_filesystem_credentials( $form_post, $type = '', $error = false,
 	/**
 	 * Filters the connection types to output to the filesystem credentials form.
 	 *
+	 * @since 2.9.0
+	 * @since 4.6.0 The `$context` parameter default changed from `false` to an empty string.
 	 *
 	 * @param string[]      $types       Types of connections.
 	 * @param array         $credentials Credentials to connect with.
@@ -2372,10 +2468,11 @@ function request_filesystem_credentials( $form_post, $type = '', $error = false,
 <div class="ftp-password">
 	<label for="password">
 		<span class="field-title"><?php echo $label_pass; ?></span>
-		<input name="password" type="password" id="password" value="<?php echo $password_value; ?>"<?php disabled( defined( 'FTP_PASS' ) ); ?> />
+		<input name="password" type="password" id="password" value="<?php echo $password_value; ?>"<?php disabled( defined( 'FTP_PASS' ) ); ?> spellcheck="false" />
 		<?php
 		if ( ! defined( 'FTP_PASS' ) ) {
-			_e( '密码不会被保存在服务器上。' );}
+			_e( '密码不会被保存在服务器上。' );
+		}
 		?>
 	</label>
 </div>
@@ -2421,15 +2518,17 @@ function request_filesystem_credentials( $form_post, $type = '', $error = false,
 		}
 	}
 
-	// Make sure the `submit_button()` function is available during the REST API call
-	// from GC_Site_Health_Auto_Updates::test_check_gc_filesystem_method().
+	/*
+	 * Make sure the `submit_button()` function is available during the REST API call
+	 * from GC_Site_Health_Auto_Updates::test_check_gc_filesystem_method().
+	 */
 	if ( ! function_exists( 'submit_button' ) ) {
-		require_once ABSPATH . '/gc-admin/includes/template.php';
+		require_once ABSPATH . 'gc-admin/includes/template.php';
 	}
 	?>
 	<p class="request-filesystem-credentials-action-buttons">
 		<?php gc_nonce_field( 'filesystem-credentials', '_fs_nonce', false, true ); ?>
-		<button class="button cancel-button" data-js-action="close" type="button"><?php _e( '取消' ); ?></button>
+		<button class="btn btn-primary btn-tone btn-sm cancel-button" data-js-action="close" type="button"><?php _e( '取消' ); ?></button>
 		<?php submit_button( __( '继续' ), '', 'upgrade', false ); ?>
 	</p>
 </div>
@@ -2440,7 +2539,6 @@ function request_filesystem_credentials( $form_post, $type = '', $error = false,
 
 /**
  * Prints the filesystem credentials modal when needed.
- *
  *
  */
 function gc_print_request_filesystem_credentials_modal() {
@@ -2474,7 +2572,7 @@ function gc_print_request_filesystem_credentials_modal() {
  *
  * Whether or not invalidation is possible is cached to improve performance.
  *
- *
+ * @since 5.5.0
  *
  * @link https://www.php.net/manual/en/function.opcache-invalidate.php
  *
@@ -2527,6 +2625,7 @@ function gc_opcache_invalidate( $filepath, $force = false ) {
 	/**
 	 * Filters whether to invalidate a file from the opcode cache.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param bool   $will_invalidate Whether GeChiUI will invalidate `$filepath`. Default true.
 	 * @param string $filepath        The path to the PHP file to invalidate.
@@ -2536,4 +2635,66 @@ function gc_opcache_invalidate( $filepath, $force = false ) {
 	}
 
 	return false;
+}
+
+/**
+ * Attempts to clear the opcode cache for a directory of files.
+ *
+ * @since 6.2.0
+ *
+ * @see gc_opcache_invalidate()
+ * @link https://www.php.net/manual/en/function.opcache-invalidate.php
+ *
+ * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
+ *
+ * @param string $dir The path to the directory for which the opcode cache is to be cleared.
+ */
+function gc_opcache_invalidate_directory( $dir ) {
+	global $gc_filesystem;
+
+	if ( ! is_string( $dir ) || '' === trim( $dir ) ) {
+		if ( GC_DEBUG ) {
+			$error_message = sprintf(
+				/* translators: %s: The function name. */
+				__( '%s 必须是一个非空的字符串。' ),
+				'<code>gc_opcache_invalidate_directory()</code>'
+			);
+			// phpcs:ignore GeChiUI.PHP.DevelopmentFunctions.error_log_trigger_error
+			trigger_error( $error_message );
+		}
+		return;
+	}
+
+	$dirlist = $gc_filesystem->dirlist( $dir, false, true );
+
+	if ( empty( $dirlist ) ) {
+		return;
+	}
+
+	/*
+	 * Recursively invalidate opcache of files in a directory.
+	 *
+	 * GC_Filesystem_*::dirlist() returns an array of file and directory information.
+	 *
+	 * This does not include a path to the file or directory.
+	 * To invalidate files within sub-directories, recursion is needed
+	 * to prepend an absolute path containing the sub-directory's name.
+	 *
+	 * @param array  $dirlist Array of file/directory information from GC_Filesystem_Base::dirlist(),
+	 *                        with sub-directories represented as nested arrays.
+	 * @param string $path    Absolute path to the directory.
+	 */
+	$invalidate_directory = static function( $dirlist, $path ) use ( &$invalidate_directory ) {
+		$path = trailingslashit( $path );
+
+		foreach ( $dirlist as $name => $details ) {
+			if ( 'f' === $details['type'] ) {
+				gc_opcache_invalidate( $path . $name, true );
+			} elseif ( is_array( $details['files'] ) && ! empty( $details['files'] ) ) {
+				$invalidate_directory( $details['files'], $path . $name );
+			}
+		}
+	};
+
+	$invalidate_directory( $dirlist, $dir );
 }

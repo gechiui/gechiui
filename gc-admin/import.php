@@ -12,7 +12,7 @@ define( 'GC_LOAD_IMPORTERS', true );
 require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'import' ) ) {
-	gc_die( __( '抱歉，您不能向此站点导入内容。' ) );
+	gc_die( __( '抱歉，您不能向此系统导入内容。' ) );
 }
 
 // Used in the HTML title tag.
@@ -22,7 +22,7 @@ get_current_screen()->add_help_tab(
 	array(
 		'id'      => 'overview',
 		'title'   => __( '概述' ),
-		'content' => '<p>' . __( '本页面列出了一些用于从其他博客平台或CMS（内容管理系统）导入数据的插件。选择您原来使用的平台，当新窗口弹出时，请点击“立即安装”。若您在列表中没有找到您原来使用的平台，点击链接以在整个插件目录搜索适合您原平台的导入工具。' ) . '</p>' .
+		'content' => '<p>' . __( '本页面列出了一些用于从其他GC平台或CMS（内容管理系统）导入数据的插件。选择您原来使用的平台，当新窗口弹出时，请点击“立即安装”。若您在列表中没有找到您原来使用的平台，点击链接以在整个插件目录搜索适合您原平台的导入工具。' ) . '</p>' .
 			'<p>' . __( '在先前的GeChiUI版本中，导入工具都是内建的。最近我们将导入工具全部移植成了插件，因为大部分用户不会经常使用它们。' ) . '</p>',
 	)
 );
@@ -54,23 +54,20 @@ add_thickbox();
 gc_enqueue_script( 'plugin-install' );
 gc_enqueue_script( 'updates' );
 
+if ( ! empty( $_GET['invalid'] ) ) {
+	$message ='<strong>'. _e( '错误：' ) .'</strong>' . printf( __( '%s导入器不可用或未被安装。' ), '<strong>' . esc_html( $_GET['invalid'] ) . '</strong>' );
+	add_settings_error( 'general', 'settings_updated', $message, 'danger' );
+}
+
 require_once ABSPATH . 'gc-admin/admin-header.php';
 $parent_file = 'tools.php';
 ?>
 
 <div class="wrap">
-<h1><?php echo esc_html( $title ); ?></h1>
-<?php if ( ! empty( $_GET['invalid'] ) ) : ?>
-	<div class="error">
-		<p><strong><?php _e( '错误：' ); ?></strong>
-			<?php
-			/* translators: %s: Importer slug. */
-			printf( __( '%s导入器不可用或未被安装。' ), '<strong>' . esc_html( $_GET['invalid'] ) . '</strong>' );
-			?>
-		</p>
-	</div>
-<?php endif; ?>
-<p><?php _e( '若有需要，您可以把其他系统的文章和评论内容导入到这个GeChiUI站点。请从以下系统中选择一个导入源，开始导入：' ); ?></p>
+<div class="page-header">
+	<h2 class="header-title"><?php echo esc_html( $title ); ?></h2>
+	<p><?php _e( '若有需要，您可以把其他系统的文章和评论内容导入到这个GeChiUI系统。请从以下系统中选择一个导入源，开始导入：' ); ?></p>
+</div>
 
 <?php
 // Registered (already installed) importers. They're stored in the global $gc_importers.
@@ -163,7 +160,7 @@ if ( empty( $importers ) ) {
 				} else {
 					$action = sprintf(
 						/* translators: %s: URL to Import screen on the main site. */
-						__( '尚未安装该导入工具。请从<a href="%s">主站点</a>安装导入工具。' ),
+						__( '尚未安装该导入工具。请从<a href="%s">主系统</a>安装导入工具。' ),
 						get_admin_url( get_current_network_id(), 'import.php' )
 					);
 				}

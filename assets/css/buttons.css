@@ -44,8 +44,7 @@ TABLE OF CONTENTS:
   display: inline-block;
   text-decoration: none;
   font-size: 13px;
-  line-height: 2.15384615;
-  /* 28px */
+  line-height: 2.15384615; /* 28px */
   min-height: 30px;
   margin: 0;
   padding: 0 10px;
@@ -71,16 +70,14 @@ TABLE OF CONTENTS:
 .gc-core-ui .button.button-large,
 .gc-core-ui .button-group.button-large .button {
   min-height: 32px;
-  line-height: 2.30769231;
-  /* 30px */
+  line-height: 2.30769231; /* 30px */
   padding: 0 12px;
 }
 
 .gc-core-ui .button.button-small,
 .gc-core-ui .button-group.button-small .button {
   min-height: 26px;
-  line-height: 2.18181818;
-  /* 24px */
+  line-height: 2.18181818; /* 24px */
   padding: 0 8px;
   font-size: 11px;
 }
@@ -326,58 +323,48 @@ TABLE OF CONTENTS:
 ---------------------------------------------------------------------------- */
 @media screen and (max-width: 782px) {
   .gc-core-ui .button,
-.gc-core-ui .button.button-large,
-.gc-core-ui .button.button-small,
-input#publish,
-input#save-post,
-a.preview {
+  .gc-core-ui .button.button-large,
+  .gc-core-ui .button.button-small,
+  input#publish,
+  input#save-post,
+  a.preview {
     padding: 0 14px;
-    line-height: 2.71428571;
-    /* 38px */
+    line-height: 2.71428571; /* 38px */
     font-size: 14px;
     vertical-align: middle;
     min-height: 40px;
     margin-bottom: 4px;
   }
-
   /* Copy attachment URL button in the legacy edit media page. */
   .gc-core-ui .copy-to-clipboard-container .copy-attachment-url {
     margin-bottom: 0;
   }
-
   #media-upload.gc-core-ui .button {
     padding: 0 10px 1px;
     min-height: 24px;
     line-height: 22px;
     font-size: 13px;
   }
-
   .media-frame.mode-grid .bulk-select .button {
     margin-bottom: 0;
   }
-
   /* Publish Metabox Options */
   .gc-core-ui .save-post-status.button {
     position: relative;
-    margin: 0 14px 0 10px;
-    /* 14px right margin to match all other buttons */
+    margin: 0 14px 0 10px; /* 14px right margin to match all other buttons */
   }
-
   /* Reset responsive styles in Press This, Customizer */
   .gc-core-ui.gc-customizer .button {
     font-size: 13px;
-    line-height: 2.15384615;
-    /* 28px */
+    line-height: 2.15384615; /* 28px */
     min-height: 30px;
     margin: 0;
     vertical-align: inherit;
   }
-
   .media-modal-content .media-toolbar-primary .media-button {
     margin-top: 10px;
     margin-left: 5px;
   }
-
   /* Reset responsive styles on Log in button on iframed login form */
   .interim-login .button.button-large {
     min-height: 30px;

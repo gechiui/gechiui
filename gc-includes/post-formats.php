@@ -9,8 +9,6 @@
 /**
  * Retrieve the format slug for a post
  *
- *
- *
  * @param int|GC_Post|null $post Optional. Post ID or post object. Defaults to the current post in the loop.
  * @return string|false The format if successful. False otherwise.
  */
@@ -39,9 +37,7 @@ function get_post_format( $post = null ) {
 /**
  * Check if a post has any of the given formats, or any format.
  *
- *
- *
- * @param string|string[]  $format Optional. The format or formats to check.
+ * @param string|string[]  $format Optional. The format or formats to check. Default empty array.
  * @param GC_Post|int|null $post   Optional. The post to check. Defaults to the current post in the loop.
  * @return bool True if the post has any of the given formats (or any format, if no format specified),
  *              false otherwise.
@@ -60,8 +56,6 @@ function has_post_format( $format = array(), $post = null ) {
 
 /**
  * Assign a format to a post
- *
- *
  *
  * @param int|object $post   The post for which to assign a format.
  * @param string     $format A format to assign. Use an empty string or array to remove all formats from the post.
@@ -89,8 +83,6 @@ function set_post_format( $post, $format ) {
 /**
  * Returns an array of post format slugs to their translated and pretty display versions
  *
- *
- *
  * @return string[] Array of post format labels keyed by format slug.
  */
 function get_post_format_strings() {
@@ -98,10 +90,10 @@ function get_post_format_strings() {
 		'standard' => _x( '标准', 'Post format' ), // Special case. Any value that evals to false will be considered standard.
 		'aside'    => _x( '日志', 'Post format' ),
 		'chat'     => _x( '聊天', 'Post format' ),
-		'gallery'  => _x( '画廊', 'Post format' ),
+		'gallery'  => _x( '图库', 'Post format' ),
 		'link'     => _x( '链接', 'Post format' ),
 		'image'    => _x( '图片', 'Post format' ),
-		'quote'    => _x( '引语', 'Post format' ),
+		'quote'    => _x( '引用', 'Post format' ),
 		'status'   => _x( '状态', 'Post format' ),
 		'video'    => _x( '视频', 'Post format' ),
 		'audio'    => _x( '音频', 'Post format' ),
@@ -112,8 +104,6 @@ function get_post_format_strings() {
 /**
  * Retrieves the array of post format slugs.
  *
- *
- *
  * @return string[] The array of post format slugs as both keys and values.
  */
 function get_post_format_slugs() {
@@ -123,8 +113,6 @@ function get_post_format_slugs() {
 
 /**
  * Returns a pretty, translated version of a post format slug
- *
- *
  *
  * @param string $slug A post format slug.
  * @return string The translated post format name.
@@ -141,8 +129,6 @@ function get_post_format_string( $slug ) {
 /**
  * Returns a link to a post format index.
  *
- *
- *
  * @param string $format The post format slug.
  * @return string|GC_Error|false The post format term link.
  */
@@ -158,7 +144,6 @@ function get_post_format_link( $format ) {
  * Filters the request to allow for the format prefix.
  *
  * @access private
- *
  *
  * @param array $qvs
  * @return array
@@ -182,7 +167,6 @@ function _post_format_request( $qvs ) {
  * Filters the post format term link to remove the format prefix.
  *
  * @access private
- *
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
@@ -209,7 +193,6 @@ function _post_format_link( $link, $term, $taxonomy ) {
  *
  * @access private
  *
- *
  * @param object $term
  * @return object
  */
@@ -224,7 +207,6 @@ function _post_format_get_term( $term ) {
  * Remove the post format prefix from the name property of the term objects created by get_terms().
  *
  * @access private
- *
  *
  * @param array        $terms
  * @param string|array $taxonomies
@@ -252,7 +234,6 @@ function _post_format_get_terms( $terms, $taxonomies, $args ) {
  * Remove the post format prefix from the name property of the term objects created by gc_get_object_terms().
  *
  * @access private
- *
  *
  * @param array $terms
  * @return array

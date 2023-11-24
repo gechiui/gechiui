@@ -9,7 +9,6 @@
 /**
  * We are upgrading GeChiUI.
  *
- *
  * @var bool
  */
 define( 'GC_INSTALLING', true );
@@ -71,7 +70,7 @@ header( 'Content-Type: ' . get_option( 'html_type' ) . '; charset=' . get_option
 
 <h1><?php _e( '无需升级' ); ?></h1>
 <p><?php _e( '您的GeChiUI数据库已经是最新的了！' ); ?></p>
-<p class="step"><a class="button button-large" href="<?php echo get_option( 'home' ); ?>/"><?php _e( '继续' ); ?></a></p>
+<p class="step"><a class="btn btn-primary" href="<?php echo get_option( 'home' ); ?>/"><?php _e( '继续' ); ?></a></p>
 
 	<?php
 elseif ( ! $php_compat || ! $mysql_compat ) :
@@ -139,7 +138,7 @@ else :
 	<h1><?php _e( '需要升级数据库' ); ?></h1>
 <p><?php _e( 'GeChiUI已升级，我们需要接着升级您的数据库。' ); ?></p>
 <p><?php _e( '数据库升级过程需要一点时间，请耐心等候。' ); ?></p>
-<p class="step"><a class="button button-large button-primary" href="upgrade.php?step=1&amp;backto=<?php echo $goback; ?>"><?php _e( '升级GeChiUI数据库' ); ?></a></p>
+<p class="step"><a class="btn btn-primary" href="upgrade.php?step=1&amp;backto=<?php echo $goback; ?>"><?php _e( '升级GeChiUI数据库' ); ?></a></p>
 			<?php
 			break;
 		case 1:
@@ -151,7 +150,7 @@ else :
 			?>
 	<h1><?php _e( '升级完成' ); ?></h1>
 	<p><?php _e( '您的GeChiUI数据库已成功升级！' ); ?></p>
-	<p class="step"><a class="button button-large" href="<?php echo $backto; ?>"><?php _e( '继续' ); ?></a></p>
+	<p class="step"><a class="btn btn-primary" href="<?php echo $backto; ?>"><?php _e( '继续' ); ?></a></p>
 			<?php
 			break;
 endswitch;

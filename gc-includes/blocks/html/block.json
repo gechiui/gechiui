@@ -1,0 +1,22 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/html",
+	"title": "自定义HTML",
+	"category": "widgets",
+	"description": "添加自定义 HTML 代码并在编辑时进行预览。",
+	"keywords": [ "embed" ],
+	"textdomain": "default",
+	"attributes": {
+		"content": {
+			"type": "string",
+			"source": "raw"
+		}
+	},
+	"supports": {
+		"customClassName": false,
+		"className": false,
+		"html": false
+	},
+	"editorStyle": "gc-block-html-editor"
+}

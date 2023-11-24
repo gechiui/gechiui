@@ -1,0 +1,28 @@
+{
+	"apiVersion": 3,
+	"name": "core/legacy-widget",
+	"title": "旧版小工具",
+	"category": "widgets",
+	"description": "显示旧版的小工具。",
+	"textdomain": "default",
+	"attributes": {
+		"id": {
+			"type": "string",
+			"default": null
+		},
+		"idBase": {
+			"type": "string",
+			"default": null
+		},
+		"instance": {
+			"type": "object",
+			"default": null
+		}
+	},
+	"supports": {
+		"html": false,
+		"customClassName": false,
+		"reusable": false
+	},
+	"editorStyle": "gc-block-legacy-widget-editor"
+}

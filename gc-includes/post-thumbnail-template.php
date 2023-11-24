@@ -15,9 +15,7 @@
  * For more information on this and similar theme functions, check out
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- *
- *
- *
+ * `$post` can be a post ID or GC_Post object.
  *
  * @param int|GC_Post $post Optional. Post ID or GC_Post object. Default is global `$post`.
  * @return bool Whether the post has an image attached.
@@ -29,6 +27,7 @@ function has_post_thumbnail( $post = null ) {
 	/**
 	 * Filters whether a post has a post thumbnail.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param bool             $has_thumbnail true if the post has a post thumbnail, otherwise false.
 	 * @param int|GC_Post|null $post          Post ID or GC_Post object. Default is global `$post`.
@@ -38,11 +37,9 @@ function has_post_thumbnail( $post = null ) {
 }
 
 /**
- * Retrieve post thumbnail ID.
- *
- *
- *
- *
+ * Retrieves the post thumbnail ID.
+ * `$post` can be a post ID or GC_Post object.
+ * @since 5.5.0 The return value for a non-existing post
  *              was changed to false instead of an empty string.
  *
  * @param int|GC_Post $post Optional. Post ID or GC_Post object. Default is global `$post`.
@@ -59,8 +56,9 @@ function get_post_thumbnail_id( $post = null ) {
 	$thumbnail_id = (int) get_post_meta( $post->ID, '_thumbnail_id', true );
 
 	/**
-	 * Filters post thumbnail ID.
+	 * Filters the post thumbnail ID.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param int|false        $thumbnail_id Post thumbnail ID or false if the post does not exist.
 	 * @param int|GC_Post|null $post         Post ID or GC_Post object. Default is global `$post`.
@@ -69,7 +67,7 @@ function get_post_thumbnail_id( $post = null ) {
 }
 
 /**
- * Display the post thumbnail.
+ * Displays the post thumbnail.
  *
  * When a theme adds 'post-thumbnail' support, a special 'post-thumbnail' image size
  * is registered, which differs from the 'thumbnail' image size managed via the
@@ -77,8 +75,6 @@ function get_post_thumbnail_id( $post = null ) {
  *
  * When using the_post_thumbnail() or related functions, the 'post-thumbnail' image
  * size is used by default, though a different size can be specified instead as needed.
- *
- *
  *
  * @see get_the_post_thumbnail()
  *
@@ -91,9 +87,7 @@ function the_post_thumbnail( $size = 'post-thumbnail', $attr = '' ) {
 }
 
 /**
- * Update cache for thumbnails in the current loop.
- *
- *
+ * Updates cache for thumbnails in the current loop.
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -125,7 +119,7 @@ function update_post_thumbnail_cache( $gc_query = null ) {
 }
 
 /**
- * Retrieve the post thumbnail.
+ * Retrieves the post thumbnail.
  *
  * When a theme adds 'post-thumbnail' support, a special 'post-thumbnail' image size
  * is registered, which differs from the 'thumbnail' image size managed via the
@@ -133,9 +127,7 @@ function update_post_thumbnail_cache( $gc_query = null ) {
  *
  * When using the_post_thumbnail() or related functions, the 'post-thumbnail' image
  * size is used by default, though a different size can be specified instead as needed.
- *
- *
- *
+ * `$post` can be a post ID or GC_Post object.
  *
  * @param int|GC_Post  $post Optional. Post ID or GC_Post object.  Default is global `$post`.
  * @param string|int[] $size Optional. Image size. Accepts any registered image size name, or an array of
@@ -155,6 +147,8 @@ function get_the_post_thumbnail( $post = null, $size = 'post-thumbnail', $attr =
 	/**
 	 * Filters the post thumbnail size.
 	 *
+	 * @since 2.9.0
+	 * @since 4.9.0 Added the `$post_id` parameter.
 	 *
 	 * @param string|int[] $size    Requested image size. Can be any registered image size name, or
 	 *                              an array of width and height values in pixels (in that order).
@@ -169,7 +163,6 @@ function get_the_post_thumbnail( $post = null, $size = 'post-thumbnail', $attr =
 		 *
 		 * Provides "just in time" filtering of all filters in gc_get_attachment_image().
 		 *
-		 *
 		 * @param int          $post_id           The post ID.
 		 * @param int          $post_thumbnail_id The post thumbnail ID.
 		 * @param string|int[] $size              Requested image size. Can be any registered image size name, or
@@ -181,24 +174,10 @@ function get_the_post_thumbnail( $post = null, $size = 'post-thumbnail', $attr =
 			update_post_thumbnail_cache();
 		}
 
-		// Get the 'loading' attribute value to use as default, taking precedence over the default from
-		// `gc_get_attachment_image()`.
-		$loading = gc_get_loading_attr_default( 'the_post_thumbnail' );
-
-		// Add the default to the given attributes unless they already include a 'loading' directive.
-		if ( empty( $attr ) ) {
-			$attr = array( 'loading' => $loading );
-		} elseif ( is_array( $attr ) && ! array_key_exists( 'loading', $attr ) ) {
-			$attr['loading'] = $loading;
-		} elseif ( is_string( $attr ) && ! preg_match( '/(^|&)loading=/', $attr ) ) {
-			$attr .= '&loading=' . $loading;
-		}
-
 		$html = gc_get_attachment_image( $post_thumbnail_id, $size, false, $attr );
 
 		/**
 		 * Fires after fetching the post thumbnail HTML.
-		 *
 		 *
 		 * @param int          $post_id           The post ID.
 		 * @param int          $post_thumbnail_id The post thumbnail ID.
@@ -214,6 +193,7 @@ function get_the_post_thumbnail( $post = null, $size = 'post-thumbnail', $attr =
 	/**
 	 * Filters the post thumbnail HTML.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param string       $html              The post thumbnail HTML.
 	 * @param int          $post_id           The post ID.
@@ -226,9 +206,7 @@ function get_the_post_thumbnail( $post = null, $size = 'post-thumbnail', $attr =
 }
 
 /**
- * Return the post thumbnail URL.
- *
- *
+ * Returns the post thumbnail URL.
  *
  * @param int|GC_Post  $post Optional. Post ID or GC_Post object.  Default is global `$post`.
  * @param string|int[] $size Optional. Registered image size to retrieve the source for or a flat array
@@ -248,6 +226,7 @@ function get_the_post_thumbnail_url( $post = null, $size = 'post-thumbnail' ) {
 	/**
 	 * Filters the post thumbnail URL.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param string|false     $thumbnail_url Post thumbnail URL or false if the post does not exist.
 	 * @param int|GC_Post|null $post          Post ID or GC_Post object. Default is global `$post`.
@@ -258,9 +237,7 @@ function get_the_post_thumbnail_url( $post = null, $size = 'post-thumbnail' ) {
 }
 
 /**
- * Display the post thumbnail URL.
- *
- *
+ * Displays the post thumbnail URL.
  *
  * @param string|int[] $size Optional. Image size to use. Accepts any valid image size,
  *                           or an array of width and height values in pixels (in that order).
@@ -276,8 +253,6 @@ function the_post_thumbnail_url( $size = 'post-thumbnail' ) {
 
 /**
  * Returns the post thumbnail caption.
- *
- *
  *
  * @param int|GC_Post $post Optional. Post ID or GC_Post object. Default is global `$post`.
  * @return string Post thumbnail caption.
@@ -301,14 +276,13 @@ function get_the_post_thumbnail_caption( $post = null ) {
 /**
  * Displays the post thumbnail caption.
  *
- *
- *
  * @param int|GC_Post $post Optional. Post ID or GC_Post object. Default is global `$post`.
  */
 function the_post_thumbnail_caption( $post = null ) {
 	/**
 	 * Filters the displayed post thumbnail caption.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string $caption Caption for the given attachment.
 	 */

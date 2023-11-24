@@ -4,20 +4,19 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customize Header Image Control class.
  *
- *
- *
  * @see GC_Customize_Image_Control
  */
 class GC_Customize_Header_Image_Control extends GC_Customize_Image_Control {
+
 	/**
 	 * Customize control type.
 	 *
+	 * @since 4.2.0
 	 * @var string
 	 */
 	public $type = 'header';
@@ -39,6 +38,7 @@ class GC_Customize_Header_Image_Control extends GC_Customize_Image_Control {
 	/**
 	 * Constructor.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param GC_Customize_Manager $manager Customizer bootstrap instance.
 	 */
@@ -126,14 +126,26 @@ class GC_Customize_Header_Image_Control extends GC_Customize_Image_Control {
 			<# } else { #>
 
 			<button type="button" class="choice thumbnail"
-				data-customize-image-value="{{{data.header.url}}}"
+				data-customize-image-value="{{data.header.url}}"
 				data-customize-header-image-data="{{JSON.stringify(data.header)}}">
-				<span class="screen-reader-text"><?php _e( '设置图片' ); ?></span>
-				<img src="{{{data.header.thumbnail_url}}}" alt="{{{data.header.alt_text || data.header.description}}}" />
+				<span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '设置图片' );
+					?>
+				</span>
+				<img src="{{data.header.thumbnail_url}}" alt="{{data.header.alt_text || data.header.description}}" />
 			</button>
 
 			<# if ( data.type === 'uploaded' ) { #>
-				<button type="button" class="dashicons dashicons-no close"><span class="screen-reader-text"><?php _e( '移除图片' ); ?></span></button>
+				<button type="button" class="dashicons dashicons-no close">
+					<span class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( '移除图片' );
+						?>
+					</span>
+				</button>
 			<# } #>
 
 			<# } #>
@@ -154,7 +166,7 @@ class GC_Customize_Header_Image_Control extends GC_Customize_Image_Control {
 
 				<# } else { #>
 
-			<img src="{{{data.header.thumbnail_url}}}" alt="{{{data.header.alt_text || data.header.description}}}" />
+			<img src="{{data.header.thumbnail_url}}" alt="{{data.header.alt_text || data.header.description}}" />
 
 				<# } #>
 			<# } else { #>
@@ -242,7 +254,7 @@ class GC_Customize_Header_Image_Control extends GC_Customize_Image_Control {
 					</div>
 				</div>
 				<span class="customize-control-title header-default">
-					<?php _ex( '建议的', 'custom headers' ); ?>
+					<?php _ex( 'Suggested', 'custom headers' ); ?>
 				</span>
 				<div class="default">
 					<div class="list">

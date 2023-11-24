@@ -1,99 +1,44 @@
-this["gc"] = this["gc"] || {}; this["gc"]["autop"] =
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "dP4N");
-/******/ })
+/******/ (function() { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	// The require scope
+/******/ 	var __webpack_require__ = {};
+/******/ 	
 /************************************************************************/
-/******/ ({
-
-/***/ "dP4N":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	!function() {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = function(exports, definition) {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	!function() {
+/******/ 		__webpack_require__.o = function(obj, prop) { return Object.prototype.hasOwnProperty.call(obj, prop); }
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	!function() {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = function(exports) {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "autop", function() { return autop; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removep", function() { return removep; });
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "autop": function() { return /* binding */ autop; },
+/* harmony export */   "removep": function() { return /* binding */ removep; }
+/* harmony export */ });
 /**
  * The regular expression for an HTML element.
  *
@@ -219,8 +164,7 @@ function replaceInHtmlTags(haystack, replacePairs) {
  */
 
 
-function autop(text) {
-  let br = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+function autop(text, br = true) {
   const preTags = [];
 
   if (text.trim() === '') {
@@ -260,9 +204,9 @@ function autop(text) {
   text = text.replace(/<br\s*\/?>\s*<br\s*\/?>/g, '\n\n');
   const allBlocks = '(?:table|thead|tfoot|caption|col|colgroup|tbody|tr|td|th|div|dl|dd|dt|ul|ol|li|pre|form|map|area|blockquote|address|math|style|p|h[1-6]|hr|fieldset|legend|section|article|aside|hgroup|header|footer|nav|figure|figcaption|details|menu|summary)'; // Add a double line break above block-level opening tags.
 
-  text = text.replace(new RegExp('(<' + allBlocks + '[\\s/>])', 'g'), '\n\n$1'); // Add a double line break below block-level closing tags.
+  text = text.replace(new RegExp('(<' + allBlocks + '[\\s/>])','g'), '\n\n$1'); // Add a double line break below block-level closing tags.
 
-  text = text.replace(new RegExp('(</' + allBlocks + '>)', 'g'), '$1\n\n'); // Standardize newline characters to "\n".
+  text = text.replace(new RegExp('(</' + allBlocks + '>)','g'), '$1\n\n'); // Standardize newline characters to "\n".
 
   text = text.replace(/\r\n|\r/g, '\n'); // Find newlines in all elements and add placeholders.
 
@@ -318,16 +262,16 @@ function autop(text) {
 
   text = text.replace(/<p>([^<]+)<\/(div|address|form)>/g, '<p>$1</p></$2>'); // If an opening or closing block element tag is wrapped in a <p>, unwrap it.
 
-  text = text.replace(new RegExp('<p>\\s*(</?' + allBlocks + '[^>]*>)\\s*</p>', 'g'), '$1'); // In some cases <li> may get wrapped in <p>, fix them.
+  text = text.replace(new RegExp('<p>\\s*(</?' + allBlocks + '[^>]*>)\\s*</p>','g'), '$1'); // In some cases <li> may get wrapped in <p>, fix them.
 
   text = text.replace(/<p>(<li.+?)<\/p>/g, '$1'); // If a <blockquote> is wrapped with a <p>, move it inside the <blockquote>.
 
   text = text.replace(/<p><blockquote([^>]*)>/gi, '<blockquote$1><p>');
   text = text.replace(/<\/blockquote><\/p>/g, '</p></blockquote>'); // If an opening or closing block element tag is preceded by an opening <p> tag, remove it.
 
-  text = text.replace(new RegExp('<p>\\s*(</?' + allBlocks + '[^>]*>)', 'g'), '$1'); // If an opening or closing block element tag is followed by a closing <p> tag, remove it.
+  text = text.replace(new RegExp('<p>\\s*(</?' + allBlocks + '[^>]*>)','g'), '$1'); // If an opening or closing block element tag is followed by a closing <p> tag, remove it.
 
-  text = text.replace(new RegExp('(</?' + allBlocks + '[^>]*>)\\s*</p>', 'g'), '$1'); // Optionally insert line breaks.
+  text = text.replace(new RegExp('(</?' + allBlocks + '[^>]*>)\\s*</p>','g'), '$1'); // Optionally insert line breaks.
 
   if (br) {
     // Replace newlines that shouldn't be touched with a placeholder.
@@ -341,7 +285,7 @@ function autop(text) {
   } // If a <br /> tag is after an opening or closing block tag, remove it.
 
 
-  text = text.replace(new RegExp('(</?' + allBlocks + '[^>]*>)\\s*<br />', 'g'), '$1'); // If a <br /> tag is before a subset of opening or closing block tags, remove it.
+  text = text.replace(new RegExp('(</?' + allBlocks + '[^>]*>)\\s*<br />','g'), '$1'); // If a <br /> tag is before a subset of opening or closing block tags, remove it.
 
   text = text.replace(/<br \/>(\s*<\/?(?:p|li|div|dl|dd|dt|th|pre|td|ul|ol)[^>]*>)/g, '$1');
   text = text.replace(/\n<\/p>$/g, '</p>'); // Replace placeholder <pre> tags with their original content.
@@ -415,8 +359,8 @@ function removep(html) {
   } // Normalize white space characters before and after block tags.
 
 
-  html = html.replace(new RegExp('\\s*</(' + blocklist1 + ')>\\s*', 'g'), '</$1>\n');
-  html = html.replace(new RegExp('\\s*<((?:' + blocklist1 + ')(?: [^>]*)?)>', 'g'), '\n<$1>'); // Mark </p> if it has any attributes.
+  html = html.replace(new RegExp('\\s*</(' + blocklist1 + ')>\\s*','g'), '</$1>\n');
+  html = html.replace(new RegExp('\\s*<((?:' + blocklist1 + ')(?: [^>]*)?)>','g'), '\n<$1>'); // Mark </p> if it has any attributes.
 
   html = html.replace(/(<p [^>]+>[\s\S]*?)<\/p>/g, '$1</p#>'); // Preserve the first <p> inside a <div>.
 
@@ -441,8 +385,8 @@ function removep(html) {
   html = html.replace(/\s*\[caption([^\[]+)\[\/caption\]\s*/gi, '\n\n[caption$1[/caption]\n\n');
   html = html.replace(/caption\]\n\n+\[caption/g, 'caption]\n\n[caption'); // Pad block elements tags with a line break.
 
-  html = html.replace(new RegExp('\\s*<((?:' + blocklist2 + ')(?: [^>]*)?)\\s*>', 'g'), '\n<$1>');
-  html = html.replace(new RegExp('\\s*</(' + blocklist2 + ')>\\s*', 'g'), '</$1>\n'); // Indent <li>, <dt> and <dd> tags.
+  html = html.replace(new RegExp('\\s*<((?:' + blocklist2 + ')(?: [^>]*)?)\\s*>','g'), '\n<$1>');
+  html = html.replace(new RegExp('\\s*</(' + blocklist2 + ')>\\s*','g'), '</$1>\n'); // Indent <li>, <dt> and <dd> tags.
 
   html = html.replace(/<((li|dt|dd)[^>]*)>/g, ' \t<$1>'); // Fix line breaks around <select> and <option>.
 
@@ -492,7 +436,6 @@ function removep(html) {
   return html;
 }
 
-
-/***/ })
-
-/******/ });
+(window.gc = window.gc || {}).autop = __webpack_exports__;
+/******/ })()
+;

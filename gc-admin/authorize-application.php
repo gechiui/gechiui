@@ -91,7 +91,7 @@ if ( is_gc_error( $is_valid ) ) {
 
 if ( gc_is_site_protected_by_basic_auth( 'front' ) ) {
 	gc_die(
-		__( '您的网站可能正在使用基本身份验证功能，此功能目前与Appkey不兼容。' ),
+		__( '您的系统可能正在使用基本身份验证功能，此功能目前与Appkey不兼容。' ),
 		__( '无法授权此应用程序' ),
 		array(
 			'response'  => 501,
@@ -103,7 +103,7 @@ if ( gc_is_site_protected_by_basic_auth( 'front' ) ) {
 
 if ( ! gc_is_appkeys_available_for_user( $user ) ) {
 	if ( gc_is_appkeys_available() ) {
-		$message = __( '您的账户无法使用Appkey。请联系站点管理员以获得协助。' );
+		$message = __( '您的账户无法使用Appkey。请联系系统管理员以获得协助。' );
 	} else {
 		$message = __( 'Appkey不可用。' );
 	}
@@ -135,14 +135,14 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 
 ?>
 <div class="wrap">
-	<h1><?php echo esc_html( $title ); ?></h1>
+	<div class="page-header"><h2 class="header-title"><?php echo esc_html( $title ); ?></h2></div>
 
-	<?php if ( is_gc_error( $error ) ) : ?>
-		<div class="notice notice-error"><p><?php echo $error->get_error_message(); ?></p></div>
-	<?php endif; ?>
+	<?php if ( is_gc_error( $error ) ) : 
+		echo setting_error($error->get_error_message(), 'danger');
+	 endif; ?>
 
 	<div class="card auth-app-card">
-		<h2 class="title"><?php _e( '一个应用程序想连接到您的帐户。' ); ?></h2>
+		<h4><?php _e( '一个应用程序想连接到您的帐户。' ); ?></h4>
 		<?php if ( $app_name ) : ?>
 			<p>
 				<?php
@@ -168,8 +168,8 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 					printf(
 						/* translators: 1: URL to my-sites.php, 2: Number of sites the user has. */
 						_n(
-							'这将授予对<a href="%1$s">此站点网络安装中您有权限的 %2$s 个站点的访问权限</a>。',
-							'这将授予对<a href="%1$s">此站点网络安装中您有权限的 %2$s 个站点的访问权限</a>。',
+							'这将授予对<a href="%1$s">此SaaS平台安装中您有权限的 %2$s 个系统的访问权限</a>。',
+							'这将授予对<a href="%1$s">此SaaS平台安装中您有权限的 %2$s 个系统的访问权限</a>。',
 							$blogs_count
 						),
 						admin_url( 'my-sites.php' ),
@@ -183,7 +183,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 		?>
 
 		<?php if ( $new_password ) : ?>
-			<div class="notice notice-success notice-alt below-h2">
+			<div class="alert alert-success notice-alt below-h2">
 				<p class="appkey-display">
 					<label for="new-appkey-value">
 						<?php
@@ -283,7 +283,7 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 				<?php
 				submit_button(
 					__( '否，不核准此连接' ),
-					'secondary',
+					'primary tone',
 					'reject',
 					false,
 					array(

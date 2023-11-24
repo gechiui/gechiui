@@ -7,7 +7,7 @@
  */
 
 /**
- * Check whether a comment passes internal checks to be allowed to add.
+ * Checks whether a comment passes internal checks to be allowed to add.
  *
  * If manual comment moderation is set in the administration, then all checks,
  * regardless of their type and substance, will fail and the function will
@@ -21,8 +21,6 @@
  * approved.
  *
  * If all checks pass, the function will return true.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -55,6 +53,8 @@ function check_comment( $author, $email, $url, $comment, $user_ip, $user_agent, 
 		/**
 		 * Filters the number of links found in a comment.
 		 *
+		 * @since 3.0.0
+		 * @since 4.7.0 Added the `$comment` parameter.
 		 *
 		 * @param int    $num_links The number of links found.
 		 * @param string $url       Comment author's URL. Included in allowed links total.
@@ -95,7 +95,7 @@ function check_comment( $author, $email, $url, $comment, $user_ip, $user_agent, 
 			 * Check the comment fields for moderation keywords. If any are found,
 			 * fail the check for the given field by returning false.
 			 */
-			$pattern = "#$word#i";
+			$pattern = "#$word#iu";
 			if ( preg_match( $pattern, $author ) ) {
 				return false;
 			}
@@ -134,7 +134,7 @@ function check_comment( $author, $email, $url, $comment, $user_ip, $user_agent, 
 				$ok_to_comment = $gcdb->get_var( $gcdb->prepare( "SELECT comment_approved FROM $gcdb->comments WHERE comment_author = %s AND comment_author_email = %s and comment_approved = '1' LIMIT 1", $author, $email ) );
 			}
 			if ( ( 1 == $ok_to_comment ) &&
-				( empty( $mod_keys ) || false === strpos( $email, $mod_keys ) ) ) {
+				( empty( $mod_keys ) || ! str_contains( $email, $mod_keys ) ) ) {
 					return true;
 			} else {
 				return false;
@@ -147,15 +147,20 @@ function check_comment( $author, $email, $url, $comment, $user_ip, $user_agent, 
 }
 
 /**
- * Retrieve the approved comments for post $post_id.
+ * Retrieves the approved comments for a post.
  *
- *
- *
+ * @since 4.1.0 Refactored to leverage GC_Comment_Query over a direct query.
  *
  * @param int   $post_id The ID of the post.
- * @param array $args    Optional. See GC_Comment_Query::__construct() for information on accepted arguments.
- * @return int|array The approved comments, or number of comments if `$count`
- *                   argument is true.
+ * @param array $args    {
+ *     Optional. See GC_Comment_Query::__construct() for information on accepted arguments.
+ *
+ *     @type int    $status  Comment status to limit results by. Defaults to approved comments.
+ *     @type int    $post_id Limit results to those affiliated with a given post ID.
+ *     @type string $order   How to order retrieved comments. Default 'ASC'.
+ * }
+ * @return GC_Comment[]|int[]|int The approved comments, or number of comments if `$count`
+ *                                argument is true.
  */
 function get_approved_comments( $post_id, $args = array() ) {
 	if ( ! $post_id ) {
@@ -169,7 +174,7 @@ function get_approved_comments( $post_id, $args = array() ) {
 	);
 	$parsed_args = gc_parse_args( $args, $defaults );
 
-	$query = new GC_Comment_Query;
+	$query = new GC_Comment_Query();
 	return $query->query( $parsed_args );
 }
 
@@ -179,8 +184,6 @@ function get_approved_comments( $post_id, $args = array() ) {
  * If an object is passed then the comment data will be cached and then returned
  * after being passed through a filter. If the comment is empty, then the global
  * comment variable will be used, if it is set.
- *
- *
  *
  * @global GC_Comment $comment Global comment object.
  *
@@ -210,6 +213,7 @@ function get_comment( $comment = null, $output = OBJECT ) {
 	/**
 	 * Fires after a comment is retrieved.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param GC_Comment $_comment Comment data.
 	 */
@@ -226,28 +230,28 @@ function get_comment( $comment = null, $output = OBJECT ) {
 }
 
 /**
- * Retrieve a list of comments.
+ * Retrieves a list of comments.
  *
  * The comment list can be for the blog as a whole or for an individual post.
  *
- *
+ * @since 2.7.0
  *
  * @param string|array $args Optional. Array or string of arguments. See GC_Comment_Query::__construct()
- *                           for information on accepted arguments. Default empty.
- * @return int|array List of comments or number of found comments if `$count` argument is true.
+ *                           for information on accepted arguments. Default empty string.
+ * @return GC_Comment[]|int[]|int List of comments or number of found comments if `$count` argument is true.
  */
 function get_comments( $args = '' ) {
-	$query = new GC_Comment_Query;
+	$query = new GC_Comment_Query();
 	return $query->query( $args );
 }
 
 /**
- * Retrieve all of the GeChiUI supported comment statuses.
+ * Retrieves all of the GeChiUI supported comment statuses.
  *
  * Comments have a limited set of valid status values, this provides the comment
  * status values and descriptions.
  *
- *
+ * @since 2.7.0
  *
  * @return string[] List of comment status labels keyed by status.
  */
@@ -265,7 +269,7 @@ function get_comment_statuses() {
 /**
  * Gets the default comment status for a post type.
  *
- *
+ * @since 4.3.0
  *
  * @param string $post_type    Optional. Post type. Default 'post'.
  * @param string $comment_type Optional. Comment type. Default 'comment'.
@@ -296,6 +300,7 @@ function get_default_comment_status( $post_type = 'post', $comment_type = 'comme
 	/**
 	 * Filters the default comment status for the given post type.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param string $status       Default status for the given post type,
 	 *                             either 'open' or 'closed'.
@@ -306,10 +311,8 @@ function get_default_comment_status( $post_type = 'post', $comment_type = 'comme
 }
 
 /**
- * The date the last comment was modified.
- *
- *
- *
+ * Retrieves the date the last comment was modified.
+ * Replaced caching the modified date in a local static variable
  *              with the Object Cache API.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -354,12 +357,6 @@ function get_lastcommentmodified( $timezone = 'server' ) {
 /**
  * Retrieves the total comment counts for the whole site or a single post.
  *
- * Unlike gc_count_comments(), this function always returns the live comment counts without caching.
- *
- *
- *
- * @global gcdb $gcdb GeChiUI database abstraction object.
- *
  * @param int $post_id Optional. Restrict the comment counts to the given post. Default 0, which indicates that
  *                     comment counts for the whole site will be retrieved.
  * @return int[] {
@@ -375,24 +372,7 @@ function get_lastcommentmodified( $timezone = 'server' ) {
  * }
  */
 function get_comment_count( $post_id = 0 ) {
-	global $gcdb;
-
 	$post_id = (int) $post_id;
-
-	$where = '';
-	if ( $post_id > 0 ) {
-		$where = $gcdb->prepare( 'WHERE comment_post_ID = %d', $post_id );
-	}
-
-	$totals = (array) $gcdb->get_results(
-		"
-		SELECT comment_approved, COUNT( * ) AS total
-		FROM {$gcdb->comments}
-		{$where}
-		GROUP BY comment_approved
-	",
-		ARRAY_A
-	);
 
 	$comment_count = array(
 		'approved'            => 0,
@@ -404,32 +384,27 @@ function get_comment_count( $post_id = 0 ) {
 		'all'                 => 0,
 	);
 
-	foreach ( $totals as $row ) {
-		switch ( $row['comment_approved'] ) {
-			case 'trash':
-				$comment_count['trash'] = $row['total'];
-				break;
-			case 'post-trashed':
-				$comment_count['post-trashed'] = $row['total'];
-				break;
-			case 'spam':
-				$comment_count['spam']            = $row['total'];
-				$comment_count['total_comments'] += $row['total'];
-				break;
-			case '1':
-				$comment_count['approved']        = $row['total'];
-				$comment_count['total_comments'] += $row['total'];
-				$comment_count['all']            += $row['total'];
-				break;
-			case '0':
-				$comment_count['awaiting_moderation'] = $row['total'];
-				$comment_count['total_comments']     += $row['total'];
-				$comment_count['all']                += $row['total'];
-				break;
-			default:
-				break;
-		}
+	$args = array(
+		'count'                     => true,
+		'update_comment_meta_cache' => false,
+	);
+	if ( $post_id > 0 ) {
+		$args['post_id'] = $post_id;
 	}
+	$mapping       = array(
+		'approved'            => 'approve',
+		'awaiting_moderation' => 'hold',
+		'spam'                => 'spam',
+		'trash'               => 'trash',
+		'post-trashed'        => 'post-trashed',
+	);
+	$comment_count = array();
+	foreach ( $mapping as $key => $value ) {
+		$comment_count[ $key ] = get_comments( array_merge( $args, array( 'status' => $value ) ) );
+	}
+
+	$comment_count['all']            = $comment_count['approved'] + $comment_count['awaiting_moderation'];
+	$comment_count['total_comments'] = $comment_count['all'] + $comment_count['spam'];
 
 	return array_map( 'intval', $comment_count );
 }
@@ -439,9 +414,7 @@ function get_comment_count( $post_id = 0 ) {
 //
 
 /**
- * Add meta data field to a comment.
- *
- *
+ * Adds meta data field to a comment.
  *
  * @link https://developer.gechiui.com/reference/functions/add_comment_meta/
  *
@@ -457,13 +430,11 @@ function add_comment_meta( $comment_id, $meta_key, $meta_value, $unique = false 
 }
 
 /**
- * Remove metadata matching criteria from a comment.
+ * Removes metadata matching criteria from a comment.
  *
  * You can match based on the key, or key and value. Removing based on key and
  * value, will keep from removing duplicate metadata with the same key. It also
  * allows removing all metadata matching key, if needed.
- *
- *
  *
  * @link https://developer.gechiui.com/reference/functions/delete_comment_meta/
  *
@@ -471,7 +442,7 @@ function add_comment_meta( $comment_id, $meta_key, $meta_value, $unique = false 
  * @param string $meta_key   Metadata name.
  * @param mixed  $meta_value Optional. Metadata value. If provided,
  *                           rows will only be removed that match the value.
- *                           Must be serializable if non-scalar. Default empty.
+ *                           Must be serializable if non-scalar. Default empty string.
  * @return bool True on success, false on failure.
  */
 function delete_comment_meta( $comment_id, $meta_key, $meta_value = '' ) {
@@ -479,15 +450,13 @@ function delete_comment_meta( $comment_id, $meta_key, $meta_value = '' ) {
 }
 
 /**
- * Retrieve comment meta field for a comment.
- *
- *
+ * Retrieves comment meta field for a comment.
  *
  * @link https://developer.gechiui.com/reference/functions/get_comment_meta/
  *
  * @param int    $comment_id Comment ID.
  * @param string $key        Optional. The meta key to retrieve. By default,
- *                           returns data for all keys.
+ *                           returns data for all keys. Default empty string.
  * @param bool   $single     Optional. Whether to return a single value.
  *                           This parameter has no effect if `$key` is not specified.
  *                           Default false.
@@ -501,14 +470,27 @@ function get_comment_meta( $comment_id, $key = '', $single = false ) {
 }
 
 /**
- * Update comment meta field based on comment ID.
+ * Queue comment meta for lazy-loading.
+ *
+ * @since 6.3.0
+ *
+ * @param array $comment_ids List of comment IDs.
+ */
+function gc_lazyload_comment_meta( array $comment_ids ) {
+	if ( empty( $comment_ids ) ) {
+		return;
+	}
+	$lazyloader = gc_metadata_lazyloader();
+	$lazyloader->queue_objects( 'comment', $comment_ids );
+}
+
+/**
+ * Updates comment meta field based on comment ID.
  *
  * Use the $prev_value parameter to differentiate between meta fields with the
  * same key and comment ID.
  *
  * If the meta field for the comment does not exist, it will be added.
- *
- *
  *
  * @link https://developer.gechiui.com/reference/functions/update_comment_meta/
  *
@@ -517,7 +499,7 @@ function get_comment_meta( $comment_id, $key = '', $single = false ) {
  * @param mixed  $meta_value Metadata value. Must be serializable if non-scalar.
  * @param mixed  $prev_value Optional. Previous value to check before updating.
  *                           If specified, only update existing metadata entries with
- *                           this value. Otherwise, update all entries. Default empty.
+ *                           this value. Otherwise, update all entries. Default empty string.
  * @return int|bool Meta ID if the key didn't exist, true on successful update,
  *                  false on failure or if the value passed to the function
  *                  is the same as the one that is already in the database.
@@ -527,35 +509,9 @@ function update_comment_meta( $comment_id, $meta_key, $meta_value, $prev_value =
 }
 
 /**
- * Queues comments for metadata lazy-loading.
- *
- *
- *
- * @param GC_Comment[] $comments Array of comment objects.
- */
-function gc_queue_comments_for_comment_meta_lazyload( $comments ) {
-	// Don't use `gc_list_pluck()` to avoid by-reference manipulation.
-	$comment_ids = array();
-	if ( is_array( $comments ) ) {
-		foreach ( $comments as $comment ) {
-			if ( $comment instanceof GC_Comment ) {
-				$comment_ids[] = $comment->comment_ID;
-			}
-		}
-	}
-
-	if ( $comment_ids ) {
-		$lazyloader = gc_metadata_lazyloader();
-		$lazyloader->queue_objects( 'comment', $comment_ids );
-	}
-}
-
-/**
  * Sets the cookies used to store an unauthenticated commentator's identity. Typically used
  * to recall previous comments by this commentator that are still held in moderation.
- *
- *
- *
+ * The `$cookies_consent` parameter was added.
  *
  * @param GC_Comment $comment         Comment object.
  * @param GC_User    $user            Comment author's user object. The user may not exist.
@@ -598,7 +554,6 @@ function gc_set_comment_cookies( $comment, $user, $cookies_consent = true ) {
  * Will only do anything if the cookies have already been created for the user.
  * Mostly used after cookies had been sent to use elsewhere.
  *
- *
  */
 function sanitize_comment_cookies() {
 	if ( isset( $_COOKIE[ 'comment_author_' . COOKIEHASH ] ) ) {
@@ -608,6 +563,7 @@ function sanitize_comment_cookies() {
 		 * When this filter hook is evaluated in gc_filter_comment(),
 		 * the comment author's name string is passed.
 		 *
+		 * @since 1.5.0
 		 *
 		 * @param string $author_cookie The comment author name cookie.
 		 */
@@ -625,6 +581,7 @@ function sanitize_comment_cookies() {
 		 * When this filter hook is evaluated in gc_filter_comment(),
 		 * the comment author's email string is passed.
 		 *
+		 * @since 1.5.0
 		 *
 		 * @param string $author_email_cookie The comment author email cookie.
 		 */
@@ -642,6 +599,7 @@ function sanitize_comment_cookies() {
 		 * When this filter hook is evaluated in gc_filter_comment(),
 		 * the comment author's URL string is passed.
 		 *
+		 * @since 1.5.0
 		 *
 		 * @param string $author_url_cookie The comment author URL cookie.
 		 */
@@ -654,11 +612,9 @@ function sanitize_comment_cookies() {
 
 /**
  * Validates whether this comment is allowed to be made.
- *
- *
- *
+ * The `$avoid_die` parameter was added, allowing the function
  *              to return a GC_Error object instead of dying.
- *
+ * @since 5.5.0 The `$avoid_die` parameter was renamed to `$gc_error`.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -672,8 +628,10 @@ function sanitize_comment_cookies() {
 function gc_allow_comment( $commentdata, $gc_error = false ) {
 	global $gcdb;
 
-	// Simple duplicate check.
-	// expected_slashed ($comment_post_ID, $comment_author, $comment_author_email, $comment_content)
+	/*
+	 * Simple duplicate check.
+	 * expected_slashed ($comment_post_ID, $comment_author, $comment_author_email, $comment_content)
+	 */
 	$dupe = $gcdb->prepare(
 		"SELECT comment_ID FROM $gcdb->comments WHERE comment_post_ID = %d AND comment_parent = %s AND comment_approved != 'trash' AND ( comment_author = %s ",
 		gc_unslash( $commentdata['comment_post_ID'] ),
@@ -698,6 +656,7 @@ function gc_allow_comment( $commentdata, $gc_error = false ) {
 	 *
 	 * Return an empty value from this filter to allow what GC considers a duplicate comment.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param int   $dupe_id     ID of the comment identified as a duplicate.
 	 * @param array $commentdata Data for the comment being created.
@@ -708,6 +667,7 @@ function gc_allow_comment( $commentdata, $gc_error = false ) {
 		/**
 		 * Fires immediately after a duplicate comment is detected.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param array $commentdata Comment data.
 		 */
@@ -716,6 +676,7 @@ function gc_allow_comment( $commentdata, $gc_error = false ) {
 		/**
 		 * Filters duplicate comment error message.
 		 *
+		 * @since 5.2.0
 		 *
 		 * @param string $comment_duplicate_message Duplicate comment error message.
 		 */
@@ -737,8 +698,11 @@ function gc_allow_comment( $commentdata, $gc_error = false ) {
 	 *
 	 * Allows checking for comment flooding.
 	 *
+	 * @since 2.3.0
+	 * @since 4.7.0 The `$avoid_die` parameter was added.
+	 * @since 5.5.0 The `$avoid_die` parameter was renamed to `$gc_error`.
 	 *
-	 * @param string $comment_author_IP    Comment author's IP address.
+	 * @param string $comment_author_ip    Comment author's IP address.
 	 * @param string $comment_author_email Comment author's email.
 	 * @param string $comment_date_gmt     GMT date the comment was posted.
 	 * @param bool   $gc_error             Whether to return a GC_Error object instead of executing
@@ -757,9 +721,11 @@ function gc_allow_comment( $commentdata, $gc_error = false ) {
 	 *
 	 * The default check is gc_check_comment_flood(). See check_comment_flood_db().
 	 *
+	 * @since 4.7.0
+	 * @since 5.5.0 The `$avoid_die` parameter was renamed to `$gc_error`.
 	 *
 	 * @param bool   $is_flood             Is a comment flooding occurring? Default false.
-	 * @param string $comment_author_IP    Comment author's IP address.
+	 * @param string $comment_author_ip    Comment author's IP address.
 	 * @param string $comment_author_email Comment author's email.
 	 * @param string $comment_date_gmt     GMT date the comment was posted.
 	 * @param bool   $gc_error             Whether to return a GC_Error object instead of executing
@@ -825,6 +791,7 @@ function gc_allow_comment( $commentdata, $gc_error = false ) {
 	/**
 	 * Filters a comment's approval status before it is set.
 	 *
+	 * @since 4.9.0 Returning a GC_Error value from the filter will short-circuit comment insertion
 	 *              and allow skipping further processing.
 	 *
 	 * @param int|string|GC_Error $approved    The approval status. Accepts 1, 0, 'spam', 'trash',
@@ -840,9 +807,7 @@ function gc_allow_comment( $commentdata, $gc_error = false ) {
  * This wrapper maintains backward compatibility with plugins that expect to
  * be able to unhook the legacy check_comment_flood_db() function from
  * 'check_comment_flood' using remove_action().
- *
- *
- *
+ * Converted to be an add_filter() wrapper.
  */
 function check_comment_flood_db() {
 	add_filter( 'gc_is_comment_flood', 'gc_check_comment_flood', 10, 5 );
@@ -853,8 +818,6 @@ function check_comment_flood_db() {
  *
  * Won't run, if current user can manage options, so to not block
  * administrators.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -867,7 +830,6 @@ function check_comment_flood_db() {
  * @return bool Whether comment flooding is occurring.
  */
 function gc_check_comment_flood( $is_flood, $ip, $email, $date, $avoid_die = false ) {
-
 	global $gcdb;
 
 	// Another callback has declared a flood. Trust it.
@@ -906,6 +868,7 @@ function gc_check_comment_flood( $is_flood, $ip, $email, $date, $avoid_die = fal
 		/**
 		 * Filters the comment flood status.
 		 *
+		 * @since 2.1.0
 		 *
 		 * @param bool $bool             Whether a comment flood is occurring. Default false.
 		 * @param int  $time_lastcomment Timestamp of when the last comment was posted.
@@ -917,7 +880,7 @@ function gc_check_comment_flood( $is_flood, $ip, $email, $date, $avoid_die = fal
 			/**
 			 * Fires before the comment flood message is triggered.
 			 *
-		
+			 * @since 1.5.0
 			 *
 			 * @param int $time_lastcomment Timestamp of when the last comment was posted.
 			 * @param int $time_newcomment  Timestamp of when the new comment was posted.
@@ -930,7 +893,7 @@ function gc_check_comment_flood( $is_flood, $ip, $email, $date, $avoid_die = fal
 				/**
 				 * Filters the comment flood error message.
 				 *
-			
+				 * @since 5.2.0
 				 *
 				 * @param string $comment_flood_message Comment flood error message.
 				 */
@@ -951,7 +914,7 @@ function gc_check_comment_flood( $is_flood, $ip, $email, $date, $avoid_die = fal
 /**
  * Separates an array of comments into an array keyed by comment_type.
  *
- *
+ * @since 2.7.0
  *
  * @param GC_Comment[] $comments Array of comments
  * @return GC_Comment[] Array of comments keyed by comment_type.
@@ -984,17 +947,19 @@ function separate_comments( &$comments ) {
 }
 
 /**
- * Calculate the total number of comment pages.
+ * Calculates the total number of comment pages.
  *
- *
+ * @since 2.7.0
  *
  * @uses Walker_Comment
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @param GC_Comment[] $comments Optional. Array of GC_Comment objects. Defaults to `$gc_query->comments`.
- * @param int          $per_page Optional. Comments per page.
- * @param bool         $threaded Optional. Control over flat or threaded comments.
+ * @param int          $per_page Optional. Comments per page. Defaults to the value of `comments_per_page`
+ *                               query var, option of the same name, or 1 (in that order).
+ * @param bool         $threaded Optional. Control over flat or threaded comments. Defaults to the value
+ *                               of `thread_comments` option.
  * @return int Number of comment pages.
  */
 function get_comment_pages_count( $comments = null, $per_page = null, $threaded = null ) {
@@ -1031,7 +996,7 @@ function get_comment_pages_count( $comments = null, $per_page = null, $threaded 
 	}
 
 	if ( $threaded ) {
-		$walker = new Walker_Comment;
+		$walker = new Walker_Comment();
 		$count  = ceil( $walker->get_number_of_root_elements( $comments ) / $per_page );
 	} else {
 		$count = ceil( count( $comments ) / $per_page );
@@ -1041,13 +1006,13 @@ function get_comment_pages_count( $comments = null, $per_page = null, $threaded 
 }
 
 /**
- * Calculate what page number a comment will appear on for comment paging.
+ * Calculates what page number a comment will appear on for comment paging.
  *
- *
+ * @since 2.7.0
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
- * @param int   $comment_ID Comment ID.
+ * @param int   $comment_id Comment ID.
  * @param array $args {
  *     Array of optional arguments.
  *
@@ -1057,17 +1022,17 @@ function get_comment_pages_count( $comments = null, $per_page = null, $threaded 
  *     @type int        $per_page  Per-page count to use when calculating pagination.
  *                                 Defaults to the value of the 'comments_per_page' option.
  *     @type int|string $max_depth If greater than 1, comment page will be determined
- *                                 for the top-level parent `$comment_ID`.
+ *                                 for the top-level parent `$comment_id`.
  *                                 Defaults to the value of the 'thread_comments_depth' option.
- * } *
+ * }
  * @return int|null Comment page number or null on error.
  */
-function get_page_of_comment( $comment_ID, $args = array() ) {
+function get_page_of_comment( $comment_id, $args = array() ) {
 	global $gcdb;
 
 	$page = null;
 
-	$comment = get_comment( $comment_ID );
+	$comment = get_comment( $comment_id );
 	if ( ! $comment ) {
 		return;
 	}
@@ -1143,6 +1108,7 @@ function get_page_of_comment( $comment_ID, $args = array() ) {
 		/**
 		 * Filters the arguments used to query comments in get_page_of_comment().
 		 *
+		 * @since 5.5.0
 		 *
 		 * @see GC_Comment_Query::__construct()
 		 *
@@ -1181,6 +1147,8 @@ function get_page_of_comment( $comment_ID, $args = array() ) {
 	/**
 	 * Filters the calculated page on which a comment appears.
 	 *
+	 * @since 4.4.0
+	 * @since 4.7.0 Introduced the `$comment_id` parameter.
 	 *
 	 * @param int   $page          Comment page.
 	 * @param array $args {
@@ -1201,15 +1169,13 @@ function get_page_of_comment( $comment_ID, $args = array() ) {
 	 *     @type int    $per_page  Number of comments per page.
 	 *     @type int    $max_depth Maximum comment threading depth allowed.
 	 * }
-	 * @param int $comment_ID ID of the comment.
+	 * @param int $comment_id ID of the comment.
 	 */
-	return apply_filters( 'get_page_of_comment', (int) $page, $args, $original_args, $comment_ID );
+	return apply_filters( 'get_page_of_comment', (int) $page, $args, $original_args, $comment_id );
 }
 
 /**
  * Retrieves the maximum character lengths for the comment form fields.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -1254,6 +1220,7 @@ function gc_get_comment_fields_max_lengths() {
 	/**
 	 * Filters the lengths for the comment form fields.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param int[] $lengths Array of maximum lengths keyed by field name.
 	 */
@@ -1263,8 +1230,6 @@ function gc_get_comment_fields_max_lengths() {
 /**
  * Compares the lengths of comment data against the maximum character limits.
  *
- *
- *
  * @param array $comment_data Array of arguments for inserting a comment.
  * @return GC_Error|true GC_Error when a comment field exceeds the limit,
  *                       otherwise true.
@@ -1273,19 +1238,19 @@ function gc_check_comment_data_max_lengths( $comment_data ) {
 	$max_lengths = gc_get_comment_fields_max_lengths();
 
 	if ( isset( $comment_data['comment_author'] ) && mb_strlen( $comment_data['comment_author'], '8bit' ) > $max_lengths['comment_author'] ) {
-		return new GC_Error( 'comment_author_column_length', __( '<strong>错误</strong>：您的名字过长。' ), 200 );
+		return new GC_Error( 'comment_author_column_length', __( '<strong>错误：</strong>您的名字过长。' ), 200 );
 	}
 
 	if ( isset( $comment_data['comment_author_email'] ) && strlen( $comment_data['comment_author_email'] ) > $max_lengths['comment_author_email'] ) {
-		return new GC_Error( 'comment_author_email_column_length', __( '<strong>错误</strong>：您输入的电子邮箱过长。' ), 200 );
+		return new GC_Error( 'comment_author_email_column_length', __( '<strong>错误：</strong>您输入的电子邮箱过长。' ), 200 );
 	}
 
 	if ( isset( $comment_data['comment_author_url'] ) && strlen( $comment_data['comment_author_url'] ) > $max_lengths['comment_author_url'] ) {
-		return new GC_Error( 'comment_author_url_column_length', __( '<strong>错误</strong>：您的URL过长。' ), 200 );
+		return new GC_Error( 'comment_author_url_column_length', __( '<strong>错误：</strong>您的 URL 过长。' ), 200 );
 	}
 
 	if ( isset( $comment_data['comment_content'] ) && mb_strlen( $comment_data['comment_content'], '8bit' ) > $max_lengths['comment_content'] ) {
-		return new GC_Error( 'comment_content_column_length', __( '<strong>错误</strong>：您的评论过长。' ), 200 );
+		return new GC_Error( 'comment_content_column_length', __( '<strong>错误：</strong>您的评论过长。' ), 200 );
 	}
 
 	return true;
@@ -1294,7 +1259,7 @@ function gc_check_comment_data_max_lengths( $comment_data ) {
 /**
  * Checks if a comment contains disallowed characters or words.
  *
- *
+ * @since 5.5.0
  *
  * @param string $author The author of the comment
  * @param string $email The email of the comment
@@ -1308,6 +1273,7 @@ function gc_check_comment_disallowed_list( $author, $email, $url, $comment, $use
 	/**
 	 * Fires before the comment is tested for disallowed characters or words.
 	 *
+	 * @since 1.5.0
 	 * @deprecated 5.5.0 Use {@see 'gc_check_comment_disallowed_list'} instead.
 	 *
 	 * @param string $author     Comment author.
@@ -1328,6 +1294,7 @@ function gc_check_comment_disallowed_list( $author, $email, $url, $comment, $use
 	/**
 	 * Fires before the comment is tested for disallowed characters or words.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $author     Comment author.
 	 * @param string $email      Comment author's email.
@@ -1355,11 +1322,10 @@ function gc_check_comment_disallowed_list( $author, $email, $url, $comment, $use
 		if ( empty( $word ) ) {
 			continue; }
 
-		// Do some escaping magic so that '#' chars
-		// in the spam words don't break things:
+		// Do some escaping magic so that '#' chars in the spam words don't break things:
 		$word = preg_quote( $word, '#' );
 
-		$pattern = "#$word#i";
+		$pattern = "#$word#iu";
 		if ( preg_match( $pattern, $author )
 			|| preg_match( $pattern, $email )
 			|| preg_match( $pattern, $url )
@@ -1382,8 +1348,6 @@ function gc_check_comment_disallowed_list( $author, $email, $url, $comment, $use
  *
  * @see get_comment_count() Which handles fetching the live comment counts.
  *
- *
- *
  * @param int $post_id Optional. Restrict the comment counts to the given post. Default 0, which indicates that
  *                     comment counts for the whole site will be retrieved.
  * @return stdClass {
@@ -1404,6 +1368,7 @@ function gc_count_comments( $post_id = 0 ) {
 	/**
 	 * Filters the comments count for a given post or the whole site.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param array|stdClass $count   An empty array or an object containing comment counts.
 	 * @param int            $post_id The post ID. Can be 0 to represent the whole site.
@@ -1437,16 +1402,15 @@ function gc_count_comments( $post_id = 0 ) {
  * The post comment count will be updated if the comment was approved and has a
  * post ID available.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param int|GC_Comment $comment_id   Comment ID or GC_Comment object.
- * @param bool           $force_delete 是否绕过回收站并强行删除。 Default false.
+ * @param bool           $force_delete Whether to bypass Trash and force deletion. Default false.
  * @return bool True on success, false on failure.
  */
 function gc_delete_comment( $comment_id, $force_delete = false ) {
 	global $gcdb;
+
 	$comment = get_comment( $comment_id );
 	if ( ! $comment ) {
 		return false;
@@ -1459,6 +1423,8 @@ function gc_delete_comment( $comment_id, $force_delete = false ) {
 	/**
 	 * Fires immediately before a comment is deleted from the database.
 	 *
+	 * @since 1.2.0
+	 * @since 4.9.0 Added the `$comment` parameter.
 	 *
 	 * @param string     $comment_id The comment ID as a numeric string.
 	 * @param GC_Comment $comment    The comment to be deleted.
@@ -1485,6 +1451,8 @@ function gc_delete_comment( $comment_id, $force_delete = false ) {
 	/**
 	 * Fires immediately after a comment is deleted from the database.
 	 *
+	 * @since 2.9.0
+	 * @since 4.9.0 Added the `$comment` parameter.
 	 *
 	 * @param string     $comment_id The comment ID as a numeric string.
 	 * @param GC_Comment $comment    The deleted comment.
@@ -1511,8 +1479,6 @@ function gc_delete_comment( $comment_id, $force_delete = false ) {
  *
  * If Trash is disabled, comment is permanently deleted.
  *
- *
- *
  * @param int|GC_Comment $comment_id Comment ID or GC_Comment object.
  * @return bool True on success, false on failure.
  */
@@ -1529,6 +1495,8 @@ function gc_trash_comment( $comment_id ) {
 	/**
 	 * Fires immediately before a comment is sent to the Trash.
 	 *
+	 * @since 2.9.0
+	 * @since 4.9.0 Added the `$comment` parameter.
 	 *
 	 * @param string     $comment_id The comment ID as a numeric string.
 	 * @param GC_Comment $comment    The comment to be trashed.
@@ -1544,6 +1512,7 @@ function gc_trash_comment( $comment_id ) {
 		/**
 		 * Fires immediately after a comment is sent to Trash.
 		 *
+		 * @since 4.9.0 Added the `$comment` parameter.
 		 *
 		 * @param string     $comment_id The comment ID as a numeric string.
 		 * @param GC_Comment $comment    The trashed comment.
@@ -1559,8 +1528,6 @@ function gc_trash_comment( $comment_id ) {
 /**
  * Removes a comment from the Trash
  *
- *
- *
  * @param int|GC_Comment $comment_id Comment ID or GC_Comment object.
  * @return bool True on success, false on failure.
  */
@@ -1573,6 +1540,8 @@ function gc_untrash_comment( $comment_id ) {
 	/**
 	 * Fires immediately before a comment is restored from the Trash.
 	 *
+	 * @since 2.9.0
+	 * @since 4.9.0 Added the `$comment` parameter.
 	 *
 	 * @param string     $comment_id The comment ID as a numeric string.
 	 * @param GC_Comment $comment    The comment to be untrashed.
@@ -1591,6 +1560,7 @@ function gc_untrash_comment( $comment_id ) {
 		/**
 		 * Fires immediately after a comment is restored from the Trash.
 		 *
+		 * @since 4.9.0 Added the `$comment` parameter.
 		 *
 		 * @param string     $comment_id The comment ID as a numeric string.
 		 * @param GC_Comment $comment    The untrashed comment.
@@ -1604,9 +1574,7 @@ function gc_untrash_comment( $comment_id ) {
 }
 
 /**
- * Marks a comment as Spam
- *
- *
+ * Marks a comment as Spam.
  *
  * @param int|GC_Comment $comment_id Comment ID or GC_Comment object.
  * @return bool True on success, false on failure.
@@ -1620,6 +1588,8 @@ function gc_spam_comment( $comment_id ) {
 	/**
 	 * Fires immediately before a comment is marked as Spam.
 	 *
+	 * @since 2.9.0
+	 * @since 4.9.0 Added the `$comment` parameter.
 	 *
 	 * @param int        $comment_id The comment ID.
 	 * @param GC_Comment $comment    The comment to be marked as spam.
@@ -1635,6 +1605,7 @@ function gc_spam_comment( $comment_id ) {
 		/**
 		 * Fires immediately after a comment is marked as Spam.
 		 *
+		 * @since 4.9.0 Added the `$comment` parameter.
 		 *
 		 * @param int        $comment_id The comment ID.
 		 * @param GC_Comment $comment    The comment marked as spam.
@@ -1648,9 +1619,7 @@ function gc_spam_comment( $comment_id ) {
 }
 
 /**
- * Removes a comment from the Spam
- *
- *
+ * Removes a comment from the Spam.
  *
  * @param int|GC_Comment $comment_id Comment ID or GC_Comment object.
  * @return bool True on success, false on failure.
@@ -1664,6 +1633,8 @@ function gc_unspam_comment( $comment_id ) {
 	/**
 	 * Fires immediately before a comment is unmarked as Spam.
 	 *
+	 * @since 2.9.0
+	 * @since 4.9.0 Added the `$comment` parameter.
 	 *
 	 * @param string     $comment_id The comment ID as a numeric string.
 	 * @param GC_Comment $comment    The comment to be unmarked as spam.
@@ -1682,6 +1653,7 @@ function gc_unspam_comment( $comment_id ) {
 		/**
 		 * Fires immediately after a comment is unmarked as Spam.
 		 *
+		 * @since 4.9.0 Added the `$comment` parameter.
 		 *
 		 * @param string     $comment_id The comment ID as a numeric string.
 		 * @param GC_Comment $comment    The comment unmarked as spam.
@@ -1695,9 +1667,7 @@ function gc_unspam_comment( $comment_id ) {
 }
 
 /**
- * The status of a comment by ID.
- *
- *
+ * Retrieves the status of a comment by comment ID.
  *
  * @param int|GC_Comment $comment_id Comment ID or GC_Comment object
  * @return string|false Status might be 'trash', 'approved', 'unapproved', 'spam'. False on failure.
@@ -1726,7 +1696,7 @@ function gc_get_comment_status( $comment_id ) {
 }
 
 /**
- * Call hooks for when a comment status transition occurs.
+ * Calls hooks for when a comment status transition occurs.
  *
  * Calls hooks for comment status transitions. If the new comment status is not the same
  * as the previous comment status, then two hooks will be ran, the first is
@@ -1737,7 +1707,7 @@ function gc_get_comment_status( $comment_id ) {
  * The final action will run whether or not the comment statuses are the same.
  * The action is named {@see 'comment_$new_status_$comment->comment_type'}.
  *
- *
+ * @since 2.7.0
  *
  * @param string     $new_status New comment status.
  * @param string     $old_status Previous comment status.
@@ -1767,7 +1737,6 @@ function gc_transition_comment_status( $new_status, $old_status, $comment ) {
 		/**
 		 * Fires when the comment status is in transition.
 		 *
-		 *
 		 * @param int|string $new_status The new comment status.
 		 * @param int|string $old_status The old comment status.
 		 * @param GC_Comment $comment    Comment object.
@@ -1787,7 +1756,6 @@ function gc_transition_comment_status( $new_status, $old_status, $comment ) {
 		 *  - `comment_spam_to_unapproved`
 		 *  - `comment_unapproved_to_spam`
 		 *  - `comment_approved_to_spam`
-		 *
 		 *
 		 * @param GC_Comment $comment Comment object.
 		 */
@@ -1813,19 +1781,19 @@ function gc_transition_comment_status( $new_status, $old_status, $comment ) {
 	 *  - `comment_spam_pingback`
 	 *  - `comment_spam_trackback`
 	 *
+	 * @since 2.7.0
 	 *
-	 * @param string     $comment_ID The comment ID as a numeric string.
+	 * @param string     $comment_id The comment ID as a numeric string.
 	 * @param GC_Comment $comment    Comment object.
 	 */
 	do_action( "comment_{$new_status}_{$comment->comment_type}", $comment->comment_ID, $comment );
 }
 
 /**
- * Clear the lastcommentmodified cached value when a comment status is changed.
+ * Clears the lastcommentmodified cached value when a comment status is changed.
  *
  * Deletes the lastcommentmodified cache key when a comment enters or leaves
  * 'approved' status.
- *
  *
  * @access private
  *
@@ -1834,21 +1802,21 @@ function gc_transition_comment_status( $new_status, $old_status, $comment ) {
  */
 function _clear_modified_cache_on_transition_comment_status( $new_status, $old_status ) {
 	if ( 'approved' === $new_status || 'approved' === $old_status ) {
+		$data = array();
 		foreach ( array( 'server', 'gmt', 'blog' ) as $timezone ) {
-			gc_cache_delete( "lastcommentmodified:$timezone", 'timeinfo' );
+			$data[] = "lastcommentmodified:$timezone";
 		}
+		gc_cache_delete_multiple( $data, 'timeinfo' );
 	}
 }
 
 /**
- * Get current commenter's name, email, and URL.
+ * Gets current commenter's name, email, and URL.
  *
  * Expects cookies content to already be sanitized. User of this function might
  * wish to recheck the returned array for validity.
  *
  * @see sanitize_comment_cookies() Use to sanitize cookies
- *
- *
  *
  * @return array {
  *     An array of current commenter variables.
@@ -1892,12 +1860,12 @@ function gc_get_current_commenter() {
 }
 
 /**
- * Get unapproved comment author's email.
+ * Gets unapproved comment author's email.
  *
  * Used to allow the commenter to see their pending comment.
  *
- *
- *
+ * @since 5.1.0
+ * @since 5.7.0 The window within which the author email for an unapproved comment
  *              can be retrieved was extended to 10 minutes.
  *
  * @return string The unapproved comment author's email (when supplied).
@@ -1929,10 +1897,8 @@ function gc_get_unapproved_comment_author_email() {
 
 /**
  * Inserts a comment into the database.
- *
- *
- *
- *
+ * Introduced the `$comment_meta` argument.
+ * @since 5.5.0 Default value for `$comment_type` argument changed to `comment`.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -1965,17 +1931,18 @@ function gc_get_unapproved_comment_author_email() {
  */
 function gc_insert_comment( $commentdata ) {
 	global $gcdb;
+
 	$data = gc_unslash( $commentdata );
 
 	$comment_author       = ! isset( $data['comment_author'] ) ? '' : $data['comment_author'];
 	$comment_author_email = ! isset( $data['comment_author_email'] ) ? '' : $data['comment_author_email'];
 	$comment_author_url   = ! isset( $data['comment_author_url'] ) ? '' : $data['comment_author_url'];
-	$comment_author_IP    = ! isset( $data['comment_author_IP'] ) ? '' : $data['comment_author_IP'];
+	$comment_author_ip    = ! isset( $data['comment_author_IP'] ) ? '' : $data['comment_author_IP'];
 
 	$comment_date     = ! isset( $data['comment_date'] ) ? current_time( 'mysql' ) : $data['comment_date'];
 	$comment_date_gmt = ! isset( $data['comment_date_gmt'] ) ? get_gmt_from_date( $comment_date ) : $data['comment_date_gmt'];
 
-	$comment_post_ID  = ! isset( $data['comment_post_ID'] ) ? 0 : $data['comment_post_ID'];
+	$comment_post_id  = ! isset( $data['comment_post_ID'] ) ? 0 : $data['comment_post_ID'];
 	$comment_content  = ! isset( $data['comment_content'] ) ? '' : $data['comment_content'];
 	$comment_karma    = ! isset( $data['comment_karma'] ) ? 0 : $data['comment_karma'];
 	$comment_approved = ! isset( $data['comment_approved'] ) ? 1 : $data['comment_approved'];
@@ -1985,7 +1952,26 @@ function gc_insert_comment( $commentdata ) {
 
 	$user_id = ! isset( $data['user_id'] ) ? 0 : $data['user_id'];
 
-	$compacted = compact( 'comment_post_ID', 'comment_author', 'comment_author_email', 'comment_author_url', 'comment_author_IP', 'comment_date', 'comment_date_gmt', 'comment_content', 'comment_karma', 'comment_approved', 'comment_agent', 'comment_type', 'comment_parent', 'user_id' );
+	$compacted = array(
+		'comment_post_ID'   => $comment_post_id,
+		'comment_author_IP' => $comment_author_ip,
+	);
+
+	$compacted += compact(
+		'comment_author',
+		'comment_author_email',
+		'comment_author_url',
+		'comment_date',
+		'comment_date_gmt',
+		'comment_content',
+		'comment_karma',
+		'comment_approved',
+		'comment_agent',
+		'comment_type',
+		'comment_parent',
+		'user_id'
+	);
+
 	if ( ! $gcdb->insert( $gcdb->comments, $compacted ) ) {
 		return false;
 	}
@@ -1993,11 +1979,13 @@ function gc_insert_comment( $commentdata ) {
 	$id = (int) $gcdb->insert_id;
 
 	if ( 1 == $comment_approved ) {
-		gc_update_comment_count( $comment_post_ID );
+		gc_update_comment_count( $comment_post_id );
 
+		$data = array();
 		foreach ( array( 'server', 'gmt', 'blog' ) as $timezone ) {
-			gc_cache_delete( "lastcommentmodified:$timezone", 'timeinfo' );
+			$data[] = "lastcommentmodified:$timezone";
 		}
+		gc_cache_delete_multiple( $data, 'timeinfo' );
 	}
 
 	clean_comment_cache( $id );
@@ -2030,8 +2018,6 @@ function gc_insert_comment( $commentdata ) {
  * checked as to whether the comment should be filtered and to keep from
  * filtering the same comment more than once.
  *
- *
- *
  * @param array $commentdata Contains information on the comment.
  * @return array Parsed comment information.
  */
@@ -2040,11 +2026,12 @@ function gc_filter_comment( $commentdata ) {
 		/**
 		 * Filters the comment author's user ID before it is set.
 		 *
-		 * The first time this filter is evaluated, 'user_ID' is checked
-		 * (for back-compat), followed by the standard 'user_id' value.
+		 * The first time this filter is evaluated, `user_ID` is checked
+		 * (for back-compat), followed by the standard `user_id` value.
 		 *
+		 * @since 1.5.0
 		 *
-		 * @param int $user_ID The comment author's user ID.
+		 * @param int $user_id The comment author's user ID.
 		 */
 		$commentdata['user_id'] = apply_filters( 'pre_user_id', $commentdata['user_ID'] );
 	} elseif ( isset( $commentdata['user_id'] ) ) {
@@ -2055,6 +2042,7 @@ function gc_filter_comment( $commentdata ) {
 	/**
 	 * Filters the comment author's browser user agent before it is set.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $comment_agent The comment author's browser user agent.
 	 */
@@ -2064,6 +2052,7 @@ function gc_filter_comment( $commentdata ) {
 	/**
 	 * Filters the comment content before it is set.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $comment_content The comment content.
 	 */
@@ -2071,6 +2060,7 @@ function gc_filter_comment( $commentdata ) {
 	/**
 	 * Filters the comment author's IP address before it is set.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $comment_author_ip The comment author's IP address.
 	 */
@@ -2079,14 +2069,14 @@ function gc_filter_comment( $commentdata ) {
 	$commentdata['comment_author_url'] = apply_filters( 'pre_comment_author_url', $commentdata['comment_author_url'] );
 	/** This filter is documented in gc-includes/comment.php */
 	$commentdata['comment_author_email'] = apply_filters( 'pre_comment_author_email', $commentdata['comment_author_email'] );
-	$commentdata['filtered']             = true;
+
+	$commentdata['filtered'] = true;
+
 	return $commentdata;
 }
 
 /**
- * Whether a comment should be blocked because of comment flood.
- *
- *
+ * Determines whether a comment should be blocked because of comment flood.
  *
  * @param bool $block            Whether plugin has already blocked comment.
  * @param int  $time_lastcomment Timestamp for last comment.
@@ -2116,12 +2106,10 @@ function gc_throttle_comment_flood( $block, $time_lastcomment, $time_newcomment 
  *
  * See {@link https://core.trac.gechiui.com/ticket/9235}
  *
- *
- *
- *
+ * @since 4.3.0 Introduced the `comment_agent` and `comment_author_IP` arguments. The `$avoid_die` parameter was added, allowing the function
  *              to return a GC_Error object instead of dying.
- *
- *
+ * @since 5.5.0 The `$avoid_die` parameter was renamed to `$gc_error`.
+ * @since 5.5.0 Introduced the `comment_type` argument.
  *
  * @see gc_insert_comment()
  * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -2153,9 +2141,16 @@ function gc_throttle_comment_flood( $block, $time_lastcomment, $time_newcomment 
 function gc_new_comment( $commentdata, $gc_error = false ) {
 	global $gcdb;
 
+	/*
+	 * Normalize `user_ID` to `user_id`, but pass the old key
+	 * to the `preprocess_comment` filter for backward compatibility.
+	 */
 	if ( isset( $commentdata['user_ID'] ) ) {
 		$commentdata['user_ID'] = (int) $commentdata['user_ID'];
 		$commentdata['user_id'] = $commentdata['user_ID'];
+	} elseif ( isset( $commentdata['user_id'] ) ) {
+		$commentdata['user_id'] = (int) $commentdata['user_id'];
+		$commentdata['user_ID'] = $commentdata['user_id'];
 	}
 
 	$prefiltered_user_id = ( isset( $commentdata['user_id'] ) ) ? (int) $commentdata['user_id'] : 0;
@@ -2171,17 +2166,22 @@ function gc_new_comment( $commentdata, $gc_error = false ) {
 	/**
 	 * Filters a comment's data before it is sanitized and inserted into the database.
 	 *
+	 * @since 1.5.0
+	 * @since 5.6.0 Comment data includes the `comment_agent` and `comment_author_IP` values.
 	 *
 	 * @param array $commentdata Comment data.
 	 */
 	$commentdata = apply_filters( 'preprocess_comment', $commentdata );
 
 	$commentdata['comment_post_ID'] = (int) $commentdata['comment_post_ID'];
+
+	// Normalize `user_ID` to `user_id` again, after the filter.
 	if ( isset( $commentdata['user_ID'] ) && $prefiltered_user_id !== (int) $commentdata['user_ID'] ) {
 		$commentdata['user_ID'] = (int) $commentdata['user_ID'];
 		$commentdata['user_id'] = $commentdata['user_ID'];
 	} elseif ( isset( $commentdata['user_id'] ) ) {
 		$commentdata['user_id'] = (int) $commentdata['user_id'];
+		$commentdata['user_ID'] = $commentdata['user_id'];
 	}
 
 	$commentdata['comment_parent'] = isset( $commentdata['comment_parent'] ) ? absint( $commentdata['comment_parent'] ) : 0;
@@ -2209,12 +2209,14 @@ function gc_new_comment( $commentdata, $gc_error = false ) {
 	$commentdata = gc_filter_comment( $commentdata );
 
 	$commentdata['comment_approved'] = gc_allow_comment( $commentdata, $gc_error );
+
 	if ( is_gc_error( $commentdata['comment_approved'] ) ) {
 		return $commentdata['comment_approved'];
 	}
 
-	$comment_ID = gc_insert_comment( $commentdata );
-	if ( ! $comment_ID ) {
+	$comment_id = gc_insert_comment( $commentdata );
+
+	if ( ! $comment_id ) {
 		$fields = array( 'comment_author', 'comment_author_email', 'comment_author_url', 'comment_content' );
 
 		foreach ( $fields as $field ) {
@@ -2230,8 +2232,8 @@ function gc_new_comment( $commentdata, $gc_error = false ) {
 			return $commentdata['comment_approved'];
 		}
 
-		$comment_ID = gc_insert_comment( $commentdata );
-		if ( ! $comment_ID ) {
+		$comment_id = gc_insert_comment( $commentdata );
+		if ( ! $comment_id ) {
 			return false;
 		}
 	}
@@ -2239,53 +2241,51 @@ function gc_new_comment( $commentdata, $gc_error = false ) {
 	/**
 	 * Fires immediately after a comment is inserted into the database.
 	 *
+	 * @since 1.2.0
+	 * @since 4.5.0 The `$commentdata` parameter was added.
 	 *
-	 * @param int        $comment_ID       The comment ID.
+	 * @param int        $comment_id       The comment ID.
 	 * @param int|string $comment_approved 1 if the comment is approved, 0 if not, 'spam' if spam.
 	 * @param array      $commentdata      Comment data.
 	 */
-	do_action( 'comment_post', $comment_ID, $commentdata['comment_approved'], $commentdata );
+	do_action( 'comment_post', $comment_id, $commentdata['comment_approved'], $commentdata );
 
-	return $comment_ID;
+	return $comment_id;
 }
 
 /**
- * Send a comment moderation notification to the comment moderator.
+ * Sends a comment moderation notification to the comment moderator.
  *
- *
- *
- * @param int $comment_ID ID of the comment.
+ * @param int $comment_id ID of the comment.
  * @return bool True on success, false on failure.
  */
-function gc_new_comment_notify_moderator( $comment_ID ) {
-	$comment = get_comment( $comment_ID );
+function gc_new_comment_notify_moderator( $comment_id ) {
+	$comment = get_comment( $comment_id );
 
 	// Only send notifications for pending comments.
 	$maybe_notify = ( '0' == $comment->comment_approved );
 
-	/** This filter is documented in gc-includes/comment.php */
-	$maybe_notify = apply_filters( 'notify_moderator', $maybe_notify, $comment_ID );
+	/** This filter is documented in gc-includes/pluggable.php */
+	$maybe_notify = apply_filters( 'notify_moderator', $maybe_notify, $comment_id );
 
 	if ( ! $maybe_notify ) {
 		return false;
 	}
 
-	return gc_notify_moderator( $comment_ID );
+	return gc_notify_moderator( $comment_id );
 }
 
 /**
- * Send a notification of a new comment to the post author.
- *
- *
+ * Sends a notification of a new comment to the post author.
  *
  * Uses the {@see 'notify_post_author'} filter to determine whether the post author
  * should be notified when a new comment is added, overriding site setting.
  *
- * @param int $comment_ID Comment ID.
+ * @param int $comment_id Comment ID.
  * @return bool True on success, false on failure.
  */
-function gc_new_comment_notify_postauthor( $comment_ID ) {
-	$comment = get_comment( $comment_ID );
+function gc_new_comment_notify_postauthor( $comment_id ) {
+	$comment = get_comment( $comment_id );
 
 	$maybe_notify = get_option( 'comments_notify' );
 
@@ -2293,11 +2293,12 @@ function gc_new_comment_notify_postauthor( $comment_ID ) {
 	 * Filters whether to send the post author new comment notification emails,
 	 * overriding the site setting.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param bool $maybe_notify Whether to notify the post author about the new comment.
-	 * @param int  $comment_ID   The ID of the comment for the notification.
+	 * @param int  $comment_id   The ID of the comment for the notification.
 	 */
-	$maybe_notify = apply_filters( 'notify_post_author', $maybe_notify, $comment_ID );
+	$maybe_notify = apply_filters( 'notify_post_author', $maybe_notify, $comment_id );
 
 	/*
 	 * gc_notify_postauthor() checks if notifying the author of their own comment.
@@ -2312,7 +2313,7 @@ function gc_new_comment_notify_postauthor( $comment_ID ) {
 		return false;
 	}
 
-	return gc_notify_postauthor( $comment_ID );
+	return gc_notify_postauthor( $comment_id );
 }
 
 /**
@@ -2320,8 +2321,6 @@ function gc_new_comment_notify_postauthor( $comment_ID ) {
  *
  * The {@see 'gc_set_comment_status'} action is called after the comment is handled.
  * If the comment status is not in the list, then false is returned.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -2371,6 +2370,7 @@ function gc_set_comment_status( $comment_id, $comment_status, $gc_error = false 
 	 * Fires immediately after transitioning a comment's status from one to another in the database
 	 * and removing the comment from the object cache, but prior to all status transition hooks.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $comment_id     Comment ID as a numeric string.
 	 * @param string $comment_status Current comment status. Possible values include
@@ -2389,11 +2389,9 @@ function gc_set_comment_status( $comment_id, $comment_status, $gc_error = false 
  * Updates an existing comment in the database.
  *
  * Filters the comment and makes sure certain fields are valid before updating.
- *
- *
- *
- *
- *
+ * Add updating comment meta during comment update.
+ * @since 5.5.0 The `$gc_error` parameter was added.
+ * @since 5.5.0 The return values for an invalid comment or post ID
  *              were changed to false instead of 0.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -2408,6 +2406,7 @@ function gc_update_comment( $commentarr, $gc_error = false ) {
 
 	// First, get all of the original fields.
 	$comment = get_comment( $commentarr['comment_ID'], ARRAY_A );
+
 	if ( empty( $comment ) ) {
 		if ( $gc_error ) {
 			return new GC_Error( 'invalid_comment_id', __( '评论ID无效。' ) );
@@ -2425,6 +2424,15 @@ function gc_update_comment( $commentarr, $gc_error = false ) {
 		}
 	}
 
+	$filter_comment = false;
+	if ( ! has_filter( 'pre_comment_content', 'gc_filter_kses' ) ) {
+		$filter_comment = ! user_can( isset( $comment['user_id'] ) ? $comment['user_id'] : 0, 'unfiltered_html' );
+	}
+
+	if ( $filter_comment ) {
+		add_filter( 'pre_comment_content', 'gc_filter_kses' );
+	}
+
 	// Escape data pulled from DB.
 	$comment = gc_slash( $comment );
 
@@ -2435,12 +2443,17 @@ function gc_update_comment( $commentarr, $gc_error = false ) {
 
 	$commentarr = gc_filter_comment( $commentarr );
 
+	if ( $filter_comment ) {
+		remove_filter( 'pre_comment_content', 'gc_filter_kses' );
+	}
+
 	// Now extract the merged array.
 	$data = gc_unslash( $commentarr );
 
 	/**
 	 * Filters the comment content before it is updated in the database.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $comment_content The comment data.
 	 */
@@ -2456,14 +2469,16 @@ function gc_update_comment( $commentarr, $gc_error = false ) {
 		$data['comment_approved'] = 1;
 	}
 
-	$comment_ID      = $data['comment_ID'];
-	$comment_post_ID = $data['comment_post_ID'];
+	$comment_id      = $data['comment_ID'];
+	$comment_post_id = $data['comment_post_ID'];
 
 	/**
 	 * Filters the comment data immediately before it is updated in the database.
 	 *
 	 * Note: data being passed to the filter is already unslashed.
 	 *
+	 * @since 4.7.0
+	 * @since 5.5.0 Returning a GC_Error value from the filter will short-circuit comment update
 	 *              and allow skipping further processing.
 	 *
 	 * @param array|GC_Error $data       The new, processed comment data, or GC_Error.
@@ -2481,12 +2496,28 @@ function gc_update_comment( $commentarr, $gc_error = false ) {
 		}
 	}
 
-	$keys = array( 'comment_post_ID', 'comment_content', 'comment_author', 'comment_author_email', 'comment_approved', 'comment_karma', 'comment_author_url', 'comment_date', 'comment_date_gmt', 'comment_type', 'comment_parent', 'user_id', 'comment_agent', 'comment_author_IP' );
+	$keys = array(
+		'comment_post_ID',
+		'comment_author',
+		'comment_author_email',
+		'comment_author_url',
+		'comment_author_IP',
+		'comment_date',
+		'comment_date_gmt',
+		'comment_content',
+		'comment_karma',
+		'comment_approved',
+		'comment_agent',
+		'comment_type',
+		'comment_parent',
+		'user_id',
+	);
+
 	$data = gc_array_slice_assoc( $data, $keys );
 
-	$rval = $gcdb->update( $gcdb->comments, $data, compact( 'comment_ID' ) );
+	$result = $gcdb->update( $gcdb->comments, $data, array( 'comment_ID' => $comment_id ) );
 
-	if ( false === $rval ) {
+	if ( false === $result ) {
 		if ( $gc_error ) {
 			return new GC_Error( 'db_update_error', __( '无法更新数据库中的注释。' ), $gcdb->last_error );
 		} else {
@@ -2497,40 +2528,40 @@ function gc_update_comment( $commentarr, $gc_error = false ) {
 	// If metadata is provided, store it.
 	if ( isset( $commentarr['comment_meta'] ) && is_array( $commentarr['comment_meta'] ) ) {
 		foreach ( $commentarr['comment_meta'] as $meta_key => $meta_value ) {
-			update_comment_meta( $comment_ID, $meta_key, $meta_value );
+			update_comment_meta( $comment_id, $meta_key, $meta_value );
 		}
 	}
 
-	clean_comment_cache( $comment_ID );
-	gc_update_comment_count( $comment_post_ID );
+	clean_comment_cache( $comment_id );
+	gc_update_comment_count( $comment_post_id );
 
 	/**
 	 * Fires immediately after a comment is updated in the database.
 	 *
 	 * The hook also fires immediately before comment status transition hooks are fired.
 	 *
+	 * @since 1.2.0
+	 * @since 4.6.0 Added the `$data` parameter.
 	 *
-	 * @param int   $comment_ID The comment ID.
+	 * @param int   $comment_id The comment ID.
 	 * @param array $data       Comment data.
 	 */
-	do_action( 'edit_comment', $comment_ID, $data );
+	do_action( 'edit_comment', $comment_id, $data );
 
-	$comment = get_comment( $comment_ID );
+	$comment = get_comment( $comment_id );
 
 	gc_transition_comment_status( $comment->comment_approved, $old_status, $comment );
 
-	return $rval;
+	return $result;
 }
 
 /**
- * Whether to defer comment counting.
+ * Determines whether to defer comment counting.
  *
  * When setting $defer to true, all post comment counts will not be updated
  * until $defer is set to false. When $defer is set to false, then all
  * previously deferred updated post comment counts will then be automatically
  * updated without having to call gc_update_comment_count() after.
- *
- *
  *
  * @param bool $defer
  * @return bool
@@ -2559,8 +2590,6 @@ function gc_defer_comment_counting( $defer = null ) {
  * If the comments have not be set up to be deferred, then the post will be
  * updated. When $do_deferred is set to true, then all previous deferred post
  * IDs will be updated along with the current $post_id.
- *
- *
  *
  * @see gc_update_comment_count_now() For what could cause a false return value
  *
@@ -2598,8 +2627,6 @@ function gc_update_comment_count( $post_id, $do_deferred = false ) {
 /**
  * Updates the comment count for the post.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param int $post_id Post ID
@@ -2607,7 +2634,9 @@ function gc_update_comment_count( $post_id, $do_deferred = false ) {
  */
 function gc_update_comment_count_now( $post_id ) {
 	global $gcdb;
+
 	$post_id = (int) $post_id;
+
 	if ( ! $post_id ) {
 		return false;
 	}
@@ -2616,6 +2645,7 @@ function gc_update_comment_count_now( $post_id ) {
 	gc_cache_delete( "comments-{$post_id}", 'counts' );
 
 	$post = get_post( $post_id );
+
 	if ( ! $post ) {
 		return false;
 	}
@@ -2625,6 +2655,7 @@ function gc_update_comment_count_now( $post_id ) {
 	/**
 	 * Filters a post's comment count before it is updated in the database.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param int|null $new     The new comment count. Default null.
 	 * @param int      $old     The old comment count.
@@ -2645,6 +2676,7 @@ function gc_update_comment_count_now( $post_id ) {
 	/**
 	 * Fires immediately after a post's comment count is updated in the database.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param int $post_id Post ID.
 	 * @param int $new     The new comment count.
@@ -2668,11 +2700,9 @@ function gc_update_comment_count_now( $post_id ) {
 /**
  * Finds a pingback server URI based on the given URL.
  *
- * Checks the HTML for the rel="pingback" link and x-pingback headers. It does
- * a check for the x-pingback headers first and returns that, if available. The
- * check for the rel="pingback" has more overhead than just the header.
- *
- *
+ * Checks the HTML for the rel="pingback" link and X-Pingback headers. It does
+ * a check for the X-Pingback headers first and returns that, if available.
+ * The check for the rel="pingback" has more overhead than just the header.
  *
  * @param string $url        URL to ping.
  * @param string $deprecated Not Used.
@@ -2695,7 +2725,7 @@ function discover_pingback_server_uri( $url, $deprecated = '' ) {
 
 	// Do not search for a pingback server on our own uploads.
 	$uploads_dir = gc_get_upload_dir();
-	if ( 0 === strpos( $url, $uploads_dir['baseurl'] ) ) {
+	if ( str_starts_with( $url, $uploads_dir['baseurl'] ) ) {
 		return false;
 	}
 
@@ -2711,12 +2741,12 @@ function discover_pingback_server_uri( $url, $deprecated = '' ) {
 		return false;
 	}
 
-	if ( gc_remote_retrieve_header( $response, 'x-pingback' ) ) {
-		return gc_remote_retrieve_header( $response, 'x-pingback' );
+	if ( gc_remote_retrieve_header( $response, 'X-Pingback' ) ) {
+		return gc_remote_retrieve_header( $response, 'X-Pingback' );
 	}
 
 	// Not an (x)html, sgml, or xml page, no use going further.
-	if ( preg_match( '#(image|audio|video|model)/#is', gc_remote_retrieve_header( $response, 'content-type' ) ) ) {
+	if ( preg_match( '#(image|audio|video|model)/#is', gc_remote_retrieve_header( $response, 'Content-Type' ) ) ) {
 		return false;
 	}
 
@@ -2756,22 +2786,20 @@ function discover_pingback_server_uri( $url, $deprecated = '' ) {
 }
 
 /**
- * Perform all pingbacks, enclosures, trackbacks, and send to pingback services.
- *
- *
- *
+ * Performs all pingbacks, enclosures, trackbacks, and sends to pingback services.
+ * Introduced `do_all_pings` action hook for individual services.
  */
 function do_all_pings() {
 	/**
 	 * Fires immediately after the `do_pings` event to hook services individually.
 	 *
+	 * @since 5.6.0
 	 */
 	do_action( 'do_all_pings' );
 }
 
 /**
- * Perform all pingbacks.
- *
+ * Performs all pingbacks.
  *
  */
 function do_all_pingbacks() {
@@ -2792,8 +2820,7 @@ function do_all_pingbacks() {
 }
 
 /**
- * Perform all enclosures.
- *
+ * Performs all enclosures.
  *
  */
 function do_all_enclosures() {
@@ -2814,8 +2841,7 @@ function do_all_enclosures() {
 }
 
 /**
- * Perform all trackbacks.
- *
+ * Performs all trackbacks.
  *
  */
 function do_all_trackbacks() {
@@ -2836,24 +2862,26 @@ function do_all_trackbacks() {
 }
 
 /**
- * Perform trackbacks.
- *
- *
- *
+ * Performs trackbacks.
+ * `$post` can be a GC_Post object.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
- * @param int|GC_Post $post_id Post object or ID to do trackbacks on.
+ * @param int|GC_Post $post Post ID or object to do trackbacks on.
+ * @return void|false Returns false on failure.
  */
-function do_trackbacks( $post_id ) {
+function do_trackbacks( $post ) {
 	global $gcdb;
-	$post = get_post( $post_id );
+
+	$post = get_post( $post );
+
 	if ( ! $post ) {
 		return false;
 	}
 
 	$to_ping = get_to_ping( $post );
 	$pinged  = get_pung( $post );
+
 	if ( empty( $to_ping ) ) {
 		$gcdb->update( $gcdb->posts, array( 'to_ping' => '' ), array( 'ID' => $post->ID ) );
 		return;
@@ -2897,10 +2925,8 @@ function do_trackbacks( $post_id ) {
 /**
  * Sends pings to all of the ping site services.
  *
- *
- *
  * @param int $post_id Post ID.
- * @return int Same as Post ID from parameter
+ * @return int Same post ID as provided.
  */
 function generic_ping( $post_id = 0 ) {
 	$services = get_option( 'ping_sites' );
@@ -2918,21 +2944,20 @@ function generic_ping( $post_id = 0 ) {
 
 /**
  * Pings back the links found in a post.
- *
- *
- *
+ * `$post` can be a GC_Post object.
  *
  * @param string      $content Post content to check for links. If empty will retrieve from post.
- * @param int|GC_Post $post_id Post Object or ID.
+ * @param int|GC_Post $post    Post ID or object.
  */
-function pingback( $content, $post_id ) {
-	include_once ABSPATH . GCINC . '/class-IXR.php';
-	include_once ABSPATH . GCINC . '/class-gc-http-ixr-client.php';
+function pingback( $content, $post ) {
+	require_once ABSPATH . GCINC . '/class-IXR.php';
+	require_once ABSPATH . GCINC . '/class-gc-http-ixr-client.php';
 
 	// Original code by Mort (http://mort.mine.nu:8080).
 	$post_links = array();
 
-	$post = get_post( $post_id );
+	$post = get_post( $post );
+
 	if ( ! $post ) {
 		return;
 	}
@@ -2981,10 +3006,11 @@ function pingback( $content, $post_id ) {
 	/**
 	 * Fires just before pinging back links found in a post.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string[] $post_links Array of link URLs to be checked (passed by reference).
 	 * @param string[] $pung       Array of link URLs already pinged (passed by reference).
-	 * @param int      $post_ID    The post ID.
+	 * @param int      $post_id    The post ID.
 	 */
 	do_action_ref_array( 'pre_ping', array( &$post_links, &$pung, $post->ID ) );
 
@@ -2992,7 +3018,10 @@ function pingback( $content, $post_id ) {
 		$pingback_server_url = discover_pingback_server_uri( $pagelinkedto );
 
 		if ( $pingback_server_url ) {
-			set_time_limit( 60 );
+			if ( function_exists( 'set_time_limit' ) ) {
+				set_time_limit( 60 );
+			}
+
 			// Now, the RPC call.
 			$pagelinkedfrom = get_permalink( $post );
 
@@ -3002,7 +3031,7 @@ function pingback( $content, $post_id ) {
 			/**
 			 * Filters the user agent sent when pinging-back a URL.
 			 *
-		
+			 * @since 2.9.0
 			 *
 			 * @param string $concat_useragent    The user agent concatenated with ' -- GeChiUI/'
 			 *                                    and the GeChiUI version.
@@ -3023,9 +3052,7 @@ function pingback( $content, $post_id ) {
 }
 
 /**
- * Check whether blog is public before returning sites.
- *
- *
+ * Checks whether blog is public before returning sites.
  *
  * @param mixed $sites Will return if blog is public, will not return if not public.
  * @return mixed Empty string if blog is not public, returns $sites, if site is public.
@@ -3039,11 +3066,9 @@ function privacy_ping_filter( $sites ) {
 }
 
 /**
- * Send a Trackback.
+ * Sends a Trackback.
  *
  * Updates database when sending trackback to prevent duplicates.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -3080,16 +3105,14 @@ function trackback( $trackback_url, $title, $excerpt, $ID ) {
 }
 
 /**
- * Send a pingback.
- *
- *
+ * Sends a pingback.
  *
  * @param string $server Host of blog to connect to.
  * @param string $path Path to send the ping.
  */
 function weblog_ping( $server = '', $path = '' ) {
-	include_once ABSPATH . GCINC . '/class-IXR.php';
-	include_once ABSPATH . GCINC . '/class-gc-http-ixr-client.php';
+	require_once ABSPATH . GCINC . '/class-IXR.php';
+	require_once ABSPATH . GCINC . '/class-gc-http-ixr-client.php';
 
 	// Using a timeout of 3 seconds should be enough to cover slow servers.
 	$client             = new GC_HTTP_IXR_Client( $server, ( ( ! strlen( trim( $path ) ) || ( '/' === $path ) ) ? false : $path ) );
@@ -3105,9 +3128,9 @@ function weblog_ping( $server = '', $path = '' ) {
 }
 
 /**
- * Default filter attached to pingback_ping_source_uri to validate the pingback's Source URI
+ * Default filter attached to pingback_ping_source_uri to validate the pingback's Source URI.
  *
- *
+ * @since 3.5.1
  *
  * @see gc_http_validate_url()
  *
@@ -3124,7 +3147,7 @@ function pingback_ping_source_uri( $source_uri ) {
  * Returns a generic pingback error code unless the error code is 48,
  * which reports that the pingback is already registered.
  *
- *
+ * @since 3.5.1
  *
  * @link https://www.hixie.ch/specs/pingback/pingback#TOC3
  *
@@ -3145,24 +3168,23 @@ function xmlrpc_pingback_error( $ixr_error ) {
 /**
  * Removes a comment from the object cache.
  *
- *
- *
  * @param int|array $ids Comment ID or an array of comment IDs to remove from cache.
  */
 function clean_comment_cache( $ids ) {
-	foreach ( (array) $ids as $id ) {
-		gc_cache_delete( $id, 'comment' );
-
+	$comment_ids = (array) $ids;
+	gc_cache_delete_multiple( $comment_ids, 'comment' );
+	foreach ( $comment_ids as $id ) {
 		/**
 		 * Fires immediately after a comment has been removed from the object cache.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @param int $id Comment ID.
 		 */
 		do_action( 'clean_comment_cache', $id );
 	}
 
-	gc_cache_set( 'last_changed', microtime(), 'comment' );
+	gc_cache_set_comments_last_changed();
 }
 
 /**
@@ -3171,17 +3193,17 @@ function clean_comment_cache( $ids ) {
  * Will add the comments in $comments to the cache. If comment ID already exists
  * in the comment cache then it will not be updated. The comment is added to the
  * cache using the comment group with the key using the ID of the comments.
- *
- *
- *
+ * Introduced the `$update_meta_cache` parameter.
  *
  * @param GC_Comment[] $comments          Array of comment objects
  * @param bool         $update_meta_cache Whether to update commentmeta cache. Default true.
  */
 function update_comment_cache( $comments, $update_meta_cache = true ) {
+	$data = array();
 	foreach ( (array) $comments as $comment ) {
-		gc_cache_add( $comment->comment_ID, $comment, 'comment' );
+		$data[ $comment->comment_ID ] = $comment;
 	}
+	gc_cache_add_multiple( $data, 'comment' );
 
 	if ( $update_meta_cache ) {
 		// Avoid `gc_list_pluck()` in case `$comments` is passed by reference.
@@ -3196,8 +3218,8 @@ function update_comment_cache( $comments, $update_meta_cache = true ) {
 /**
  * Adds any comments from the given IDs to the cache that do not already exist in cache.
  *
- *
- * @access private
+ * @since 6.1.0 This function is no longer marked as "private".
+ * @since 6.3.0 Use gc_lazyload_comment_meta() for lazy-loading of comment meta.
  *
  * @see update_comment_cache()
  * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -3212,7 +3234,11 @@ function _prime_comment_caches( $comment_ids, $update_meta_cache = true ) {
 	if ( ! empty( $non_cached_ids ) ) {
 		$fresh_comments = $gcdb->get_results( sprintf( "SELECT $gcdb->comments.* FROM $gcdb->comments WHERE comment_ID IN (%s)", implode( ',', array_map( 'intval', $non_cached_ids ) ) ) );
 
-		update_comment_cache( $fresh_comments, $update_meta_cache );
+		update_comment_cache( $fresh_comments, false );
+	}
+
+	if ( $update_meta_cache ) {
+		gc_lazyload_comment_meta( $comment_ids );
 	}
 }
 
@@ -3221,9 +3247,9 @@ function _prime_comment_caches( $comment_ids, $update_meta_cache = true ) {
 //
 
 /**
- * Close comments on old posts on the fly, without any extra DB queries. Hooked to the_posts.
+ * Closes comments on old posts on the fly, without any extra DB queries. Hooked to the_posts.
  *
- *
+ * @since 2.7.0
  * @access private
  *
  * @param GC_Post  $posts Post data object.
@@ -3238,6 +3264,7 @@ function _close_comments_for_old_posts( $posts, $query ) {
 	/**
 	 * Filters the list of post types to automatically close comments for.
 	 *
+	 * @since 3.2.0
 	 *
 	 * @param string[] $post_types An array of post type names.
 	 */
@@ -3260,9 +3287,9 @@ function _close_comments_for_old_posts( $posts, $query ) {
 }
 
 /**
- * Close comments on an old post. Hooked to comments_open and pings_open.
+ * Closes comments on an old post. Hooked to comments_open and pings_open.
  *
- *
+ * @since 2.7.0
  * @access private
  *
  * @param bool $open    Comments open or closed.
@@ -3309,8 +3336,6 @@ function _close_comments_for_old_post( $open, $post_id ) {
  * This function expects unslashed data, as opposed to functions such as `gc_new_comment()` which
  * expect slashed data.
  *
- *
- *
  * @param array $comment_data {
  *     Comment data.
  *
@@ -3325,17 +3350,16 @@ function _close_comments_for_old_post( $open, $post_id ) {
  * @return GC_Comment|GC_Error A GC_Comment object on success, a GC_Error object on failure.
  */
 function gc_handle_comment_submission( $comment_data ) {
-
-	$comment_post_ID      = 0;
+	$comment_post_id      = 0;
+	$comment_author       = '';
+	$comment_author_email = '';
+	$comment_author_url   = '';
+	$comment_content      = '';
 	$comment_parent       = 0;
-	$user_ID              = 0;
-	$comment_author       = null;
-	$comment_author_email = null;
-	$comment_author_url   = null;
-	$comment_content      = null;
+	$user_id              = 0;
 
 	if ( isset( $comment_data['comment_post_ID'] ) ) {
-		$comment_post_ID = (int) $comment_data['comment_post_ID'];
+		$comment_post_id = (int) $comment_data['comment_post_ID'];
 	}
 	if ( isset( $comment_data['author'] ) && is_string( $comment_data['author'] ) ) {
 		$comment_author = trim( strip_tags( $comment_data['author'] ) );
@@ -3350,20 +3374,42 @@ function gc_handle_comment_submission( $comment_data ) {
 		$comment_content = trim( $comment_data['comment'] );
 	}
 	if ( isset( $comment_data['comment_parent'] ) ) {
-		$comment_parent = absint( $comment_data['comment_parent'] );
+		$comment_parent        = absint( $comment_data['comment_parent'] );
+		$comment_parent_object = get_comment( $comment_parent );
+
+		if (
+			0 !== $comment_parent &&
+			(
+				! $comment_parent_object instanceof GC_Comment ||
+				0 === (int) $comment_parent_object->comment_approved
+			)
+		) {
+			/**
+			 * Fires when a comment reply is attempted to an unapproved comment.
+			 *
+			 * @since 6.2.0
+			 *
+			 * @param int $comment_post_id Post ID.
+			 * @param int $comment_parent  Parent comment ID.
+			 */
+			do_action( 'comment_reply_to_unapproved_comment', $comment_post_id, $comment_parent );
+
+			return new GC_Error( 'comment_reply_to_unapproved_comment', __( '抱歉，不允许回复待审阅的留言。' ), 403 );
+		}
 	}
 
-	$post = get_post( $comment_post_ID );
+	$post = get_post( $comment_post_id );
 
 	if ( empty( $post->comment_status ) ) {
 
 		/**
 		 * Fires when a comment is attempted on a post that does not exist.
 		 *
+		 * @since 1.5.0
 		 *
-		 * @param int $comment_post_ID Post ID.
+		 * @param int $comment_post_id Post ID.
 		 */
-		do_action( 'comment_id_not_found', $comment_post_ID );
+		do_action( 'comment_id_not_found', $comment_post_id );
 
 		return new GC_Error( 'comment_id_not_found' );
 
@@ -3372,21 +3418,22 @@ function gc_handle_comment_submission( $comment_data ) {
 	// get_post_status() will get the parent status for attachments.
 	$status = get_post_status( $post );
 
-	if ( ( 'private' === $status ) && ! current_user_can( 'read_post', $comment_post_ID ) ) {
+	if ( ( 'private' === $status ) && ! current_user_can( 'read_post', $comment_post_id ) ) {
 		return new GC_Error( 'comment_id_not_found' );
 	}
 
 	$status_obj = get_post_status_object( $status );
 
-	if ( ! comments_open( $comment_post_ID ) ) {
+	if ( ! comments_open( $comment_post_id ) ) {
 
 		/**
 		 * Fires when a comment is attempted on a post that has comments closed.
 		 *
+		 * @since 1.5.0
 		 *
-		 * @param int $comment_post_ID Post ID.
+		 * @param int $comment_post_id Post ID.
 		 */
-		do_action( 'comment_closed', $comment_post_ID );
+		do_action( 'comment_closed', $comment_post_id );
 
 		return new GC_Error( 'comment_closed', __( '抱歉，该项目的评论已关闭。' ), 403 );
 
@@ -3395,10 +3442,9 @@ function gc_handle_comment_submission( $comment_data ) {
 		/**
 		 * Fires when a comment is attempted on a trashed post.
 		 *
-		 *
-		 * @param int $comment_post_ID Post ID.
+		 * @param int $comment_post_id Post ID.
 		 */
-		do_action( 'comment_on_trash', $comment_post_ID );
+		do_action( 'comment_on_trash', $comment_post_id );
 
 		return new GC_Error( 'comment_on_trash' );
 
@@ -3407,38 +3453,37 @@ function gc_handle_comment_submission( $comment_data ) {
 		/**
 		 * Fires when a comment is attempted on a post in draft mode.
 		 *
+		 * @since 1.5.1
 		 *
-		 * @param int $comment_post_ID Post ID.
+		 * @param int $comment_post_id Post ID.
 		 */
-		do_action( 'comment_on_draft', $comment_post_ID );
+		do_action( 'comment_on_draft', $comment_post_id );
 
-		if ( current_user_can( 'read_post', $comment_post_ID ) ) {
+		if ( current_user_can( 'read_post', $comment_post_id ) ) {
 			return new GC_Error( 'comment_on_draft', __( '抱歉，这篇文章不能评论。' ), 403 );
 		} else {
 			return new GC_Error( 'comment_on_draft' );
 		}
-	} elseif ( post_password_required( $comment_post_ID ) ) {
+	} elseif ( post_password_required( $comment_post_id ) ) {
 
 		/**
 		 * Fires when a comment is attempted on a password-protected post.
 		 *
-		 *
-		 * @param int $comment_post_ID Post ID.
+		 * @param int $comment_post_id Post ID.
 		 */
-		do_action( 'comment_on_password_protected', $comment_post_ID );
+		do_action( 'comment_on_password_protected', $comment_post_id );
 
 		return new GC_Error( 'comment_on_password_protected' );
 
 	} else {
-
 		/**
 		 * Fires before a comment is posted.
 		 *
+		 * @since 2.8.0
 		 *
-		 * @param int $comment_post_ID Post ID.
+		 * @param int $comment_post_id Post ID.
 		 */
-		do_action( 'pre_comment_on_post', $comment_post_ID );
-
+		do_action( 'pre_comment_on_post', $comment_post_id );
 	}
 
 	// If the user is logged in.
@@ -3447,13 +3492,15 @@ function gc_handle_comment_submission( $comment_data ) {
 		if ( empty( $user->display_name ) ) {
 			$user->display_name = $user->user_login;
 		}
+
 		$comment_author       = $user->display_name;
 		$comment_author_email = $user->user_email;
 		$comment_author_url   = $user->user_url;
-		$user_ID              = $user->ID;
+		$user_id              = $user->ID;
+
 		if ( current_user_can( 'unfiltered_html' ) ) {
 			if ( ! isset( $comment_data['_gc_unfiltered_html_comment'] )
-				|| ! gc_verify_nonce( $comment_data['_gc_unfiltered_html_comment'], 'unfiltered-html-comment_' . $comment_post_ID )
+				|| ! gc_verify_nonce( $comment_data['_gc_unfiltered_html_comment'], 'unfiltered-html-comment_' . $comment_post_id )
 			) {
 				kses_remove_filters(); // Start with a clean slate.
 				kses_init_filters();   // Set up the filters.
@@ -3471,33 +3518,37 @@ function gc_handle_comment_submission( $comment_data ) {
 
 	if ( get_option( 'require_name_email' ) && ! $user->exists() ) {
 		if ( '' == $comment_author_email || '' == $comment_author ) {
-			return new GC_Error( 'require_name_email', __( '<strong>错误</strong>：请填写必填字段。' ), 200 );
+			return new GC_Error( 'require_name_email', __( '<strong>错误：</strong>请填写必填字段。' ), 200 );
 		} elseif ( ! is_email( $comment_author_email ) ) {
-			return new GC_Error( 'require_valid_email', __( '<strong>错误</strong>：请输入有效的电子邮箱。' ), 200 );
+			return new GC_Error( 'require_valid_email', __( '<strong>错误：</strong>请输入有效的电子邮箱。' ), 200 );
 		}
 	}
 
-	$commentdata = compact(
-		'comment_post_ID',
+	$commentdata = array(
+		'comment_post_ID' => $comment_post_id,
+	);
+
+	$commentdata += compact(
 		'comment_author',
 		'comment_author_email',
 		'comment_author_url',
 		'comment_content',
 		'comment_type',
 		'comment_parent',
-		'user_ID'
+		'user_id'
 	);
 
 	/**
 	 * Filters whether an empty comment should be allowed.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param bool  $allow_empty_comment Whether to allow empty comments. Default false.
 	 * @param array $commentdata         Array of comment data to be sent to gc_insert_comment().
 	 */
 	$allow_empty_comment = apply_filters( 'allow_empty_comment', false, $commentdata );
 	if ( '' === $comment_content && ! $allow_empty_comment ) {
-		return new GC_Error( 'require_valid_comment', __( '<strong>错误</strong>：请输入您的评论内容。' ), 200 );
+		return new GC_Error( 'require_valid_comment', __( '<strong>错误：</strong>请输入您的评论文本。' ), 200 );
 	}
 
 	$check_max_lengths = gc_check_comment_data_max_lengths( $commentdata );
@@ -3511,7 +3562,7 @@ function gc_handle_comment_submission( $comment_data ) {
 	}
 
 	if ( ! $comment_id ) {
-		return new GC_Error( 'comment_save_error', __( '<strong>错误</strong>：评论未被保存，请稍候再试。' ), 500 );
+		return new GC_Error( 'comment_save_error', __( '<strong>错误：</strong>评论未被保存，请稍候再试。' ), 500 );
 	}
 
 	return get_comment( $comment_id );
@@ -3519,8 +3570,6 @@ function gc_handle_comment_submission( $comment_data ) {
 
 /**
  * Registers the personal data exporter for comments.
- *
- *
  *
  * @param array $exporters An array of personal data exporters.
  * @return array An array of personal data exporters.
@@ -3536,8 +3585,6 @@ function gc_register_comment_personal_data_exporter( $exporters ) {
 
 /**
  * Finds and exports personal data associated with an email address from the comments table.
- *
- *
  *
  * @param string $email_address The comment author email address.
  * @param int    $page          Comment page.
@@ -3555,7 +3602,7 @@ function gc_comments_personal_data_exporter( $email_address, $page = 1 ) {
 			'author_email'              => $email_address,
 			'number'                    => $number,
 			'paged'                     => $page,
-			'order_by'                  => 'comment_ID',
+			'orderby'                   => 'comment_ID',
 			'order'                     => 'ASC',
 			'update_comment_meta_cache' => false,
 		)
@@ -3630,8 +3677,6 @@ function gc_comments_personal_data_exporter( $email_address, $page = 1 ) {
 /**
  * Registers the personal data eraser for comments.
  *
- *
- *
  * @param array $erasers An array of personal data erasers.
  * @return array An array of personal data erasers.
  */
@@ -3647,7 +3692,7 @@ function gc_register_comment_personal_data_eraser( $erasers ) {
 /**
  * Erases personal data associated with an email address from the comments table.
  *
- *
+ * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param string $email_address The comment author email address.
  * @param int    $page          Comment page.
@@ -3676,7 +3721,7 @@ function gc_comments_personal_data_eraser( $email_address, $page = 1 ) {
 			'author_email'       => $email_address,
 			'number'             => $number,
 			'paged'              => $page,
-			'order_by'           => 'comment_ID',
+			'orderby'            => 'comment_ID',
 			'order'              => 'ASC',
 			'include_unapproved' => true,
 		)
@@ -3700,6 +3745,7 @@ function gc_comments_personal_data_eraser( $email_address, $page = 1 ) {
 		/**
 		 * Filters whether to anonymize the comment.
 		 *
+		 * @since 4.9.6
 		 *
 		 * @param bool|string $anon_message       Whether to apply the comment anonymization (bool) or a custom
 		 *                                        message (string). Default true.
@@ -3748,16 +3794,16 @@ function gc_comments_personal_data_eraser( $email_address, $page = 1 ) {
 /**
  * Sets the last changed time for the 'comment' cache group.
  *
- *
+ * @since 5.0.0
  */
 function gc_cache_set_comments_last_changed() {
-	gc_cache_set( 'last_changed', microtime(), 'comment' );
+	gc_cache_set_last_changed( 'comment' );
 }
 
 /**
  * Updates the comment type for a batch of comments.
  *
- *
+ * @since 5.5.0
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  */
@@ -3802,6 +3848,7 @@ function _gc_batch_update_comment_type() {
 	/**
 	 * Filters the comment batch size for updating the comment type.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param int $comment_batch_size The comment batch size. Default 100.
 	 */
@@ -3842,7 +3889,7 @@ function _gc_batch_update_comment_type() {
  * check that it's still scheduled while we haven't finished updating comment types.
  *
  * @ignore
- *
+ * @since 5.5.0
  */
 function _gc_check_for_scheduled_update_comment_type() {
 	if ( ! get_option( 'finished_updating_comment_type' ) && ! gc_next_scheduled( 'gc_update_comment_type_batch' ) ) {

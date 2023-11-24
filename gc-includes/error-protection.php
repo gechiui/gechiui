@@ -3,7 +3,7 @@
  * Error Protection API: Functions
  *
  * @package GeChiUI
- *
+ * @since 5.2.0
  */
 
 /**
@@ -39,9 +39,9 @@ function gc_paused_themes() {
 /**
  * Get a human readable description of an extension's error.
  *
+ * @since 5.2.0
  *
- *
- * @param array $error Error details {@see error_get_last()}
+ * @param array $error Error details from `error_get_last()`.
  * @return string Formatted error description.
  */
 function gc_get_extension_error_description( $error ) {
@@ -50,7 +50,7 @@ function gc_get_extension_error_description( $error ) {
 	$core_errors = array();
 
 	foreach ( $constants as $constant => $value ) {
-		if ( 0 === strpos( $constant, 'E_' ) ) {
+		if ( str_starts_with( $constant, 'E_' ) ) {
 			$core_errors[ $value ] = $constant;
 		}
 	}
@@ -76,7 +76,7 @@ function gc_get_extension_error_description( $error ) {
  *
  * The handler will only be registered if {@see gc_is_fatal_error_handler_enabled()} returns true.
  *
- *
+ * @since 5.2.0
  */
 function gc_register_fatal_error_handler() {
 	if ( ! gc_is_fatal_error_handler_enabled() ) {
@@ -101,7 +101,7 @@ function gc_register_fatal_error_handler() {
  * A constant `GC_DISABLE_FATAL_ERROR_HANDLER` can be set in `gc-config.php` to disable it, or alternatively the
  * {@see 'gc_fatal_error_handler_enabled'} filter can be used to modify the return value.
  *
- *
+ * @since 5.2.0
  *
  * @return bool True if the fatal error handler is enabled, false otherwise.
  */
@@ -132,6 +132,7 @@ function gc_is_fatal_error_handler_enabled() {
 	 *
 	 * Alternatively you can use the `GC_DISABLE_FATAL_ERROR_HANDLER` constant.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param bool $enabled True if the fatal error handler is enabled, false otherwise.
 	 */
@@ -141,7 +142,7 @@ function gc_is_fatal_error_handler_enabled() {
 /**
  * Access the GeChiUI Recovery Mode instance.
  *
- *
+ * @since 5.2.0
  *
  * @return GC_Recovery_Mode
  */

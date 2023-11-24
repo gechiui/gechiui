@@ -62,8 +62,7 @@ p {
 #loginform p.submit,
 .login-action-lostpassword p.submit {
   border: none;
-  margin: -10px 0 20px;
-  /* May want to revisit this */
+  margin: -10px 0 20px; /* May want to revisit this */
 }
 
 .login * {
@@ -325,12 +324,10 @@ p {
 .login input[type=text],
 .login input[type=password] {
   font-size: 24px;
-  line-height: 1.33333333;
-  /* 32px */
+  line-height: 1.33333333; /* 32px */
   width: 100%;
   border-width: 0.0625rem;
-  padding: 0.1875rem 0.3125rem;
-  /* 3px 5px */
+  padding: 0.1875rem 0.3125rem; /* 3px 5px */
   margin: 0 6px 16px 0;
   min-height: 40px;
   max-height: none;
@@ -400,8 +397,7 @@ body.interim-login {
   padding: 0;
   position: absolute;
   width: 1px;
-  word-wrap: normal !important;
-  /* many screen reader and browser combinations announce broken words as they would appear visually */
+  word-wrap: normal !important; /* many screen reader and browser combinations announce broken words as they would appear visually */
 }
 
 /* Hide the Edge "reveal password" native button */
@@ -436,8 +432,7 @@ input::-ms-reveal {
   height: auto;
 }
 
-.login .language-switcher .button-primary {
-  float: none;
+.login .language-switcher .button {
   margin-bottom: 0;
 }
 
@@ -445,7 +440,6 @@ input::-ms-reveal {
   #login {
     padding: 20px 0;
   }
-
   #language-switcher {
     margin-top: 0;
   }
@@ -455,20 +449,18 @@ input::-ms-reveal {
     width: 1rem;
     height: 1rem;
   }
-
   .interim-login input[type=checkbox]:checked:before {
     width: 1.3125rem;
     height: 1.3125rem;
     margin: -0.1875rem 0 0 -0.25rem;
   }
-
   #language-switcher label,
-#language-switcher select {
+  #language-switcher select {
     margin-right: 0;
   }
 }
 @media screen and (max-width: 400px) {
-  .login .language-switcher .button-primary {
+  .login .language-switcher .button {
     display: block;
     margin: 5px auto 0;
   }

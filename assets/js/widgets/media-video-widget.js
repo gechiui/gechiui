@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/widgets/media-video-widget.js
+ * @output assets/js/widgets/media-video-widget.js
  */
 
 /* eslint consistent-this: [ "error", "control" ] */

@@ -6,13 +6,10 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Custom Setting to handle GC Custom CSS.
- *
- *
  *
  * @see GC_Customize_Setting
  */
@@ -21,6 +18,7 @@ final class GC_Customize_Custom_CSS_Setting extends GC_Customize_Setting {
 	/**
 	 * The setting type.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	public $type = 'custom_css';
@@ -28,6 +26,7 @@ final class GC_Customize_Custom_CSS_Setting extends GC_Customize_Setting {
 	/**
 	 * Setting Transport
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	public $transport = 'postMessage';
@@ -35,6 +34,7 @@ final class GC_Customize_Custom_CSS_Setting extends GC_Customize_Setting {
 	/**
 	 * Capability required to edit this setting.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	public $capability = 'edit_css';
@@ -42,6 +42,7 @@ final class GC_Customize_Custom_CSS_Setting extends GC_Customize_Setting {
 	/**
 	 * Stylesheet
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	public $stylesheet = '';
@@ -49,6 +50,7 @@ final class GC_Customize_Custom_CSS_Setting extends GC_Customize_Setting {
 	/**
 	 * GC_Customize_Custom_CSS_Setting constructor.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @throws Exception If the setting ID does not match the pattern `custom_css[$stylesheet]`.
 	 *
@@ -71,6 +73,7 @@ final class GC_Customize_Custom_CSS_Setting extends GC_Customize_Setting {
 	/**
 	 * Add filter to preview post value.
 	 *
+	 * @since 4.7.9
 	 *
 	 * @return bool False when preview short-circuits due no change needing to be previewed.
 	 */
@@ -88,6 +91,7 @@ final class GC_Customize_Custom_CSS_Setting extends GC_Customize_Setting {
 	 *
 	 * This is used in the preview when `gc_get_custom_css()` is called for rendering the styles.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @see gc_get_custom_css()
 	 *
@@ -108,6 +112,7 @@ final class GC_Customize_Custom_CSS_Setting extends GC_Customize_Setting {
 	/**
 	 * Fetch the value of the setting. Will return the previewed value when `preview()` is called.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @see GC_Customize_Setting::value()
 	 *
@@ -142,6 +147,9 @@ final class GC_Customize_Custom_CSS_Setting extends GC_Customize_Setting {
 	 * Checks for imbalanced braces, brackets, and comments.
 	 * Notifications are rendered when the customizer state is saved.
 	 *
+	 * @since 4.7.0
+	 * @since 4.9.0 Checking for balanced characters has been moved client-side via linting in code editor.
+	 * @since 5.9.0 Renamed `$css` to `$value` for PHP 8 named parameter support.
 	 *
 	 * @param string $value CSS to validate.
 	 * @return true|GC_Error True if the input was validated, otherwise GC_Error.
@@ -165,6 +173,8 @@ final class GC_Customize_Custom_CSS_Setting extends GC_Customize_Setting {
 	/**
 	 * Store the CSS setting value in the custom_css custom post type for the stylesheet.
 	 *
+	 * @since 4.7.0
+	 * @since 5.9.0 Renamed `$css` to `$value` for PHP 8 named parameter support.
 	 *
 	 * @param string $value CSS to update.
 	 * @return int|false The post ID or false if the value could not be saved.

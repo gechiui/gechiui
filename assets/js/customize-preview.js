@@ -1,7 +1,7 @@
 /*
  * Script run inside a Customizer preview frame.
  *
- * @output gc-includes/js/customize-preview.js
+ * @output assets/js/customize-preview.js
  */
 (function( exports, $ ){
 	var api = gc.customize,
@@ -24,6 +24,7 @@
 		/**
 		 * Amend the supplied URL with the customized state.
 		 *
+		 * @since 4.7.0
 		 * @access private
 		 *
 		 * @param {string} url URL.
@@ -138,6 +139,7 @@
 		/**
 		 * Handle link clicks in preview.
 		 *
+		 * @since 4.7.0
 		 * @access public
 		 *
 		 * @param {jQuery.Event} event Event.
@@ -183,6 +185,7 @@
 		/**
 		 * Handle form submit.
 		 *
+		 * @since 4.7.0
 		 * @access public
 		 *
 		 * @param {jQuery.Event} event Event.
@@ -227,6 +230,7 @@
 	/**
 	 * Inject the changeset UUID into links in the document.
 	 *
+	 * @since 4.7.0
 	 * @access protected
 	 * @access private
 	 *
@@ -265,6 +269,7 @@
 	/**
 	 * Should the supplied link is previewable.
 	 *
+	 * @since 4.7.0
 	 * @access public
 	 *
 	 * @param {HTMLAnchorElement|HTMLAreaElement} element Link element.
@@ -320,6 +325,7 @@
 	/**
 	 * Inject the customize_changeset_uuid query param into links on the frontend.
 	 *
+	 * @since 4.7.0
 	 * @access protected
 	 *
 	 * @param {HTMLAnchorElement|HTMLAreaElement} element Link element.
@@ -383,6 +389,7 @@
 	/**
 	 * Inject the changeset UUID into Ajax requests.
 	 *
+	 * @since 4.7.0
 	 * @access protected
 	 *
 	 * @return {void}
@@ -460,6 +467,7 @@
 	/**
 	 * Inject changeset UUID into forms, allowing preview to persist through submissions.
 	 *
+	 * @since 4.7.0
 	 * @access protected
 	 *
 	 * @return {void}
@@ -490,6 +498,7 @@
 	/**
 	 * Inject changeset into form inputs.
 	 *
+	 * @since 4.7.0
 	 * @access protected
 	 *
 	 * @param {HTMLFormElement} form Form.
@@ -557,6 +566,7 @@
 	 * Keep the customizer pane notified that the preview is still alive
 	 * and that the user hasn't navigated to a non-customized URL.
 	 *
+	 * @since 4.7.0
 	 * @access protected
 	 */
 	api.keepAliveCurrentUrl = ( function() {
@@ -872,6 +882,7 @@
 		 *
 		 * Toggle the gc-custom-logo body class when a logo is added or removed.
 		 *
+		 * @since 4.5.0
 		 */
 		api( 'custom_logo', function ( setting ) {
 			api.settingPreviewHandlers.custom_logo.call( setting, setting.get() );

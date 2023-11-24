@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 define( 'GC_USER_ADMIN', true );
@@ -20,8 +19,6 @@ $redirect_user_admin_request = ( 0 !== strcasecmp( $current_blog->domain, $curre
 
 /**
  * Filters whether to redirect the request to the User Admin in Multisite.
- *
- *
  *
  * @param bool $redirect_user_admin_request Whether the request should be redirected.
  */

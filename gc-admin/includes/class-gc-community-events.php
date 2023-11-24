@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
@@ -12,12 +11,13 @@
  *
  * A client for api.gechiui.com/events.
  *
- *
  */
+#[AllowDynamicProperties]
 class GC_Community_Events {
 	/**
 	 * ID for a GeChiUI user account.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @var int
 	 */
@@ -26,6 +26,7 @@ class GC_Community_Events {
 	/**
 	 * Stores location data for the user.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @var false|array
 	 */
@@ -34,6 +35,7 @@ class GC_Community_Events {
 	/**
 	 * Constructor for GC_Community_Events.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param int        $user_id       GC user ID.
 	 * @param false|array $user_location {
@@ -73,6 +75,8 @@ class GC_Community_Events {
 	 * the opportunity to anonymize the IP before sending it to w.org, which
 	 * mitigates possible privacy concerns.
 	 *
+	 * @since 4.8.0
+	 * @since 5.5.2 Response no longer contains formatted date field. They're added
 	 *              in `gc.communityEvents.populateDynamicEventFields()` now.
 	 *
 	 * @param string $location_search Optional. City name to help determine the location.
@@ -170,6 +174,7 @@ class GC_Community_Events {
 	/**
 	 * Builds an array of args to use in an HTTP request to the w.org Events API.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param string $search   Optional. City search string. Default empty string.
 	 * @param string $timezone Optional. Timezone string. Default empty string.
@@ -226,6 +231,7 @@ class GC_Community_Events {
 	 * _NOT_ guarantee that the returned address is valid or accurate, and it can
 	 * be easily spoofed.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @return string|false The anonymized address on success; the given address
 	 *                      or false on failure.
@@ -274,6 +280,7 @@ class GC_Community_Events {
 	/**
 	 * Test if two pairs of latitude/longitude coordinates match each other.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param array $a The first pair, with indexes 'latitude' and 'longitude'.
 	 * @param array $b The second pair, with indexes 'latitude' and 'longitude'.
@@ -295,6 +302,7 @@ class GC_Community_Events {
 	 * functions, and having it abstracted keeps the logic consistent and DRY,
 	 * which is less prone to errors.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param array $location Should contain 'latitude' and 'longitude' indexes.
 	 * @return string|false Transient key on success, false on failure.
@@ -314,6 +322,7 @@ class GC_Community_Events {
 	/**
 	 * Caches an array of events data from the Events API.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param array     $events     Response body from the API request.
 	 * @param int|false $expiration Optional. Amount of time to cache the events. Defaults to false.
@@ -334,14 +343,20 @@ class GC_Community_Events {
 	/**
 	 * Gets cached events.
 	 *
+	 * @since 4.8.0
+	 * @since 5.5.2 Response no longer contains formatted date field. They're added
 	 *              in `gc.communityEvents.populateDynamicEventFields()` now.
 	 *
 	 * @return array|false An array containing `location` and `events` items
 	 *                     on success, false on failure.
 	 */
 	public function get_cached_events() {
-		$cached_response = get_site_transient( $this->get_events_transient_key( $this->user_location ) );
+		$transient_key = $this->get_events_transient_key( $this->user_location );
+		if ( ! $transient_key ) {
+			return false;
+		}
 
+		$cached_response = get_site_transient( $transient_key );
 		if ( isset( $cached_response['events'] ) ) {
 			$cached_response['events'] = $this->trim_events( $cached_response['events'] );
 		}
@@ -357,6 +372,7 @@ class GC_Community_Events {
 	 * the cache, then all users would see the events in the localized data/time
 	 * of the user who triggered the cache refresh, rather than their own.
 	 *
+	 * @since 4.8.0
 	 * @deprecated 5.6.0 No longer used in core.
 	 *
 	 * @param array $response_body The response which contains the events.
@@ -389,8 +405,8 @@ class GC_Community_Events {
 
 					if ( 'meetup' !== $event['type'] && $formatted_end_date !== $formatted_date ) {
 						/* translators: Upcoming events month format. See https://www.php.net/manual/datetime.format.php */
-						$start_month = date_i18n( _x( 'n月', 'upcoming events month format' ), $timestamp );
-						$end_month   = date_i18n( _x( 'n月', 'upcoming events month format' ), $end_timestamp );
+						$start_month = date_i18n( _x( '五', 'upcoming events month format' ), $timestamp );
+						$end_month   = date_i18n( _x( '五', 'upcoming events month format' ), $end_timestamp );
 
 						if ( $start_month === $end_month ) {
 							$formatted_date = sprintf(
@@ -398,24 +414,24 @@ class GC_Community_Events {
 								__( '%4$s年%1$s%2$s日–%3$s日' ),
 								$start_month,
 								/* translators: Upcoming events day format. See https://www.php.net/manual/datetime.format.php */
-								date_i18n( _x( 'j', 'upcoming events day format' ), $timestamp ),
-								date_i18n( _x( 'j', 'upcoming events day format' ), $end_timestamp ),
+								date_i18n( _x( 'j日', 'upcoming events day format' ), $timestamp ),
+								date_i18n( _x( 'j日', 'upcoming events day format' ), $end_timestamp ),
 								/* translators: Upcoming events year format. See https://www.php.net/manual/datetime.format.php */
-								date_i18n( _x( 'Y', 'upcoming events year format' ), $timestamp )
+								date_i18n( _x( 'Y年', 'upcoming events year format' ), $timestamp )
 							);
 						} else {
 							$formatted_date = sprintf(
 								/* translators: Date string for upcoming events. 1: Starting month, 2: Starting day, 3: Ending month, 4: Ending day, 5: Year. */
 								__( '%5$s年%1$s%2$s日–%3$s%4$s日' ),
 								$start_month,
-								date_i18n( _x( 'j', 'upcoming events day format' ), $timestamp ),
+								date_i18n( _x( 'j日', 'upcoming events day format' ), $timestamp ),
 								$end_month,
-								date_i18n( _x( 'j', 'upcoming events day format' ), $end_timestamp ),
-								date_i18n( _x( 'Y', 'upcoming events year format' ), $timestamp )
+								date_i18n( _x( 'j日', 'upcoming events day format' ), $end_timestamp ),
+								date_i18n( _x( 'Y年', 'upcoming events year format' ), $timestamp )
 							);
 						}
 
-						$formatted_date = gc_maybe_decline_date( $formatted_date, 'F j, Y' );
+						$formatted_date = gc_maybe_decline_date( $formatted_date, 'Y年n月j日' );
 					}
 				}
 
@@ -437,6 +453,10 @@ class GC_Community_Events {
 	 * the event will be at the end of the list, and will need to be moved into a
 	 * higher position, so that it doesn't get trimmed off.
 	 *
+	 * @since 4.8.0
+	 * @since 4.9.7 Stick a WordCamp to the final list.
+	 * @since 5.5.2 Accepts and returns only the events, rather than an entire HTTP response.
+	 * @since 6.0.0 Decode HTML entities from the event title.
 	 *
 	 * @param array $events The events that will be prepared.
 	 * @return array The response body with events trimmed.
@@ -482,6 +502,7 @@ class GC_Community_Events {
 	/**
 	 * Logs responses to Events API requests.
 	 *
+	 * @since 4.8.0
 	 * @deprecated 4.9.0 Use a plugin instead. See #41217 for an example.
 	 *
 	 * @param string $message A description of what occurred.

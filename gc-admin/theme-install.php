@@ -13,7 +13,7 @@ require ABSPATH . 'gc-admin/includes/theme-install.php';
 gc_reset_vars( array( 'tab' ) );
 
 if ( ! current_user_can( 'install_themes' ) ) {
-	gc_die( __( '抱歉，您不能在此站点上安装主题。' ) );
+	gc_die( __( '抱歉，您不能在此系统上安装主题。' ) );
 }
 
 if ( is_multisite() && ! is_network_admin() ) {
@@ -56,7 +56,7 @@ gc_localize_script(
 		'l10n'            => array(
 			'addNew'              => __( '添加新主题' ),
 			'search'              => __( '搜索主题' ),
-			'searchPlaceholder'   => __( '搜索主题…' ), // Placeholder (no ellipsis).
+			'searchPlaceholder'   => __( '搜索主题...'  ), // Placeholder (no ellipsis).
 			'upload'              => __( '上传主题' ),
 			'back'                => __( '返回' ),
 			'error'               => sprintf(
@@ -104,14 +104,14 @@ if ( $tab ) {
 $help_overview =
 	'<p>' . sprintf(
 		/* translators: %s: Theme Directory URL. */
-		__( '通过主题浏览/安装器，您可以为您的站点安装其他主题。主题浏览/安装器显示的是来自<a href="%s">www.GeChiUI.com主题目录</a>的主题。这些主题都是由第三方设计开发并免费提供的，且与GeChiUI所用的许可证相兼容。' ),
+		__( '通过主题浏览/安装器，您可以为您的系统安装其他主题。主题浏览/安装器显示的是来自<a href="%s">www.GeChiUI.com主题目录</a>的主题。这些主题都是由第三方设计开发并免费提供的，且与GeChiUI所用的许可证相兼容。' ),
 		__( 'https://www.gechiui.com/themes/' )
 	) . '</p>' .
 	'<p>' . __( '您可以使用关键词、作者名称或标签搜索主题，也可以更具体地按特性筛选器中所列出的条件进行搜索。' ) . ' <span id="live-search-desc">' . __( '搜索结果会随着您的输入而不断更新。' ) . '</span></p>' .
 	'<p>' . __( '除此以外，您可以浏览热门和最新的主题。找到您喜欢的主题后，您可以预览或安装它。' ) . '</p>' .
 	'<p>' . sprintf(
 		/* translators: %s: /gc-content/themes */
-		__( '您可以手动上传从别处下载的.zip主题压缩包文件（请确认其来源可靠）；也可以使用传统方式，将下载的主题文件通过FTP拷贝至您网站的%s目录中。' ),
+		__( '您可以手动上传从别处下载的.zip主题压缩包文件（请确认其来源可靠）；也可以使用传统方式，将下载的主题文件通过FTP拷贝至您系统的%s目录中。' ),
 		'<code>/gc-content/themes</code>'
 	) . '</p>';
 
@@ -125,7 +125,7 @@ get_current_screen()->add_help_tab(
 
 $help_installing =
 	'<p>' . __( '在主题列表生成后，您可以预览或安装其中任意一个。点击您感兴趣主题的缩略图，可打开新页面全屏预览，让您更了解启用该主题后的实际外观。' ) . '</p>' .
-	'<p>' . __( '要安装的主题，以便您可以使用网站内容预览它，并自定义其主题选项，请单击左侧窗格顶部的“安装”按钮。主题文件将自动下载到您的网站。完成后，主题可以立即激活，您可以通过单击“激活”链接，或转到管理主题屏幕并单击“实时预览”任何已安装主题的缩略图下的链接。' ) . '</p>';
+	'<p>' . __( '要安装的主题，以便您可以使用系统内容预览它，并自定义其主题选项，请单击左侧窗格顶部的“安装”按钮。主题文件将自动下载到您的系统。完成后，主题可以立即激活，您可以通过单击“激活”链接，或转到管理主题屏幕并单击“实时预览”任何已安装主题的缩略图下的链接。' ) . '</p>';
 
 get_current_screen()->add_help_tab(
 	array(
@@ -145,25 +145,23 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 
 ?>
 <div class="wrap">
-	<h1 class="gc-heading-inline"><?php echo esc_html( $title ); ?></h1>
+	<div class="page-header">
+		<h2 class="header-title"><?php echo esc_html( $title ); ?></h2>
+		<?php
 
-	<?php
-
-	/**
-	 * Filters the tabs shown on the Add Themes screen.
-	 *
-	 * This filter is for backward compatibility only, for the suppression of the upload tab.
-	 *
-	 *
-	 * @param string[] $tabs Associative array of the tabs shown on the Add Themes screen. Default is 'upload'.
-	 */
-	$tabs = apply_filters( 'install_themes_tabs', array( 'upload' => __( '上传主题' ) ) );
-	if ( ! empty( $tabs['upload'] ) && current_user_can( 'upload_themes' ) ) {
-		echo ' <button type="button" class="upload-view-toggle page-title-action hide-if-no-js" aria-expanded="false">' . __( '上传主题' ) . '</button>';
-	}
-	?>
-
-	<hr class="gc-header-end">
+		/**
+		 * Filters the tabs shown on the Add Themes screen.
+		 *
+		 * This filter is for backward compatibility only, for the suppression of the upload tab.
+		 *
+		 * @param string[] $tabs Associative array of the tabs shown on the Add Themes screen. Default is 'upload'.
+		 */
+		$tabs = apply_filters( 'install_themes_tabs', array( 'upload' => __( '上传主题' ) ) );
+		if ( ! empty( $tabs['upload'] ) && current_user_can( 'upload_themes' ) ) {
+			echo ' <button type="button" class="upload-view-toggle btn btn-primary btn-tone btn-sm hide-if-no-js" aria-expanded="false">' . __( '上传主题' ) . '</button>';
+		}
+		?>
+	</div>
 
 	<div class="error hide-if-js">
 		<p><?php _e( '主题安装器需要JavaScript支持。' ); ?></p>
@@ -231,11 +229,11 @@ if ( $tab ) {
 	<# } #>
 
 	<# if ( data.installed ) { #>
-		<div class="notice notice-success notice-alt"><p><?php _ex( '已安装', 'theme' ); ?></p></div>
+		<div class="alert alert-success notice-alt"><p><?php _ex( '已安装', 'theme' ); ?></p></div>
 	<# } #>
 
 	<# if ( ! data.compatible_gc || ! data.compatible_php ) { #>
-		<div class="notice notice-error notice-alt"><p>
+		<div class="alert alert-danger notice-alt"><p>
 			<# if ( ! data.compatible_gc && ! data.compatible_php ) { #>
 				<?php
 				_e( '此主题不能与您的GeChiUI和PHP版本一同工作。' );
@@ -309,21 +307,21 @@ if ( $tab ) {
 					?>
 					<# if ( data.activate_url ) { #>
 						<# if ( ! data.active ) { #>
-							<a class="button button-primary activate" href="{{ data.activate_url }}" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _e( '启用' ); ?></a>
+							<a class="btn btn-primary btn-xs activate" href="{{ data.activate_url }}" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _e( '启用' ); ?></a>
 						<# } else { #>
-							<button class="button button-primary disabled"><?php _ex( '已启用', 'theme' ); ?></button>
+							<button class="btn btn-primary btn-xs disabled"><?php _ex( '已启用', 'theme' ); ?></button>
 						<# } #>
 					<# } #>
 					<# if ( data.customize_url ) { #>
 						<# if ( ! data.active ) { #>
 							<# if ( ! data.block_theme ) { #>
-								<a class="button load-customize" href="{{ data.customize_url }}"><?php _e( '实时预览' ); ?></a>
+								<a class="btn btn-primary btn-tone btn-xs m-l-10 load-customize" href="{{ data.customize_url }}"><?php _e( '实时预览' ); ?></a>
 							<# } #>
 						<# } else { #>
-							<a class="button load-customize" href="{{ data.customize_url }}"><?php _e( '自定义' ); ?></a>
+							<a class="btn btn-primary btn-xs m-l-10 load-customize" href="{{ data.customize_url }}"><?php _e( '自定义' ); ?></a>
 						<# } #>
 					<# } else { #>
-						<button class="button preview install-theme-preview"><?php _e( '预览' ); ?></button>
+						<button class="btn btn-primary btn-tone btn-xs m-l-10 preview install-theme-preview"><?php _e( '预览' ); ?></button>
 					<# } #>
 				<# } else { #>
 					<?php
@@ -331,12 +329,12 @@ if ( $tab ) {
 					$aria_label = sprintf( _x( '无法启用%s', 'theme' ), '{{ data.name }}' );
 					?>
 					<# if ( data.activate_url ) { #>
-						<a class="button button-primary disabled" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _ex( '无法启用', 'theme' ); ?></a>
+						<a class="btn btn-primary btn-xs disabled" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _ex( '无法启用', 'theme' ); ?></a>
 					<# } #>
 					<# if ( data.customize_url ) { #>
-						<a class="button disabled"><?php _e( '实时预览' ); ?></a>
+						<a class="btn btn-primary btn-xs btn-tone btn-xs m-l-10 disabled"><?php _e( '实时预览' ); ?></a>
 					<# } else { #>
-						<button class="button disabled"><?php _e( '预览' ); ?></button>
+						<button class="btn btn-primary btn-xs btn-tone btn-xs m-l-10 disabled"><?php _e( '预览' ); ?></button>
 					<# } #>
 				<# } #>
 			<# } else { #>
@@ -345,15 +343,15 @@ if ( $tab ) {
 					/* translators: %s: Theme name. */
 					$aria_label = sprintf( _x( '安装%s', 'theme' ), '{{ data.name }}' );
 					?>
-					<a class="button button-primary theme-install" data-name="{{ data.name }}" data-slug="{{ data.id }}" href="{{ data.install_url }}" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _e( '安装' ); ?></a>
-					<button class="button preview install-theme-preview"><?php _e( '预览' ); ?></button>
+					<a class="btn btn-primary btn-xs theme-install" data-name="{{ data.name }}" data-slug="{{ data.id }}" href="{{ data.install_url }}" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _e( '安装' ); ?></a>
+					<button class="btn btn-primary btn-tone btn-xs m-l-10 preview install-theme-preview"><?php _e( '预览' ); ?></button>
 				<# } else { #>
 					<?php
 					/* translators: %s: Theme name. */
 					$aria_label = sprintf( _x( '无法安装%s', 'theme' ), '{{ data.name }}' );
 					?>
-					<a class="button button-primary disabled" data-name="{{ data.name }}" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _ex( '无法安装', 'theme' ); ?></a>
-					<button class="button disabled"><?php _e( '预览' ); ?></button>
+					<a class="btn btn-primary btn-xs disabled" data-name="{{ data.name }}" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _ex( '无法安装', 'theme' ); ?></a>
+					<button class="btn btn-primary btn-tone btn-xs m-l-10 disabled"><?php _e( '预览' ); ?></button>
 				<# } #>
 			<# } #>
 		</div>
@@ -373,18 +371,18 @@ if ( $tab ) {
 					$aria_label = sprintf( _x( '启用%s', 'theme' ), '{{ data.name }}' );
 					?>
 					<# if ( ! data.active ) { #>
-						<a class="button button-primary activate" href="{{ data.activate_url }}" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _e( '启用' ); ?></a>
+						<a class="btn btn-primary float-right m-r-10 m-t-5 activate" href="{{ data.activate_url }}" aria-label="<?php echo esc_attr( $aria_label ); ?>"><?php _e( '启用' ); ?></a>
 					<# } else { #>
-						<button class="button button-primary disabled"><?php _ex( '已启用', 'theme' ); ?></button>
+						<button class="btn btn-primary float-right m-r-10 m-t-5 disabled"><?php _ex( '已启用', 'theme' ); ?></button>
 					<# } #>
 				<# } else { #>
-					<a class="button button-primary disabled" ><?php _ex( '无法启用', 'theme' ); ?></a>
+					<a class="btn btn-primary float-right m-r-10 m-t-5 disabled" ><?php _ex( '无法启用', 'theme' ); ?></a>
 				<# } #>
 			<# } else { #>
 				<# if ( data.compatible_gc && data.compatible_php ) { #>
-					<a href="{{ data.install_url }}" class="button button-primary theme-install" data-name="{{ data.name }}" data-slug="{{ data.id }}"><?php _e( '安装' ); ?></a>
+					<a href="{{ data.install_url }}" class="btn btn-primary float-right m-r-10 m-t-5 theme-install" data-name="{{ data.name }}" data-slug="{{ data.id }}"><?php _e( '安装' ); ?></a>
 				<# } else { #>
-					<a class="button button-primary disabled" ><?php _ex( '无法安装', 'theme' ); ?></a>
+					<a class="btn btn-primary float-right m-r-10 m-t-5 disabled" ><?php _ex( '无法安装', 'theme' ); ?></a>
 				<# } #>
 			<# } #>
 		</div>
@@ -423,7 +421,7 @@ if ( $tab ) {
 						</div>
 
 						<# if ( ! data.compatible_gc || ! data.compatible_php ) { #>
-							<div class="notice notice-error notice-alt notice-large"><p>
+							<div class="alert alert-danger notice-alt notice-large"><p>
 								<# if ( ! data.compatible_gc && ! data.compatible_php ) { #>
 									<?php
 									_e( '此主题不能与您的GeChiUI和PHP版本一同工作。' );

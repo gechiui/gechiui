@@ -3,7 +3,6 @@
  * The block editor page.
  *
  *
- *
  * @package GeChiUI
  * @subpackage Administration
  */
@@ -27,10 +26,6 @@ $block_editor_context = new GC_Block_Editor_Context( array( 'post' => $post ) );
 // Flag that we're loading the block editor.
 $current_screen = get_current_screen();
 $current_screen->is_block_editor( true );
-
-// Load block patterns from w.org.
-_load_remote_block_patterns();
-_load_remote_featured_patterns();
 
 // Default to is-fullscreen-mode to avoid jumps in the UI.
 add_filter(
@@ -57,17 +52,25 @@ $rest_path = rest_get_route_for_post( $post );
 
 // Preload common data.
 $preload_paths = array(
-	'/gc/v2/types?context=edit',
-	'/gc/v2/taxonomies?context=edit',
-	'/gc/v2/themes?status=active',
+	'/gc/v2/types?context=view',
+	'/gc/v2/taxonomies?context=view',
+	add_query_arg(
+		array(
+			'context'  => 'edit',
+			'per_page' => -1,
+		),
+		rest_get_route_for_post_type_items( 'gc_block' )
+	),
 	add_query_arg( 'context', 'edit', $rest_path ),
 	sprintf( '/gc/v2/types/%s?context=edit', $post_type ),
-	sprintf( '/gc/v2/users/me?post_type=%s&context=edit', $post_type ),
 	'/gc/v2/users/me',
 	array( rest_get_route_for_post_type_items( 'attachment' ), 'OPTIONS' ),
+	array( rest_get_route_for_post_type_items( 'page' ), 'OPTIONS' ),
 	array( rest_get_route_for_post_type_items( 'gc_block' ), 'OPTIONS' ),
+	array( rest_get_route_for_post_type_items( 'gc_template' ), 'OPTIONS' ),
 	sprintf( '%s/autosaves?context=edit', $rest_path ),
 	'/gc/v2/settings',
+	array( '/gc/v2/settings', 'OPTIONS' ),
 );
 
 block_editor_rest_api_preload( $preload_paths, $block_editor_context );
@@ -153,7 +156,7 @@ if ( $user_id ) {
 		$user         = get_userdata( $user_id );
 		$user_details = array(
 			'avatar' => get_avatar_url( $user_id, array( 'size' => 128 ) ),
-			'name' => $user->display_name,
+			'name'   => $user->display_name,
 		);
 	}
 
@@ -177,8 +180,8 @@ if ( $user_id ) {
 /**
  * Filters the body placeholder text.
  *
- *
- *
+ * @since 5.0.0
+ * @since 5.8.0 Changed the default placeholder text.
  *
  * @param string  $text Placeholder text. Default '输入/来选择一个区块'.
  * @param GC_Post $post Post object.
@@ -186,28 +189,30 @@ if ( $user_id ) {
 $body_placeholder = apply_filters( 'write_your_story', __( '输入/来选择一个区块' ), $post );
 
 $editor_settings = array(
-	'availableTemplates'                   => $available_templates,
-	'disablePostFormats'                   => ! current_theme_supports( 'post-formats' ),
+	'availableTemplates'   => $available_templates,
+	'disablePostFormats'   => ! current_theme_supports( 'post-formats' ),
 	/** This filter is documented in gc-admin/edit-form-advanced.php */
-	'titlePlaceholder'                     => apply_filters( 'enter_title_here', __( '添加标题' ), $post ),
-	'bodyPlaceholder'                      => $body_placeholder,
-	'autosaveInterval'                     => AUTOSAVE_INTERVAL,
-	'richEditingEnabled'                   => user_can_richedit(),
-	'postLock'                             => $lock_details,
-	'postLockUtils'                        => array(
+	'titlePlaceholder'     => apply_filters( 'enter_title_here', __( '添加标题' ), $post ),
+	'bodyPlaceholder'      => $body_placeholder,
+	'autosaveInterval'     => AUTOSAVE_INTERVAL,
+	'richEditingEnabled'   => user_can_richedit(),
+	'postLock'             => $lock_details,
+	'postLockUtils'        => array(
 		'nonce'       => gc_create_nonce( 'lock-post_' . $post->ID ),
 		'unlockNonce' => gc_create_nonce( 'update-post_' . $post->ID ),
 		'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
 	),
-	'supportsLayout'                       => GC_Theme_JSON_Resolver::theme_has_support(),
-	'__experimentalBlockPatterns'          => GC_Block_Patterns_Registry::get_instance()->get_all_registered(),
-	'__experimentalBlockPatternCategories' => GC_Block_Pattern_Categories_Registry::get_instance()->get_all_registered(),
-	'supportsTemplateMode'                 => current_theme_supports( 'block-templates' ),
+	'supportsLayout'       => gc_theme_has_theme_json(),
+	'supportsTemplateMode' => current_theme_supports( 'block-templates' ),
 
 	// Whether or not to load the 'postcustom' meta box is stored as a user meta
 	// field so that we're not always loading its assets.
-	'enableCustomFields'                   => (bool) get_user_meta( get_current_user_id(), 'enable_custom_fields', true ),
+	'enableCustomFields'   => (bool) get_user_meta( get_current_user_id(), 'enable_custom_fields', true ),
 );
+
+// Add additional back-compat patterns registered by `current_screen` et al.
+$editor_settings['__experimentalAdditionalBlockPatterns']          = GC_Block_Patterns_Registry::get_instance()->get_all_registered( true );
+$editor_settings['__experimentalAdditionalBlockPatternCategories'] = GC_Block_Pattern_Categories_Registry::get_instance()->get_all_registered( true );
 
 $autosave = gc_get_post_autosave( $post->ID );
 if ( $autosave ) {
@@ -261,11 +266,11 @@ gc_enqueue_style( 'gc-edit-post' );
  * In the function call you supply, simply use `gc_enqueue_script` and
  * `gc_enqueue_style` to add your functionality to the block editor.
  *
- *
+ * @since 5.0.0
  */
 do_action( 'enqueue_block_editor_assets' );
 
-// In order to duplicate classic meta box behaviour, we need to run the classic meta box actions.
+// In order to duplicate classic meta box behavior, we need to run the classic meta box actions.
 require_once ABSPATH . 'gc-admin/includes/meta-boxes.php';
 register_and_do_post_meta_boxes( $post );
 
@@ -312,28 +317,25 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 
 	<?php // JavaScript is disabled. ?>
 	<div class="wrap hide-if-js block-editor-no-js">
-		<h1 class="gc-heading-inline"><?php echo esc_html( $title ); ?></h1>
-		<div class="notice notice-error notice-alt">
-			<p>
-				<?php
-					$message = sprintf(
-						/* translators: %s: A link to install the Classic Editor plugin. */
-						__( '区块编辑器需要JavaScript支持。请在您的浏览器设置中启用JavaScript，或试试<a href="%s">经典编辑器插件</a>。' ),
-						esc_url( gc_nonce_url( self_admin_url( 'plugin-install.php?tab=professionals&user=gechiuidotorg&save=0' ), 'save_gcorg_username_' . get_current_user_id() ) )
-					);
+		<div class="page-header"><h2 class="header-title"><?php echo esc_html( $title ); ?></h2></div>
+		<?php
+		$message = sprintf(
+			/* translators: %s: A link to install the Classic Editor plugin. */
+			__( '区块编辑器需要JavaScript。请在浏览器设置中启用JavaScript，或尝试<a href=“%s”>经典编辑器插件</a>。' ),
+			esc_url( gc_nonce_url( self_admin_url( 'plugin-install.php?tab=favorites&user=gechiuidotorg&save=0' ), 'save_gcorg_username_' . get_current_user_id() ) )
+		);
 
-					/**
-					 * Filters the message displayed in the block editor interface when JavaScript is
-					 * not enabled in the browser.
-					 *
-				
-					 *
-					 * @param string  $message The message being displayed.
-					 * @param GC_Post $post    The post being edited.
-					 */
-					echo apply_filters( 'block_editor_no_javascript_message', $message, $post );
-					?>
-			</p>
-		</div>
+		/**
+		 * Filters the message displayed in the block editor interface when JavaScript is
+		 * not enabled in the browser.
+		 *
+		 * @since 5.0.3
+		 *
+		 * @param string  $message The message being displayed.
+		 * @param GC_Post $post    The post being edited.
+		 */
+		$message = apply_filters( 'block_editor_no_javascript_message', $message, $post );
+		echo setting_error( $message, 'danger' );
+		?>
 	</div>
 </div>

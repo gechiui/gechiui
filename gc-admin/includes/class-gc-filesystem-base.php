@@ -9,8 +9,8 @@
 /**
  * Base GeChiUI Filesystem class which Filesystem implementations extend.
  *
- *
  */
+#[AllowDynamicProperties]
 class GC_Filesystem_Base {
 
 	/**
@@ -23,6 +23,7 @@ class GC_Filesystem_Base {
 	/**
 	 * Cached list of local filepaths to mapped remote filepaths.
 	 *
+	 * @since 2.7.0
 	 * @var array
 	 */
 	public $cache = array();
@@ -46,14 +47,17 @@ class GC_Filesystem_Base {
 	/**
 	 * Returns the path on the remote filesystem of ABSPATH.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @return string The location of the remote path.
 	 */
 	public function abspath() {
 		$folder = $this->find_folder( ABSPATH );
 
-		// Perhaps the FTP folder is rooted at the GeChiUI install.
-		// Check for gc-includes folder in root. Could have some false positives, but rare.
+		/*
+		 * Perhaps the FTP folder is rooted at the GeChiUI install.
+		 * Check for gc-includes folder in root. Could have some false positives, but rare.
+		 */
 		if ( ! $folder && $this->is_dir( '/' . GCINC ) ) {
 			$folder = '/';
 		}
@@ -64,6 +68,7 @@ class GC_Filesystem_Base {
 	/**
 	 * Returns the path on the remote filesystem of GC_CONTENT_DIR.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @return string The location of the remote path.
 	 */
@@ -74,6 +79,7 @@ class GC_Filesystem_Base {
 	/**
 	 * Returns the path on the remote filesystem of GC_PLUGIN_DIR.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @return string The location of the remote path.
 	 */
@@ -84,6 +90,7 @@ class GC_Filesystem_Base {
 	/**
 	 * Returns the path on the remote filesystem of the Themes Directory.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string|false $theme Optional. The theme stylesheet or template for the directory.
 	 *                            Default false.
@@ -103,6 +110,7 @@ class GC_Filesystem_Base {
 	/**
 	 * Returns the path on the remote filesystem of GC_LANG_DIR.
 	 *
+	 * @since 3.2.0
 	 *
 	 * @return string The location of the remote path.
 	 */
@@ -120,14 +128,13 @@ class GC_Filesystem_Base {
 	 * @see GC_Filesystem_Base::gc_themes_dir()
 	 * @see GC_Filesystem_Base::gc_lang_dir()
 	 *
-	 * @param string $base The folder to start searching from.
-	 * @param bool   $echo True to display debug information.
-	 *                     Default false.
+	 * @param string $base    Optional. The folder to start searching from. Default '.'.
+	 * @param bool   $verbose Optional. True to display debug information. Default false.
 	 * @return string The location of the remote path.
 	 */
-	public function find_base_dir( $base = '.', $echo = false ) {
+	public function find_base_dir( $base = '.', $verbose = false ) {
 		_deprecated_function( __FUNCTION__, '2.7.0', 'GC_Filesystem_Base::abspath() or GC_Filesystem_Base::gc_*_dir()' );
-		$this->verbose = $echo;
+		$this->verbose = $verbose;
 		return $this->abspath();
 	}
 
@@ -141,13 +148,13 @@ class GC_Filesystem_Base {
 	 * @see GC_Filesystem_Base::gc_themes_dir()
 	 * @see GC_Filesystem_Base::gc_lang_dir()
 	 *
-	 * @param string $base The folder to start searching from.
-	 * @param bool   $echo True to display debug information.
+	 * @param string $base    Optional. The folder to start searching from. Default '.'.
+	 * @param bool   $verbose Optional. True to display debug information. Default false.
 	 * @return string The location of the remote path.
 	 */
-	public function get_base_dir( $base = '.', $echo = false ) {
+	public function get_base_dir( $base = '.', $verbose = false ) {
 		_deprecated_function( __FUNCTION__, '2.7.0', 'GC_Filesystem_Base::abspath() or GC_Filesystem_Base::gc_*_dir()' );
-		$this->verbose = $echo;
+		$this->verbose = $verbose;
 		return $this->abspath();
 	}
 
@@ -157,6 +164,7 @@ class GC_Filesystem_Base {
 	 * Assumes that on Windows systems, Stripping off the Drive
 	 * letter is OK Sanitizes \\ to / in Windows filepaths.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $folder the folder to locate.
 	 * @return string|false The location of the remote path, false on failure.
@@ -236,6 +244,7 @@ class GC_Filesystem_Base {
 	 *
 	 * Expects Windows sanitized path.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $folder The folder to locate.
 	 * @param string $base   The folder to start searching from.
@@ -251,7 +260,7 @@ class GC_Filesystem_Base {
 
 		if ( $this->verbose ) {
 			/* translators: 1: Folder to locate, 2: Folder to start searching from. */
-			printf( "\n" . __( '正在%2$s中查找%1$s' ) . "<br/>\n", $folder, $base );
+			printf( "\n" . __( '正在%2$s中查找%1$s' ) . "<br />\n", $folder, $base );
 		}
 
 		$folder_parts     = explode( '/', $folder );
@@ -280,7 +289,7 @@ class GC_Filesystem_Base {
 
 				if ( $this->verbose ) {
 					/* translators: %s: Directory name. */
-					printf( "\n" . __( '变更为%s' ) . "<br/>\n", $newdir );
+					printf( "\n" . __( '变更为 %s' ) . "<br />\n", $newdir );
 				}
 
 				// Only search for the remaining path tokens in the directory, not the full path again.
@@ -293,25 +302,31 @@ class GC_Filesystem_Base {
 			}
 		}
 
-		// Only check this as a last resort, to prevent locating the incorrect install.
-		// All above procedures will fail quickly if this is the right branch to take.
+		/*
+		 * Only check this as a last resort, to prevent locating the incorrect install.
+		 * All above procedures will fail quickly if this is the right branch to take.
+		 */
 		if ( isset( $files[ $last_path ] ) ) {
 			if ( $this->verbose ) {
 				/* translators: %s: Directory name. */
-				printf( "\n" . __( '找到%s' ) . "<br/>\n", $base . $last_path );
+				printf( "\n" . __( '找到 %s' ) . "<br />\n", $base . $last_path );
 			}
 
 			return trailingslashit( $base . $last_path );
 		}
 
-		// Prevent this function from looping again.
-		// No need to proceed if we've just searched in `/`.
+		/*
+		 * Prevent this function from looping again.
+		 * No need to proceed if we've just searched in `/`.
+		 */
 		if ( $loop || '/' === $base ) {
 			return false;
 		}
 
-		// As an extra last resort, Change back to / if the folder wasn't found.
-		// This comes into effect when the CWD is /home/user/ but GC is at /var/www/....
+		/*
+		 * As an extra last resort, Change back to / if the folder wasn't found.
+		 * This comes into effect when the CWD is /home/user/ but GC is at /var/www/....
+		 */
 		return $this->search_for_folder( $folder, '/', true );
 
 	}
@@ -384,7 +399,7 @@ class GC_Filesystem_Base {
 	}
 
 	/**
-	 * Converts *nix-style file permissions to a octal number.
+	 * Converts *nix-style file permissions to an octal number.
 	 *
 	 * Converts '-rw-r--r--' to 0644
 	 * From "info at rvgate dot nl"'s comment on the PHP documentation for chmod()
@@ -428,6 +443,7 @@ class GC_Filesystem_Base {
 	/**
 	 * Determines if the string provided contains binary characters.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $text String to test against.
 	 * @return bool True if string is binary, false otherwise.
@@ -633,10 +649,10 @@ class GC_Filesystem_Base {
 	 *
 	 * @abstract
 	 *
-	 * @param string $file Path to file or directory.
-	 * @return bool Whether $file exists or not.
+	 * @param string $path Path to file or directory.
+	 * @return bool Whether $path exists or not.
 	 */
-	public function exists( $file ) {
+	public function exists( $path ) {
 		return false;
 	}
 
@@ -681,10 +697,10 @@ class GC_Filesystem_Base {
 	 *
 	 * @abstract
 	 *
-	 * @param string $file Path to file or directory.
-	 * @return bool Whether $file is writable.
+	 * @param string $path Path to file or directory.
+	 * @return bool Whether $path is writable.
 	 */
-	public function is_writable( $file ) {
+	public function is_writable( $path ) {
 		return false;
 	}
 
@@ -785,18 +801,28 @@ class GC_Filesystem_Base {
 	 * @param bool   $recursive      Optional. Whether to recursively include file details in nested directories.
 	 *                               Default false.
 	 * @return array|false {
-	 *     Array of files. False if unable to list directory contents.
+	 *     Array of arrays containing file information. False if unable to list directory contents.
 	 *
-	 *     @type string $name        Name of the file or directory.
-	 *     @type string $perms       *nix representation of permissions.
-	 *     @type string $permsn      Octal representation of permissions.
-	 *     @type string $owner       Owner name or ID.
-	 *     @type int    $size        Size of file in bytes.
-	 *     @type int    $lastmodunix Last modified unix timestamp.
-	 *     @type mixed  $lastmod     Last modified month (3 letter) and day (without leading 0).
-	 *     @type int    $time        Last modified time.
-	 *     @type string $type        Type of resource. 'f' for file, 'd' for directory.
-	 *     @type mixed  $files       If a directory and `$recursive` is true, contains another array of files.
+	 *     @type array $0... {
+	 *         Array of file information. Note that some elements may not be available on all filesystems.
+	 *
+	 *         @type string           $name        Name of the file or directory.
+	 *         @type string           $perms       *nix representation of permissions.
+	 *         @type string           $permsn      Octal representation of permissions.
+	 *         @type int|string|false $number      File number. May be a numeric string. False if not available.
+	 *         @type string|false     $owner       Owner name or ID, or false if not available.
+	 *         @type string|false     $group       File permissions group, or false if not available.
+	 *         @type int|string|false $size        Size of file in bytes. May be a numeric string.
+	 *                                             False if not available.
+	 *         @type int|string|false $lastmodunix Last modified unix timestamp. May be a numeric string.
+	 *                                             False if not available.
+	 *         @type string|false     $lastmod     Last modified month (3 letters) and day (without leading 0), or
+	 *                                             false if not available.
+	 *         @type string|false     $time        Last modified time, or false if not available.
+	 *         @type string           $type        Type of resource. 'f' for file, 'd' for directory, 'l' for link.
+	 *         @type array|false      $files       If a directory and `$recursive` is true, contains another array of
+	 *                                             files. False if unable to list directory contents.
+	 *     }
 	 * }
 	 */
 	public function dirlist( $path, $include_hidden = true, $recursive = false ) {

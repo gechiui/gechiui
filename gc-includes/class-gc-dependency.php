@@ -2,8 +2,6 @@
 /**
  * Dependencies API: _GC_Dependency class
  *
- *
- *
  * @package GeChiUI
  * @subpackage Dependencies
  */
@@ -14,12 +12,13 @@
  * Helper class to register a handle and associated data.
  *
  * @access private
- *
  */
+#[AllowDynamicProperties]
 class _GC_Dependency {
 	/**
 	 * The handle name.
 	 *
+	 * @since 2.6.0
 	 * @var string
 	 */
 	public $handle;
@@ -27,13 +26,17 @@ class _GC_Dependency {
 	/**
 	 * The handle source.
 	 *
-	 * @var string
+	 * If source is set to false, the item is an alias of other items it depends on.
+	 *
+	 * @since 2.6.0
+	 * @var string|false
 	 */
 	public $src;
 
 	/**
 	 * An array of handle dependencies.
 	 *
+	 * @since 2.6.0
 	 * @var string[]
 	 */
 	public $deps = array();
@@ -43,6 +46,7 @@ class _GC_Dependency {
 	 *
 	 * Used for cache-busting.
 	 *
+	 * @since 2.6.0
 	 * @var bool|string
 	 */
 	public $ver = false;
@@ -50,6 +54,7 @@ class _GC_Dependency {
 	/**
 	 * Additional arguments for the handle.
 	 *
+	 * @since 2.6.0
 	 * @var array
 	 */
 	public $args = null;  // Custom property, such as $in_footer or $media.
@@ -57,6 +62,7 @@ class _GC_Dependency {
 	/**
 	 * Extra data to supply to the handle.
 	 *
+	 * @since 2.6.0
 	 * @var array
 	 */
 	public $extra = array();
@@ -64,6 +70,7 @@ class _GC_Dependency {
 	/**
 	 * Translation textdomain set for this dependency.
 	 *
+	 * @since 5.0.0
 	 * @var string
 	 */
 	public $textdomain;
@@ -71,6 +78,7 @@ class _GC_Dependency {
 	/**
 	 * Translation path set for this dependency.
 	 *
+	 * @since 5.0.0
 	 * @var string
 	 */
 	public $translations_path;
@@ -78,6 +86,8 @@ class _GC_Dependency {
 	/**
 	 * Setup dependencies.
 	 *
+	 * @since 2.6.0
+	 * @since 5.3.0 Formalized the existing `...$args` parameter by adding it
 	 *              to the function signature.
 	 *
 	 * @param mixed ...$args Dependency information.
@@ -92,6 +102,7 @@ class _GC_Dependency {
 	/**
 	 * Add handle data.
 	 *
+	 * @since 2.6.0
 	 *
 	 * @param string $name The data key to add.
 	 * @param mixed  $data The data value to add.
@@ -108,12 +119,13 @@ class _GC_Dependency {
 	/**
 	 * Sets the translation domain for this dependency.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param string $domain The translation textdomain.
 	 * @param string $path   Optional. The full file path to the directory containing translation files.
 	 * @return bool False if $domain is not a string, true otherwise.
 	 */
-	public function set_translations( $domain, $path = null ) {
+	public function set_translations( $domain, $path = '' ) {
 		if ( ! is_string( $domain ) ) {
 			return false;
 		}

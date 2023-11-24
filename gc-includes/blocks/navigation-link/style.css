@@ -1,0 +1,7 @@
+.gc-block-navigation .gc-block-navigation-item__label{
+  overflow-wrap:break-word;
+  word-break:normal;
+}
+.gc-block-navigation .gc-block-navigation-item__description{
+  display:none;
+}

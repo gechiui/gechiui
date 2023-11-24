@@ -19,9 +19,9 @@ global $hook_suffix;
 
 <div class="clear"></div></div><!-- gcbody-content -->
 <div class="clear"></div></div><!-- gcbody -->
-<div class="clear"></div></div><!-- gccontent -->
+<div class="clear"></div>
 
-<div id="gcfooter" role="contentinfo">
+<footer id="gcfooter" role="contentinfo">
 	<?php
 	/**
 	 * Fires after the opening tag for the admin footer.
@@ -40,13 +40,14 @@ global $hook_suffix;
 		/**
 		 * Filters the "Thank you" text displayed in the admin footer.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param string $text The content that will be printed.
 		 */
 		echo apply_filters( 'admin_footer_text', '<span id="footer-thankyou">' . $text . '</span>' );
 		?>
 	</p>
-	<p id="footer-upgrade" class="alignright">
+	<p id="footer-upgrade" class="alignright m-r-20">
 		<?php
 		/**
 		 * Filters the version/update text displayed in the admin footer.
@@ -54,6 +55,7 @@ global $hook_suffix;
 		 * GeChiUI prints the current version and update information,
 		 * using core_update_footer() at priority 10.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @see core_update_footer()
 		 *
@@ -63,12 +65,11 @@ global $hook_suffix;
 		?>
 	</p>
 	<div class="clear"></div>
-</div>
+</footer>
+</div><!-- gccontent -->
 <?php
 /**
  * Prints scripts or data before the default footer scripts.
- *
- *
  *
  * @param string $data The data to print.
  */
@@ -80,13 +81,11 @@ do_action( 'admin_footer', '' );
  * The dynamic portion of the hook name, `$hook_suffix`,
  * refers to the global hook suffix of the current page.
  *
- *
  */
 do_action( "admin_print_footer_scripts-{$hook_suffix}" ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 
 /**
  * Prints any scripts and data queued for the footer.
- *
  *
  */
 do_action( 'admin_print_footer_scripts' );
@@ -96,7 +95,6 @@ do_action( 'admin_print_footer_scripts' );
  *
  * The dynamic portion of the hook name, `$hook_suffix`,
  * refers to the global hook suffix of the current page.
- *
  *
  */
 do_action( "admin_footer-{$hook_suffix}" ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores

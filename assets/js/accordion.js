@@ -25,8 +25,8 @@
  *
  * Note that any appropriate tags may be used, as long as the above classes are present.
  *
- *
- * @output gc-admin/js/accordion.js
+ * @since 3.6.0
+ * @output assets/js/accordion.js
  */
 
 ( function( $ ){
@@ -50,6 +50,7 @@
 	 * Close the current accordion section and open a new one.
 	 *
 	 * @param {Object} el Title element of the accordion section to toggle.
+	 * @since 3.6.0
 	 */
 	function accordionSwitch ( el ) {
 		var section = el.closest( '.accordion-section' ),

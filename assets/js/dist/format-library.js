@@ -1,208 +1,51 @@
-this["gc"] = this["gc"] || {}; this["gc"]["formatLibrary"] =
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "Y+ZS");
-/******/ })
+/******/ (function() { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	// The require scope
+/******/ 	var __webpack_require__ = {};
+/******/ 	
 /************************************************************************/
-/******/ ({
-
-/***/ "0+Iy":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["htmlEntities"]; }());
-
-/***/ }),
-
-/***/ "FOZ3":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("ewfG");
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("Gz8V");
-/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__);
-
-
-/**
- * GeChiUI dependencies
- */
-
-const linkOff = Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["SVG"], {
-  xmlns: "http://www.w3.org/2000/svg",
-  viewBox: "0 0 24 24"
-}, Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["Path"], {
-  d: "M15.6 7.3h-.7l1.6-3.5-.9-.4-3.9 8.5H9v1.5h2l-1.3 2.8H8.4c-2 0-3.7-1.7-3.7-3.7s1.7-3.7 3.7-3.7H10V7.3H8.4c-2.9 0-5.2 2.3-5.2 5.2 0 2.9 2.3 5.2 5.2 5.2H9l-1.4 3.2.9.4 5.7-12.5h1.4c2 0 3.7 1.7 3.7 3.7s-1.7 3.7-3.7 3.7H14v1.5h1.6c2.9 0 5.2-2.3 5.2-5.2 0-2.9-2.4-5.2-5.2-5.2z"
-}));
-/* harmony default export */ __webpack_exports__["a"] = (linkOff);
-
-
-/***/ }),
-
-/***/ "Gz8V":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["primitives"]; }());
-
-/***/ }),
-
-/***/ "IgLd":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["data"]; }());
-
-/***/ }),
-
-/***/ "NQKH":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["a11y"]; }());
-
-/***/ }),
-
-/***/ "UEDd":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("ewfG");
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("Gz8V");
-/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__);
-
-
-/**
- * GeChiUI dependencies
- */
-
-const button = Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["SVG"], {
-  viewBox: "0 0 24 24",
-  xmlns: "http://www.w3.org/2000/svg"
-}, Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["Path"], {
-  d: "M19 6.5H5c-1.1 0-2 .9-2 2v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7c0-1.1-.9-2-2-2zm.5 9c0 .3-.2.5-.5.5H5c-.3 0-.5-.2-.5-.5v-7c0-.3.2-.5.5-.5h14c.3 0 .5.2.5.5v7zM8 12.8h8v-1.5H8v1.5z"
-}));
-/* harmony default export */ __webpack_exports__["a"] = (button);
-
-
-/***/ }),
-
-/***/ "Y+ZS":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	!function() {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = function(exports) {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
 // ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
 
-// EXTERNAL MODULE: external ["gc","richText"]
-var external_gc_richText_ = __webpack_require__("kt2g");
-
-// EXTERNAL MODULE: external ["gc","element"]
-var external_gc_element_ = __webpack_require__("ewfG");
-
-// EXTERNAL MODULE: external ["gc","i18n"]
-var external_gc_i18n_ = __webpack_require__("z4sU");
-
-// EXTERNAL MODULE: external ["gc","blockEditor"]
-var external_gc_blockEditor_ = __webpack_require__("nLrk");
-
-// EXTERNAL MODULE: external ["gc","primitives"]
-var external_gc_primitives_ = __webpack_require__("Gz8V");
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/format-bold.js
+;// CONCATENATED MODULE: external ["gc","richText"]
+var external_gc_richText_namespaceObject = window["gc"]["richText"];
+;// CONCATENATED MODULE: external ["gc","element"]
+var external_gc_element_namespaceObject = window["gc"]["element"];
+;// CONCATENATED MODULE: external ["gc","i18n"]
+var external_gc_i18n_namespaceObject = window["gc"]["i18n"];
+;// CONCATENATED MODULE: external ["gc","blockEditor"]
+var external_gc_blockEditor_namespaceObject = window["gc"]["blockEditor"];
+;// CONCATENATED MODULE: external ["gc","primitives"]
+var external_gc_primitives_namespaceObject = window["gc"]["primitives"];
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/format-bold.js
 
 
 /**
  * GeChiUI dependencies
  */
 
-const formatBold = Object(external_gc_element_["createElement"])(external_gc_primitives_["SVG"], {
+const formatBold = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
   xmlns: "http://www.w3.org/2000/svg",
   viewBox: "0 0 24 24"
-}, Object(external_gc_element_["createElement"])(external_gc_primitives_["Path"], {
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
   d: "M14.7 11.3c1-.6 1.5-1.6 1.5-3 0-2.3-1.3-3.4-4-3.4H7v14h5.8c1.4 0 2.5-.3 3.3-1 .8-.7 1.2-1.7 1.2-2.9.1-1.9-.8-3.1-2.6-3.7zm-5.1-4h2.3c.6 0 1.1.1 1.4.4.3.3.5.7.5 1.2s-.2 1-.5 1.2c-.3.3-.8.4-1.4.4H9.6V7.3zm4.6 9c-.4.3-1 .4-1.7.4H9.6v-3.9h2.9c.7 0 1.3.2 1.7.5.4.3.6.8.6 1.5s-.2 1.2-.6 1.5z"
 }));
 /* harmony default export */ var format_bold = (formatBold);
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/bold/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/bold/index.js
 
 
 /**
@@ -214,7 +57,7 @@ const formatBold = Object(external_gc_element_["createElement"])(external_gc_pri
 
 const bold_name = 'core/bold';
 
-const title = Object(external_gc_i18n_["__"])('粗体');
+const title = (0,external_gc_i18n_namespaceObject.__)('粗体');
 
 const bold = {
   name: bold_name,
@@ -222,33 +65,31 @@ const bold = {
   tagName: 'strong',
   className: null,
 
-  edit(_ref) {
-    let {
-      isActive,
-      value,
-      onChange,
-      onFocus
-    } = _ref;
-
+  edit({
+    isActive,
+    value,
+    onChange,
+    onFocus
+  }) {
     function onToggle() {
-      onChange(Object(external_gc_richText_["toggleFormat"])(value, {
+      onChange((0,external_gc_richText_namespaceObject.toggleFormat)(value, {
         type: bold_name,
         title
       }));
     }
 
     function onClick() {
-      onChange(Object(external_gc_richText_["toggleFormat"])(value, {
+      onChange((0,external_gc_richText_namespaceObject.toggleFormat)(value, {
         type: bold_name
       }));
       onFocus();
     }
 
-    return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichTextShortcut"], {
+    return (0,external_gc_element_namespaceObject.createElement)(external_gc_element_namespaceObject.Fragment, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextShortcut, {
       type: "primary",
       character: "b",
       onUse: onToggle
-    }), Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichTextToolbarButton"], {
+    }), (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextToolbarButton, {
       name: "bold",
       icon: format_bold,
       title: title,
@@ -256,7 +97,7 @@ const bold = {
       isActive: isActive,
       shortcutType: "primary",
       shortcutCharacter: "b"
-    }), Object(external_gc_element_["createElement"])(external_gc_blockEditor_["__unstableRichTextInputEvent"], {
+    }), (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.__unstableRichTextInputEvent, {
       inputType: "formatBold",
       onInput: onToggle
     }));
@@ -264,10 +105,22 @@ const bold = {
 
 };
 
-// EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/library/code.js
-var code = __webpack_require__("rl/G");
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/code.js
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/code/index.js
+
+/**
+ * GeChiUI dependencies
+ */
+
+const code = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
+  viewBox: "0 0 24 24",
+  xmlns: "http://www.w3.org/2000/svg"
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
+  d: "M20.8 10.7l-4.3-4.3-1.1 1.1 4.3 4.3c.1.1.1.3 0 .4l-4.3 4.3 1.1 1.1 4.3-4.3c.7-.8.7-1.9 0-2.6zM4.2 11.8l4.3-4.3-1-1-4.3 4.3c-.7.7-.7 1.8 0 2.5l4.3 4.3 1.1-1.1-4.3-4.3c-.2-.1-.2-.3-.1-.4z"
+}));
+/* harmony default export */ var library_code = (code);
+
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/code/index.js
 
 
 /**
@@ -279,7 +132,7 @@ var code = __webpack_require__("rl/G");
 
 const code_name = 'core/code';
 
-const code_title = Object(external_gc_i18n_["__"])('内联代码');
+const code_title = (0,external_gc_i18n_namespaceObject.__)('内联代码');
 
 const code_code = {
   name: code_name,
@@ -293,14 +146,17 @@ const code_code = {
       start,
       text
     } = value;
-    const characterBefore = text.slice(start - 1, start); // Quick check the text for the necessary character.
+    const characterBefore = text[start - 1]; // Quick check the text for the necessary character.
 
     if (characterBefore !== BACKTICK) {
       return value;
     }
 
-    const textBefore = text.slice(0, start - 1);
-    const indexBefore = textBefore.lastIndexOf(BACKTICK);
+    if (start - 2 < 0) {
+      return value;
+    }
+
+    const indexBefore = text.lastIndexOf(BACKTICK, start - 2);
 
     if (indexBefore === -1) {
       return value;
@@ -313,48 +169,61 @@ const code_code = {
       return value;
     }
 
-    value = Object(external_gc_richText_["remove"])(value, startIndex, startIndex + 1);
-    value = Object(external_gc_richText_["remove"])(value, endIndex, endIndex + 1);
-    value = Object(external_gc_richText_["applyFormat"])(value, {
+    value = (0,external_gc_richText_namespaceObject.remove)(value, startIndex, startIndex + 1);
+    value = (0,external_gc_richText_namespaceObject.remove)(value, endIndex, endIndex + 1);
+    value = (0,external_gc_richText_namespaceObject.applyFormat)(value, {
       type: code_name
     }, startIndex, endIndex);
     return value;
   },
 
-  edit(_ref) {
-    let {
-      value,
-      onChange,
-      onFocus,
-      isActive
-    } = _ref;
-
+  edit({
+    value,
+    onChange,
+    onFocus,
+    isActive
+  }) {
     function onClick() {
-      onChange(Object(external_gc_richText_["toggleFormat"])(value, {
+      onChange((0,external_gc_richText_namespaceObject.toggleFormat)(value, {
         type: code_name,
         title: code_title
       }));
       onFocus();
     }
 
-    return Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichTextToolbarButton"], {
-      icon: code["a" /* default */],
+    return (0,external_gc_element_namespaceObject.createElement)(external_gc_element_namespaceObject.Fragment, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextShortcut, {
+      type: "access",
+      character: "x",
+      onUse: onClick
+    }), (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextToolbarButton, {
+      icon: library_code,
       title: code_title,
       onClick: onClick,
       isActive: isActive,
       role: "menuitemcheckbox"
-    });
+    }));
   }
 
 };
 
-// EXTERNAL MODULE: external ["gc","components"]
-var external_gc_components_ = __webpack_require__("jd0n");
+;// CONCATENATED MODULE: external ["gc","components"]
+var external_gc_components_namespaceObject = window["gc"]["components"];
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/keyboard-return.js
 
-// EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/library/keyboard-return.js
-var keyboard_return = __webpack_require__("lyGs");
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/image/index.js
+/**
+ * GeChiUI dependencies
+ */
+
+const keyboardReturn = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
+  xmlns: "http://www.w3.org/2000/svg",
+  viewBox: "-2 -2 24 24"
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
+  d: "M6.734 16.106l2.176-2.38-1.093-1.028-3.846 4.158 3.846 4.157 1.093-1.027-2.176-2.38h2.811c1.125 0 2.25.03 3.374 0 1.428-.001 3.362-.25 4.963-1.277 1.66-1.065 2.868-2.906 2.868-5.859 0-2.479-1.327-4.896-3.65-5.93-1.82-.813-3.044-.8-4.806-.788l-.567.002v1.5c.184 0 .368 0 .553-.002 1.82-.007 2.704-.014 4.21.657 1.854.827 2.76 2.657 2.76 4.561 0 2.472-.973 3.824-2.178 4.596-1.258.807-2.864 1.04-4.163 1.04h-.02c-1.115.03-2.229 0-3.344 0H6.734z"
+}));
+/* harmony default export */ var keyboard_return = (keyboardReturn);
+
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/image/index.js
 
 
 /**
@@ -369,12 +238,12 @@ var keyboard_return = __webpack_require__("lyGs");
 const ALLOWED_MEDIA_TYPES = ['image'];
 const image_name = 'core/image';
 
-const image_title = Object(external_gc_i18n_["__"])('内联图片');
+const image_title = (0,external_gc_i18n_namespaceObject.__)('内联图片');
 
 const image_image = {
   name: image_name,
   title: image_title,
-  keywords: [Object(external_gc_i18n_["__"])('照片'), Object(external_gc_i18n_["__"])('媒体')],
+  keywords: [(0,external_gc_i18n_namespaceObject.__)('照片'), (0,external_gc_i18n_namespaceObject.__)('媒体')],
   object: true,
   tagName: 'img',
   className: null,
@@ -387,28 +256,26 @@ const image_image = {
   edit: Edit
 };
 
-function InlineUI(_ref) {
-  let {
-    value,
-    onChange,
-    activeObjectAttributes,
-    contentRef
-  } = _ref;
+function InlineUI({
+  value,
+  onChange,
+  activeObjectAttributes,
+  contentRef
+}) {
   const {
     style
   } = activeObjectAttributes;
-  const [width, setWidth] = Object(external_gc_element_["useState"])(style === null || style === void 0 ? void 0 : style.replace(/\D/g, ''));
-  const anchorRef = Object(external_gc_richText_["useAnchorRef"])({
-    ref: contentRef,
-    value,
+  const [width, setWidth] = (0,external_gc_element_namespaceObject.useState)(style?.replace(/\D/g, ''));
+  const popoverAnchor = (0,external_gc_richText_namespaceObject.useAnchor)({
+    editableContentElement: contentRef.current,
     settings: image_image
   });
-  return Object(external_gc_element_["createElement"])(external_gc_components_["Popover"], {
-    position: "bottom center",
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Popover, {
+    placement: "bottom",
     focusOnMount: false,
-    anchorRef: anchorRef,
+    anchor: popoverAnchor,
     className: "block-editor-format-toolbar__image-popover"
-  }, Object(external_gc_element_["createElement"])("form", {
+  }, (0,external_gc_element_namespaceObject.createElement)("form", {
     className: "block-editor-format-toolbar__image-container-content",
     onSubmit: event => {
       const newReplacements = value.replacements.slice();
@@ -423,30 +290,32 @@ function InlineUI(_ref) {
       });
       event.preventDefault();
     }
-  }, Object(external_gc_element_["createElement"])(external_gc_components_["TextControl"], {
+  }, (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.__experimentalHStack, {
+    alignment: "bottom",
+    spacing: "0"
+  }, (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.__experimentalNumberControl, {
     className: "block-editor-format-toolbar__image-container-value",
-    type: "number",
-    label: Object(external_gc_i18n_["__"])('宽度'),
+    label: (0,external_gc_i18n_namespaceObject.__)('宽度'),
     value: width,
     min: 1,
     onChange: newWidth => setWidth(newWidth)
-  }), Object(external_gc_element_["createElement"])(external_gc_components_["Button"], {
-    icon: keyboard_return["a" /* default */],
-    label: Object(external_gc_i18n_["__"])('应用'),
+  }), (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Button, {
+    className: "block-editor-format-toolbar__image-container-button",
+    icon: keyboard_return,
+    label: (0,external_gc_i18n_namespaceObject.__)('应用'),
     type: "submit"
-  })));
+  }))));
 }
 
-function Edit(_ref2) {
-  let {
-    value,
-    onChange,
-    onFocus,
-    isObjectActive,
-    activeObjectAttributes,
-    contentRef
-  } = _ref2;
-  const [isModalOpen, setIsModalOpen] = Object(external_gc_element_["useState"])(false);
+function Edit({
+  value,
+  onChange,
+  onFocus,
+  isObjectActive,
+  activeObjectAttributes,
+  contentRef
+}) {
+  const [isModalOpen, setIsModalOpen] = (0,external_gc_element_namespaceObject.useState)(false);
 
   function openModal() {
     setIsModalOpen(true);
@@ -456,27 +325,26 @@ function Edit(_ref2) {
     setIsModalOpen(false);
   }
 
-  return Object(external_gc_element_["createElement"])(external_gc_blockEditor_["MediaUploadCheck"], null, Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichTextToolbarButton"], {
-    icon: Object(external_gc_element_["createElement"])(external_gc_components_["SVG"], {
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.MediaUploadCheck, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextToolbarButton, {
+    icon: (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.SVG, {
       xmlns: "http://www.w3.org/2000/svg",
       viewBox: "0 0 24 24"
-    }, Object(external_gc_element_["createElement"])(external_gc_components_["Path"], {
+    }, (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Path, {
       d: "M4 18.5h16V17H4v1.5zM16 13v1.5h4V13h-4zM5.1 15h7.8c.6 0 1.1-.5 1.1-1.1V6.1c0-.6-.5-1.1-1.1-1.1H5.1C4.5 5 4 5.5 4 6.1v7.8c0 .6.5 1.1 1.1 1.1zm.4-8.5h7V10l-1-1c-.3-.3-.8-.3-1 0l-1.6 1.5-1.2-.7c-.3-.2-.6-.2-.9 0l-1.3 1V6.5zm0 6.1l1.8-1.3 1.3.8c.3.2.7.2.9-.1l1.5-1.4 1.5 1.4v1.5h-7v-.9z"
     })),
     title: image_title,
     onClick: openModal,
     isActive: isObjectActive
-  }), isModalOpen && Object(external_gc_element_["createElement"])(external_gc_blockEditor_["MediaUpload"], {
+  }), isModalOpen && (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.MediaUpload, {
     allowedTypes: ALLOWED_MEDIA_TYPES,
-    onSelect: _ref3 => {
-      let {
-        id,
-        url,
-        alt,
-        width: imgWidth
-      } = _ref3;
+    onSelect: ({
+      id,
+      url,
+      alt,
+      width: imgWidth
+    }) => {
       closeModal();
-      onChange(Object(external_gc_richText_["insertObject"])(value, {
+      onChange((0,external_gc_richText_namespaceObject.insertObject)(value, {
         type: image_name,
         attributes: {
           className: `gc-image-${id}`,
@@ -488,14 +356,13 @@ function Edit(_ref2) {
       onFocus();
     },
     onClose: closeModal,
-    render: _ref4 => {
-      let {
-        open
-      } = _ref4;
+    render: ({
+      open
+    }) => {
       open();
       return null;
     }
-  }), isObjectActive && Object(external_gc_element_["createElement"])(InlineUI, {
+  }), isObjectActive && (0,external_gc_element_namespaceObject.createElement)(InlineUI, {
     value: value,
     onChange: onChange,
     activeObjectAttributes: activeObjectAttributes,
@@ -503,22 +370,22 @@ function Edit(_ref2) {
   }));
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/format-italic.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/format-italic.js
 
 
 /**
  * GeChiUI dependencies
  */
 
-const formatItalic = Object(external_gc_element_["createElement"])(external_gc_primitives_["SVG"], {
+const formatItalic = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
   xmlns: "http://www.w3.org/2000/svg",
   viewBox: "0 0 24 24"
-}, Object(external_gc_element_["createElement"])(external_gc_primitives_["Path"], {
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
   d: "M12.5 5L10 19h1.9l2.5-14z"
 }));
 /* harmony default export */ var format_italic = (formatItalic);
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/italic/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/italic/index.js
 
 
 /**
@@ -530,7 +397,7 @@ const formatItalic = Object(external_gc_element_["createElement"])(external_gc_p
 
 const italic_name = 'core/italic';
 
-const italic_title = Object(external_gc_i18n_["__"])('斜体');
+const italic_title = (0,external_gc_i18n_namespaceObject.__)('斜体');
 
 const italic = {
   name: italic_name,
@@ -538,33 +405,31 @@ const italic = {
   tagName: 'em',
   className: null,
 
-  edit(_ref) {
-    let {
-      isActive,
-      value,
-      onChange,
-      onFocus
-    } = _ref;
-
+  edit({
+    isActive,
+    value,
+    onChange,
+    onFocus
+  }) {
     function onToggle() {
-      onChange(Object(external_gc_richText_["toggleFormat"])(value, {
+      onChange((0,external_gc_richText_namespaceObject.toggleFormat)(value, {
         type: italic_name,
         title: italic_title
       }));
     }
 
     function onClick() {
-      onChange(Object(external_gc_richText_["toggleFormat"])(value, {
+      onChange((0,external_gc_richText_namespaceObject.toggleFormat)(value, {
         type: italic_name
       }));
       onFocus();
     }
 
-    return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichTextShortcut"], {
+    return (0,external_gc_element_namespaceObject.createElement)(external_gc_element_namespaceObject.Fragment, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextShortcut, {
       type: "primary",
       character: "i",
       onUse: onToggle
-    }), Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichTextToolbarButton"], {
+    }), (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextToolbarButton, {
       name: "italic",
       icon: format_italic,
       title: italic_title,
@@ -572,7 +437,7 @@ const italic = {
       isActive: isActive,
       shortcutType: "primary",
       shortcutCharacter: "i"
-    }), Object(external_gc_element_["createElement"])(external_gc_blockEditor_["__unstableRichTextInputEvent"], {
+    }), (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.__unstableRichTextInputEvent, {
       inputType: "formatItalic",
       onInput: onToggle
     }));
@@ -580,36 +445,48 @@ const italic = {
 
 };
 
-// EXTERNAL MODULE: external ["gc","url"]
-var external_gc_url_ = __webpack_require__("zP/e");
+;// CONCATENATED MODULE: external ["gc","url"]
+var external_gc_url_namespaceObject = window["gc"]["url"];
+;// CONCATENATED MODULE: external ["gc","htmlEntities"]
+var external_gc_htmlEntities_namespaceObject = window["gc"]["htmlEntities"];
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/link-off.js
 
-// EXTERNAL MODULE: external ["gc","htmlEntities"]
-var external_gc_htmlEntities_ = __webpack_require__("0+Iy");
-
-// EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/library/link-off.js
-var link_off = __webpack_require__("FOZ3");
-
-// EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/library/link.js
-var library_link = __webpack_require__("qsmw");
-
-// EXTERNAL MODULE: external ["gc","a11y"]
-var external_gc_a11y_ = __webpack_require__("NQKH");
-
-// EXTERNAL MODULE: external ["gc","data"]
-var external_gc_data_ = __webpack_require__("IgLd");
-
-// EXTERNAL MODULE: external "lodash"
-var external_lodash_ = __webpack_require__("YLtl");
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/link/utils.js
-/**
- * External dependencies
- */
 
 /**
  * GeChiUI dependencies
  */
 
+const linkOff = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
+  xmlns: "http://www.w3.org/2000/svg",
+  viewBox: "0 0 24 24"
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
+  d: "M17.031 4.703 15.576 4l-1.56 3H14v.03l-2.324 4.47H9.5V13h1.396l-1.502 2.889h-.95a3.694 3.694 0 0 1 0-7.389H10V7H8.444a5.194 5.194 0 1 0 0 10.389h.17L7.5 19.53l1.416.719L15.049 8.5h.507a3.694 3.694 0 0 1 0 7.39H14v1.5h1.556a5.194 5.194 0 0 0 .273-10.383l1.202-2.304Z"
+}));
+/* harmony default export */ var link_off = (linkOff);
+
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/link.js
+
+
+/**
+ * GeChiUI dependencies
+ */
+
+const link_link = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
+  xmlns: "http://www.w3.org/2000/svg",
+  viewBox: "0 0 24 24"
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
+  d: "M10 17.389H8.444A5.194 5.194 0 1 1 8.444 7H10v1.5H8.444a3.694 3.694 0 0 0 0 7.389H10v1.5ZM14 7h1.556a5.194 5.194 0 0 1 0 10.39H14v-1.5h1.556a3.694 3.694 0 0 0 0-7.39H14V7Zm-4.5 6h5v-1.5h-5V13Z"
+}));
+/* harmony default export */ var library_link = (link_link);
+
+;// CONCATENATED MODULE: external ["gc","a11y"]
+var external_gc_a11y_namespaceObject = window["gc"]["a11y"];
+;// CONCATENATED MODULE: external ["gc","data"]
+var external_gc_data_namespaceObject = window["gc"]["data"];
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/link/utils.js
+/**
+ * GeChiUI dependencies
+ */
 
 /**
  * Check for issues with the provided href.
@@ -632,45 +509,45 @@ function isValidHref(href) {
 
 
   if (/^\S+:/.test(trimmedHref)) {
-    const protocol = Object(external_gc_url_["getProtocol"])(trimmedHref);
+    const protocol = (0,external_gc_url_namespaceObject.getProtocol)(trimmedHref);
 
-    if (!Object(external_gc_url_["isValidProtocol"])(protocol)) {
+    if (!(0,external_gc_url_namespaceObject.isValidProtocol)(protocol)) {
       return false;
     } // Add some extra checks for http(s) URIs, since these are the most common use-case.
     // This ensures URIs with an http protocol have exactly two forward slashes following the protocol.
 
 
-    if (Object(external_lodash_["startsWith"])(protocol, 'http') && !/^https?:\/\/[^\/\s]/i.test(trimmedHref)) {
+    if (protocol.startsWith('http') && !/^https?:\/\/[^\/\s]/i.test(trimmedHref)) {
       return false;
     }
 
-    const authority = Object(external_gc_url_["getAuthority"])(trimmedHref);
+    const authority = (0,external_gc_url_namespaceObject.getAuthority)(trimmedHref);
 
-    if (!Object(external_gc_url_["isValidAuthority"])(authority)) {
+    if (!(0,external_gc_url_namespaceObject.isValidAuthority)(authority)) {
       return false;
     }
 
-    const path = Object(external_gc_url_["getPath"])(trimmedHref);
+    const path = (0,external_gc_url_namespaceObject.getPath)(trimmedHref);
 
-    if (path && !Object(external_gc_url_["isValidPath"])(path)) {
+    if (path && !(0,external_gc_url_namespaceObject.isValidPath)(path)) {
       return false;
     }
 
-    const queryString = Object(external_gc_url_["getQueryString"])(trimmedHref);
+    const queryString = (0,external_gc_url_namespaceObject.getQueryString)(trimmedHref);
 
-    if (queryString && !Object(external_gc_url_["isValidQueryString"])(queryString)) {
+    if (queryString && !(0,external_gc_url_namespaceObject.isValidQueryString)(queryString)) {
       return false;
     }
 
-    const fragment = Object(external_gc_url_["getFragment"])(trimmedHref);
+    const fragment = (0,external_gc_url_namespaceObject.getFragment)(trimmedHref);
 
-    if (fragment && !Object(external_gc_url_["isValidFragment"])(fragment)) {
+    if (fragment && !(0,external_gc_url_namespaceObject.isValidFragment)(fragment)) {
       return false;
     }
   } // Validate anchor links.
 
 
-  if (Object(external_lodash_["startsWith"])(trimmedHref, '#') && !Object(external_gc_url_["isValidFragment"])(trimmedHref)) {
+  if (trimmedHref.startsWith('#') && !(0,external_gc_url_namespaceObject.isValidFragment)(trimmedHref)) {
     return false;
   }
 
@@ -688,13 +565,12 @@ function isValidHref(href) {
  * @return {Object} The final format object.
  */
 
-function createLinkFormat(_ref) {
-  let {
-    url,
-    type,
-    id,
-    opensInNewWindow
-  } = _ref;
+function createLinkFormat({
+  url,
+  type,
+  id,
+  opensInNewWindow
+}) {
   const format = {
     type: 'core/link',
     attributes: {
@@ -726,9 +602,7 @@ function createLinkFormat(_ref) {
 
 /* eslint-enable jsdoc/no-undefined-types */
 
-function getFormatBoundary(value, format) {
-  let startIndex = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : value.start;
-  let endIndex = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : value.end;
+function getFormatBoundary(value, format, startIndex = value.start, endIndex = value.end) {
   const EMPTY_BOUNDARIES = {
     start: null,
     end: null
@@ -739,21 +613,21 @@ function getFormatBoundary(value, format) {
   let targetFormat;
   let initialIndex;
 
-  if (!(formats !== null && formats !== void 0 && formats.length)) {
+  if (!formats?.length) {
     return EMPTY_BOUNDARIES;
   } // Clone formats to avoid modifying source formats.
 
 
   const newFormats = formats.slice();
-  const formatAtStart = Object(external_lodash_["find"])(newFormats[startIndex], {
-    type: format.type
-  });
-  const formatAtEnd = Object(external_lodash_["find"])(newFormats[endIndex], {
-    type: format.type
-  });
-  const formatAtEndMinusOne = Object(external_lodash_["find"])(newFormats[endIndex - 1], {
-    type: format.type
-  });
+  const formatAtStart = newFormats[startIndex]?.find(({
+    type
+  }) => type === format.type);
+  const formatAtEnd = newFormats[endIndex]?.find(({
+    type
+  }) => type === format.type);
+  const formatAtEndMinusOne = newFormats[endIndex - 1]?.find(({
+    type
+  }) => type === format.type);
 
   if (!!formatAtStart) {
     // Set values to conform to "start"
@@ -778,7 +652,7 @@ function getFormatBoundary(value, format) {
 
   startIndex = walkToStart(...walkingArgs); // Walk the endIndex "forwards" until the trailing "edge" of the matching format.
 
-  endIndex = walkToEnd(...walkingArgs); // Safe guard: start index cannot be less than 0
+  endIndex = walkToEnd(...walkingArgs); // Safe guard: start index cannot be less than 0.
 
   startIndex = startIndex < 0 ? 0 : startIndex; // // Return the indicies of the "edges" as the boundaries.
 
@@ -820,14 +694,16 @@ function walkToBoundary(formats, initialIndex, targetFormatRef, formatIndex, dir
   return index;
 }
 
-const walkToStart = Object(external_lodash_["partialRight"])(walkToBoundary, 'backwards');
-const walkToEnd = Object(external_lodash_["partialRight"])(walkToBoundary, 'forwards');
+const partialRight = (fn, ...partialArgs) => (...args) => fn(...args, ...partialArgs);
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/link/use-link-instance-key.js
+const walkToStart = partialRight(walkToBoundary, 'backwards');
+const walkToEnd = partialRight(walkToBoundary, 'forwards');
+
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/link/use-link-instance-key.js
 // Weakly referenced map allows unused ids to be garbage collected.
-const weakMap = new WeakMap(); // Incrementing zero-based ID value
+const weakMap = new WeakMap(); // Incrementing zero-based ID value.
 
-let use_link_instance_key_id = -1;
+let id = -1;
 const prefix = 'link-control-instance';
 
 function getKey(_id) {
@@ -837,7 +713,7 @@ function getKey(_id) {
  * Builds a unique link control key for the given object reference.
  *
  * @param {Object} instance an unique object reference specific to this link control instance.
- * @return {string} the unique key to use for this link control.
+ * @return {string | undefined} the unique key to use for this link control.
  */
 
 
@@ -850,14 +726,14 @@ function useLinkInstanceKey(instance) {
     return getKey(weakMap.get(instance));
   }
 
-  use_link_instance_key_id += 1;
-  weakMap.set(instance, use_link_instance_key_id);
-  return getKey(use_link_instance_key_id);
+  id += 1;
+  weakMap.set(instance, id);
+  return getKey(id);
 }
 
 /* harmony default export */ var use_link_instance_key = (useLinkInstanceKey);
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/link/inline.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/link/inline.js
 
 
 /**
@@ -878,17 +754,16 @@ function useLinkInstanceKey(instance) {
 
 
 
-function InlineLinkUI(_ref) {
-  let {
-    isActive,
-    activeAttributes,
-    addingLink,
-    value,
-    onChange,
-    speak,
-    stopAddingLink,
-    contentRef
-  } = _ref;
+function InlineLinkUI({
+  isActive,
+  activeAttributes,
+  addingLink,
+  value,
+  onChange,
+  speak,
+  stopAddingLink,
+  contentRef
+}) {
   const richLinkTextValue = getRichTextValueFromSelection(value, isActive); // Get the text content minus any HTML tags.
 
   const richTextText = richLinkTextValue.text;
@@ -901,14 +776,14 @@ function InlineLinkUI(_ref) {
    * @type {[Object|undefined,Function]}
    */
 
-  const [nextLinkValue, setNextLinkValue] = Object(external_gc_element_["useState"])();
+  const [nextLinkValue, setNextLinkValue] = (0,external_gc_element_namespaceObject.useState)();
   const {
     createPageEntity,
     userCanCreatePages
-  } = Object(external_gc_data_["useSelect"])(select => {
+  } = (0,external_gc_data_namespaceObject.useSelect)(select => {
     const {
       getSettings
-    } = select(external_gc_blockEditor_["store"]);
+    } = select(external_gc_blockEditor_namespaceObject.store);
 
     const _settings = getSettings();
 
@@ -927,10 +802,10 @@ function InlineLinkUI(_ref) {
   };
 
   function removeLink() {
-    const newValue = Object(external_gc_richText_["removeFormat"])(value, 'core/link');
+    const newValue = (0,external_gc_richText_namespaceObject.removeFormat)(value, 'core/link');
     onChange(newValue);
     stopAddingLink();
-    speak(Object(external_gc_i18n_["__"])('已移除链接。'), 'assertive');
+    speak((0,external_gc_i18n_namespaceObject.__)('已移除链接。'), 'assertive');
   }
 
   function onChangeLink(nextValue) {
@@ -954,7 +829,7 @@ function InlineLinkUI(_ref) {
       return;
     }
 
-    const newUrl = Object(external_gc_url_["prependHTTP"])(nextValue.url);
+    const newUrl = (0,external_gc_url_namespaceObject.prependHTTP)(nextValue.url);
     const linkFormat = createLinkFormat({
       url: newUrl,
       type: nextValue.type,
@@ -963,35 +838,51 @@ function InlineLinkUI(_ref) {
     });
     const newText = nextValue.title || newUrl;
 
-    if (Object(external_gc_richText_["isCollapsed"])(value) && !isActive) {
+    if ((0,external_gc_richText_namespaceObject.isCollapsed)(value) && !isActive) {
       // Scenario: we don't have any actively selected text or formats.
-      const toInsert = Object(external_gc_richText_["applyFormat"])(Object(external_gc_richText_["create"])({
+      const toInsert = (0,external_gc_richText_namespaceObject.applyFormat)((0,external_gc_richText_namespaceObject.create)({
         text: newText
       }), linkFormat, 0, newText.length);
-      onChange(Object(external_gc_richText_["insert"])(value, toInsert));
+      onChange((0,external_gc_richText_namespaceObject.insert)(value, toInsert));
     } else {
-      // Scenario: we have any active text selection or an active format
+      // Scenario: we have any active text selection or an active format.
       let newValue;
 
       if (newText === richTextText) {
-        // If we're not updating the text then ignore
-        newValue = Object(external_gc_richText_["applyFormat"])(value, linkFormat);
+        // If we're not updating the text then ignore.
+        newValue = (0,external_gc_richText_namespaceObject.applyFormat)(value, linkFormat);
       } else {
         // Create new RichText value for the new text in order that we
         // can apply formats to it.
-        newValue = Object(external_gc_richText_["create"])({
+        newValue = (0,external_gc_richText_namespaceObject.create)({
           text: newText
         }); // Apply the new Link format to this new text value.
 
-        newValue = Object(external_gc_richText_["applyFormat"])(newValue, linkFormat, 0, newText.length); // Update the original (full) RichTextValue replacing the
+        newValue = (0,external_gc_richText_namespaceObject.applyFormat)(newValue, linkFormat, 0, newText.length); // Get the boundaries of the active link format.
+
+        const boundary = getFormatBoundary(value, {
+          type: 'core/link'
+        }); // Split the value at the start of the active link format.
+        // Passing "start" as the 3rd parameter is required to ensure
+        // the second half of the split value is split at the format's
+        // start boundary and avoids relying on the value's "end" property
+        // which may not correspond correctly.
+
+        const [valBefore, valAfter] = (0,external_gc_richText_namespaceObject.split)(value, boundary.start, boundary.start); // Update the original (full) RichTextValue replacing the
         // target text with the *new* RichTextValue containing:
         // 1. The new text content.
         // 2. The new link format.
+        // As "replace" will operate on the first match only, it is
+        // run only against the second half of the value which was
+        // split at the active format's boundary. This avoids a bug
+        // with incorrectly targetted replacements.
+        // See: https://github.com/GeChiUI/gutenberg/issues/41771.
         // Note original formats will be lost when applying this change.
         // That is expected behaviour.
         // See: https://github.com/GeChiUI/gutenberg/pull/33849#issuecomment-936134179.
 
-        newValue = Object(external_gc_richText_["replace"])(value, richTextText, newValue);
+        const newValAfter = (0,external_gc_richText_namespaceObject.replace)(valAfter, richTextText, newValue);
+        newValue = (0,external_gc_richText_namespaceObject.concat)(valBefore, newValAfter);
       }
 
       newValue.start = newValue.end;
@@ -1006,27 +897,26 @@ function InlineLinkUI(_ref) {
     }
 
     if (!isValidHref(newUrl)) {
-      speak(Object(external_gc_i18n_["__"])('警告：此链接已被插入但可能含有错误，请测试。'), 'assertive');
+      speak((0,external_gc_i18n_namespaceObject.__)('警告：此链接已被插入但可能含有错误，请测试。'), 'assertive');
     } else if (isActive) {
-      speak(Object(external_gc_i18n_["__"])('已编辑链接。'), 'assertive');
+      speak((0,external_gc_i18n_namespaceObject.__)('已编辑链接。'), 'assertive');
     } else {
-      speak(Object(external_gc_i18n_["__"])('链接已插入。'), 'assertive');
+      speak((0,external_gc_i18n_namespaceObject.__)('链接已插入。'), 'assertive');
     }
   }
 
-  const anchorRef = Object(external_gc_richText_["useAnchorRef"])({
-    ref: contentRef,
-    value,
-    settings: link_link
+  const popoverAnchor = (0,external_gc_richText_namespaceObject.useAnchor)({
+    editableContentElement: contentRef.current,
+    settings: build_module_link_link
   }); // Generate a string based key that is unique to this anchor reference.
   // This is used to force re-mount the LinkControl component to avoid
   // potential stale state bugs caused by the component not being remounted
   // See https://github.com/GeChiUI/gutenberg/pull/34742.
 
-  const forceRemountKey = use_link_instance_key(anchorRef); // The focusOnMount prop shouldn't evolve during render of a Popover
+  const forceRemountKey = use_link_instance_key(popoverAnchor); // The focusOnMount prop shouldn't evolve during render of a Popover
   // otherwise it causes a render of the content.
 
-  const focusOnMount = Object(external_gc_element_["useRef"])(addingLink ? 'firstElement' : false);
+  const focusOnMount = (0,external_gc_element_namespaceObject.useRef)(addingLink ? 'firstElement' : false);
 
   async function handleCreate(pageTitle) {
     const page = await createPageEntity({
@@ -1043,19 +933,21 @@ function InlineLinkUI(_ref) {
   }
 
   function createButtonText(searchTerm) {
-    return Object(external_gc_element_["createInterpolateElement"])(Object(external_gc_i18n_["sprintf"])(
+    return (0,external_gc_element_namespaceObject.createInterpolateElement)((0,external_gc_i18n_namespaceObject.sprintf)(
     /* translators: %s: search term. */
-    Object(external_gc_i18n_["__"])('创建页面：<mark>%s</mark>'), searchTerm), {
-      mark: Object(external_gc_element_["createElement"])("mark", null)
+    (0,external_gc_i18n_namespaceObject.__)('创建页面：<mark>%s</mark>'), searchTerm), {
+      mark: (0,external_gc_element_namespaceObject.createElement)("mark", null)
     });
   }
 
-  return Object(external_gc_element_["createElement"])(external_gc_components_["Popover"], {
-    anchorRef: anchorRef,
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Popover, {
+    anchor: popoverAnchor,
     focusOnMount: focusOnMount.current,
     onClose: stopAddingLink,
-    position: "bottom center"
-  }, Object(external_gc_element_["createElement"])(external_gc_blockEditor_["__experimentalLinkControl"], {
+    onFocusOutside: () => stopAddingLink(false),
+    placement: "bottom",
+    shift: true
+  }, (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.__experimentalLinkControl, {
     key: forceRemountKey,
     value: linkValue,
     onChange: onChangeLink,
@@ -1087,12 +979,12 @@ function getRichTextValueFromSelection(value, isActive) {
   } // Get a RichTextValue containing the selected text content.
 
 
-  return Object(external_gc_richText_["slice"])(value, textStart, textEnd);
+  return (0,external_gc_richText_namespaceObject.slice)(value, textStart, textEnd);
 }
 
-/* harmony default export */ var inline = (Object(external_gc_components_["withSpokenMessages"])(InlineLinkUI));
+/* harmony default export */ var inline = ((0,external_gc_components_namespaceObject.withSpokenMessages)(InlineLinkUI));
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/link/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/link/index.js
 
 
 /**
@@ -1114,31 +1006,30 @@ function getRichTextValueFromSelection(value, isActive) {
 
 const link_name = 'core/link';
 
-const link_title = Object(external_gc_i18n_["__"])('链接');
+const link_title = (0,external_gc_i18n_namespaceObject.__)('链接');
 
-function link_Edit(_ref) {
-  let {
-    isActive,
-    activeAttributes,
-    value,
-    onChange,
-    onFocus,
-    contentRef
-  } = _ref;
-  const [addingLink, setAddingLink] = Object(external_gc_element_["useState"])(false);
+function link_Edit({
+  isActive,
+  activeAttributes,
+  value,
+  onChange,
+  onFocus,
+  contentRef
+}) {
+  const [addingLink, setAddingLink] = (0,external_gc_element_namespaceObject.useState)(false);
 
   function addLink() {
-    const text = Object(external_gc_richText_["getTextContent"])(Object(external_gc_richText_["slice"])(value));
+    const text = (0,external_gc_richText_namespaceObject.getTextContent)((0,external_gc_richText_namespaceObject.slice)(value));
 
-    if (text && Object(external_gc_url_["isURL"])(text) && isValidHref(text)) {
-      onChange(Object(external_gc_richText_["applyFormat"])(value, {
+    if (text && (0,external_gc_url_namespaceObject.isURL)(text) && isValidHref(text)) {
+      onChange((0,external_gc_richText_namespaceObject.applyFormat)(value, {
         type: link_name,
         attributes: {
           url: text
         }
       }));
-    } else if (text && Object(external_gc_url_["isEmail"])(text)) {
-      onChange(Object(external_gc_richText_["applyFormat"])(value, {
+    } else if (text && (0,external_gc_url_namespaceObject.isEmail)(text)) {
+      onChange((0,external_gc_richText_namespaceObject.applyFormat)(value, {
         type: link_name,
         attributes: {
           url: `mailto:${text}`
@@ -1149,41 +1040,44 @@ function link_Edit(_ref) {
     }
   }
 
-  function stopAddingLink() {
+  function stopAddingLink(returnFocus = true) {
     setAddingLink(false);
-    onFocus();
+
+    if (returnFocus) {
+      onFocus();
+    }
   }
 
   function onRemoveFormat() {
-    onChange(Object(external_gc_richText_["removeFormat"])(value, link_name));
-    Object(external_gc_a11y_["speak"])(Object(external_gc_i18n_["__"])('已移除链接。'), 'assertive');
+    onChange((0,external_gc_richText_namespaceObject.removeFormat)(value, link_name));
+    (0,external_gc_a11y_namespaceObject.speak)((0,external_gc_i18n_namespaceObject.__)('已移除链接。'), 'assertive');
   }
 
-  return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichTextShortcut"], {
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_element_namespaceObject.Fragment, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextShortcut, {
     type: "primary",
     character: "k",
     onUse: addLink
-  }), Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichTextShortcut"], {
+  }), (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextShortcut, {
     type: "primaryShift",
     character: "k",
     onUse: onRemoveFormat
-  }), isActive && Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichTextToolbarButton"], {
+  }), isActive && (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextToolbarButton, {
     name: "link",
-    icon: link_off["a" /* default */],
-    title: Object(external_gc_i18n_["__"])('移除链接'),
+    icon: link_off,
+    title: (0,external_gc_i18n_namespaceObject.__)('移除链接'),
     onClick: onRemoveFormat,
     isActive: isActive,
     shortcutType: "primaryShift",
     shortcutCharacter: "k"
-  }), !isActive && Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichTextToolbarButton"], {
+  }), !isActive && (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextToolbarButton, {
     name: "link",
-    icon: library_link["a" /* default */],
+    icon: library_link,
     title: link_title,
     onClick: addLink,
     isActive: isActive,
     shortcutType: "primary",
     shortcutCharacter: "k"
-  }), (addingLink || isActive) && Object(external_gc_element_["createElement"])(inline, {
+  }), (addingLink || isActive) && (0,external_gc_element_namespaceObject.createElement)(inline, {
     addingLink: addingLink,
     stopAddingLink: stopAddingLink,
     isActive: isActive,
@@ -1194,7 +1088,7 @@ function link_Edit(_ref) {
   }));
 }
 
-const link_link = {
+const build_module_link_link = {
   name: link_name,
   title: link_title,
   tagName: 'a',
@@ -1206,28 +1100,26 @@ const link_link = {
     target: 'target'
   },
 
-  __unstablePasteRule(value, _ref2) {
-    let {
-      html,
-      plainText
-    } = _ref2;
-
-    if (Object(external_gc_richText_["isCollapsed"])(value)) {
+  __unstablePasteRule(value, {
+    html,
+    plainText
+  }) {
+    if ((0,external_gc_richText_namespaceObject.isCollapsed)(value)) {
       return value;
     }
 
-    const pastedText = (html || plainText).replace(/<[^>]+>/g, '').trim(); // A URL was pasted, turn the selection into a link
+    const pastedText = (html || plainText).replace(/<[^>]+>/g, '').trim(); // A URL was pasted, turn the selection into a link.
 
-    if (!Object(external_gc_url_["isURL"])(pastedText)) {
+    if (!(0,external_gc_url_namespaceObject.isURL)(pastedText)) {
       return value;
     } // Allows us to ask for this information when we get a report.
 
 
     window.console.log('Created link:\n\n', pastedText);
-    return Object(external_gc_richText_["applyFormat"])(value, {
+    return (0,external_gc_richText_namespaceObject.applyFormat)(value, {
       type: link_name,
       attributes: {
-        url: Object(external_gc_htmlEntities_["decodeEntities"])(pastedText)
+        url: (0,external_gc_htmlEntities_namespaceObject.decodeEntities)(pastedText)
       }
     });
   },
@@ -1235,10 +1127,22 @@ const link_link = {
   edit: link_Edit
 };
 
-// EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/library/format-strikethrough.js
-var format_strikethrough = __webpack_require__("tYCf");
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/format-strikethrough.js
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/strikethrough/index.js
+
+/**
+ * GeChiUI dependencies
+ */
+
+const formatStrikethrough = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
+  xmlns: "http://www.w3.org/2000/svg",
+  viewBox: "0 0 24 24"
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
+  d: "M9.1 9v-.5c0-.6.2-1.1.7-1.4.5-.3 1.2-.5 2-.5.7 0 1.4.1 2.1.3.7.2 1.4.5 2.1.9l.2-1.9c-.6-.3-1.2-.5-1.9-.7-.8-.1-1.6-.2-2.4-.2-1.5 0-2.7.3-3.6 1-.8.7-1.2 1.5-1.2 2.6V9h2zM20 12H4v1h8.3c.3.1.6.2.8.3.5.2.9.5 1.1.8.3.3.4.7.4 1.2 0 .7-.2 1.1-.8 1.5-.5.3-1.2.5-2.1.5-.8 0-1.6-.1-2.4-.3-.8-.2-1.5-.5-2.2-.8L7 18.1c.5.2 1.2.4 2 .6.8.2 1.6.3 2.4.3 1.7 0 3-.3 3.9-1 .9-.7 1.3-1.6 1.3-2.8 0-.9-.2-1.7-.7-2.2H20v-1z"
+}));
+/* harmony default export */ var format_strikethrough = (formatStrikethrough);
+
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/strikethrough/index.js
 
 
 /**
@@ -1250,7 +1154,7 @@ var format_strikethrough = __webpack_require__("tYCf");
 
 const strikethrough_name = 'core/strikethrough';
 
-const strikethrough_title = Object(external_gc_i18n_["__"])('删除线');
+const strikethrough_title = (0,external_gc_i18n_namespaceObject.__)('删除线');
 
 const strikethrough = {
   name: strikethrough_name,
@@ -1258,34 +1162,36 @@ const strikethrough = {
   tagName: 's',
   className: null,
 
-  edit(_ref) {
-    let {
-      isActive,
-      value,
-      onChange,
-      onFocus
-    } = _ref;
-
+  edit({
+    isActive,
+    value,
+    onChange,
+    onFocus
+  }) {
     function onClick() {
-      onChange(Object(external_gc_richText_["toggleFormat"])(value, {
+      onChange((0,external_gc_richText_namespaceObject.toggleFormat)(value, {
         type: strikethrough_name,
         title: strikethrough_title
       }));
       onFocus();
     }
 
-    return Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichTextToolbarButton"], {
-      icon: format_strikethrough["a" /* default */],
+    return (0,external_gc_element_namespaceObject.createElement)(external_gc_element_namespaceObject.Fragment, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextShortcut, {
+      type: "access",
+      character: "d",
+      onUse: onClick
+    }), (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextToolbarButton, {
+      icon: format_strikethrough,
       title: strikethrough_title,
       onClick: onClick,
       isActive: isActive,
       role: "menuitemcheckbox"
-    });
+    }));
   }
 
 };
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/underline/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/underline/index.js
 
 
 /**
@@ -1296,7 +1202,7 @@ const strikethrough = {
 
 const underline_name = 'core/underline';
 
-const underline_title = Object(external_gc_i18n_["__"])('下划线');
+const underline_title = (0,external_gc_i18n_namespaceObject.__)('下划线');
 
 const underline = {
   name: underline_name,
@@ -1307,14 +1213,12 @@ const underline = {
     style: 'style'
   },
 
-  edit(_ref) {
-    let {
-      value,
-      onChange
-    } = _ref;
-
+  edit({
+    value,
+    onChange
+  }) {
     const onToggle = () => {
-      onChange(Object(external_gc_richText_["toggleFormat"])(value, {
+      onChange((0,external_gc_richText_namespaceObject.toggleFormat)(value, {
         type: underline_name,
         attributes: {
           style: 'text-decoration: underline;'
@@ -1323,11 +1227,11 @@ const underline = {
       }));
     };
 
-    return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichTextShortcut"], {
+    return (0,external_gc_element_namespaceObject.createElement)(external_gc_element_namespaceObject.Fragment, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextShortcut, {
       type: "primary",
       character: "u",
       onUse: onToggle
-    }), Object(external_gc_element_["createElement"])(external_gc_blockEditor_["__unstableRichTextInputEvent"], {
+    }), (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.__unstableRichTextInputEvent, {
       inputType: "formatUnderline",
       onInput: onToggle
     }));
@@ -1335,35 +1239,73 @@ const underline = {
 
 };
 
-// EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/icon/index.js
-var icon = __webpack_require__("txjq");
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/icon/index.js
+/**
+ * GeChiUI dependencies
+ */
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/text-color.js
+/** @typedef {{icon: JSX.Element, size?: number} & import('@gechiui/primitives').SVGProps} IconProps */
+
+/**
+ * Return an SVG icon.
+ *
+ * @param {IconProps} props icon is the SVG component to render
+ *                          size is a number specifiying the icon size in pixels
+ *                          Other props will be passed to wrapped SVG component
+ *
+ * @return {JSX.Element}  Icon component
+ */
+
+function Icon({
+  icon,
+  size = 24,
+  ...props
+}) {
+  return (0,external_gc_element_namespaceObject.cloneElement)(icon, {
+    width: size,
+    height: size,
+    ...props
+  });
+}
+
+/* harmony default export */ var icon = (Icon);
+
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/text-color.js
 
 
 /**
  * GeChiUI dependencies
  */
 
-const textColor = Object(external_gc_element_["createElement"])(external_gc_primitives_["SVG"], {
+const textColor = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
   xmlns: "http://www.w3.org/2000/svg",
   viewBox: "0 0 24 24"
-}, Object(external_gc_element_["createElement"])(external_gc_primitives_["Path"], {
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
   d: "M12.9 6h-2l-4 11h1.9l1.1-3h4.2l1.1 3h1.9L12.9 6zm-2.5 6.5l1.5-4.9 1.7 4.9h-3.2z"
 }));
 /* harmony default export */ var text_color = (textColor);
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/text-color/inline.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/color.js
 
-
-/**
- * External dependencies
- */
 
 /**
  * GeChiUI dependencies
  */
 
+const color = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
+  viewBox: "0 0 24 24",
+  xmlns: "http://www.w3.org/2000/svg"
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
+  d: "M17.2 10.9c-.5-1-1.2-2.1-2.1-3.2-.6-.9-1.3-1.7-2.1-2.6L12 4l-1 1.1c-.6.9-1.3 1.7-2 2.6-.8 1.2-1.5 2.3-2 3.2-.6 1.2-1 2.2-1 3 0 3.4 2.7 6.1 6.1 6.1s6.1-2.7 6.1-6.1c0-.8-.3-1.8-1-3zm-5.1 7.6c-2.5 0-4.6-2.1-4.6-4.6 0-.3.1-1 .8-2.3.5-.9 1.1-1.9 2-3.1.7-.9 1.3-1.7 1.8-2.3.7.8 1.3 1.6 1.8 2.3.8 1.1 1.5 2.2 2 3.1.7 1.3.8 2 .8 2.3 0 2.5-2.1 4.6-4.6 4.6z"
+}));
+/* harmony default export */ var library_color = (color);
+
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/text-color/inline.js
+
+
+/**
+ * GeChiUI dependencies
+ */
 
 
 
@@ -1376,8 +1318,7 @@ const textColor = Object(external_gc_element_["createElement"])(external_gc_prim
 
 
 
-function parseCSS() {
-  let css = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+function parseCSS(css = '') {
   return css.split(';').reduce((accumulator, rule) => {
     if (rule) {
       const [property, value] = rule.split(':');
@@ -1389,23 +1330,20 @@ function parseCSS() {
   }, {});
 }
 
-function parseClassName() {
-  let className = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-  let colorSettings = arguments.length > 1 ? arguments[1] : undefined;
+function parseClassName(className = '', colorSettings) {
   return className.split(' ').reduce((accumulator, name) => {
     // `colorSlug` could contain dashes, so simply match the start and end.
     if (name.startsWith('has-') && name.endsWith('-color')) {
       const colorSlug = name.replace(/^has-/, '').replace(/-color$/, '');
-      const colorObject = Object(external_gc_blockEditor_["getColorObjectByAttributeValues"])(colorSettings, colorSlug);
+      const colorObject = (0,external_gc_blockEditor_namespaceObject.getColorObjectByAttributeValues)(colorSettings, colorSlug);
       accumulator.color = colorObject.color;
     }
 
     return accumulator;
   }, {});
 }
-
 function getActiveColors(value, name, colorSettings) {
-  const activeColorFormat = Object(external_gc_richText_["getActiveFormat"])(value, name);
+  const activeColorFormat = (0,external_gc_richText_namespaceObject.getActiveFormat)(value, name);
 
   if (!activeColorFormat) {
     return {};
@@ -1425,7 +1363,7 @@ function setColors(value, name, colorSettings, colors) {
   };
 
   if (!color && !backgroundColor) {
-    return Object(external_gc_richText_["removeFormat"])(value, name);
+    return (0,external_gc_richText_namespaceObject.removeFormat)(value, name);
   }
 
   const styles = [];
@@ -1440,10 +1378,10 @@ function setColors(value, name, colorSettings, colors) {
   }
 
   if (color) {
-    const colorObject = Object(external_gc_blockEditor_["getColorObjectByColorValue"])(colorSettings, color);
+    const colorObject = (0,external_gc_blockEditor_namespaceObject.getColorObjectByColorValue)(colorSettings, color);
 
     if (colorObject) {
-      classNames.push(Object(external_gc_blockEditor_["getColorClassName"])('color', colorObject.slug));
+      classNames.push((0,external_gc_blockEditor_namespaceObject.getColorClassName)('color', colorObject.slug));
     } else {
       styles.push(['color', color].join(':'));
     }
@@ -1451,71 +1389,69 @@ function setColors(value, name, colorSettings, colors) {
 
   if (styles.length) attributes.style = styles.join(';');
   if (classNames.length) attributes.class = classNames.join(' ');
-  return Object(external_gc_richText_["applyFormat"])(value, {
+  return (0,external_gc_richText_namespaceObject.applyFormat)(value, {
     type: name,
     attributes
   });
 }
 
-function ColorPicker(_ref) {
-  let {
-    name,
-    property,
-    value,
-    onChange
-  } = _ref;
-  const colors = Object(external_gc_data_["useSelect"])(select => {
+function ColorPicker({
+  name,
+  property,
+  value,
+  onChange
+}) {
+  const colors = (0,external_gc_data_namespaceObject.useSelect)(select => {
+    var _getSettings$colors;
+
     const {
       getSettings
-    } = select(external_gc_blockEditor_["store"]);
-    return Object(external_lodash_["get"])(getSettings(), ['colors'], []);
+    } = select(external_gc_blockEditor_namespaceObject.store);
+    return (_getSettings$colors = getSettings().colors) !== null && _getSettings$colors !== void 0 ? _getSettings$colors : [];
   }, []);
-  const onColorChange = Object(external_gc_element_["useCallback"])(color => {
+  const onColorChange = (0,external_gc_element_namespaceObject.useCallback)(color => {
     onChange(setColors(value, name, colors, {
       [property]: color
     }));
   }, [colors, onChange, property]);
-  const activeColors = Object(external_gc_element_["useMemo"])(() => getActiveColors(value, name, colors), [name, value, colors]);
-  return Object(external_gc_element_["createElement"])(external_gc_blockEditor_["ColorPalette"], {
+  const activeColors = (0,external_gc_element_namespaceObject.useMemo)(() => getActiveColors(value, name, colors), [name, value, colors]);
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.ColorPalette, {
     value: activeColors[property],
     onChange: onColorChange
   });
 }
 
-function InlineColorUI(_ref2) {
-  let {
-    name,
-    value,
-    onChange,
-    onClose,
-    contentRef
-  } = _ref2;
-
-  /* 
+function InlineColorUI({
+  name,
+  value,
+  onChange,
+  onClose,
+  contentRef
+}) {
+  /*
    As you change the text color by typing a HEX value into a field,
    the return value of document.getSelection jumps to the field you're editing,
-   not the highlighted text. Given that useAnchorRef uses document.getSelection,
+   not the highlighted text. Given that useAnchor uses document.getSelection,
    it will return null, since it can't find the <mark> element within the HEX input.
    This caches the last truthy value of the selection anchor reference.
    */
-  const anchorRef = Object(external_gc_blockEditor_["useCachedTruthy"])(Object(external_gc_richText_["useAnchorRef"])({
-    ref: contentRef,
-    value,
+  const popoverAnchor = (0,external_gc_blockEditor_namespaceObject.useCachedTruthy)((0,external_gc_richText_namespaceObject.useAnchor)({
+    editableContentElement: contentRef.current,
     settings: text_color_textColor
   }));
-  return Object(external_gc_element_["createElement"])(external_gc_components_["Popover"], {
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Popover, {
     onClose: onClose,
     className: "components-inline-color-popover",
-    anchorRef: anchorRef
-  }, Object(external_gc_element_["createElement"])(external_gc_components_["TabPanel"], {
+    anchor: popoverAnchor
+  }, (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.TabPanel, {
     tabs: [{
       name: 'color',
-      title: Object(external_gc_i18n_["__"])('文本')
+      title: (0,external_gc_i18n_namespaceObject.__)('文字')
     }, {
       name: 'backgroundColor',
-      title: Object(external_gc_i18n_["__"])('背景')
+      title: (0,external_gc_i18n_namespaceObject.__)('背景')
     }]
-  }, tab => Object(external_gc_element_["createElement"])(ColorPicker, {
+  }, tab => (0,external_gc_element_namespaceObject.createElement)(ColorPicker, {
     name: name,
     property: tab.name,
     value: value,
@@ -1523,17 +1459,12 @@ function InlineColorUI(_ref2) {
   })));
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/text-color/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/text-color/index.js
 
-
-/**
- * External dependencies
- */
 
 /**
  * GeChiUI dependencies
  */
-
 
 
 
@@ -1547,7 +1478,7 @@ function InlineColorUI(_ref2) {
 const transparentValue = 'rgba(0, 0, 0, 0)';
 const text_color_name = 'core/text-color';
 
-const text_color_title = Object(external_gc_i18n_["__"])('高亮');
+const text_color_title = (0,external_gc_i18n_namespaceObject.__)('高亮');
 
 const EMPTY_ARRAY = [];
 
@@ -1568,12 +1499,10 @@ function getComputedStyleProperty(element, property) {
   return value;
 }
 
-function fillComputedColors(element, _ref) {
-  let {
-    color,
-    backgroundColor
-  } = _ref;
-
+function fillComputedColors(element, {
+  color,
+  backgroundColor
+}) {
   if (!color && !backgroundColor) {
     return;
   }
@@ -1584,38 +1513,37 @@ function fillComputedColors(element, _ref) {
   };
 }
 
-function TextColorEdit(_ref2) {
-  let {
-    value,
-    onChange,
-    isActive,
-    activeAttributes,
-    contentRef
-  } = _ref2;
-  const allowCustomControl = Object(external_gc_blockEditor_["useSetting"])('color.custom');
-  const colors = Object(external_gc_blockEditor_["useSetting"])('color.palette') || EMPTY_ARRAY;
-  const [isAddingColor, setIsAddingColor] = Object(external_gc_element_["useState"])(false);
-  const enableIsAddingColor = Object(external_gc_element_["useCallback"])(() => setIsAddingColor(true), [setIsAddingColor]);
-  const disableIsAddingColor = Object(external_gc_element_["useCallback"])(() => setIsAddingColor(false), [setIsAddingColor]);
-  const colorIndicatorStyle = Object(external_gc_element_["useMemo"])(() => fillComputedColors(contentRef.current, getActiveColors(value, text_color_name, colors)), [value, colors]);
-  const hasColorsToChoose = !Object(external_lodash_["isEmpty"])(colors) || !allowCustomControl;
+function TextColorEdit({
+  value,
+  onChange,
+  isActive,
+  activeAttributes,
+  contentRef
+}) {
+  const allowCustomControl = (0,external_gc_blockEditor_namespaceObject.useSetting)('color.custom');
+  const colors = (0,external_gc_blockEditor_namespaceObject.useSetting)('color.palette') || EMPTY_ARRAY;
+  const [isAddingColor, setIsAddingColor] = (0,external_gc_element_namespaceObject.useState)(false);
+  const enableIsAddingColor = (0,external_gc_element_namespaceObject.useCallback)(() => setIsAddingColor(true), [setIsAddingColor]);
+  const disableIsAddingColor = (0,external_gc_element_namespaceObject.useCallback)(() => setIsAddingColor(false), [setIsAddingColor]);
+  const colorIndicatorStyle = (0,external_gc_element_namespaceObject.useMemo)(() => fillComputedColors(contentRef.current, getActiveColors(value, text_color_name, colors)), [value, colors]);
+  const hasColorsToChoose = colors.length || !allowCustomControl;
 
   if (!hasColorsToChoose && !isActive) {
     return null;
   }
 
-  return Object(external_gc_element_["createElement"])(external_gc_element_["Fragment"], null, Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichTextToolbarButton"], {
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_element_namespaceObject.Fragment, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextToolbarButton, {
     className: "format-library-text-color-button",
     isActive: isActive,
-    icon: Object(external_gc_element_["createElement"])(icon["a" /* default */], {
-      icon: text_color,
+    icon: (0,external_gc_element_namespaceObject.createElement)(icon, {
+      icon: Object.keys(activeAttributes).length ? text_color : library_color,
       style: colorIndicatorStyle
     }),
-    title: text_color_title // If has no colors to choose but a color is active remove the color onClick
+    title: text_color_title // If has no colors to choose but a color is active remove the color onClick.
     ,
-    onClick: hasColorsToChoose ? enableIsAddingColor : () => onChange(Object(external_gc_richText_["removeFormat"])(value, text_color_name)),
+    onClick: hasColorsToChoose ? enableIsAddingColor : () => onChange((0,external_gc_richText_namespaceObject.removeFormat)(value, text_color_name)),
     role: "menuitemcheckbox"
-  }), isAddingColor && Object(external_gc_element_["createElement"])(InlineColorUI, {
+  }), isAddingColor && (0,external_gc_element_namespaceObject.createElement)(InlineColorUI, {
     name: text_color_name,
     onClose: disableIsAddingColor,
     activeAttributes: activeAttributes,
@@ -1645,7 +1573,7 @@ const text_color_textColor = {
    * @see https://github.com/GeChiUI/gutenberg/pull/35516
    */
   __unstableFilterAttributeValue(key, value) {
-    if (key !== 'style') return value; // We should not add a background-color if it's already set
+    if (key !== 'style') return value; // We should not add a background-color if it's already set.
 
     if (value && value.includes('background-color')) return value;
     const addedCSS = ['background-color', transparentValue].join(':'); // Prepend `addedCSS` to avoid a double `;;` as any the existing CSS
@@ -1657,22 +1585,22 @@ const text_color_textColor = {
   edit: TextColorEdit
 };
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/subscript.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/subscript.js
 
 
 /**
  * GeChiUI dependencies
  */
 
-const subscript = Object(external_gc_element_["createElement"])(external_gc_primitives_["SVG"], {
+const subscript = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
   xmlns: "http://www.w3.org/2000/svg",
   viewBox: "0 0 24 24"
-}, Object(external_gc_element_["createElement"])(external_gc_primitives_["Path"], {
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
   d: "M16.9 18.3l.8-1.2c.4-.6.7-1.2.9-1.6.2-.4.3-.8.3-1.2 0-.3-.1-.7-.2-1-.1-.3-.4-.5-.6-.7-.3-.2-.6-.3-1-.3s-.8.1-1.1.2c-.3.1-.7.3-1 .6l.2 1.3c.3-.3.5-.5.8-.6s.6-.2.9-.2c.3 0 .5.1.7.2.2.2.2.4.2.7 0 .3-.1.5-.2.8-.1.3-.4.7-.8 1.3L15 19.4h4.3v-1.2h-2.4zM14.1 7.2h-2L9.5 11 6.9 7.2h-2l3.6 5.3L4.7 18h2l2.7-4 2.7 4h2l-3.8-5.5 3.8-5.3z"
 }));
 /* harmony default export */ var library_subscript = (subscript);
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/subscript/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/subscript/index.js
 
 
 /**
@@ -1684,7 +1612,7 @@ const subscript = Object(external_gc_element_["createElement"])(external_gc_prim
 
 const subscript_name = 'core/subscript';
 
-const subscript_title = Object(external_gc_i18n_["__"])('下标');
+const subscript_title = (0,external_gc_i18n_namespaceObject.__)('下标');
 
 const subscript_subscript = {
   name: subscript_name,
@@ -1692,16 +1620,14 @@ const subscript_subscript = {
   tagName: 'sub',
   className: null,
 
-  edit(_ref) {
-    let {
-      isActive,
-      value,
-      onChange,
-      onFocus
-    } = _ref;
-
+  edit({
+    isActive,
+    value,
+    onChange,
+    onFocus
+  }) {
     function onToggle() {
-      onChange(Object(external_gc_richText_["toggleFormat"])(value, {
+      onChange((0,external_gc_richText_namespaceObject.toggleFormat)(value, {
         type: subscript_name,
         title: subscript_title
       }));
@@ -1712,7 +1638,7 @@ const subscript_subscript = {
       onFocus();
     }
 
-    return Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichTextToolbarButton"], {
+    return (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextToolbarButton, {
       icon: library_subscript,
       title: subscript_title,
       onClick: onClick,
@@ -1723,22 +1649,22 @@ const subscript_subscript = {
 
 };
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/superscript.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/superscript.js
 
 
 /**
  * GeChiUI dependencies
  */
 
-const superscript = Object(external_gc_element_["createElement"])(external_gc_primitives_["SVG"], {
+const superscript = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
   xmlns: "http://www.w3.org/2000/svg",
   viewBox: "0 0 24 24"
-}, Object(external_gc_element_["createElement"])(external_gc_primitives_["Path"], {
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
   d: "M16.9 10.3l.8-1.3c.4-.6.7-1.2.9-1.6.2-.4.3-.8.3-1.2 0-.3-.1-.7-.2-1-.2-.2-.4-.4-.7-.6-.3-.2-.6-.3-1-.3s-.8.1-1.1.2c-.3.1-.7.3-1 .6l.1 1.3c.3-.3.5-.5.8-.6s.6-.2.9-.2c.3 0 .5.1.7.2.2.2.2.4.2.7 0 .3-.1.5-.2.8-.1.3-.4.7-.8 1.3l-1.8 2.8h4.3v-1.2h-2.2zm-2.8-3.1h-2L9.5 11 6.9 7.2h-2l3.6 5.3L4.7 18h2l2.7-4 2.7 4h2l-3.8-5.5 3.8-5.3z"
 }));
 /* harmony default export */ var library_superscript = (superscript);
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/superscript/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/superscript/index.js
 
 
 /**
@@ -1750,7 +1676,7 @@ const superscript = Object(external_gc_element_["createElement"])(external_gc_pr
 
 const superscript_name = 'core/superscript';
 
-const superscript_title = Object(external_gc_i18n_["__"])('上标');
+const superscript_title = (0,external_gc_i18n_namespaceObject.__)('上标');
 
 const superscript_superscript = {
   name: superscript_name,
@@ -1758,16 +1684,14 @@ const superscript_superscript = {
   tagName: 'sup',
   className: null,
 
-  edit(_ref) {
-    let {
-      isActive,
-      value,
-      onChange,
-      onFocus
-    } = _ref;
-
+  edit({
+    isActive,
+    value,
+    onChange,
+    onFocus
+  }) {
     function onToggle() {
-      onChange(Object(external_gc_richText_["toggleFormat"])(value, {
+      onChange((0,external_gc_richText_namespaceObject.toggleFormat)(value, {
         type: superscript_name,
         title: superscript_title
       }));
@@ -1778,7 +1702,7 @@ const superscript_superscript = {
       onFocus();
     }
 
-    return Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichTextToolbarButton"], {
+    return (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextToolbarButton, {
       icon: library_superscript,
       title: superscript_title,
       onClick: onClick,
@@ -1789,10 +1713,22 @@ const superscript_superscript = {
 
 };
 
-// EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/library/button.js
-var library_button = __webpack_require__("UEDd");
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/button.js
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/keyboard/index.js
+
+/**
+ * GeChiUI dependencies
+ */
+
+const button_button = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
+  viewBox: "0 0 24 24",
+  xmlns: "http://www.w3.org/2000/svg"
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
+  d: "M8 12.5h8V11H8v1.5Z M19 6.5H5a2 2 0 0 0-2 2V15a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a2 2 0 0 0-2-2ZM5 8h14a.5.5 0 0 1 .5.5V15a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V8.5A.5.5 0 0 1 5 8Z"
+}));
+/* harmony default export */ var library_button = (button_button);
+
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/keyboard/index.js
 
 
 /**
@@ -1804,7 +1740,7 @@ var library_button = __webpack_require__("UEDd");
 
 const keyboard_name = 'core/keyboard';
 
-const keyboard_title = Object(external_gc_i18n_["__"])('键盘输入');
+const keyboard_title = (0,external_gc_i18n_namespaceObject.__)('键盘输入');
 
 const keyboard = {
   name: keyboard_name,
@@ -1812,16 +1748,14 @@ const keyboard = {
   tagName: 'kbd',
   className: null,
 
-  edit(_ref) {
-    let {
-      isActive,
-      value,
-      onChange,
-      onFocus
-    } = _ref;
-
+  edit({
+    isActive,
+    value,
+    onChange,
+    onFocus
+  }) {
     function onToggle() {
-      onChange(Object(external_gc_richText_["toggleFormat"])(value, {
+      onChange((0,external_gc_richText_namespaceObject.toggleFormat)(value, {
         type: keyboard_name,
         title: keyboard_title
       }));
@@ -1832,8 +1766,8 @@ const keyboard = {
       onFocus();
     }
 
-    return Object(external_gc_element_["createElement"])(external_gc_blockEditor_["RichTextToolbarButton"], {
-      icon: library_button["a" /* default */],
+    return (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextToolbarButton, {
+      icon: library_button,
       title: keyboard_title,
       onClick: onClick,
       isActive: isActive,
@@ -1843,231 +1777,237 @@ const keyboard = {
 
 };
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/default-formats.js
-/**
- * Internal dependencies
- */
-
-
-
-
-
-
-
-
-
-
-
-/* harmony default export */ var default_formats = ([bold, code_code, image_image, italic, link_link, strikethrough, underline, text_color_textColor, subscript_subscript, superscript_superscript, keyboard]);
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/index.js
-/**
- * GeChiUI dependencies
- */
-
-/**
- * Internal dependencies
- */
-
-
-default_formats.forEach(_ref => {
-  let {
-    name,
-    ...settings
-  } = _ref;
-  return Object(external_gc_richText_["registerFormatType"])(name, settings);
-});
-
-
-/***/ }),
-
-/***/ "YLtl":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["lodash"]; }());
-
-/***/ }),
-
-/***/ "ewfG":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["element"]; }());
-
-/***/ }),
-
-/***/ "jd0n":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["components"]; }());
-
-/***/ }),
-
-/***/ "kt2g":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["richText"]; }());
-
-/***/ }),
-
-/***/ "lyGs":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("ewfG");
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("Gz8V");
-/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__);
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/help.js
 
 
 /**
  * GeChiUI dependencies
  */
 
-const keyboardReturn = Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["SVG"], {
-  xmlns: "http://www.w3.org/2000/svg",
-  viewBox: "-2 -2 24 24"
-}, Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["Path"], {
-  d: "M6.734 16.106l2.176-2.38-1.093-1.028-3.846 4.158 3.846 4.157 1.093-1.027-2.176-2.38h2.811c1.125 0 2.25.03 3.374 0 1.428-.001 3.362-.25 4.963-1.277 1.66-1.065 2.868-2.906 2.868-5.859 0-2.479-1.327-4.896-3.65-5.93-1.82-.813-3.044-.8-4.806-.788l-.567.002v1.5c.184 0 .368 0 .553-.002 1.82-.007 2.704-.014 4.21.657 1.854.827 2.76 2.657 2.76 4.561 0 2.472-.973 3.824-2.178 4.596-1.258.807-2.864 1.04-4.163 1.04h-.02c-1.115.03-2.229 0-3.344 0H6.734z"
-}));
-/* harmony default export */ __webpack_exports__["a"] = (keyboardReturn);
-
-
-/***/ }),
-
-/***/ "nLrk":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["blockEditor"]; }());
-
-/***/ }),
-
-/***/ "qsmw":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("ewfG");
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("Gz8V");
-/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__);
-
-
-/**
- * GeChiUI dependencies
- */
-
-const link = Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["SVG"], {
+const help = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
   xmlns: "http://www.w3.org/2000/svg",
   viewBox: "0 0 24 24"
-}, Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["Path"], {
-  d: "M15.6 7.2H14v1.5h1.6c2 0 3.7 1.7 3.7 3.7s-1.7 3.7-3.7 3.7H14v1.5h1.6c2.8 0 5.2-2.3 5.2-5.2 0-2.9-2.3-5.2-5.2-5.2zM4.7 12.4c0-2 1.7-3.7 3.7-3.7H10V7.2H8.4c-2.9 0-5.2 2.3-5.2 5.2 0 2.9 2.3 5.2 5.2 5.2H10v-1.5H8.4c-2 0-3.7-1.7-3.7-3.7zm4.6.9h5.3v-1.5H9.3v1.5z"
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
+  d: "M12 4.75a7.25 7.25 0 100 14.5 7.25 7.25 0 000-14.5zM3.25 12a8.75 8.75 0 1117.5 0 8.75 8.75 0 01-17.5 0zM12 8.75a1.5 1.5 0 01.167 2.99c-.465.052-.917.44-.917 1.01V14h1.5v-.845A3 3 0 109 10.25h1.5a1.5 1.5 0 011.5-1.5zM11.25 15v1.5h1.5V15h-1.5z"
 }));
-/* harmony default export */ __webpack_exports__["a"] = (link);
+/* harmony default export */ var library_help = (help);
 
-
-/***/ }),
-
-/***/ "rl/G":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("ewfG");
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("Gz8V");
-/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__);
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/unknown/index.js
 
 
 /**
  * GeChiUI dependencies
  */
 
-const code = Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["SVG"], {
-  viewBox: "0 0 24 24",
-  xmlns: "http://www.w3.org/2000/svg"
-}, Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["Path"], {
-  d: "M20.8 10.7l-4.3-4.3-1.1 1.1 4.3 4.3c.1.1.1.3 0 .4l-4.3 4.3 1.1 1.1 4.3-4.3c.7-.8.7-1.9 0-2.6zM4.2 11.8l4.3-4.3-1-1-4.3 4.3c-.7.7-.7 1.8 0 2.5l4.3 4.3 1.1-1.1-4.3-4.3c-.2-.1-.2-.3-.1-.4z"
-}));
-/* harmony default export */ __webpack_exports__["a"] = (code);
 
 
-/***/ }),
 
-/***/ "tYCf":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+const unknown_name = 'core/unknown';
 
-"use strict";
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("ewfG");
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("Gz8V");
-/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__);
+const unknown_title = (0,external_gc_i18n_namespaceObject.__)('清除未知格式');
+
+const unknown = {
+  name: unknown_name,
+  title: unknown_title,
+  tagName: '*',
+  className: null,
+
+  edit({
+    isActive,
+    value,
+    onChange,
+    onFocus
+  }) {
+    function onClick() {
+      onChange((0,external_gc_richText_namespaceObject.removeFormat)(value, unknown_name));
+      onFocus();
+    }
+
+    const selectedValue = (0,external_gc_richText_namespaceObject.slice)(value);
+    const hasUnknownFormats = selectedValue.formats.some(formats => {
+      return formats.some(format => format.type === unknown_name);
+    });
+
+    if (!isActive && !hasUnknownFormats) {
+      return null;
+    }
+
+    return (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextToolbarButton, {
+      name: "unknown",
+      icon: library_help,
+      title: unknown_title,
+      onClick: onClick,
+      isActive: true
+    });
+  }
+
+};
+
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/language.js
 
 
 /**
  * GeChiUI dependencies
  */
 
-const formatStrikethrough = Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["SVG"], {
+const language = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
   xmlns: "http://www.w3.org/2000/svg",
   viewBox: "0 0 24 24"
-}, Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["Path"], {
-  d: "M9.1 9v-.5c0-.6.2-1.1.7-1.4.5-.3 1.2-.5 2-.5.7 0 1.4.1 2.1.3.7.2 1.4.5 2.1.9l.2-1.9c-.6-.3-1.2-.5-1.9-.7-.8-.1-1.6-.2-2.4-.2-1.5 0-2.7.3-3.6 1-.8.7-1.2 1.5-1.2 2.6V9h2zM20 12H4v1h8.3c.3.1.6.2.8.3.5.2.9.5 1.1.8.3.3.4.7.4 1.2 0 .7-.2 1.1-.8 1.5-.5.3-1.2.5-2.1.5-.8 0-1.6-.1-2.4-.3-.8-.2-1.5-.5-2.2-.8L7 18.1c.5.2 1.2.4 2 .6.8.2 1.6.3 2.4.3 1.7 0 3-.3 3.9-1 .9-.7 1.3-1.6 1.3-2.8 0-.9-.2-1.7-.7-2.2H20v-1z"
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
+  d: "M17.5 10h-1.7l-3.7 10.5h1.7l.9-2.6h3.9l.9 2.6h1.7L17.5 10zm-2.2 6.3 1.4-4 1.4 4h-2.8zm-4.8-3.8c1.6-1.8 2.9-3.6 3.7-5.7H16V5.2h-5.8V3H8.8v2.2H3v1.5h9.6c-.7 1.6-1.8 3.1-3.1 4.6C8.6 10.2 7.8 9 7.2 8H5.6c.6 1.4 1.7 2.9 2.9 4.4l-2.4 2.4c-.3.4-.7.8-1.1 1.2l1 1 1.2-1.2c.8-.8 1.6-1.5 2.3-2.3.8.9 1.7 1.7 2.5 2.5l.6-1.5c-.7-.6-1.4-1.3-2.1-2z"
 }));
-/* harmony default export */ __webpack_exports__["a"] = (formatStrikethrough);
+/* harmony default export */ var library_language = (language);
+
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/language/index.js
 
 
-/***/ }),
-
-/***/ "txjq":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("ewfG");
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__);
 /**
  * GeChiUI dependencies
  */
 
-/** @typedef {{icon: JSX.Element, size?: number} & import('@gechiui/primitives').SVGProps} IconProps */
-
 /**
- * Return an SVG icon.
- *
- * @param {IconProps} props icon is the SVG component to render
- *                          size is a number specifiying the icon size in pixels
- *                          Other props will be passed to wrapped SVG component
- *
- * @return {JSX.Element}  Icon component
+ * GeChiUI dependencies
  */
 
-function Icon(_ref) {
-  let {
-    icon,
-    size = 24,
-    ...props
-  } = _ref;
-  return Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["cloneElement"])(icon, {
-    width: size,
-    height: size,
-    ...props
-  });
+
+
+
+
+
+const language_name = 'core/language';
+
+const language_title = (0,external_gc_i18n_namespaceObject.__)('语言');
+
+const language_language = {
+  name: language_name,
+  tagName: 'bdo',
+  className: null,
+  edit: language_Edit,
+  title: language_title
+};
+
+function language_Edit({
+  isActive,
+  value,
+  onChange,
+  contentRef
+}) {
+  const [isPopoverVisible, setIsPopoverVisible] = (0,external_gc_element_namespaceObject.useState)(false);
+
+  const togglePopover = () => {
+    setIsPopoverVisible(state => !state);
+  };
+
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_element_namespaceObject.Fragment, null, (0,external_gc_element_namespaceObject.createElement)(external_gc_blockEditor_namespaceObject.RichTextToolbarButton, {
+    icon: library_language,
+    label: language_title,
+    title: language_title,
+    onClick: () => {
+      if (isActive) {
+        onChange((0,external_gc_richText_namespaceObject.removeFormat)(value, language_name));
+      } else {
+        togglePopover();
+      }
+    },
+    isActive: isActive,
+    role: "menuitemcheckbox"
+  }), isPopoverVisible && (0,external_gc_element_namespaceObject.createElement)(InlineLanguageUI, {
+    value: value,
+    onChange: onChange,
+    onClose: togglePopover,
+    contentRef: contentRef
+  }));
 }
 
-/* harmony default export */ __webpack_exports__["a"] = (Icon);
+function InlineLanguageUI({
+  value,
+  contentRef,
+  onChange,
+  onClose
+}) {
+  const popoverAnchor = (0,external_gc_richText_namespaceObject.useAnchor)({
+    editableContentElement: contentRef.current,
+    settings: language_language
+  });
+  const [lang, setLang] = (0,external_gc_element_namespaceObject.useState)('');
+  const [dir, setDir] = (0,external_gc_element_namespaceObject.useState)('ltr');
+  return (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Popover, {
+    className: "block-editor-format-toolbar__language-popover",
+    anchor: popoverAnchor,
+    placement: "bottom",
+    onClose: onClose
+  }, (0,external_gc_element_namespaceObject.createElement)("form", {
+    className: "block-editor-format-toolbar__language-container-content",
+    onSubmit: event => {
+      event.preventDefault();
+      onChange((0,external_gc_richText_namespaceObject.applyFormat)(value, {
+        type: language_name,
+        attributes: {
+          lang,
+          dir
+        }
+      }));
+      onClose();
+    }
+  }, (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.TextControl, {
+    label: language_title,
+    value: lang,
+    onChange: val => setLang(val),
+    help: (0,external_gc_i18n_namespaceObject.__)('有效的语言属性，如“cn”或“en”。')
+  }), (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.SelectControl, {
+    label: (0,external_gc_i18n_namespaceObject.__)('文本方向'),
+    value: dir,
+    options: [{
+      label: (0,external_gc_i18n_namespaceObject.__)('从左到右'),
+      value: 'ltr'
+    }, {
+      label: (0,external_gc_i18n_namespaceObject.__)('从右到左'),
+      value: 'rtl'
+    }],
+    onChange: val => setDir(val)
+  }), (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.__experimentalHStack, {
+    alignment: "right"
+  }, (0,external_gc_element_namespaceObject.createElement)(external_gc_components_namespaceObject.Button, {
+    variant: "primary",
+    type: "submit",
+    text: (0,external_gc_i18n_namespaceObject.__)('应用')
+  }))));
+}
+
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/default-formats.js
+/**
+ * Internal dependencies
+ */
 
 
-/***/ }),
 
-/***/ "z4sU":
-/***/ (function(module, exports) {
 
-(function() { module.exports = window["gc"]["i18n"]; }());
 
-/***/ }),
 
-/***/ "zP/e":
-/***/ (function(module, exports) {
 
-(function() { module.exports = window["gc"]["url"]; }());
 
-/***/ })
 
-/******/ });
+
+
+
+
+/* harmony default export */ var default_formats = ([bold, code_code, image_image, italic, build_module_link_link, strikethrough, underline, text_color_textColor, subscript_subscript, superscript_superscript, keyboard, unknown, language_language]);
+
+;// CONCATENATED MODULE: ./node_modules/@gechiui/format-library/build-module/index.js
+/**
+ * GeChiUI dependencies
+ */
+
+/**
+ * Internal dependencies
+ */
+
+
+default_formats.forEach(({
+  name,
+  ...settings
+}) => (0,external_gc_richText_namespaceObject.registerFormatType)(name, settings));
+
+(window.gc = window.gc || {}).formatLibrary = __webpack_exports__;
+/******/ })()
+;

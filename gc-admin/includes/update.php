@@ -9,38 +9,42 @@
 /**
  * Selects the first update version from the update_core option.
  *
- *
+ * @since 2.7.0
  *
  * @return object|array|false The response from the API on success, false on failure.
  */
 function get_preferred_from_update_core() {
 	$updates = get_core_updates();
+
 	if ( ! is_array( $updates ) ) {
 		return false;
 	}
+
 	if ( empty( $updates ) ) {
 		return (object) array( 'response' => 'latest' );
 	}
+
 	return $updates[0];
 }
 
 /**
  * Gets available core updates.
  *
- *
+ * @since 2.7.0
  *
  * @param array $options Set $options['dismissed'] to true to show dismissed upgrades too,
  *                       set $options['available'] to false to skip not-dismissed updates.
  * @return array|false Array of the update objects on success, false on failure.
  */
 function get_core_updates( $options = array() ) {
-	$options   = array_merge(
+	$options = array_merge(
 		array(
 			'available' => true,
 			'dismissed' => false,
 		),
 		$options
 	);
+
 	$dismissed = get_site_option( 'dismissed_update_core' );
 
 	if ( ! is_array( $dismissed ) ) {
@@ -55,6 +59,7 @@ function get_core_updates( $options = array() ) {
 
 	$updates = $from_api->updates;
 	$result  = array();
+
 	foreach ( $updates as $update ) {
 		if ( 'autoupdate' === $update->response ) {
 			continue;
@@ -72,6 +77,7 @@ function get_core_updates( $options = array() ) {
 			}
 		}
 	}
+
 	return $result;
 }
 
@@ -80,12 +86,11 @@ function get_core_updates( $options = array() ) {
  *
  * If there's 1.2.3 and 1.3 on offer, it'll choose 1.3 if the installation allows it, else, 1.2.3.
  *
- *
- *
  * @return object|false The core update offering on success, false on failure.
  */
 function find_core_auto_update() {
 	$updates = get_site_transient( 'update_core' );
+
 	if ( ! $updates || empty( $updates->updates ) ) {
 		return false;
 	}
@@ -93,7 +98,8 @@ function find_core_auto_update() {
 	require_once ABSPATH . 'gc-admin/includes/class-gc-upgrader.php';
 
 	$auto_update = false;
-	$upgrader    = new GC_Automatic_Updater;
+	$upgrader    = new GC_Automatic_Updater();
+
 	foreach ( $updates->updates as $update ) {
 		if ( 'autoupdate' !== $update->response ) {
 			continue;
@@ -107,13 +113,12 @@ function find_core_auto_update() {
 			$auto_update = $update;
 		}
 	}
+
 	return $auto_update;
 }
 
 /**
  * Gets and caches the checksums for the given version of GeChiUI.
- *
- *
  *
  * @param string $version Version string to query.
  * @param string $locale  Locale to query.
@@ -124,6 +129,7 @@ function get_core_checksums( $version, $locale ) {
 	$url      = $http_url;
 
 	$ssl = gc_http_supports( array( 'ssl' ) );
+
 	if ( $ssl ) {
 		$url = set_url_scheme( $url, 'https' );
 	}
@@ -133,6 +139,7 @@ function get_core_checksums( $version, $locale ) {
 	);
 
 	$response = gc_remote_get( $url, $options );
+
 	if ( $ssl && is_gc_error( $response ) ) {
 		trigger_error(
 			sprintf(
@@ -142,10 +149,11 @@ function get_core_checksums( $version, $locale ) {
 			) . ' ' . __( '（GeChiUI无法建立到www.GeChiUI.com的安全连接，请联系您的服务器管理员。）' ),
 			headers_sent() || GC_DEBUG ? E_USER_WARNING : E_USER_NOTICE
 		);
+
 		$response = gc_remote_get( $http_url, $options );
 	}
 
-	if ( is_gc_error( $response ) || 200 != gc_remote_retrieve_response_code( $response ) ) {
+	if ( is_gc_error( $response ) || 200 !== gc_remote_retrieve_response_code( $response ) ) {
 		return false;
 	}
 
@@ -162,7 +170,7 @@ function get_core_checksums( $version, $locale ) {
 /**
  * Dismisses core update.
  *
- *
+ * @since 2.7.0
  *
  * @param object $update
  * @return bool
@@ -170,13 +178,14 @@ function get_core_checksums( $version, $locale ) {
 function dismiss_core_update( $update ) {
 	$dismissed = get_site_option( 'dismissed_update_core' );
 	$dismissed[ $update->current . '|' . $update->locale ] = true;
+
 	return update_site_option( 'dismissed_update_core', $dismissed );
 }
 
 /**
  * Undismisses core update.
  *
- *
+ * @since 2.7.0
  *
  * @param string $version
  * @param string $locale
@@ -191,13 +200,14 @@ function undismiss_core_update( $version, $locale ) {
 	}
 
 	unset( $dismissed[ $key ] );
+
 	return update_site_option( 'dismissed_update_core', $dismissed );
 }
 
 /**
  * Finds the available update for GeChiUI core.
  *
- *
+ * @since 2.7.0
  *
  * @param string $version Version string to find the update for.
  * @param string $locale  Locale to find the update for.
@@ -211,16 +221,18 @@ function find_core_update( $version, $locale ) {
 	}
 
 	$updates = $from_api->updates;
+
 	foreach ( $updates as $update ) {
-		if ( $update->current == $version && $update->locale == $locale ) {
+		if ( $update->current === $version && $update->locale === $locale ) {
 			return $update;
 		}
 	}
+
 	return false;
 }
 
 /**
- *
+ * Returns core update footer message.
  *
  * @param string $msg
  * @return string
@@ -232,8 +244,9 @@ function core_update_footer( $msg = '' ) {
 	}
 
 	$cur = get_preferred_from_update_core();
+
 	if ( ! is_object( $cur ) ) {
-		$cur = new stdClass;
+		$cur = new stdClass();
 	}
 
 	if ( ! isset( $cur->current ) ) {
@@ -275,17 +288,17 @@ function core_update_footer( $msg = '' ) {
 }
 
 /**
+ * Returns core update notification message.
  *
- *
- * @global string $pagenow
+ * @global string $pagenow The filename of the current screen.
  * @return void|false
  */
 function update_nag() {
+	global $pagenow;
+
 	if ( is_multisite() && ! current_user_can( 'update_core' ) ) {
 		return false;
 	}
-
-	global $pagenow;
 
 	if ( 'update-core.php' === $pagenow ) {
 		return;
@@ -297,17 +310,10 @@ function update_nag() {
 		return false;
 	}
 
-	$version_url = sprintf(
-		/* translators: %s: GeChiUI version. */
-		esc_url( __( 'https://www.gechiui.com/support/gechiui-version/version-%s/' ) ),
-		sanitize_title( $cur->current )
-	);
 
 	if ( current_user_can( 'update_core' ) ) {
 		$msg = sprintf(
-			/* translators: 1: URL to GeChiUI release notes, 2: New GeChiUI version, 3: URL to network admin, 4: Accessibility text. */
-			__( '<a href="%1$s">GeChiUI %2$s</a>现已可用！<a href="%3$s" aria-label="%4$s">请立即更新</a>。' ),
-			$version_url,
+			__( 'GeChiUI %1$s 现已可用！<a href="%2$s" aria-label="%3$s">请立即更新</a>。' ),
 			$cur->current,
 			network_admin_url( 'update-core.php' ),
 			esc_attr__( '请立即更新GeChiUI' )
@@ -315,22 +321,20 @@ function update_nag() {
 	} else {
 		$msg = sprintf(
 			/* translators: 1: URL to GeChiUI release notes, 2: New GeChiUI version. */
-			__( '<a href="%1$s">GeChiUI %2$s</a>现已可用！请通知站点管理员。' ),
-			$version_url,
+			__( 'GeChiUI %1$s 现已可用！请通知系统管理员。' ),
 			$cur->current
 		);
 	}
-
-	echo "<div class='update-nag notice notice-warning inline'>$msg</div>";
+	echo setting_error( $msg, 'primary' );
 }
 
 /**
  * Displays GeChiUI version and active theme in the '概览' dashboard widget.
  *
- *
  */
 function update_right_now_message() {
 	$theme_name = gc_get_theme();
+
 	if ( current_user_can( 'switch_themes' ) ) {
 		$theme_name = sprintf( '<a href="themes.php">%1$s</a>', $theme_name );
 	}
@@ -342,10 +346,10 @@ function update_right_now_message() {
 
 		if ( isset( $cur->response ) && 'upgrade' === $cur->response ) {
 			$msg .= sprintf(
-				'<a href="%s" class="button" aria-describedby="gc-version">%s</a> ',
+				'<a href="%s" class="btn btn-primary btn-tone btn-sm" aria-describedby="gc-version">%s</a> ',
 				network_admin_url( 'update-core.php' ),
 				/* translators: %s: GeChiUI version number, or 'Latest' string. */
-				sprintf( __( '更新到%s' ), $cur->current ? $cur->current : __( '最新版本' ) )
+				sprintf( __( '更新到%s' ), $cur->current ? $cur->current : __( '最新' ) )
 			);
 		}
 	}
@@ -358,6 +362,7 @@ function update_right_now_message() {
 	 *
 	 * Prior to 3.8.0, the widget was named '概况'.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $content Default text.
 	 */
@@ -369,7 +374,7 @@ function update_right_now_message() {
 }
 
 /**
- *
+ * Retrieves plugins with updates available.
  *
  * @return array
  */
@@ -377,6 +382,7 @@ function get_plugin_updates() {
 	$all_plugins     = get_plugins();
 	$upgrade_plugins = array();
 	$current         = get_site_transient( 'update_plugins' );
+
 	foreach ( (array) $all_plugins as $plugin_file => $plugin_data ) {
 		if ( isset( $current->response[ $plugin_file ] ) ) {
 			$upgrade_plugins[ $plugin_file ]         = (object) $plugin_data;
@@ -388,6 +394,7 @@ function get_plugin_updates() {
 }
 
 /**
+ * Adds a callback to display update information for plugins with updates available.
  *
  */
 function gc_plugin_update_rows() {
@@ -396,8 +403,10 @@ function gc_plugin_update_rows() {
 	}
 
 	$plugins = get_site_transient( 'update_plugins' );
+
 	if ( isset( $plugins->response ) && is_array( $plugins->response ) ) {
 		$plugins = array_keys( $plugins->response );
+
 		foreach ( $plugins as $plugin_file ) {
 			add_action( "after_plugin_row_{$plugin_file}", 'gc_plugin_update_row', 10, 2 );
 		}
@@ -407,14 +416,13 @@ function gc_plugin_update_rows() {
 /**
  * Displays update information for a plugin.
  *
- *
- *
  * @param string $file        Plugin basename.
  * @param array  $plugin_data Plugin information.
  * @return void|false
  */
 function gc_plugin_update_row( $file, $plugin_data ) {
 	$current = get_site_transient( 'update_plugins' );
+
 	if ( ! isset( $current->response[ $file ] ) ) {
 		return false;
 	}
@@ -533,7 +541,7 @@ function gc_plugin_update_row( $file, $plugin_data ) {
 			} else {
 				printf(
 					/* translators: 1: Plugin name, 2: Details URL, 3: Additional link attributes, 4: Version number 5: URL to Update PHP page. */
-					__( '现在有较新版本的%1$s可用，但它不能与您的PHP版本相兼容。<a href="%2$s" %3$s>查阅%4$s版本详情</a>或<a href="%5$s">查阅如何更新PHP</a>。' ),
+					__( '%1$s 有新版本可用，但它不适用于您当前的 PHP 版本。 <a href="%2$s" %3$s>详细了解 %4$s 版本</a>或<a href="%5$s">了解如何更新 PHP</a> 。' ),
 					$plugin_name,
 					esc_url( $details_url ),
 					sprintf(
@@ -555,6 +563,7 @@ function gc_plugin_update_row( $file, $plugin_data ) {
 		 * The dynamic portion of the hook name, `$file`, refers to the path
 		 * of the plugin's primary file relative to the plugins directory.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param array  $plugin_data An array of plugin metadata. See get_plugin_data()
 		 *                            and the {@see 'plugin_row_meta'} filter for the list
@@ -583,7 +592,7 @@ function gc_plugin_update_row( $file, $plugin_data ) {
 }
 
 /**
- *
+ * Retrieves themes with updates available.
  *
  * @return array
  */
@@ -595,6 +604,7 @@ function get_theme_updates() {
 	}
 
 	$update_themes = array();
+
 	foreach ( $current->response as $stylesheet => $data ) {
 		$update_themes[ $stylesheet ]         = gc_get_theme( $stylesheet );
 		$update_themes[ $stylesheet ]->update = $data;
@@ -604,6 +614,7 @@ function get_theme_updates() {
 }
 
 /**
+ * Adds a callback to display update information for themes with updates available.
  *
  */
 function gc_theme_update_rows() {
@@ -612,6 +623,7 @@ function gc_theme_update_rows() {
 	}
 
 	$themes = get_site_transient( 'update_themes' );
+
 	if ( isset( $themes->response ) && is_array( $themes->response ) ) {
 		$themes = array_keys( $themes->response );
 
@@ -623,8 +635,6 @@ function gc_theme_update_rows() {
 
 /**
  * Displays update information for a theme.
- *
- *
  *
  * @param string   $theme_key Theme stylesheet.
  * @param GC_Theme $theme     Theme object.
@@ -720,7 +730,7 @@ function gc_theme_update_row( $theme_key, $theme ) {
 		if ( ! $compatible_gc && ! $compatible_php ) {
 			printf(
 				/* translators: %s: Theme name. */
-				__( '%s的新版本可用，但无法在您安装版本的GeChiUI和PHP上工作。' ),
+				__( '%s 有新版本可用，但与您当前使用的 GeChiUI 和 PHP 版本不兼容。' ),
 				$theme['Name']
 			);
 			if ( current_user_can( 'update_core' ) && current_user_can( 'update_php' ) ) {
@@ -748,7 +758,7 @@ function gc_theme_update_row( $theme_key, $theme ) {
 		} elseif ( ! $compatible_gc ) {
 			printf(
 				/* translators: %s: Theme name. */
-				__( '%s的新版本可用，但无法在您安装版本的GeChiUI和PHP上工作。' ),
+				__( '%s 有新版本可用，但与您当前使用的 GeChiUI 版本不兼容。' ),
 				$theme['Name']
 			);
 			if ( current_user_can( 'update_core' ) ) {
@@ -761,7 +771,7 @@ function gc_theme_update_row( $theme_key, $theme ) {
 		} elseif ( ! $compatible_php ) {
 			printf(
 				/* translators: %s: Theme name. */
-				__( '%s的新版本可用，但无法在您安装版本的GeChiUI和PHP上工作。' ),
+				__( '%s 有新版本可用，但与您当前使用的 PHP 版本不兼容。' ),
 				$theme['Name']
 			);
 			if ( current_user_can( 'update_php' ) ) {
@@ -798,16 +808,21 @@ function gc_theme_update_row( $theme_key, $theme ) {
 }
 
 /**
+ * Displays maintenance nag HTML message.
  *
+ * @since 2.7.0
  *
  * @global int $upgrading
+ *
  * @return void|false
  */
 function maintenance_nag() {
 	// Include an unmodified $gc_version.
 	require ABSPATH . GCINC . '/version.php';
 	global $upgrading;
+
 	$nag = isset( $upgrading );
+
 	if ( ! $nag ) {
 		$failed = get_site_option( 'auto_core_update_failed' );
 		/*
@@ -837,10 +852,10 @@ function maintenance_nag() {
 			'update-core.php'
 		);
 	} else {
-		$msg = __( 'GeChiUI自动升级失败！请通知您的站点管理员。' );
+		$msg = __( 'GeChiUI自动升级失败！请通知您的系统管理员。' );
 	}
 
-	echo "<div class='update-nag notice notice-warning inline'>$msg</div>";
+	echo setting_error( $msg, 'warning inline' );
 }
 
 /**
@@ -856,8 +871,6 @@ function maintenance_nag() {
  *         @type string message   The notice's message.
  *         @type string type      The type of update the notice is for. Either 'plugin' or 'theme'.
  *     }
- *
- *
  */
 function gc_print_admin_notice_templates() {
 	?>
@@ -907,7 +920,12 @@ function gc_print_admin_notice_templates() {
 							printf( __( '%s个更新失败。' ), '{{ data.errors }}' );
 							?>
 						<# } #>
-						<span class="screen-reader-text"><?php _e( '显示详情' ); ?></span>
+						<span class="screen-reader-text">
+							<?php
+							/* translators: Hidden accessibility text. */
+							_e( '显示详情' );
+							?>
+						</span>
 						<span class="toggle-indicator" aria-hidden="true"></span>
 					</button>
 				<# } #>
@@ -948,8 +966,6 @@ function gc_print_admin_notice_templates() {
  *         @type string name    Plugin name.
  *         @type string colspan The number of table columns this row spans.
  *     }
- *
- *
  */
 function gc_print_update_row_templates() {
 	?>
@@ -989,7 +1005,7 @@ function gc_print_update_row_templates() {
 /**
  * Displays a notice when the user is in recovery mode.
  *
- *
+ * @since 5.2.0
  */
 function gc_recovery_mode_nag() {
 	if ( ! gc_is_recovery_mode() ) {
@@ -1000,25 +1016,18 @@ function gc_recovery_mode_nag() {
 	$url = add_query_arg( 'action', GC_Recovery_Mode::EXIT_ACTION, $url );
 	$url = gc_nonce_url( $url, GC_Recovery_Mode::EXIT_ACTION );
 
-	?>
-	<div class="notice notice-info">
-		<p>
-			<?php
-			printf(
-				/* translators: %s: Recovery Mode exit link. */
-				__( '您正位于恢复模式。您的其中一个已启用的主题或插件可能发生了错误。要退出恢复模式，请注销登陆或使用退出按钮。<a href="%s">退出恢复模式</a>' ),
-				esc_url( $url )
-			);
-			?>
-		</p>
-	</div>
-	<?php
+	$message = sprintf(
+		/* translators: %s: Recovery Mode exit link. */
+		__( '您正位于恢复模式。您的其中一个已启用的主题或插件可能发生了错误。要退出恢复模式，请注销登陆或使用退出按钮。<a href="%s">退出恢复模式</a>' ),
+		esc_url( $url )
+	);
+	echo setting_error( $message, 'primary' );
 }
 
 /**
  * Checks whether auto-updates are enabled.
  *
- *
+ * @since 5.5.0
  *
  * @param string $type The type of update being checked: 'theme' or 'plugin'.
  * @return bool True if auto-updates are enabled for `$type`, false otherwise.
@@ -1036,7 +1045,7 @@ function gc_is_auto_update_enabled_for_type( $type ) {
 			/**
 			 * Filters whether plugins auto-update is enabled.
 			 *
-		
+			 * @since 5.5.0
 			 *
 			 * @param bool $enabled True if plugins auto-update is enabled, false otherwise.
 			 */
@@ -1045,7 +1054,7 @@ function gc_is_auto_update_enabled_for_type( $type ) {
 			/**
 			 * Filters whether themes auto-update is enabled.
 			 *
-		
+			 * @since 5.5.0
 			 *
 			 * @param bool $enabled True if themes auto-update is enabled, false otherwise.
 			 */
@@ -1057,8 +1066,6 @@ function gc_is_auto_update_enabled_for_type( $type ) {
 
 /**
  * Checks whether auto-updates are forced for an item.
- *
- *
  *
  * @param string    $type   The type of update being checked: 'theme' or 'plugin'.
  * @param bool|null $update Whether to update. The value of null is internally used
@@ -1074,7 +1081,7 @@ function gc_is_auto_update_forced_for_item( $type, $update, $item ) {
 /**
  * Determines the appropriate auto-update message to be displayed.
  *
- *
+ * @since 5.5.0
  *
  * @return string The update message to be shown.
  */

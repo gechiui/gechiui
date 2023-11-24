@@ -15,7 +15,7 @@ if ( is_multisite() && ! is_network_admin() ) {
 }
 
 if ( ! current_user_can( 'edit_plugins' ) ) {
-	gc_die( __( '抱歉，您不能编辑此站点的插件。' ) );
+	gc_die( __( '抱歉，您不能编辑此系统的插件。' ) );
 }
 
 // Used in the HTML title tag.
@@ -28,7 +28,7 @@ if ( empty( $plugins ) ) {
 	require_once ABSPATH . 'gc-admin/admin-header.php';
 	?>
 	<div class="wrap">
-		<h1><?php echo esc_html( $title ); ?></h1>
+		<div class="page-header"><h2 class="header-title"><?php echo esc_html( $title ); ?></h2></div>
 		<div id="message" class="error"><p><?php _e( '当前没有可用的插件。' ); ?></p></div>
 	</div>
 	<?php
@@ -134,7 +134,7 @@ get_current_screen()->add_help_tab(
 				'<li id="editor-keyboard-trap-help-4">' . __( '致屏幕阅读器用户：在表单模式中，您可能需要按Esc键两次。' ) . '</li>' .
 				'</ul>' .
 				'<p>' . __( '若您不希望您所做的修改因插件升级而被覆盖，请考虑自己编写插件。右侧的链接提供了自行制作插件的一些方法和指导。' ) . '</p>' .
-				( is_network_admin() ? '<p>' . __( '从此页面对文件的任何编辑都将应用到站点网络中的所有站点。' ) . '</p>' : '' ),
+				( is_network_admin() ? '<p>' . __( '从此页面对文件的任何编辑都将应用到SaaS平台中的所有系统。' ) . '</p>' : '' ),
 	)
 );
 
@@ -153,6 +153,13 @@ gc_add_inline_script( 'gc-theme-plugin-editor', sprintf( 'jQuery( function( $ ) 
 gc_add_inline_script( 'gc-theme-plugin-editor', sprintf( 'gc.themePluginEditor.themeOrPlugin = "plugin";' ) );
 
 require_once ABSPATH . 'gc-admin/admin-header.php';
+
+if ( isset( $_GET['a'] ) ) {
+	add_settings_error( 'general', 'settings_updated',  __( '文件修改成功。' ), 'success' );
+}elseif ( is_gc_error( $edit_error ) ){
+	$message = __( '在试图更新文件时遇到了错误，您可能需要修正问题并重试更新。' ).'<pre>'. esc_html( $edit_error->get_error_message() ? $edit_error->get_error_message() : $edit_error->get_error_code() ) .'</pre>';
+	add_settings_error( 'general', 'settings_updated', $message, 'danger' );
+}
 
 update_recently_edited( GC_PLUGIN_DIR . '/' . $file );
 
@@ -178,18 +185,7 @@ if ( '.php' === substr( $real_file, strrpos( $real_file, '.' ) ) ) {
 $content = esc_textarea( $content );
 ?>
 <div class="wrap">
-<h1><?php echo esc_html( $title ); ?></h1>
-
-<?php if ( isset( $_GET['a'] ) ) : ?>
-	<div id="message" class="updated notice is-dismissible">
-		<p><?php _e( '文件修改成功。' ); ?></p>
-	</div>
-<?php elseif ( is_gc_error( $edit_error ) ) : ?>
-	<div id="message" class="notice notice-error">
-		<p><?php _e( '在试图更新文件时遇到了错误，您可能需要修正问题并重试更新。' ); ?></p>
-		<pre><?php echo esc_html( $edit_error->get_error_message() ? $edit_error->get_error_message() : $edit_error->get_error_code() ); ?></pre>
-	</div>
-<?php endif; ?>
+<div class="page-header"><h2 class="header-title"><?php echo esc_html( $title ); ?></h2></div>
 
 <div class="fileedit-sub">
 <div class="alignleft">
@@ -272,17 +268,15 @@ $content = esc_textarea( $content );
 		<div id="documentation" class="hide-if-no-js">
 			<label for="docs-list"><?php _e( '文档：' ); ?></label>
 			<?php echo $docs_select; ?>
-			<input disabled id="docs-lookup" type="button" class="button" value="<?php esc_attr_e( '查询' ); ?>" onclick="if ( '' != jQuery('#docs-list').val() ) { window.open( 'https://api.gechiui.com/core/handbook/1.0/?function=' + escape( jQuery( '#docs-list' ).val() ) + '&amp;locale=<?php echo urlencode( get_user_locale() ); ?>&amp;version=<?php echo urlencode( get_bloginfo( 'version' ) ); ?>&amp;redirect=true'); }" />
+			<input disabled id="docs-lookup" type="button" class="btn btn-primary btn-tone btn-sm" value="<?php esc_attr_e( '查询' ); ?>" onclick="if ( '' != jQuery('#docs-list').val() ) { window.open( 'https://api.gechiui.com/core/handbook/1.0/?function=' + escape( jQuery( '#docs-list' ).val() ) + '&amp;locale=<?php echo urlencode( get_user_locale() ); ?>&amp;version=<?php echo urlencode( get_bloginfo( 'version' ) ); ?>&amp;redirect=true'); }" />
 		</div>
 	<?php endif; ?>
 
 	<?php if ( is_writable( $real_file ) ) : ?>
 		<div class="editor-notices">
-		<?php if ( in_array( $plugin, (array) get_option( 'active_plugins', array() ), true ) ) { ?>
-			<div class="notice notice-warning inline active-plugin-edit-warning">
-				<p><?php _e( '<strong>警告：</strong>不推荐修改已启用的插件。' ); ?></p>
-			</div>
-		<?php } ?>
+		<?php if ( in_array( $plugin, (array) get_option( 'active_plugins', array() ), true ) ) { 
+				echo setting_error( __( '不推荐修改已启用的插件。' ), 'warning inline active-plugin-edit-warning' );
+		} ?>
 		</div>
 		<p class="submit">
 			<?php submit_button( __( '更新文件' ), 'primary', 'submit', false ); ?>
@@ -326,12 +320,12 @@ if ( ! in_array( 'plugin_editor_notice', $dismissed_pointers, true ) ) :
 			<div class="file-editor-warning-content">
 				<div class="file-editor-warning-message">
 					<h1><?php _e( '小心！' ); ?></h1>
-					<p><?php _e( '此操作可在 GeChiUI 仪表盘中直接编辑您的插件。不建议直接编辑插件，直接编辑插件可能会引入不兼容的更改而使站点故障，且您的修改可能会在未来的更新中丢失。' ); ?></p>
+					<p><?php _e( '此操作可在 GeChiUI 仪表盘中直接编辑您的插件。不建议直接编辑插件，直接编辑插件可能会引入不兼容的更改而使系统故障，且您的修改可能会在未来的更新中丢失。' ); ?></p>
 					<p><?php _e( '如果您必须直接修改此插件，请使用资源管理器将文件复制一份并保留修改前的版本。这样当出现问题时您就能恢复到正常的版本。' ); ?></p>
 				</div>
 				<p>
-					<a class="button file-editor-warning-go-back" href="<?php echo esc_url( $return_url ); ?>"><?php _e( '返回' ); ?></a>
-					<button type="button" class="file-editor-warning-dismiss button button-primary"><?php _e( '我明白' ); ?></button>
+					<a class="btn btn-primary btn-tone file-editor-warning-go-back" href="<?php echo esc_url( $return_url ); ?>"><?php _e( '返回' ); ?></a>
+					<button type="button" class="file-editor-warning-dismiss btn btn-primary"><?php _e( '我明白' ); ?></button>
 				</p>
 			</div>
 		</div>

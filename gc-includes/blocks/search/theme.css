@@ -1,0 +1,8 @@
+.gc-block-search .gc-block-search__label{
+  font-weight:700;
+}
+
+.gc-block-search__button{
+  border:1px solid #ccc;
+  padding:.375em .625em;
+}

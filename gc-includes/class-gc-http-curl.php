@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage HTTP
- *
  */
 
 /**
@@ -14,13 +13,15 @@
  *
  * Requires the Curl extension to be installed.
  *
- *
+ * @since 2.7.0
  */
+#[AllowDynamicProperties]
 class GC_Http_Curl {
 
 	/**
 	 * Temporary header storage for during requests.
 	 *
+	 * @since 3.2.0
 	 * @var string
 	 */
 	private $headers = '';
@@ -28,6 +29,7 @@ class GC_Http_Curl {
 	/**
 	 * Temporary body storage for during requests.
 	 *
+	 * @since 3.6.0
 	 * @var string
 	 */
 	private $body = '';
@@ -35,6 +37,7 @@ class GC_Http_Curl {
 	/**
 	 * The maximum amount of data to receive from the remote server.
 	 *
+	 * @since 3.6.0
 	 * @var int|false
 	 */
 	private $max_body_length = false;
@@ -42,6 +45,7 @@ class GC_Http_Curl {
 	/**
 	 * The file resource used for streaming to file.
 	 *
+	 * @since 3.6.0
 	 * @var resource|false
 	 */
 	private $stream_handle = false;
@@ -49,6 +53,7 @@ class GC_Http_Curl {
 	/**
 	 * The total bytes written in the current request.
 	 *
+	 * @since 4.1.0
 	 * @var int
 	 */
 	private $bytes_written_total = 0;
@@ -56,6 +61,7 @@ class GC_Http_Curl {
 	/**
 	 * Send a HTTP request to a URI using cURL extension.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string       $url  The request URL.
 	 * @param string|array $args Optional. Override the defaults.
@@ -71,6 +77,9 @@ class GC_Http_Curl {
 			'headers'     => array(),
 			'body'        => null,
 			'cookies'     => array(),
+			'decompress'  => false,
+			'stream'      => false,
+			'filename'    => null,
 		);
 
 		$parsed_args = gc_parse_args( $args, $defaults );
@@ -215,6 +224,7 @@ class GC_Http_Curl {
 		 * Cookies are not currently handled by the HTTP API. This action allows
 		 * plugins to handle cookies themselves.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param resource $handle      The cURL handle returned by curl_init() (passed by reference).
 		 * @param array    $parsed_args The HTTP request arguments.
@@ -251,7 +261,7 @@ class GC_Http_Curl {
 		curl_exec( $handle );
 
 		$processed_headers   = GC_Http::processHeaders( $this->headers, $url );
-		$theBody             = $this->body;
+		$body                = $this->body;
 		$bytes_written_total = $this->bytes_written_total;
 
 		$this->headers             = '';
@@ -261,9 +271,9 @@ class GC_Http_Curl {
 		$curl_error = curl_errno( $handle );
 
 		// If an error occurred, or, no response.
-		if ( $curl_error || ( 0 == strlen( $theBody ) && empty( $processed_headers['headers'] ) ) ) {
-			if ( CURLE_WRITE_ERROR /* 23 */ == $curl_error ) {
-				if ( ! $this->max_body_length || $this->max_body_length != $bytes_written_total ) {
+		if ( $curl_error || ( 0 === strlen( $body ) && empty( $processed_headers['headers'] ) ) ) {
+			if ( CURLE_WRITE_ERROR /* 23 */ === $curl_error ) {
+				if ( ! $this->max_body_length || $this->max_body_length !== $bytes_written_total ) {
 					if ( $parsed_args['stream'] ) {
 						curl_close( $handle );
 						fclose( $this->stream_handle );
@@ -309,10 +319,10 @@ class GC_Http_Curl {
 		if ( true === $parsed_args['decompress']
 			&& true === GC_Http_Encoding::should_decode( $processed_headers['headers'] )
 		) {
-			$theBody = GC_Http_Encoding::decompress( $theBody );
+			$body = GC_Http_Encoding::decompress( $body );
 		}
 
-		$response['body'] = $theBody;
+		$response['body'] = $body;
 
 		return $response;
 	}
@@ -320,9 +330,10 @@ class GC_Http_Curl {
 	/**
 	 * Grabs the headers of the cURL request.
 	 *
-	 * Each header is sent individually to this callback, so we append to the `$header` property
-	 * for temporary storage
+	 * Each header is sent individually to this callback, and is appended to the `$header` property
+	 * for temporary storage.
 	 *
+	 * @since 3.2.0
 	 *
 	 * @param resource $handle  cURL handle.
 	 * @param string   $headers cURL request headers.
@@ -336,13 +347,14 @@ class GC_Http_Curl {
 	/**
 	 * Grabs the body of the cURL request.
 	 *
-	 * The contents of the document are passed in chunks, so we append to the `$body`
+	 * The contents of the document are passed in chunks, and are appended to the `$body`
 	 * property for temporary storage. Returning a length shorter than the length of
 	 * `$data` passed in will cause cURL to abort the request with `CURLE_WRITE_ERROR`.
 	 *
+	 * @since 3.6.0
 	 *
-	 * @param resource $handle  cURL handle.
-	 * @param string   $data    cURL request body.
+	 * @param resource $handle cURL handle.
+	 * @param string   $data   cURL request body.
 	 * @return int Total bytes of data written.
 	 */
 	private function stream_body( $handle, $data ) {
@@ -369,6 +381,7 @@ class GC_Http_Curl {
 	/**
 	 * Determines whether this class can be used for retrieving a URL.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param array $args Optional. Array of request arguments. Default empty array.
 	 * @return bool False means this class can not be used, true means it can.
@@ -390,7 +403,6 @@ class GC_Http_Curl {
 
 		/**
 		 * Filters whether cURL can be used as a transport for retrieving a URL.
-		 *
 		 *
 		 * @param bool  $use_class Whether the class can be used. Default true.
 		 * @param array $args      An array of request arguments.

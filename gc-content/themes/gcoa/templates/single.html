@@ -1,86 +1,40 @@
-<!-- single.html -->
-<div class="app">
-	<div class="layout">
-		<!-- gc:template-part {"slug":"header","tagName":"div","align":"wide"} /-->
-		<!-- Page Container START -->
-        <div class="page-container">
-        	<div class="main-content">
-        		<div class="container">
-	        		<div class="card">
-		                <div class="card-body">
-		                    <div class="container">
-		                        <h2 class="font-weight-normal m-b-10"><!-- gc:gcoa-post-title /--></h2>
-		                        <div class="d-flex m-b-30">
-		                            <div class="avatar avatar-cyan avatar-img">
-		                                <img src="<!-- gc:gcoa-post-author-avatar /-->" alt="">
-		                            </div>
-		                            <div class="m-l-15">
-		                                <a href="javascript:void(0);" class="text-dark m-b-0 font-weight-semibold"><!-- gc:gcoa-post-author /--></a>
-		                                <p class="m-b-0 text-muted font-size-13"><!-- gc:post-date /--></p>
-		                            </div>
-		                        </div>
-		                        <!-- gc:post-featured-image /-->
-		                        <div class="m-t-30">
-		                           <!-- gc:gcoa-post-content {"layout":{"inherit":true}} /-->
-		                        </div>
-		                        <div class="d-flex m-t-40 align-items-center">
-		                            <span class="m-r-15">分类: </span>
-		                            <ul class="list-inline m-b-0">
-		                                <li class="list-inline-item">
-		                                    <!-- gc:post-terms {"term":"category","fontSize":"small"} /-->
-		                                </li>
-		                            </ul>
-		                        </div>
-		                        <div class="d-flex m-t-10 align-items-center">
-		                            <span class="m-r-15">标签: </span>
-		                            <ul class="list-inline m-b-0">
-		                                <li class="list-inline-item">
-		                                    <!-- gc:post-terms {"term":"post_tag","fontSize":"small"} /-->
-		                                </li>
-		                            </ul>
-		                        </div>
-		                        <!-- gc:gcoa-post-comments-show -->
-		                        <hr>
-		                        <h5>评论 (<!-- gc:gcoa-post-comments-count /-->)</h5>
-		                        <div class="m-t-20">
-		                            <ul class="list-group list-group-flush">
-		                            	<!-- gc:gcoa-post-comment-template -->
-		                                <li class="list-group-item p-h-0">
-		                                    <div class="media m-b-15">
-		                                        <div class="avatar avatar-image">
-		                                            <img src="<!-- gc:gcoa-post-comment-avatar /-->" alt="">
-		                                        </div>
-		                                        <div class="media-body m-l-20">
-		                                            <h6 class="m-b-0">
-		                                                <a href="" class="text-dark"><!-- gc:gcoa-post-comment-author /--></a>
-		                                            </h6>
-		                                            <span class="font-size-13 text-gray"><!-- gc:gcoa-post-comment-date /--></span>
-		                                        </div>
-		                                    </div>
-		                                    <span><!-- gc:gcoa-post-comment-content /--></span>
-		                                    <div class="m-t-15">
-		                                        <ul class="list-inline text-right">
-		                                            <li class="d-inline-block m-r-30">
-		                                                <a class="text-dark" href="<!-- gc:gcoa-post-comment-replytocom-link /-->">
-		                                                    <i class="anticon m-r-5 anticon-message"></i>
-		                                                    <span>回复</span>
-		                                                </a>
-		                                            </li>
-		                                        </ul>
-		                                    </div>
-		                                </li>
-		                                <!-- /gc:gcoa-post-comment-template -->
-		                            </ul> 
-		                        </div>
-				                <!-- gc:gcoa-post-comments-form /-->
-				                <!-- /gc:gcoa-post-comments-show -->
-		                    </div>
-		                </div>
-		            </div>
-		        </div>
+<!-- gc:group {"className":"container","layout":{"inherit":true,"type":"constrained"}} -->
+<div class="gc-block-group container">
+	<!-- gc:group {"className":"card","layout":{"inherit":true,"type":"constrained"}} -->
+	<div class="gc-block-group card">
+		<!-- gc:group {"className":"card-body","layout":{"inherit":true,"type":"constrained"}} -->
+		<div class="gc-block-group card-body">
+			<!-- gc:group {"className":"container","layout":{"inherit":true,"type":"constrained"}} -->
+			<div class="gc-block-group container">
+				<!-- gc:post-title {"level":2,"className":"font-weight-normal m-b-10"} /-->
+				<!-- gc:group {"className":"d-flex m-b-30","layout":{"inherit":true,"type":"constrained"}} -->
+				<div class="gc-block-group d-flex m-b-30">
+					<!-- gc:group {"className":"d-flex align-items-center m-t-5 m-b-15","layout":{"inherit":true,"type":"constrained"}} -->
+					<div class="gc-block-group d-flex align-items-center m-t-5 m-b-15">
+						<!-- gc:post-author {"avatarSize":24,"isLink":true,"className":"m-l-10"} /-->
+						<!-- gc:post-date {"className":"m-l-10 text-gray"} /-->
+					</div>
+					<!-- /gc:group -->
+				</div>
+				<!-- /gc:group -->
+				<!-- gc:post-featured-image /-->
+				<!-- gc:post-content {"className":"m-t-30","layout":{"type":"constrained"}} /-->
+				<!-- gc:group {"className":"d-flex m-t-40 align-items-center","layout":{"inherit":true,"type":"constrained"}} -->
+				<div class="gc-block-group d-flex m-t-40 align-items-center">
+					<!-- gc:post-terms {"term":"category","prefix":"分类: ","fontSize":"small"} /-->
+				</div>
+				<!-- /gc:group -->
+				<!-- gc:group {"className":"d-flex m-t-10 align-items-center","layout":{"inherit":true,"type":"constrained"}} -->
+				<div class="gc-block-group d-flex m-t-10 align-items-center">
+					<!-- gc:post-terms {"term":"post_tag","prefix":"标签: ","fontSize":"small"} /-->
+				</div>
+				<!-- /gc:group -->
+				<!-- gc:template-part {"slug":"comments","tagName":"section"} /-->
 			</div>
-			<!-- gc:template-part {"slug":"footer","tagName":"footer"} /-->
+			<!-- /gc:group -->
 		</div>
-        <!-- Page Container END -->
+		<!-- /gc:group -->
 	</div>
+	<!-- /gc:group -->
 </div>
+<!-- /gc:group -->

@@ -1,0 +1,17 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/footnotes",
+	"title": "脚注",
+	"category": "text",
+	"description": "",
+	"keywords": [ "references" ],
+	"textdomain": "default",
+	"usesContext": [ "postId", "postType" ],
+	"supports": {
+		"html": false,
+		"multiple": false,
+		"reusable": false
+	},
+	"style": "gc-block-footnotes"
+}

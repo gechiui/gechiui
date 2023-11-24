@@ -18,6 +18,7 @@ _deprecated_file(
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
+<link rel="profile" href="https://gmpg.org/xfn/11" />
 <meta http-equiv="Content-Type" content="<?php bloginfo( 'html_type' ); ?>; charset=<?php bloginfo( 'charset' ); ?>" />
 
 <title><?php echo gc_get_document_title(); ?></title>
@@ -42,7 +43,8 @@ _deprecated_file(
 
 <?php
 if ( is_singular() ) {
-	gc_enqueue_script( 'comment-reply' );}
+	gc_enqueue_script( 'comment-reply' );
+}
 ?>
 
 <?php gc_head(); ?>

@@ -643,7 +643,7 @@ var image = (function (domGlobals) {
             },
             items: [
               {
-                label: 'Vertical space',
+                label: '垂直间隔',
                 name: 'vspace'
               },
               {
@@ -651,7 +651,7 @@ var image = (function (domGlobals) {
                 name: 'border'
               },
               {
-                label: 'Horizontal space',
+                label: '水平间隔',
                 name: 'hspace'
               },
               {
@@ -852,7 +852,7 @@ var image = (function (domGlobals) {
         generalFormItems.push({
           name: 'alt',
           type: 'textbox',
-          label: 'Image description'
+          label: '图片描述'
         });
       }
       if (Settings.hasImageTitle(editor)) {
@@ -1181,7 +1181,7 @@ var image = (function (domGlobals) {
     var register$1 = function (editor) {
       editor.addButton('image', {
         icon: 'image',
-        tooltip: 'Insert/edit image',
+        tooltip: '插入或编辑图片',
         onclick: Dialog(editor).open,
         stateSelector: 'img:not([data-mce-object],[data-mce-placeholder]),figure.image'
       });

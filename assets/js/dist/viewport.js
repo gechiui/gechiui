@@ -1,121 +1,68 @@
-this["gc"] = this["gc"] || {}; this["gc"]["viewport"] =
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "0XXp");
-/******/ })
+/******/ (function() { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	// The require scope
+/******/ 	var __webpack_require__ = {};
+/******/ 	
 /************************************************************************/
-/******/ ({
-
-/***/ "0XXp":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	!function() {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = function(exports, definition) {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	!function() {
+/******/ 		__webpack_require__.o = function(obj, prop) { return Object.prototype.hasOwnProperty.call(obj, prop); }
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	!function() {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = function(exports) {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
 // ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
 
 // EXPORTS
-__webpack_require__.d(__webpack_exports__, "store", function() { return /* reexport */ store; });
-__webpack_require__.d(__webpack_exports__, "ifViewportMatches", function() { return /* reexport */ if_viewport_matches; });
-__webpack_require__.d(__webpack_exports__, "withViewportMatch", function() { return /* reexport */ with_viewport_match; });
+__webpack_require__.d(__webpack_exports__, {
+  "ifViewportMatches": function() { return /* reexport */ if_viewport_matches; },
+  "store": function() { return /* reexport */ store; },
+  "withViewportMatch": function() { return /* reexport */ with_viewport_match; }
+});
 
 // NAMESPACE OBJECT: ./node_modules/@gechiui/viewport/build-module/store/actions.js
 var actions_namespaceObject = {};
 __webpack_require__.r(actions_namespaceObject);
-__webpack_require__.d(actions_namespaceObject, "setIsMatching", function() { return actions_setIsMatching; });
+__webpack_require__.d(actions_namespaceObject, {
+  "setIsMatching": function() { return setIsMatching; }
+});
 
 // NAMESPACE OBJECT: ./node_modules/@gechiui/viewport/build-module/store/selectors.js
 var selectors_namespaceObject = {};
 __webpack_require__.r(selectors_namespaceObject);
-__webpack_require__.d(selectors_namespaceObject, "isViewportMatch", function() { return isViewportMatch; });
+__webpack_require__.d(selectors_namespaceObject, {
+  "isViewportMatch": function() { return isViewportMatch; }
+});
 
-// EXTERNAL MODULE: external "lodash"
-var external_lodash_ = __webpack_require__("YLtl");
-
-// EXTERNAL MODULE: external ["gc","data"]
-var external_gc_data_ = __webpack_require__("IgLd");
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/viewport/build-module/store/reducer.js
+;// CONCATENATED MODULE: external ["gc","compose"]
+var external_gc_compose_namespaceObject = window["gc"]["compose"];
+;// CONCATENATED MODULE: external ["gc","data"]
+var external_gc_data_namespaceObject = window["gc"]["data"];
+;// CONCATENATED MODULE: ./node_modules/@gechiui/viewport/build-module/store/reducer.js
 /**
  * Reducer returning the viewport state, as keys of breakpoint queries with
  * boolean value representing whether query is matched.
@@ -125,10 +72,7 @@ var external_gc_data_ = __webpack_require__("IgLd");
  *
  * @return {Object} Updated state.
  */
-function reducer() {
-  let state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  let action = arguments.length > 1 ? arguments[1] : undefined;
-
+function reducer(state = {}, action) {
   switch (action.type) {
     case 'SET_IS_MATCHING':
       return action.values;
@@ -139,24 +83,27 @@ function reducer() {
 
 /* harmony default export */ var store_reducer = (reducer);
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/viewport/build-module/store/actions.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/viewport/build-module/store/actions.js
 /**
  * Returns an action object used in signalling that viewport queries have been
  * updated. Values are specified as an object of breakpoint query keys where
  * value represents whether query matches.
+ * Ignored from documentation as it is for internal use only.
+ *
+ * @ignore
  *
  * @param {Object} values Breakpoint query matches.
  *
  * @return {Object} Action object.
  */
-function actions_setIsMatching(values) {
+function setIsMatching(values) {
   return {
     type: 'SET_IS_MATCHING',
     values
   };
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/viewport/build-module/store/selectors.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/viewport/build-module/store/selectors.js
 /**
  * Returns true if the viewport matches the given query, or false otherwise.
  *
@@ -167,8 +114,21 @@ function actions_setIsMatching(values) {
  * @example
  *
  * ```js
- * isViewportMatch( state, '< huge' );
- * isViewPortMatch( state, 'medium' );
+ * import { store as viewportStore } from '@gechiui/viewport';
+ * import { useSelect } from '@gechiui/data';
+ * import { __ } from '@gechiui/i18n';
+ * const ExampleComponent = () => {
+ *     const isMobile = useSelect(
+ *         ( select ) => select( viewportStore ).isViewportMatch( '< small' ),
+ *         []
+ *     );
+ *
+ *     return isMobile ? (
+ *         <div>{ __( '移动端' ) }</div>
+ *     ) : (
+ *         <div>{ __( 'Not Mobile' ) }</div>
+ *     );
+ * };
  * ```
  *
  * @return {boolean} Whether viewport matches query.
@@ -182,7 +142,7 @@ function isViewportMatch(state, query) {
   return !!state[query];
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/viewport/build-module/store/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/viewport/build-module/store/index.js
 /**
  * GeChiUI dependencies
  */
@@ -203,18 +163,14 @@ const STORE_NAME = 'core/viewport';
  * @type {Object}
  */
 
-const store = Object(external_gc_data_["createReduxStore"])(STORE_NAME, {
+const store = (0,external_gc_data_namespaceObject.createReduxStore)(STORE_NAME, {
   reducer: store_reducer,
   actions: actions_namespaceObject,
   selectors: selectors_namespaceObject
 });
-Object(external_gc_data_["register"])(store);
+(0,external_gc_data_namespaceObject.register)(store);
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/viewport/build-module/listener.js
-/**
- * External dependencies
- */
-
+;// CONCATENATED MODULE: ./node_modules/@gechiui/viewport/build-module/listener.js
 /**
  * GeChiUI dependencies
  */
@@ -231,10 +187,10 @@ const addDimensionsEventListener = (breakpoints, operators) => {
    * Callback invoked when media query state should be updated. Is invoked a
    * maximum of one time per call stack.
    */
-  const setIsMatching = Object(external_lodash_["debounce"])(() => {
-    const values = Object(external_lodash_["mapValues"])(queries, query => query.matches);
-    Object(external_gc_data_["dispatch"])(store).setIsMatching(values);
-  }, {
+  const setIsMatching = (0,external_gc_compose_namespaceObject.debounce)(() => {
+    const values = Object.fromEntries(queries.map(([key, query]) => [key, query.matches]));
+    (0,external_gc_data_namespaceObject.dispatch)(store).setIsMatching(values);
+  }, 0, {
     leading: true
   });
   /**
@@ -247,16 +203,15 @@ const addDimensionsEventListener = (breakpoints, operators) => {
    * @type {Object<string,MediaQueryList>}
    */
 
-  const queries = Object(external_lodash_["reduce"])(breakpoints, (result, width, name) => {
-    Object(external_lodash_["forEach"])(operators, (condition, operator) => {
+  const operatorEntries = Object.entries(operators);
+  const queries = Object.entries(breakpoints).flatMap(([name, width]) => {
+    return operatorEntries.map(([operator, condition]) => {
       const list = window.matchMedia(`(${condition}: ${width}px)`);
-      list.addListener(setIsMatching);
-      const key = [operator, name].join(' ');
-      result[key] = list;
+      list.addEventListener('change', setIsMatching);
+      return [`${operator} ${name}`, list];
     });
-    return result;
-  }, {});
-  window.addEventListener('orientationchange', setIsMatching); // Set initial values
+  });
+  window.addEventListener('orientationchange', setIsMatching); // Set initial values.
 
   setIsMatching();
   setIsMatching.flush();
@@ -264,27 +219,14 @@ const addDimensionsEventListener = (breakpoints, operators) => {
 
 /* harmony default export */ var listener = (addDimensionsEventListener);
 
-// EXTERNAL MODULE: external ["gc","compose"]
-var external_gc_compose_ = __webpack_require__("dMTb");
+;// CONCATENATED MODULE: external ["gc","element"]
+var external_gc_element_namespaceObject = window["gc"]["element"];
+;// CONCATENATED MODULE: ./node_modules/@gechiui/viewport/build-module/with-viewport-match.js
 
-// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/extends.js
-var esm_extends = __webpack_require__("wx14");
-
-// EXTERNAL MODULE: external ["gc","element"]
-var external_gc_element_ = __webpack_require__("ewfG");
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/viewport/build-module/with-viewport-match.js
-
-
-
-/**
- * External dependencies
- */
 
 /**
  * GeChiUI dependencies
  */
-
 
 /**
  * Higher-order component creator, creating a new component which renders with
@@ -311,7 +253,9 @@ var external_gc_element_ = __webpack_require__("ewfG");
  */
 
 const withViewportMatch = queries => {
-  const useViewPortQueriesResult = () => Object(external_lodash_["mapValues"])(queries, query => {
+  const queryEntries = Object.entries(queries);
+
+  const useViewPortQueriesResult = () => Object.fromEntries(queryEntries.map(([key, query]) => {
     let [operator, breakpointName] = query.split(' ');
 
     if (breakpointName === undefined) {
@@ -323,20 +267,22 @@ const withViewportMatch = queries => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
 
 
-    return Object(external_gc_compose_["useViewportMatch"])(breakpointName, operator);
-  });
+    return [key, (0,external_gc_compose_namespaceObject.useViewportMatch)(breakpointName, operator)];
+  }));
 
-  return Object(external_gc_compose_["createHigherOrderComponent"])(WrappedComponent => {
-    return Object(external_gc_compose_["pure"])(props => {
+  return (0,external_gc_compose_namespaceObject.createHigherOrderComponent)(WrappedComponent => {
+    return (0,external_gc_compose_namespaceObject.pure)(props => {
       const queriesResult = useViewPortQueriesResult();
-      return Object(external_gc_element_["createElement"])(WrappedComponent, Object(esm_extends["a" /* default */])({}, props, queriesResult));
+      return (0,external_gc_element_namespaceObject.createElement)(WrappedComponent, { ...props,
+        ...queriesResult
+      });
     });
   }, 'withViewportMatch');
 };
 
 /* harmony default export */ var with_viewport_match = (withViewportMatch);
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/viewport/build-module/if-viewport-matches.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/viewport/build-module/if-viewport-matches.js
 /**
  * GeChiUI dependencies
  */
@@ -367,13 +313,13 @@ const withViewportMatch = queries => {
  * @return {Function} Higher-order component.
  */
 
-const ifViewportMatches = query => Object(external_gc_compose_["createHigherOrderComponent"])(Object(external_gc_compose_["compose"])([with_viewport_match({
+const ifViewportMatches = query => (0,external_gc_compose_namespaceObject.createHigherOrderComponent)((0,external_gc_compose_namespaceObject.compose)([with_viewport_match({
   isViewportMatch: query
-}), Object(external_gc_compose_["ifCondition"])(props => props.isViewportMatch)]), 'ifViewportMatches');
+}), (0,external_gc_compose_namespaceObject.ifCondition)(props => props.isViewportMatch)]), 'ifViewportMatches');
 
 /* harmony default export */ var if_viewport_matches = (ifViewportMatches);
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/viewport/build-module/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/viewport/build-module/index.js
 /**
  * Internal dependencies
  */
@@ -409,60 +355,6 @@ const OPERATORS = {
 };
 listener(BREAKPOINTS, OPERATORS);
 
-
-/***/ }),
-
-/***/ "IgLd":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["data"]; }());
-
-/***/ }),
-
-/***/ "YLtl":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["lodash"]; }());
-
-/***/ }),
-
-/***/ "dMTb":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["compose"]; }());
-
-/***/ }),
-
-/***/ "ewfG":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["element"]; }());
-
-/***/ }),
-
-/***/ "wx14":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _extends; });
-function _extends() {
-  _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
-}
-
-/***/ })
-
-/******/ });
+(window.gc = window.gc || {}).viewport = __webpack_exports__;
+/******/ })()
+;

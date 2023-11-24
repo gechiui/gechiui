@@ -10,10 +10,6 @@ are styled in the Privacy section of edit.css */
   font-weight: 400;
 }
 
-.health-check-widget-title-section {
-  text-align: center;
-}
-
 .site-health-progress-wrapper {
   margin-bottom: 1rem;
 }
@@ -117,8 +113,7 @@ are styled in the Privacy section of edit.css */
 }
 
 .health-check-tab {
-  display: block;
-  /* IE 11 */
+  display: block; /* IE 11 */
   text-decoration: none;
   color: inherit;
   padding: 0.5rem 1rem 1rem;
@@ -289,16 +284,6 @@ are styled in the Privacy section of edit.css */
   padding-left: 20px;
 }
 
-/* Better position for the GeChiUI admin notices and update nag. */
-.site-health .notice {
-  margin: 5px 20px 15px 22px;
-}
-
-.site-health .update-nag {
-  margin-bottom: 20px;
-  margin-left: 22px;
-}
-
 .health-check-gc-paths-sizes.spinner {
   visibility: visible;
   float: none;
@@ -309,6 +294,14 @@ are styled in the Privacy section of edit.css */
 /* Styling unique to the dashboard widget. */
 #dashboard_site_health .site-health-details {
   padding-left: 16px;
+}
+
+#dashboard_site_health .site-health-details p:first-child {
+  margin-top: 0;
+}
+
+#dashboard_site_health .site-health-details p:last-child {
+  margin-bottom: 0;
 }
 
 #dashboard_site_health .health-check-widget {
@@ -323,6 +316,11 @@ are styled in the Privacy section of edit.css */
   margin-left: 0;
 }
 
+.health-check-widget-title-section {
+  margin-bottom: 0;
+  text-align: center;
+}
+
 @media screen and (max-width: 480px) {
   #dashboard_site_health .health-check-widget {
     grid-template-columns: 100%;
@@ -333,28 +331,23 @@ are styled in the Privacy section of edit.css */
     flex-direction: column;
     align-items: flex-start;
   }
-
   .health-check-accordion-trigger .badge {
     margin: 1em 0 0;
   }
-
   .health-check-table {
     table-layout: fixed;
   }
-
   .health-check-table td {
     box-sizing: border-box;
     display: block;
     width: 100%;
     word-wrap: break-word;
   }
-
   .health-check-table td:first-child {
     width: 100%;
     padding-bottom: 0;
     font-weight: 600;
   }
-
   .gc-core-ui .site-health-copy-buttons .copy-button {
     margin-bottom: 0;
   }

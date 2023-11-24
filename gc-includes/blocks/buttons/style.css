@@ -1,0 +1,49 @@
+.gc-block-buttons.is-vertical{
+  flex-direction:column;
+}
+.gc-block-buttons.is-vertical>.gc-block-button:last-child{
+  margin-bottom:0;
+}
+.gc-block-buttons>.gc-block-button{
+  display:inline-block;
+  margin:0;
+}
+.gc-block-buttons.is-content-justification-left{
+  justify-content:flex-start;
+}
+.gc-block-buttons.is-content-justification-left.is-vertical{
+  align-items:flex-start;
+}
+.gc-block-buttons.is-content-justification-center{
+  justify-content:center;
+}
+.gc-block-buttons.is-content-justification-center.is-vertical{
+  align-items:center;
+}
+.gc-block-buttons.is-content-justification-right{
+  justify-content:flex-end;
+}
+.gc-block-buttons.is-content-justification-right.is-vertical{
+  align-items:flex-end;
+}
+.gc-block-buttons.is-content-justification-space-between{
+  justify-content:space-between;
+}
+.gc-block-buttons.aligncenter{
+  text-align:center;
+}
+.gc-block-buttons:not(.is-content-justification-space-between,.is-content-justification-right,.is-content-justification-left,.is-content-justification-center) .gc-block-button.aligncenter{
+  margin-left:auto;
+  margin-right:auto;
+  width:100%;
+}
+.gc-block-buttons[style*=text-decoration] .gc-block-button,.gc-block-buttons[style*=text-decoration] .gc-block-button__link{
+  text-decoration:inherit;
+}
+.gc-block-buttons.has-custom-font-size .gc-block-button__link{
+  font-size:inherit;
+}
+
+.gc-block-button.aligncenter{
+  text-align:center;
+}

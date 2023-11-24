@@ -13,23 +13,22 @@
  * @return string Returns the tag cloud for selected taxonomy.
  */
 function render_block_core_tag_cloud( $attributes ) {
+	$smallest_font_size = $attributes['smallestFontSize'];
+	$unit               = ( preg_match( '/^[0-9.]+(?P<unit>[a-z%]+)$/i', $smallest_font_size, $m ) ? $m['unit'] : 'pt' );
+
 	$args      = array(
 		'echo'       => false,
+		'unit'       => $unit,
 		'taxonomy'   => $attributes['taxonomy'],
 		'show_count' => $attributes['showTagCounts'],
 		'number'     => $attributes['numberOfTags'],
+		'smallest'   => floatVal( $attributes['smallestFontSize'] ),
+		'largest'    => floatVal( $attributes['largestFontSize'] ),
 	);
 	$tag_cloud = gc_tag_cloud( $args );
 
 	if ( ! $tag_cloud ) {
-		$labels    = get_taxonomy_labels( get_taxonomy( $attributes['taxonomy'] ) );
-		$tag_cloud = esc_html(
-			sprintf(
-				/* translators: %s: taxonomy name */
-				__( '您的站点没有任何%s，所以现在没有什么可供显示。' ),
-				strtolower( $labels->name )
-			)
-		);
+		$tag_cloud = __( '此处尚没有可显示的内容。' );
 	}
 
 	$wrapper_attributes = get_block_wrapper_attributes();
@@ -46,7 +45,7 @@ function render_block_core_tag_cloud( $attributes ) {
  */
 function register_block_core_tag_cloud() {
 	register_block_type_from_metadata(
-		ABSPATH . 'assets/blocks/tag-cloud',
+		__DIR__ . '/tag-cloud',
 		array(
 			'render_callback' => 'render_block_core_tag_cloud',
 		)

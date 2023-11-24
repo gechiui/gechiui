@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/customize-base.js
+ * @output assets/js/customize-base.js
  */
 
 /** @namespace gc */
@@ -391,8 +391,9 @@ window.gc = window.gc || {};
 		/**
 		 * Add an item to the collection.
 		 *
-		 * @param {string|gc.customize.Class} item - The item instance to add, or the ID for the instance to add. When an ID string is supplied, then itemObject must be provided.
-		 * @param {gc.customize.Class}        [itemObject] - The item instance when the first argument is a ID string.
+		 * @param {string|gc.customize.Class} item         - The item instance to add, or the ID for the instance to add.
+		 *                                                   When an ID string is supplied, then itemObject must be provided.
+		 * @param {gc.customize.Class}        [itemObject] - The item instance when the first argument is an ID string.
 		 * @return {gc.customize.Class} The new item's instance, or an existing instance if already added.
 		 */
 		add: function( item, itemObject ) {
@@ -815,6 +816,7 @@ window.gc = window.gc || {};
 	 *
 	 * @class
 	 * @augments gc.customize.Class
+	 * @since 4.6.0
 	 *
 	 * @memberOf gc.customize
 	 * @alias gc.customize.Notification
@@ -834,6 +836,7 @@ window.gc = window.gc || {};
 		 *
 		 * This will be populated with template option or else it will be populated with template from the ID.
 		 *
+		 * @since 4.9.0
 		 * @var {Function}
 		 */
 		template: null,
@@ -841,6 +844,7 @@ window.gc = window.gc || {};
 		/**
 		 * ID for the template to render the notification.
 		 *
+		 * @since 4.9.0
 		 * @var {string}
 		 */
 		templateId: 'customize-notification',
@@ -848,6 +852,7 @@ window.gc = window.gc || {};
 		/**
 		 * Additional class names to add to the notification container.
 		 *
+		 * @since 4.9.0
 		 * @var {string}
 		 */
 		containerClasses: '',
@@ -855,6 +860,7 @@ window.gc = window.gc || {};
 		/**
 		 * Initialize notification.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {string}   code - Notification code.
 		 * @param {Object}   params - Notification parameters.
@@ -889,6 +895,7 @@ window.gc = window.gc || {};
 		/**
 		 * Render the notification.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @return {jQuery} Notification container element.
 		 */
@@ -950,6 +957,7 @@ window.gc = window.gc || {};
 	/**
 	 * Parse query string.
 	 *
+	 * @since 4.7.0
 	 * @access public
 	 *
 	 * @alias gc.customize.utils.parseQueryString

@@ -22,6 +22,7 @@ do_action( 'rss_tag_pre', 'atom-comments' );
 		/**
 		 * Fires inside the feed tag in the Atom comment feed.
 		 *
+		 * @since 2.8.0
 		 */
 		do_action( 'atom_comments_ns' );
 	?>
@@ -91,7 +92,8 @@ while ( have_comments() ) :
 			<name><?php comment_author_rss(); ?></name>
 			<?php
 			if ( get_comment_author_url() ) {
-				echo '<uri>' . get_comment_author_url() . '</uri>';}
+				echo '<uri>' . get_comment_author_url() . '</uri>';
+			}
 			?>
 
 		</author>
@@ -127,6 +129,7 @@ while ( have_comments() ) :
 		/**
 		 * Fires at the end of each Atom comment feed item.
 		 *
+		 * @since 2.2.0
 		 *
 		 * @param int $comment_id      ID of the current comment.
 		 * @param int $comment_post_id ID of the post the current comment is connected to.

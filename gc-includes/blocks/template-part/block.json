@@ -1,0 +1,29 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/template-part",
+	"title": "模版组件",
+	"category": "theme",
+	"description": "编辑系统的不同全局区域，如页眉、页脚、侧边栏，或创建自己的区域。",
+	"textdomain": "default",
+	"attributes": {
+		"slug": {
+			"type": "string"
+		},
+		"theme": {
+			"type": "string"
+		},
+		"tagName": {
+			"type": "string"
+		},
+		"area": {
+			"type": "string"
+		}
+	},
+	"supports": {
+		"align": true,
+		"html": false,
+		"reusable": false
+	},
+	"editorStyle": "gc-block-template-part-editor"
+}

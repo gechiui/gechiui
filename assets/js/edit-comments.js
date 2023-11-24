@@ -2,8 +2,8 @@
  * Handles updating and editing comments.
  *
  * @file This file contains functionality for the admin comments page.
- *
- * @output gc-admin/js/edit-comments.js
+ * @since 2.1.0
+ * @output assets/js/edit-comments.js
  */
 
 /* global adminCommentsSettings, thousandsSeparator, list_args, QTags, ajaxurl, gcAjax */
@@ -19,6 +19,7 @@ var getCount, updateCount, updateCountText, updatePending, updateApproved,
 	/**
 	 * Extracts a number from the content of a jQuery element.
 	 *
+	 * @since 2.9.0
 	 * @access private
 	 *
 	 * @param {jQuery} el jQuery element.
@@ -36,6 +37,7 @@ var getCount, updateCount, updateCountText, updatePending, updateApproved,
 	/**
 	 * Updates an html element with a localized number string.
 	 *
+	 * @since 2.9.0
 	 * @access private
 	 *
 	 * @param {jQuery} el The jQuery element to update.
@@ -62,6 +64,7 @@ var getCount, updateCount, updateCountText, updatePending, updateApproved,
 	/**
 	 * Updates the number of approved comments on a specific post and the filter bar.
 	 *
+	 * @since 4.4.0
 	 * @access private
 	 *
 	 * @param {number} diff The amount to lower or raise the approved count with.
@@ -113,6 +116,7 @@ var getCount, updateCount, updateCountText, updatePending, updateApproved,
 	/**
 	 * Updates a number count in all matched HTML elements
 	 *
+	 * @since 4.4.0
 	 * @access private
 	 *
 	 * @param {string} selector The jQuery selector for elements to update a count
@@ -134,6 +138,7 @@ var getCount, updateCount, updateCountText, updatePending, updateApproved,
 	/**
 	 * Updates a text about comment count on the dashboard.
 	 *
+	 * @since 4.4.0
 	 * @access private
 	 *
 	 * @param {Object} response Ajax response from the server that includes a
@@ -152,6 +157,7 @@ var getCount, updateCount, updateCountText, updatePending, updateApproved,
 	/**
 	 * Updates the "comments in moderation" text across the UI.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param {Object} response Ajax response from the server that includes a
 	 *                          translated "comments in moderation" message.
@@ -165,7 +171,7 @@ var getCount, updateCount, updateCountText, updatePending, updateApproved,
 
 		// Update the "comment in moderation" text across the UI.
 		$( '.comments-in-moderation-text' ).text( response.i18n_moderation_text );
-		// Hide the "comment in moderation" text in the Dashboard "At a Glance" widget.
+		// Hide the "comment in moderation" text in the Dashboard "概览" widget.
 		if ( isDashboard && response.in_moderation ) {
 			$( '.comment-mod-count', '#dashboard_right_now' )
 				[ response.in_moderation > 0 ? 'removeClass' : 'addClass' ]( 'hidden' );
@@ -175,6 +181,7 @@ var getCount, updateCount, updateCountText, updatePending, updateApproved,
 	/**
 	 * Updates the title of the document with the number comments to be approved.
 	 *
+	 * @since 4.4.0
 	 * @access private
 	 *
 	 * @param {number} diff The amount to lower or raise the number of to be
@@ -220,6 +227,7 @@ var getCount, updateCount, updateCountText, updatePending, updateApproved,
 	/**
 	 * Updates the number of pending comments on a specific post and the filter bar.
 	 *
+	 * @since 3.2.0
 	 * @access private
 	 *
 	 * @param {number} diff The amount to lower or raise the pending count with.
@@ -286,7 +294,7 @@ var getCount, updateCount, updateCountText, updatePending, updateApproved,
 /**
  * Initializes the comments list.
  *
- *
+ * @since 4.4.0
  *
  * @global
  *
@@ -310,6 +318,7 @@ window.setCommentsList = function() {
 	 * total when necessary. So a value that has been generated earlier will not
 	 * update the total.
 	 *
+	 * @since 2.8.0
 	 * @access private
 	 *
 	 * @param {number} total Total number of comments.
@@ -332,6 +341,7 @@ window.setCommentsList = function() {
 	/**
 	 * Changes DOM that need to be changed after a list item has been dimmed.
 	 *
+	 * @since 2.5.0
 	 * @access private
 	 *
 	 * @param {Object} r Ajax response object.
@@ -383,6 +393,7 @@ window.setCommentsList = function() {
 	 *
 	 * Is executed in the list delBefore hook.
 	 *
+	 * @since 2.8.0
 	 * @access private
 	 *
 	 * @param {Object} settings Settings for the gcList object.
@@ -455,6 +466,7 @@ window.setCommentsList = function() {
 	 * The ajax requests return the unix time stamp a comment was marked as spam or
 	 * trashed. We use this to have a correct total amount of comments.
 	 *
+	 * @since 2.5.0
 	 * @access private
 	 *
 	 * @param {Object} r Ajax response object.
@@ -601,7 +613,7 @@ window.setCommentsList = function() {
 			approvedDiff = -1;
 			pendingDiff = 1;
 
-		// User clicked "Delete Permanently".
+		// User clicked "永久删除".
 		} else if ( targetParent.is( 'span.delete' ) ) {
 			if ( spammed ) {
 				spamDiff = -1;
@@ -687,6 +699,7 @@ window.setCommentsList = function() {
 	/**
 	 * Retrieves additional comments to populate the extra list.
 	 *
+	 * @since 3.1.0
 	 * @access private
 	 *
 	 * @param {boolean} [ev] Repopulate the extra comments list if true.
@@ -761,7 +774,7 @@ window.setCommentsList = function() {
  * Object containing functionality regarding the comment quick editor and reply
  * editor.
  *
- *
+ * @since 2.7.0
  *
  * @global
  */
@@ -773,6 +786,7 @@ window.commentReply = {
 	/**
 	 * Initializes the comment reply functionality.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @memberof commentReply
 	 */
@@ -807,6 +821,7 @@ window.commentReply = {
 	 *
 	 * The double-click event will toggle the comment edit or reply form.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @memberof commentReply
 	 *
@@ -825,6 +840,7 @@ window.commentReply = {
 	/**
 	 * Opens the quick edit for the given element.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @memberof commentReply
 	 *
@@ -833,7 +849,7 @@ window.commentReply = {
 	 * @return {void}
 	 */
 	toggle : function(el) {
-		if ( 'none' !== $( el ).css( 'display' ) && ( $( '#replyrow' ).parent().is('#com-reply') || window.confirm( __( '你确定要编辑此评论吗？\n您所做的更改将丢失。' ) ) ) ) {
+		if ( 'none' !== $( el ).css( 'display' ) && ( $( '#replyrow' ).parent().is('#com-reply') || window.confirm( __( '您确定要编辑此评论吗？\n您所做的更改将丢失。' ) ) ) ) {
 			$( el ).find( 'button.vim-q' ).trigger( 'click' );
 		}
 	},
@@ -841,6 +857,7 @@ window.commentReply = {
 	/**
 	 * Closes the comment quick edit or reply form and undoes any changes.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @memberof commentReply
 	 *
@@ -859,6 +876,7 @@ window.commentReply = {
 	/**
 	 * Closes the comment quick edit or reply form and undoes any changes.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @memberof commentReply
 	 *
@@ -920,6 +938,7 @@ window.commentReply = {
 	/**
 	 * Opens the comment quick edit or reply form.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @memberof commentReply
 	 *
@@ -1000,7 +1019,8 @@ window.commentReply = {
 		}
 
 		setTimeout(function() {
-			var rtop, rbottom, scrollTop, vp, scrollBottom;
+			var rtop, rbottom, scrollTop, vp, scrollBottom,
+				isComposing = false;
 
 			rtop = $('#replyrow').offset().top;
 			rbottom = rtop + $('#replyrow').height();
@@ -1013,10 +1033,17 @@ window.commentReply = {
 			else if ( rtop - 20 < scrollTop )
 				window.scroll(0, rtop - 35);
 
-			$('#replycontent').trigger( 'focus' ).on( 'keyup', function(e){
-				if ( e.which == 27 )
-					commentReply.revert(); // Close on Escape.
-			});
+			$( '#replycontent' )
+				.trigger( 'focus' )
+				.on( 'keyup', function( e ) {
+					// Close on Escape except when Input Method Editors (IMEs) are in use.
+					if ( e.which === 27 && ! isComposing ) {
+						commentReply.revert();
+					}
+				} )
+				.on( 'compositionstart', function() {
+					isComposing = true;
+				} );
 		}, 600);
 
 		return false;
@@ -1025,6 +1052,7 @@ window.commentReply = {
 	/**
 	 * Submits the comment quick edit or reply form.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @memberof commentReply
 	 *
@@ -1066,6 +1094,7 @@ window.commentReply = {
 	 * It will handle the response and show the comment that has just been saved to
 	 * the server.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @memberof commentReply
 	 *
@@ -1138,6 +1167,7 @@ window.commentReply = {
 	/**
 	 * Shows an error for the failed comment update or reply.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @memberof commentReply
 	 *
@@ -1164,6 +1194,7 @@ window.commentReply = {
 	/**
 	 * Opens the add comments form in the comments metabox on the post edit page.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @memberof commentReply
 	 *
@@ -1185,6 +1216,7 @@ window.commentReply = {
 	 * Alert the user if they have unsaved changes on a comment that will be lost if
 	 * they proceed with the intended action.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @memberof commentReply
 	 *
@@ -1193,7 +1225,7 @@ window.commentReply = {
 	discardCommentChanges: function() {
 		var editRow = $( '#replyrow' );
 
-		if  ( this.originalContent === $( '#replycontent', editRow ).val() ) {
+		if  ( '' === $( '#replycontent', editRow ).val() || this.originalContent === $( '#replycontent', editRow ).val() ) {
 			return true;
 		}
 
@@ -1215,6 +1247,7 @@ $( function(){
 		/**
 		 * Creates a function that navigates to a previous or next page.
 		 *
+		 * @since 2.7.0
 		 * @access private
 		 *
 		 * @param {string} which What page to navigate to: either next or prev.
@@ -1235,6 +1268,7 @@ $( function(){
 		/**
 		 * Navigates to the edit page for the selected comment.
 		 *
+		 * @since 2.7.0
 		 * @access private
 		 *
 		 * @param {Object} event       The event that triggered this action.
@@ -1249,6 +1283,7 @@ $( function(){
 		/**
 		 * Toggles all comments on the screen, for bulk actions.
 		 *
+		 * @since 2.7.0
 		 * @access private
 		 *
 		 * @return {void}
@@ -1260,6 +1295,7 @@ $( function(){
 		/**
 		 * Creates a bulk action function that is executed on all selected comments.
 		 *
+		 * @since 2.7.0
 		 * @access private
 		 *
 		 * @param {string} value The name of the action to execute.

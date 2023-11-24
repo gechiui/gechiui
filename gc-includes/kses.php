@@ -36,8 +36,14 @@
  * Using `CUSTOM_TAGS` is not recommended and should be considered deprecated. The
  * {@see 'gc_kses_allowed_html'} filter is more powerful and supplies context.
  *
- * @see gc_kses_allowed_html()
+ * When using this constant, make sure to set all of these globals to arrays:
  *
+ *  - `$allowedposttags`
+ *  - `$allowedtags`
+ *  - `$allowedentitynames`
+ *  - `$allowedxmlentitynames`
+ *
+ * @see gc_kses_allowed_html()
  *
  * @var array[]|false Array of default allowable HTML tags, or false to use the defaults.
  */
@@ -56,6 +62,7 @@ if ( ! CUSTOM_TAGS ) {
 	 * Can be overridden with the `CUSTOM_TAGS` constant.
 	 *
 	 * @var array[] $allowedposttags Array of default allowable HTML tags.
+	 * @since 2.0.0
 	 */
 	$allowedposttags = array(
 		'address'    => array(),
@@ -378,6 +385,7 @@ if ( ! CUSTOM_TAGS ) {
 
 	/**
 	 * @var array[] $allowedtags Array of KSES allowed HTML elements.
+	 * @since 1.0.0
 	 */
 	$allowedtags = array(
 		'a'          => array(
@@ -411,6 +419,7 @@ if ( ! CUSTOM_TAGS ) {
 
 	/**
 	 * @var string[] $allowedentitynames Array of KSES allowed HTML entity names.
+	 * @since 1.0.0
 	 */
 	$allowedentitynames = array(
 		'nbsp',
@@ -670,6 +679,7 @@ if ( ! CUSTOM_TAGS ) {
 
 	/**
 	 * @var string[] $allowedxmlentitynames Array of KSES allowed XML entity names.
+	 * @since 5.5.0
 	 */
 	$allowedxmlentitynames = array(
 		'amp',
@@ -681,6 +691,33 @@ if ( ! CUSTOM_TAGS ) {
 
 	$allowedposttags = array_map( '_gc_add_global_attributes', $allowedposttags );
 } else {
+	$required_kses_globals = array(
+		'allowedposttags',
+		'allowedtags',
+		'allowedentitynames',
+		'allowedxmlentitynames',
+	);
+	$missing_kses_globals  = array();
+
+	foreach ( $required_kses_globals as $global_name ) {
+		if ( ! isset( $GLOBALS[ $global_name ] ) || ! is_array( $GLOBALS[ $global_name ] ) ) {
+			$missing_kses_globals[] = '<code>$' . $global_name . '</code>';
+		}
+	}
+
+	if ( $missing_kses_globals ) {
+		_doing_it_wrong(
+			'gc_kses_allowed_html',
+			sprintf(
+				/* translators: 1: CUSTOM_TAGS, 2: Global variable names. */
+				__( '使用%1$s常量时，请确保将这些全局变量设置为数组：%2$s。' ),
+				'<code>CUSTOM_TAGS</code>',
+				implode( ', ', $missing_kses_globals )
+			),
+			'6.2.0'
+		);
+	}
+
 	$allowedtags     = gc_kses_array_lc( $allowedtags );
 	$allowedposttags = gc_kses_array_lc( $allowedposttags );
 }
@@ -696,25 +733,24 @@ if ( ! CUSTOM_TAGS ) {
  * @see gc_kses_post() for specifically filtering post content and fields.
  * @see gc_allowed_protocols() for the default allowed protocols in link URLs.
  *
- *
- *
- * @param string         $string            Text content to filter.
+ * @param string         $content           Text content to filter.
  * @param array[]|string $allowed_html      An array of allowed HTML elements and attributes,
  *                                          or a context name such as 'post'. See gc_kses_allowed_html()
  *                                          for the list of accepted context names.
- * @param string[]       $allowed_protocols Array of allowed URL protocols.
+ * @param string[]       $allowed_protocols Optional. Array of allowed URL protocols.
+ *                                          Defaults to the result of gc_allowed_protocols().
  * @return string Filtered content containing only the allowed HTML.
  */
-function gc_kses( $string, $allowed_html, $allowed_protocols = array() ) {
+function gc_kses( $content, $allowed_html, $allowed_protocols = array() ) {
 	if ( empty( $allowed_protocols ) ) {
 		$allowed_protocols = gc_allowed_protocols();
 	}
 
-	$string = gc_kses_no_null( $string, array( 'slash_zero' => 'keep' ) );
-	$string = gc_kses_normalize_entities( $string );
-	$string = gc_kses_hook( $string, $allowed_html, $allowed_protocols );
+	$content = gc_kses_no_null( $content, array( 'slash_zero' => 'keep' ) );
+	$content = gc_kses_normalize_entities( $content );
+	$content = gc_kses_hook( $content, $allowed_html, $allowed_protocols );
 
-	return gc_kses_split( $string, $allowed_html, $allowed_protocols );
+	return gc_kses_split( $content, $allowed_html, $allowed_protocols );
 }
 
 /**
@@ -722,45 +758,47 @@ function gc_kses( $string, $allowed_html, $allowed_protocols = array() ) {
  *
  * This function can escape data in some situations where `gc_kses()` must strip the whole attribute.
  *
+ * @since 4.2.3
  *
- *
- * @param string $string  The 'whole' attribute, including name and value.
+ * @param string $attr    The 'whole' attribute, including name and value.
  * @param string $element The HTML element name to which the attribute belongs.
  * @return string Filtered attribute.
  */
-function gc_kses_one_attr( $string, $element ) {
+function gc_kses_one_attr( $attr, $element ) {
 	$uris              = gc_kses_uri_attributes();
 	$allowed_html      = gc_kses_allowed_html( 'post' );
 	$allowed_protocols = gc_allowed_protocols();
-	$string            = gc_kses_no_null( $string, array( 'slash_zero' => 'keep' ) );
+	$attr              = gc_kses_no_null( $attr, array( 'slash_zero' => 'keep' ) );
 
 	// Preserve leading and trailing whitespace.
 	$matches = array();
-	preg_match( '/^\s*/', $string, $matches );
+	preg_match( '/^\s*/', $attr, $matches );
 	$lead = $matches[0];
-	preg_match( '/\s*$/', $string, $matches );
+	preg_match( '/\s*$/', $attr, $matches );
 	$trail = $matches[0];
 	if ( empty( $trail ) ) {
-		$string = substr( $string, strlen( $lead ) );
+		$attr = substr( $attr, strlen( $lead ) );
 	} else {
-		$string = substr( $string, strlen( $lead ), -strlen( $trail ) );
+		$attr = substr( $attr, strlen( $lead ), -strlen( $trail ) );
 	}
 
 	// Parse attribute name and value from input.
-	$split = preg_split( '/\s*=\s*/', $string, 2 );
+	$split = preg_split( '/\s*=\s*/', $attr, 2 );
 	$name  = $split[0];
-	if ( count( $split ) == 2 ) {
+	if ( count( $split ) === 2 ) {
 		$value = $split[1];
 
-		// Remove quotes surrounding $value.
-		// Also guarantee correct quoting in $string for this one attribute.
+		/*
+		 * Remove quotes surrounding $value.
+		 * Also guarantee correct quoting in $attr for this one attribute.
+		 */
 		if ( '' === $value ) {
 			$quote = '';
 		} else {
 			$quote = $value[0];
 		}
 		if ( '"' === $quote || "'" === $quote ) {
-			if ( substr( $value, -1 ) != $quote ) {
+			if ( ! str_ends_with( $value, $quote ) ) {
 				return '';
 			}
 			$value = substr( $value, 1, -1 );
@@ -776,25 +814,24 @@ function gc_kses_one_attr( $string, $element ) {
 			$value = gc_kses_bad_protocol( $value, $allowed_protocols );
 		}
 
-		$string = "$name=$quote$value$quote";
-		$vless  = 'n';
+		$attr  = "$name=$quote$value$quote";
+		$vless = 'n';
 	} else {
 		$value = '';
 		$vless = 'y';
 	}
 
 	// Sanitize attribute by name.
-	gc_kses_attr_check( $name, $value, $string, $vless, $element, $allowed_html );
+	gc_kses_attr_check( $name, $value, $attr, $vless, $element, $allowed_html );
 
 	// Restore whitespace.
-	return $lead . $string . $trail;
+	return $lead . $attr . $trail;
 }
 
 /**
  * Returns an array of allowed HTML tags and attributes for a given context.
  *
- *
- *
+ * @since 5.0.1 `form` removed as allowable HTML tag.
  *
  * @global array $allowedposttags
  * @global array $allowedtags
@@ -819,6 +856,8 @@ function gc_kses_allowed_html( $context = '' ) {
 		 * HTML tags and attribute names are case-insensitive in HTML but must be
 		 * added to the KSES allow list in lowercase. An item added to the allow list
 		 * in upper or mixed case will not recognized as permitted by KSES.
+		 *
+		 * @since 3.5.0
 		 *
 		 * @param array[] $html    Allowed HTML tags.
 		 * @param string  $context Context name.
@@ -879,33 +918,30 @@ function gc_kses_allowed_html( $context = '' ) {
  * There is currently only one KSES GeChiUI hook, {@see 'pre_kses'}, and it is called here.
  * All parameters are passed to the hooks and expected to receive a string.
  *
- *
- *
- * @param string         $string            Content to filter through KSES.
+ * @param string         $content           Content to filter through KSES.
  * @param array[]|string $allowed_html      An array of allowed HTML elements and attributes,
  *                                          or a context name such as 'post'. See gc_kses_allowed_html()
  *                                          for the list of accepted context names.
  * @param string[]       $allowed_protocols Array of allowed URL protocols.
  * @return string Filtered content through {@see 'pre_kses'} hook.
  */
-function gc_kses_hook( $string, $allowed_html, $allowed_protocols ) {
+function gc_kses_hook( $content, $allowed_html, $allowed_protocols ) {
 	/**
 	 * Filters content to be run through KSES.
 	 *
+	 * @since 2.3.0
 	 *
-	 * @param string         $string            Content to filter through KSES.
+	 * @param string         $content           Content to filter through KSES.
 	 * @param array[]|string $allowed_html      An array of allowed HTML elements and attributes,
 	 *                                          or a context name such as 'post'. See gc_kses_allowed_html()
 	 *                                          for the list of accepted context names.
 	 * @param string[]       $allowed_protocols Array of allowed URL protocols.
 	 */
-	return apply_filters( 'pre_kses', $string, $allowed_html, $allowed_protocols );
+	return apply_filters( 'pre_kses', $content, $allowed_html, $allowed_protocols );
 }
 
 /**
  * Returns the version number of KSES.
- *
- *
  *
  * @return string KSES version number.
  */
@@ -918,26 +954,24 @@ function gc_kses_version() {
  *
  * It also matches stray `>` characters.
  *
- *
- *
  * @global array[]|string $pass_allowed_html      An array of allowed HTML elements and attributes,
  *                                                or a context name such as 'post'.
  * @global string[]       $pass_allowed_protocols Array of allowed URL protocols.
  *
- * @param string         $string            Content to filter.
+ * @param string         $content           Content to filter.
  * @param array[]|string $allowed_html      An array of allowed HTML elements and attributes,
  *                                          or a context name such as 'post'. See gc_kses_allowed_html()
  *                                          for the list of accepted context names.
  * @param string[]       $allowed_protocols Array of allowed URL protocols.
  * @return string Content with fixed HTML tags
  */
-function gc_kses_split( $string, $allowed_html, $allowed_protocols ) {
+function gc_kses_split( $content, $allowed_html, $allowed_protocols ) {
 	global $pass_allowed_html, $pass_allowed_protocols;
 
 	$pass_allowed_html      = $allowed_html;
 	$pass_allowed_protocols = $allowed_protocols;
 
-	return preg_replace_callback( '%(<!--.*?(-->|$))|(<[^>]*(>|$)|>)%', '_gc_kses_split_callback', $string );
+	return preg_replace_callback( '%(<!--.*?(-->|$))|(<[^>]*(>|$)|>)%', '_gc_kses_split_callback', $content );
 }
 
 /**
@@ -950,7 +984,7 @@ function gc_kses_split( $string, $allowed_html, $allowed_protocols ) {
  *
  * @link https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes
  *
- *
+ * @since 5.0.1
  *
  * @return string[] HTML attribute names whose value contains a URL.
  */
@@ -981,6 +1015,7 @@ function gc_kses_uri_attributes() {
 	 * Use this filter to add any `data-` attributes that are required to be
 	 * validated as a URL.
 	 *
+	 * @since 5.0.1
 	 *
 	 * @param string[] $uri_attributes HTML attribute names whose value contains a URL.
 	 */
@@ -992,7 +1027,6 @@ function gc_kses_uri_attributes() {
 /**
  * Callback for `gc_kses_split()`.
  *
- *
  * @access private
  * @ignore
  *
@@ -1000,13 +1034,13 @@ function gc_kses_uri_attributes() {
  *                                                or a context name such as 'post'.
  * @global string[]       $pass_allowed_protocols Array of allowed URL protocols.
  *
- * @param array $match preg_replace regexp matches
+ * @param array $matches preg_replace regexp matches
  * @return string
  */
-function _gc_kses_split_callback( $match ) {
+function _gc_kses_split_callback( $matches ) {
 	global $pass_allowed_html, $pass_allowed_protocols;
 
-	return gc_kses_split2( $match[0], $pass_allowed_html, $pass_allowed_protocols );
+	return gc_kses_split2( $matches[0], $pass_allowed_html, $pass_allowed_protocols );
 }
 
 /**
@@ -1024,40 +1058,39 @@ function _gc_kses_split_callback( $match ) {
  * @access private
  * @ignore
  *
- *
- * @param string         $string            Content to filter.
+ * @param string         $content           Content to filter.
  * @param array[]|string $allowed_html      An array of allowed HTML elements and attributes,
  *                                          or a context name such as 'post'. See gc_kses_allowed_html()
  *                                          for the list of accepted context names.
  * @param string[]       $allowed_protocols Array of allowed URL protocols.
  * @return string Fixed HTML element
  */
-function gc_kses_split2( $string, $allowed_html, $allowed_protocols ) {
-	$string = gc_kses_stripslashes( $string );
+function gc_kses_split2( $content, $allowed_html, $allowed_protocols ) {
+	$content = gc_kses_stripslashes( $content );
 
 	// It matched a ">" character.
-	if ( '<' !== substr( $string, 0, 1 ) ) {
+	if ( ! str_starts_with( $content, '<' ) ) {
 		return '&gt;';
 	}
 
 	// Allow HTML comments.
-	if ( '<!--' === substr( $string, 0, 4 ) ) {
-		$string = str_replace( array( '<!--', '-->' ), '', $string );
-		while ( ( $newstring = gc_kses( $string, $allowed_html, $allowed_protocols ) ) != $string ) {
-			$string = $newstring;
+	if ( str_starts_with( $content, '<!--' ) ) {
+		$content = str_replace( array( '<!--', '-->' ), '', $content );
+		while ( ( $newstring = gc_kses( $content, $allowed_html, $allowed_protocols ) ) != $content ) {
+			$content = $newstring;
 		}
-		if ( '' === $string ) {
+		if ( '' === $content ) {
 			return '';
 		}
 		// Prevent multiple dashes in comments.
-		$string = preg_replace( '/--+/', '-', $string );
+		$content = preg_replace( '/--+/', '-', $content );
 		// Prevent three dashes closing a comment.
-		$string = preg_replace( '/-$/', '', $string );
-		return "<!--{$string}-->";
+		$content = preg_replace( '/-$/', '', $content );
+		return "<!--{$content}-->";
 	}
 
 	// It's seriously malformed.
-	if ( ! preg_match( '%^<\s*(/\s*)?([a-zA-Z0-9-]+)([^>]*)>?$%', $string, $matches ) ) {
+	if ( ! preg_match( '%^<\s*(/\s*)?([a-zA-Z0-9-]+)([^>]*)>?$%', $content, $matches ) ) {
 		return '';
 	}
 
@@ -1099,8 +1132,7 @@ function gc_kses_split2( $string, $allowed_html, $allowed_protocols ) {
  * closing tags, it's not possible to safely remove the tag itself, the safest
  * fallback is to strip all attributes from the tag, instead.
  *
- *
- *
+ * @since 5.9.0 Added support for an array of allowed values for attributes.
  *              Added support for required attributes.
  *
  * @param string         $element           HTML element/tag.
@@ -1134,7 +1166,7 @@ function gc_kses_attr( $element, $attr, $allowed_html, $allowed_protocols ) {
 	// Check if there are attributes that are required.
 	$required_attrs = array_filter(
 		$allowed_html[ $element_low ],
-		function( $required_attr_limits ) {
+		static function( $required_attr_limits ) {
 			return isset( $required_attr_limits['required'] ) && true === $required_attr_limits['required'];
 		}
 	);
@@ -1181,7 +1213,10 @@ function gc_kses_attr( $element, $attr, $allowed_html, $allowed_protocols ) {
 
 /**
  * Determines whether an attribute is allowed.
- * 
+ *
+ * @since 4.2.3
+ * @since 5.0.0 Added support for `data-*` wildcard attributes.
+ *
  * @param string $name         The attribute name. Passed by reference. Returns empty string when not allowed.
  * @param string $value        The attribute value. Passed by reference. Returns a filtered value.
  * @param string $whole        The `name=value` input. Passed by reference. Returns filtered input.
@@ -1214,7 +1249,7 @@ function gc_kses_attr_check( &$name, &$value, &$whole, $vless, $element, $allowe
 		 * Note: the attribute name should only contain `A-Za-z0-9_-` chars,
 		 * double hyphens `--` are not accepted by GeChiUI.
 		 */
-		if ( strpos( $name_low, 'data-' ) === 0 && ! empty( $allowed_attr['data-*'] )
+		if ( str_starts_with( $name_low, 'data-' ) && ! empty( $allowed_attr['data-*'] )
 			&& preg_match( '/^data(?:-[a-z0-9_]+)+$/', $name_low, $match )
 		) {
 			/*
@@ -1270,8 +1305,6 @@ function gc_kses_attr_check( &$name, &$value, &$whole, $vless, $element, $allowe
  * from attribute values. It also reduces duplicate attributes by using the
  * attribute defined first (`foo='bar' foo='baz'` will result in `foo='bar'`).
  *
- *
- *
  * @param string   $attr              Attribute list from HTML element to closing HTML element tag.
  * @param string[] $allowed_protocols Array of allowed URL protocols.
  * @return array[] Array of attribute information after parsing.
@@ -1284,7 +1317,7 @@ function gc_kses_hair( $attr, $allowed_protocols ) {
 
 	// Loop through the whole attribute list.
 
-	while ( strlen( $attr ) != 0 ) {
+	while ( strlen( $attr ) !== 0 ) {
 		$working = 0; // Was the last operation successful?
 
 		switch ( $mode ) {
@@ -1396,8 +1429,10 @@ function gc_kses_hair( $attr, $allowed_protocols ) {
 	} // End while.
 
 	if ( 1 == $mode && false === array_key_exists( $attrname, $attrarr ) ) {
-		// Special case, for when the attribute list ends with a valueless
-		// attribute like "selected".
+		/*
+		 * Special case, for when the attribute list ends with a valueless
+		 * attribute like "selected".
+		 */
 		$attrarr[ $attrname ] = array(
 			'name'  => $attrname,
 			'value' => '',
@@ -1416,7 +1451,7 @@ function gc_kses_hair( $attr, $allowed_protocols ) {
  *
  * Based on `gc_kses_split2()` and `gc_kses_attr()`.
  *
- *
+ * @since 4.2.3
  *
  * @param string $element HTML element.
  * @return array|false List of attributes found in the element. Returns false on failure.
@@ -1467,7 +1502,7 @@ function gc_kses_attr_parse( $element ) {
  *
  * Based on `gc_kses_hair()` but does not return a multi-dimensional array.
  *
- *
+ * @since 4.2.3
  *
  * @param string $attr Attribute list from HTML element to closing HTML element tag.
  * @return array|false List of attributes found in $attr. Returns false on failure.
@@ -1500,8 +1535,10 @@ function gc_kses_hair_parse( $attr ) {
 		. '\s*';              // Trailing space is optional except as mentioned above.
 	// phpcs:enable
 
-	// Although it is possible to reduce this procedure to a single regexp,
-	// we must run that regexp twice to get exactly the expected result.
+	/*
+	 * Although it is possible to reduce this procedure to a single regexp,
+	 * we must run that regexp twice to get exactly the expected result.
+	 */
 
 	$validation = "%^($regex)+$%";
 	$extraction = "%$regex%";
@@ -1519,8 +1556,6 @@ function gc_kses_hair_parse( $attr ) {
  *
  * The currently implemented checks are "maxlen", "minlen", "maxval", "minval",
  * and "valueless".
- *
- *
  *
  * @param string $value      Attribute value.
  * @param string $vless      Whether the attribute is valueless. Use 'y' or 'n'.
@@ -1594,7 +1629,7 @@ function gc_kses_check_attr_val( $value, $vless, $checkname, $checkvalue ) {
 			 * If the given value is an "n" or an "N", the attribute must have a value.
 			 */
 
-			if ( strtolower( $checkvalue ) != $vless ) {
+			if ( strtolower( $checkvalue ) !== $vless ) {
 				$ok = false;
 			}
 			break;
@@ -1633,26 +1668,33 @@ function gc_kses_check_attr_val( $value, $vless, $checkname, $checkvalue ) {
  * understand HTML entities. It does its work recursively, so it won't be
  * fooled by a string like `javascript:javascript:alert(57)`.
  *
- *
- *
- * @param string   $string            Content to filter bad protocols from.
+ * @param string   $content           Content to filter bad protocols from.
  * @param string[] $allowed_protocols Array of allowed URL protocols.
  * @return string Filtered content.
  */
-function gc_kses_bad_protocol( $string, $allowed_protocols ) {
-	$string     = gc_kses_no_null( $string );
+function gc_kses_bad_protocol( $content, $allowed_protocols ) {
+	$content = gc_kses_no_null( $content );
+
+	// Short-circuit if the string starts with `https://` or `http://`. Most common cases.
+	if (
+		( str_starts_with( $content, 'https://' ) && in_array( 'https', $allowed_protocols, true ) ) ||
+		( str_starts_with( $content, 'http://' ) && in_array( 'http', $allowed_protocols, true ) )
+	) {
+		return $content;
+	}
+
 	$iterations = 0;
 
 	do {
-		$original_string = $string;
-		$string          = gc_kses_bad_protocol_once( $string, $allowed_protocols );
-	} while ( $original_string != $string && ++$iterations < 6 );
+		$original_content = $content;
+		$content          = gc_kses_bad_protocol_once( $content, $allowed_protocols );
+	} while ( $original_content != $content && ++$iterations < 6 );
 
-	if ( $original_string != $string ) {
+	if ( $original_content != $content ) {
 		return '';
 	}
 
-	return $string;
+	return $content;
 }
 
 /**
@@ -1660,23 +1702,21 @@ function gc_kses_bad_protocol( $string, $allowed_protocols ) {
  *
  * Also removes any instance of the `\0` string.
  *
- *
- *
- * @param string $string  Content to filter null characters from.
+ * @param string $content Content to filter null characters from.
  * @param array  $options Set 'slash_zero' => 'keep' when '\0' is allowed. Default is 'remove'.
  * @return string Filtered content.
  */
-function gc_kses_no_null( $string, $options = null ) {
+function gc_kses_no_null( $content, $options = null ) {
 	if ( ! isset( $options['slash_zero'] ) ) {
 		$options = array( 'slash_zero' => 'remove' );
 	}
 
-	$string = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $string );
+	$content = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $content );
 	if ( 'remove' === $options['slash_zero'] ) {
-		$string = preg_replace( '/\\\\+0+/', '', $string );
+		$content = preg_replace( '/\\\\+0+/', '', $content );
 	}
 
-	return $string;
+	return $content;
 }
 
 /**
@@ -1685,19 +1725,15 @@ function gc_kses_no_null( $string, $options = null ) {
  * This function changes the character sequence `\"` to just `"`. It leaves all other
  * slashes alone. The quoting from `preg_replace(//e)` requires this.
  *
- *
- *
- * @param string $string String to strip slashes from.
+ * @param string $content String to strip slashes from.
  * @return string Fixed string with quoted slashes.
  */
-function gc_kses_stripslashes( $string ) {
-	return preg_replace( '%\\\\"%', '"', $string );
+function gc_kses_stripslashes( $content ) {
+	return preg_replace( '%\\\\"%', '"', $content );
 }
 
 /**
  * Converts the keys of an array to lowercase.
- *
- *
  *
  * @param array $inarray Unfiltered array.
  * @return array Fixed array with all lowercase keys.
@@ -1724,13 +1760,11 @@ function gc_kses_array_lc( $inarray ) {
  * The general plan is to remove everything to and including some whitespace,
  * but it deals with quotes and apostrophes as well.
  *
- *
- *
- * @param string $string
+ * @param string $attr
  * @return string
  */
-function gc_kses_html_error( $string ) {
-	return preg_replace( '/^("[^"]*("|$)|\'[^\']*(\'|$)|\S)*\s*/', '', $string );
+function gc_kses_html_error( $attr ) {
+	return preg_replace( '/^("[^"]*("|$)|\'[^\']*(\'|$)|\S)*\s*/', '', $attr );
 }
 
 /**
@@ -1739,32 +1773,31 @@ function gc_kses_html_error( $string ) {
  * This function searches for URL protocols at the beginning of the string, while
  * handling whitespace and HTML entities.
  *
- *
- *
- * @param string   $string            Content to check for bad protocols.
+ * @param string   $content           Content to check for bad protocols.
  * @param string[] $allowed_protocols Array of allowed URL protocols.
  * @param int      $count             Depth of call recursion to this function.
  * @return string Sanitized content.
  */
-function gc_kses_bad_protocol_once( $string, $allowed_protocols, $count = 1 ) {
-	$string  = preg_replace( '/(&#0*58(?![;0-9])|&#x0*3a(?![;a-f0-9]))/i', '$1;', $string );
-	$string2 = preg_split( '/:|&#0*58;|&#x0*3a;|&colon;/i', $string, 2 );
-	if ( isset( $string2[1] ) && ! preg_match( '%/\?%', $string2[0] ) ) {
-		$string   = trim( $string2[1] );
-		$protocol = gc_kses_bad_protocol_once2( $string2[0], $allowed_protocols );
+function gc_kses_bad_protocol_once( $content, $allowed_protocols, $count = 1 ) {
+	$content  = preg_replace( '/(&#0*58(?![;0-9])|&#x0*3a(?![;a-f0-9]))/i', '$1;', $content );
+	$content2 = preg_split( '/:|&#0*58;|&#x0*3a;|&colon;/i', $content, 2 );
+
+	if ( isset( $content2[1] ) && ! preg_match( '%/\?%', $content2[0] ) ) {
+		$content  = trim( $content2[1] );
+		$protocol = gc_kses_bad_protocol_once2( $content2[0], $allowed_protocols );
 		if ( 'feed:' === $protocol ) {
 			if ( $count > 2 ) {
 				return '';
 			}
-			$string = gc_kses_bad_protocol_once( $string, $allowed_protocols, ++$count );
-			if ( empty( $string ) ) {
-				return $string;
+			$content = gc_kses_bad_protocol_once( $content, $allowed_protocols, ++$count );
+			if ( empty( $content ) ) {
+				return $content;
 			}
 		}
-		$string = $protocol . $string;
+		$content = $protocol . $content;
 	}
 
-	return $string;
+	return $content;
 }
 
 /**
@@ -1777,27 +1810,26 @@ function gc_kses_bad_protocol_once( $string, $allowed_protocols, $count = 1 ) {
  * @access private
  * @ignore
  *
- *
- * @param string   $string            URI scheme to check against the list of allowed protocols.
+ * @param string   $scheme            URI scheme to check against the list of allowed protocols.
  * @param string[] $allowed_protocols Array of allowed URL protocols.
  * @return string Sanitized content.
  */
-function gc_kses_bad_protocol_once2( $string, $allowed_protocols ) {
-	$string2 = gc_kses_decode_entities( $string );
-	$string2 = preg_replace( '/\s/', '', $string2 );
-	$string2 = gc_kses_no_null( $string2 );
-	$string2 = strtolower( $string2 );
+function gc_kses_bad_protocol_once2( $scheme, $allowed_protocols ) {
+	$scheme = gc_kses_decode_entities( $scheme );
+	$scheme = preg_replace( '/\s/', '', $scheme );
+	$scheme = gc_kses_no_null( $scheme );
+	$scheme = strtolower( $scheme );
 
 	$allowed = false;
 	foreach ( (array) $allowed_protocols as $one_protocol ) {
-		if ( strtolower( $one_protocol ) == $string2 ) {
+		if ( strtolower( $one_protocol ) === $scheme ) {
 			$allowed = true;
 			break;
 		}
 	}
 
 	if ( $allowed ) {
-		return "$string2:";
+		return "$scheme:";
 	} else {
 		return '';
 	}
@@ -1812,28 +1844,27 @@ function gc_kses_bad_protocol_once2( $string, $allowed_protocols ) {
  * When `$context` is set to 'xml', HTML entities are converted to their code points.  For
  * example, `AT&T&hellip;&#XYZZY;` is converted to `AT&amp;T…&amp;#XYZZY;`.
  *
+ * @since 5.5.0 Added `$context` parameter.
  *
- *
- *
- * @param string $string  Content to normalize entities.
+ * @param string $content Content to normalize entities.
  * @param string $context Context for normalization. Can be either 'html' or 'xml'.
  *                        Default 'html'.
  * @return string Content with normalized entities.
  */
-function gc_kses_normalize_entities( $string, $context = 'html' ) {
+function gc_kses_normalize_entities( $content, $context = 'html' ) {
 	// Disarm all entities by converting & to &amp;
-	$string = str_replace( '&', '&amp;', $string );
+	$content = str_replace( '&', '&amp;', $content );
 
 	// Change back the allowed entities in our list of allowed entities.
 	if ( 'xml' === $context ) {
-		$string = preg_replace_callback( '/&amp;([A-Za-z]{2,8}[0-9]{0,2});/', 'gc_kses_xml_named_entities', $string );
+		$content = preg_replace_callback( '/&amp;([A-Za-z]{2,8}[0-9]{0,2});/', 'gc_kses_xml_named_entities', $content );
 	} else {
-		$string = preg_replace_callback( '/&amp;([A-Za-z]{2,8}[0-9]{0,2});/', 'gc_kses_named_entities', $string );
+		$content = preg_replace_callback( '/&amp;([A-Za-z]{2,8}[0-9]{0,2});/', 'gc_kses_named_entities', $content );
 	}
-	$string = preg_replace_callback( '/&amp;#(0*[0-9]{1,7});/', 'gc_kses_normalize_entities2', $string );
-	$string = preg_replace_callback( '/&amp;#[Xx](0*[0-9A-Fa-f]{1,6});/', 'gc_kses_normalize_entities3', $string );
+	$content = preg_replace_callback( '/&amp;#(0*[0-9]{1,7});/', 'gc_kses_normalize_entities2', $content );
+	$content = preg_replace_callback( '/&amp;#[Xx](0*[0-9A-Fa-f]{1,6});/', 'gc_kses_normalize_entities3', $content );
 
-	return $string;
+	return $content;
 }
 
 /**
@@ -1841,8 +1872,6 @@ function gc_kses_normalize_entities( $string, $context = 'html' ) {
  *
  * This function only accepts valid named entity references, which are finite,
  * case-sensitive, and highly scrutinized by HTML and XML validators.
- *
- *
  *
  * @global array $allowedentitynames
  *
@@ -1867,7 +1896,7 @@ function gc_kses_named_entities( $matches ) {
  * case-sensitive, and highly scrutinized by XML validators.  HTML named entity
  * references are converted to their code points.
  *
- *
+ * @since 5.5.0
  *
  * @global array $allowedentitynames
  * @global array $allowedxmlentitynames
@@ -1902,7 +1931,6 @@ function gc_kses_xml_named_entities( $matches ) {
  * @access private
  * @ignore
  *
- *
  * @param array $matches `preg_replace_callback()` matches array.
  * @return string Correctly encoded entity.
  */
@@ -1928,7 +1956,7 @@ function gc_kses_normalize_entities2( $matches ) {
  * This function helps `gc_kses_normalize_entities()` to only accept valid Unicode
  * numeric entities in hex form.
  *
- *
+ * @since 2.7.0
  * @access private
  * @ignore
  *
@@ -1947,7 +1975,7 @@ function gc_kses_normalize_entities3( $matches ) {
 /**
  * Determines if a Unicode codepoint is valid.
  *
- *
+ * @since 2.7.0
  *
  * @param int $i Unicode codepoint.
  * @return bool Whether or not the codepoint is a valid Unicode codepoint.
@@ -1966,52 +1994,46 @@ function valid_unicode( $i ) {
  * It doesn't do anything with named entities like `&auml;`, but we don't
  * need them in the allowed URL protocols system anyway.
  *
- *
- *
- * @param string $string Content to change entities.
+ * @param string $content Content to change entities.
  * @return string Content after decoded entities.
  */
-function gc_kses_decode_entities( $string ) {
-	$string = preg_replace_callback( '/&#([0-9]+);/', '_gc_kses_decode_entities_chr', $string );
-	$string = preg_replace_callback( '/&#[Xx]([0-9A-Fa-f]+);/', '_gc_kses_decode_entities_chr_hexdec', $string );
+function gc_kses_decode_entities( $content ) {
+	$content = preg_replace_callback( '/&#([0-9]+);/', '_gc_kses_decode_entities_chr', $content );
+	$content = preg_replace_callback( '/&#[Xx]([0-9A-Fa-f]+);/', '_gc_kses_decode_entities_chr_hexdec', $content );
 
-	return $string;
+	return $content;
 }
 
 /**
  * Regex callback for `gc_kses_decode_entities()`.
  *
- *
  * @access private
  * @ignore
  *
- * @param array $match preg match
+ * @param array $matches preg match
  * @return string
  */
-function _gc_kses_decode_entities_chr( $match ) {
-	return chr( $match[1] );
+function _gc_kses_decode_entities_chr( $matches ) {
+	return chr( $matches[1] );
 }
 
 /**
  * Regex callback for `gc_kses_decode_entities()`.
  *
- *
  * @access private
  * @ignore
  *
- * @param array $match preg match
+ * @param array $matches preg match
  * @return string
  */
-function _gc_kses_decode_entities_chr_hexdec( $match ) {
-	return chr( hexdec( $match[1] ) );
+function _gc_kses_decode_entities_chr_hexdec( $matches ) {
+	return chr( hexdec( $matches[1] ) );
 }
 
 /**
  * Sanitize content with allowed HTML KSES rules.
  *
  * This function expects slashed data.
- *
- *
  *
  * @param string $data Content to filter, expected to be escaped with slashes.
  * @return string Filtered content.
@@ -2024,8 +2046,6 @@ function gc_filter_kses( $data ) {
  * Sanitize content with allowed HTML KSES rules.
  *
  * This function expects unslashed data.
- *
- *
  *
  * @param string $data Content to filter, expected to not be escaped.
  * @return string Filtered content.
@@ -2042,8 +2062,6 @@ function gc_kses_data( $data ) {
  *
  * This function expects slashed data.
  *
- *
- *
  * @param string $data Post content to filter, expected to be escaped with slashes.
  * @return string Filtered post content with allowed HTML tags and attributes intact.
  */
@@ -2054,7 +2072,7 @@ function gc_filter_post_kses( $data ) {
 /**
  * Sanitizes global styles user content removing unsafe rules.
  *
- *
+ * @since 5.9.0
  *
  * @param string $data Post content to filter.
  * @return string Filtered post content with unsafe rules removed.
@@ -2086,8 +2104,6 @@ function gc_filter_global_styles_post( $data ) {
  *
  * This function expects unslashed data.
  *
- *
- *
  * @param string $data Post content to filter.
  * @return string Filtered post content with allowed HTML tags and attributes intact.
  */
@@ -2099,7 +2115,7 @@ function gc_kses_post( $data ) {
  * Navigates through an array, object, or scalar, and sanitizes content for
  * allowed HTML tags for post content.
  *
- *
+ * @since 4.4.2
  *
  * @see map_deep()
  *
@@ -2114,8 +2130,6 @@ function gc_kses_post_deep( $data ) {
  * Strips all HTML from a text string.
  *
  * This function expects slashed data.
- *
- *
  *
  * @param string $data Content to strip all HTML from.
  * @return string Filtered content without any HTML.
@@ -2132,7 +2146,6 @@ function gc_filter_nohtml_kses( $data ) {
  *
  * The `gc_filter_post_kses()` function is added to the 'content_save_pre',
  * 'excerpt_save_pre', and 'content_filtered_save_pre' hooks.
- *
  *
  */
 function kses_init_filters() {
@@ -2166,7 +2179,7 @@ function kses_init_filters() {
  * default). Also does not remove `kses_init()` function from {@see 'set_current_user'}
  * hook (priority is also default).
  *
- *
+ * @since 2.0.6
  */
 function kses_remove_filters() {
 	// Normal filtering.
@@ -2193,7 +2206,6 @@ function kses_remove_filters() {
  * to have KSES filter the content. If the user does not have `unfiltered_html`
  * capability, then KSES filters are added.
  *
- *
  */
 function kses_init() {
 	kses_remove_filters();
@@ -2206,17 +2218,23 @@ function kses_init() {
 /**
  * Filters an inline style attribute and removes disallowed rules.
  *
- *
- *
- *
- *
- *
- *
- *
- *              Extend `background-*` support of individual properties.
- *
- *
- *
+ * @since 2.8.1 Added support for `min-height`, `max-height`, `min-width`, and `max-width`. Added support for `list-style-type`.
+ * @since 5.0.0 Added support for `background-image`.
+ * @since 5.1.0 Added support for `text-transform`.
+ * @since 5.2.0 Added support for `background-position` and `grid-template-columns`.
+ * @since 5.3.0 Added support for `grid`, `flex` and `column` layout properties.
+ *              Extended `background-*` support for individual properties.
+ * @since 5.3.1 Added support for gradient backgrounds.
+ * @since 5.7.1 Added support for `object-position`.
+ * @since 5.8.0 Added support for `calc()` and `var()` values.
+ * @since 6.1.0 Added support for `min()`, `max()`, `minmax()`, `clamp()`,
+ *              nested `var()` values, and assigning values to CSS variables.
+ *              Added support for `object-fit`, `gap`, `column-gap`, `row-gap`, and `flex-wrap`.
+ *              Extended `margin-*` and `padding-*` support for logical properties.
+ * @since 6.2.0 Added support for `aspect-ratio`, `position`, `top`, `right`, `bottom`, `left`,
+ *              and `z-index` CSS properties.
+ * @since 6.3.0 Extended support for `filter` to accept a URL and added support for repeat().
+ *              Added support for `box-shadow`.
  *
  * @param string $css        A string of CSS rules.
  * @param string $deprecated Not used.
@@ -2237,6 +2255,7 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 	/**
 	 * Filters the list of allowed CSS attributes.
 	 *
+	 * @since 2.8.1
 	 *
 	 * @param string[] $attr Array of allowed CSS attributes.
 	 */
@@ -2321,12 +2340,20 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 			'margin-bottom',
 			'margin-left',
 			'margin-top',
+			'margin-block-start',
+			'margin-block-end',
+			'margin-inline-start',
+			'margin-inline-end',
 
 			'padding',
 			'padding-right',
 			'padding-bottom',
 			'padding-left',
 			'padding-top',
+			'padding-block-start',
+			'padding-block-end',
+			'padding-inline-start',
+			'padding-inline-end',
 
 			'flex',
 			'flex-basis',
@@ -2334,6 +2361,11 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 			'flex-flow',
 			'flex-grow',
 			'flex-shrink',
+			'flex-wrap',
+
+			'gap',
+			'column-gap',
+			'row-gap',
 
 			'grid-template-columns',
 			'grid-auto-columns',
@@ -2359,9 +2391,22 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 			'direction',
 			'float',
 			'list-style-type',
+			'object-fit',
 			'object-position',
 			'overflow',
 			'vertical-align',
+
+			'position',
+			'top',
+			'right',
+			'bottom',
+			'left',
+			'z-index',
+			'box-shadow',
+			'aspect-ratio',
+
+			// Custom CSS properties.
+			'--*',
 		)
 	);
 
@@ -2378,6 +2423,7 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 		'background-image',
 
 		'cursor',
+		'filter',
 
 		'list-style',
 		'list-style-image',
@@ -2407,17 +2453,30 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 		$found           = false;
 		$url_attr        = false;
 		$gradient_attr   = false;
+		$is_custom_var   = false;
 
-		if ( strpos( $css_item, ':' ) === false ) {
+		if ( ! str_contains( $css_item, ':' ) ) {
 			$found = true;
 		} else {
 			$parts        = explode( ':', $css_item, 2 );
 			$css_selector = trim( $parts[0] );
 
+			// Allow assigning values to CSS variables.
+			if ( in_array( '--*', $allowed_attr, true ) && preg_match( '/^--[a-zA-Z0-9-_]+$/', $css_selector ) ) {
+				$allowed_attr[] = $css_selector;
+				$is_custom_var  = true;
+			}
+
 			if ( in_array( $css_selector, $allowed_attr, true ) ) {
 				$found         = true;
 				$url_attr      = in_array( $css_selector, $css_url_data_types, true );
 				$gradient_attr = in_array( $css_selector, $css_gradient_data_types, true );
+			}
+
+			if ( $is_custom_var ) {
+				$css_value     = trim( $parts[1] );
+				$url_attr      = str_starts_with( $css_value, 'url(' );
+				$gradient_attr = str_contains( $css_value, '-gradient(' );
 			}
 		}
 
@@ -2455,13 +2514,20 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 		}
 
 		if ( $found ) {
-			// Allow CSS calc().
-			$css_test_string = preg_replace( '/calc\(((?:\([^()]*\)?|[^()])*)\)/', '', $css_test_string );
-			// Allow CSS var().
-			$css_test_string = preg_replace( '/\(?var\(--[a-zA-Z0-9_-]*\)/', '', $css_test_string );
+			/*
+			 * Allow CSS functions like var(), calc(), etc. by removing them from the test string.
+			 * Nested functions and parentheses are also removed, so long as the parentheses are balanced.
+			 */
+			$css_test_string = preg_replace(
+				'/\b(?:var|calc|min|max|minmax|clamp|repeat)(\((?:[^()]|(?1))*\))/',
+				'',
+				$css_test_string
+			);
 
-			// Check for any CSS containing \ ( & } = or comments,
-			// except for url(), calc(), or var() usage checked above.
+			/*
+			 * Disallow CSS containing \ ( & } = or comments, except for within url(), var(), calc(), etc.
+			 * which were removed from the test string above.
+			 */
 			$allow_css = ! preg_match( '%[\\\(&=}]|/\*%', $css_test_string );
 
 			/**
@@ -2471,7 +2537,7 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 			 * By default, the value will be false if the part contains \ ( & } = or comments.
 			 * Return true to allow the CSS part to be included in the output.
 			 *
-		
+			 * @since 5.5.0
 			 *
 			 * @param bool   $allow_css       Whether the CSS in the test string is considered safe.
 			 * @param string $css_test_string The CSS string to test.
@@ -2495,7 +2561,9 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
 /**
  * Helper function to add global attributes to a tag in the allowed HTML list.
  *
- *
+ * @since 5.0.0 Added support for `data-*` wildcard attributes.
+ * @since 6.0.0 Added `dir`, `lang`, and `xml:lang` to global attributes.
+ * @since 6.3.0 Added `aria-controls`, `aria-current`, and `aria-expanded` attributes.
  *
  * @access private
  * @ignore
@@ -2505,8 +2573,11 @@ function safecss_filter_attr( $css, $deprecated = '' ) {
  */
 function _gc_add_global_attributes( $value ) {
 	$global_attributes = array(
+		'aria-controls'    => true,
+		'aria-current'     => true,
 		'aria-describedby' => true,
 		'aria-details'     => true,
+		'aria-expanded'    => true,
 		'aria-label'       => true,
 		'aria-labelledby'  => true,
 		'aria-hidden'      => true,
@@ -2535,7 +2606,7 @@ function _gc_add_global_attributes( $value ) {
 /**
  * Helper function to check if this is a safe PDF URL.
  *
- *
+ * @since 5.9.0
  * @access private
  * @ignore
  *

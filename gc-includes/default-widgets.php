@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /** GC_Widget_Pages class */

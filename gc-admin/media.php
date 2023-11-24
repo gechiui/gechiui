@@ -118,20 +118,12 @@ switch ( $action ) {
 		?>
 
 	<div class="wrap">
-	<h1 class="gc-heading-inline">
-		<?php
-		echo esc_html( $title );
-		?>
-</h1>
-
-		<?php
-		if ( current_user_can( 'upload_files' ) ) {
-			?>
-	<a href="media-new.php" class="page-title-action"><?php echo esc_html_x( '添加新文件', 'file' ); ?></a>
-<?php } ?>
-
-	<hr class="gc-header-end">
-
+	<div class="page-header">
+		<h2 class="header-title"><?php echo esc_html( $title ); ?></h2>
+		<?php if ( current_user_can( 'upload_files' ) ) { ?>
+			<a href="media-new.php" class="btn btn-primary btn-tone btn-sm"><?php echo esc_html_x( '新增文件', 'file' ); ?></a>
+		<?php } ?>
+	</div>
 	<form method="post" class="media-upload-form" id="media-single-form">
 	<p class="submit" style="padding-bottom: 0;">
 		<?php submit_button( __( '更新媒体' ), 'primary', 'save', false ); ?>

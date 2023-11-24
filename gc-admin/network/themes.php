@@ -4,14 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage Multisite
- *
  */
 
 /** Load GeChiUI Administration Bootstrap */
 require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'manage_network_themes' ) ) {
-	gc_die( __( '抱歉，您无法管理站点网络主题。' ) );
+	gc_die( __( '抱歉，您无法管理SaaS平台主题。' ) );
 }
 
 $gc_list_table = _get_list_table( 'GC_MS_Themes_List_Table' );
@@ -39,7 +38,7 @@ if ( $action ) {
 		case 'enable':
 			check_admin_referer( 'enable-theme_' . $_GET['theme'] );
 			GC_Theme::network_enable_theme( $_GET['theme'] );
-			if ( false === strpos( $referer, '/network/themes.php' ) ) {
+			if ( ! str_contains( $referer, '/network/themes.php' ) ) {
 				gc_redirect( network_admin_url( 'themes.php?enabled=1' ) );
 			} else {
 				gc_safe_redirect( add_query_arg( 'enabled', 1, $referer ) );
@@ -88,7 +87,7 @@ if ( $action ) {
 			require_once ABSPATH . 'gc-admin/admin-header.php';
 
 			echo '<div class="wrap">';
-			echo '<h1>' . esc_html( $title ) . '</h1>';
+			echo '<div class="page-header"><h2 class="header-title">' . esc_html( $title ) . '</h2></div>';
 
 			$url = self_admin_url( 'update.php?action=update-selected-themes&amp;themes=' . urlencode( implode( ',', $themes ) ) );
 			$url = gc_nonce_url( $url, 'bulk-update-themes' );
@@ -99,7 +98,7 @@ if ( $action ) {
 			exit;
 		case 'delete-selected':
 			if ( ! current_user_can( 'delete_themes' ) ) {
-				gc_die( __( '抱歉，您不能删除此站点的主题。' ) );
+				gc_die( __( '抱歉，您不能删除此系统的主题。' ) );
 			}
 
 			check_admin_referer( 'bulk-themes' );
@@ -134,12 +133,12 @@ if ( $action ) {
 				?>
 				<div class="wrap">
 				<?php if ( 1 === $themes_to_delete ) : ?>
-					<h1><?php _e( '删除主题' ); ?></h1>
-					<div class="error"><p><strong><?php _e( '注意：' ); ?></strong> <?php _e( '这个主题可能已被站点网络中的其他站点启用。' ); ?></p></div>
+					<div class="page-header"><h2 class="header-title"><?php _e( '删除主题' ); ?></h2></div>
+					<div class="error"><p><strong><?php _e( '注意：' ); ?></strong> <?php _e( '这个主题可能已被SaaS平台中的其他系统启用。' ); ?></p></div>
 					<p><?php _e( '您将要移除以下主题：' ); ?></p>
 				<?php else : ?>
-					<h1><?php _e( '删除主题' ); ?></h1>
-					<div class="error"><p><strong><?php _e( '注意：' ); ?></strong> <?php _e( '这些主题可能已被站点网络中的其他站点启用。' ); ?></p></div>
+					<div class="page-header"><h2 class="header-title"><?php _e( '删除主题' ); ?></h2></div>
+					<div class="error"><p><strong><?php _e( '注意：' ); ?></strong> <?php _e( '这些主题可能已被SaaS平台中的其他系统启用。' ); ?></p></div>
 					<p><?php _e( '您将要移除以下主题：' ); ?></p>
 				<?php endif; ?>
 					<ul class="ul-disc">
@@ -297,9 +296,9 @@ get_current_screen()->add_help_tab(
 		'id'      => 'overview',
 		'title'   => __( '概述' ),
 		'content' =>
-			'<p>' . __( '本页面设置每个站点的“外观”菜单中，可供用户选择的主题。不能禁用站点正在使用的主题。' ) . '</p>' .
-			'<p>' . __( '若网络管理员禁用了正在使用的主题，在该站点上，这个主题将依然可用。一旦这位用户选择了其他主题，那么用户就无法再选择回来了。' ) . '</p>' .
-			'<p>' . __( '在“编辑站点”的“主题”选项卡，您可以为每个站点设置不同的主题。通过“所有站点”页面上相应站点的“编辑”链接可以找到这个选项卡。只有网络管理员有权安装和编辑主题。' ) . '</p>',
+			'<p>' . __( '本页面设置每个系统的“外观”菜单中，可供用户选择的主题。不能禁用系统正在使用的主题。' ) . '</p>' .
+			'<p>' . __( '若平台管理员禁用了正在使用的主题，在该系统上，这个主题将依然可用。一旦这位用户选择了其他主题，那么用户就无法再选择回来了。' ) . '</p>' .
+			'<p>' . __( '在“编辑系统”的“主题”选项卡，您可以为每个系统设置不同的主题。通过“所有系统”页面上相应系统的“编辑”链接可以找到这个选项卡。只有平台管理员有权安装和编辑主题。' ) . '</p>',
 	)
 );
 
@@ -316,14 +315,14 @@ if ( current_user_can( 'update_themes' ) && gc_is_auto_update_enabled_for_type( 
 		)
 	);
 
-	$help_sidebar_autoupdates = '<p>' . __( '<a href="https://www.gechiui.com/support/plugins-themes-auto-updates/">了解更多：自动更新功能文档</a>' ) . '</p>';
+	$help_sidebar_autoupdates = '<p>' . __( '<a href="https://www.gechiui.com/support/plugins-themes-auto-updates/">关于自动更新的文档</a>' ) . '</p>';
 }
 
 get_current_screen()->set_help_sidebar(
 	'<p><strong>' . __( '更多信息：' ) . '</strong></p>' .
-	'<p>' . __( '<a href="https://codex.gechiui.com/Network_Admin_Themes_Screen">站点网络主题文档</a>' ) . '</p>' .
+	'<p>' . __( '<a href="https://codex.gechiui.com/Network_Admin_Themes_Screen">平台模板文档</a>' ) . '</p>' .
 	$help_sidebar_autoupdates .
-	'<p>' . __( '<a href="https://www.gechiui.com/support/">支持</a>' ) . '</p>'
+	'<p>' . __( '<a href="https://www.gechiui.com/support/forums/">支持论坛</a>' ) . '</p>'
 );
 
 get_current_screen()->set_screen_reader_content(
@@ -341,32 +340,6 @@ $parent_file = 'themes.php';
 gc_enqueue_script( 'updates' );
 gc_enqueue_script( 'theme-preview' );
 
-require_once ABSPATH . 'gc-admin/admin-header.php';
-
-?>
-
-<div class="wrap">
-<h1 class="gc-heading-inline"><?php echo esc_html( $title ); ?></h1>
-
-<?php if ( current_user_can( 'install_themes' ) ) : ?>
-	<a href="theme-install.php" class="page-title-action"><?php echo esc_html_x( '安装主题', 'theme' ); ?></a>
-<?php endif; ?>
-
-<?php
-if ( isset( $_REQUEST['s'] ) && strlen( $_REQUEST['s'] ) ) {
-	echo '<span class="subtitle">';
-	printf(
-		/* translators: %s: Search query. */
-		__( '搜索结果：%s' ),
-		'<strong>' . esc_html( $s ) . '</strong>'
-	);
-	echo '</span>';
-}
-?>
-
-<hr class="gc-header-end">
-
-<?php
 if ( isset( $_GET['enabled'] ) ) {
 	$enabled = absint( $_GET['enabled'] );
 	if ( 1 === $enabled ) {
@@ -375,7 +348,7 @@ if ( isset( $_GET['enabled'] ) ) {
 		/* translators: %s: Number of themes. */
 		$message = _n( '已启用%s个主题。', '已启用%s个主题。', $enabled );
 	}
-	echo '<div id="message" class="updated notice is-dismissible"><p>' . sprintf( $message, number_format_i18n( $enabled ) ) . '</p></div>';
+	add_settings_error( 'general', 'message', sprintf( $message, number_format_i18n( $enabled ) ), 'success' );
 } elseif ( isset( $_GET['disabled'] ) ) {
 	$disabled = absint( $_GET['disabled'] );
 	if ( 1 === $disabled ) {
@@ -384,7 +357,7 @@ if ( isset( $_GET['enabled'] ) ) {
 		/* translators: %s: Number of themes. */
 		$message = _n( '已禁用%s个主题。', '已禁用%s个主题。', $disabled );
 	}
-	echo '<div id="message" class="updated notice is-dismissible"><p>' . sprintf( $message, number_format_i18n( $disabled ) ) . '</p></div>';
+	add_settings_error( 'general', 'message', sprintf( $message, number_format_i18n( $disabled ) ) , 'success' );
 } elseif ( isset( $_GET['deleted'] ) ) {
 	$deleted = absint( $_GET['deleted'] );
 	if ( 1 === $deleted ) {
@@ -393,7 +366,7 @@ if ( isset( $_GET['enabled'] ) ) {
 		/* translators: %s: Number of themes. */
 		$message = _n( '已删除%s个主题。', '已删除%s个主题。', $deleted );
 	}
-	echo '<div id="message" class="updated notice is-dismissible"><p>' . sprintf( $message, number_format_i18n( $deleted ) ) . '</p></div>';
+	add_settings_error( 'general', 'message', sprintf( $message, number_format_i18n( $deleted ) ) , 'success' );
 } elseif ( isset( $_GET['enabled-auto-update'] ) ) {
 	$enabled = absint( $_GET['enabled-auto-update'] );
 	if ( 1 === $enabled ) {
@@ -402,7 +375,7 @@ if ( isset( $_GET['enabled'] ) ) {
 		/* translators: %s: Number of themes. */
 		$message = _n( '%s个主题将自动更新。', '%s个主题将自动更新。', $enabled );
 	}
-	echo '<div id="message" class="updated notice is-dismissible"><p>' . sprintf( $message, number_format_i18n( $enabled ) ) . '</p></div>';
+	add_settings_error( 'general', 'message', sprintf( $message, number_format_i18n( $enabled ) ), 'success' );
 } elseif ( isset( $_GET['disabled-auto-update'] ) ) {
 	$disabled = absint( $_GET['disabled-auto-update'] );
 	if ( 1 === $disabled ) {
@@ -411,19 +384,40 @@ if ( isset( $_GET['enabled'] ) ) {
 		/* translators: %s: Number of themes. */
 		$message = _n( '%s个主题将不再自动更新。', '%s个主题将不再自动更新。', $disabled );
 	}
-	echo '<div id="message" class="updated notice is-dismissible"><p>' . sprintf( $message, number_format_i18n( $disabled ) ) . '</p></div>';
+	add_settings_error( 'general', 'message', sprintf( $message, number_format_i18n( $disabled ) ), 'success' );
 } elseif ( isset( $_GET['error'] ) && 'none' === $_GET['error'] ) {
-	echo '<div id="message" class="error notice is-dismissible"><p>' . __( '未选择主题。' ) . '</p></div>';
+	add_settings_error( 'general', 'message', __( '未选择主题。' ), 'danger' );
 } elseif ( isset( $_GET['error'] ) && 'main' === $_GET['error'] ) {
-	echo '<div class="error notice is-dismissible"><p>' . __( '您不能删除主站点正在使用的主题。' ) . '</p></div>';
+	add_settings_error( 'general', 'message', __( '您不能删除主系统正在使用的主题。' ), 'danger' );
 }
+
+require_once ABSPATH . 'gc-admin/admin-header.php';
 
 ?>
 
-<form method="get">
-<?php $gc_list_table->search_box( __( '搜索已安装的主题' ), 'theme' ); ?>
-</form>
+<div class="wrap">
+<div class="page-header">
+	<h2 class="header-title"><?php echo esc_html( $title ); ?></h2>
+	<?php if ( current_user_can( 'install_themes' ) ) : ?>
+		<a href="theme-install.php" class="btn btn-primary btn-tone btn-sm"><?php echo esc_html_x( '安装主题', 'theme' ); ?></a>
+	<?php endif; ?>
 
+	<?php
+	if ( isset( $_REQUEST['s'] ) && strlen( $_REQUEST['s'] ) ) {
+		echo '<span class="subtitle">';
+		printf(
+			/* translators: %s: Search query. */
+			__( '搜索词：%s' ),
+			'<strong>' . esc_html( $s ) . '</strong>'
+		);
+		echo '</span>';
+	}
+	?>
+
+	<form method="get">
+	<?php $gc_list_table->search_box( __( '搜索已安装的主题' ), 'theme' ); ?>
+	</form>
+</div>
 <?php
 $gc_list_table->views();
 

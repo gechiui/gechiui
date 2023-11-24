@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customize Background Position Control class.
- *
- *
  *
  * @see GC_Customize_Control
  */
@@ -19,6 +16,7 @@ class GC_Customize_Background_Position_Control extends GC_Customize_Control {
 	/**
 	 * Type.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	public $type = 'background_position';
@@ -26,12 +24,14 @@ class GC_Customize_Background_Position_Control extends GC_Customize_Control {
 	/**
 	 * Don't render the control content from PHP, as it's rendered via JS on load.
 	 *
+	 * @since 4.7.0
 	 */
 	public function render_content() {}
 
 	/**
 	 * Render a JS template for the content of the position control.
 	 *
+	 * @since 4.7.0
 	 */
 	public function content_template() {
 		$options = array(
@@ -87,7 +87,12 @@ class GC_Customize_Background_Position_Control extends GC_Customize_Control {
 		<# } #>
 		<div class="customize-control-content">
 			<fieldset>
-				<legend class="screen-reader-text"><span><?php _e( '图片位置' ); ?></span></legend>
+				<legend class="screen-reader-text"><span>
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '图片位置' );
+					?>
+				</span></legend>
 				<div class="background-position-control">
 				<?php foreach ( $options as $group ) : ?>
 					<div class="button-group">

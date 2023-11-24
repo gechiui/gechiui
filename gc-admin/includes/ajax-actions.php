@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 //
@@ -12,10 +11,9 @@
 //
 
 /**
- * Ajax handler for the Heartbeat API in the no-privilege context.
+ * Handles the Heartbeat API in the no-privilege context via AJAX .
  *
  * Runs when the user is not logged in.
- *
  *
  */
 function gc_ajax_nopriv_heartbeat() {
@@ -34,6 +32,7 @@ function gc_ajax_nopriv_heartbeat() {
 		/**
 		 * Filters Heartbeat Ajax response in no-privilege environments.
 		 *
+		 * @since 3.6.0
 		 *
 		 * @param array  $response  The no-priv Heartbeat response.
 		 * @param array  $data      The $_POST data sent.
@@ -45,6 +44,7 @@ function gc_ajax_nopriv_heartbeat() {
 	/**
 	 * Filters Heartbeat Ajax response in no-privilege environments when no data is passed.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param array  $response  The no-priv Heartbeat response.
 	 * @param string $screen_id The screen ID.
@@ -56,6 +56,7 @@ function gc_ajax_nopriv_heartbeat() {
 	 *
 	 * Allows the transport to be easily replaced with long-polling.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param array  $response  The no-priv Heartbeat response.
 	 * @param string $screen_id The screen ID.
@@ -73,8 +74,7 @@ function gc_ajax_nopriv_heartbeat() {
 //
 
 /**
- * Ajax handler for fetching a list table.
- *
+ * Handles fetching a list table via AJAX.
  *
  */
 function gc_ajax_fetch_list() {
@@ -96,8 +96,7 @@ function gc_ajax_fetch_list() {
 }
 
 /**
- * Ajax handler for tag search.
- *
+ * Handles tag search via AJAX.
  *
  */
 function gc_ajax_ajax_tag_search() {
@@ -105,65 +104,77 @@ function gc_ajax_ajax_tag_search() {
 		gc_die( 0 );
 	}
 
-	$taxonomy = sanitize_key( $_GET['tax'] );
-	$tax      = get_taxonomy( $taxonomy );
+	$taxonomy        = sanitize_key( $_GET['tax'] );
+	$taxonomy_object = get_taxonomy( $taxonomy );
 
-	if ( ! $tax ) {
+	if ( ! $taxonomy_object ) {
 		gc_die( 0 );
 	}
 
-	if ( ! current_user_can( $tax->cap->assign_terms ) ) {
+	if ( ! current_user_can( $taxonomy_object->cap->assign_terms ) ) {
 		gc_die( -1 );
 	}
 
-	$s = gc_unslash( $_GET['q'] );
+	$search = gc_unslash( $_GET['q'] );
 
-	$comma = _x( '、', 'tag delimiter' );
+	$comma = _x( ',', 'tag delimiter' );
 	if ( ',' !== $comma ) {
-		$s = str_replace( $comma, ',', $s );
+		$search = str_replace( $comma, ',', $search );
 	}
 
-	if ( false !== strpos( $s, ',' ) ) {
-		$s = explode( ',', $s );
-		$s = $s[ count( $s ) - 1 ];
+	if ( str_contains( $search, ',' ) ) {
+		$search = explode( ',', $search );
+		$search = $search[ count( $search ) - 1 ];
 	}
 
-	$s = trim( $s );
+	$search = trim( $search );
 
 	/**
 	 * Filters the minimum number of characters required to fire a tag search via Ajax.
 	 *
+	 * @since 4.0.0
 	 *
-	 * @param int         $characters The minimum number of characters required. Default 2.
-	 * @param GC_Taxonomy $tax        The taxonomy object.
-	 * @param string      $s          The search term.
+	 * @param int         $characters      The minimum number of characters required. Default 2.
+	 * @param GC_Taxonomy $taxonomy_object The taxonomy object.
+	 * @param string      $search          The search term.
 	 */
-	$term_search_min_chars = (int) apply_filters( 'term_search_min_chars', 2, $tax, $s );
+	$term_search_min_chars = (int) apply_filters( 'term_search_min_chars', 2, $taxonomy_object, $search );
 
 	/*
 	 * Require $term_search_min_chars chars for matching (default: 2)
 	 * ensure it's a non-negative, non-zero integer.
 	 */
-	if ( ( 0 == $term_search_min_chars ) || ( strlen( $s ) < $term_search_min_chars ) ) {
+	if ( ( 0 == $term_search_min_chars ) || ( strlen( $search ) < $term_search_min_chars ) ) {
 		gc_die();
 	}
 
 	$results = get_terms(
 		array(
 			'taxonomy'   => $taxonomy,
-			'name__like' => $s,
+			'name__like' => $search,
 			'fields'     => 'names',
 			'hide_empty' => false,
+			'number'     => isset( $_GET['number'] ) ? (int) $_GET['number'] : 0,
 		)
 	);
+
+	/**
+	 * Filters the Ajax term search results.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param string[]    $results         Array of term names.
+	 * @param GC_Taxonomy $taxonomy_object The taxonomy object.
+	 * @param string      $search          The search term.
+	 */
+	$results = apply_filters( 'ajax_term_search_results', $results, $taxonomy_object, $search );
 
 	echo implode( "\n", $results );
 	gc_die();
 }
 
 /**
- * Ajax handler for compression testing.
- *
+ * Handles compression testing via AJAX.
  *
  */
 function gc_ajax_gc_compression_test() {
@@ -172,7 +183,12 @@ function gc_ajax_gc_compression_test() {
 	}
 
 	if ( ini_get( 'zlib.output_compression' ) || 'ob_gzhandler' === ini_get( 'output_handler' ) ) {
-		update_site_option( 'can_compress_scripts', 0 );
+		// Use `update_option()` on single site to mark the option for autoloading.
+		if ( is_multisite() ) {
+			update_site_option( 'can_compress_scripts', 0 );
+		} else {
+			update_option( 'can_compress_scripts', 0, 'yes' );
+		}
 		gc_die( 0 );
 	}
 
@@ -206,10 +222,20 @@ function gc_ajax_gc_compression_test() {
 			gc_die();
 		} elseif ( 'no' === $_GET['test'] ) {
 			check_ajax_referer( 'update_can_compress_scripts' );
-			update_site_option( 'can_compress_scripts', 0 );
+			// Use `update_option()` on single site to mark the option for autoloading.
+			if ( is_multisite() ) {
+				update_site_option( 'can_compress_scripts', 0 );
+			} else {
+				update_option( 'can_compress_scripts', 0, 'yes' );
+			}
 		} elseif ( 'yes' === $_GET['test'] ) {
 			check_ajax_referer( 'update_can_compress_scripts' );
-			update_site_option( 'can_compress_scripts', 1 );
+			// Use `update_option()` on single site to mark the option for autoloading.
+			if ( is_multisite() ) {
+				update_site_option( 'can_compress_scripts', 1 );
+			} else {
+				update_option( 'can_compress_scripts', 1, 'yes' );
+			}
 		}
 	}
 
@@ -217,8 +243,7 @@ function gc_ajax_gc_compression_test() {
 }
 
 /**
- * Ajax handler for image editor previews.
- *
+ * Handles image editor previews via AJAX.
  *
  */
 function gc_ajax_imgedit_preview() {
@@ -229,7 +254,7 @@ function gc_ajax_imgedit_preview() {
 
 	check_ajax_referer( "image_editor-$post_id" );
 
-	include_once ABSPATH . 'gc-admin/includes/image-edit.php';
+	require_once ABSPATH . 'gc-admin/includes/image-edit.php';
 
 	if ( ! stream_preview_image( $post_id ) ) {
 		gc_die( -1 );
@@ -239,9 +264,7 @@ function gc_ajax_imgedit_preview() {
 }
 
 /**
- * Ajax handler for oEmbed caching.
- *
- *
+ * Handles oEmbed caching via AJAX.
  *
  * @global GC_Embed $gc_embed
  */
@@ -251,8 +274,7 @@ function gc_ajax_oembed_cache() {
 }
 
 /**
- * Ajax handler for user autocomplete.
- *
+ * Handles user autocomplete via AJAX.
  *
  */
 function gc_ajax_autocomplete_user() {
@@ -267,16 +289,20 @@ function gc_ajax_autocomplete_user() {
 
 	$return = array();
 
-	// Check the type of request.
-	// Current allowed values are `add` and `search`.
+	/*
+	 * Check the type of request.
+	 * Current allowed values are `add` and `search`.
+	 */
 	if ( isset( $_REQUEST['autocomplete_type'] ) && 'search' === $_REQUEST['autocomplete_type'] ) {
 		$type = $_REQUEST['autocomplete_type'];
 	} else {
 		$type = 'add';
 	}
 
-	// Check the desired field for value.
-	// Current allowed values are `user_email` and `user_login`.
+	/*
+	 * Check the desired field for value.
+	 * Current allowed values are `user_email` and `user_login`.
+	 */
 	if ( isset( $_REQUEST['autocomplete_field'] ) && 'user_email' === $_REQUEST['autocomplete_field'] ) {
 		$field = $_REQUEST['autocomplete_field'];
 	} else {
@@ -328,7 +354,6 @@ function gc_ajax_autocomplete_user() {
 /**
  * Handles Ajax requests for community events
  *
- *
  */
 function gc_ajax_get_community_events() {
 	require_once ABSPATH . 'gc-admin/includes/class-gc-community-events.php';
@@ -378,8 +403,7 @@ function gc_ajax_get_community_events() {
 }
 
 /**
- * Ajax handler for dashboard widgets.
- *
+ * Handles dashboard widgets via AJAX.
  *
  */
 function gc_ajax_dashboard_widgets() {
@@ -399,8 +423,7 @@ function gc_ajax_dashboard_widgets() {
 }
 
 /**
- * Ajax handler for Customizer preview logged-in status.
- *
+ * Handles Customizer preview logged-in status via AJAX.
  *
  */
 function gc_ajax_logged_in() {
@@ -416,7 +439,7 @@ function gc_ajax_logged_in() {
  *
  * Contrary to normal success Ajax response ("1"), die with time() on success.
  *
- *
+ * @since 2.7.0
  * @access private
  *
  * @param int $comment_id
@@ -426,7 +449,7 @@ function _gc_ajax_delete_comment_response( $comment_id, $delta = -1 ) {
 	$total    = isset( $_POST['_total'] ) ? (int) $_POST['_total'] : 0;
 	$per_page = isset( $_POST['_per_page'] ) ? (int) $_POST['_per_page'] : 0;
 	$page     = isset( $_POST['_page'] ) ? (int) $_POST['_page'] : 0;
-	$url      = isset( $_POST['_url'] ) ? esc_url_raw( $_POST['_url'] ) : '';
+	$url      = isset( $_POST['_url'] ) ? sanitize_url( $_POST['_url'] ) : '';
 
 	// JS didn't send us everything we need to know. Just die with success message.
 	if ( ! $total || ! $per_page || ! $page || ! $url ) {
@@ -525,7 +548,7 @@ function _gc_ajax_delete_comment_response( $comment_id, $delta = -1 ) {
 				'status'               => $comment ? $comment->comment_approved : '',
 				'postId'               => $comment ? $comment->comment_post_ID : '',
 				/* translators: %s: Number of comments. */
-				'total_items_i18n'     => sprintf( _n( '%s项', '%s项', $total ), number_format_i18n( $total ) ),
+				'total_items_i18n'     => sprintf( _n( '%s个项目', '%s个项目', $total ), number_format_i18n( $total ) ),
 				'total_pages'          => ceil( $total / $per_page ),
 				'total_pages_i18n'     => number_format_i18n( ceil( $total / $per_page ) ),
 				'total'                => $total,
@@ -547,8 +570,7 @@ function _gc_ajax_delete_comment_response( $comment_id, $delta = -1 ) {
 //
 
 /**
- * Ajax handler for adding a hierarchical term.
- *
+ * Handles adding a hierarchical term via AJAX.
  *
  * @access private
  */
@@ -677,8 +699,7 @@ function _gc_ajax_add_hierarchical_term() {
 }
 
 /**
- * Ajax handler for deleting a comment.
- *
+ * Handles deleting a comment via AJAX.
  *
  */
 function gc_ajax_delete_comment() {
@@ -747,8 +768,7 @@ function gc_ajax_delete_comment() {
 }
 
 /**
- * Ajax handler for deleting a tag.
- *
+ * Handles deleting a tag via AJAX.
  *
  */
 function gc_ajax_delete_tag() {
@@ -774,8 +794,7 @@ function gc_ajax_delete_tag() {
 }
 
 /**
- * Ajax handler for deleting a link.
- *
+ * Handles deleting a link via AJAX.
  *
  */
 function gc_ajax_delete_link() {
@@ -800,8 +819,7 @@ function gc_ajax_delete_link() {
 }
 
 /**
- * Ajax handler for deleting meta.
- *
+ * Handles deleting meta via AJAX.
  *
  */
 function gc_ajax_delete_meta() {
@@ -826,9 +844,7 @@ function gc_ajax_delete_meta() {
 }
 
 /**
- * Ajax handler for deleting a post.
- *
- *
+ * Handles deleting a post via AJAX.
  *
  * @param string $action Action to perform.
  */
@@ -856,9 +872,7 @@ function gc_ajax_delete_post( $action ) {
 }
 
 /**
- * Ajax handler for sending a post to the Trash.
- *
- *
+ * Handles sending a post to the Trash via AJAX.
  *
  * @param string $action Action to perform.
  */
@@ -892,9 +906,7 @@ function gc_ajax_trash_post( $action ) {
 }
 
 /**
- * Ajax handler to restore a post from the Trash.
- *
- *
+ * Handles restoring a post from the Trash via AJAX.
  *
  * @param string $action Action to perform.
  */
@@ -907,9 +919,7 @@ function gc_ajax_untrash_post( $action ) {
 }
 
 /**
- * Ajax handler to delete a page.
- *
- *
+ * Handles deleting a page via AJAX.
  *
  * @param string $action Action to perform.
  */
@@ -937,8 +947,7 @@ function gc_ajax_delete_page( $action ) {
 }
 
 /**
- * Ajax handler to dim a comment.
- *
+ * Handles dimming a comment via AJAX.
  *
  */
 function gc_ajax_dim_comment() {
@@ -952,7 +961,7 @@ function gc_ajax_dim_comment() {
 				'id'   => new GC_Error(
 					'invalid_comment',
 					/* translators: %d: Comment ID. */
-					sprintf( __( '评论%d不存在' ), $id )
+					sprintf( __( '评论 %d 不存在' ), $id )
 				),
 			)
 		);
@@ -993,9 +1002,7 @@ function gc_ajax_dim_comment() {
 }
 
 /**
- * Ajax handler for adding a link category.
- *
- *
+ * Handles adding a link category via AJAX.
  *
  * @param string $action Action to perform.
  */
@@ -1005,9 +1012,10 @@ function gc_ajax_add_link_category( $action ) {
 	}
 
 	check_ajax_referer( $action );
-	$tax = get_taxonomy( 'link_category' );
 
-	if ( ! current_user_can( $tax->cap->manage_terms ) ) {
+	$taxonomy_object = get_taxonomy( 'link_category' );
+
+	if ( ! current_user_can( $taxonomy_object->cap->manage_terms ) ) {
 		gc_die( -1 );
 	}
 
@@ -1045,16 +1053,16 @@ function gc_ajax_add_link_category( $action ) {
 }
 
 /**
- * Ajax handler to add a tag.
- *
+ * Handles adding a tag via AJAX.
  *
  */
 function gc_ajax_add_tag() {
 	check_ajax_referer( 'add-tag', '_gcnonce_add-tag' );
-	$taxonomy = ! empty( $_POST['taxonomy'] ) ? $_POST['taxonomy'] : 'post_tag';
-	$tax      = get_taxonomy( $taxonomy );
 
-	if ( ! current_user_can( $tax->cap->edit_terms ) ) {
+	$taxonomy        = ! empty( $_POST['taxonomy'] ) ? $_POST['taxonomy'] : 'post_tag';
+	$taxonomy_object = get_taxonomy( $taxonomy );
+
+	if ( ! current_user_can( $taxonomy_object->cap->edit_terms ) ) {
 		gc_die( -1 );
 	}
 
@@ -1067,16 +1075,21 @@ function gc_ajax_add_tag() {
 	}
 
 	if ( ! $tag || is_gc_error( $tag ) ) {
-		$message = __( '发生了错误，请刷新此页面并重试。' );
+		$message    = __( '发生了错误，请刷新此页面并重试。' );
+		$error_code = 'error';
 
 		if ( is_gc_error( $tag ) && $tag->get_error_message() ) {
 			$message = $tag->get_error_message();
 		}
 
+		if ( is_gc_error( $tag ) && $tag->get_error_code() ) {
+			$error_code = $tag->get_error_code();
+		}
+
 		$x->add(
 			array(
 				'what' => 'taxonomy',
-				'data' => new GC_Error( 'error', $message ),
+				'data' => new GC_Error( $error_code, $message ),
 			)
 		);
 		$x->send();
@@ -1101,8 +1114,8 @@ function gc_ajax_add_tag() {
 	require ABSPATH . 'gc-admin/includes/edit-tag-messages.php';
 
 	$message = '';
-	if ( isset( $messages[ $tax->name ][1] ) ) {
-		$message = $messages[ $tax->name ][1];
+	if ( isset( $messages[ $taxonomy_object->name ][1] ) ) {
+		$message = $messages[ $taxonomy_object->name ][1];
 	} elseif ( isset( $messages['_item'][1] ) ) {
 		$message = $messages['_item'][1];
 	}
@@ -1111,7 +1124,11 @@ function gc_ajax_add_tag() {
 		array(
 			'what'         => 'taxonomy',
 			'data'         => $message,
-			'supplemental' => compact( 'parents', 'noparents' ),
+			'supplemental' => array(
+				'parents'   => $parents,
+				'noparents' => $noparents,
+				'notice'    => $message,
+			),
 		)
 	);
 
@@ -1127,8 +1144,7 @@ function gc_ajax_add_tag() {
 }
 
 /**
- * Ajax handler for getting a tagcloud.
- *
+ * Handles getting a tagcloud via AJAX.
  *
  */
 function gc_ajax_get_tagcloud() {
@@ -1136,14 +1152,14 @@ function gc_ajax_get_tagcloud() {
 		gc_die( 0 );
 	}
 
-	$taxonomy = sanitize_key( $_POST['tax'] );
-	$tax      = get_taxonomy( $taxonomy );
+	$taxonomy        = sanitize_key( $_POST['tax'] );
+	$taxonomy_object = get_taxonomy( $taxonomy );
 
-	if ( ! $tax ) {
+	if ( ! $taxonomy_object ) {
 		gc_die( 0 );
 	}
 
-	if ( ! current_user_can( $tax->cap->assign_terms ) ) {
+	if ( ! current_user_can( $taxonomy_object->cap->assign_terms ) ) {
 		gc_die( -1 );
 	}
 
@@ -1157,7 +1173,7 @@ function gc_ajax_get_tagcloud() {
 	);
 
 	if ( empty( $tags ) ) {
-		gc_die( $tax->labels->not_found );
+		gc_die( $taxonomy_object->labels->not_found );
 	}
 
 	if ( is_gc_error( $tags ) ) {
@@ -1187,9 +1203,7 @@ function gc_ajax_get_tagcloud() {
 }
 
 /**
- * Ajax handler for getting comments.
- *
- *
+ * Handles getting comments via AJAX.
  *
  * @global int $post_id
  *
@@ -1250,9 +1264,7 @@ function gc_ajax_get_comments( $action ) {
 }
 
 /**
- * Ajax handler for replying to a comment.
- *
- *
+ * Handles replying to a comment via AJAX.
  *
  * @param string $action Action to perform.
  */
@@ -1263,32 +1275,30 @@ function gc_ajax_replyto_comment( $action ) {
 
 	check_ajax_referer( $action, '_ajax_nonce-replyto-comment' );
 
-	$comment_post_ID = (int) $_POST['comment_post_ID'];
-	$post            = get_post( $comment_post_ID );
+	$comment_post_id = (int) $_POST['comment_post_ID'];
+	$post            = get_post( $comment_post_id );
 
 	if ( ! $post ) {
 		gc_die( -1 );
 	}
 
-	if ( ! current_user_can( 'edit_post', $comment_post_ID ) ) {
+	if ( ! current_user_can( 'edit_post', $comment_post_id ) ) {
 		gc_die( -1 );
 	}
 
 	if ( empty( $post->post_status ) ) {
 		gc_die( 1 );
 	} elseif ( in_array( $post->post_status, array( 'draft', 'pending', 'trash' ), true ) ) {
-		gc_die( __( '错误：您不能回复文章草稿上的评论。' ) );
+		gc_die( __( '您不能回复草稿文章上的评论。' ) );
 	}
 
 	$user = gc_get_current_user();
 
 	if ( $user->exists() ) {
-		$user_ID              = $user->ID;
 		$comment_author       = gc_slash( $user->display_name );
 		$comment_author_email = gc_slash( $user->user_email );
 		$comment_author_url   = gc_slash( $user->user_url );
-		$comment_content      = trim( $_POST['content'] );
-		$comment_type         = isset( $_POST['comment_type'] ) ? trim( $_POST['comment_type'] ) : 'comment';
+		$user_id              = $user->ID;
 
 		if ( current_user_can( 'unfiltered_html' ) ) {
 			if ( ! isset( $_POST['_gc_unfiltered_html_comment'] ) ) {
@@ -1306,9 +1316,13 @@ function gc_ajax_replyto_comment( $action ) {
 		gc_die( __( '抱歉，回复评论需先登录。' ) );
 	}
 
+	$comment_content = trim( $_POST['content'] );
+
 	if ( '' === $comment_content ) {
-		gc_die( __( '错误：请输入评论内容。' ) );
+		gc_die( __( '请输入您的评论文字。' ) );
 	}
+
+	$comment_type = isset( $_POST['comment_type'] ) ? trim( $_POST['comment_type'] ) : 'comment';
 
 	$comment_parent = 0;
 
@@ -1317,13 +1331,26 @@ function gc_ajax_replyto_comment( $action ) {
 	}
 
 	$comment_auto_approved = false;
-	$commentdata           = compact( 'comment_post_ID', 'comment_author', 'comment_author_email', 'comment_author_url', 'comment_content', 'comment_type', 'comment_parent', 'user_ID' );
+
+	$commentdata = array(
+		'comment_post_ID' => $comment_post_id,
+	);
+
+	$commentdata += compact(
+		'comment_author',
+		'comment_author_email',
+		'comment_author_url',
+		'comment_content',
+		'comment_type',
+		'comment_parent',
+		'user_id'
+	);
 
 	// Automatically approve parent comment.
 	if ( ! empty( $_POST['approve_parent'] ) ) {
 		$parent = get_comment( $comment_parent );
 
-		if ( $parent && '0' === $parent->comment_approved && $parent->comment_post_ID == $comment_post_ID ) {
+		if ( $parent && '0' === $parent->comment_approved && $parent->comment_post_ID == $comment_post_id ) {
 			if ( ! current_user_can( 'edit_comment', $parent->comment_ID ) ) {
 				gc_die( -1 );
 			}
@@ -1395,8 +1422,7 @@ function gc_ajax_replyto_comment( $action ) {
 }
 
 /**
- * Ajax handler for editing a comment.
- *
+ * Handles editing a comment via AJAX.
  *
  */
 function gc_ajax_edit_comment() {
@@ -1409,7 +1435,7 @@ function gc_ajax_edit_comment() {
 	}
 
 	if ( '' === $_POST['content'] ) {
-		gc_die( __( '错误：请输入评论内容。' ) );
+		gc_die( __( '请输入您的评论文字。' ) );
 	}
 
 	if ( isset( $_POST['status'] ) ) {
@@ -1450,8 +1476,7 @@ function gc_ajax_edit_comment() {
 }
 
 /**
- * Ajax handler for adding a menu item.
- *
+ * Handles adding a menu item via AJAX.
  *
  */
 function gc_ajax_add_menu_item() {
@@ -1463,8 +1488,10 @@ function gc_ajax_add_menu_item() {
 
 	require_once ABSPATH . 'gc-admin/includes/nav-menu.php';
 
-	// For performance reasons, we omit some object properties from the checklist.
-	// The following is a hacky way to restore them when adding non-custom items.
+	/*
+	 * For performance reasons, we omit some object properties from the checklist.
+	 * The following is a hacky way to restore them when adding non-custom items.
+	 */
 	$menu_items_data = array();
 
 	foreach ( (array) $_POST['menu-item'] as $menu_item_data ) {
@@ -1528,7 +1555,7 @@ function gc_ajax_add_menu_item() {
 			'before'      => '',
 			'link_after'  => '',
 			'link_before' => '',
-			'walker'      => new $walker_class_name,
+			'walker'      => new $walker_class_name(),
 		);
 
 		echo walk_nav_menu_tree( $menu_items, 0, (object) $args );
@@ -1538,8 +1565,7 @@ function gc_ajax_add_menu_item() {
 }
 
 /**
- * Ajax handler for adding meta.
- *
+ * Handles adding meta via AJAX.
  *
  */
 function gc_ajax_add_meta() {
@@ -1660,9 +1686,7 @@ function gc_ajax_add_meta() {
 }
 
 /**
- * Ajax handler for adding a user.
- *
- *
+ * Handles adding a user via AJAX.
  *
  * @param string $action Action to perform.
  */
@@ -1715,8 +1739,7 @@ function gc_ajax_add_user( $action ) {
 }
 
 /**
- * Ajax handler for closed post boxes.
- *
+ * Handles closed post boxes via AJAX.
  *
  */
 function gc_ajax_closed_postboxes() {
@@ -1752,8 +1775,7 @@ function gc_ajax_closed_postboxes() {
 }
 
 /**
- * Ajax handler for hidden columns.
- *
+ * Handles hidden columns via AJAX.
  *
  */
 function gc_ajax_hidden_columns() {
@@ -1776,8 +1798,7 @@ function gc_ajax_hidden_columns() {
 }
 
 /**
- * Ajax handler for updating whether to display the welcome panel.
- *
+ * Handles updating whether to display the welcome panel via AJAX.
  *
  */
 function gc_ajax_update_welcome_panel() {
@@ -1793,8 +1814,7 @@ function gc_ajax_update_welcome_panel() {
 }
 
 /**
- * Ajax handler for retrieving menu meta boxes.
- *
+ * Handles for retrieving menu meta boxes via AJAX.
  *
  */
 function gc_ajax_menu_get_metabox() {
@@ -1844,8 +1864,7 @@ function gc_ajax_menu_get_metabox() {
 }
 
 /**
- * Ajax handler for internal linking.
- *
+ * Handles internal linking via AJAX.
  *
  */
 function gc_ajax_gc_link_ajax() {
@@ -1880,8 +1899,7 @@ function gc_ajax_gc_link_ajax() {
 }
 
 /**
- * Ajax handler for menu locations save.
- *
+ * Handles saving menu locations via AJAX.
  *
  */
 function gc_ajax_menu_locations_save() {
@@ -1900,8 +1918,7 @@ function gc_ajax_menu_locations_save() {
 }
 
 /**
- * Ajax handler for saving the meta box order.
- *
+ * Handles saving the meta box order via AJAX.
  *
  */
 function gc_ajax_meta_box_order() {
@@ -1936,8 +1953,7 @@ function gc_ajax_meta_box_order() {
 }
 
 /**
- * Ajax handler for menu quick searching.
- *
+ * Handles menu quick searching via AJAX.
  *
  */
 function gc_ajax_menu_quick_search() {
@@ -1953,8 +1969,7 @@ function gc_ajax_menu_quick_search() {
 }
 
 /**
- * Ajax handler to retrieve a permalink.
- *
+ * Handles retrieving a permalink via AJAX.
  *
  */
 function gc_ajax_get_permalink() {
@@ -1964,8 +1979,7 @@ function gc_ajax_get_permalink() {
 }
 
 /**
- * Ajax handler to retrieve a sample permalink.
- *
+ * Handles retrieving a sample permalink via AJAX.
  *
  */
 function gc_ajax_sample_permalink() {
@@ -1977,9 +1991,7 @@ function gc_ajax_sample_permalink() {
 }
 
 /**
- * Ajax handler for Quick Edit saving a post from a list table.
- *
- *
+ * Handles Quick Edit saving a post from a list table via AJAX.
  *
  * @global string $mode List table view mode.
  */
@@ -1992,29 +2004,29 @@ function gc_ajax_inline_save() {
 		gc_die();
 	}
 
-	$post_ID = (int) $_POST['post_ID'];
+	$post_id = (int) $_POST['post_ID'];
 
 	if ( 'page' === $_POST['post_type'] ) {
-		if ( ! current_user_can( 'edit_page', $post_ID ) ) {
+		if ( ! current_user_can( 'edit_page', $post_id ) ) {
 			gc_die( __( '抱歉，您不能编辑此页面。' ) );
 		}
 	} else {
-		if ( ! current_user_can( 'edit_post', $post_ID ) ) {
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			gc_die( __( '抱歉，您不能修改这篇文章。' ) );
 		}
 	}
 
-	$last = gc_check_post_lock( $post_ID );
+	$last = gc_check_post_lock( $post_id );
 	if ( $last ) {
 		$last_user      = get_userdata( $last );
 		$last_user_name = $last_user ? $last_user->display_name : __( '有人' );
 
 		/* translators: %s: User's display name. */
-		$msg_template = __( '无法保存：%s正在编辑这篇文章。' );
+		$msg_template = __( '无法保存：『%s』正在编辑这篇文章。' );
 
 		if ( 'page' === $_POST['post_type'] ) {
 			/* translators: %s: User's display name. */
-			$msg_template = __( '无法保存：%s正在编辑这个页面。' );
+			$msg_template = __( '无法保存：『%s』正在编辑这个页面。' );
 		}
 
 		printf( $msg_template, esc_html( $last_user_name ) );
@@ -2023,7 +2035,7 @@ function gc_ajax_inline_save() {
 
 	$data = &$_POST;
 
-	$post = get_post( $post_ID, ARRAY_A );
+	$post = get_post( $post_id, ARRAY_A );
 
 	// Since it's coming from the database.
 	$post = gc_slash( $post );
@@ -2096,17 +2108,16 @@ function gc_ajax_inline_save() {
 }
 
 /**
- * Ajax handler for quick edit saving for a term.
- *
+ * Handles Quick Edit saving for a term via AJAX.
  *
  */
 function gc_ajax_inline_save_tax() {
 	check_ajax_referer( 'taxinlineeditnonce', '_inline_edit' );
 
-	$taxonomy = sanitize_key( $_POST['taxonomy'] );
-	$tax      = get_taxonomy( $taxonomy );
+	$taxonomy        = sanitize_key( $_POST['taxonomy'] );
+	$taxonomy_object = get_taxonomy( $taxonomy );
 
-	if ( ! $tax ) {
+	if ( ! $taxonomy_object ) {
 		gc_die( 0 );
 	}
 
@@ -2156,10 +2167,9 @@ function gc_ajax_inline_save_tax() {
 }
 
 /**
- * Ajax handler for querying posts for the Find Posts modal.
+ * Handles querying posts for the Find Posts modal via AJAX.
  *
  * @see window.findPosts
- *
  *
  */
 function gc_ajax_find_posts() {
@@ -2168,15 +2178,16 @@ function gc_ajax_find_posts() {
 	$post_types = get_post_types( array( 'public' => true ), 'objects' );
 	unset( $post_types['attachment'] );
 
-	$s    = gc_unslash( $_POST['ps'] );
 	$args = array(
 		'post_type'      => array_keys( $post_types ),
 		'post_status'    => 'any',
 		'posts_per_page' => 50,
 	);
 
-	if ( '' !== $s ) {
-		$args['s'] = $s;
+	$search = gc_unslash( $_POST['ps'] );
+
+	if ( '' !== $search ) {
+		$args['s'] = $search;
 	}
 
 	$posts = get_posts( $args );
@@ -2197,7 +2208,7 @@ function gc_ajax_find_posts() {
 				$stat = __( '已发布' );
 				break;
 			case 'future':
-				$stat = __( '定时发布' );
+				$stat = __( '已计划' );
 				break;
 			case 'pending':
 				$stat = __( '等待复审' );
@@ -2224,8 +2235,7 @@ function gc_ajax_find_posts() {
 }
 
 /**
- * Ajax handler for saving the widgets order.
- *
+ * Handles saving the widgets order via AJAX.
  *
  */
 function gc_ajax_widgets_order() {
@@ -2248,7 +2258,7 @@ function gc_ajax_widgets_order() {
 				$val = explode( ',', $val );
 
 				foreach ( $val as $k => $v ) {
-					if ( strpos( $v, 'widget-' ) === false ) {
+					if ( ! str_contains( $v, 'widget-' ) ) {
 						continue;
 					}
 
@@ -2266,9 +2276,7 @@ function gc_ajax_widgets_order() {
 }
 
 /**
- * Ajax handler for saving a widget.
- *
- *
+ * Handles saving a widget via AJAX.
  *
  * @global array $gc_registered_widgets
  * @global array $gc_registered_widget_controls
@@ -2373,9 +2381,9 @@ function gc_ajax_save_widget() {
 }
 
 /**
- * Ajax handler for updating a widget.
+ * Handles updating a widget via AJAX.
  *
- *
+ * @since 3.9.0
  *
  * @global GC_Customize_Manager $gc_customize
  */
@@ -2385,8 +2393,7 @@ function gc_ajax_update_widget() {
 }
 
 /**
- * Ajax handler for removing inactive widgets.
- *
+ * Handles removing inactive widgets via AJAX.
  *
  */
 function gc_ajax_delete_inactive_widgets() {
@@ -2422,9 +2429,9 @@ function gc_ajax_delete_inactive_widgets() {
 }
 
 /**
- * Ajax handler for creating missing image sub-sizes for just uploaded images.
+ * Handles creating missing image sub-sizes for just uploaded images via AJAX.
  *
- *
+ * @since 5.3.0
  */
 function gc_ajax_media_create_image_subsizes() {
 	check_ajax_referer( 'media-form' );
@@ -2452,14 +2459,18 @@ function gc_ajax_media_create_image_subsizes() {
 		}
 	}
 
-	// Set a custom header with the attachment_id.
-	// Used by the browser/client to resume creating image sub-sizes after a PHP fatal error.
+	/*
+	 * Set a custom header with the attachment_id.
+	 * Used by the browser/client to resume creating image sub-sizes after a PHP fatal error.
+	 */
 	if ( ! headers_sent() ) {
 		header( 'X-GC-Upload-Attachment-ID: ' . $attachment_id );
 	}
 
-	// This can still be pretty slow and cause timeout or out of memory errors.
-	// The js that handles the response would need to also handle HTTP 500 errors.
+	/*
+	 * This can still be pretty slow and cause timeout or out of memory errors.
+	 * The js that handles the response would need to also handle HTTP 500 errors.
+	 */
 	gc_update_image_subsizes( $attachment_id );
 
 	if ( ! empty( $_POST['_legacy_support'] ) ) {
@@ -2479,15 +2490,14 @@ function gc_ajax_media_create_image_subsizes() {
 }
 
 /**
- * Ajax handler for uploading attachments
- *
+ * Handles uploading attachments via AJAX.
  *
  */
 function gc_ajax_upload_attachment() {
 	check_ajax_referer( 'media-form' );
 	/*
 	 * This function does not use gc_send_json_success() / gc_send_json_error()
-	 * as the html4 Plupload handler requires a text/html content-type for older IE.
+	 * as the html4 Plupload handler requires a text/html Content-Type for older IE.
 	 * See https://core.trac.gechiui.com/ticket/31037
 	 */
 
@@ -2592,8 +2602,7 @@ function gc_ajax_upload_attachment() {
 }
 
 /**
- * Ajax handler for image editing.
- *
+ * Handles image editing via AJAX.
  *
  */
 function gc_ajax_image_editor() {
@@ -2604,7 +2613,7 @@ function gc_ajax_image_editor() {
 	}
 
 	check_ajax_referer( "image_editor-$attachment_id" );
-	include_once ABSPATH . 'gc-admin/includes/image-edit.php';
+	require_once ABSPATH . 'gc-admin/includes/image-edit.php';
 
 	$msg = false;
 
@@ -2647,37 +2656,36 @@ function gc_ajax_image_editor() {
 }
 
 /**
- * Ajax handler for setting the featured image.
- *
+ * Handles setting the featured image via AJAX.
  *
  */
 function gc_ajax_set_post_thumbnail() {
 	$json = ! empty( $_REQUEST['json'] ); // New-style request.
 
-	$post_ID = (int) $_POST['post_id'];
-	if ( ! current_user_can( 'edit_post', $post_ID ) ) {
+	$post_id = (int) $_POST['post_id'];
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
 		gc_die( -1 );
 	}
 
 	$thumbnail_id = (int) $_POST['thumbnail_id'];
 
 	if ( $json ) {
-		check_ajax_referer( "update-post_$post_ID" );
+		check_ajax_referer( "update-post_$post_id" );
 	} else {
-		check_ajax_referer( "set_post_thumbnail-$post_ID" );
+		check_ajax_referer( "set_post_thumbnail-$post_id" );
 	}
 
 	if ( '-1' == $thumbnail_id ) {
-		if ( delete_post_thumbnail( $post_ID ) ) {
-			$return = _gc_post_thumbnail_html( null, $post_ID );
+		if ( delete_post_thumbnail( $post_id ) ) {
+			$return = _gc_post_thumbnail_html( null, $post_id );
 			$json ? gc_send_json_success( $return ) : gc_die( $return );
 		} else {
 			gc_die( 0 );
 		}
 	}
 
-	if ( set_post_thumbnail( $post_ID, $thumbnail_id ) ) {
-		$return = _gc_post_thumbnail_html( $thumbnail_id, $post_ID );
+	if ( set_post_thumbnail( $post_id, $thumbnail_id ) ) {
+		$return = _gc_post_thumbnail_html( $thumbnail_id, $post_id );
 		$json ? gc_send_json_success( $return ) : gc_die( $return );
 	}
 
@@ -2685,16 +2693,15 @@ function gc_ajax_set_post_thumbnail() {
 }
 
 /**
- * Ajax handler for retrieving HTML for the featured image.
- *
+ * Handles retrieving HTML for the featured image via AJAX.
  *
  */
 function gc_ajax_get_post_thumbnail_html() {
-	$post_ID = (int) $_POST['post_id'];
+	$post_id = (int) $_POST['post_id'];
 
-	check_ajax_referer( "update-post_$post_ID" );
+	check_ajax_referer( "update-post_$post_id" );
 
-	if ( ! current_user_can( 'edit_post', $post_ID ) ) {
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
 		gc_die( -1 );
 	}
 
@@ -2705,14 +2712,14 @@ function gc_ajax_get_post_thumbnail_html() {
 		$thumbnail_id = null;
 	}
 
-	$return = _gc_post_thumbnail_html( $thumbnail_id, $post_ID );
+	$return = _gc_post_thumbnail_html( $thumbnail_id, $post_id );
 	gc_send_json_success( $return );
 }
 
 /**
- * Ajax handler for setting the featured image for an attachment.
+ * Handles setting the featured image for an attachment via AJAX.
  *
- *
+ * @since 4.0.0
  *
  * @see set_post_thumbnail()
  */
@@ -2723,6 +2730,10 @@ function gc_ajax_set_attachment_thumbnail() {
 
 	$thumbnail_id = (int) $_POST['thumbnail_id'];
 	if ( empty( $thumbnail_id ) ) {
+		gc_send_json_error();
+	}
+
+	if ( false === check_ajax_referer( 'set-attachment-thumbnail', '_ajax_nonce', false ) ) {
 		gc_send_json_error();
 	}
 
@@ -2761,8 +2772,7 @@ function gc_ajax_set_attachment_thumbnail() {
 }
 
 /**
- * Ajax handler for date formatting.
- *
+ * Handles formatting a date via AJAX.
  *
  */
 function gc_ajax_date_format() {
@@ -2770,8 +2780,7 @@ function gc_ajax_date_format() {
 }
 
 /**
- * Ajax handler for time formatting.
- *
+ * Handles formatting a time via AJAX.
  *
  */
 function gc_ajax_time_format() {
@@ -2779,8 +2788,7 @@ function gc_ajax_time_format() {
 }
 
 /**
- * Ajax handler for saving posts from the fullscreen editor.
- *
+ * Handles saving posts from the fullscreen editor via AJAX.
  *
  * @deprecated 4.3.0
  */
@@ -2813,18 +2821,17 @@ function gc_ajax_gc_fullscreen_save_post() {
 	if ( $last_id ) {
 		$last_user = get_userdata( $last_id );
 		/* translators: 1: User's display name, 2: Date of last edit, 3: Time of last edit. */
-		$last_edited = sprintf( __( '最后由%1$s编辑于%2$s%3$s' ), esc_html( $last_user->display_name ), $last_date, $last_time );
+		$last_edited = sprintf( __( '最后由 %1$s 编辑于 %2$s%3$s' ), esc_html( $last_user->display_name ), $last_date, $last_time );
 	} else {
 		/* translators: 1: Date of last edit, 2: Time of last edit. */
-		$last_edited = sprintf( __( '最后编辑于%1$s %2$s' ), $last_date, $last_time );
+		$last_edited = sprintf( __( '最后编辑于 %1$s %2$s' ), $last_date, $last_time );
 	}
 
 	gc_send_json_success( array( 'last_edited' => $last_edited ) );
 }
 
 /**
- * Ajax handler for removing a post lock.
- *
+ * Handles removing a post lock via AJAX.
  *
  */
 function gc_ajax_gc_remove_post_lock() {
@@ -2864,8 +2871,7 @@ function gc_ajax_gc_remove_post_lock() {
 }
 
 /**
- * Ajax handler for dismissing a GeChiUI pointer.
- *
+ * Handles dismissing a GeChiUI pointer via AJAX.
  *
  */
 function gc_ajax_dismiss_gc_pointer() {
@@ -2891,8 +2897,7 @@ function gc_ajax_dismiss_gc_pointer() {
 }
 
 /**
- * Ajax handler for getting an attachment.
- *
+ * Handles getting an attachment via AJAX.
  *
  */
 function gc_ajax_get_attachment() {
@@ -2927,8 +2932,7 @@ function gc_ajax_get_attachment() {
 }
 
 /**
- * Ajax handler for querying attachments.
- *
+ * Handles querying attachments via AJAX.
  *
  */
 function gc_ajax_query_attachments() {
@@ -2977,13 +2981,14 @@ function gc_ajax_query_attachments() {
 
 	// Filter query clauses to include filenames.
 	if ( isset( $query['s'] ) ) {
-		add_filter( 'posts_clauses', '_filter_query_attachment_filenames' );
+		add_filter( 'gc_allow_query_attachment_by_filename', '__return_true' );
 	}
 
 	/**
 	 * Filters the arguments passed to GC_Query during an Ajax
 	 * call for querying attachments.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @see GC_Query::parse_query()
 	 *
@@ -2991,6 +2996,7 @@ function gc_ajax_query_attachments() {
 	 */
 	$query             = apply_filters( 'ajax_query_attachments_args', $query );
 	$attachments_query = new GC_Query( $query );
+	update_post_parent_caches( $attachments_query->posts );
 
 	$posts       = array_map( 'gc_prepare_attachment_for_js', $attachments_query->posts );
 	$posts       = array_filter( $posts );
@@ -3016,8 +3022,7 @@ function gc_ajax_query_attachments() {
 }
 
 /**
- * Ajax handler for updating attachment attributes.
- *
+ * Handles updating attachment attributes via AJAX.
  *
  */
 function gc_ajax_save_attachment() {
@@ -3102,8 +3107,7 @@ function gc_ajax_save_attachment() {
 }
 
 /**
- * Ajax handler for saving backward compatible attachment attributes.
- *
+ * Handles saving backward compatible attachment attributes via AJAX.
  *
  */
 function gc_ajax_save_attachment_compat() {
@@ -3160,8 +3164,7 @@ function gc_ajax_save_attachment_compat() {
 }
 
 /**
- * Ajax handler for saving the attachment order.
- *
+ * Handles saving the attachment order via AJAX.
  *
  */
 function gc_ajax_save_attachment_order() {
@@ -3213,12 +3216,11 @@ function gc_ajax_save_attachment_order() {
 }
 
 /**
- * Ajax handler for sending an attachment to the editor.
+ * Handles sending an attachment to the editor via AJAX.
  *
  * Generates the HTML to send an attachment to the editor.
  * Backward compatible with the {@see 'media_send_to_editor'} filter
  * and the chain of filters that follow.
- *
  *
  */
 function gc_ajax_send_attachment_to_editor() {
@@ -3252,11 +3254,11 @@ function gc_ajax_send_attachment_to_editor() {
 	}
 
 	$url = empty( $attachment['url'] ) ? '' : $attachment['url'];
-	$rel = ( strpos( $url, 'attachment_id' ) || get_attachment_link( $id ) == $url );
+	$rel = ( str_contains( $url, 'attachment_id' ) || get_attachment_link( $id ) === $url );
 
 	remove_filter( 'media_send_to_editor', 'image_media_send_to_editor' );
 
-	if ( 'image' === substr( $post->post_mime_type, 0, 5 ) ) {
+	if ( str_starts_with( $post->post_mime_type, 'image' ) ) {
 		$align = isset( $attachment['align'] ) ? $attachment['align'] : 'none';
 		$size  = isset( $attachment['image-size'] ) ? $attachment['image-size'] : 'medium';
 		$alt   = isset( $attachment['image_alt'] ) ? $attachment['image_alt'] : '';
@@ -3287,7 +3289,7 @@ function gc_ajax_send_attachment_to_editor() {
 }
 
 /**
- * Ajax handler for sending a link to the editor.
+ * Handles sending a link to the editor via AJAX.
  *
  * Generates the HTML to send a non-image embed link to the editor.
  *
@@ -3295,8 +3297,6 @@ function gc_ajax_send_attachment_to_editor() {
  * - file_send_to_editor_url
  * - audio_send_to_editor_url
  * - video_send_to_editor_url
- *
- *
  *
  * @global GC_Post  $post     Global post object.
  * @global GC_Embed $gc_embed
@@ -3315,7 +3315,7 @@ function gc_ajax_send_link_to_editor() {
 		$src = 'http://' . $src;
 	}
 
-	$src = esc_url_raw( $src );
+	$src = sanitize_url( $src );
 	if ( ! $src ) {
 		gc_send_json_error();
 	}
@@ -3359,10 +3359,9 @@ function gc_ajax_send_link_to_editor() {
 }
 
 /**
- * Ajax handler for the Heartbeat API.
+ * Handles the Heartbeat API via AJAX.
  *
  * Runs when the user is logged in.
- *
  *
  */
 function gc_ajax_heartbeat() {
@@ -3389,6 +3388,7 @@ function gc_ajax_heartbeat() {
 		/**
 		 * Filters the nonces to send to the New/Edit Post screen.
 		 *
+		 * @since 4.3.0
 		 *
 		 * @param array  $response  The Heartbeat response.
 		 * @param array  $data      The $_POST data sent.
@@ -3407,6 +3407,7 @@ function gc_ajax_heartbeat() {
 		/**
 		 * Filters the Heartbeat response received.
 		 *
+		 * @since 3.6.0
 		 *
 		 * @param array  $response  The Heartbeat response.
 		 * @param array  $data      The $_POST data sent.
@@ -3418,6 +3419,7 @@ function gc_ajax_heartbeat() {
 	/**
 	 * Filters the Heartbeat response sent.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param array  $response  The Heartbeat response.
 	 * @param string $screen_id The screen ID.
@@ -3429,6 +3431,7 @@ function gc_ajax_heartbeat() {
 	 *
 	 * Allows the transport to be easily replaced with long-polling.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param array  $response  The Heartbeat response.
 	 * @param string $screen_id The screen ID.
@@ -3442,8 +3445,7 @@ function gc_ajax_heartbeat() {
 }
 
 /**
- * Ajax handler for getting revision diffs.
- *
+ * Handles getting revision diffs via AJAX.
  *
  */
 function gc_ajax_get_revision_diffs() {
@@ -3465,7 +3467,10 @@ function gc_ajax_get_revision_diffs() {
 	}
 
 	$return = array();
-	set_time_limit( 0 );
+
+	if ( function_exists( 'set_time_limit' ) ) {
+		set_time_limit( 0 );
+	}
 
 	foreach ( $_REQUEST['compare'] as $compare_key ) {
 		list( $compare_from, $compare_to ) = explode( ':', $compare_key ); // from:to
@@ -3479,10 +3484,10 @@ function gc_ajax_get_revision_diffs() {
 }
 
 /**
- * Ajax handler for auto-saving the selected color scheme for
- * a user's own profile.
+ * Handles auto-saving the selected color scheme for
+ * a user's own profile via AJAX.
  *
- *
+ * @since 3.8.0
  *
  * @global array $_gc_admin_css_colors
  */
@@ -3509,9 +3514,9 @@ function gc_ajax_save_user_color_scheme() {
 }
 
 /**
- * Ajax handler for getting themes from themes_api().
+ * Handles getting themes from themes_api() via AJAX.
  *
- *
+ * @since 3.9.0
  *
  * @global array $themes_allowedtags
  * @global array $theme_field_defaults
@@ -3640,9 +3645,9 @@ function gc_ajax_query_themes() {
 }
 
 /**
- * Apply [embed] Ajax handlers to a string.
+ * Applies [embed] Ajax handlers to a string.
  *
- *
+ * @since 4.0.0
  *
  * @global GC_Post    $post       Global post object.
  * @global GC_Embed   $gc_embed   Embed API instance.
@@ -3694,9 +3699,11 @@ function gc_ajax_parse_embed() {
 		$gc_embed->usecache = false;
 	}
 
-	if ( is_ssl() && 0 === strpos( $url, 'http://' ) ) {
-		// Admin is ssl and the user pasted non-ssl URL.
-		// Check if the provider supports ssl embeds and use that for the preview.
+	if ( is_ssl() && str_starts_with( $url, 'http://' ) ) {
+		/*
+		 * Admin is ssl and the user pasted non-ssl URL.
+		 * Check if the provider supports ssl embeds and use that for the preview.
+		 */
 		$ssl_shortcode = preg_replace( '%^(\\[embed[^\\]]*\\])http://%i', '$1https://', $shortcode );
 		$parsed        = $gc_embed->run_shortcode( $ssl_shortcode );
 
@@ -3767,11 +3774,11 @@ function gc_ajax_parse_embed() {
 		'attr' => $gc_embed->last_attr,
 	);
 
-	if ( strpos( $parsed, 'class="gc-embedded-content' ) ) {
+	if ( str_contains( $parsed, 'class="gc-embedded-content' ) ) {
 		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-			$script_src = assets_url( '/js/gc-embed.js' );
+			$script_src = assets_url( 'js/gc-embed.js' );
 		} else {
-			$script_src = assets_url( '/js/gc-embed.min.js' );
+			$script_src = assets_url( 'js/gc-embed.min.js' );
 		}
 
 		$return['head']    = '<script src="' . $script_src . '"></script>';
@@ -3782,7 +3789,7 @@ function gc_ajax_parse_embed() {
 }
 
 /**
- *
+ * @since 4.0.0
  *
  * @global GC_Post    $post       Global post object.
  * @global GC_Scripts $gc_scripts
@@ -3852,9 +3859,9 @@ function gc_ajax_parse_media_shortcode() {
 }
 
 /**
- * Ajax handler for destroying multiple open sessions for a user.
+ * Handles destroying multiple open sessions for a user via AJAX.
  *
- *
+ * @since 4.1.0
  */
 function gc_ajax_destroy_sessions() {
 	$user = get_userdata( (int) $_POST['user_id'] );
@@ -3890,9 +3897,9 @@ function gc_ajax_destroy_sessions() {
 }
 
 /**
- * Ajax handler for cropping an image.
+ * Handles cropping an image via AJAX.
  *
- *
+ * @since 4.3.0
  */
 function gc_ajax_crop_image() {
 	$attachment_id = absint( $_POST['id'] );
@@ -3928,13 +3935,13 @@ function gc_ajax_crop_image() {
 			}
 
 			/** This filter is documented in gc-admin/includes/class-custom-image-header.php */
-			$cropped = apply_filters( 'gc_create_file_in_uploads', $cropped, $attachment_id ); // For replication.
-			$object  = $gc_site_icon->create_attachment_object( $cropped, $attachment_id );
-			unset( $object['ID'] );
+			$cropped    = apply_filters( 'gc_create_file_in_uploads', $cropped, $attachment_id ); // For replication.
+			$attachment = $gc_site_icon->create_attachment_object( $cropped, $attachment_id );
+			unset( $attachment['ID'] );
 
 			// Update the attachment.
 			add_filter( 'intermediate_image_sizes_advanced', array( $gc_site_icon, 'additional_sizes' ) );
-			$attachment_id = $gc_site_icon->insert_attachment( $object, $cropped );
+			$attachment_id = $gc_site_icon->insert_attachment( $attachment, $cropped );
 			remove_filter( 'intermediate_image_sizes_advanced', array( $gc_site_icon, 'additional_sizes' ) );
 
 			// Additional sizes in gc_prepare_attachment_for_js().
@@ -3947,7 +3954,7 @@ function gc_ajax_crop_image() {
 			 *
 			 * Allows to add filters to modify the way a cropped image is saved.
 			 *
-		
+			 * @since 4.3.0
 			 *
 			 * @param string $context       The Customizer control requesting the cropped image.
 			 * @param int    $attachment_id The attachment ID of the original image.
@@ -3966,9 +3973,9 @@ function gc_ajax_crop_image() {
 			$image_type = ( $size ) ? $size['mime'] : 'image/jpeg';
 
 			// Get the original image's post to pre-populate the cropped image.
-			$original_attachment      = get_post( $attachment_id );
-			$sanitized_post_title     = sanitize_file_name( $original_attachment->post_title );
-			$use_original_title       = (
+			$original_attachment  = get_post( $attachment_id );
+			$sanitized_post_title = sanitize_file_name( $original_attachment->post_title );
+			$use_original_title   = (
 				( '' !== trim( $original_attachment->post_title ) ) &&
 				/*
 				 * Check if the original image has a title other than the "filename" default,
@@ -3979,7 +3986,7 @@ function gc_ajax_crop_image() {
 			);
 			$use_original_description = ( '' !== trim( $original_attachment->post_content ) );
 
-			$object = array(
+			$attachment = array(
 				'post_title'     => $use_original_title ? $original_attachment->post_title : gc_basename( $cropped ),
 				'post_content'   => $use_original_description ? $original_attachment->post_content : $url,
 				'post_mime_type' => $image_type,
@@ -3989,23 +3996,23 @@ function gc_ajax_crop_image() {
 
 			// Copy the image caption attribute (post_excerpt field) from the original image.
 			if ( '' !== trim( $original_attachment->post_excerpt ) ) {
-				$object['post_excerpt'] = $original_attachment->post_excerpt;
+				$attachment['post_excerpt'] = $original_attachment->post_excerpt;
 			}
 
 			// Copy the image alt text attribute from the original image.
 			if ( '' !== trim( $original_attachment->_gc_attachment_image_alt ) ) {
-				$object['meta_input'] = array(
+				$attachment['meta_input'] = array(
 					'_gc_attachment_image_alt' => gc_slash( $original_attachment->_gc_attachment_image_alt ),
 				);
 			}
 
-			$attachment_id = gc_insert_attachment( $object, $cropped );
+			$attachment_id = gc_insert_attachment( $attachment, $cropped );
 			$metadata      = gc_generate_attachment_metadata( $attachment_id, $cropped );
 
 			/**
 			 * Filters the cropped image attachment metadata.
 			 *
-		
+			 * @since 4.3.0
 			 *
 			 * @see gc_generate_attachment_metadata()
 			 *
@@ -4017,7 +4024,7 @@ function gc_ajax_crop_image() {
 			/**
 			 * Filters the attachment ID for a cropped image.
 			 *
-		
+			 * @since 4.3.0
 			 *
 			 * @param int    $attachment_id The attachment ID of the cropped image.
 			 * @param string $context       The Customizer control requesting the cropped image.
@@ -4029,8 +4036,7 @@ function gc_ajax_crop_image() {
 }
 
 /**
- * Ajax handler for generating a password.
- *
+ * Handles generating a password via AJAX.
  *
  */
 function gc_ajax_generate_password() {
@@ -4038,17 +4044,16 @@ function gc_ajax_generate_password() {
 }
 
 /**
- * Ajax handler for generating a password in the no-privilege context.
+ * Handles generating a password in the no-privilege context via AJAX.
  *
- *
+ * @since 5.7.0
  */
 function gc_ajax_nopriv_generate_password() {
 	gc_send_json_success( gc_generate_password( 24 ) );
 }
 
 /**
- * Ajax handler for saving the user's www.GeChiUI.com username.
- *
+ * Handles saving the user's www.GeChiUI.com username via AJAX.
  *
  */
 function gc_ajax_save_gcorg_username() {
@@ -4068,9 +4073,7 @@ function gc_ajax_save_gcorg_username() {
 }
 
 /**
- * Ajax handler for installing a theme.
- *
- *
+ * Handles installing a theme via AJAX.
  *
  * @see Theme_Upgrader
  *
@@ -4097,12 +4100,12 @@ function gc_ajax_install_theme() {
 	);
 
 	if ( ! current_user_can( 'install_themes' ) ) {
-		$status['errorMessage'] = __( '抱歉，您不能在此站点上安装主题。' );
+		$status['errorMessage'] = __( '抱歉，您不能在此系统上安装主题。' );
 		gc_send_json_error( $status );
 	}
 
 	require_once ABSPATH . 'gc-admin/includes/class-gc-upgrader.php';
-	include_once ABSPATH . 'gc-admin/includes/theme.php';
+	require_once ABSPATH . 'gc-admin/includes/theme.php';
 
 	$api = themes_api(
 		'theme_information',
@@ -4194,9 +4197,7 @@ function gc_ajax_install_theme() {
 }
 
 /**
- * Ajax handler for updating a theme.
- *
- *
+ * Handles updating a theme via AJAX.
  *
  * @see Theme_Upgrader
  *
@@ -4224,7 +4225,7 @@ function gc_ajax_update_theme() {
 	);
 
 	if ( ! current_user_can( 'update_themes' ) ) {
-		$status['errorMessage'] = __( '抱歉，您不能在此站点上升级主题。' );
+		$status['errorMessage'] = __( '抱歉，您不能在此系统上升级主题。' );
 		gc_send_json_error( $status );
 	}
 
@@ -4289,9 +4290,7 @@ function gc_ajax_update_theme() {
 }
 
 /**
- * Ajax handler for deleting a theme.
- *
- *
+ * Handles deleting a theme via AJAX.
  *
  * @see delete_theme()
  *
@@ -4317,7 +4316,7 @@ function gc_ajax_delete_theme() {
 	);
 
 	if ( ! current_user_can( 'delete_themes' ) ) {
-		$status['errorMessage'] = __( '抱歉，您不能在此站点上删除主题。' );
+		$status['errorMessage'] = __( '抱歉，您不能在此系统上删除主题。' );
 		gc_send_json_error( $status );
 	}
 
@@ -4347,7 +4346,7 @@ function gc_ajax_delete_theme() {
 		gc_send_json_error( $status );
 	}
 
-	include_once ABSPATH . 'gc-admin/includes/theme.php';
+	require_once ABSPATH . 'gc-admin/includes/theme.php';
 
 	$result = delete_theme( $stylesheet );
 
@@ -4363,9 +4362,7 @@ function gc_ajax_delete_theme() {
 }
 
 /**
- * Ajax handler for installing a plugin.
- *
- *
+ * Handles installing a plugin via AJAX.
  *
  * @see Plugin_Upgrader
  *
@@ -4390,12 +4387,12 @@ function gc_ajax_install_plugin() {
 	);
 
 	if ( ! current_user_can( 'install_plugins' ) ) {
-		$status['errorMessage'] = __( '抱歉，您不能在此站点上安装插件。' );
+		$status['errorMessage'] = __( '抱歉，您不能在此系统上安装插件。' );
 		gc_send_json_error( $status );
 	}
 
 	require_once ABSPATH . 'gc-admin/includes/class-gc-upgrader.php';
-	include_once ABSPATH . 'gc-admin/includes/plugin-install.php';
+	require_once ABSPATH . 'gc-admin/includes/plugin-install.php';
 
 	$api = plugins_api(
 		'plugin_information',
@@ -4472,9 +4469,7 @@ function gc_ajax_install_plugin() {
 }
 
 /**
- * Ajax handler for updating a plugin.
- *
- *
+ * Handles updating a plugin via AJAX.
  *
  * @see Plugin_Upgrader
  *
@@ -4503,7 +4498,7 @@ function gc_ajax_update_plugin() {
 	);
 
 	if ( ! current_user_can( 'update_plugins' ) || 0 !== validate_file( $plugin ) ) {
-		$status['errorMessage'] = __( '抱歉，您不能在此站点上升级插件。' );
+		$status['errorMessage'] = __( '抱歉，您不能在此系统上升级插件。' );
 		gc_send_json_error( $status );
 	}
 
@@ -4580,9 +4575,7 @@ function gc_ajax_update_plugin() {
 }
 
 /**
- * Ajax handler for deleting a plugin.
- *
- *
+ * Handles deleting a plugin via AJAX.
  *
  * @see delete_plugins()
  *
@@ -4609,7 +4602,7 @@ function gc_ajax_delete_plugin() {
 	);
 
 	if ( ! current_user_can( 'delete_plugins' ) || 0 !== validate_file( $plugin ) ) {
-		$status['errorMessage'] = __( '抱歉，您不能在此站点上删除插件。' );
+		$status['errorMessage'] = __( '抱歉，您不能在此系统上删除插件。' );
 		gc_send_json_error( $status );
 	}
 
@@ -4618,7 +4611,7 @@ function gc_ajax_delete_plugin() {
 	$status['pluginName'] = $plugin_data['Name'];
 
 	if ( is_plugin_active( $plugin ) ) {
-		$status['errorMessage'] = __( '您不能删除主站点正在使用的插件。' );
+		$status['errorMessage'] = __( '您不能删除主系统正在使用的插件。' );
 		gc_send_json_error( $status );
 	}
 
@@ -4657,9 +4650,7 @@ function gc_ajax_delete_plugin() {
 }
 
 /**
- * Ajax handler for searching plugins.
- *
- *
+ * Handles searching plugins via AJAX.
  *
  * @global string $s Search term.
  */
@@ -4685,7 +4676,7 @@ function gc_ajax_search_plugins() {
 	$status = array();
 
 	if ( ! $gc_list_table->ajax_user_can() ) {
-		$status['errorMessage'] = __( '抱歉，您不能在此站点上管理插件。' );
+		$status['errorMessage'] = __( '抱歉，您不能在此系统上管理插件。' );
 		gc_send_json_error( $status );
 	}
 
@@ -4714,8 +4705,7 @@ function gc_ajax_search_plugins() {
 }
 
 /**
- * Ajax handler for searching plugins to install.
- *
+ * Handles searching plugins to install via AJAX.
  *
  */
 function gc_ajax_search_install_plugins() {
@@ -4737,7 +4727,7 @@ function gc_ajax_search_install_plugins() {
 	$status = array();
 
 	if ( ! $gc_list_table->ajax_user_can() ) {
-		$status['errorMessage'] = __( '抱歉，您不能在此站点上管理插件。' );
+		$status['errorMessage'] = __( '抱歉，您不能在此系统上管理插件。' );
 		gc_send_json_error( $status );
 	}
 
@@ -4764,9 +4754,7 @@ function gc_ajax_search_install_plugins() {
 }
 
 /**
- * Ajax handler for editing a theme or plugin file.
- *
- *
+ * Handles editing a theme or plugin file via AJAX.
  *
  * @see gc_edit_theme_plugin_file()
  */
@@ -4793,8 +4781,7 @@ function gc_ajax_edit_theme_plugin_file() {
 }
 
 /**
- * Ajax handler for exporting a user's personal data.
- *
+ * Handles exporting a user's personal data via AJAX.
  *
  */
 function gc_ajax_gc_privacy_export_personal_data() {
@@ -4844,6 +4831,7 @@ function gc_ajax_gc_privacy_export_personal_data() {
 	/**
 	 * Filters the array of exporter callbacks.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param array $args {
 	 *     An array of callable exporters of personal data. Default empty array.
@@ -4962,6 +4950,7 @@ function gc_ajax_gc_privacy_export_personal_data() {
 	 *
 	 * Allows the export response to be consumed by destinations in addition to Ajax.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param array  $response        The personal data for the given exporter and page.
 	 * @param int    $exporter_index  The index of the exporter that provided this data.
@@ -4981,8 +4970,7 @@ function gc_ajax_gc_privacy_export_personal_data() {
 }
 
 /**
- * Ajax handler for erasing personal data.
- *
+ * Handles erasing personal data via AJAX.
  *
  */
 function gc_ajax_gc_privacy_erase_personal_data() {
@@ -5032,6 +5020,7 @@ function gc_ajax_gc_privacy_erase_personal_data() {
 	/**
 	 * Filters the array of personal data eraser callbacks.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param array $args {
 	 *     An array of callable erasers of personal data. Default empty array.
@@ -5190,6 +5179,7 @@ function gc_ajax_gc_privacy_erase_personal_data() {
 	 *
 	 * Allows the erasure response to be consumed by destinations in addition to Ajax.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param array  $response        The personal data for the given exporter and page.
 	 * @param int    $eraser_index    The index of the eraser that provided this data.
@@ -5208,9 +5198,9 @@ function gc_ajax_gc_privacy_erase_personal_data() {
 }
 
 /**
- * Ajax handler for site health checks on server communication.
+ * Handles site health checks on server communication via AJAX.
  *
- *
+ * @since 5.2.0
  * @deprecated 5.6.0 Use GC_REST_Site_Health_Controller::test_dotorg_communication()
  * @see GC_REST_Site_Health_Controller::test_dotorg_communication()
  */
@@ -5219,7 +5209,7 @@ function gc_ajax_health_check_dotorg_communication() {
 		'gc_ajax_health_check_dotorg_communication',
 		sprintf(
 		// translators: 1: The Site Health action that is no longer used by core. 2: The new function that replaces it.
-			__( '站点健康检查的%1$s已被%2$s代替。' ),
+			__( '系统健康检查的%1$s已被%2$s代替。' ),
 			'gc_ajax_health_check_dotorg_communication',
 			'GC_REST_Site_Health_Controller::test_dotorg_communication'
 		),
@@ -5241,9 +5231,9 @@ function gc_ajax_health_check_dotorg_communication() {
 }
 
 /**
- * Ajax handler for site health checks on background updates.
+ * Handles site health checks on background updates via AJAX.
  *
- *
+ * @since 5.2.0
  * @deprecated 5.6.0 Use GC_REST_Site_Health_Controller::test_background_updates()
  * @see GC_REST_Site_Health_Controller::test_background_updates()
  */
@@ -5252,7 +5242,7 @@ function gc_ajax_health_check_background_updates() {
 		'gc_ajax_health_check_background_updates',
 		sprintf(
 		// translators: 1: The Site Health action that is no longer used by core. 2: The new function that replaces it.
-			__( '站点健康检查的%1$s已被%2$s代替。' ),
+			__( '系统健康检查的%1$s已被%2$s代替。' ),
 			'gc_ajax_health_check_background_updates',
 			'GC_REST_Site_Health_Controller::test_background_updates'
 		),
@@ -5274,9 +5264,9 @@ function gc_ajax_health_check_background_updates() {
 }
 
 /**
- * Ajax handler for site health checks on loopback requests.
+ * Handles site health checks on loopback requests via AJAX.
  *
- *
+ * @since 5.2.0
  * @deprecated 5.6.0 Use GC_REST_Site_Health_Controller::test_loopback_requests()
  * @see GC_REST_Site_Health_Controller::test_loopback_requests()
  */
@@ -5285,7 +5275,7 @@ function gc_ajax_health_check_loopback_requests() {
 		'gc_ajax_health_check_loopback_requests',
 		sprintf(
 		// translators: 1: The Site Health action that is no longer used by core. 2: The new function that replaces it.
-			__( '站点健康检查的%1$s已被%2$s代替。' ),
+			__( '系统健康检查的%1$s已被%2$s代替。' ),
 			'gc_ajax_health_check_loopback_requests',
 			'GC_REST_Site_Health_Controller::test_loopback_requests'
 		),
@@ -5307,9 +5297,9 @@ function gc_ajax_health_check_loopback_requests() {
 }
 
 /**
- * Ajax handler for site health check to update the result status.
+ * Handles site health check to update the result status via AJAX.
  *
- *
+ * @since 5.2.0
  */
 function gc_ajax_health_check_site_status_result() {
 	check_ajax_referer( 'health-check-site-status-result' );
@@ -5324,9 +5314,9 @@ function gc_ajax_health_check_site_status_result() {
 }
 
 /**
- * Ajax handler for site health check to get directories and database sizes.
+ * Handles site health check to get directories and database sizes via AJAX.
  *
- *
+ * @since 5.2.0
  * @deprecated 5.6.0 Use GC_REST_Site_Health_Controller::get_directory_sizes()
  * @see GC_REST_Site_Health_Controller::get_directory_sizes()
  */
@@ -5335,7 +5325,7 @@ function gc_ajax_health_check_get_sizes() {
 		'gc_ajax_health_check_get_sizes',
 		sprintf(
 		// translators: 1: The Site Health action that is no longer used by core. 2: The new function that replaces it.
-			__( '站点健康检查的%1$s已被%2$s代替。' ),
+			__( '系统健康检查的%1$s已被%2$s代替。' ),
 			'gc_ajax_health_check_get_sizes',
 			'GC_REST_Site_Health_Controller::get_directory_sizes'
 		),
@@ -5390,18 +5380,18 @@ function gc_ajax_health_check_get_sizes() {
 }
 
 /**
- * Ajax handler to renew the REST API nonce.
+ * Handles renewing the REST API nonce via AJAX.
  *
- *
+ * @since 5.3.0
  */
 function gc_ajax_rest_nonce() {
 	exit( gc_create_nonce( 'gc_rest' ) );
 }
 
 /**
- * Ajax handler to enable or disable plugin and theme auto-updates.
+ * Handles enabling or disable plugin and theme auto-updates via AJAX.
  *
- *
+ * @since 5.5.0
  */
 function gc_ajax_toggle_auto_updates() {
 	check_ajax_referer( 'updates' );
@@ -5469,9 +5459,9 @@ function gc_ajax_toggle_auto_updates() {
 }
 
 /**
- * Ajax handler sends a password reset link.
+ * Handles sending a password reset link via AJAX.
  *
- *
+ * @since 5.7.0
  */
 function gc_ajax_send_password_reset() {
 

@@ -4,14 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Core class used to implement displaying users in a list table for the network admin.
- *
- *
- * @access private
  *
  * @see GC_List_Table
  */
@@ -115,7 +111,7 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 			$actions['delete'] = __( '删除' );
 		}
 		$actions['spam']    = _x( '标记为垃圾评论', 'user' );
-		$actions['notspam'] = _x( '标记为非垃圾用户', 'user' );
+		$actions['notspam'] = _x( '不是垃圾评论', 'user' );
 
 		return $actions;
 	}
@@ -137,13 +133,10 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 		$super_admins = get_super_admins();
 		$total_admins = count( $super_admins );
 
-		$current_link_attributes = 'super' !== $role ? ' class="current" aria-current="page"' : '';
-		$role_links              = array();
-		$role_links['all']       = sprintf(
-			'<a href="%s"%s>%s</a>',
-			network_admin_url( 'users.php' ),
-			$current_link_attributes,
-			sprintf(
+		$role_links        = array();
+		$role_links['all'] = array(
+			'url'     => network_admin_url( 'users.php' ),
+			'label'   => sprintf(
 				/* translators: Number of users. */
 				_nx(
 					'全部<span class="count">（%s）</span>',
@@ -152,14 +145,13 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 					'users'
 				),
 				number_format_i18n( $total_users )
-			)
+			),
+			'current' => 'super' !== $role,
 		);
-		$current_link_attributes = 'super' === $role ? ' class="current" aria-current="page"' : '';
-		$role_links['super']     = sprintf(
-			'<a href="%s"%s>%s</a>',
-			network_admin_url( 'users.php?role=super' ),
-			$current_link_attributes,
-			sprintf(
+
+		$role_links['super'] = array(
+			'url'     => network_admin_url( 'users.php?role=super' ),
+			'label'   => sprintf(
 				/* translators: Number of users. */
 				_n(
 					'超级管理员<span class="count">（%s）</span>',
@@ -167,10 +159,11 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 					$total_admins
 				),
 				number_format_i18n( $total_admins )
-			)
+			),
+			'current' => 'super' === $role,
 		);
 
-		return $role_links;
+		return $this->get_views_links( $role_links );
 	}
 
 	/**
@@ -189,21 +182,21 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * @return array
+	 * @return string[] Array of column titles keyed by their column name.
 	 */
 	public function get_columns() {
 		$users_columns = array(
 			'cb'         => '<input type="checkbox" />',
 			'username'   => __( '用户名' ),
-			'name'       => __( '显示名称' ),
+			'name'       => __( '名称' ),
 			'email'      => __( '电子邮箱' ),
 			'registered' => _x( '已注册', 'user' ),
-			'blogs'      => __( '站点' ),
+			'blogs'      => __( '系统' ),
 		);
 		/**
 		 * Filters the columns displayed in the Network Admin Users list table.
 		 *
-		 * @since MU
+		 * @since MU (3.0.0)
 		 *
 		 * @param string[] $users_columns An array of user columns. Default 'cb', 'username',
 		 *                                'name', 'email', 'registered', 'blogs'.
@@ -216,16 +209,18 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 	 */
 	protected function get_sortable_columns() {
 		return array(
-			'username'   => 'login',
-			'name'       => 'name',
-			'email'      => 'email',
-			'registered' => 'id',
+			'username'   => array( 'login', false, __( '用户名' ), __( '表格按用户名排序。' ), 'asc' ),
+			'name'       => array( 'name', false, __( '名称' ), __( '表格按名称排序。' ) ),
+			'email'      => array( 'email', false, __( '邮箱' ), __( '表格通过邮箱地址排序。' ) ),
+			'registered' => array( 'id', false, _x( '已注册', 'user' ), __( '表按用户注册日期排序。' ) ),
 		);
 	}
 
 	/**
 	 * Handles the checkbox column output.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$user` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_User $item The current GC_User object.
 	 */
@@ -237,11 +232,13 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 			return;
 		}
 		?>
-		<label class="screen-reader-text" for="blog_<?php echo $user->ID; ?>">
+		<label class="label-covers-full-cell" for="blog_<?php echo $user->ID; ?>">
+			<span class="screen-reader-text">
 			<?php
-			/* translators: %s: User login. */
+			/* translators: Hidden accessibility text. %s: User login. */
 			printf( __( '选择%s' ), $user->user_login );
 			?>
+			</span>
 		</label>
 		<input type="checkbox" id="blog_<?php echo $user->ID; ?>" name="allusers[]" value="<?php echo esc_attr( $user->ID ); ?>" />
 		<?php
@@ -250,6 +247,7 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 	/**
 	 * Handles the ID column output.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param GC_User $user The current GC_User object.
 	 */
@@ -260,6 +258,7 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 	/**
 	 * Handles the username column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param GC_User $user The current GC_User object.
 	 */
@@ -292,24 +291,34 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 	/**
 	 * Handles the name column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param GC_User $user The current GC_User object.
 	 */
 	public function column_name( $user ) {
 		if ( $user->first_name && $user->last_name ) {
-			echo "$user->first_name $user->last_name";
+			printf(
+				/* translators: 1: User's first name, 2: Last name. */
+				_x( '%2$s, %1$s', 'Display name based on first name and last name' ),
+				$user->first_name,
+				$user->last_name
+			);
 		} elseif ( $user->first_name ) {
 			echo $user->first_name;
 		} elseif ( $user->last_name ) {
 			echo $user->last_name;
 		} else {
-			echo '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . _x( '未知', 'name' ) . '</span>';
+			echo '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' .
+				/* translators: Hidden accessibility text. */
+				_x( '未知', 'name' ) .
+			'</span>';
 		}
 	}
 
 	/**
 	 * Handles the email column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param GC_User $user The current GC_User object.
 	 */
@@ -320,6 +329,7 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 	/**
 	 * Handles the registered date column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @global string $mode List table view mode.
 	 *
@@ -336,6 +346,7 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 	}
 
 	/**
+	 * @since 4.3.0
 	 *
 	 * @param GC_User $user
 	 * @param string  $classes
@@ -352,6 +363,7 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 	/**
 	 * Handles the sites column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param GC_User $user The current GC_User object.
 	 */
@@ -371,7 +383,7 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 			/**
 			 * Filters the span class for a site listing on the mulisite user list table.
 			 *
-		
+			 * @since 5.2.0
 			 *
 			 * @param string[] $site_classes Array of class names used within the span tag. Default "site-#" with the site's network ID.
 			 * @param int      $site_id      Site ID.
@@ -410,7 +422,7 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 			 * Filters the action links displayed next the sites a user belongs to
 			 * in the Network Admin Users list table.
 			 *
-		
+			 * @since 3.1.0
 			 *
 			 * @param string[] $actions     An array of action links to be displayed. Default 'Edit', 'View'.
 			 * @param int      $userblog_id The site ID.
@@ -424,18 +436,20 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 			foreach ( $actions as $action => $link ) {
 				++$i;
 
-				$sep = ( $i < $action_count ) ? ' | ' : '';
+				$separator = ( $i < $action_count ) ? ' | ' : '';
 
-				echo "<span class='$action'>$link$sep</span>";
+				echo "<span class='$action'>{$link}{$separator}</span>";
 			}
 
-			echo '</small></span><br/>';
+			echo '</small></span><br />';
 		}
 	}
 
 	/**
 	 * Handles the default column output.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$user` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_User $item        The current GC_User object.
 	 * @param string  $column_name The current column name.
@@ -476,6 +490,7 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 	/**
 	 * Gets the name of the default primary column.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @return string Name of the default primary column, in this case, 'username'.
 	 */
@@ -486,6 +501,8 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 	/**
 	 * Generates and displays row action links.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$user` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_User $item        User being acted upon.
 	 * @param string  $column_name Current column name.
@@ -516,6 +533,7 @@ class GC_MS_Users_List_Table extends GC_List_Table {
 		/**
 		 * Filters the action links displayed under each user in the Network Admin Users list table.
 		 *
+		 * @since 3.2.0
 		 *
 		 * @param string[] $actions An array of action links to be displayed. Default 'Edit', 'Delete'.
 		 * @param GC_User  $user    GC_User object.

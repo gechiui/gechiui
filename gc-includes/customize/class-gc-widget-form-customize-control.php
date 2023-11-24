@@ -4,13 +4,12 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Widget Form Customize Control class.
  *
- *
+ * @since 3.9.0
  *
  * @see GC_Customize_Control
  */
@@ -120,6 +119,7 @@ class GC_Widget_Form_Customize_Control extends GC_Customize_Control {
 	/**
 	 * Whether the current widget is rendered on the page.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @return bool Whether the widget is rendered.
 	 */

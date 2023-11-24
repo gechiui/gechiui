@@ -21,7 +21,6 @@ _deprecated_file( basename( __FILE__ ), '3.0.0', GCINC . '/class-simplepie.php' 
 /**
  * Fires before MagpieRSS is loaded, to optionally replace it.
  *
- *
  * @deprecated 3.0.0
  */
 do_action( 'load_feed_engine' );
@@ -195,7 +194,7 @@ class MagpieRSS {
 			array_unshift( $this->stack, $el );
 		}
 
-		// Atom support many links per containging element.
+		// Atom support many links per containing element.
 		// Magpie treats link elements of type rel='alternate'
 		// as being equivalent to RSS's simple link element.
 		//
@@ -338,7 +337,7 @@ class MagpieRSS {
 	function normalize () {
 		// if atom populate rss fields
 		if ( $this->is_atom() ) {
-			$this->channel['descripton'] = $this->channel['tagline'];
+			$this->channel['description'] = $this->channel['tagline'];
 			for ( $i = 0; $i < count($this->items); $i++) {
 				$item = $this->items[$i];
 				if ( isset($item['summary']) )
@@ -398,7 +397,6 @@ class MagpieRSS {
 if ( !function_exists('fetch_rss') ) :
 /**
  * Build Magpie object based on RSS from URL.
- *
  *
  * @package External
  * @subpackage MagpieRSS
@@ -500,7 +498,7 @@ function fetch_rss ($url) {
 			else {
 				$errormsg = "Failed to fetch $url. ";
 				if ( $resp->error ) {
-					# compensate for Snoopy's annoying habbit to tacking
+					# compensate for Snoopy's annoying habit to tacking
 					# on '\n'
 					$http_error = substr($resp->error, 0, -2);
 					$errormsg .= "(HTTP Error: $http_error)";
@@ -536,12 +534,11 @@ endif;
 /**
  * Retrieve URL headers and content using GC HTTP Request API.
  *
- *
  * @package External
  * @subpackage MagpieRSS
  *
  * @param string $url URL to retrieve
- * @param array $headers Optional. Headers to send to the URL.
+ * @param array $headers Optional. Headers to send to the URL. Default empty string.
  * @return Snoopy style response
  */
 function _fetch_remote_file($url, $headers = "" ) {
@@ -579,7 +576,6 @@ function _fetch_remote_file($url, $headers = "" ) {
 
 /**
  * Retrieve
- *
  *
  * @package External
  * @subpackage MagpieRSS
@@ -629,7 +625,6 @@ function _response_to_rss ($resp) {
 
 /**
  * Set up constants with default values, unless user overrides.
- *
  *
  * @package External
  * @subpackage MagpieRSS
@@ -761,7 +756,7 @@ class RSSCache {
 
 		if ( ! $rss = get_transient( $cache_option ) ) {
 			$this->debug(
-				"Cache doesn't contain: $url (cache option: $cache_option)"
+				"Cache does not contain: $url (cache option: $cache_option)"
 			);
 			return 0;
 		}
@@ -836,7 +831,7 @@ class RSSCache {
 if ( !function_exists('parse_w3cdtf') ) :
 function parse_w3cdtf ( $date_str ) {
 
-	# regex to match wc3dtf
+	# regex to match W3C date/time formats
 	$pat = "/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(:(\d{2}))?(?:([-+])(\d{2}):?(\d{2})|(Z))?/";
 
 	if ( preg_match( $pat, $date_str, $match ) ) {
@@ -881,7 +876,6 @@ if ( !function_exists('gc_rss') ) :
 /**
  * Display all RSS items in a HTML ordered list.
  *
- *
  * @package External
  * @subpackage MagpieRSS
  *
@@ -920,7 +914,6 @@ if ( !function_exists('get_rss') ) :
  * before using the function. You also have to specify how many items you wish
  * to display. You can't display all of them like you can with gc_rss()
  * function.
- *
  *
  * @package External
  * @subpackage MagpieRSS

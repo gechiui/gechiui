@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/editor-expand.js
+ * @output assets/js/editor-expand.js
  */
 
 ( function( window, $, undefined ) {
@@ -13,6 +13,7 @@
 	/**
 	 * Handles the resizing of the editor.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @return {void}
 	 */
@@ -67,6 +68,7 @@
 		 *
 		 * Doesn't shrink the editor size below the 300px auto resize minimum height.
 		 *
+		 * @since 4.6.1
 		 *
 		 * @return {void}
 		 */
@@ -98,6 +100,7 @@
 		 * the old text length, it shrinks the text area. Otherwise it resizes the editor to
 		 * the scroll height.
 		 *
+		 * @since 4.6.1
 		 *
 		 * @return {void}
 		 */
@@ -130,6 +133,7 @@
 		 * and stores these in the heights object. Defaults to 0.
 		 * Gets the width of the window and stores this in the heights object.
 		 *
+		 * @since 4.0.0
 		 *
 		 * @return {void}
 		 */
@@ -160,6 +164,7 @@
 		 * Binds all necessary functions for editor expand to the editor when the editor
 		 * is initialized.
 		 *
+		 * @since 4.0.0
 		 *
 		 * @param {event} event The TinyMCE editor init event.
 		 * @param {object} editor The editor to bind the vents on.
@@ -232,7 +237,7 @@
 			/**
 			 * Filters the special keys that should not be used for scrolling.
 			 *
-		
+			 * @since 4.0.0
 			 *
 			 * @param {event} event The event to get the key code from.
 			 *
@@ -262,7 +267,7 @@
 			 * Some browsers will scroll to the middle,
 			 * others to the top/bottom of the *window* when moving the cursor out of the viewport.
 			 *
-		
+			 * @since 4.1.0
 			 *
 			 * @param {string} key The key code of the pressed key.
 			 *
@@ -323,7 +328,7 @@
 			/**
 			 * If the editor is fullscreen, calls adjust.
 			 *
-		
+			 * @since 4.1.0
 			 *
 			 * @param {event} event The FullscreenStateChanged event.
 			 *
@@ -342,7 +347,7 @@
 			 * Binds the hideFloatPanels function on the window scroll.mce-float-panels event.
 			 * Executes the gcAutoResize on the active editor.
 			 *
-		
+			 * @since 4.0.0
 			 *
 			 * @return {void}
 			 */
@@ -361,7 +366,7 @@
 			 * Removes all functions from the window scroll.mce-float-panels event.
 			 * Resizes the text editor and scrolls to a position based on the pageXOffset and adminBarHeight.
 			 *
-		
+			 * @since 4.0.0
 			 *
 			 * @return {void}
 			 */
@@ -385,7 +390,7 @@
 			/**
 			 * Toggles advanced states.
 			 *
-		
+			 * @since 4.1.0
 			 *
 			 * @return {void}
 			 */
@@ -396,7 +401,7 @@
 			/**
 			 * Binds events of the editor and window.
 			 *
-		
+			 * @since 4.0.0
 			 *
 			 * @return {void}
 			 */
@@ -421,7 +426,7 @@
 			/**
 			 * Unbinds the events of the editor and window.
 			 *
-		
+			 * @since 4.0.0
 			 *
 			 * @return {void}
 			 */
@@ -452,6 +457,7 @@
 		 * the page, the active editor mode and the heights of the editor, admin bar and
 		 * side bar.
 		 *
+		 * @since 4.0.0
 		 *
 		 * @param {event} event The event that calls this function.
 		 *
@@ -765,6 +771,7 @@
 		/**
 		 * Resizes the editor and adjusts the toolbars.
 		 *
+		 * @since 4.0.0
 		 *
 		 * @return {void}
 		 */
@@ -776,6 +783,7 @@
 		/**
 		 * Runs the passed function with 500ms intervals.
 		 *
+		 * @since 4.0.0
 		 *
 		 * @param {function} callback The function to run in the timeout.
 		 *
@@ -790,6 +798,7 @@
 		/**
 		 * Runs adjust after 100ms.
 		 *
+		 * @since 4.0.0
 		 *
 		 * @return {void}
 		 */
@@ -801,6 +810,7 @@
 		/**
 		 * Binds editor expand events on elements.
 		 *
+		 * @since 4.0.0
 		 *
 		 * @return {void}
 		 */
@@ -870,6 +880,7 @@
 		/**
 		 * Unbinds editor expand events.
 		 *
+		 * @since 4.0.0
 		 *
 		 * @return {void}
 		 */
@@ -963,6 +974,7 @@
 	/**
 	 * Handles the distraction free writing of TinyMCE.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return {void}
 	 */
@@ -1012,6 +1024,7 @@
 		/**
 		 * Recalculates the bottom and right position of the editor in the DOM.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {void}
 		 */
@@ -1024,6 +1037,7 @@
 		/**
 		 * Activates the distraction free writing mode.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {void}
 		 */
@@ -1039,6 +1053,7 @@
 		/**
 		 * Deactivates the distraction free writing mode.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {void}
 		 */
@@ -1056,6 +1071,7 @@
 		/**
 		 * Returns _isActive.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {boolean} Returns true is _isActive is true.
 		 */
@@ -1066,6 +1082,7 @@
 		/**
 		 * Binds events on the editor for distraction free writing.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {void}
 		 */
@@ -1088,6 +1105,7 @@
 		/**
 		 * Unbinds events on the editor for distraction free writing.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {void}
 		 */
@@ -1110,6 +1128,7 @@
 		/**
 		 * Binds or unbinds the editor expand events.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {void}
 		 */
@@ -1124,6 +1143,7 @@
 		/**
 		 * Returns the value of _isOn.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {boolean} Returns true if _isOn is true.
 		 */
@@ -1138,6 +1158,7 @@
 		 * Also calls the fadeIn on certain key presses
 		 * or if the mouse leaves the editor.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param event The event that triggers this function.
 		 *
@@ -1276,6 +1297,7 @@
 		/**
 		 * Fades all elements back in.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param event The event that triggers this function.
 		 *
@@ -1323,6 +1345,7 @@
 		/**
 		 * Fades in if the focused element based on it position.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {void}
 		 */
@@ -1344,6 +1367,7 @@
 		/**
 		 * Fades out the admin bar based on focus on the admin bar.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {void}
 		 */
@@ -1364,6 +1388,7 @@
 		/**
 		 * Fades in the admin bar.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {void}
 		 */
@@ -1378,6 +1403,7 @@
 		/**
 		 * Fades out the edit slug box.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {void}
 		 */
@@ -1394,6 +1420,7 @@
 		/**
 		 * Fades in the edit slug box.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @return {void}
 		 */
@@ -1412,6 +1439,7 @@
 		 *
 		 * Keycode 87 = w.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param {event} event The event to trigger the toggle.
 		 *
@@ -1430,6 +1458,7 @@
 		/**
 		 * Adds the distraction free writing button when setting up TinyMCE.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param {event} event The TinyMCE editor setup event.
 		 * @param {object} editor The editor to add the button to.
@@ -1478,6 +1507,7 @@
 		/**
 		 * Binds and unbinds events on the editor.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param {event} event The TinyMCE editor init event.
 		 * @param {object} editor The editor to bind events on.
@@ -1534,6 +1564,7 @@
 		/**
 		 *  Binds events on quicktags init.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param {event} event The quicktags init event.
 		 * @param {object} editor The editor to bind events on.

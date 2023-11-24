@@ -4,15 +4,12 @@
  *
  * @package GeChiUI
  * @subpackage oEmbed
- *
  */
 
 /**
  * Registers an embed handler.
  *
  * Should probably only be used for sites that do not support oEmbed.
- *
- *
  *
  * @global GC_Embed $gc_embed
  *
@@ -29,8 +26,6 @@ function gc_embed_register_handler( $id, $regex, $callback, $priority = 10 ) {
 
 /**
  * Unregisters a previously-registered embed handler.
- *
- *
  *
  * @global GC_Embed $gc_embed
  *
@@ -51,8 +46,6 @@ function gc_embed_unregister_handler( $id, $priority = 10 ) {
  * The default height is 1.5 times the width, or 1000px, whichever is smaller.
  *
  * The {@see 'embed_defaults'} filter can be used to adjust either of these values.
- *
- *
  *
  * @global int $content_width
  *
@@ -78,6 +71,7 @@ function gc_embed_defaults( $url = '' ) {
 	/**
 	 * Filters the default array of embed dimensions.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param int[]  $size {
 	 *     Indexed array of the embed width and height in pixels.
@@ -92,8 +86,6 @@ function gc_embed_defaults( $url = '' ) {
 
 /**
  * Attempts to fetch the embed HTML for a provided URL using oEmbed.
- *
- *
  *
  * @see GC_oEmbed
  *
@@ -117,7 +109,6 @@ function gc_oembed_get( $url, $args = '' ) {
 /**
  * Returns the initialized GC_oEmbed object.
  *
- *
  * @access private
  *
  * @return GC_oEmbed object.
@@ -133,8 +124,6 @@ function _gc_oembed_get_object() {
 
 /**
  * Adds a URL format and oEmbed provider URL pair.
- *
- *
  *
  * @see GC_oEmbed
  *
@@ -154,8 +143,6 @@ function gc_oembed_add_provider( $format, $provider, $regex = false ) {
 
 /**
  * Removes an oEmbed provider.
- *
- *
  *
  * @see GC_oEmbed
  *
@@ -183,8 +170,6 @@ function gc_oembed_remove_provider( $format ) {
  * Checks to make sure that the embeds library hasn't already been loaded. If
  * it hasn't, then it will load the embeds library.
  *
- *
- *
  * @see gc_embed_register_handler()
  */
 function gc_maybe_load_embeds() {
@@ -193,6 +178,7 @@ function gc_maybe_load_embeds() {
 	 *
 	 * Returning a falsey value will prevent loading the default embed handlers.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param bool $maybe_load_embeds Whether to load the embeds library. Default true.
 	 */
@@ -200,11 +186,12 @@ function gc_maybe_load_embeds() {
 		return;
 	}
 
-	gc_embed_register_handler( 'youtube_embed_url', '#https?://(www.)?youtube\.com/(?:v|embed)/([^/]+)#i', 'gc_embed_handler_youtube' );
+	gc_embed_register_handler( 'youku_embed_url', '#https?://(player.)?youku\.com/(?:v|embed)/([^/]+)#i', 'gc_embed_handler_youku' );
 
 	/**
 	 * Filters the audio embed handler callback.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param callable $handler Audio embed handler callback function.
 	 */
@@ -213,6 +200,7 @@ function gc_maybe_load_embeds() {
 	/**
 	 * Filters the video embed handler callback.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param callable $handler Video embed handler callback function.
 	 */
@@ -220,11 +208,11 @@ function gc_maybe_load_embeds() {
 }
 
 /**
- * YouTube iframe embed handler callback.
+ * YouKu iframe embed handler callback.
  *
- * Catches YouTube iframe embed URLs that are not parsable by oEmbed but can be translated into a URL that is.
+ * Catches YouKu iframe embed URLs that are not parsable by oEmbed but can be translated into a URL that is.
  *
- *
+ * @since 4.0.0
  *
  * @global GC_Embed $gc_embed
  *
@@ -235,28 +223,27 @@ function gc_maybe_load_embeds() {
  * @param array  $rawattr The original unmodified attributes.
  * @return string The embed HTML.
  */
-function gc_embed_handler_youtube( $matches, $attr, $url, $rawattr ) {
+function gc_embed_handler_youku( $matches, $attr, $url, $rawattr ) {
 	global $gc_embed;
-	$embed = $gc_embed->autoembed( sprintf( 'https://youtube.com/watch?v=%s', urlencode( $matches[2] ) ) );
+	$embed = $gc_embed->autoembed( sprintf( 'https://youku.com/watch?v=%s', urlencode( $matches[2] ) ) );
 
 	/**
 	 * Filters the YoutTube embed output.
 	 *
+	 * @since 4.0.0
 	 *
-	 * @see gc_embed_handler_youtube()
+	 * @see gc_embed_handler_youku()
 	 *
-	 * @param string $embed   YouTube embed output.
+	 * @param string $embed   YouKu embed output.
 	 * @param array  $attr    An array of embed attributes.
 	 * @param string $url     The original URL that was matched by the regex.
 	 * @param array  $rawattr The original unmodified attributes.
 	 */
-	return apply_filters( 'gc_embed_handler_youtube', $embed, $attr, $url, $rawattr );
+	return apply_filters( 'gc_embed_handler_youku', $embed, $attr, $url, $rawattr );
 }
 
 /**
  * Audio embed handler callback.
- *
- *
  *
  * @param array  $matches The RegEx matches from the provided regex when calling gc_embed_register_handler().
  * @param array  $attr Embed attributes.
@@ -270,6 +257,7 @@ function gc_embed_handler_audio( $matches, $attr, $url, $rawattr ) {
 	/**
 	 * Filters the audio embed output.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param string $audio   Audio embed output.
 	 * @param array  $attr    An array of embed attributes.
@@ -281,8 +269,6 @@ function gc_embed_handler_audio( $matches, $attr, $url, $rawattr ) {
 
 /**
  * Video embed handler callback.
- *
- *
  *
  * @param array  $matches The RegEx matches from the provided regex when calling gc_embed_register_handler().
  * @param array  $attr    Embed attributes.
@@ -301,6 +287,7 @@ function gc_embed_handler_video( $matches, $attr, $url, $rawattr ) {
 	/**
 	 * Filters the video embed output.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param string $video   Video embed output.
 	 * @param array  $attr    An array of embed attributes.
@@ -313,7 +300,6 @@ function gc_embed_handler_video( $matches, $attr, $url, $rawattr ) {
 /**
  * Registers the oEmbed REST API route.
  *
- *
  */
 function gc_oembed_register_route() {
 	$controller = new GC_oEmbed_Controller();
@@ -321,8 +307,7 @@ function gc_oembed_register_route() {
 }
 
 /**
- * Adds oEmbed discovery links in the website <head>.
- *
+ * Adds oEmbed discovery links in the head element of the website.
  *
  */
 function gc_oembed_add_discovery_links() {
@@ -339,6 +324,7 @@ function gc_oembed_add_discovery_links() {
 	/**
 	 * Filters the oEmbed discovery links HTML.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $output HTML of the discovery links.
 	 */
@@ -361,7 +347,6 @@ function gc_oembed_add_discovery_links() {
  * in `gc_maybe_enqueue_oembed_host_js()` to see if `gc_oembed_add_host_js()` has not been unhooked from running at the
  * `gc_head` action.
  *
- *
  * @deprecated 5.9.0 Use {@see gc_maybe_enqueue_oembed_host_js()} instead.
  */
 function gc_oembed_add_host_js() {}
@@ -372,7 +357,7 @@ function gc_oembed_add_host_js() {}
  * In order to only enqueue the gc-embed script on pages that actually contain post embeds, this function checks if the
  * provided HTML contains post embed markup and if so enqueues the script so that it will get printed in the footer.
  *
- *
+ * @since 5.9.0
  *
  * @param string $html Embed markup.
  * @return string Embed markup (without modifications).
@@ -390,8 +375,6 @@ function gc_maybe_enqueue_oembed_host_js( $html ) {
 
 /**
  * Retrieves the URL to embed a specific post in an iframe.
- *
- *
  *
  * @param int|GC_Post $post Optional. Post ID or object. Defaults to the current post.
  * @return string|false The post embed URL on success, false if the post doesn't exist.
@@ -413,19 +396,18 @@ function get_post_embed_url( $post = null ) {
 	/**
 	 * Filters the URL to embed a specific post.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string  $embed_url The post embed URL.
 	 * @param GC_Post $post      The corresponding post object.
 	 */
-	return esc_url_raw( apply_filters( 'post_embed_url', $embed_url, $post ) );
+	return sanitize_url( apply_filters( 'post_embed_url', $embed_url, $post ) );
 }
 
 /**
  * Retrieves the oEmbed endpoint URL for a given permalink.
  *
  * Pass an empty string as the first argument to get the endpoint base URL.
- *
- *
  *
  * @param string $permalink Optional. The permalink used for the `url` query arg. Default empty.
  * @param string $format    Optional. The requested response format. Default 'json'.
@@ -447,6 +429,7 @@ function get_oembed_endpoint_url( $permalink = '', $format = 'json' ) {
 	/**
 	 * Filters the oEmbed endpoint URL.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $url       The URL to the oEmbed endpoint.
 	 * @param string $permalink The permalink used for the `url` query arg.
@@ -457,8 +440,6 @@ function get_oembed_endpoint_url( $permalink = '', $format = 'json' ) {
 
 /**
  * Retrieves the embed code for a specific post.
- *
- *
  *
  * @param int         $width  The width for the response.
  * @param int         $height The height for the response.
@@ -500,18 +481,21 @@ function get_post_embed_html( $width, $height, $post = null ) {
 		esc_attr( $secret )
 	);
 
-	// Note that the script must be placed after the <blockquote> and <iframe> due to a regexp parsing issue in
-	// `gc_filter_oembed_result()`. Because of the regex pattern starts with `|(<blockquote>.*?</blockquote>)?.*|`
-	// wherein the <blockquote> is marked as being optional, if it is not at the beginning of the string then the group
-	// will fail to match and everything will be matched by `.*` and not included in the group. This regex issue goes
-	// back to GeChiUI 4.4, so in order to not break older installs this script must come at the end.
+	/*
+	 * Note that the script must be placed after the <blockquote> and <iframe> due to a regexp parsing issue in
+	 * `gc_filter_oembed_result()`. Because of the regex pattern starts with `|(<blockquote>.*?</blockquote>)?.*|`
+	 * wherein the <blockquote> is marked as being optional, if it is not at the beginning of the string then the group
+	 * will fail to match and everything will be matched by `.*` and not included in the group. This regex issue goes
+	 * back to GeChiUI 4.4, so in order to not break older installs this script must come at the end.
+	 */
 	$output .= gc_get_inline_script_tag(
-		file_get_contents( ABSPATH . '/assets/js/gc-embed' . gc_scripts_get_suffix() . '.js' )
+		file_get_contents( ABSPATH . GCINC . '/js/gc-embed' . gc_scripts_get_suffix() . '.js' )
 	);
 
 	/**
 	 * Filters the embed HTML output for a given post.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string  $output The default iframe tag to display embedded content.
 	 * @param GC_Post $post   Current post object.
@@ -524,9 +508,7 @@ function get_post_embed_html( $width, $height, $post = null ) {
 /**
  * Retrieves the oEmbed response data for a given post.
  *
- *
- *
- * @param GC_Post|int $post  Post object or ID.
+ * @param GC_Post|int $post  Post ID or post object.
  * @param int         $width The requested width.
  * @return array|false Response data on success, false if post doesn't exist
  *                     or is not publicly viewable.
@@ -546,6 +528,7 @@ function get_oembed_response_data( $post, $width ) {
 	/**
 	 * Filters the allowed minimum and maximum widths for the oEmbed response.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $min_max_width {
 	 *     Minimum and maximum widths for the oEmbed response.
@@ -585,6 +568,7 @@ function get_oembed_response_data( $post, $width ) {
 	/**
 	 * Filters the oEmbed response data.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array   $data   The response data.
 	 * @param GC_Post $post   The post object.
@@ -598,7 +582,7 @@ function get_oembed_response_data( $post, $width ) {
 /**
  * Retrieves the oEmbed response data for a given URL.
  *
- *
+ * @since 5.0.0
  *
  * @param string $url  The URL that should be inspected for discovery `<link>` tags.
  * @param array  $args oEmbed remote get arguments.
@@ -674,8 +658,6 @@ function get_oembed_response_data_for_url( $url, $args ) {
 /**
  * Filters the oEmbed response data to return an iframe embed code.
  *
- *
- *
  * @param array   $data   The response data.
  * @param GC_Post $post   The post object.
  * @param int     $width  The requested width.
@@ -717,8 +699,6 @@ function get_oembed_response_data_rich( $data, $post, $width, $height ) {
 /**
  * Ensures that the specified format is either 'json' or 'xml'.
  *
- *
- *
  * @param string $format The oEmbed response format. Accepts 'json' or 'xml'.
  * @return string The format, either 'xml' or 'json'. Default 'json'.
  */
@@ -737,7 +717,6 @@ function gc_oembed_ensure_format( $format ) {
  * which supports both formats.
  *
  * @access private
- *
  *
  * @param bool             $served  Whether the request has already been served.
  * @param GC_HTTP_Response $result  Result to send to the client. Usually a `GC_REST_Response`.
@@ -784,7 +763,6 @@ function _oembed_rest_pre_serve_request( $served, $result, $request, $server ) {
 /**
  * Creates an XML string from a given array.
  *
- *
  * @access private
  *
  * @param array            $data The original oEmbed response data.
@@ -819,7 +797,7 @@ function _oembed_create_xml( $data, $node = null ) {
 /**
  * Filters the given oEmbed HTML to make sure iframes have a title attribute.
  *
- *
+ * @since 5.2.0
  *
  * @param string $result The oEmbed HTML result.
  * @param object $data   A data object result from an oEmbed provider.
@@ -856,6 +834,7 @@ function gc_filter_oembed_iframe_title_attribute( $result, $data, $url ) {
 	/**
 	 * Filters the title attribute of the given oEmbed HTML iframe.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param string $title  The title attribute.
 	 * @param string $result The oEmbed HTML result.
@@ -884,8 +863,6 @@ function gc_filter_oembed_iframe_title_attribute( $result, $data, $url ) {
  * we need to filter the HTML heavily for security.
  *
  * Only filters 'rich' and 'video' response types.
- *
- *
  *
  * @param string $result The oEmbed HTML result.
  * @param object $data   A data object result from an oEmbed provider.
@@ -964,8 +941,6 @@ function gc_filter_oembed_result( $result, $data, $url ) {
  * Replaces '[...]' (appended to automatically generated excerpts) with an
  * ellipsis and a "Continue reading" link in the embed template.
  *
- *
- *
  * @param string $more_string Default 'more' string.
  * @return string 'Continue reading' link prepended with an ellipsis.
  */
@@ -988,7 +963,6 @@ function gc_embed_excerpt_more( $more_string ) {
  *
  * Intended to be used in 'The Loop'.
  *
- *
  */
 function the_excerpt_embed() {
 	$output = get_the_excerpt();
@@ -996,6 +970,7 @@ function the_excerpt_embed() {
 	/**
 	 * Filters the post excerpt for the embed template.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $output The current post excerpt.
 	 */
@@ -1006,8 +981,6 @@ function the_excerpt_embed() {
  * Filters the post excerpt for the embed template.
  *
  * Shows players for video and audio attachments.
- *
- *
  *
  * @param string $content The current post excerpt.
  * @return string The modified post excerpt.
@@ -1028,7 +1001,6 @@ function gc_embed_excerpt_attachment( $content ) {
  * Allows plugins to queue scripts for the embed iframe end using gc_enqueue_script().
  * Runs first in oembed_head().
  *
- *
  */
 function enqueue_embed_scripts() {
 	gc_enqueue_style( 'gc-embed-template-ie' );
@@ -1036,6 +1008,7 @@ function enqueue_embed_scripts() {
 	/**
 	 * Fires when scripts and styles are enqueued for the embed iframe.
 	 *
+	 * @since 4.4.0
 	 */
 	do_action( 'enqueue_embed_scripts' );
 }
@@ -1043,14 +1016,13 @@ function enqueue_embed_scripts() {
 /**
  * Prints the CSS in the embed iframe header.
  *
- *
  */
 function print_embed_styles() {
 	$type_attr = current_theme_supports( 'html5', 'style' ) ? '' : ' type="text/css"';
 	$suffix    = SCRIPT_DEBUG ? '' : '.min';
 	?>
 	<style<?php echo $type_attr; ?>>
-		<?php echo file_get_contents( ABSPATH . "/assets/css/gc-embed-template$suffix.css" ); ?>
+		<?php echo file_get_contents( ABSPATH . GCINC . "/css/gc-embed-template$suffix.css" ); ?>
 	</style>
 	<?php
 }
@@ -1058,17 +1030,15 @@ function print_embed_styles() {
 /**
  * Prints the JavaScript in the embed iframe header.
  *
- *
  */
 function print_embed_scripts() {
 	gc_print_inline_script_tag(
-		file_get_contents( ABSPATH . '/assets/js/gc-embed-template' . gc_scripts_get_suffix() . '.js' )
+		file_get_contents( ABSPATH . GCINC . '/js/gc-embed-template' . gc_scripts_get_suffix() . '.js' )
 	);
 }
 
 /**
  * Prepare the oembed HTML to be displayed in an RSS feed.
- *
  *
  * @access private
  *
@@ -1081,7 +1051,6 @@ function _oembed_filter_feed_content( $content ) {
 
 /**
  * Prints the necessary markup for the embed comments button.
- *
  *
  */
 function print_embed_comments_button() {
@@ -1096,8 +1065,8 @@ function print_embed_comments_button() {
 			printf(
 				/* translators: %s: Number of comments. */
 				_n(
-					'%s <span class="screen-reader-text">条评论</span>',
-					'%s <span class="screen-reader-text">条评论</span>',
+					'%s<span class="screen-reader-text">条评论</span>',
+					'%s<span class="screen-reader-text">条评论</span>',
 					get_comments_number()
 				),
 				number_format_i18n( get_comments_number() )
@@ -1110,7 +1079,6 @@ function print_embed_comments_button() {
 
 /**
  * Prints the necessary markup for the embed sharing button.
- *
  *
  */
 function print_embed_sharing_button() {
@@ -1129,36 +1097,41 @@ function print_embed_sharing_button() {
 /**
  * Prints the necessary markup for the embed sharing dialog.
  *
- *
  */
 function print_embed_sharing_dialog() {
 	if ( is_404() ) {
 		return;
 	}
+
+	$unique_suffix            = get_the_ID() . '-' . gc_rand();
+	$share_tab_gechiui_id   = 'gc-embed-share-tab-gechiui-' . $unique_suffix;
+	$share_tab_html_id        = 'gc-embed-share-tab-html-' . $unique_suffix;
+	$description_gechiui_id = 'gc-embed-share-description-gechiui-' . $unique_suffix;
+	$description_html_id      = 'gc-embed-share-description-html-' . $unique_suffix;
 	?>
 	<div class="gc-embed-share-dialog hidden" role="dialog" aria-label="<?php esc_attr_e( '分享选项' ); ?>">
 		<div class="gc-embed-share-dialog-content">
 			<div class="gc-embed-share-dialog-text">
 				<ul class="gc-embed-share-tabs" role="tablist">
 					<li class="gc-embed-share-tab-button gc-embed-share-tab-button-gechiui" role="presentation">
-						<button type="button" role="tab" aria-controls="gc-embed-share-tab-gechiui" aria-selected="true" tabindex="0"><?php esc_html_e( 'GeChiUI嵌入' ); ?></button>
+						<button type="button" role="tab" aria-controls="<?php echo $share_tab_gechiui_id; ?>" aria-selected="true" tabindex="0"><?php esc_html_e( 'GeChiUI嵌入' ); ?></button>
 					</li>
 					<li class="gc-embed-share-tab-button gc-embed-share-tab-button-html" role="presentation">
-						<button type="button" role="tab" aria-controls="gc-embed-share-tab-html" aria-selected="false" tabindex="-1"><?php esc_html_e( 'HTML嵌入' ); ?></button>
+						<button type="button" role="tab" aria-controls="<?php echo $share_tab_html_id; ?>" aria-selected="false" tabindex="-1"><?php esc_html_e( 'HTML嵌入' ); ?></button>
 					</li>
 				</ul>
-				<div id="gc-embed-share-tab-gechiui" class="gc-embed-share-tab" role="tabpanel" aria-hidden="false">
-					<input type="text" value="<?php the_permalink(); ?>" class="gc-embed-share-input" aria-describedby="gc-embed-share-description-gechiui" tabindex="0" readonly/>
+				<div id="<?php echo $share_tab_gechiui_id; ?>" class="gc-embed-share-tab" role="tabpanel" aria-hidden="false">
+					<input type="text" value="<?php the_permalink(); ?>" class="gc-embed-share-input" aria-label="<?php esc_attr_e( 'URL' ); ?>" aria-describedby="<?php echo $description_gechiui_id; ?>" tabindex="0" readonly/>
 
-					<p class="gc-embed-share-description" id="gc-embed-share-description-gechiui">
-						<?php _e( '复制并粘贴此URL进您的GeChiUI站点来嵌入' ); ?>
+					<p class="gc-embed-share-description" id="<?php echo $description_gechiui_id; ?>">
+						<?php _e( '复制并粘贴此URL进您的GeChiUI系统来嵌入' ); ?>
 					</p>
 				</div>
-				<div id="gc-embed-share-tab-html" class="gc-embed-share-tab" role="tabpanel" aria-hidden="true">
-					<textarea class="gc-embed-share-input" aria-describedby="gc-embed-share-description-html" tabindex="0" readonly><?php echo esc_textarea( get_post_embed_html( 600, 400 ) ); ?></textarea>
+				<div id="<?php echo $share_tab_html_id; ?>" class="gc-embed-share-tab" role="tabpanel" aria-hidden="true">
+					<textarea class="gc-embed-share-input" aria-label="<?php esc_attr_e( 'HTML' ); ?>" aria-describedby="<?php echo $description_html_id; ?>" tabindex="0" readonly><?php echo esc_textarea( get_post_embed_html( 600, 400 ) ); ?></textarea>
 
-					<p class="gc-embed-share-description" id="gc-embed-share-description-html">
-						<?php _e( '复制并粘贴此URL进您的站点来嵌入' ); ?>
+					<p class="gc-embed-share-description" id="<?php echo $description_html_id; ?>">
+						<?php _e( '复制并粘贴此URL进您的系统来嵌入' ); ?>
 					</p>
 				</div>
 			</div>
@@ -1174,14 +1147,13 @@ function print_embed_sharing_dialog() {
 /**
  * Prints the necessary markup for the site title in an embed template.
  *
- *
  */
 function the_embed_site_title() {
 	$site_title = sprintf(
 		'<a href="%s" target="_top"><img src="%s" srcset="%s 2x" width="32" height="32" alt="" class="gc-embed-site-icon" /><span>%s</span></a>',
 		esc_url( home_url() ),
-		esc_url( get_site_icon_url( 32, assets_url( '/images/w-logo-blue.png' ) ) ),
-		esc_url( get_site_icon_url( 64, assets_url( '/images/w-logo-blue.png' ) ) ),
+		esc_url( get_site_icon_url( 32, assets_url( 'images/w-logo-blue.png' ) ) ),
+		esc_url( get_site_icon_url( 64, assets_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_bloginfo( 'name' ) )
 	);
 
@@ -1190,6 +1162,7 @@ function the_embed_site_title() {
 	/**
 	 * Filters the site title HTML in the embed footer.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $site_title The site title HTML.
 	 */
@@ -1202,7 +1175,7 @@ function the_embed_site_title() {
  * If the URL belongs to the current site, the result is fetched directly instead of
  * going through the oEmbed discovery process.
  *
- *
+ * @since 4.5.3
  *
  * @param null|string $result The UNSANITIZED (and potentially unsafe) HTML that should be used to embed. Default null.
  * @param string      $url    The URL that should be inspected for discovery `<link>` tags.

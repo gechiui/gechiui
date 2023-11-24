@@ -4,7 +4,6 @@
  * IXR_Error
  *
  * @package IXR
- *
  */
 class IXR_Error
 {

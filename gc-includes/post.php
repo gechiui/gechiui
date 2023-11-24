@@ -15,9 +15,10 @@
  *
  * See {@see 'init'}.
  *
- *
  */
 function create_initial_post_types() {
+	GC_Post_Type::reset_default_labels();
+
 	register_post_type(
 		'post',
 		array(
@@ -73,7 +74,7 @@ function create_initial_post_types() {
 			'labels'                => array(
 				'name'           => _x( '媒体', 'post type general name' ),
 				'name_admin_bar' => _x( '媒体', 'add new from admin bar' ),
-				'add_new'        => _x( '添加新媒体', 'add new media' ),
+				'add_new'        => _x( '添加新媒体', 'file' ),
 				'edit_item'      => __( '编辑媒体' ),
 				'view_item'      => __( '访问附件页面' ),
 				'attributes'     => __( '附件属性' ),
@@ -200,7 +201,7 @@ function create_initial_post_types() {
 			'labels'           => array(
 				'name'               => _x( '变更集', 'post type general name' ),
 				'singular_name'      => _x( '变更集', 'post type singular name' ),
-				'add_new'            => _x( '添加新变更集', 'Customize Changeset' ),
+				'add_new'            => _x( '添加新的变更集', 'Customize Changeset' ),
 				'add_new_item'       => __( '添加新的变更集' ),
 				'new_item'           => __( '新变更集' ),
 				'edit_item'          => __( '修改变更集' ),
@@ -325,7 +326,16 @@ function create_initial_post_types() {
 				'title',
 				'editor',
 				'revisions',
+				'custom-fields',
 			),
+		)
+	);
+
+	$template_edit_link = 'site-editor.php?' . build_query(
+		array(
+			'postType' => '%s',
+			'postId'   => '%s',
+			'canvas'   => 'edit',
 		)
 	);
 
@@ -355,6 +365,7 @@ function create_initial_post_types() {
 			'description'           => __( '要包含在主题中的模板。' ),
 			'public'                => false,
 			'_builtin'              => true, /* internal use only. don't use this when registering your own post type. */
+			'_edit_link'            => $template_edit_link, /* internal use only. don't use this when registering your own post type. */
 			'has_archive'           => false,
 			'show_ui'               => false,
 			'show_in_menu'          => false,
@@ -415,6 +426,7 @@ function create_initial_post_types() {
 			'description'           => __( '要包含在模板中的模板组件。' ),
 			'public'                => false,
 			'_builtin'              => true, /* internal use only. don't use this when registering your own post type. */
+			'_edit_link'            => $template_edit_link, /* internal use only. don't use this when registering your own post type. */
 			'has_archive'           => false,
 			'show_ui'               => false,
 			'show_in_menu'          => false,
@@ -455,6 +467,7 @@ function create_initial_post_types() {
 			'description'  => __( '包含在主题中的全局样式。' ),
 			'public'       => false,
 			'_builtin'     => true, /* internal use only. don't use this when registering your own post type. */
+			'_edit_link'   => '/site-editor.php?canvas=edit', /* internal use only. don't use this when registering your own post type. */
 			'show_ui'      => false,
 			'show_in_rest' => false,
 			'rewrite'      => false,
@@ -473,6 +486,14 @@ function create_initial_post_types() {
 				'editor',
 				'revisions',
 			),
+		)
+	);
+
+	$navigation_post_edit_link = 'site-editor.php?' . build_query(
+		array(
+			'postId'   => '%s',
+			'postType' => 'gc_navigation',
+			'canvas'   => 'edit',
 		)
 	);
 
@@ -499,9 +520,10 @@ function create_initial_post_types() {
 				'items_list_navigation' => __( '导航菜单列表导航' ),
 				'items_list'            => __( '导航菜单列表' ),
 			),
-			'description'           => __( '可插入您站点的导航菜单。' ),
+			'description'           => __( '可插入您系统的导航菜单。' ),
 			'public'                => false,
 			'_builtin'              => true, /* internal use only. don't use this when registering your own post type. */
+			'_edit_link'            => $navigation_post_edit_link, /* internal use only. don't use this when registering your own post type. */
 			'has_archive'           => false,
 			'show_ui'               => true,
 			'show_in_menu'          => false,
@@ -549,7 +571,7 @@ function create_initial_post_types() {
 	register_post_status(
 		'future',
 		array(
-			'label'       => _x( '定时发布', 'post status' ),
+			'label'       => _x( '已计划', 'post status' ),
 			'protected'   => true,
 			'_builtin'    => true, /* internal use only. */
 			/* translators: %s: Number of scheduled posts. */
@@ -569,7 +591,7 @@ function create_initial_post_types() {
 			/* translators: %s: Number of draft posts. */
 			'label_count'   => _n_noop(
 				'草稿<span class="count">（%s）</span>',
-				'草稿 <span class="count">(%s)</span>'
+				'草稿<span class="count">（%s）</span>'
 			),
 			'date_floating' => true,
 		)
@@ -701,28 +723,25 @@ function create_initial_post_types() {
 }
 
 /**
- * Retrieve attached file path based on attachment ID.
+ * Retrieves attached file path based on attachment ID.
  *
- * By default the path will go through the 'get_attached_file' filter, but
- * passing a true to the $unfiltered argument of get_attached_file() will
- * return the file path unfiltered.
+ * By default the path will go through the {@see 'get_attached_file'} filter, but
+ * passing `true` to the `$unfiltered` argument will return the file path unfiltered.
  *
- * The function works by getting the single post meta name, named
- * '_gc_attached_file' and returning it. This is a convenience function to
- * prevent looking up the meta name and provide a mechanism for sending the
- * attached filename through a filter.
- *
- *
+ * The function works by retrieving the `_gc_attached_file` post meta value.
+ * This is a convenience function to prevent looking up the meta name and provide
+ * a mechanism for sending the attached filename through a filter.
  *
  * @param int  $attachment_id Attachment ID.
- * @param bool $unfiltered    Optional. Whether to apply filters. Default false.
+ * @param bool $unfiltered    Optional. Whether to skip the {@see 'get_attached_file'} filter.
+ *                            Default false.
  * @return string|false The file path to where the attached file should be, false otherwise.
  */
 function get_attached_file( $attachment_id, $unfiltered = false ) {
 	$file = get_post_meta( $attachment_id, '_gc_attached_file', true );
 
 	// If the file is relative, prepend upload dir.
-	if ( $file && 0 !== strpos( $file, '/' ) && ! preg_match( '|^.:\\\|', $file ) ) {
+	if ( $file && ! str_starts_with( $file, '/' ) && ! preg_match( '|^.:\\\|', $file ) ) {
 		$uploads = gc_get_upload_dir();
 		if ( false === $uploads['error'] ) {
 			$file = $uploads['basedir'] . "/$file";
@@ -744,12 +763,10 @@ function get_attached_file( $attachment_id, $unfiltered = false ) {
 }
 
 /**
- * Update attachment file path based on attachment ID.
+ * Updates attachment file path based on attachment ID.
  *
  * Used to update the file path of the attachment, which uses post meta name
  * '_gc_attached_file' to store the path of the attachment.
- *
- *
  *
  * @param int    $attachment_id Attachment ID.
  * @param string $file          File path for the attachment.
@@ -778,10 +795,9 @@ function update_attached_file( $attachment_id, $file ) {
 }
 
 /**
- * Return relative path to an uploaded file.
+ * Returns relative path to an uploaded file.
  *
  * The path is relative to the current upload dir.
- *
  *
  * @access private
  *
@@ -792,7 +808,7 @@ function _gc_relative_upload_path( $path ) {
 	$new_path = $path;
 
 	$uploads = gc_get_upload_dir();
-	if ( 0 === strpos( $new_path, $uploads['basedir'] ) ) {
+	if ( str_starts_with( $new_path, $uploads['basedir'] ) ) {
 			$new_path = str_replace( $uploads['basedir'], '', $new_path );
 			$new_path = ltrim( $new_path, '/' );
 	}
@@ -800,6 +816,7 @@ function _gc_relative_upload_path( $path ) {
 	/**
 	 * Filters the relative path to an uploaded file.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param string $new_path Relative path to the file.
 	 * @param string $path     Full path to the file.
@@ -808,7 +825,7 @@ function _gc_relative_upload_path( $path ) {
 }
 
 /**
- * Retrieve all children of the post parent ID.
+ * Retrieves all children of the post parent ID.
  *
  * Normally, without any enhancements, the children would apply to pages. In the
  * context of the inner workings of GeChiUI, pages, posts, and attachments
@@ -845,8 +862,6 @@ function _gc_relative_upload_path( $path ) {
  * post types are 'post', 'pages', and 'attachments'. The 'post_status'
  * argument will accept any post status within the write administration panels.
  *
- *
- *
  * @see get_posts()
  * @todo Check validity of description.
  *
@@ -856,7 +871,7 @@ function _gc_relative_upload_path( $path ) {
  * @param string $output Optional. The required return type. One of OBJECT, ARRAY_A, or ARRAY_N, which
  *                       correspond to a GC_Post object, an associative array, or a numeric array,
  *                       respectively. Default OBJECT.
- * @return GC_Post[]|int[] Array of post objects or post IDs.
+ * @return GC_Post[]|array[]|int[] Array of post objects, arrays, or IDs, depending on `$output`.
  */
 function get_children( $args = '', $output = OBJECT ) {
 	$kids = array();
@@ -917,7 +932,7 @@ function get_children( $args = '', $output = OBJECT ) {
 }
 
 /**
- * Get extended entry info (<!--more-->).
+ * Gets extended entry info (<!--more-->).
  *
  * There should not be any space after the second dash and before the word
  * 'more'. There can be text or space(s) after the word 'more', but won't be
@@ -925,9 +940,7 @@ function get_children( $args = '', $output = OBJECT ) {
  *
  * The returned array has 'main', 'extended', and 'more_text' keys. Main has the text before
  * the `<!--more-->`. The 'extended' key has the content after the
- * `<!--more-->` comment. The 'more_text' key has the custom "Read More" text.
- *
- *
+ * `<!--more-->` comment. The 'more_text' key has the custom "阅读更多" text.
  *
  * @param string $post Post content.
  * @return string[] {
@@ -967,7 +980,7 @@ function get_extended( $post ) {
  * See sanitize_post() for optional $filter values. Also, the parameter
  * `$post`, must be given as a variable, since it is passed by reference.
  *
- *
+ * @since 1.5.1
  *
  * @global GC_Post $post Global post object.
  *
@@ -1020,8 +1033,6 @@ function get_post( $post = null, $output = OBJECT, $filter = 'raw' ) {
 /**
  * Retrieves the IDs of the ancestors of a post.
  *
- *
- *
  * @param int|GC_Post $post Post ID or post object.
  * @return int[] Array of ancestor IDs or empty array if there are none.
  */
@@ -1051,16 +1062,14 @@ function get_post_ancestors( $post ) {
 }
 
 /**
- * Retrieve data from a post field based on Post ID.
+ * Retrieves data from a post field based on Post ID.
  *
  * Examples of the post field will be, 'post_type', 'post_status', 'post_content',
  * etc and based off of the post object property or key names.
  *
  * The context values are based off of the taxonomy filter functions and
  * supported values are found within those functions.
- *
- *
- *
+ * The `$post` parameter was made optional.
  *
  * @see sanitize_post_field()
  *
@@ -1085,12 +1094,10 @@ function get_post_field( $field, $post = null, $context = 'display' ) {
 }
 
 /**
- * Retrieve the mime type of an attachment based on the ID.
+ * Retrieves the mime type of an attachment based on the ID.
  *
  * This function can be used with any post type, but it makes more sense with
  * attachments.
- *
- *
  *
  * @param int|GC_Post $post Optional. Post ID or post object. Defaults to global $post.
  * @return string|false The mime type on success, false on failure.
@@ -1106,12 +1113,10 @@ function get_post_mime_type( $post = null ) {
 }
 
 /**
- * Retrieve the post status based on the post ID.
+ * Retrieves the post status based on the post ID.
  *
  * If the post ID is of an attachment, then the parent post status will be given
  * instead.
- *
- *
  *
  * @param int|GC_Post $post Optional. Post ID or post object. Defaults to global $post.
  * @return string|false Post status on success, false on failure.
@@ -1139,6 +1144,7 @@ function get_post_status( $post = null ) {
 		} elseif ( 'trash' === get_post_status( $post->post_parent ) ) {
 			// Get parent status prior to trashing.
 			$post_status = get_post_meta( $post->post_parent, '_gc_trash_meta_status', true );
+
 			if ( ! $post_status ) {
 				// Assume publish as above.
 				$post_status = 'publish';
@@ -1163,6 +1169,8 @@ function get_post_status( $post = null ) {
 	/**
 	 * Filters the post status.
 	 *
+	 * @since 4.4.0
+	 * @since 5.7.0 The attachment post type is now passed through this filter.
 	 *
 	 * @param string  $post_status The post status.
 	 * @param GC_Post $post        The post object.
@@ -1171,12 +1179,10 @@ function get_post_status( $post = null ) {
 }
 
 /**
- * Retrieve all of the GeChiUI supported post statuses.
+ * Retrieves all of the GeChiUI supported post statuses.
  *
  * Posts have a limited set of valid status values, this provides the
  * post_status values and descriptions.
- *
- *
  *
  * @return string[] Array of post status labels keyed by their status.
  */
@@ -1192,12 +1198,10 @@ function get_post_statuses() {
 }
 
 /**
- * Retrieve all of the GeChiUI support page statuses.
+ * Retrieves all of the GeChiUI support page statuses.
  *
  * Pages have a limited set of valid status values, this provides the
  * post_status values and descriptions.
- *
- *
  *
  * @return string[] Array of page status labels keyed by their status.
  */
@@ -1212,12 +1216,11 @@ function get_page_statuses() {
 }
 
 /**
- * Return statuses for privacy requests.
- *
+ * Returns statuses for privacy requests.
  *
  * @access private
  *
- * @return array
+ * @return string[] Array of privacy request status labels keyed by their status.
  */
 function _gc_privacy_statuses() {
 	return array(
@@ -1229,15 +1232,13 @@ function _gc_privacy_statuses() {
 }
 
 /**
- * Register a post status. Do not use before init.
+ * Registers a post status. Do not use before init.
  *
  * A simple function for creating or modifying a post status based on the
  * parameters given. The function will accept an array (second optional
  * parameter), along with a string for the post status name.
  *
  * Arguments prefixed with an _underscore shouldn't be used by plugins and themes.
- *
- *
  *
  * @global stdClass[] $gc_post_statuses Inserts new post status object into the list
  *
@@ -1247,8 +1248,10 @@ function _gc_privacy_statuses() {
  *
  *     @type bool|string $label                     A descriptive name for the post status marked
  *                                                  for translation. Defaults to value of $post_status.
- *     @type bool|array  $label_count               Descriptive text to use for nooped plurals.
- *                                                  Default array of $label, twice.
+ *     @type array|false $label_count               Nooped plural text from _n_noop() to provide the singular
+ *                                                  and plural forms of the label for counts. Default false
+ *                                                  which means the `$label` argument will be used for both
+ *                                                  the singular and plural forms of this label.
  *     @type bool        $exclude_from_search       Whether to exclude posts with this post status
  *                                                  from search results. Default is value of $internal.
  *     @type bool        $_builtin                  Whether the status is built-in. Core-use only.
@@ -1257,9 +1260,9 @@ function _gc_privacy_statuses() {
  *                                                  in the front end of the site. Default false.
  *     @type bool        $internal                  Whether the status is for internal use only.
  *                                                  Default false.
- *     @type bool        $protected                 有此状态的文章是否应为受保护的。
+ *     @type bool        $protected                 Whether posts with this status should be protected.
  *                                                  Default false.
- *     @type bool        $private                   有此状态的文章是否应为私人的。
+ *     @type bool        $private                   Whether posts with this status should be private.
  *                                                  Default false.
  *     @type bool        $publicly_queryable        Whether posts with this status should be publicly-
  *                                                  queryable. Default is value of $public.
@@ -1359,9 +1362,7 @@ function register_post_status( $post_status, $args = array() ) {
 }
 
 /**
- * Retrieve a post status object by name.
- *
- *
+ * Retrieves a post status object by name.
  *
  * @global stdClass[] $gc_post_statuses List of post statuses.
  *
@@ -1381,9 +1382,7 @@ function get_post_status_object( $post_status ) {
 }
 
 /**
- * Get a list of post statuses.
- *
- *
+ * Gets a list of post statuses.
  *
  * @global stdClass[] $gc_post_statuses List of post statuses.
  *
@@ -1406,11 +1405,9 @@ function get_post_stati( $args = array(), $output = 'names', $operator = 'and' )
 }
 
 /**
- * Whether the post type is hierarchical.
+ * Determines whether the post type is hierarchical.
  *
  * A false return value might also mean that the post type does not exist.
- *
- *
  *
  * @see get_post_type_object()
  *
@@ -1433,8 +1430,6 @@ function is_post_type_hierarchical( $post_type ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @see get_post_type_object()
  *
  * @param string $post_type Post type name.
@@ -1446,8 +1441,6 @@ function post_type_exists( $post_type ) {
 
 /**
  * Retrieves the post type of the current post or of a given post.
- *
- *
  *
  * @param int|GC_Post|null $post Optional. Post ID or post object. Default is global $post.
  * @return string|false          Post type on success, false on failure.
@@ -1463,9 +1456,7 @@ function get_post_type( $post = null ) {
 
 /**
  * Retrieves a post type object by name.
- *
- *
- *
+ * Object returned is now an instance of `GC_Post_Type`.
  *
  * @global array $gc_post_types List of post types.
  *
@@ -1485,9 +1476,7 @@ function get_post_type_object( $post_type ) {
 }
 
 /**
- * Get a list of all registered post type objects.
- *
- *
+ * Gets a list of all registered post type objects.
  *
  * @global array $gc_post_types List of post types.
  *
@@ -1523,23 +1512,17 @@ function get_post_types( $args = array(), $output = 'names', $operator = 'and' )
  * as meta boxes, custom fields, post thumbnails, post statuses,
  * comments, and more. See the `$supports` argument for a complete
  * list of supported features.
- *
- *
- *
- *
- *              screen and post editing screen.
- *
- *
+ * The `show_ui` argument is now enforced on the new post screen. The `show_ui` argument is now enforced on the post type listing
+ *              screen and post editing screen. Post type object returned is now an instance of `GC_Post_Type`. Introduced `show_in_rest`, `rest_base` and `rest_controller_class`
  *              arguments to register the post type in REST API.
- *
- *
- *
+ * @since 5.0.0 The `template` and `template_lock` arguments were added.
+ * @since 5.3.0 The `supports` argument will now accept an array of arguments for a feature.
+ * @since 5.9.0 The `rest_namespace` argument was added.
  *
  * @global array $gc_post_types List of post types.
  *
- * @param string       $post_type Post type key. Must not exceed 20 characters and may
- *                                only contain lowercase alphanumeric characters, dashes,
- *                                and underscores. See sanitize_key().
+ * @param string       $post_type Post type key. Must not exceed 20 characters and may only contain
+ *                                lowercase alphanumeric characters, dashes, and underscores. See sanitize_key().
  * @param array|string $args {
  *     Array or string of arguments for registering a post type.
  *
@@ -1694,11 +1677,29 @@ function register_post_type( $post_type, $args = array() ) {
 	/**
 	 * Fires after a post type is registered.
 	 *
+	 * @since 4.6.0 Converted the `$post_type` parameter to accept a `GC_Post_Type` object.
 	 *
 	 * @param string       $post_type        Post type.
 	 * @param GC_Post_Type $post_type_object Arguments used to register the post type.
 	 */
 	do_action( 'registered_post_type', $post_type, $post_type_object );
+
+	/**
+	 * Fires after a specific post type is registered.
+	 *
+	 * The dynamic portion of the filter name, `$post_type`, refers to the post type key.
+	 *
+	 * Possible hook names include:
+	 *
+	 *  - `registered_post_type_post`
+	 *  - `registered_post_type_page`
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param string       $post_type        Post type.
+	 * @param GC_Post_Type $post_type_object Arguments used to register the post type.
+	 */
+	do_action( "registered_post_type_{$post_type}", $post_type, $post_type_object );
 
 	return $post_type_object;
 }
@@ -1707,8 +1708,6 @@ function register_post_type( $post_type, $args = array() ) {
  * Unregisters a post type.
  *
  * Cannot be used to unregister built-in post types.
- *
- *
  *
  * @global array $gc_post_types List of post types.
  *
@@ -1740,6 +1739,7 @@ function unregister_post_type( $post_type ) {
 	/**
 	 * Fires after a post type was unregistered.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param string $post_type Post type key.
 	 */
@@ -1749,7 +1749,7 @@ function unregister_post_type( $post_type ) {
 }
 
 /**
- * Build an object with all post type capabilities out of a post type object
+ * Builds an object with all post type capabilities out of a post type object
  *
  * Post type capabilities use the 'capability_type' argument as a base, if the
  * capability is not set in the 'capabilities' argument array or if the
@@ -1795,8 +1795,7 @@ function unregister_post_type( $post_type ) {
  * only assigned by default if the post type is registered with the 'map_meta_cap'
  * argument set to true (default is false).
  *
- *
- *
+ * @since 5.4.0 'delete_posts' is included in default capabilities.
  *
  * @see register_post_type()
  * @see map_meta_cap()
@@ -1854,8 +1853,7 @@ function get_post_type_capabilities( $args ) {
 }
 
 /**
- * Store or return a list of post type meta caps for map_meta_cap().
- *
+ * Stores or returns a list of post type meta caps for map_meta_cap().
  *
  * @access private
  *
@@ -1886,7 +1884,7 @@ function _post_type_meta_capabilities( $capabilities = null ) {
  *             matching your post type. Example: `_x( '新建', 'product', 'textdomain' );`.
  * - `add_new_item` - Label for adding a new singular item. Default is '撰写新文章' / '创建页面'.
  * - `edit_item` - Label for editing a singular item. Default is '编辑文章' / '编辑页面'.
- * - `new_item` - Label for the new item page title. Default is 'New Post' / 'New Page'.
+ * - `new_item` - Label for the new item page title. Default is '写文章' / '新建页面'.
  * - `view_item` - Label for viewing a singular item. Default is '查看文章' / '查看页面'.
  * - `view_items` - Label for viewing post type archives. Default is '查看文章' / '查看页面'.
  * - `search_items` - Label for searching plural items. Default is '搜索文章' / '搜索页面'.
@@ -1917,6 +1915,7 @@ function _post_type_meta_capabilities( $capabilities = null ) {
  *                              Default is '文章已私密发布。' / '页面已私密发布。'
  * - `item_reverted_to_draft` - Label used when an item is switched to a draft.
  *                            Default is '文章已恢复为草稿。' / '页面已恢复为草稿。'
+ * - `item_trashed` - Label used when an item is moved to Trash. Default is 'Post trashed.' / 'Page trashed.'
  * - `item_scheduled` - Label used when an item is scheduled for publishing. Default is '文章已排入发布计划。' /
  *                    '页面已排入发布计划。'
  * - `item_updated` - Label used when an item is updated. Default is '文章已更新。' / '页面已更新。'
@@ -1929,17 +1928,14 @@ function _post_type_meta_capabilities( $capabilities = null ) {
  *
  * Note: To set labels used in post type admin notices, see the {@see 'post_updated_messages'} filter.
  *
- *
- *
- *              and `use_featured_image` labels.
- *
- *              `items_list_navigation`, and `items_list` labels.
- *
- *
- *
+ * @since 4.3.0 Added the `featured_image`, `set_featured_image`, `remove_featured_image`,
+ *              and `use_featured_image` labels. Added the `archives`, `insert_into_item`, `uploaded_to_this_item`, `filter_items_list`,
+ *              `items_list_navigation`, and `items_list` labels. Converted the `$post_type` parameter to accept a `GC_Post_Type` object. Added the `view_items` and `attributes` labels.
+ * @since 5.0.0 Added the `item_published`, `item_published_privately`, `item_reverted_to_draft`,
  *              `item_scheduled`, and `item_updated` labels.
- *
- *
+ * @since 5.7.0 Added the `filter_by_date` label.
+ * @since 5.8.0 Added the `item_link` and `item_link_description` labels.
+ * @since 6.3.0 Added the `item_trashed` label.
  *
  * @access private
  *
@@ -1947,46 +1943,7 @@ function _post_type_meta_capabilities( $capabilities = null ) {
  * @return object Object with all the labels as member variables.
  */
 function get_post_type_labels( $post_type_object ) {
-	$nohier_vs_hier_defaults = array(
-		'name'                     => array( _x( '文章', 'post type general name' ), _x( '页面', 'post type general name' ) ),
-		'singular_name'            => array( _x( '文章', 'post type singular name' ), _x( '页面', 'post type singular name' ) ),
-		'add_new'                  => array( _x( '写文章', 'post' ), _x( '新建页面', 'page' ) ),
-		'add_new_item'             => array( __( '撰写新文章' ), __( '创建页面' ) ),
-		'edit_item'                => array( __( '编辑文章' ), __( '编辑页面' ) ),
-		'new_item'                 => array( __( '写文章' ), __( '新建页面' ) ),
-		'view_item'                => array( __( '查看文章' ), __( '查看页面' ) ),
-		'view_items'               => array( __( '查看文章' ), __( '查看页面' ) ),
-		'search_items'             => array( __( '搜索文章' ), __( '搜索页面' ) ),
-		'not_found'                => array( __( '未找到文章。' ), __( '未找到页面。' ) ),
-		'not_found_in_trash'       => array( __( '回收站中没有文章。' ), __( '回收站中没有页面。' ) ),
-		'parent_item_colon'        => array( null, __( '父页：' ) ),
-		'all_items'                => array( __( '所有文章' ), __( '所有页面' ) ),
-		'archives'                 => array( __( '文章归档' ), __( '页面归档' ) ),
-		'attributes'               => array( __( '文章属性' ), __( '页面属性' ) ),
-		'insert_into_item'         => array( __( '插入至文章' ), __( '插入至页面' ) ),
-		'uploaded_to_this_item'    => array( __( '上传到本文章的' ), __( '上传到本页面的' ) ),
-		'featured_image'           => array( _x( '特色图片', 'post' ), _x( '特色图片', 'page' ) ),
-		'set_featured_image'       => array( _x( '设置特色图片', 'post' ), _x( '设置特色图片', 'page' ) ),
-		'remove_featured_image'    => array( _x( '移除特色图片', 'post' ), _x( '移除特色图片', 'page' ) ),
-		'use_featured_image'       => array( _x( '用作特色图片', 'post' ), _x( '用作特色图片', 'page' ) ),
-		'filter_items_list'        => array( __( '筛选文章列表' ), __( '筛选页面列表' ) ),
-		'filter_by_date'           => array( __( '按日期筛选' ), __( '按日期筛选' ) ),
-		'items_list_navigation'    => array( __( '文章列表导航' ), __( '页面列表导航' ) ),
-		'items_list'               => array( __( '文章列表' ), __( '页面列表' ) ),
-		'item_published'           => array( __( '文章已发布。' ), __( '页面已发布。' ) ),
-		'item_published_privately' => array( __( '文章已私密发布。' ), __( '页面已私密发布。' ) ),
-		'item_reverted_to_draft'   => array( __( '文章已恢复为草稿。' ), __( '页面已恢复为草稿。' ) ),
-		'item_scheduled'           => array( __( '文章已排入发布计划。' ), __( '页面已排入发布计划。' ) ),
-		'item_updated'             => array( __( '文章已更新。' ), __( '页面已更新。' ) ),
-		'item_link'                => array(
-			_x( '文章链接', 'navigation link block title' ),
-			_x( '页面链接', 'navigation link block title' ),
-		),
-		'item_link_description'    => array(
-			_x( '目标文章的链接。', 'navigation link block description' ),
-			_x( '目标页面的链接。', 'navigation link block description' ),
-		),
-	);
+	$nohier_vs_hier_defaults = GC_Post_Type::get_default_labels();
 
 	$nohier_vs_hier_defaults['menu_name'] = $nohier_vs_hier_defaults['name'];
 
@@ -2008,6 +1965,7 @@ function get_post_type_labels( $post_type_object ) {
 	 *  - `post_type_labels_page`
 	 *  - `post_type_labels_attachment`
 	 *
+	 * @since 3.5.0
 	 *
 	 * @see get_post_type_labels() for the full list of labels.
 	 *
@@ -2022,58 +1980,60 @@ function get_post_type_labels( $post_type_object ) {
 }
 
 /**
- * Build an object with custom-something object (post type, taxonomy) labels
+ * Builds an object with custom-something object (post type, taxonomy) labels
  * out of a custom-something object
- *
  *
  * @access private
  *
- * @param object $object                  A custom-something object.
+ * @param object $data_object             A custom-something object.
  * @param array  $nohier_vs_hier_defaults Hierarchical vs non-hierarchical default labels.
  * @return object Object containing labels for the given custom-something object.
  */
-function _get_custom_object_labels( $object, $nohier_vs_hier_defaults ) {
-	$object->labels = (array) $object->labels;
+function _get_custom_object_labels( $data_object, $nohier_vs_hier_defaults ) {
+	$data_object->labels = (array) $data_object->labels;
 
-	if ( isset( $object->label ) && empty( $object->labels['name'] ) ) {
-		$object->labels['name'] = $object->label;
+	if ( isset( $data_object->label ) && empty( $data_object->labels['name'] ) ) {
+		$data_object->labels['name'] = $data_object->label;
 	}
 
-	if ( ! isset( $object->labels['singular_name'] ) && isset( $object->labels['name'] ) ) {
-		$object->labels['singular_name'] = $object->labels['name'];
+	if ( ! isset( $data_object->labels['singular_name'] ) && isset( $data_object->labels['name'] ) ) {
+		$data_object->labels['singular_name'] = $data_object->labels['name'];
 	}
 
-	if ( ! isset( $object->labels['name_admin_bar'] ) ) {
-		$object->labels['name_admin_bar'] = isset( $object->labels['singular_name'] ) ? $object->labels['singular_name'] : $object->name;
+	if ( ! isset( $data_object->labels['name_admin_bar'] ) ) {
+		$data_object->labels['name_admin_bar'] =
+			isset( $data_object->labels['singular_name'] )
+			? $data_object->labels['singular_name']
+			: $data_object->name;
 	}
 
-	if ( ! isset( $object->labels['menu_name'] ) && isset( $object->labels['name'] ) ) {
-		$object->labels['menu_name'] = $object->labels['name'];
+	if ( ! isset( $data_object->labels['menu_name'] ) && isset( $data_object->labels['name'] ) ) {
+		$data_object->labels['menu_name'] = $data_object->labels['name'];
 	}
 
-	if ( ! isset( $object->labels['all_items'] ) && isset( $object->labels['menu_name'] ) ) {
-		$object->labels['all_items'] = $object->labels['menu_name'];
+	if ( ! isset( $data_object->labels['all_items'] ) && isset( $data_object->labels['menu_name'] ) ) {
+		$data_object->labels['all_items'] = $data_object->labels['menu_name'];
 	}
 
-	if ( ! isset( $object->labels['archives'] ) && isset( $object->labels['all_items'] ) ) {
-		$object->labels['archives'] = $object->labels['all_items'];
+	if ( ! isset( $data_object->labels['archives'] ) && isset( $data_object->labels['all_items'] ) ) {
+		$data_object->labels['archives'] = $data_object->labels['all_items'];
 	}
 
 	$defaults = array();
 	foreach ( $nohier_vs_hier_defaults as $key => $value ) {
-		$defaults[ $key ] = $object->hierarchical ? $value[1] : $value[0];
+		$defaults[ $key ] = $data_object->hierarchical ? $value[1] : $value[0];
 	}
-	$labels         = array_merge( $defaults, $object->labels );
-	$object->labels = (object) $object->labels;
+
+	$labels              = array_merge( $defaults, $data_object->labels );
+	$data_object->labels = (object) $data_object->labels;
 
 	return (object) $labels;
 }
 
 /**
- * Add submenus for post types.
+ * Adds submenus for post types.
  *
  * @access private
- *
  */
 function _add_post_type_submenus() {
 	foreach ( get_post_types( array( 'show_ui' => true ) ) as $ptype ) {
@@ -2111,8 +2071,7 @@ function _add_post_type_submenus() {
  *         'field' => 'value',
  *     ) );
  *
- *
- *
+ * @since 5.3.0 Formalized the existing and already documented `...$args` parameter
  *              by adding it to the function signature.
  *
  * @global array $_gc_post_type_features
@@ -2136,9 +2095,7 @@ function add_post_type_support( $post_type, $feature, ...$args ) {
 }
 
 /**
- * Remove support for a feature from a post type.
- *
- *
+ * Removes support for a feature from a post type.
  *
  * @global array $_gc_post_type_features
  *
@@ -2152,9 +2109,7 @@ function remove_post_type_support( $post_type, $feature ) {
 }
 
 /**
- * Get all the post type features
- *
- *
+ * Gets all the post type features
  *
  * @global array $_gc_post_type_features
  *
@@ -2172,9 +2127,7 @@ function get_all_post_type_supports( $post_type ) {
 }
 
 /**
- * Check a post type's support for a given feature.
- *
- *
+ * Checks a post type's support for a given feature.
  *
  * @global array $_gc_post_type_features
  *
@@ -2190,8 +2143,6 @@ function post_type_supports( $post_type, $feature ) {
 
 /**
  * Retrieves a list of post type names that support a specific feature.
- *
- *
  *
  * @global array $_gc_post_type_features Post type features
  *
@@ -2211,11 +2162,9 @@ function get_post_types_by_support( $feature, $operator = 'and' ) {
 }
 
 /**
- * Update the post type for the post ID.
+ * Updates the post type for the post ID.
  *
  * The page or post cache will be cleaned for the post ID.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -2240,11 +2189,8 @@ function set_post_type( $post_id = 0, $post_type = 'post' ) {
  *
  * For built-in post types such as posts and pages, the 'public' value will be evaluated.
  * For all others, the 'publicly_queryable' value will be used.
- *
- *
- *
- *
- *
+ * Added the ability to pass a post type name in addition to object. Converted the `$post_type` parameter to accept a `GC_Post_Type` object.
+ * @since 5.9.0 Added `is_post_type_viewable` hook to filter the result.
  *
  * @param string|GC_Post_Type $post_type Post type name or object.
  * @return bool Whether the post type should be considered viewable.
@@ -2252,6 +2198,7 @@ function set_post_type( $post_id = 0, $post_type = 'post' ) {
 function is_post_type_viewable( $post_type ) {
 	if ( is_scalar( $post_type ) ) {
 		$post_type = get_post_type_object( $post_type );
+
 		if ( ! $post_type ) {
 			return false;
 		}
@@ -2272,6 +2219,7 @@ function is_post_type_viewable( $post_type ) {
 	 * potential type errors in PHP 8.1+. Non-boolean values (even falsey
 	 * and truthy values) will result in the function returning false.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param bool         $is_viewable Whether the post type is "viewable" (strict type).
 	 * @param GC_Post_Type $post_type   Post type object.
@@ -2280,13 +2228,13 @@ function is_post_type_viewable( $post_type ) {
 }
 
 /**
- * Determine whether a post status is considered "viewable".
+ * Determines whether a post status is considered "viewable".
  *
  * For built-in post statuses such as publish and private, the 'public' value will be evaluated.
  * For all others, the 'publicly_queryable' value will be used.
  *
- *
- *
+ * @since 5.7.0
+ * @since 5.9.0 Added `is_post_status_viewable` hook to filter the result.
  *
  * @param string|stdClass $post_status Post status name or object.
  * @return bool Whether the post status should be considered viewable.
@@ -2294,6 +2242,7 @@ function is_post_type_viewable( $post_type ) {
 function is_post_status_viewable( $post_status ) {
 	if ( is_scalar( $post_status ) ) {
 		$post_status = get_post_status_object( $post_status );
+
 		if ( ! $post_status ) {
 			return false;
 		}
@@ -2318,6 +2267,7 @@ function is_post_status_viewable( $post_status ) {
 	 * potential type errors in PHP 8.1+. Non-boolean values (even falsey
 	 * and truthy values) will result in the function returning false.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param bool     $is_viewable Whether the post status is "viewable" (strict type).
 	 * @param stdClass $post_status Post status object.
@@ -2326,12 +2276,12 @@ function is_post_status_viewable( $post_status ) {
 }
 
 /**
- * Determine whether a post is publicly viewable.
+ * Determines whether a post is publicly viewable.
  *
  * Posts are considered publicly viewable if both the post status and post type
  * are viewable.
  *
- *
+ * @since 5.7.0
  *
  * @param int|GC_Post|null $post Optional. Post ID or post object. Defaults to global $post.
  * @return bool Whether the post is publicly viewable.
@@ -2360,8 +2310,6 @@ function is_post_publicly_viewable( $post = null ) {
  * this function and both are set to `true`.
  *
  * The defaults are as follows:
- *
- *
  *
  * @see GC_Query
  * @see GC_Query::parse_query()
@@ -2415,7 +2363,7 @@ function get_posts( $args = null ) {
 	$parsed_args['ignore_sticky_posts'] = true;
 	$parsed_args['no_found_rows']       = true;
 
-	$get_posts = new GC_Query;
+	$get_posts = new GC_Query();
 	return $get_posts->query( $parsed_args );
 
 }
@@ -2428,8 +2376,6 @@ function get_posts( $args = null ) {
  * Adds a meta field to the given post.
  *
  * Post meta data is called "自定义字段" on the Administration Screen.
- *
- *
  *
  * @param int    $post_id    Post ID.
  * @param string $meta_key   Metadata name.
@@ -2455,8 +2401,6 @@ function add_post_meta( $post_id, $meta_key, $meta_value, $unique = false ) {
  * value, will keep from removing duplicate metadata with the same key. It also
  * allows removing all metadata matching the key, if needed.
  *
- *
- *
  * @param int    $post_id    Post ID.
  * @param string $meta_key   Metadata name.
  * @param mixed  $meta_value Optional. Metadata value. If provided,
@@ -2476,8 +2420,6 @@ function delete_post_meta( $post_id, $meta_key, $meta_value = '' ) {
 
 /**
  * Retrieves a post meta field for the given post ID.
- *
- *
  *
  * @param int    $post_id Post ID.
  * @param string $key     Optional. The meta key to retrieve. By default,
@@ -2504,8 +2446,6 @@ function get_post_meta( $post_id, $key = '', $single = false ) {
  *
  * Can be used in place of add_post_meta().
  *
- *
- *
  * @param int    $post_id    Post ID.
  * @param string $meta_key   Metadata key.
  * @param mixed  $meta_value Metadata value. Must be serializable if non-scalar.
@@ -2529,8 +2469,6 @@ function update_post_meta( $post_id, $meta_key, $meta_value, $prev_value = '' ) 
 /**
  * Deletes everything from post meta matching the given meta key.
  *
- *
- *
  * @param string $post_meta_key Key to search for when deleting.
  * @return bool Whether the post meta key was deleted from the database.
  */
@@ -2541,7 +2479,7 @@ function delete_post_meta_by_key( $post_meta_key ) {
 /**
  * Registers a meta key for posts.
  *
- *
+ * @since 4.9.8
  *
  * @param string $post_type Post type to register a meta key for. Pass an empty string
  *                          to register the meta key across all existing post types.
@@ -2559,7 +2497,7 @@ function register_post_meta( $post_type, $meta_key, array $args ) {
 /**
  * Unregisters a meta key for posts.
  *
- *
+ * @since 4.9.8
  *
  * @param string $post_type Post type the meta key is currently registered for. Pass
  *                          an empty string if the meta key is registered across all
@@ -2572,12 +2510,10 @@ function unregister_post_meta( $post_type, $meta_key ) {
 }
 
 /**
- * Retrieve post meta fields, based on post ID.
+ * Retrieves post meta fields, based on post ID.
  *
  * The post meta fields are retrieved from the cache where possible,
  * so the function is optimized to be called more than once.
- *
- *
  *
  * @param int $post_id Optional. Post ID. Default is the ID of the global `$post`.
  * @return mixed An array of values.
@@ -2586,6 +2522,7 @@ function unregister_post_meta( $post_type, $meta_key ) {
  */
 function get_post_custom( $post_id = 0 ) {
 	$post_id = absint( $post_id );
+
 	if ( ! $post_id ) {
 		$post_id = get_the_ID();
 	}
@@ -2594,11 +2531,9 @@ function get_post_custom( $post_id = 0 ) {
 }
 
 /**
- * Retrieve meta field names for a post.
+ * Retrieves meta field names for a post.
  *
  * If there are no meta fields, then nothing (null) will be returned.
- *
- *
  *
  * @param int $post_id Optional. Post ID. Default is the ID of the global `$post`.
  * @return array|void Array of the keys, if retrieved.
@@ -2617,12 +2552,10 @@ function get_post_custom_keys( $post_id = 0 ) {
 }
 
 /**
- * Retrieve values for a custom post field.
+ * Retrieves values for a custom post field.
  *
  * The parameters must not be considered optional. All of the post meta fields
  * will be retrieved and only the meta field key values returned.
- *
- *
  *
  * @param string $key     Optional. Meta field key. Default empty.
  * @param int    $post_id Optional. Post ID. Default is the ID of the global `$post`.
@@ -2648,7 +2581,7 @@ function get_post_custom_values( $key = '', $post_id = 0 ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
+ * @since 2.7.0
  *
  * @param int $post_id Optional. Post ID. Default is the ID of the global `$post`.
  * @return bool Whether post is sticky.
@@ -2672,6 +2605,7 @@ function is_sticky( $post_id = 0 ) {
 	/**
 	 * Filters whether a post is sticky.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @param bool $is_sticky Whether a post is sticky.
 	 * @param int  $post_id   Post ID.
@@ -2684,8 +2618,6 @@ function is_sticky( $post_id = 0 ) {
  *
  * If the context is 'raw', then the post object or array will get minimal
  * sanitization of the integer fields.
- *
- *
  *
  * @see sanitize_post_field()
  *
@@ -2731,9 +2663,7 @@ function sanitize_post( $post, $context = 'display' ) {
  * Possible context values are:  'raw', 'edit', 'db', 'display', 'attribute' and
  * 'js'. The 'display' context is used by default. 'attribute' and 'js' contexts
  * are treated like 'display' when calling filters.
- *
- *
- *
+ * Like `sanitize_post()`, `$context` defaults to 'display'.
  *
  * @param string $field   The Post Object field name.
  * @param mixed  $value   The Post Object value.
@@ -2760,7 +2690,7 @@ function sanitize_post_field( $field, $value, $post_id, $context = 'display' ) {
 	}
 
 	$prefixed = false;
-	if ( false !== strpos( $field, 'post_' ) ) {
+	if ( str_contains( $field, 'post_' ) ) {
 		$prefixed        = true;
 		$field_no_prefix = str_replace( 'post_', '', $field );
 	}
@@ -2776,7 +2706,7 @@ function sanitize_post_field( $field, $value, $post_id, $context = 'display' ) {
 			 * The dynamic portion of the hook name, `$field`, refers to the post
 			 * field name.
 			 *
-		
+			 * @since 2.3.0
 			 *
 			 * @param mixed $value   Value of the post field.
 			 * @param int   $post_id Post ID.
@@ -2789,7 +2719,7 @@ function sanitize_post_field( $field, $value, $post_id, $context = 'display' ) {
 			 * The dynamic portion of the hook name, `$field_no_prefix`, refers to
 			 * the post field name.
 			 *
-		
+			 * @since 2.3.0
 			 *
 			 * @param mixed $value   Value of the post field.
 			 * @param int   $post_id Post ID.
@@ -2817,7 +2747,7 @@ function sanitize_post_field( $field, $value, $post_id, $context = 'display' ) {
 			 * The dynamic portion of the hook name, `$field`, refers to the post
 			 * field name.
 			 *
-		
+			 * @since 2.3.0
 			 *
 			 * @param mixed $value Value of the post field.
 			 */
@@ -2829,7 +2759,7 @@ function sanitize_post_field( $field, $value, $post_id, $context = 'display' ) {
 			 * The dynamic portion of the hook name, `$field_no_prefix`, refers
 			 * to the post field name.
 			 *
-		
+			 * @since 2.3.0
 			 *
 			 * @param mixed $value Value of the post field.
 			 */
@@ -2843,7 +2773,7 @@ function sanitize_post_field( $field, $value, $post_id, $context = 'display' ) {
 			 * The dynamic portion of the hook name, `$field`, refers to the post
 			 * field name.
 			 *
-		
+			 * @since 2.3.0
 			 *
 			 * @param mixed $value Value of the post field.
 			 */
@@ -2860,7 +2790,7 @@ function sanitize_post_field( $field, $value, $post_id, $context = 'display' ) {
 			 * The dynamic portion of the hook name, `$field`, refers to the post
 			 * field name.
 			 *
-		
+			 * @since 2.3.0
 			 *
 			 * @param mixed  $value   Value of the prefixed post field.
 			 * @param int    $post_id Post ID.
@@ -2889,11 +2819,11 @@ function sanitize_post_field( $field, $value, $post_id, $context = 'display' ) {
 }
 
 /**
- * Make a post sticky.
+ * Makes a post sticky.
  *
  * Sticky posts should be displayed at the top of the front page.
  *
- *
+ * @since 2.7.0
  *
  * @param int $post_id Post ID.
  */
@@ -2903,7 +2833,7 @@ function stick_post( $post_id ) {
 	$updated  = false;
 
 	if ( ! is_array( $stickies ) ) {
-		$stickies = array( $post_id );
+		$stickies = array();
 	} else {
 		$stickies = array_unique( array_map( 'intval', $stickies ) );
 	}
@@ -2917,6 +2847,7 @@ function stick_post( $post_id ) {
 		/**
 		 * Fires once a post has been added to the sticky list.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param int $post_id ID of the post that was stuck.
 		 */
@@ -2925,11 +2856,11 @@ function stick_post( $post_id ) {
 }
 
 /**
- * Un-stick a post.
+ * Un-sticks a post.
  *
  * Sticky posts should be displayed at the top of the front page.
  *
- *
+ * @since 2.7.0
  *
  * @param int $post_id Post ID.
  */
@@ -2960,6 +2891,7 @@ function unstick_post( $post_id ) {
 		/**
 		 * Fires once a post has been removed from the sticky list.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param int $post_id ID of the post that was unstuck.
 		 */
@@ -2968,9 +2900,9 @@ function unstick_post( $post_id ) {
 }
 
 /**
- * Return the cache key for gc_count_posts() based on the passed arguments.
+ * Returns the cache key for gc_count_posts() based on the passed arguments.
  *
- *
+ * @since 3.9.0
  * @access private
  *
  * @param string $type Optional. Post type to retrieve count Default 'post'.
@@ -2992,7 +2924,7 @@ function _count_posts_cache_key( $type = 'post', $perm = '' ) {
 }
 
 /**
- * Count number of posts of a post type and if user has permissions to view.
+ * Counts number of posts of a post type and if user has permissions to view.
  *
  * This function provides an efficient method of finding the amount of post's
  * type a blog has. Another method is to count the amount of items in
@@ -3002,19 +2934,18 @@ function _count_posts_cache_key( $type = 'post', $perm = '' ) {
  * The $perm parameter checks for 'readable' value and if the user can read
  * private posts, it will display that for the user that is signed in.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param string $type Optional. Post type to retrieve count. Default 'post'.
  * @param string $perm Optional. 'readable' or empty. Default empty.
- * @return stdClass Number of posts for each status.
+ * @return stdClass An object containing the number of posts for each status,
+ *                  or an empty object if the post type does not exist.
  */
 function gc_count_posts( $type = 'post', $perm = '' ) {
 	global $gcdb;
 
 	if ( ! post_type_exists( $type ) ) {
-		return new stdClass;
+		return new stdClass();
 	}
 
 	$cache_key = _count_posts_cache_key( $type, $perm );
@@ -3057,8 +2988,9 @@ function gc_count_posts( $type = 'post', $perm = '' ) {
 	gc_cache_set( $cache_key, $counts, 'counts' );
 
 	/**
-	 * Modify returned post counts by status for the current post type.
+	 * Filters the post counts by status for the current post type.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param stdClass $counts An object containing the current post_type's post
 	 *                         counts by status.
@@ -3070,14 +3002,12 @@ function gc_count_posts( $type = 'post', $perm = '' ) {
 }
 
 /**
- * Count number of attachments for the mime type(s).
+ * Counts number of attachments for the mime type(s).
  *
  * If you set the optional mime_type parameter, then an array will still be
  * returned, but will only have the item you are looking for. It does not give
  * you the number of attachments that are children of a post. You can get that
  * by counting the number of children that post has.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -3088,18 +3018,29 @@ function gc_count_posts( $type = 'post', $perm = '' ) {
 function gc_count_attachments( $mime_type = '' ) {
 	global $gcdb;
 
-	$and   = gc_post_mime_type_where( $mime_type );
-	$count = $gcdb->get_results( "SELECT post_mime_type, COUNT( * ) AS num_posts FROM $gcdb->posts WHERE post_type = 'attachment' AND post_status != 'trash' $and GROUP BY post_mime_type", ARRAY_A );
+	$cache_key = sprintf(
+		'attachments%s',
+		! empty( $mime_type ) ? ':' . str_replace( '/', '_', implode( '-', (array) $mime_type ) ) : ''
+	);
 
-	$counts = array();
-	foreach ( (array) $count as $row ) {
-		$counts[ $row['post_mime_type'] ] = $row['num_posts'];
+	$counts = gc_cache_get( $cache_key, 'counts' );
+	if ( false == $counts ) {
+		$and   = gc_post_mime_type_where( $mime_type );
+		$count = $gcdb->get_results( "SELECT post_mime_type, COUNT( * ) AS num_posts FROM $gcdb->posts WHERE post_type = 'attachment' AND post_status != 'trash' $and GROUP BY post_mime_type", ARRAY_A );
+
+		$counts = array();
+		foreach ( (array) $count as $row ) {
+			$counts[ $row['post_mime_type'] ] = $row['num_posts'];
+		}
+		$counts['trash'] = $gcdb->get_var( "SELECT COUNT( * ) FROM $gcdb->posts WHERE post_type = 'attachment' AND post_status = 'trash' $and" );
+
+		gc_cache_set( $cache_key, (object) $counts, 'counts' );
 	}
-	$counts['trash'] = $gcdb->get_var( "SELECT COUNT( * ) FROM $gcdb->posts WHERE post_type = 'attachment' AND post_status = 'trash' $and" );
 
 	/**
-	 * Modify returned attachment counts by mime type.
+	 * Filters the attachment counts by mime type.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param stdClass        $counts    An object containing the attachment counts by
 	 *                                   mime type.
@@ -3109,10 +3050,9 @@ function gc_count_attachments( $mime_type = '' ) {
 }
 
 /**
- * Get default post mime types.
+ * Gets default post mime types.
  *
- *
- *
+ * @since 5.3.0 Added the 'Documents', 'Spreadsheets', and 'Archives' mime type groups.
  *
  * @return array List of post mime types.
  */
@@ -3124,7 +3064,7 @@ function get_post_mime_types() {
 			/* translators: %s: Number of images. */
 			_n_noop(
 				'图片<span class="count">（%s）</span>',
-				'图片<span class="count">(%s)</span>'
+				'图片<span class="count">（%s）</span>'
 			),
 		),
 		'audio'       => array(
@@ -3151,7 +3091,7 @@ function get_post_mime_types() {
 			/* translators: %s: Number of documents. */
 			_n_noop(
 				'文档<span class="count">（%s）</span>',
-				'文档<span class="count">(%s)</span>'
+				'文档<span class="count">（%s）</span>'
 			),
 		),
 		'spreadsheet' => array(
@@ -3160,7 +3100,7 @@ function get_post_mime_types() {
 			/* translators: %s: Number of spreadsheets. */
 			_n_noop(
 				'试算表<span class="count">（%s）</span>',
-				'试算表<span class="count">(%s)</span>'
+				'试算表<span class="count">（%s）</span>'
 			),
 		),
 		'archive'     => array(
@@ -3169,7 +3109,7 @@ function get_post_mime_types() {
 			/* translators: %s: Number of archives. */
 			_n_noop(
 				'归档<span class="count">（%s）</span>',
-				'归档<span class="count">(%s)</span>'
+				'归档<span class="count">（%s）</span>'
 			),
 		),
 	);
@@ -3212,16 +3152,14 @@ function get_post_mime_types() {
 }
 
 /**
- * Check a MIME-Type against a list.
+ * Checks a MIME-Type against a list.
  *
- * If the wildcard_mime_types parameter is a string, it must be comma separated
- * list. If the real_mime_types is a string, it is also comma separated to
+ * If the `$wildcard_mime_types` parameter is a string, it must be comma separated
+ * list. If the `$real_mime_types` is a string, it is also comma separated to
  * create the list.
  *
- *
- *
- * @param string|string[] $wildcard_mime_types Mime types, e.g. audio/mpeg or image (same as image/*)
- *                                             or flash (same as *flash*).
+ * @param string|string[] $wildcard_mime_types Mime types, e.g. `audio/mpeg`, `image` (same as `image/*`),
+ *                                             or `flash` (same as `*flash*`).
  * @param string|string[] $real_mime_types     Real post mime type values.
  * @return array array(wildcard=>array(real types)).
  */
@@ -3244,7 +3182,7 @@ function gc_match_mime_types( $wildcard_mime_types, $real_mime_types ) {
 
 			$patternses[][ $type ] = "^$regex$";
 
-			if ( false === strpos( $mime, '/' ) ) {
+			if ( ! str_contains( $mime, '/' ) ) {
 				$patternses[][ $type ] = "^$regex/";
 				$patternses[][ $type ] = $regex;
 			}
@@ -3268,9 +3206,7 @@ function gc_match_mime_types( $wildcard_mime_types, $real_mime_types ) {
 }
 
 /**
- * Convert MIME types into SQL.
- *
- *
+ * Converts MIME types into SQL.
  *
  * @param string|string[] $post_mime_types List of mime types or comma separated string
  *                                         of mime types.
@@ -3301,7 +3237,7 @@ function gc_post_mime_type_where( $post_mime_types, $table_alias = '' ) {
 			$mime_pattern = "$mime_group/$mime_subgroup";
 		} else {
 			$mime_pattern = preg_replace( '/[^-*.a-zA-Z0-9]/', '', $mime_type );
-			if ( false === strpos( $mime_pattern, '*' ) ) {
+			if ( ! str_contains( $mime_pattern, '*' ) ) {
 				$mime_pattern .= '/*';
 			}
 		}
@@ -3312,7 +3248,7 @@ function gc_post_mime_type_where( $post_mime_types, $table_alias = '' ) {
 			return '';
 		}
 
-		if ( false !== strpos( $mime_pattern, '%' ) ) {
+		if ( str_contains( $mime_pattern, '%' ) ) {
 			$wheres[] = empty( $table_alias ) ? "post_mime_type LIKE '$mime_pattern'" : "$table_alias.post_mime_type LIKE '$mime_pattern'";
 		} else {
 			$wheres[] = empty( $table_alias ) ? "post_mime_type = '$mime_pattern'" : "$table_alias.post_mime_type = '$mime_pattern'";
@@ -3327,7 +3263,7 @@ function gc_post_mime_type_where( $post_mime_types, $table_alias = '' ) {
 }
 
 /**
- * Trash or delete a post or page.
+ * Trashes or deletes a post or page.
  *
  * When the post and page is permanently deleted, everything that is tied to
  * it is deleted also. This includes comments, post meta fields, and terms
@@ -3336,14 +3272,12 @@ function gc_post_mime_type_where( $post_mime_types, $table_alias = '' ) {
  * The post or page is moved to Trash instead of permanently deleted unless
  * Trash is disabled, item is already in the Trash, or $force_delete is true.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  * @see gc_delete_attachment()
  * @see gc_trash_post()
  *
  * @param int  $postid       Optional. Post ID. Default 0.
- * @param bool $force_delete Optional. 是否绕过回收站并强行删除。
+ * @param bool $force_delete Optional. Whether to bypass Trash and force deletion.
  *                           Default false.
  * @return GC_Post|false|null Post data on success, false or null on failure.
  */
@@ -3369,10 +3303,11 @@ function gc_delete_post( $postid = 0, $force_delete = false ) {
 	/**
 	 * Filters whether a post deletion should take place.
 	 *
+	 * @since 4.4.0
 	 *
-	 * @param bool|null $delete       Whether to go forward with deletion.
-	 * @param GC_Post   $post         Post object.
-	 * @param bool      $force_delete Whether to bypass the Trash.
+	 * @param GC_Post|false|null $delete       Whether to go forward with deletion.
+	 * @param GC_Post            $post         Post object.
+	 * @param bool               $force_delete Whether to bypass the Trash.
 	 */
 	$check = apply_filters( 'pre_delete_post', null, $post, $force_delete );
 	if ( null !== $check ) {
@@ -3382,6 +3317,8 @@ function gc_delete_post( $postid = 0, $force_delete = false ) {
 	/**
 	 * Fires before a post is deleted, at the start of gc_delete_post().
 	 *
+	 * @since 3.2.0
+	 * @since 5.5.0 Added the `$post` parameter.
 	 *
 	 * @see gc_delete_post()
 	 *
@@ -3434,6 +3371,8 @@ function gc_delete_post( $postid = 0, $force_delete = false ) {
 	/**
 	 * Fires immediately before a post is deleted from the database.
 	 *
+	 * @since 1.2.0
+	 * @since 5.5.0 Added the `$post` parameter.
 	 *
 	 * @param int     $postid Post ID.
 	 * @param GC_Post $post   Post object.
@@ -3448,6 +3387,8 @@ function gc_delete_post( $postid = 0, $force_delete = false ) {
 	/**
 	 * Fires immediately after a post is deleted from the database.
 	 *
+	 * @since 2.2.0
+	 * @since 5.5.0 Added the `$post` parameter.
 	 *
 	 * @param int     $postid Post ID.
 	 * @param GC_Post $post   Post object.
@@ -3467,6 +3408,8 @@ function gc_delete_post( $postid = 0, $force_delete = false ) {
 	/**
 	 * Fires after a post is deleted, at the conclusion of gc_delete_post().
 	 *
+	 * @since 3.2.0
+	 * @since 5.5.0 Added the `$post` parameter.
 	 *
 	 * @see gc_delete_post()
 	 *
@@ -3479,11 +3422,10 @@ function gc_delete_post( $postid = 0, $force_delete = false ) {
 }
 
 /**
- * Reset the page_on_front, show_on_front, and page_for_post settings when
+ * Resets the page_on_front, show_on_front, and page_for_post settings when
  * a linked page is deleted or trashed.
  *
  * Also ensures the post is no longer sticky.
- *
  *
  * @access private
  *
@@ -3510,11 +3452,9 @@ function _reset_front_page_settings_for_post( $post_id ) {
 }
 
 /**
- * Move a post or page to the Trash
+ * Moves a post or page to the Trash
  *
  * If Trash is disabled, the post or page is permanently deleted.
- *
- *
  *
  * @see gc_delete_post()
  *
@@ -3537,14 +3477,19 @@ function gc_trash_post( $post_id = 0 ) {
 		return false;
 	}
 
+	$previous_status = $post->post_status;
+
 	/**
 	 * Filters whether a post trashing should take place.
 	 *
+	 * @since 4.9.0
+	 * @since 6.3.0 Added the `$previous_status` parameter.
 	 *
-	 * @param bool|null $trash Whether to go forward with trashing.
-	 * @param GC_Post   $post  Post object.
+	 * @param bool|null $trash           Whether to go forward with trashing.
+	 * @param GC_Post   $post            Post object.
+	 * @param string    $previous_status The status of the post about to be trashed.
 	 */
-	$check = apply_filters( 'pre_trash_post', null, $post );
+	$check = apply_filters( 'pre_trash_post', null, $post, $previous_status );
 
 	if ( null !== $check ) {
 		return $check;
@@ -3553,12 +3498,14 @@ function gc_trash_post( $post_id = 0 ) {
 	/**
 	 * Fires before a post is sent to the Trash.
 	 *
+	 * @since 6.3.0 Added the `$previous_status` parameter.
 	 *
-	 * @param int $post_id Post ID.
+	 * @param int    $post_id         Post ID.
+	 * @param string $previous_status The status of the post about to be trashed.
 	 */
-	do_action( 'gc_trash_post', $post_id );
+	do_action( 'gc_trash_post', $post_id, $previous_status );
 
-	add_post_meta( $post_id, '_gc_trash_meta_status', $post->post_status );
+	add_post_meta( $post_id, '_gc_trash_meta_status', $previous_status );
 	add_post_meta( $post_id, '_gc_trash_meta_time', time() );
 
 	$post_updated = gc_update_post(
@@ -3577,19 +3524,20 @@ function gc_trash_post( $post_id = 0 ) {
 	/**
 	 * Fires after a post is sent to the Trash.
 	 *
+	 * @since 2.9.0
+	 * @since 6.3.0 Added the `$previous_status` parameter.
 	 *
-	 * @param int $post_id Post ID.
+	 * @param int    $post_id         Post ID.
+	 * @param string $previous_status The status of the post at the point where it was trashed.
 	 */
-	do_action( 'trashed_post', $post_id );
+	do_action( 'trashed_post', $post_id, $previous_status );
 
 	return $post;
 }
 
 /**
  * Restores a post from the Trash.
- *
- *
- *
+ * An untrashed post is now returned to 'draft' status by default, except for
  *              attachments which are returned to their original 'inherit' status.
  *
  * @param int $post_id Optional. Post ID. Default is the ID of the global `$post`.
@@ -3613,6 +3561,8 @@ function gc_untrash_post( $post_id = 0 ) {
 	/**
 	 * Filters whether a post untrashing should take place.
 	 *
+	 * @since 4.9.0
+	 * @since 5.6.0 Added the `$previous_status` parameter.
 	 *
 	 * @param bool|null $untrash         Whether to go forward with untrashing.
 	 * @param GC_Post   $post            Post object.
@@ -3626,6 +3576,8 @@ function gc_untrash_post( $post_id = 0 ) {
 	/**
 	 * Fires before a post is restored from the Trash.
 	 *
+	 * @since 2.9.0
+	 * @since 5.6.0 Added the `$previous_status` parameter.
 	 *
 	 * @param int    $post_id         Post ID.
 	 * @param string $previous_status The status of the post at the point where it was trashed.
@@ -3643,6 +3595,7 @@ function gc_untrash_post( $post_id = 0 ) {
 	 *
 	 * Prior to GeChiUI 5.6.0, restored posts were always assigned their original status.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param string $new_status      The new status of the post being restored.
 	 * @param int    $post_id         The ID of the post being restored.
@@ -3669,6 +3622,8 @@ function gc_untrash_post( $post_id = 0 ) {
 	/**
 	 * Fires after a post is restored from the Trash.
 	 *
+	 * @since 2.9.0
+	 * @since 5.6.0 Added the `$previous_status` parameter.
 	 *
 	 * @param int    $post_id         Post ID.
 	 * @param string $previous_status The status of the post at the point where it was trashed.
@@ -3680,8 +3635,6 @@ function gc_untrash_post( $post_id = 0 ) {
 
 /**
  * Moves comments for a post to the Trash.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -3702,6 +3655,7 @@ function gc_trash_post_comments( $post = null ) {
 	/**
 	 * Fires before comments are sent to the Trash.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param int $post_id Post ID.
 	 */
@@ -3728,6 +3682,7 @@ function gc_trash_post_comments( $post = null ) {
 	/**
 	 * Fires after comments are sent to the Trash.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param int   $post_id  Post ID.
 	 * @param array $statuses Array of comment statuses.
@@ -3738,9 +3693,7 @@ function gc_trash_post_comments( $post = null ) {
 }
 
 /**
- * Restore comments for a post from the Trash.
- *
- *
+ * Restores comments for a post from the Trash.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -3767,6 +3720,7 @@ function gc_untrash_post_comments( $post = null ) {
 	/**
 	 * Fires before comments are restored for a post from the Trash.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param int $post_id Post ID.
 	 */
@@ -3794,6 +3748,7 @@ function gc_untrash_post_comments( $post = null ) {
 	/**
 	 * Fires after comments are restored for a post from the Trash.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param int $post_id Post ID.
 	 */
@@ -3801,12 +3756,10 @@ function gc_untrash_post_comments( $post = null ) {
 }
 
 /**
- * Retrieve the list of categories for a post.
+ * Retrieves the list of categories for a post.
  *
  * Compatibility layer for themes and plugins. Also an easy layer of abstraction
  * away from the complexity of the taxonomy layer.
- *
- *
  *
  * @see gc_get_object_terms()
  *
@@ -3830,13 +3783,11 @@ function gc_get_post_categories( $post_id = 0, $args = array() ) {
 }
 
 /**
- * Retrieve the tags for a post.
+ * Retrieves the tags for a post.
  *
  * There is only one default for this function, called 'fields' and by default
  * is set to 'all'. There are other defaults that can be overridden in
  * gc_get_object_terms().
- *
- *
  *
  * @param int   $post_id Optional. The Post ID. Does not default to the ID of the
  *                       global $post. Default 0.
@@ -3851,8 +3802,6 @@ function gc_get_post_tags( $post_id = 0, $args = array() ) {
 
 /**
  * Retrieves the terms for a post.
- *
- *
  *
  * @param int             $post_id  Optional. The Post ID. Does not default to the ID of the
  *                                  global $post. Default 0.
@@ -3878,9 +3827,7 @@ function gc_get_post_terms( $post_id = 0, $taxonomy = 'post_tag', $args = array(
 }
 
 /**
- * Retrieve a number of recent posts.
- *
- *
+ * Retrieves a number of recent posts.
  *
  * @see get_posts()
  *
@@ -3931,19 +3878,14 @@ function gc_get_recent_posts( $args = array(), $output = ARRAY_A ) {
 }
 
 /**
- * Insert or update a post.
+ * Inserts or update a post.
  *
  * If the $postarr parameter has 'ID' set to a value, then post will be updated.
  *
  * You can set the post date manually, by setting the values for 'post_date'
  * and 'post_date_gmt' keys. You can close the comments or open the comments by
  * setting the value for 'comment_status' key.
- *
- *
- *
- *
- *
- *
+ * Added the `$gc_error` parameter to allow a GC_Error to be returned on failure. Support was added for encoding emoji in the post title, content, and excerpt. A 'meta_input' array can now be passed to `$postarr` to add post meta data. Added the `$fire_after_hooks` parameter.
  *
  * @see sanitize_post()
  * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -3975,10 +3917,6 @@ function gc_get_recent_posts( $args = array(), $output = ARRAY_A ) {
  *                                         Default empty.
  *     @type string $pinged                Space or carriage return-separated list of URLs that have
  *                                         been pinged. Default empty.
- *     @type string $post_modified         The date when the post was last modified. Default is
- *                                         the current time.
- *     @type string $post_modified_gmt     The date when the post was last modified in the GMT
- *                                         timezone. Default is the current time.
  *     @type int    $post_parent           Set this for the post it belongs to, if any. Default 0.
  *     @type int    $menu_order            The order the post should be displayed in. Default 0.
  *     @type string $post_mime_type        The mime type of the post. Default empty.
@@ -3997,6 +3935,7 @@ function gc_get_recent_posts( $args = array(), $output = ARRAY_A ) {
  *                                         child terms can have the same names with different parent terms,
  *                                         so the only way to connect them is using ID. Default empty.
  *     @type array  $meta_input            Array of post meta values keyed by their post meta key. Default empty.
+ *     @type string $page_template         Page template to use.
  * }
  * @param bool  $gc_error         Optional. Whether to return a GC_Error on failure. Default false.
  * @param bool  $fire_after_hooks Optional. Whether to fire the after insert hooks. Default true.
@@ -4039,7 +3978,7 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 	$postarr = sanitize_post( $postarr, 'db' );
 
 	// Are we updating or creating?
-	$post_ID = 0;
+	$post_id = 0;
 	$update  = false;
 	$guid    = $postarr['guid'];
 
@@ -4047,8 +3986,8 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 		$update = true;
 
 		// Get the post ID and GUID.
-		$post_ID     = $postarr['ID'];
-		$post_before = get_post( $post_ID );
+		$post_id     = $postarr['ID'];
+		$post_before = get_post( $post_id );
 
 		if ( is_null( $post_before ) ) {
 			if ( $gc_error ) {
@@ -4057,8 +3996,8 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 			return 0;
 		}
 
-		$guid            = get_post_field( 'guid', $post_ID );
-		$previous_status = get_post_field( 'post_status', $post_ID );
+		$guid            = get_post_field( 'guid', $post_id );
+		$previous_status = get_post_field( 'post_status', $post_id );
 	} else {
 		$previous_status = 'new';
 		$post_before     = null;
@@ -4115,6 +4054,8 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 	if ( ! empty( $postarr['post_category'] ) ) {
 		// Filter out empty terms.
 		$post_category = array_filter( $postarr['post_category'] );
+	} elseif ( $update && ! isset( $postarr['post_category'] ) ) {
+		$post_category = $post_before->post_category;
 	}
 
 	// Make sure we set a valid category.
@@ -4132,12 +4073,14 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 	 *
 	 * For new posts check the primitive capability, for updates check the meta capability.
 	 */
-	$post_type_object = get_post_type_object( $post_type );
+	if ( 'pending' === $post_status ) {
+		$post_type_object = get_post_type_object( $post_type );
 
-	if ( ! $update && 'pending' === $post_status && ! current_user_can( $post_type_object->cap->publish_posts ) ) {
-		$post_name = '';
-	} elseif ( $update && 'pending' === $post_status && ! current_user_can( 'publish_post', $post_ID ) ) {
-		$post_name = '';
+		if ( ! $update && $post_type_object && ! current_user_can( $post_type_object->cap->publish_posts ) ) {
+			$post_name = '';
+		} elseif ( $update && ! current_user_can( 'publish_post', $post_id ) ) {
+			$post_name = '';
+		}
 	}
 
 	/*
@@ -4154,9 +4097,12 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 		// On updates, we need to check to see if it's using the old, fixed sanitization context.
 		$check_name = sanitize_title( $post_name, '', 'old-save' );
 
-		if ( $update && strtolower( urlencode( $post_name ) ) == $check_name && get_post_field( 'post_name', $post_ID ) == $check_name ) {
+		if ( $update
+			&& strtolower( urlencode( $post_name ) ) === $check_name
+			&& get_post_field( 'post_name', $post_id ) === $check_name
+		) {
 			$post_name = $check_name;
-		} else { // new post, or slug has changed.
+		} else { // New post, or slug has changed.
 			$post_name = sanitize_title( $post_name );
 		}
 	}
@@ -4166,6 +4112,7 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 	 * if none are provided, the date will be set to now.
 	 */
 	$post_date = gc_resolve_post_date( $postarr['post_date'], $postarr['post_date_gmt'] );
+
 	if ( ! $post_date ) {
 		if ( $gc_error ) {
 			return new GC_Error( 'invalid_date', __( '无效日期。' ) );
@@ -4248,7 +4195,7 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 
 	$new_postarr = array_merge(
 		array(
-			'ID' => $post_ID,
+			'ID' => $post_id,
 		),
 		compact( array_diff( array_keys( $defaults ), array( 'context', 'filter' ) ) )
 	);
@@ -4258,21 +4205,21 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 	 *
 	 *
 	 * @param int   $post_parent Post parent ID.
-	 * @param int   $post_ID     Post ID.
+	 * @param int   $post_id     Post ID.
 	 * @param array $new_postarr Array of parsed post data.
 	 * @param array $postarr     Array of sanitized, but otherwise unmodified post data.
 	 */
-	$post_parent = apply_filters( 'gc_insert_post_parent', $post_parent, $post_ID, $new_postarr, $postarr );
+	$post_parent = apply_filters( 'gc_insert_post_parent', $post_parent, $post_id, $new_postarr, $postarr );
 
 	/*
 	 * If the post is being untrashed and it has a desired slug stored in post meta,
 	 * reassign it.
 	 */
 	if ( 'trash' === $previous_status && 'trash' !== $post_status ) {
-		$desired_post_slug = get_post_meta( $post_ID, '_gc_desired_post_slug', true );
+		$desired_post_slug = get_post_meta( $post_id, '_gc_desired_post_slug', true );
 
 		if ( $desired_post_slug ) {
-			delete_post_meta( $post_ID, '_gc_desired_post_slug' );
+			delete_post_meta( $post_id, '_gc_desired_post_slug' );
 			$post_name = $desired_post_slug;
 		}
 	}
@@ -4282,30 +4229,53 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 		/**
 		 * Filters whether or not to add a `__trashed` suffix to trashed posts that match the name of the updated post.
 		 *
+		 * @since 5.4.0
 		 *
 		 * @param bool   $add_trashed_suffix Whether to attempt to add the suffix.
 		 * @param string $post_name          The name of the post being updated.
-		 * @param int    $post_ID            Post ID.
+		 * @param int    $post_id            Post ID.
 		 */
-		$add_trashed_suffix = apply_filters( 'add_trashed_suffix_to_trashed_posts', true, $post_name, $post_ID );
+		$add_trashed_suffix = apply_filters( 'add_trashed_suffix_to_trashed_posts', true, $post_name, $post_id );
 
 		if ( $add_trashed_suffix ) {
-			gc_add_trashed_suffix_to_post_name_for_trashed_posts( $post_name, $post_ID );
+			gc_add_trashed_suffix_to_post_name_for_trashed_posts( $post_name, $post_id );
 		}
 	}
 
 	// When trashing an existing post, change its slug to allow non-trashed posts to use it.
 	if ( 'trash' === $post_status && 'trash' !== $previous_status && 'new' !== $previous_status ) {
-		$post_name = gc_add_trashed_suffix_to_post_name_for_post( $post_ID );
+		$post_name = gc_add_trashed_suffix_to_post_name_for_post( $post_id );
 	}
 
-	$post_name = gc_unique_post_slug( $post_name, $post_ID, $post_status, $post_type, $post_parent );
+	$post_name = gc_unique_post_slug( $post_name, $post_id, $post_status, $post_type, $post_parent );
 
 	// Don't unslash.
 	$post_mime_type = isset( $postarr['post_mime_type'] ) ? $postarr['post_mime_type'] : '';
 
 	// Expected_slashed (everything!).
-	$data = compact( 'post_author', 'post_date', 'post_date_gmt', 'post_content', 'post_content_filtered', 'post_title', 'post_excerpt', 'post_status', 'post_type', 'comment_status', 'ping_status', 'post_password', 'post_name', 'to_ping', 'pinged', 'post_modified', 'post_modified_gmt', 'post_parent', 'menu_order', 'post_mime_type', 'guid' );
+	$data = compact(
+		'post_author',
+		'post_date',
+		'post_date_gmt',
+		'post_content',
+		'post_content_filtered',
+		'post_title',
+		'post_excerpt',
+		'post_status',
+		'post_type',
+		'comment_status',
+		'ping_status',
+		'post_password',
+		'post_name',
+		'to_ping',
+		'pinged',
+		'post_modified',
+		'post_modified_gmt',
+		'post_parent',
+		'menu_order',
+		'post_mime_type',
+		'guid'
+	);
 
 	$emoji_fields = array( 'post_title', 'post_content', 'post_excerpt' );
 
@@ -4323,6 +4293,9 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 		/**
 		 * Filters attachment post data before it is updated in or added to the database.
 		 *
+		 * @since 3.9.0
+		 * @since 5.4.1 The `$unsanitized_postarr` parameter was added.
+		 * @since 6.0.0 The `$update` parameter was added.
 		 *
 		 * @param array $data                An array of slashed, sanitized, and processed attachment post data.
 		 * @param array $postarr             An array of slashed and sanitized attachment post data, but not processed.
@@ -4335,6 +4308,8 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 		/**
 		 * Filters slashed post data just before it is inserted into the database.
 		 *
+		 * @since 5.4.1 The `$unsanitized_postarr` parameter was added.
+		 * @since 6.0.0 The `$update` parameter was added.
 		 *
 		 * @param array $data                An array of slashed, sanitized, and processed post data.
 		 * @param array $postarr             An array of sanitized (and slashed) but otherwise unmodified post data.
@@ -4346,17 +4321,18 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 	}
 
 	$data  = gc_unslash( $data );
-	$where = array( 'ID' => $post_ID );
+	$where = array( 'ID' => $post_id );
 
 	if ( $update ) {
 		/**
 		 * Fires immediately before an existing post is updated in the database.
 		 *
+		 * @since 2.5.0
 		 *
-		 * @param int   $post_ID Post ID.
+		 * @param int   $post_id Post ID.
 		 * @param array $data    Array of unslashed post data.
 		 */
-		do_action( 'pre_post_update', $post_ID, $data );
+		do_action( 'pre_post_update', $post_id, $data );
 
 		if ( false === $gcdb->update( $gcdb->posts, $data, $where ) ) {
 			if ( $gc_error ) {
@@ -4395,25 +4371,25 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 			}
 		}
 
-		$post_ID = (int) $gcdb->insert_id;
+		$post_id = (int) $gcdb->insert_id;
 
-		// Use the newly generated $post_ID.
-		$where = array( 'ID' => $post_ID );
+		// Use the newly generated $post_id.
+		$where = array( 'ID' => $post_id );
 	}
 
 	if ( empty( $data['post_name'] ) && ! in_array( $data['post_status'], array( 'draft', 'pending', 'auto-draft' ), true ) ) {
-		$data['post_name'] = gc_unique_post_slug( sanitize_title( $data['post_title'], $post_ID ), $post_ID, $data['post_status'], $post_type, $post_parent );
+		$data['post_name'] = gc_unique_post_slug( sanitize_title( $data['post_title'], $post_id ), $post_id, $data['post_status'], $post_type, $post_parent );
 
 		$gcdb->update( $gcdb->posts, array( 'post_name' => $data['post_name'] ), $where );
-		clean_post_cache( $post_ID );
+		clean_post_cache( $post_id );
 	}
 
 	if ( is_object_in_taxonomy( $post_type, 'category' ) ) {
-		gc_set_post_categories( $post_ID, $post_category );
+		gc_set_post_categories( $post_id, $post_category );
 	}
 
 	if ( isset( $postarr['tags_input'] ) && is_object_in_taxonomy( $post_type, 'post_tag' ) ) {
-		gc_set_post_tags( $post_ID, $postarr['tags_input'] );
+		gc_set_post_tags( $post_id, $postarr['tags_input'] );
 	}
 
 	// Add default term for all associated custom taxonomies.
@@ -4428,7 +4404,7 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 				}
 
 				// Passed custom taxonomy list overwrites the existing list if not empty.
-				$terms = gc_get_object_terms( $post_ID, $taxonomy, array( 'fields' => 'ids' ) );
+				$terms = gc_get_object_terms( $post_id, $taxonomy, array( 'fields' => 'ids' ) );
 				if ( ! empty( $terms ) && empty( $postarr['tax_input'][ $taxonomy ] ) ) {
 					$postarr['tax_input'][ $taxonomy ] = $terms;
 				}
@@ -4460,31 +4436,31 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 			}
 
 			if ( current_user_can( $taxonomy_obj->cap->assign_terms ) ) {
-				gc_set_post_terms( $post_ID, $tags, $taxonomy );
+				gc_set_post_terms( $post_id, $tags, $taxonomy );
 			}
 		}
 	}
 
 	if ( ! empty( $postarr['meta_input'] ) ) {
 		foreach ( $postarr['meta_input'] as $field => $value ) {
-			update_post_meta( $post_ID, $field, $value );
+			update_post_meta( $post_id, $field, $value );
 		}
 	}
 
-	$current_guid = get_post_field( 'guid', $post_ID );
+	$current_guid = get_post_field( 'guid', $post_id );
 
 	// Set GUID.
 	if ( ! $update && '' === $current_guid ) {
-		$gcdb->update( $gcdb->posts, array( 'guid' => get_permalink( $post_ID ) ), $where );
+		$gcdb->update( $gcdb->posts, array( 'guid' => get_permalink( $post_id ) ), $where );
 	}
 
 	if ( 'attachment' === $postarr['post_type'] ) {
 		if ( ! empty( $postarr['file'] ) ) {
-			update_attached_file( $post_ID, $postarr['file'] );
+			update_attached_file( $post_id, $postarr['file'] );
 		}
 
 		if ( ! empty( $postarr['context'] ) ) {
-			add_post_meta( $post_ID, '_gc_attachment_context', $postarr['context'], true );
+			add_post_meta( $post_id, '_gc_attachment_context', $postarr['context'], true );
 		}
 	}
 
@@ -4493,9 +4469,9 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 		$thumbnail_support = current_theme_supports( 'post-thumbnails', $post_type ) && post_type_supports( $post_type, 'thumbnail' ) || 'revision' === $post_type;
 
 		if ( ! $thumbnail_support && 'attachment' === $post_type && $post_mime_type ) {
-			if ( gc_attachment_is( 'audio', $post_ID ) ) {
+			if ( gc_attachment_is( 'audio', $post_id ) ) {
 				$thumbnail_support = post_type_supports( 'attachment:audio', 'thumbnail' ) || current_theme_supports( 'post-thumbnails', 'attachment:audio' );
-			} elseif ( gc_attachment_is( 'video', $post_ID ) ) {
+			} elseif ( gc_attachment_is( 'video', $post_id ) ) {
 				$thumbnail_support = post_type_supports( 'attachment:video', 'thumbnail' ) || current_theme_supports( 'post-thumbnails', 'attachment:video' );
 			}
 		}
@@ -4503,16 +4479,16 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 		if ( $thumbnail_support ) {
 			$thumbnail_id = (int) $postarr['_thumbnail_id'];
 			if ( -1 === $thumbnail_id ) {
-				delete_post_thumbnail( $post_ID );
+				delete_post_thumbnail( $post_id );
 			} else {
-				set_post_thumbnail( $post_ID, $thumbnail_id );
+				set_post_thumbnail( $post_id, $thumbnail_id );
 			}
 		}
 	}
 
-	clean_post_cache( $post_ID );
+	clean_post_cache( $post_id );
 
-	$post = get_post( $post_ID );
+	$post = get_post( $post_id );
 
 	if ( ! empty( $postarr['page_template'] ) ) {
 		$post->page_template = $postarr['page_template'];
@@ -4523,9 +4499,9 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 				return new GC_Error( 'invalid_page_template', __( '无效页面模板。' ) );
 			}
 
-			update_post_meta( $post_ID, '_gc_page_template', 'default' );
+			update_post_meta( $post_id, '_gc_page_template', 'default' );
 		} else {
-			update_post_meta( $post_ID, '_gc_page_template', $postarr['page_template'] );
+			update_post_meta( $post_id, '_gc_page_template', $postarr['page_template'] );
 		}
 	}
 
@@ -4536,37 +4512,37 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 			/**
 			 * Fires once an existing attachment has been updated.
 			 *
-		
+			 * @since 2.0.0
 			 *
-			 * @param int $post_ID Attachment ID.
+			 * @param int $post_id Attachment ID.
 			 */
-			do_action( 'edit_attachment', $post_ID );
+			do_action( 'edit_attachment', $post_id );
 
-			$post_after = get_post( $post_ID );
+			$post_after = get_post( $post_id );
 
 			/**
 			 * Fires once an existing attachment has been updated.
 			 *
-		
+			 * @since 4.4.0
 			 *
-			 * @param int     $post_ID      Post ID.
+			 * @param int     $post_id      Post ID.
 			 * @param GC_Post $post_after   Post object following the update.
 			 * @param GC_Post $post_before  Post object before the update.
 			 */
-			do_action( 'attachment_updated', $post_ID, $post_after, $post_before );
+			do_action( 'attachment_updated', $post_id, $post_after, $post_before );
 		} else {
 
 			/**
 			 * Fires once an attachment has been added.
 			 *
-		
+			 * @since 2.0.0
 			 *
-			 * @param int $post_ID Attachment ID.
+			 * @param int $post_id Attachment ID.
 			 */
-			do_action( 'add_attachment', $post_ID );
+			do_action( 'add_attachment', $post_id );
 		}
 
-		return $post_ID;
+		return $post_id;
 	}
 
 	if ( $update ) {
@@ -4581,32 +4557,35 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 		 *  - `edit_post_post`
 		 *  - `edit_post_page`
 		 *
+		 * @since 5.1.0
 		 *
-		 * @param int     $post_ID Post ID.
+		 * @param int     $post_id Post ID.
 		 * @param GC_Post $post    Post object.
 		 */
-		do_action( "edit_post_{$post->post_type}", $post_ID, $post );
+		do_action( "edit_post_{$post->post_type}", $post_id, $post );
 
 		/**
 		 * Fires once an existing post has been updated.
 		 *
+		 * @since 1.2.0
 		 *
-		 * @param int     $post_ID Post ID.
+		 * @param int     $post_id Post ID.
 		 * @param GC_Post $post    Post object.
 		 */
-		do_action( 'edit_post', $post_ID, $post );
+		do_action( 'edit_post', $post_id, $post );
 
-		$post_after = get_post( $post_ID );
+		$post_after = get_post( $post_id );
 
 		/**
 		 * Fires once an existing post has been updated.
 		 *
+		 * @since 3.0.0
 		 *
-		 * @param int     $post_ID      Post ID.
+		 * @param int     $post_id      Post ID.
 		 * @param GC_Post $post_after   Post object following the update.
 		 * @param GC_Post $post_before  Post object before the update.
 		 */
-		do_action( 'post_updated', $post_ID, $post_after, $post_before );
+		do_action( 'post_updated', $post_id, $post_after, $post_before );
 	}
 
 	/**
@@ -4620,49 +4599,49 @@ function gc_insert_post( $postarr, $gc_error = false, $fire_after_hooks = true )
 	 *  - `save_post_post`
 	 *  - `save_post_page`
 	 *
+	 * @since 3.7.0
 	 *
-	 * @param int     $post_ID Post ID.
+	 * @param int     $post_id Post ID.
 	 * @param GC_Post $post    Post object.
 	 * @param bool    $update  Whether this is an existing post being updated.
 	 */
-	do_action( "save_post_{$post->post_type}", $post_ID, $post, $update );
+	do_action( "save_post_{$post->post_type}", $post_id, $post, $update );
 
 	/**
 	 * Fires once a post has been saved.
 	 *
+	 * @since 1.5.0
 	 *
-	 * @param int     $post_ID Post ID.
+	 * @param int     $post_id Post ID.
 	 * @param GC_Post $post    Post object.
 	 * @param bool    $update  Whether this is an existing post being updated.
 	 */
-	do_action( 'save_post', $post_ID, $post, $update );
+	do_action( 'save_post', $post_id, $post, $update );
 
 	/**
 	 * Fires once a post has been saved.
 	 *
+	 * @since 2.0.0
 	 *
-	 * @param int     $post_ID Post ID.
+	 * @param int     $post_id Post ID.
 	 * @param GC_Post $post    Post object.
 	 * @param bool    $update  Whether this is an existing post being updated.
 	 */
-	do_action( 'gc_insert_post', $post_ID, $post, $update );
+	do_action( 'gc_insert_post', $post_id, $post, $update );
 
 	if ( $fire_after_hooks ) {
 		gc_after_insert_post( $post, $update, $post_before );
 	}
 
-	return $post_ID;
+	return $post_id;
 }
 
 /**
- * Update a post with new post data.
+ * Updates a post with new post data.
  *
  * The date does not have to be set for drafts. You can set the date and it will
  * not be overridden.
- *
- *
- *
- *
+ * Added the `$gc_error` parameter to allow a GC_Error to be returned on failure. Added the `$fire_after_hooks` parameter.
  *
  * @param array|object $postarr          Optional. Post data. Arrays are expected to be escaped,
  *                                       objects are not. See gc_insert_post() for accepted arguments.
@@ -4740,9 +4719,7 @@ function gc_update_post( $postarr = array(), $gc_error = false, $fire_after_hook
 }
 
 /**
- * Publish a post by transitioning the post status.
- *
- *
+ * Publishes a post by transitioning the post status.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -4817,17 +4794,15 @@ function gc_publish_post( $post ) {
 }
 
 /**
- * Publish future post and make sure post ID has future post status.
+ * Publishes future post and make sure post ID has future post status.
  *
  * Invoked by cron 'publish_future_post' event. This safeguard prevents cron
  * from publishing drafts, etc.
  *
- *
- *
- * @param int|GC_Post $post_id Post ID or post object.
+ * @param int|GC_Post $post Post ID or post object.
  */
-function check_and_publish_future_post( $post_id ) {
-	$post = get_post( $post_id );
+function check_and_publish_future_post( $post ) {
+	$post = get_post( $post );
 
 	if ( ! $post ) {
 		return;
@@ -4841,13 +4816,13 @@ function check_and_publish_future_post( $post_id ) {
 
 	// Uh oh, someone jumped the gun!
 	if ( $time > time() ) {
-		gc_clear_scheduled_hook( 'publish_future_post', array( $post_id ) ); // Clear anything else in the system.
-		gc_schedule_single_event( $time, 'publish_future_post', array( $post_id ) );
+		gc_clear_scheduled_hook( 'publish_future_post', array( $post->ID ) ); // Clear anything else in the system.
+		gc_schedule_single_event( $time, 'publish_future_post', array( $post->ID ) );
 		return;
 	}
 
 	// gc_publish_post() returns no meaningful value.
-	gc_publish_post( $post_id );
+	gc_publish_post( $post->ID );
 }
 
 /**
@@ -4858,7 +4833,7 @@ function check_and_publish_future_post( $post_id ) {
  * For back-compat purposes in gc_insert_post, an empty post_date and an invalid
  * post_date_gmt will continue to return '1970-01-01 00:00:00' rather than false.
  *
- *
+ * @since 5.7.0
  *
  * @param string $post_date     The date in mysql format.
  * @param string $post_date_gmt The GMT date in mysql format.
@@ -4875,9 +4850,9 @@ function gc_resolve_post_date( $post_date = '', $post_date_gmt = '' ) {
 	}
 
 	// Validate the date.
-	$month = substr( $post_date, 5, 2 );
-	$day   = substr( $post_date, 8, 2 );
-	$year  = substr( $post_date, 0, 4 );
+	$month = (int) substr( $post_date, 5, 2 );
+	$day   = (int) substr( $post_date, 8, 2 );
+	$year  = (int) substr( $post_date, 0, 4 );
 
 	$valid_date = gc_checkdate( $month, $day, $year, $post_date );
 
@@ -4890,19 +4865,17 @@ function gc_resolve_post_date( $post_date = '', $post_date_gmt = '' ) {
 /**
  * Computes a unique slug for the post, when given the desired slug and some post details.
  *
- *
- *
  * @global gcdb       $gcdb       GeChiUI database abstraction object.
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
  * @param string $slug        The desired slug (post_name).
- * @param int    $post_ID     Post ID.
+ * @param int    $post_id     Post ID.
  * @param string $post_status No uniqueness checks are made if the post is still draft or pending.
  * @param string $post_type   Post type.
  * @param int    $post_parent Post parent ID.
  * @return string Unique slug for the post, based on $post_name (with a -1, -2, etc. suffix)
  */
-function gc_unique_post_slug( $slug, $post_ID, $post_status, $post_type, $post_parent ) {
+function gc_unique_post_slug( $slug, $post_id, $post_status, $post_type, $post_parent ) {
 	if ( in_array( $post_status, array( 'draft', 'pending', 'auto-draft' ), true )
 		|| ( 'inherit' === $post_status && 'revision' === $post_type ) || 'user_request' === $post_type
 	) {
@@ -4915,15 +4888,16 @@ function gc_unique_post_slug( $slug, $post_ID, $post_status, $post_type, $post_p
 	 * Returning a non-null value will short-circuit the
 	 * unique slug generation, returning the passed value instead.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param string|null $override_slug Short-circuit return value.
 	 * @param string      $slug          The desired slug (post_name).
-	 * @param int         $post_ID       Post ID.
+	 * @param int         $post_id       Post ID.
 	 * @param string      $post_status   The post status.
 	 * @param string      $post_type     Post type.
 	 * @param int         $post_parent   Post parent ID.
 	 */
-	$override_slug = apply_filters( 'pre_gc_unique_post_slug', null, $slug, $post_ID, $post_status, $post_type, $post_parent );
+	$override_slug = apply_filters( 'pre_gc_unique_post_slug', null, $slug, $post_id, $post_status, $post_type, $post_parent );
 	if ( null !== $override_slug ) {
 		return $override_slug;
 	}
@@ -4940,11 +4914,12 @@ function gc_unique_post_slug( $slug, $post_ID, $post_status, $post_type, $post_p
 	if ( 'attachment' === $post_type ) {
 		// Attachment slugs must be unique across all types.
 		$check_sql       = "SELECT post_name FROM $gcdb->posts WHERE post_name = %s AND ID != %d LIMIT 1";
-		$post_name_check = $gcdb->get_var( $gcdb->prepare( $check_sql, $slug, $post_ID ) );
+		$post_name_check = $gcdb->get_var( $gcdb->prepare( $check_sql, $slug, $post_id ) );
 
 		/**
 		 * Filters whether the post slug would make a bad attachment slug.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param bool   $bad_slug Whether the slug would be bad as an attachment slug.
 		 * @param string $slug     The post slug.
@@ -4958,7 +4933,7 @@ function gc_unique_post_slug( $slug, $post_ID, $post_status, $post_type, $post_p
 			$suffix = 2;
 			do {
 				$alt_post_name   = _truncate_post_slug( $slug, 200 - ( strlen( $suffix ) + 1 ) ) . "-$suffix";
-				$post_name_check = $gcdb->get_var( $gcdb->prepare( $check_sql, $alt_post_name, $post_ID ) );
+				$post_name_check = $gcdb->get_var( $gcdb->prepare( $check_sql, $alt_post_name, $post_id ) );
 				$suffix++;
 			} while ( $post_name_check );
 			$slug = $alt_post_name;
@@ -4973,11 +4948,12 @@ function gc_unique_post_slug( $slug, $post_ID, $post_status, $post_type, $post_p
 		 * namespace than posts so page slugs are allowed to overlap post slugs.
 		 */
 		$check_sql       = "SELECT post_name FROM $gcdb->posts WHERE post_name = %s AND post_type IN ( %s, 'attachment' ) AND ID != %d AND post_parent = %d LIMIT 1";
-		$post_name_check = $gcdb->get_var( $gcdb->prepare( $check_sql, $slug, $post_type, $post_ID, $post_parent ) );
+		$post_name_check = $gcdb->get_var( $gcdb->prepare( $check_sql, $slug, $post_type, $post_id, $post_parent ) );
 
 		/**
 		 * Filters whether the post slug would make a bad hierarchical post slug.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param bool   $bad_slug    Whether the post slug would be bad in a hierarchical post context.
 		 * @param string $slug        The post slug.
@@ -4994,7 +4970,7 @@ function gc_unique_post_slug( $slug, $post_ID, $post_status, $post_type, $post_p
 			$suffix = 2;
 			do {
 				$alt_post_name   = _truncate_post_slug( $slug, 200 - ( strlen( $suffix ) + 1 ) ) . "-$suffix";
-				$post_name_check = $gcdb->get_var( $gcdb->prepare( $check_sql, $alt_post_name, $post_type, $post_ID, $post_parent ) );
+				$post_name_check = $gcdb->get_var( $gcdb->prepare( $check_sql, $alt_post_name, $post_type, $post_id, $post_parent ) );
 				$suffix++;
 			} while ( $post_name_check );
 			$slug = $alt_post_name;
@@ -5002,9 +4978,9 @@ function gc_unique_post_slug( $slug, $post_ID, $post_status, $post_type, $post_p
 	} else {
 		// Post slugs must be unique across all posts.
 		$check_sql       = "SELECT post_name FROM $gcdb->posts WHERE post_name = %s AND post_type = %s AND ID != %d LIMIT 1";
-		$post_name_check = $gcdb->get_var( $gcdb->prepare( $check_sql, $slug, $post_type, $post_ID ) );
+		$post_name_check = $gcdb->get_var( $gcdb->prepare( $check_sql, $slug, $post_type, $post_id ) );
 
-		$post = get_post( $post_ID );
+		$post = get_post( $post_id );
 
 		// Prevent new post slugs that could result in URLs that conflict with date archives.
 		$conflicts_with_date_archive = false;
@@ -5034,6 +5010,7 @@ function gc_unique_post_slug( $slug, $post_ID, $post_status, $post_type, $post_p
 		/**
 		 * Filters whether the post slug would be bad as a flat slug.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param bool   $bad_slug  Whether the post slug would be bad as a flat slug.
 		 * @param string $slug      The post slug.
@@ -5049,7 +5026,7 @@ function gc_unique_post_slug( $slug, $post_ID, $post_status, $post_type, $post_p
 			$suffix = 2;
 			do {
 				$alt_post_name   = _truncate_post_slug( $slug, 200 - ( strlen( $suffix ) + 1 ) ) . "-$suffix";
-				$post_name_check = $gcdb->get_var( $gcdb->prepare( $check_sql, $alt_post_name, $post_type, $post_ID ) );
+				$post_name_check = $gcdb->get_var( $gcdb->prepare( $check_sql, $alt_post_name, $post_type, $post_id ) );
 				$suffix++;
 			} while ( $post_name_check );
 			$slug = $alt_post_name;
@@ -5061,18 +5038,17 @@ function gc_unique_post_slug( $slug, $post_ID, $post_status, $post_type, $post_p
 	 *
 	 *
 	 * @param string $slug          The post slug.
-	 * @param int    $post_ID       Post ID.
+	 * @param int    $post_id       Post ID.
 	 * @param string $post_status   The post status.
 	 * @param string $post_type     Post type.
 	 * @param int    $post_parent   Post parent ID
 	 * @param string $original_slug The original post slug.
 	 */
-	return apply_filters( 'gc_unique_post_slug', $slug, $post_ID, $post_status, $post_type, $post_parent, $original_slug );
+	return apply_filters( 'gc_unique_post_slug', $slug, $post_id, $post_status, $post_type, $post_parent, $original_slug );
 }
 
 /**
- * Truncate a post slug.
- *
+ * Truncates a post slug.
  *
  * @access private
  *
@@ -5096,11 +5072,9 @@ function _truncate_post_slug( $slug, $length = 200 ) {
 }
 
 /**
- * Add tags to a post.
+ * Adds tags to a post.
  *
  * @see gc_set_post_tags()
- *
- *
  *
  * @param int          $post_id Optional. The Post ID. Does not default to the ID of the global $post.
  * @param string|array $tags    Optional. An array of tags to set for the post, or a string of tags
@@ -5112,9 +5086,7 @@ function gc_add_post_tags( $post_id = 0, $tags = '' ) {
 }
 
 /**
- * Set the tags for a post.
- *
- *
+ * Sets the tags for a post.
  *
  * @see gc_set_object_terms()
  *
@@ -5130,14 +5102,12 @@ function gc_set_post_tags( $post_id = 0, $tags = '', $append = false ) {
 }
 
 /**
- * Set the terms for a post.
- *
- *
+ * Sets the terms for a post.
  *
  * @see gc_set_object_terms()
  *
  * @param int          $post_id  Optional. The Post ID. Does not default to the ID of the global $post.
- * @param string|array $tags     Optional. An array of terms to set for the post, or a string of terms
+ * @param string|array $terms    Optional. An array of terms to set for the post, or a string of terms
  *                               separated by commas. Hierarchical taxonomies must always pass IDs rather
  *                               than names so that children with the same names but different parents
  *                               aren't confused. Default empty.
@@ -5146,23 +5116,23 @@ function gc_set_post_tags( $post_id = 0, $tags = '', $append = false ) {
  *                               replace the terms with the new terms. Default false.
  * @return array|false|GC_Error Array of term taxonomy IDs of affected terms. GC_Error or false on failure.
  */
-function gc_set_post_terms( $post_id = 0, $tags = '', $taxonomy = 'post_tag', $append = false ) {
+function gc_set_post_terms( $post_id = 0, $terms = '', $taxonomy = 'post_tag', $append = false ) {
 	$post_id = (int) $post_id;
 
 	if ( ! $post_id ) {
 		return false;
 	}
 
-	if ( empty( $tags ) ) {
-		$tags = array();
+	if ( empty( $terms ) ) {
+		$terms = array();
 	}
 
-	if ( ! is_array( $tags ) ) {
-		$comma = _x( '、', 'tag delimiter' );
+	if ( ! is_array( $terms ) ) {
+		$comma = _x( ',', 'tag delimiter' );
 		if ( ',' !== $comma ) {
-			$tags = str_replace( $comma, ',', $tags );
+			$terms = str_replace( $comma, ',', $terms );
 		}
-		$tags = explode( ',', trim( $tags, " \n\t\r\0\x0B," ) );
+		$terms = explode( ',', trim( $terms, " \n\t\r\0\x0B," ) );
 	}
 
 	/*
@@ -5170,20 +5140,18 @@ function gc_set_post_terms( $post_id = 0, $tags = '', $taxonomy = 'post_tag', $a
 	 * children with the same names but different parents aren't confused.
 	 */
 	if ( is_taxonomy_hierarchical( $taxonomy ) ) {
-		$tags = array_unique( array_map( 'intval', $tags ) );
+		$terms = array_unique( array_map( 'intval', $terms ) );
 	}
 
-	return gc_set_object_terms( $post_id, $tags, $taxonomy, $append );
+	return gc_set_object_terms( $post_id, $terms, $taxonomy, $append );
 }
 
 /**
- * Set categories for a post.
+ * Sets categories for a post.
  *
  * If no categories are provided, the default category is used.
  *
- *
- *
- * @param int       $post_ID         Optional. The Post ID. Does not default to the ID
+ * @param int       $post_id         Optional. The Post ID. Does not default to the ID
  *                                   of the global $post. Default 0.
  * @param int[]|int $post_categories Optional. List of category IDs, or the ID of a single category.
  *                                   Default empty array.
@@ -5191,10 +5159,10 @@ function gc_set_post_terms( $post_id = 0, $tags = '', $taxonomy = 'post_tag', $a
  *                                   If false, replace the categories with the new categories.
  * @return array|false|GC_Error Array of term taxonomy IDs of affected categories. GC_Error or false on failure.
  */
-function gc_set_post_categories( $post_ID = 0, $post_categories = array(), $append = false ) {
-	$post_ID     = (int) $post_ID;
-	$post_type   = get_post_type( $post_ID );
-	$post_status = get_post_status( $post_ID );
+function gc_set_post_categories( $post_id = 0, $post_categories = array(), $append = false ) {
+	$post_id     = (int) $post_id;
+	$post_type   = get_post_type( $post_id );
+	$post_status = get_post_status( $post_id );
 
 	// If $post_categories isn't already an array, make it one.
 	$post_categories = (array) $post_categories;
@@ -5203,6 +5171,7 @@ function gc_set_post_categories( $post_ID = 0, $post_categories = array(), $appe
 		/**
 		 * Filters post types (in addition to 'post') that require a default category.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param string[] $post_types An array of post type names. Default empty array.
 		 */
@@ -5224,7 +5193,7 @@ function gc_set_post_categories( $post_ID = 0, $post_categories = array(), $appe
 		return true;
 	}
 
-	return gc_set_post_terms( $post_ID, $post_categories, 'category', $append );
+	return gc_set_post_terms( $post_id, $post_categories, 'category', $append );
 }
 
 /**
@@ -5242,8 +5211,6 @@ function gc_set_post_categories( $post_ID = 0, $post_categories = array(), $appe
  * published and is simply being updated, the "old" and "new" statuses may both be 'publish'
  * before and after the transition.
  *
- *
- *
  * @param string  $new_status Transition to this post status.
  * @param string  $old_status Previous post status.
  * @param GC_Post $post Post data.
@@ -5252,6 +5219,7 @@ function gc_transition_post_status( $new_status, $old_status, $post ) {
 	/**
 	 * Fires when a post is transitioned from one status to another.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param string  $new_status New post status.
 	 * @param string  $old_status Old post status.
@@ -5271,6 +5239,7 @@ function gc_transition_post_status( $new_status, $old_status, $post ) {
 	 *  - `publish_to_trash`
 	 *  - `pending_to_draft`
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param GC_Post $post Post object.
 	 */
@@ -5307,6 +5276,8 @@ function gc_transition_post_status( $new_status, $old_status, $post ) {
 	 * Therefore, if you are looking to only fire a callback when a post is first
 	 * transitioned to a status, use the {@see 'transition_post_status'} hook instead.
 	 *
+	 * @since 2.3.0
+	 * @since 5.9.0 Added `$old_status` parameter.
 	 *
 	 * @param int     $post_id    Post ID.
 	 * @param GC_Post $post       Post object.
@@ -5318,8 +5289,6 @@ function gc_transition_post_status( $new_status, $old_status, $post ) {
 /**
  * Fires actions after a post, its terms and meta data has been saved.
  *
- *
- *
  * @param int|GC_Post  $post        The post ID or object that has been saved.
  * @param bool         $update      Whether this is an existing post being updated.
  * @param null|GC_Post $post_before Null for new posts, the GC_Post object prior
@@ -5327,6 +5296,7 @@ function gc_transition_post_status( $new_status, $old_status, $post ) {
  */
 function gc_after_insert_post( $post, $update, $post_before ) {
 	$post = get_post( $post );
+
 	if ( ! $post ) {
 		return;
 	}
@@ -5336,6 +5306,7 @@ function gc_after_insert_post( $post, $update, $post_before ) {
 	/**
 	 * Fires once a post, its terms and meta data has been saved.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param int          $post_id     Post ID.
 	 * @param GC_Post      $post        Post object.
@@ -5351,22 +5322,19 @@ function gc_after_insert_post( $post, $update, $post_before ) {
 //
 
 /**
- * Add a URL to those already pinged.
- *
- *
- *
- *
+ * Adds a URL to those already pinged.
+ * `$post` can be a GC_Post object. `$uri` can be an array of URIs.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
- * @param int|GC_Post  $post_id Post object or ID.
- * @param string|array $uri     Ping URI or array of URIs.
+ * @param int|GC_Post  $post Post ID or post object.
+ * @param string|array $uri  Ping URI or array of URIs.
  * @return int|false How many rows were updated.
  */
-function add_ping( $post_id, $uri ) {
+function add_ping( $post, $uri ) {
 	global $gcdb;
 
-	$post = get_post( $post_id );
+	$post = get_post( $post );
 
 	if ( ! $post ) {
 		return false;
@@ -5385,6 +5353,7 @@ function add_ping( $post_id, $uri ) {
 	/**
 	 * Filters the new ping URL to add for the given post.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $new New ping URL to add.
 	 */
@@ -5396,9 +5365,7 @@ function add_ping( $post_id, $uri ) {
 }
 
 /**
- * Retrieve enclosures already enclosed for a post.
- *
- *
+ * Retrieves enclosures already enclosed for a post.
  *
  * @param int $post_id Post ID.
  * @return string[] Array of enclosures for the given post.
@@ -5423,6 +5390,7 @@ function get_enclosed( $post_id ) {
 	/**
 	 * Filters the list of enclosures already enclosed for the given post.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string[] $pung    Array of enclosures for the given post.
 	 * @param int      $post_id Post ID.
@@ -5431,17 +5399,15 @@ function get_enclosed( $post_id ) {
 }
 
 /**
- * Retrieve URLs already pinged for a post.
+ * Retrieves URLs already pinged for a post.
  *
+ * `$post` can be a GC_Post object.
  *
- *
- *
- *
- * @param int|GC_Post $post_id Post ID or object.
+ * @param int|GC_Post $post Post ID or object.
  * @return string[]|false Array of URLs already pinged for the given post, false if the post is not found.
  */
-function get_pung( $post_id ) {
-	$post = get_post( $post_id );
+function get_pung( $post ) {
+	$post = get_post( $post );
 
 	if ( ! $post ) {
 		return false;
@@ -5453,6 +5419,7 @@ function get_pung( $post_id ) {
 	/**
 	 * Filters the list of already-pinged URLs for the given post.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string[] $pung Array of URLs already pinged for the given post.
 	 */
@@ -5460,16 +5427,14 @@ function get_pung( $post_id ) {
 }
 
 /**
- * Retrieve URLs that need to be pinged.
+ * Retrieves URLs that need to be pinged.
+ * `$post` can be a GC_Post object.
  *
- *
- *
- *
- * @param int|GC_Post $post_id Post Object or ID
+ * @param int|GC_Post $post Post ID or post object.
  * @return string[]|false List of URLs yet to ping.
  */
-function get_to_ping( $post_id ) {
-	$post = get_post( $post_id );
+function get_to_ping( $post ) {
+	$post = get_post( $post );
 
 	if ( ! $post ) {
 		return false;
@@ -5481,6 +5446,7 @@ function get_to_ping( $post_id ) {
 	/**
 	 * Filters the list of URLs yet to ping for the given post.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string[] $to_ping List of URLs yet to ping.
 	 */
@@ -5488,9 +5454,7 @@ function get_to_ping( $post_id ) {
 }
 
 /**
- * Do trackbacks for a list of URLs.
- *
- *
+ * Does trackbacks for a list of URLs.
  *
  * @param string $tb_list Comma separated list of URLs.
  * @param int    $post_id Post ID.
@@ -5520,9 +5484,7 @@ function trackback_url_list( $tb_list, $post_id ) {
 //
 
 /**
- * Get a list of page IDs.
- *
- *
+ * Gets a list of page IDs.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -5545,7 +5507,7 @@ function get_all_page_ids() {
  *
  * Use get_post() instead of get_page().
  *
- *
+ * @since 1.5.1
  * @deprecated 3.5.0 Use get_post()
  *
  * @param int|GC_Post $page   Page object or page ID. Passed by reference.
@@ -5563,8 +5525,6 @@ function get_page( $page, $output = OBJECT, $filter = 'raw' ) {
 /**
  * Retrieves a page given its path.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param string       $page_path Page path.
@@ -5581,7 +5541,7 @@ function get_page_by_path( $page_path, $output = OBJECT, $post_type = 'page' ) {
 
 	$hash      = md5( $page_path . serialize( $post_type ) );
 	$cache_key = "get_page_by_path:$hash:$last_changed";
-	$cached    = gc_cache_get( $cache_key, 'posts' );
+	$cached    = gc_cache_get( $cache_key, 'post-queries' );
 	if ( false !== $cached ) {
 		// Special case: '0' is a bad `$page_path`.
 		if ( '0' === $cached || 0 === $cached ) {
@@ -5638,7 +5598,7 @@ function get_page_by_path( $page_path, $output = OBJECT, $post_type = 'page' ) {
 				$p = $parent;
 			}
 
-			if ( 0 == $p->post_parent && count( $revparts ) == $count + 1 && $p->post_name == $revparts[ $count ] ) {
+			if ( 0 == $p->post_parent && count( $revparts ) === $count + 1 && $p->post_name == $revparts[ $count ] ) {
 				$foundid = $page->ID;
 				if ( $page->post_type == $post_type ) {
 					break;
@@ -5648,7 +5608,7 @@ function get_page_by_path( $page_path, $output = OBJECT, $post_type = 'page' ) {
 	}
 
 	// We cache misses as well as hits.
-	gc_cache_set( $cache_key, $foundid, 'posts' );
+	gc_cache_set( $cache_key, $foundid, 'post-queries' );
 
 	if ( $foundid ) {
 		return get_post( $foundid, $output );
@@ -5658,74 +5618,15 @@ function get_page_by_path( $page_path, $output = OBJECT, $post_type = 'page' ) {
 }
 
 /**
- * Retrieve a page given its title.
- *
- * If more than one post uses the same title, the post with the smallest ID will be returned.
- * Be careful: in case of more than one post having the same title, it will check the oldest
- * publication date, not the smallest ID.
- *
- * Because this function uses the MySQL '=' comparison, $page_title will usually be matched
- * as case-insensitive with default collation.
- *
- *
- *
- *
- * @global gcdb $gcdb GeChiUI database abstraction object.
- *
- * @param string       $page_title Page title.
- * @param string       $output     Optional. The required return type. One of OBJECT, ARRAY_A, or ARRAY_N, which
- *                                 correspond to a GC_Post object, an associative array, or a numeric array,
- *                                 respectively. Default OBJECT.
- * @param string|array $post_type  Optional. Post type or array of post types. Default 'page'.
- * @return GC_Post|array|null GC_Post (or array) on success, or null on failure.
- */
-function get_page_by_title( $page_title, $output = OBJECT, $post_type = 'page' ) {
-	global $gcdb;
-
-	if ( is_array( $post_type ) ) {
-		$post_type           = esc_sql( $post_type );
-		$post_type_in_string = "'" . implode( "','", $post_type ) . "'";
-		$sql                 = $gcdb->prepare(
-			"
-			SELECT ID
-			FROM $gcdb->posts
-			WHERE post_title = %s
-			AND post_type IN ($post_type_in_string)
-		",
-			$page_title
-		);
-	} else {
-		$sql = $gcdb->prepare(
-			"
-			SELECT ID
-			FROM $gcdb->posts
-			WHERE post_title = %s
-			AND post_type = %s
-		",
-			$page_title,
-			$post_type
-		);
-	}
-
-	$page = $gcdb->get_var( $sql );
-
-	if ( $page ) {
-		return get_post( $page, $output );
-	}
-
-	return null;
-}
-
-/**
- * Identify descendants of a given page ID in a list of page objects.
+ * Identifies descendants of a given page ID in a list of page objects.
  *
  * Descendants are identified from the `$pages` array passed to the function. No database queries are performed.
  *
+ * @since 1.5.1
  *
- *
- * @param int   $page_id Page ID.
- * @param array $pages   List of page objects from which descendants should be identified.
- * @return array List of page children.
+ * @param int       $page_id Page ID.
+ * @param GC_Post[] $pages   List of page objects from which descendants should be identified.
+ * @return GC_Post[] List of page children.
  */
 function get_page_children( $page_id, $pages ) {
 	// Build a hash of ID -> children.
@@ -5757,12 +5658,10 @@ function get_page_children( $page_id, $pages ) {
 }
 
 /**
- * Order the pages with children under parents in a flat list.
+ * Orders the pages with children under parents in a flat list.
  *
  * It uses auxiliary structure to hold parent-children relationships and
  * runs in O(N) complexity
- *
- *
  *
  * @param GC_Post[] $pages   Posts array (passed by reference).
  * @param int       $page_id Optional. Parent page ID. Default 0.
@@ -5786,10 +5685,9 @@ function get_page_hierarchy( &$pages, $page_id = 0 ) {
 }
 
 /**
- * Traverse and return all the nested children post names of a root page.
+ * Traverses and return all the nested children post names of a root page.
  *
  * $children contains parent-children relations
- *
  *
  * @access private
  *
@@ -5809,12 +5707,10 @@ function _page_traverse_name( $page_id, &$children, &$result ) {
 }
 
 /**
- * Build the URI path for a page.
+ * Builds the URI path for a page.
  *
  * Sub pages will be in the "directory" under the parent page post name.
- *
- *
- *
+ * The `$page` parameter was made optional.
  *
  * @param GC_Post|object|int $page Optional. Page ID or GC_Post object. Default is global $post.
  * @return string|false Page URI, false on error.
@@ -5840,6 +5736,7 @@ function get_page_uri( $page = 0 ) {
 	/**
 	 * Filters the URI for a page.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string  $uri  Page URI.
 	 * @param GC_Post $page Page object.
@@ -5848,11 +5745,9 @@ function get_page_uri( $page = 0 ) {
 }
 
 /**
- * Retrieve an array of pages (or hierarchical post type items).
+ * Retrieves an array of pages (or hierarchical post type items).
  *
- * @global gcdb $gcdb GeChiUI database abstraction object.
- *
- *
+ * @since 6.3.0 Use GC_Query internally.
  *
  * @param array|string $args {
  *     Optional. Array or string of arguments to retrieve pages.
@@ -5887,13 +5782,11 @@ function get_page_uri( $page = 0 ) {
  *     @type string|array $post_status  A comma-separated list or array of post statuses to include.
  *                                      Default 'publish'.
  * }
- * @return GC_Post[]|int[]|false Array of pages (or hierarchical post type items). Boolean false if the
- *                               specified post type is not hierarchical or the specified status is not
- *                               supported by the post type.
+ * @return GC_Post[]|false Array of pages (or hierarchical post type items). Boolean false if the
+ *                         specified post type is not hierarchical or the specified status is not
+ *                         supported by the post type.
  */
 function get_pages( $args = array() ) {
-	global $gcdb;
-
 	$defaults = array(
 		'child_of'     => 0,
 		'sort_order'   => 'ASC',
@@ -5942,50 +5835,35 @@ function get_pages( $args = array() ) {
 		return false;
 	}
 
-	// $args can be whatever, only use the args defined in defaults to compute the key.
-	$key          = md5( serialize( gc_array_slice_assoc( $parsed_args, array_keys( $defaults ) ) ) );
-	$last_changed = gc_cache_get_last_changed( 'posts' );
+	$query_args = array(
+		'orderby'                => 'post_title',
+		'order'                  => 'ASC',
+		'post__not_in'           => gc_parse_id_list( $exclude ),
+		'meta_key'               => $meta_key,
+		'meta_value'             => $meta_value,
+		'posts_per_page'         => -1,
+		'offset'                 => $offset,
+		'post_type'              => $parsed_args['post_type'],
+		'post_status'            => $post_status,
+		'update_post_term_cache' => false,
+		'update_post_meta_cache' => false,
+		'ignore_sticky_posts'    => true,
+		'no_found_rows'          => true,
+	);
 
-	$cache_key = "get_pages:$key:$last_changed";
-	$cache     = gc_cache_get( $cache_key, 'posts' );
-	if ( false !== $cache ) {
-		_prime_post_caches( $cache, false, false );
-
-		// Convert to GC_Post instances.
-		$pages = array_map( 'get_post', $cache );
-		/** This filter is documented in gc-includes/post.php */
-		$pages = apply_filters( 'get_pages', $pages, $parsed_args );
-
-		return $pages;
-	}
-
-	$inclusions = '';
 	if ( ! empty( $parsed_args['include'] ) ) {
-		$child_of     = 0; // Ignore child_of, parent, exclude, meta_key, and meta_value params if using include.
-		$parent       = -1;
-		$exclude      = '';
-		$meta_key     = '';
-		$meta_value   = '';
-		$hierarchical = false;
-		$incpages     = gc_parse_id_list( $parsed_args['include'] );
-		if ( ! empty( $incpages ) ) {
-			$inclusions = ' AND ID IN (' . implode( ',', $incpages ) . ')';
-		}
+		$child_of = 0; // Ignore child_of, parent, exclude, meta_key, and meta_value params if using include.
+		$parent   = -1;
+		unset( $query_args['post__not_in'], $query_args['meta_key'], $query_args['meta_value'] );
+		$hierarchical           = false;
+		$query_args['post__in'] = gc_parse_id_list( $parsed_args['include'] );
 	}
 
-	$exclusions = '';
-	if ( ! empty( $exclude ) ) {
-		$expages = gc_parse_id_list( $exclude );
-		if ( ! empty( $expages ) ) {
-			$exclusions = ' AND ID NOT IN (' . implode( ',', $expages ) . ')';
-		}
-	}
-
-	$author_query = '';
 	if ( ! empty( $parsed_args['authors'] ) ) {
 		$post_authors = gc_parse_list( $parsed_args['authors'] );
 
 		if ( ! empty( $post_authors ) ) {
+			$query_args['author__in'] = array();
 			foreach ( $post_authors as $post_author ) {
 				// Do we have an author id or an author login?
 				if ( 0 == (int) $post_author ) {
@@ -5998,136 +5876,47 @@ function get_pages( $args = array() ) {
 					}
 					$post_author = $post_author->ID;
 				}
-
-				if ( '' === $author_query ) {
-					$author_query = $gcdb->prepare( ' post_author = %d ', $post_author );
-				} else {
-					$author_query .= $gcdb->prepare( ' OR post_author = %d ', $post_author );
-				}
+				$query_args['author__in'][] = (int) $post_author;
 			}
-			if ( '' !== $author_query ) {
-				$author_query = " AND ($author_query)";
-			}
-		}
-	}
-
-	$join  = '';
-	$where = "$exclusions $inclusions ";
-	if ( '' !== $meta_key || '' !== $meta_value ) {
-		$join = " LEFT JOIN $gcdb->postmeta ON ( $gcdb->posts.ID = $gcdb->postmeta.post_id )";
-
-		// meta_key and meta_value might be slashed.
-		$meta_key   = gc_unslash( $meta_key );
-		$meta_value = gc_unslash( $meta_value );
-		if ( '' !== $meta_key ) {
-			$where .= $gcdb->prepare( " AND $gcdb->postmeta.meta_key = %s", $meta_key );
-		}
-		if ( '' !== $meta_value ) {
-			$where .= $gcdb->prepare( " AND $gcdb->postmeta.meta_value = %s", $meta_value );
 		}
 	}
 
 	if ( is_array( $parent ) ) {
-		$post_parent__in = implode( ',', array_map( 'absint', (array) $parent ) );
+		$post_parent__in = array_map( 'absint', (array) $parent );
 		if ( ! empty( $post_parent__in ) ) {
-			$where .= " AND post_parent IN ($post_parent__in)";
+			$query_args['post_parent__in'] = $post_parent__in;
 		}
 	} elseif ( $parent >= 0 ) {
-		$where .= $gcdb->prepare( ' AND post_parent = %d ', $parent );
+		$query_args['post_parent'] = $parent;
 	}
 
-	if ( 1 === count( $post_status ) ) {
-		$where_post_type = $gcdb->prepare( 'post_type = %s AND post_status = %s', $parsed_args['post_type'], reset( $post_status ) );
-	} else {
-		$post_status     = implode( "', '", $post_status );
-		$where_post_type = $gcdb->prepare( "post_type = %s AND post_status IN ('$post_status')", $parsed_args['post_type'] );
+	$orderby = gc_parse_list( $parsed_args['sort_column'] );
+	$orderby = array_map( 'trim', $orderby );
+	if ( $orderby ) {
+		$query_args['orderby'] = array_fill_keys( $orderby, $parsed_args['sort_order'] );
 	}
 
-	$orderby_array = array();
-	$allowed_keys  = array(
-		'author',
-		'post_author',
-		'date',
-		'post_date',
-		'title',
-		'post_title',
-		'name',
-		'post_name',
-		'modified',
-		'post_modified',
-		'modified_gmt',
-		'post_modified_gmt',
-		'menu_order',
-		'parent',
-		'post_parent',
-		'ID',
-		'rand',
-		'comment_count',
-	);
-
-	foreach ( explode( ',', $parsed_args['sort_column'] ) as $orderby ) {
-		$orderby = trim( $orderby );
-		if ( ! in_array( $orderby, $allowed_keys, true ) ) {
-			continue;
-		}
-
-		switch ( $orderby ) {
-			case 'menu_order':
-				break;
-			case 'ID':
-				$orderby = "$gcdb->posts.ID";
-				break;
-			case 'rand':
-				$orderby = 'RAND()';
-				break;
-			case 'comment_count':
-				$orderby = "$gcdb->posts.comment_count";
-				break;
-			default:
-				if ( 0 === strpos( $orderby, 'post_' ) ) {
-					$orderby = "$gcdb->posts." . $orderby;
-				} else {
-					$orderby = "$gcdb->posts.post_" . $orderby;
-				}
-		}
-
-		$orderby_array[] = $orderby;
-
+	$order = $parsed_args['sort_order'];
+	if ( $order ) {
+		$query_args['order'] = $order;
 	}
-	$sort_column = ! empty( $orderby_array ) ? implode( ',', $orderby_array ) : "$gcdb->posts.post_title";
-
-	$sort_order = strtoupper( $parsed_args['sort_order'] );
-	if ( '' !== $sort_order && ! in_array( $sort_order, array( 'ASC', 'DESC' ), true ) ) {
-		$sort_order = 'ASC';
-	}
-
-	$query  = "SELECT * FROM $gcdb->posts $join WHERE ($where_post_type) $where ";
-	$query .= $author_query;
-	$query .= ' ORDER BY ' . $sort_column . ' ' . $sort_order;
 
 	if ( ! empty( $number ) ) {
-		$query .= ' LIMIT ' . $offset . ',' . $number;
+		$query_args['posts_per_page'] = $number;
 	}
 
-	$pages = $gcdb->get_results( $query );
+	/**
+	 * Filters query arguments passed to GC_Query in get_pages.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @param array $query_args  Array of arguments passed to GC_Query.
+	 * @param array $parsed_args Array of get_pages() arguments.
+	 */
+	$query_args = apply_filters( 'get_pages_query_args', $query_args, $parsed_args );
 
-	if ( empty( $pages ) ) {
-		gc_cache_set( $cache_key, array(), 'posts' );
-
-		/** This filter is documented in gc-includes/post.php */
-		$pages = apply_filters( 'get_pages', array(), $parsed_args );
-
-		return $pages;
-	}
-
-	// Sanitize before caching so it'll only get done once.
-	$num_pages = count( $pages );
-	for ( $i = 0; $i < $num_pages; $i++ ) {
-		$pages[ $i ] = sanitize_post( $pages[ $i ], 'raw' );
-	}
-
-	// Update cache.
-	update_post_cache( $pages );
+	$query = new GC_Query( $query_args );
+	$pages = $query->get_posts();
 
 	if ( $child_of || $hierarchical ) {
 		$pages = get_page_children( $child_of, $pages );
@@ -6150,16 +5939,6 @@ function get_pages( $args = array() ) {
 		}
 	}
 
-	$page_structure = array();
-	foreach ( $pages as $page ) {
-		$page_structure[] = $page->ID;
-	}
-
-	gc_cache_set( $cache_key, $page_structure, 'posts' );
-
-	// Convert to GC_Post instances.
-	$pages = array_map( 'get_post', $pages );
-
 	/**
 	 * Filters the retrieved list of pages.
 	 *
@@ -6181,16 +5960,14 @@ function get_pages( $args = array() ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @param string $url URL to check
  * @return bool True on success, false on failure.
  */
 function is_local_attachment( $url ) {
-	if ( strpos( $url, home_url() ) === false ) {
+	if ( ! str_contains( $url, home_url() ) ) {
 		return false;
 	}
-	if ( strpos( $url, home_url( '/?attachment_id=' ) ) !== false ) {
+	if ( str_contains( $url, home_url( '/?attachment_id=' ) ) ) {
 		return true;
 	}
 
@@ -6205,7 +5982,7 @@ function is_local_attachment( $url ) {
 }
 
 /**
- * Insert an attachment.
+ * Inserts an attachment.
  *
  * If you set the 'ID' in the $args parameter, it will mean that you are
  * updating and attempt to update the attachment. You can also set the
@@ -6217,21 +5994,18 @@ function is_local_attachment( $url ) {
  * By default, the comments will use the default settings for whether the
  * comments are allowed. You can close them manually or keep them open by
  * setting the value for the 'comment_status' key.
- *
- *
- *
- *
+ * Added the `$gc_error` parameter to allow a GC_Error to be returned on failure. Added the `$fire_after_hooks` parameter.
  *
  * @see gc_insert_post()
  *
  * @param string|array $args             Arguments for inserting an attachment.
- * @param string|false $file             Optional. Filename.
- * @param int          $parent           Optional. Parent post ID.
+ * @param string|false $file             Optional. Filename. Default false.
+ * @param int          $parent_post_id   Optional. Parent post ID or 0 for no parent. Default 0.
  * @param bool         $gc_error         Optional. Whether to return a GC_Error on failure. Default false.
  * @param bool         $fire_after_hooks Optional. Whether to fire the after insert hooks. Default true.
  * @return int|GC_Error The attachment ID on success. The value 0 or GC_Error on failure.
  */
-function gc_insert_attachment( $args, $file = false, $parent = 0, $gc_error = false, $fire_after_hooks = true ) {
+function gc_insert_attachment( $args, $file = false, $parent_post_id = 0, $gc_error = false, $fire_after_hooks = true ) {
 	$defaults = array(
 		'file'        => $file,
 		'post_parent' => 0,
@@ -6239,8 +6013,8 @@ function gc_insert_attachment( $args, $file = false, $parent = 0, $gc_error = fa
 
 	$data = gc_parse_args( $args, $defaults );
 
-	if ( ! empty( $parent ) ) {
-		$data['post_parent'] = $parent;
+	if ( ! empty( $parent_post_id ) ) {
+		$data['post_parent'] = $parent_post_id;
 	}
 
 	$data['post_type'] = 'attachment';
@@ -6249,7 +6023,7 @@ function gc_insert_attachment( $args, $file = false, $parent = 0, $gc_error = fa
 }
 
 /**
- * Trash or delete an attachment.
+ * Trashes or deletes an attachment.
  *
  * When an attachment is permanently deleted, the file will also be removed.
  * Deletion removes all post meta fields, taxonomy, comments, etc. associated
@@ -6258,12 +6032,10 @@ function gc_insert_attachment( $args, $file = false, $parent = 0, $gc_error = fa
  * The attachment is moved to the Trash instead of permanently deleted unless Trash
  * for media is disabled, item is already in the Trash, or $force_delete is true.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param int  $post_id      Attachment ID.
- * @param bool $force_delete Optional. 是否绕过回收站并强行删除。
+ * @param bool $force_delete Optional. Whether to bypass Trash and force deletion.
  *                           Default false.
  * @return GC_Post|false|null Post data on success, false or null on failure.
  */
@@ -6289,10 +6061,11 @@ function gc_delete_attachment( $post_id, $force_delete = false ) {
 	/**
 	 * Filters whether an attachment deletion should take place.
 	 *
+	 * @since 5.5.0
 	 *
-	 * @param bool|null $delete       Whether to go forward with deletion.
-	 * @param GC_Post   $post         Post object.
-	 * @param bool      $force_delete Whether to bypass the Trash.
+	 * @param GC_Post|false|null $delete       Whether to go forward with deletion.
+	 * @param GC_Post            $post         Post object.
+	 * @param bool               $force_delete Whether to bypass the Trash.
 	 */
 	$check = apply_filters( 'pre_delete_attachment', null, $post, $force_delete );
 	if ( null !== $check ) {
@@ -6313,6 +6086,8 @@ function gc_delete_attachment( $post_id, $force_delete = false ) {
 	/**
 	 * Fires before an attachment is deleted, at the start of gc_delete_attachment().
 	 *
+	 * @since 2.0.0
+	 * @since 5.5.0 Added the `$post` parameter.
 	 *
 	 * @param int     $post_id Attachment ID.
 	 * @param GC_Post $post    Post object.
@@ -6358,7 +6133,7 @@ function gc_delete_attachment( $post_id, $force_delete = false ) {
 /**
  * Deletes all files that belong to the given attachment.
  *
- *
+ * @since 4.9.7
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -6449,7 +6224,7 @@ function gc_delete_attachment_files( $post_id, $meta, $backup_sizes, $file ) {
 /**
  * Retrieves attachment metadata for attachment ID.
  *
- *
+ * @since 6.0.0 The `$filesize` value was added to the returned array.
  *
  * @param int  $attachment_id Attachment post ID. Defaults to global $post.
  * @param bool $unfiltered    Optional. If true, filters are not run. Default false.
@@ -6501,8 +6276,6 @@ function gc_get_attachment_metadata( $attachment_id = 0, $unfiltered = false ) {
 /**
  * Updates metadata for an attachment.
  *
- *
- *
  * @param int   $attachment_id Attachment post ID.
  * @param array $data          Attachment meta data.
  * @return int|false False if $post is invalid.
@@ -6532,11 +6305,9 @@ function gc_update_attachment_metadata( $attachment_id, $data ) {
 }
 
 /**
- * Retrieve the URL for an attachment.
+ * Retrieves the URL for an attachment.
  *
- *
- *
- * @global string $pagenow
+ * @global string $pagenow The filename of the current screen.
  *
  * @param int $attachment_id Optional. Attachment post ID. Defaults to global $post.
  * @return string|false Attachment URL, otherwise false.
@@ -6564,10 +6335,10 @@ function gc_get_attachment_url( $attachment_id = 0 ) {
 		$uploads = gc_get_upload_dir();
 		if ( $uploads && false === $uploads['error'] ) {
 			// Check that the upload base exists in the file location.
-			if ( 0 === strpos( $file, $uploads['basedir'] ) ) {
+			if ( str_starts_with( $file, $uploads['basedir'] ) ) {
 				// Replace file location with url location.
 				$url = str_replace( $uploads['basedir'], $uploads['baseurl'], $file );
-			} elseif ( false !== strpos( $file, 'gc-content/uploads' ) ) {
+			} elseif ( str_contains( $file, 'gc-content/uploads' ) ) {
 				// Get the directory name relative to the basedir (back compat for pre-2.7 uploads).
 				$url = trailingslashit( $uploads['baseurl'] . '/' . _gc_get_attachment_relative_path( $file ) ) . gc_basename( $file );
 			} else {
@@ -6609,8 +6380,6 @@ function gc_get_attachment_url( $attachment_id = 0 ) {
 /**
  * Retrieves the caption for an attachment.
  *
- *
- *
  * @param int $post_id Optional. Attachment ID. Default is the ID of the global `$post`.
  * @return string|false Attachment caption on success, false on failure.
  */
@@ -6631,6 +6400,7 @@ function gc_get_attachment_caption( $post_id = 0 ) {
 	/**
 	 * Filters the attachment caption.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string $caption Caption for the given attachment.
 	 * @param int    $post_id Attachment ID.
@@ -6639,92 +6409,38 @@ function gc_get_attachment_caption( $post_id = 0 ) {
 }
 
 /**
- * Retrieve thumbnail for an attachment.
+ * Retrieves URL for an attachment thumbnail.
  *
- *
- *
- * @param int $post_id Optional. Attachment ID. Default is the ID of the global `$post`.
- * @return string|false Thumbnail file path on success, false on failure.
- */
-function gc_get_attachment_thumb_file( $post_id = 0 ) {
-	$post_id = (int) $post_id;
-	$post    = get_post( $post_id );
-
-	if ( ! $post ) {
-		return false;
-	}
-
-	$imagedata = gc_get_attachment_metadata( $post->ID );
-	if ( ! is_array( $imagedata ) ) {
-		return false;
-	}
-
-	$file = get_attached_file( $post->ID );
-
-	if ( ! empty( $imagedata['thumb'] ) ) {
-		$thumbfile = str_replace( gc_basename( $file ), $imagedata['thumb'], $file );
-		if ( file_exists( $thumbfile ) ) {
-			/**
-			 * Filters the attachment thumbnail file path.
-			 *
-		
-			 *
-			 * @param string $thumbfile File path to the attachment thumbnail.
-			 * @param int    $post_id   Attachment ID.
-			 */
-			return apply_filters( 'gc_get_attachment_thumb_file', $thumbfile, $post->ID );
-		}
-	}
-	return false;
-}
-
-/**
- * Retrieve URL for an attachment thumbnail.
- *
- *
+ * @since 6.1.0 Changed to use gc_get_attachment_image_url().
  *
  * @param int $post_id Optional. Attachment ID. Default is the ID of the global `$post`.
  * @return string|false Thumbnail URL on success, false on failure.
  */
 function gc_get_attachment_thumb_url( $post_id = 0 ) {
 	$post_id = (int) $post_id;
-	$post    = get_post( $post_id );
 
-	if ( ! $post ) {
+	/*
+	 * This uses image_downsize() which also looks for the (very) old format $image_meta['thumb']
+	 * when the newer format $image_meta['sizes']['thumbnail'] doesn't exist.
+	 */
+	$thumbnail_url = gc_get_attachment_image_url( $post_id, 'thumbnail' );
+
+	if ( empty( $thumbnail_url ) ) {
 		return false;
 	}
-
-	$url = gc_get_attachment_url( $post->ID );
-	if ( ! $url ) {
-		return false;
-	}
-
-	$sized = image_downsize( $post_id, 'thumbnail' );
-	if ( $sized ) {
-		return $sized[0];
-	}
-
-	$thumb = gc_get_attachment_thumb_file( $post->ID );
-	if ( ! $thumb ) {
-		return false;
-	}
-
-	$url = str_replace( gc_basename( $url ), gc_basename( $thumb ), $url );
 
 	/**
 	 * Filters the attachment thumbnail URL.
 	 *
 	 *
-	 * @param string $url     URL for the attachment thumbnail.
-	 * @param int    $post_id Attachment ID.
+	 * @param string $thumbnail_url URL for the attachment thumbnail.
+	 * @param int    $post_id       Attachment ID.
 	 */
-	return apply_filters( 'gc_get_attachment_thumb_url', $url, $post->ID );
+	return apply_filters( 'gc_get_attachment_thumb_url', $thumbnail_url, $post_id );
 }
 
 /**
  * Verifies an attachment is of a given type.
- *
- *
  *
  * @param string      $type Attachment type. Accepts 'image', 'audio', or 'video'.
  * @param int|GC_Post $post Optional. Attachment ID or object. Default is global $post.
@@ -6743,7 +6459,7 @@ function gc_attachment_is( $type, $post = null ) {
 		return false;
 	}
 
-	if ( 0 === strpos( $post->post_mime_type, $type . '/' ) ) {
+	if ( str_starts_with( $post->post_mime_type, $type . '/' ) ) {
 		return true;
 	}
 
@@ -6781,9 +6497,7 @@ function gc_attachment_is( $type, $post = null ) {
  * For more information on this and similar theme functions, check out
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- *
- *
- *
+ * Modified into wrapper for gc_attachment_is() and
  *              allowed GC_Post object to be passed.
  *
  * @param int|GC_Post $post Optional. Attachment ID or object. Default is global $post.
@@ -6794,9 +6508,7 @@ function gc_attachment_is_image( $post = null ) {
 }
 
 /**
- * Retrieve the icon for a MIME type or attachment.
- *
- *
+ * Retrieves the icon for a MIME type or attachment.
  *
  * @param string|int $mime MIME type or attachment ID.
  * @return string|false Icon, false otherwise.
@@ -6837,7 +6549,7 @@ function gc_mime_type_icon( $mime = 0 ) {
 			/**
 			 * Filters the icon directory path.
 			 *
-		
+			 * @since 2.0.0
 			 *
 			 * @param string $path Icon directory absolute path.
 			 */
@@ -6846,16 +6558,16 @@ function gc_mime_type_icon( $mime = 0 ) {
 			/**
 			 * Filters the icon directory URI.
 			 *
-		
+			 * @since 2.0.0
 			 *
 			 * @param string $uri Icon directory URI.
 			 */
-			$icon_dir_uri = apply_filters( 'icon_dir_uri', assets_url( '/images/media' ) );
+			$icon_dir_uri = apply_filters( 'icon_dir_uri', assets_url( 'images/media' ) );
 
 			/**
 			 * Filters the array of icon directory URIs.
 			 *
-		
+			 * @since 2.5.0
 			 *
 			 * @param string[] $uris Array of icon directory URIs keyed by directory absolute path.
 			 */
@@ -6869,7 +6581,7 @@ function gc_mime_type_icon( $mime = 0 ) {
 				if ( $dh ) {
 					while ( false !== $file = readdir( $dh ) ) {
 						$file = gc_basename( $file );
-						if ( '.' === substr( $file, 0, 1 ) ) {
+						if ( str_starts_with( $file, '.' ) ) {
 							continue;
 						}
 
@@ -6931,7 +6643,7 @@ function gc_mime_type_icon( $mime = 0 ) {
 }
 
 /**
- * Check for changed slugs for published post objects and save the old slug.
+ * Checks for changed slugs for published post objects and save the old slug.
  *
  * The function is used when a post object of any type is updated,
  * by comparing the current and previous post objects.
@@ -6943,11 +6655,9 @@ function gc_mime_type_icon( $mime = 0 ) {
  * The most logically usage of this function is redirecting changed post objects, so
  * that those that linked to an changed post will be redirected to the new post.
  *
- *
- *
  * @param int     $post_id     Post ID.
- * @param GC_Post $post        The Post Object
- * @param GC_Post $post_before The Previous Post Object
+ * @param GC_Post $post        The post object.
+ * @param GC_Post $post_before The previous post object.
  */
 function gc_check_for_changed_slugs( $post_id, $post, $post_before ) {
 	// Don't bother if it hasn't changed.
@@ -6974,7 +6684,7 @@ function gc_check_for_changed_slugs( $post_id, $post, $post_before ) {
 }
 
 /**
- * Check for changed dates for published post objects and save the old date.
+ * Checks for changed dates for published post objects and save the old date.
  *
  * The function is used when a post object of any type is updated,
  * by comparing the current and previous post objects.
@@ -6986,11 +6696,11 @@ function gc_check_for_changed_slugs( $post_id, $post, $post_before ) {
  * The most logically usage of this function is redirecting changed post objects, so
  * that those that linked to an changed post will be redirected to the new post.
  *
- *
+ * @since 4.9.3
  *
  * @param int     $post_id     Post ID.
- * @param GC_Post $post        The Post Object
- * @param GC_Post $post_before The Previous Post Object
+ * @param GC_Post $post        The post object.
+ * @param GC_Post $post_before The previous post object.
  */
 function gc_check_for_changed_dates( $post_id, $post, $post_before ) {
 	$previous_date = gmdate( 'Y-m-d', strtotime( $post_before->post_date ) );
@@ -7020,15 +6730,14 @@ function gc_check_for_changed_dates( $post_id, $post, $post_before ) {
 }
 
 /**
- * Retrieve the private post SQL based on capability.
+ * Retrieves the private post SQL based on capability.
  *
  * This function provides a standardized way to appropriately select on the
  * post_status of a post type. The function will return a piece of SQL code
  * that can be added to a WHERE clause; this SQL is constructed to allow all
  * published posts, and all private posts to which the user has access.
  *
- *
- *
+ * @since 4.3.0 Added the ability to pass an array to `$post_type`.
  *
  * @param string|array $post_type Single post type or an array of post types. Currently only supports 'post' or 'page'.
  * @return string SQL code that can be added to a where clause.
@@ -7038,10 +6747,9 @@ function get_private_posts_cap_sql( $post_type ) {
 }
 
 /**
- * Retrieve the post SQL based on capability, author, and type.
+ * Retrieves the post SQL based on capability, author, and type.
  *
- *
- *
+ * @since 4.3.0 Introduced the ability to pass an array of post types to `$post_type`.
  *
  * @see get_private_posts_cap_sql()
  * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -7066,6 +6774,7 @@ function get_posts_by_author_sql( $post_type, $full = true, $post_author = null,
 	$post_type_clauses = array();
 	foreach ( $post_types as $post_type ) {
 		$post_type_obj = get_post_type_object( $post_type );
+
 		if ( ! $post_type_obj ) {
 			continue;
 		}
@@ -7074,17 +6783,20 @@ function get_posts_by_author_sql( $post_type, $full = true, $post_author = null,
 		 * Filters the capability to read private posts for a custom post type
 		 * when generating SQL for getting posts by author.
 		 *
+		 * @since 2.2.0
 		 * @deprecated 3.2.0 The hook transitioned from "somewhat useless" to "totally useless".
 		 *
 		 * @param string $cap Capability.
 		 */
 		$cap = apply_filters_deprecated( 'pub_priv_sql_capability', array( '' ), '3.2.0' );
+
 		if ( ! $cap ) {
 			$cap = current_user_can( $post_type_obj->cap->read_private_posts );
 		}
 
 		// Only need to check the cap if $public_only is false.
 		$post_status_sql = "post_status = 'publish'";
+
 		if ( false === $public_only ) {
 			if ( $cap ) {
 				// Does the user have the capability to view private posts? Guess so.
@@ -7126,9 +6838,7 @@ function get_posts_by_author_sql( $post_type, $full = true, $post_author = null,
  * The server timezone is the default and is the difference between GMT and
  * server time. The 'blog' value is the date when the last post was posted.
  * The 'gmt' is when the last post was posted in GMT formatted date.
- *
- *
- *
+ * The `$post_type` argument was added.
  *
  * @param string $timezone  Optional. The timezone for the timestamp. Accepts 'server', 'blog', or 'gmt'.
  *                          'server' uses the server's internal timezone.
@@ -7144,6 +6854,8 @@ function get_lastpostdate( $timezone = 'server', $post_type = 'any' ) {
 	/**
 	 * Filters the most recent time that a post on the site was published.
 	 *
+	 * @since 2.3.0
+	 * @since 5.5.0 Added the `$post_type` parameter.
 	 *
 	 * @param string|false $lastpostdate The most recent time that a post was published,
 	 *                                   in 'Y-m-d H:i:s' format. False on failure.
@@ -7155,14 +6867,12 @@ function get_lastpostdate( $timezone = 'server', $post_type = 'any' ) {
 }
 
 /**
- * Get the most recent time that a post on the site was modified.
+ * Gets the most recent time that a post on the site was modified.
  *
  * The server timezone is the default and is the difference between GMT and
  * server time. The 'blog' value is just when the last post was modified.
  * The 'gmt' is when the last post was modified in GMT time.
- *
- *
- *
+ * The `$post_type` argument was added.
  *
  * @param string $timezone  Optional. The timezone for the timestamp. See get_lastpostdate()
  *                          for information on accepted values.
@@ -7174,6 +6884,7 @@ function get_lastpostmodified( $timezone = 'server', $post_type = 'any' ) {
 	/**
 	 * Pre-filter the return value of get_lastpostmodified() before the query is run.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string|false $lastpostmodified The most recent time that a post was modified,
 	 *                                       in 'Y-m-d H:i:s' format, or false. Returning anything
@@ -7198,6 +6909,8 @@ function get_lastpostmodified( $timezone = 'server', $post_type = 'any' ) {
 	/**
 	 * Filters the most recent time that a post on the site was modified.
 	 *
+	 * @since 2.3.0
+	 * @since 5.5.0 Added the `$post_type` parameter.
 	 *
 	 * @param string|false $lastpostmodified The most recent time that a post was modified,
 	 *                                       in 'Y-m-d H:i:s' format. False on failure.
@@ -7210,9 +6923,7 @@ function get_lastpostmodified( $timezone = 'server', $post_type = 'any' ) {
 
 /**
  * Gets the timestamp of the last time any post was modified or published.
- *
- *
- *
+ * The `$post_type` argument was added.
  * @access private
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -7275,7 +6986,7 @@ function _get_last_post_time( $timezone, $field, $post_type = 'any' ) {
 /**
  * Updates posts in cache.
  *
- *
+ * @since 1.5.1
  *
  * @param GC_Post[] $posts Array of post objects (passed by reference).
  */
@@ -7302,8 +7013,6 @@ function update_post_cache( &$posts ) {
  *
  * This function not run if $_gc_suspend_cache_invalidation is not empty. See
  * gc_suspend_cache_invalidation().
- *
- *
  *
  * @global bool $_gc_suspend_cache_invalidation
  *
@@ -7344,21 +7053,20 @@ function clean_post_cache( $post ) {
 		/**
 		 * Fires immediately after the given page's cache is cleaned.
 		 *
+		 * @since 2.5.0
 		 *
 		 * @param int $post_id Post ID.
 		 */
 		do_action( 'clean_page_cache', $post->ID );
 	}
 
-	gc_cache_set( 'last_changed', microtime(), 'posts' );
+	gc_cache_set_posts_last_changed();
 }
 
 /**
- * Call major cache updating functions for list of Post objects.
+ * Updates post, term, and metadata caches for a list of post objects.
  *
- *
- *
- * @param GC_Post[] $posts             Array of Post objects
+ * @param GC_Post[] $posts             Array of post objects (passed by reference).
  * @param string    $post_type         Optional. Post type. Default 'post'.
  * @param bool      $update_term_cache Optional. Whether to update the term cache. Default true.
  * @param bool      $update_meta_cache Optional. Whether to update the meta cache. Default true.
@@ -7405,13 +7113,52 @@ function update_post_caches( &$posts, $post_type = 'post', $update_term_cache = 
 }
 
 /**
- * Updates metadata cache for list of post IDs.
+ * Updates post author user caches for a list of post objects.
+ *
+ * @since 6.1.0
+ *
+ * @param GC_Post[] $posts Array of post objects.
+ */
+function update_post_author_caches( $posts ) {
+	/*
+	 * cache_users() is a pluggable function so is not available prior
+	 * to the `plugins_loaded` hook firing. This is to ensure against
+	 * fatal errors when the function is not available.
+	 */
+	if ( ! function_exists( 'cache_users' ) ) {
+		return;
+	}
+
+	$author_ids = gc_list_pluck( $posts, 'post_author' );
+	$author_ids = array_map( 'absint', $author_ids );
+	$author_ids = array_unique( array_filter( $author_ids ) );
+
+	cache_users( $author_ids );
+}
+
+/**
+ * Updates parent post caches for a list of post objects.
+ *
+ * @since 6.1.0
+ *
+ * @param GC_Post[] $posts Array of post objects.
+ */
+function update_post_parent_caches( $posts ) {
+	$parent_ids = gc_list_pluck( $posts, 'post_parent' );
+	$parent_ids = array_map( 'absint', $parent_ids );
+	$parent_ids = array_unique( array_filter( $parent_ids ) );
+
+	if ( ! empty( $parent_ids ) ) {
+		_prime_post_caches( $parent_ids, false );
+	}
+}
+
+/**
+ * Updates metadata cache for a list of post IDs.
  *
  * Performs SQL query to retrieve the metadata for the post IDs and updates the
  * metadata cache for the posts. Therefore, the functions, which call this
  * function, do not need to perform SQL queries on their own.
- *
- *
  *
  * @param int[] $post_ids Array of post IDs.
  * @return array|false An array of metadata on success, false if there is nothing to update.
@@ -7427,8 +7174,6 @@ function update_postmeta_cache( $post_ids ) {
  * object cache associated with the attachment ID.
  *
  * This function will not run if $_gc_suspend_cache_invalidation is not empty.
- *
- *
  *
  * @global bool $_gc_suspend_cache_invalidation
  *
@@ -7467,7 +7212,6 @@ function clean_attachment_cache( $id, $clean_terms = false ) {
 /**
  * Hook for managing future post transitions to published.
  *
- *
  * @access private
  *
  * @see gc_clear_scheduled_hook()
@@ -7489,6 +7233,7 @@ function _transition_post_status( $new_status, $old_status, $post ) {
 		/**
 		 * Fires when a post's status is transitioned from private to published.
 		 *
+		 * @since 1.5.0
 		 * @deprecated 2.3.0 Use {@see 'private_to_publish'} instead.
 		 *
 		 * @param int $post_id Post ID.
@@ -7519,7 +7264,6 @@ function _transition_post_status( $new_status, $old_status, $post ) {
  *
  * The $post properties used and must exist are 'ID' and 'post_date_gmt'.
  *
- *
  * @access private
  *
  * @param int     $deprecated Not used. Can be set to null. Never implemented. Not marked
@@ -7537,7 +7281,6 @@ function _future_post_hook( $deprecated, $post ) {
  *
  * Uses XMLRPC_REQUEST and GC_IMPORTING constants.
  *
- *
  * @access private
  *
  * @param int $post_id The ID of the post being published.
@@ -7547,6 +7290,7 @@ function _publish_post_hook( $post_id ) {
 		/**
 		 * Fires when _publish_post_hook() is called during an XML-RPC request.
 		 *
+		 * @since 2.1.0
 		 *
 		 * @param int $post_id Post ID.
 		 */
@@ -7575,8 +7319,7 @@ function _publish_post_hook( $post_id ) {
 /**
  * Returns the ID of the post's parent.
  *
- *
- *
+ * @since 5.9.0 The `$post` parameter was made optional.
  *
  * @param int|GC_Post|null $post Optional. Post ID or post object. Defaults to global $post.
  * @return int|false Post parent ID (which can be 0 if there is no parent),
@@ -7584,54 +7327,54 @@ function _publish_post_hook( $post_id ) {
  */
 function gc_get_post_parent_id( $post = null ) {
 	$post = get_post( $post );
+
 	if ( ! $post || is_gc_error( $post ) ) {
 		return false;
 	}
+
 	return (int) $post->post_parent;
 }
 
 /**
- * Check the given subset of the post hierarchy for hierarchy loops.
+ * Checks the given subset of the post hierarchy for hierarchy loops.
  *
  * Prevents loops from forming and breaks those that it finds. Attached
  * to the {@see 'gc_insert_post_parent'} filter.
  *
- *
- *
  * @see gc_find_hierarchy_loop()
  *
  * @param int $post_parent ID of the parent for the post we're checking.
- * @param int $post_ID     ID of the post we're checking.
+ * @param int $post_id     ID of the post we're checking.
  * @return int The new post_parent for the post, 0 otherwise.
  */
-function gc_check_post_hierarchy_for_loops( $post_parent, $post_ID ) {
+function gc_check_post_hierarchy_for_loops( $post_parent, $post_id ) {
 	// Nothing fancy here - bail.
 	if ( ! $post_parent ) {
 		return 0;
 	}
 
 	// New post can't cause a loop.
-	if ( ! $post_ID ) {
+	if ( ! $post_id ) {
 		return $post_parent;
 	}
 
 	// Can't be its own parent.
-	if ( $post_parent == $post_ID ) {
+	if ( $post_parent == $post_id ) {
 		return 0;
 	}
 
 	// Now look for larger loops.
-	$loop = gc_find_hierarchy_loop( 'gc_get_post_parent_id', $post_ID, $post_parent );
+	$loop = gc_find_hierarchy_loop( 'gc_get_post_parent_id', $post_id, $post_parent );
 	if ( ! $loop ) {
 		return $post_parent; // No loop.
 	}
 
 	// Setting $post_parent to the given value causes a loop.
-	if ( isset( $loop[ $post_ID ] ) ) {
+	if ( isset( $loop[ $post_id ] ) ) {
 		return 0;
 	}
 
-	// There's a loop, but it doesn't contain $post_ID. Break the loop.
+	// There's a loop, but it doesn't contain $post_id. Break the loop.
 	foreach ( array_keys( $loop ) as $loop_member ) {
 		gc_update_post(
 			array(
@@ -7646,8 +7389,6 @@ function gc_check_post_hierarchy_for_loops( $post_parent, $post_ID ) {
 
 /**
  * Sets the post thumbnail (featured image) for the given post.
- *
- *
  *
  * @param int|GC_Post $post         Post ID or post object where thumbnail should be attached.
  * @param int         $thumbnail_id Thumbnail to attach.
@@ -7669,8 +7410,6 @@ function set_post_thumbnail( $post, $thumbnail_id ) {
 /**
  * Removes the thumbnail (featured image) from the given post.
  *
- *
- *
  * @param int|GC_Post $post Post ID or post object from which the thumbnail should be removed.
  * @return bool True on success, false on failure.
  */
@@ -7683,9 +7422,7 @@ function delete_post_thumbnail( $post ) {
 }
 
 /**
- * Delete auto-drafts for new posts that are > 7 days old.
- *
- *
+ * Deletes auto-drafts for new posts that are > 7 days old.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  */
@@ -7703,13 +7440,11 @@ function gc_delete_auto_drafts() {
 /**
  * Queues posts for lazy-loading of term meta.
  *
- *
- *
- * @param array $posts Array of GC_Post objects.
+ * @param GC_Post[] $posts Array of GC_Post objects.
  */
 function gc_queue_posts_for_term_meta_lazyload( $posts ) {
 	$post_type_taxonomies = array();
-	$term_ids             = array();
+	$prime_post_terms     = array();
 	foreach ( $posts as $post ) {
 		if ( ! ( $post instanceof GC_Post ) ) {
 			continue;
@@ -7720,30 +7455,39 @@ function gc_queue_posts_for_term_meta_lazyload( $posts ) {
 		}
 
 		foreach ( $post_type_taxonomies[ $post->post_type ] as $taxonomy ) {
-			// Term cache should already be primed by `update_post_term_cache()`.
-			$terms = get_object_term_cache( $post->ID, $taxonomy );
-			if ( false !== $terms ) {
-				foreach ( $terms as $term ) {
-					if ( ! in_array( $term->term_id, $term_ids, true ) ) {
-						$term_ids[] = $term->term_id;
+			$prime_post_terms[ $taxonomy ][] = $post->ID;
+		}
+	}
+
+	$term_ids = array();
+	if ( $prime_post_terms ) {
+		foreach ( $prime_post_terms as $taxonomy => $post_ids ) {
+			$cached_term_ids = gc_cache_get_multiple( $post_ids, "{$taxonomy}_relationships" );
+			if ( is_array( $cached_term_ids ) ) {
+				$cached_term_ids = array_filter( $cached_term_ids );
+				foreach ( $cached_term_ids as $_term_ids ) {
+					// Backward compatibility for if a plugin is putting objects into the cache, rather than IDs.
+					foreach ( $_term_ids as $term_id ) {
+						if ( is_numeric( $term_id ) ) {
+							$term_ids[] = (int) $term_id;
+						} elseif ( isset( $term_id->term_id ) ) {
+							$term_ids[] = (int) $term_id->term_id;
+						}
 					}
 				}
 			}
 		}
+		$term_ids = array_unique( $term_ids );
 	}
 
-	if ( $term_ids ) {
-		$lazyloader = gc_metadata_lazyloader();
-		$lazyloader->queue_objects( 'term', $term_ids );
-	}
+	gc_lazyload_term_meta( $term_ids );
 }
 
 /**
- * Update the custom taxonomies' term counts when a post's status is changed.
+ * Updates the custom taxonomies' term counts when a post's status is changed.
  *
  * For example, default posts term counts (for custom taxonomies) don't include
  * private / draft posts.
- *
  *
  * @access private
  *
@@ -7762,14 +7506,15 @@ function _update_term_count_on_transition_post_status( $new_status, $old_status,
 /**
  * Adds any posts from the given IDs to the cache that do not already exist in cache.
  *
+ * @since 6.1.0 This function is no longer marked as "private".
  *
- * @access private
- *
- * @see update_post_caches()
+ * @see update_post_cache()
+ * @see update_postmeta_cache()
+ * @see update_object_term_cache()
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
- * @param array $ids               ID list.
+ * @param int[] $ids               ID list.
  * @param bool  $update_term_cache Optional. Whether to update the term cache. Default true.
  * @param bool  $update_meta_cache Optional. Whether to update the meta cache. Default true.
  */
@@ -7780,7 +7525,20 @@ function _prime_post_caches( $ids, $update_term_cache = true, $update_meta_cache
 	if ( ! empty( $non_cached_ids ) ) {
 		$fresh_posts = $gcdb->get_results( sprintf( "SELECT $gcdb->posts.* FROM $gcdb->posts WHERE ID IN (%s)", implode( ',', $non_cached_ids ) ) );
 
-		update_post_caches( $fresh_posts, 'any', $update_term_cache, $update_meta_cache );
+		if ( $fresh_posts ) {
+			// Despite the name, update_post_cache() expects an array rather than a single post.
+			update_post_cache( $fresh_posts );
+		}
+	}
+
+	if ( $update_meta_cache ) {
+		update_postmeta_cache( $ids );
+	}
+
+	if ( $update_term_cache ) {
+		$post_types = array_map( 'get_post_type', $ids );
+		$post_types = array_unique( $post_types );
+		update_object_term_cache( $ids, $post_types );
 	}
 }
 
@@ -7792,20 +7550,19 @@ function _prime_post_caches( $ids, $update_term_cache = true, $update_meta_cache
  *
  * For internal use.
  *
- *
  * @access private
  *
  * @param string $post_name Post slug.
- * @param int    $post_ID   Optional. Post ID that should be ignored. Default 0.
+ * @param int    $post_id   Optional. Post ID that should be ignored. Default 0.
  */
-function gc_add_trashed_suffix_to_post_name_for_trashed_posts( $post_name, $post_ID = 0 ) {
+function gc_add_trashed_suffix_to_post_name_for_trashed_posts( $post_name, $post_id = 0 ) {
 	$trashed_posts_with_desired_slug = get_posts(
 		array(
 			'name'         => $post_name,
 			'post_status'  => 'trash',
 			'post_type'    => 'any',
 			'nopaging'     => true,
-			'post__not_in' => array( $post_ID ),
+			'post__not_in' => array( $post_id ),
 		)
 	);
 
@@ -7824,8 +7581,9 @@ function gc_add_trashed_suffix_to_post_name_for_trashed_posts( $post_name, $post
  *
  * For internal use.
  *
- *
  * @access private
+ *
+ * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param GC_Post $post The post.
  * @return string New slug for the post.
@@ -7835,7 +7593,7 @@ function gc_add_trashed_suffix_to_post_name_for_post( $post ) {
 
 	$post = get_post( $post );
 
-	if ( '__trashed' === substr( $post->post_name, -9 ) ) {
+	if ( str_ends_with( $post->post_name, '__trashed' ) ) {
 		return $post->post_name;
 	}
 	add_post_meta( $post->ID, '_gc_desired_post_slug', $post->post_name );
@@ -7846,53 +7604,21 @@ function gc_add_trashed_suffix_to_post_name_for_post( $post ) {
 }
 
 /**
- * Filters the SQL clauses of an attachment query to include filenames.
- *
- *
- * @access private
- *
- * @global gcdb $gcdb GeChiUI database abstraction object.
- *
- * @param string[] $clauses An array including WHERE, GROUP BY, JOIN, ORDER BY,
- *                          DISTINCT, fields (SELECT), and LIMITS clauses.
- * @return string[] The modified array of clauses.
- */
-function _filter_query_attachment_filenames( $clauses ) {
-	global $gcdb;
-	remove_filter( 'posts_clauses', __FUNCTION__ );
-
-	// Add a LEFT JOIN of the postmeta table so we don't trample existing JOINs.
-	$clauses['join'] .= " LEFT JOIN {$gcdb->postmeta} AS sq1 ON ( {$gcdb->posts}.ID = sq1.post_id AND sq1.meta_key = '_gc_attached_file' )";
-
-	$clauses['groupby'] = "{$gcdb->posts}.ID";
-
-	$clauses['where'] = preg_replace(
-		"/\({$gcdb->posts}.post_content (NOT LIKE|LIKE) (\'[^']+\')\)/",
-		'$0 OR ( sq1.meta_value $1 $2 )',
-		$clauses['where']
-	);
-
-	return $clauses;
-}
-
-/**
  * Sets the last changed time for the 'posts' cache group.
  *
- *
+ * @since 5.0.0
  */
 function gc_cache_set_posts_last_changed() {
-	gc_cache_set( 'last_changed', microtime(), 'posts' );
+	gc_cache_set_last_changed( 'posts' );
 }
 
 /**
- * Get all available post MIME types for a given post type.
- *
- *
+ * Gets all available post MIME types for a given post type.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param string $type
- * @return mixed
+ * @return string[] An array of MIME types.
  */
 function get_available_post_mime_types( $type = 'attachment' ) {
 	global $gcdb;
@@ -7909,8 +7635,8 @@ function get_available_post_mime_types( $type = 'attachment' ) {
  * with a scaled down version of the original image. This function always returns the path
  * to the originally uploaded image file.
  *
- *
- *
+ * @since 5.3.0
+ * @since 5.4.0 Added the `$unfiltered` parameter.
  *
  * @param int  $attachment_id Attachment ID.
  * @param bool $unfiltered Optional. Passed through to `get_attached_file()`. Default false.
@@ -7933,6 +7659,7 @@ function gc_get_original_image_path( $attachment_id, $unfiltered = false ) {
 	/**
 	 * Filters the path to the original image.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @param string $original_image Path to original image file.
 	 * @param int    $attachment_id  Attachment ID.
@@ -7941,13 +7668,13 @@ function gc_get_original_image_path( $attachment_id, $unfiltered = false ) {
 }
 
 /**
- * Retrieve the URL to an original attachment image.
+ * Retrieves the URL to an original attachment image.
  *
  * Similar to `gc_get_attachment_url()` however some images may have been
  * processed after uploading. In this case this function returns the URL
  * to the originally uploaded image file.
  *
- *
+ * @since 5.3.0
  *
  * @param int $attachment_id Attachment post ID.
  * @return string|false Attachment image URL, false on error or if the attachment is not an image.
@@ -7974,6 +7701,7 @@ function gc_get_original_image_url( $attachment_id ) {
 	/**
 	 * Filters the URL to the original attachment image.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @param string $original_image_url URL to original image.
 	 * @param int    $attachment_id      Attachment ID.
@@ -7982,11 +7710,9 @@ function gc_get_original_image_url( $attachment_id ) {
 }
 
 /**
- * Filter callback which sets the status of an untrashed post to its previous status.
+ * Filters callback which sets the status of an untrashed post to its previous status.
  *
  * This can be used as a callback on the `gc_untrash_post_status` filter.
- *
- *
  *
  * @param string $new_status      The new status of the post being restored.
  * @param int    $post_id         The ID of the post being restored.
@@ -7995,4 +7721,101 @@ function gc_get_original_image_url( $attachment_id ) {
  */
 function gc_untrash_post_set_previous_status( $new_status, $post_id, $previous_status ) {
 	return $previous_status;
+}
+
+/**
+ * Returns whether the post can be edited in the block editor.
+ *
+ * @since 5.0.0
+ * @since 6.1.0 Moved to gc-includes from gc-admin.
+ *
+ * @param int|GC_Post $post Post ID or GC_Post object.
+ * @return bool Whether the post can be edited in the block editor.
+ */
+function use_block_editor_for_post( $post ) {
+	$post = get_post( $post );
+
+	if ( ! $post ) {
+		return false;
+	}
+
+	// We're in the meta box loader, so don't use the block editor.
+	if ( is_admin() && isset( $_GET['meta-box-loader'] ) ) {
+		check_admin_referer( 'meta-box-loader', 'meta-box-loader-nonce' );
+		return false;
+	}
+
+	$use_block_editor = use_block_editor_for_post_type( $post->post_type );
+
+	/**
+	 * Filters whether a post is able to be edited in the block editor.
+	 *
+	 * @since 5.0.0
+	 *
+	 * @param bool    $use_block_editor Whether the post can be edited or not.
+	 * @param GC_Post $post             The post being checked.
+	 */
+	return apply_filters( 'use_block_editor_for_post', $use_block_editor, $post );
+}
+
+/**
+ * Returns whether a post type is compatible with the block editor.
+ *
+ * The block editor depends on the REST API, and if the post type is not shown in the
+ * REST API, then it won't work with the block editor.
+ *
+ * @since 5.0.0
+ * @since 6.1.0 Moved to gc-includes from gc-admin.
+ *
+ * @param string $post_type The post type.
+ * @return bool Whether the post type can be edited with the block editor.
+ */
+function use_block_editor_for_post_type( $post_type ) {
+	if ( ! post_type_exists( $post_type ) ) {
+		return false;
+	}
+
+	if ( ! post_type_supports( $post_type, 'editor' ) ) {
+		return false;
+	}
+
+	$post_type_object = get_post_type_object( $post_type );
+	if ( $post_type_object && ! $post_type_object->show_in_rest ) {
+		return false;
+	}
+
+	/**
+	 * Filters whether a post is able to be edited in the block editor.
+	 *
+	 * @since 5.0.0
+	 *
+	 * @param bool   $use_block_editor  Whether the post type can be edited or not. Default true.
+	 * @param string $post_type         The post type being checked.
+	 */
+	return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
+}
+
+/**
+ * Registers any additional post meta fields.
+ *
+ * @since 6.3.0 Adds `gc_pattern_sync_status` meta field to the gc_block post type so an unsynced option can be added.
+ *
+ * @link https://github.com/GeChiUI/gutenberg/pull/51144
+ */
+function gc_create_initial_post_meta() {
+	register_post_meta(
+		'gc_block',
+		'gc_pattern_sync_status',
+		array(
+			'sanitize_callback' => 'sanitize_text_field',
+			'single'            => true,
+			'type'              => 'string',
+			'show_in_rest'      => array(
+				'schema' => array(
+					'type' => 'string',
+					'enum' => array( 'partial', 'unsynced' ),
+				),
+			),
+		)
+	);
 }

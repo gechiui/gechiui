@@ -10,7 +10,7 @@
  * Copyright 2004-2010 The Horde Project (http://www.horde.org/)
  *
  * See the enclosed file COPYING for license information (LGPL). If you did
- * not receive this file, see http://opensource.org/licenses/lgpl-license.php.
+ * not receive this file, see https://opensource.org/license/lgpl-2-1/.
  *
  * @package Text_Diff
  * @author  Geoffrey T. Dairiki <dairiki@dairiki.org>
@@ -73,7 +73,7 @@ class Text_Diff {
     /**
      * returns the number of new (added) lines in a given diff.
      *
-   
+     * @since Text_Diff 1.1.0
      *
      * @return int The number of new lines
      */
@@ -92,7 +92,7 @@ class Text_Diff {
     /**
      * Returns the number of deleted (removed) lines in a given diff.
      *
-   
+     * @since Text_Diff 1.1.0
      *
      * @return int The number of deleted lines
      */
@@ -260,18 +260,18 @@ class Text_Diff {
     function _check($from_lines, $to_lines)
     {
         if (serialize($from_lines) != serialize($this->getOriginal())) {
-            trigger_error("Reconstructed original doesn't match", E_USER_ERROR);
+            trigger_error("Reconstructed original does not match", E_USER_ERROR);
         }
         if (serialize($to_lines) != serialize($this->getFinal())) {
-            trigger_error("Reconstructed final doesn't match", E_USER_ERROR);
+            trigger_error("Reconstructed final does not match", E_USER_ERROR);
         }
 
         $rev = $this->reverse();
         if (serialize($to_lines) != serialize($rev->getOriginal())) {
-            trigger_error("Reversed original doesn't match", E_USER_ERROR);
+            trigger_error("Reversed original does not match", E_USER_ERROR);
         }
         if (serialize($from_lines) != serialize($rev->getFinal())) {
-            trigger_error("Reversed final doesn't match", E_USER_ERROR);
+            trigger_error("Reversed final does not match", E_USER_ERROR);
         }
 
         $prevtype = null;

@@ -1,0 +1,9 @@
+.gc-block-categories ul{
+  padding-right:2.5em;
+}
+.gc-block-categories ul ul{
+  margin-top:6px;
+}
+[data-align=center] .gc-block-categories{
+  text-align:center;
+}

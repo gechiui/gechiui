@@ -3,14 +3,15 @@
  * Error Protection API: GC_Recovery_Mode class
  *
  * @package GeChiUI
- *
+ * @since 5.2.0
  */
 
 /**
  * Core class used to implement Recovery Mode.
  *
- *
+ * @since 5.2.0
  */
+#[AllowDynamicProperties]
 class GC_Recovery_Mode {
 
 	const EXIT_ACTION = 'exit_recovery_mode';
@@ -18,6 +19,7 @@ class GC_Recovery_Mode {
 	/**
 	 * Service to handle cookies.
 	 *
+	 * @since 5.2.0
 	 * @var GC_Recovery_Mode_Cookie_Service
 	 */
 	private $cookie_service;
@@ -25,6 +27,7 @@ class GC_Recovery_Mode {
 	/**
 	 * Service to generate a recovery mode key.
 	 *
+	 * @since 5.2.0
 	 * @var GC_Recovery_Mode_Key_Service
 	 */
 	private $key_service;
@@ -32,6 +35,7 @@ class GC_Recovery_Mode {
 	/**
 	 * Service to generate and validate recovery mode links.
 	 *
+	 * @since 5.2.0
 	 * @var GC_Recovery_Mode_Link_Service
 	 */
 	private $link_service;
@@ -39,6 +43,7 @@ class GC_Recovery_Mode {
 	/**
 	 * Service to handle sending an email with a recovery mode link.
 	 *
+	 * @since 5.2.0
 	 * @var GC_Recovery_Mode_Email_Service
 	 */
 	private $email_service;
@@ -46,6 +51,7 @@ class GC_Recovery_Mode {
 	/**
 	 * Is recovery mode initialized.
 	 *
+	 * @since 5.2.0
 	 * @var bool
 	 */
 	private $is_initialized = false;
@@ -53,6 +59,7 @@ class GC_Recovery_Mode {
 	/**
 	 * Is recovery mode active in this session.
 	 *
+	 * @since 5.2.0
 	 * @var bool
 	 */
 	private $is_active = false;
@@ -60,6 +67,7 @@ class GC_Recovery_Mode {
 	/**
 	 * Get an ID representing the current recovery mode session.
 	 *
+	 * @since 5.2.0
 	 * @var string
 	 */
 	private $session_id = '';
@@ -67,6 +75,7 @@ class GC_Recovery_Mode {
 	/**
 	 * GC_Recovery_Mode constructor.
 	 *
+	 * @since 5.2.0
 	 */
 	public function __construct() {
 		$this->cookie_service = new GC_Recovery_Mode_Cookie_Service();
@@ -78,6 +87,7 @@ class GC_Recovery_Mode {
 	/**
 	 * Initialize recovery mode for the current request.
 	 *
+	 * @since 5.2.0
 	 */
 	public function initialize() {
 		$this->is_initialized = true;
@@ -111,6 +121,7 @@ class GC_Recovery_Mode {
 	 *
 	 * This will not change after recovery mode has been initialized. {@see GC_Recovery_Mode::run()}.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return bool True if recovery mode is active, false otherwise.
 	 */
@@ -121,6 +132,7 @@ class GC_Recovery_Mode {
 	/**
 	 * Gets the recovery mode session ID.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return string The session ID if recovery mode is active, empty string otherwise.
 	 */
@@ -133,6 +145,7 @@ class GC_Recovery_Mode {
 	 *
 	 * Recovery mode should not be used until this point. Initialization happens immediately before loading plugins.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return bool
 	 */
@@ -145,8 +158,9 @@ class GC_Recovery_Mode {
 	 *
 	 * The calling API should immediately die() after calling this function.
 	 *
+	 * @since 5.2.0
 	 *
-	 * @param array $error Error details from {@see error_get_last()}
+	 * @param array $error Error details from `error_get_last()`.
 	 * @return true|GC_Error True if the error was handled and headers have already been sent.
 	 *                       Or the request will exit to try and catch multiple errors at once.
 	 *                       GC_Error if an error occurred preventing it from being handled.
@@ -185,6 +199,7 @@ class GC_Recovery_Mode {
 	/**
 	 * Ends the current recovery mode session.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return bool True on success, false on failure.
 	 */
@@ -205,6 +220,7 @@ class GC_Recovery_Mode {
 	/**
 	 * Handles a request to exit Recovery Mode.
 	 *
+	 * @since 5.2.0
 	 */
 	public function handle_exit_recovery_mode() {
 		$redirect_to = gc_get_referer();
@@ -240,6 +256,7 @@ class GC_Recovery_Mode {
 	 *
 	 * Executes on a daily cron schedule.
 	 *
+	 * @since 5.2.0
 	 */
 	public function clean_expired_keys() {
 		$this->key_service->clean_expired_keys( $this->get_link_ttl() );
@@ -248,6 +265,7 @@ class GC_Recovery_Mode {
 	/**
 	 * Handles checking for the recovery mode cookie and validating it.
 	 *
+	 * @since 5.2.0
 	 */
 	protected function handle_cookie() {
 		$validated = $this->cookie_service->validate_cookie();
@@ -274,6 +292,7 @@ class GC_Recovery_Mode {
 	/**
 	 * Gets the rate limit between sending new recovery mode email links.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return int Rate limit in seconds.
 	 */
@@ -281,6 +300,7 @@ class GC_Recovery_Mode {
 		/**
 		 * Filters the rate limit between sending new recovery mode email links.
 		 *
+		 * @since 5.2.0
 		 *
 		 * @param int $rate_limit Time to wait in seconds. Defaults to 1 day.
 		 */
@@ -290,6 +310,7 @@ class GC_Recovery_Mode {
 	/**
 	 * Gets the number of seconds the recovery mode link is valid for.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return int Interval in seconds.
 	 */
@@ -303,6 +324,7 @@ class GC_Recovery_Mode {
 		 *
 		 * The ttl must be at least as long as the email rate limit.
 		 *
+		 * @since 5.2.0
 		 *
 		 * @param int $valid_for The number of seconds the link is valid for.
 		 */
@@ -314,10 +336,11 @@ class GC_Recovery_Mode {
 	/**
 	 * Gets the extension that the error occurred in.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @global array $gc_theme_directories
 	 *
-	 * @param array $error Error that was triggered.
+	 * @param array $error Error details from `error_get_last()`.
 	 * @return array|false {
 	 *     Extension details.
 	 *
@@ -339,7 +362,7 @@ class GC_Recovery_Mode {
 		$error_file    = gc_normalize_path( $error['file'] );
 		$gc_plugin_dir = gc_normalize_path( GC_PLUGIN_DIR );
 
-		if ( 0 === strpos( $error_file, $gc_plugin_dir ) ) {
+		if ( str_starts_with( $error_file, $gc_plugin_dir ) ) {
 			$path  = str_replace( $gc_plugin_dir . '/', '', $error_file );
 			$parts = explode( '/', $path );
 
@@ -356,7 +379,7 @@ class GC_Recovery_Mode {
 		foreach ( $gc_theme_directories as $theme_directory ) {
 			$theme_directory = gc_normalize_path( $theme_directory );
 
-			if ( 0 === strpos( $error_file, $theme_directory ) ) {
+			if ( str_starts_with( $error_file, $theme_directory ) ) {
 				$path  = str_replace( $theme_directory . '/', '', $error_file );
 				$parts = explode( '/', $path );
 
@@ -373,6 +396,7 @@ class GC_Recovery_Mode {
 	/**
 	 * Checks whether the given extension a network activated plugin.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param array $extension Extension data.
 	 * @return bool True if network plugin, false otherwise.
@@ -389,7 +413,7 @@ class GC_Recovery_Mode {
 		$network_plugins = gc_get_active_network_plugins();
 
 		foreach ( $network_plugins as $plugin ) {
-			if ( 0 === strpos( $plugin, $extension['slug'] . '/' ) ) {
+			if ( str_starts_with( $plugin, $extension['slug'] . '/' ) ) {
 				return true;
 			}
 		}
@@ -400,8 +424,9 @@ class GC_Recovery_Mode {
 	/**
 	 * Stores the given error so that the extension causing it is paused.
 	 *
+	 * @since 5.2.0
 	 *
-	 * @param array $error Error that was triggered.
+	 * @param array $error Error details from `error_get_last()`.
 	 * @return bool True if the error was stored successfully, false otherwise.
 	 */
 	protected function store_error( $error ) {
@@ -429,6 +454,7 @@ class GC_Recovery_Mode {
 	 * It must be ensured that this method is only called when an error actually occurred and will not occur on the
 	 * next request again. Otherwise it will create a redirect loop.
 	 *
+	 * @since 5.2.0
 	 */
 	protected function redirect_protected() {
 		// Pluggable is usually loaded after plugins, so we manually include it here for redirection functionality.

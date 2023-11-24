@@ -3,19 +3,21 @@
  * Blocks API: GC_Block_Template class
  *
  * @package GeChiUI
- *
+ * @since 5.8.0
  */
 
 /**
  * Class representing a block template.
  *
- *
+ * @since 5.8.0
  */
+#[AllowDynamicProperties]
 class GC_Block_Template {
 
 	/**
 	 * Type: gc_template.
 	 *
+	 * @since 5.8.0
 	 * @var string
 	 */
 	public $type;
@@ -23,6 +25,7 @@ class GC_Block_Template {
 	/**
 	 * Theme.
 	 *
+	 * @since 5.8.0
 	 * @var string
 	 */
 	public $theme;
@@ -30,6 +33,7 @@ class GC_Block_Template {
 	/**
 	 * Template slug.
 	 *
+	 * @since 5.8.0
 	 * @var string
 	 */
 	public $slug;
@@ -37,6 +41,7 @@ class GC_Block_Template {
 	/**
 	 * ID.
 	 *
+	 * @since 5.8.0
 	 * @var string
 	 */
 	public $id;
@@ -44,6 +49,7 @@ class GC_Block_Template {
 	/**
 	 * Title.
 	 *
+	 * @since 5.8.0
 	 * @var string
 	 */
 	public $title = '';
@@ -51,6 +57,7 @@ class GC_Block_Template {
 	/**
 	 * Content.
 	 *
+	 * @since 5.8.0
 	 * @var string
 	 */
 	public $content = '';
@@ -58,6 +65,7 @@ class GC_Block_Template {
 	/**
 	 * Description.
 	 *
+	 * @since 5.8.0
 	 * @var string
 	 */
 	public $description = '';
@@ -65,6 +73,7 @@ class GC_Block_Template {
 	/**
 	 * Source of the content. `theme` and `custom` is used for now.
 	 *
+	 * @since 5.8.0
 	 * @var string
 	 */
 	public $source = 'theme';
@@ -74,13 +83,15 @@ class GC_Block_Template {
 	 * When customized, origin takes on the value of source and source becomes
 	 * 'custom'.
 	 *
-	 * @var string
+	 * @since 5.9.0
+	 * @var string|null
 	 */
 	public $origin;
 
 	/**
 	 * Post ID.
 	 *
+	 * @since 5.8.0
 	 * @var int|null
 	 */
 	public $gc_id;
@@ -88,6 +99,7 @@ class GC_Block_Template {
 	/**
 	 * Template Status.
 	 *
+	 * @since 5.8.0
 	 * @var string
 	 */
 	public $status;
@@ -95,13 +107,15 @@ class GC_Block_Template {
 	/**
 	 * Whether a template is, or is based upon, an existing template file.
 	 *
+	 * @since 5.8.0
 	 * @var bool
 	 */
 	public $has_theme_file;
 
 	/**
-	 * 模板是否为自定义模板。
+	 * Whether a template is a custom template.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @var bool
 	 */
@@ -112,21 +126,32 @@ class GC_Block_Template {
 	 *
 	 * A value of 0 means no author.
 	 *
-	 * @var int
+	 * @since 5.9.0
+	 * @var int|null
 	 */
 	public $author;
 
 	/**
 	 * Post types.
 	 *
-	 * @var array
+	 * @since 5.9.0
+	 * @var string[]|null
 	 */
 	public $post_types;
 
 	/**
 	 * Area.
 	 *
-	 * @var string
+	 * @since 5.9.0
+	 * @var string|null
 	 */
 	public $area;
+
+	/**
+	 * Modified.
+	 *
+	 * @since 6.3.0
+	 * @var string|null
+	 */
+	public $modified;
 }

@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 if ( ! class_exists( 'GC_Privacy_Requests_Table' ) ) {
@@ -14,12 +13,12 @@ if ( ! class_exists( 'GC_Privacy_Requests_Table' ) ) {
 /**
  * GC_Privacy_Data_Removal_Requests_List_Table class.
  *
- *
  */
 class GC_Privacy_Data_Removal_Requests_List_Table extends GC_Privacy_Requests_Table {
 	/**
 	 * Action name for the requests this table will work with.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @var string $request_type Name of action.
 	 */
@@ -28,14 +27,16 @@ class GC_Privacy_Data_Removal_Requests_List_Table extends GC_Privacy_Requests_Ta
 	/**
 	 * Post type for the requests.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @var string $post_type The post type.
 	 */
 	protected $post_type = 'user_request';
 
 	/**
-	 * Actions column.
+	 * Outputs the Actions column.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param GC_User_Request $item Item being shown.
 	 * @return string Email column markup.
@@ -60,7 +61,7 @@ class GC_Privacy_Data_Removal_Requests_List_Table extends GC_Privacy_Requests_Ta
 				'">';
 
 			$remove_data_markup .= '<span class="remove-personal-data-idle"><button type="button" class="button-link remove-personal-data-handle">' . __( '强制抹除个人数据' ) . '</button></span>' .
-				'<span class="remove-personal-data-processing hidden">' . __( '正在抹除数据…' ) . ' <span class="erasure-progress"></span></span>' .
+				'<span class="remove-personal-data-processing hidden">' . __( '正在抹除数据...'  ) . ' <span class="erasure-progress"></span></span>' .
 				'<span class="remove-personal-data-success hidden">' . __( '抹除完成。' ) . '</span>' .
 				'<span class="remove-personal-data-failed hidden">' . __( '强行抹除已失败。' ) . ' <button type="button" class="button-link remove-personal-data-handle">' . __( '重试' ) . '</button></span>';
 
@@ -105,8 +106,9 @@ class GC_Privacy_Data_Removal_Requests_List_Table extends GC_Privacy_Requests_Ta
 	}
 
 	/**
-	 * Next steps column.
+	 * Outputs the Next steps column.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param GC_User_Request $item Item being shown.
 	 */
@@ -133,7 +135,7 @@ class GC_Privacy_Data_Removal_Requests_List_Table extends GC_Privacy_Requests_Ta
 
 				?>
 				<span class="remove-personal-data-idle"><button type="button" class="button-link remove-personal-data-handle"><?php _e( '抹除个人数据' ); ?></button></span>
-				<span class="remove-personal-data-processing hidden"><?php _e( '正在抹除数据…' ); ?> <span class="erasure-progress"></span></span>
+				<span class="remove-personal-data-processing hidden"><?php _e( '正在抹除数据...'  ); ?> <span class="erasure-progress"></span></span>
 				<span class="remove-personal-data-success success-message hidden" ><?php _e( '抹除完成。' ); ?></span>
 				<span class="remove-personal-data-failed hidden"><?php _e( '数据抹除已失败。' ); ?> <button type="button" class="button-link remove-personal-data-handle"><?php _e( '重试' ); ?></button></span>
 				<?php

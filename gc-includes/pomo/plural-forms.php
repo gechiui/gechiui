@@ -3,13 +3,14 @@
 /**
  * A gettext Plural-Forms parser.
  *
- *
  */
 if ( ! class_exists( 'Plural_Forms', false ) ) :
+	#[AllowDynamicProperties]
 	class Plural_Forms {
 		/**
 		 * Operator characters.
 		 *
+		 * @since 4.9.0
 		 * @var string OP_CHARS Operator characters.
 		 */
 		const OP_CHARS = '|&><!=%?:';
@@ -17,6 +18,7 @@ if ( ! class_exists( 'Plural_Forms', false ) ) :
 		/**
 		 * Valid number characters.
 		 *
+		 * @since 4.9.0
 		 * @var string NUM_CHARS Valid number characters.
 		 */
 		const NUM_CHARS = '0123456789';
@@ -29,6 +31,7 @@ if ( ! class_exists( 'Plural_Forms', false ) ) :
 		 *
 		 * @see https://en.wikipedia.org/wiki/Operators_in_C_and_C%2B%2B#Operator_precedence
 		 *
+		 * @since 4.9.0
 		 * @var array $op_precedence Operator precedence from highest to lowest.
 		 */
 		protected static $op_precedence = array(
@@ -56,6 +59,7 @@ if ( ! class_exists( 'Plural_Forms', false ) ) :
 		/**
 		 * Tokens generated from the string.
 		 *
+		 * @since 4.9.0
 		 * @var array $tokens List of tokens.
 		 */
 		protected $tokens = array();
@@ -63,6 +67,7 @@ if ( ! class_exists( 'Plural_Forms', false ) ) :
 		/**
 		 * Cache for repeated calls to the function.
 		 *
+		 * @since 4.9.0
 		 * @var array $cache Map of $n => $result
 		 */
 		protected $cache = array();
@@ -70,6 +75,7 @@ if ( ! class_exists( 'Plural_Forms', false ) ) :
 		/**
 		 * Constructor.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param string $str Plural function (just the bit after `plural=` from Plural-Forms)
 		 */
@@ -83,6 +89,7 @@ if ( ! class_exists( 'Plural_Forms', false ) ) :
 		 * Uses the shunting-yard algorithm to convert the string to Reverse Polish
 		 * Notation tokens.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @throws Exception If there is a syntax or parsing error with the string.
 		 *
@@ -227,6 +234,7 @@ if ( ! class_exists( 'Plural_Forms', false ) ) :
 		 *
 		 * Caches the value for repeated calls.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param int $num Number to get plural form for.
 		 * @return int Plural form value.
@@ -242,6 +250,7 @@ if ( ! class_exists( 'Plural_Forms', false ) ) :
 		/**
 		 * Execute the plural form function.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @throws Exception If the plural form value cannot be calculated.
 		 *

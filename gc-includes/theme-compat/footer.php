@@ -22,7 +22,7 @@ _deprecated_file(
 	<p>
 		<?php
 		printf(
-			/* translators: 1: Blog name, 2: GeChiUI */
+			/* translators: 1: Site name, 2: GeChiUI */
 			__( '%1$s自豪地采用%2$s构建' ),
 			get_bloginfo( 'name' ),
 			'<a href="https://www.gechiui.com/">GeChiUI</a>'

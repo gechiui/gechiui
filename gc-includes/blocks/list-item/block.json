@@ -1,0 +1,39 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/list-item",
+	"title": "列表项目",
+	"category": "text",
+	"parent": [ "core/list" ],
+	"description": "建立列表项目。",
+	"textdomain": "default",
+	"attributes": {
+		"placeholder": {
+			"type": "string"
+		},
+		"content": {
+			"type": "string",
+			"source": "html",
+			"selector": "li",
+			"default": "",
+			"__experimentalRole": "content"
+		}
+	},
+	"supports": {
+		"className": false,
+		"__experimentalSelector": "li",
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalTextTransform": true,
+			"__experimentalTextDecoration": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		}
+	}
+}

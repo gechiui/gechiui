@@ -4,13 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
+ * @since 5.8.0
  */
 
 /**
  * Core class to access widget types via the REST API.
  *
- *
+ * @since 5.8.0
  *
  * @see GC_REST_Controller
  */
@@ -19,6 +19,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Constructor.
 	 *
+	 * @since 5.8.0
 	 */
 	public function __construct() {
 		$this->namespace = 'gc/v2';
@@ -28,6 +29,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the widget type routes.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @see register_rest_route()
 	 */
@@ -83,9 +85,9 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 					'form_data' => array(
 						'description'       => __( '序列化小工具表单数据，以编码为设置实例。' ),
 						'type'              => 'string',
-						'sanitize_callback' => static function( $string ) {
+						'sanitize_callback' => static function( $form_data ) {
 							$array = array();
-							gc_parse_str( $string, $array );
+							gc_parse_str( $form_data, $array );
 							return $array;
 						},
 					),
@@ -125,6 +127,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Checks whether a given request has permission to read widget types.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -136,6 +139,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the list of all widget types.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -153,6 +157,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to read a widget type.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access for the item, GC_Error object otherwise.
@@ -174,6 +179,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Checks whether the user can read widget types.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @return true|GC_Error True if the widget type is visible, GC_Error otherwise.
 	 */
@@ -194,6 +200,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Gets the details about the requested widget.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param string $id The widget type id.
 	 * @return array|GC_Error The array of widget data if the name is valid, GC_Error otherwise.
@@ -211,6 +218,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Normalize array of widgets.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @global GC_Widget_Factory $gc_widget_factory
 	 * @global array             $gc_registered_widgets The list of registered widgets.
@@ -260,6 +268,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves a single widget type from the collection.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -278,6 +287,8 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a widget type object for serialization.
 	 *
+	 * @since 5.8.0
+	 * @since 5.9.0 Renamed `$widget_type` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param array           $item    Widget type data.
 	 * @param GC_REST_Request $request Full details about the request.
@@ -324,11 +335,14 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 
 		$response = rest_ensure_response( $data );
 
-		$response->add_links( $this->prepare_links( $widget_type ) );
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$response->add_links( $this->prepare_links( $widget_type ) );
+		}
 
 		/**
 		 * Filters the REST API response for a widget type.
 		 *
+		 * @since 5.8.0
 		 *
 		 * @param GC_REST_Response $response    The response object.
 		 * @param array            $widget_type The array of widget data.
@@ -340,6 +354,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares links for the widget type.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param array $widget_type Widget type data.
 	 * @return array Links for the given widget type.
@@ -358,6 +373,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the widget type's schema, conforming to JSON Schema.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @return array Item schema data.
 	 */
@@ -427,6 +443,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	 * - form:     The widget's admin form after updating the widget with the
 	 *             given form data.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @global GC_Widget_Factory $gc_widget_factory
 	 *
@@ -447,8 +464,10 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 			);
 		}
 
-		// Set the widget's number so that the id attributes in the HTML that we
-		// return are predictable.
+		/*
+		 * Set the widget's number so that the id attributes in the HTML that we
+		 * return are predictable.
+		 */
 		if ( isset( $request['number'] ) && is_numeric( $request['number'] ) ) {
 			$widget_object->_set( (int) $request['number'] );
 		} else {
@@ -512,7 +531,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 
 		if ( ! empty( $widget_object->widget_options['show_instance_in_rest'] ) ) {
 			// Use new stdClass so that JSON result is {} and not [].
-			$response['instance']['raw'] = empty( $instance ) ? new stdClass : $instance;
+			$response['instance']['raw'] = empty( $instance ) ? new stdClass() : $instance;
 		}
 
 		return rest_ensure_response( $response );
@@ -522,6 +541,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	 * Returns the output of GC_Widget::widget() when called with the provided
 	 * instance. Used by encode_form_data() to preview a widget.
 
+	 * @since 5.8.0
 	 *
 	 * @param string    $widget   The widget's PHP class name (see class-gc-widget.php).
 	 * @param array     $instance Widget instance settings.
@@ -537,6 +557,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	 * Returns the output of GC_Widget::form() when called with the provided
 	 * instance. Used by encode_form_data() to preview a widget's form.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param GC_Widget $widget_object Widget object to call widget() on.
 	 * @param array     $instance Widget instance settings.
@@ -568,6 +589,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Renders a single Legacy Widget and wraps it in a JSON-encodable array.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 *
@@ -585,6 +607,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Renders a page containing a preview of the requested Legacy Widget block.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param string $id_base The id base of the requested widget.
 	 * @param array  $instance The widget instance attributes.
@@ -603,6 +626,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 		<head>
 			<meta charset="<?php bloginfo( 'charset' ); ?>" />
 			<meta name="viewport" content="width=device-width, initial-scale=1" />
+			<link rel="profile" href="https://gmpg.org/xfn/11" />
 			<?php gc_head(); ?>
 			<style>
 				/* Reset theme styles */
@@ -637,6 +661,7 @@ class GC_REST_Widget_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the query params for collections.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @return array Collection parameters.
 	 */

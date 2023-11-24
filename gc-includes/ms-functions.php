@@ -4,13 +4,12 @@
  *
  * @package GeChiUI
  * @subpackage Multisite
- *
  */
 
 /**
  * Gets the network's site and user counts.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @return int[] {
  *     Site and user count for the network.
@@ -29,7 +28,7 @@ function get_sitestats() {
 }
 
 /**
- * Get one of a user's active blogs
+ * Gets one of a user's active blogs.
  *
  * Returns the user's primary blog, if they have one and
  * it is active. If it's inactive, function returns another
@@ -37,7 +36,7 @@ function get_sitestats() {
  * is added as a Subscriber to the Dashboard Blog and that blog
  * is returned.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param int $user_id The unique ID of the user
  * @return GC_Site|void The blog object
@@ -101,13 +100,11 @@ function get_active_blog_for_user( $user_id ) {
 }
 
 /**
- * The number of active sites on your installation.
+ * Gets the number of active sites on the installation.
  *
  * The count is cached and updated twice daily. This is not a live count.
  *
- * @since MU
- *
- *
+ * @since MU (3.0.0) The `$network_id` parameter has been deprecated. The `$network_id` parameter is now being used.
  *
  * @param int|null $network_id ID of the network. Default is the current network.
  * @return int Number of active sites on the network.
@@ -122,7 +119,7 @@ function get_blog_count( $network_id = null ) {
  * This function is similar to get_post(), except that it can retrieve a post
  * from any site on the network, not just the current site.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param int $blog_id ID of the blog.
  * @param int $post_id ID of the post being looked for.
@@ -141,11 +138,11 @@ function get_blog_post( $blog_id, $post_id ) {
  *
  * Use the {@see 'add_user_to_blog'} action to fire an event when users are added to a blog.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param int    $blog_id ID of the blog the user is being added to.
  * @param int    $user_id ID of the user being added.
- * @param string $role    The role you want the user to have.
+ * @param string $role    User role.
  * @return true|GC_Error True on success or a GC_Error object if the user doesn't exist
  *                       or could not be added.
  */
@@ -162,6 +159,7 @@ function add_user_to_blog( $blog_id, $user_id, $role ) {
 	/**
 	 * Filters whether a user should be added to a site.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param true|GC_Error $retval  True if the user should be added to the site, error
 	 *                               object otherwise.
@@ -178,7 +176,7 @@ function add_user_to_blog( $blog_id, $user_id, $role ) {
 			return $can_add_user;
 		}
 
-		return new GC_Error( 'user_cannot_be_added', __( '用户未能被加入此站点。' ) );
+		return new GC_Error( 'user_cannot_be_added', __( '用户未能被加入此系统。' ) );
 	}
 
 	if ( ! get_user_meta( $user_id, 'primary_blog', true ) ) {
@@ -192,7 +190,7 @@ function add_user_to_blog( $blog_id, $user_id, $role ) {
 	/**
 	 * Fires immediately after a user is added to a site.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param int    $user_id User ID.
 	 * @param string $role    User role.
@@ -209,7 +207,7 @@ function add_user_to_blog( $blog_id, $user_id, $role ) {
 }
 
 /**
- * Remove a user from a blog.
+ * Removes a user from a blog.
  *
  * Use the {@see 'remove_user_from_blog'} action to fire an event when
  * users are removed from a blog.
@@ -217,7 +215,7 @@ function add_user_to_blog( $blog_id, $user_id, $role ) {
  * Accepts an optional `$reassign` parameter, if you want to
  * reassign the user's blog posts to another user upon removal.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -235,7 +233,8 @@ function remove_user_from_blog( $user_id, $blog_id = 0, $reassign = 0 ) {
 	/**
 	 * Fires before a user is removed from a site.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
+	 * @since 5.4.0 Added the `$reassign` parameter.
 	 *
 	 * @param int $user_id  ID of the user being removed.
 	 * @param int $blog_id  ID of the blog the user is being removed from.
@@ -243,8 +242,10 @@ function remove_user_from_blog( $user_id, $blog_id = 0, $reassign = 0 ) {
 	 */
 	do_action( 'remove_user_from_blog', $user_id, $blog_id, $reassign );
 
-	// If being removed from the primary blog, set a new primary
-	// if the user is assigned to multiple blogs.
+	/*
+	 * If being removed from the primary blog, set a new primary
+	 * if the user is assigned to multiple blogs.
+	 */
 	$primary_blog = get_user_meta( $user_id, 'primary_blog', true );
 	if ( $primary_blog == $blog_id ) {
 		$new_id     = '';
@@ -263,7 +264,6 @@ function remove_user_from_blog( $user_id, $blog_id = 0, $reassign = 0 ) {
 		update_user_meta( $user_id, 'source_domain', $new_domain );
 	}
 
-	// gc_revoke_user( $user_id );
 	$user = get_userdata( $user_id );
 	if ( ! $user ) {
 		restore_current_blog();
@@ -273,7 +273,7 @@ function remove_user_from_blog( $user_id, $blog_id = 0, $reassign = 0 ) {
 	$user->remove_all_caps();
 
 	$blogs = get_blogs_of_user( $user_id );
-	if ( count( $blogs ) == 0 ) {
+	if ( count( $blogs ) === 0 ) {
 		update_user_meta( $user_id, 'primary_blog', '' );
 		update_user_meta( $user_id, 'source_domain', '' );
 	}
@@ -294,19 +294,20 @@ function remove_user_from_blog( $user_id, $blog_id = 0, $reassign = 0 ) {
 		}
 	}
 
+	clean_user_cache( $user_id );
 	restore_current_blog();
 
 	return true;
 }
 
 /**
- * Get the permalink for a post on another blog.
+ * Gets the permalink for a post on another blog.
  *
- * @since MU 1.0
+ * @since MU (3.0.0) 1.0
  *
  * @param int $blog_id ID of the source blog.
  * @param int $post_id ID of the desired post.
- * @return string The post's permalink
+ * @return string The post's permalink.
  */
 function get_blog_permalink( $blog_id, $post_id ) {
 	switch_to_blog( $blog_id );
@@ -317,20 +318,20 @@ function get_blog_permalink( $blog_id, $post_id ) {
 }
 
 /**
- * Get a blog's numeric ID from its URL.
+ * Gets a blog's numeric ID from its URL.
  *
  * On a subdirectory installation like example.com/blog1/,
  * $domain will be the root 'example.com' and $path the
  * subdirectory '/blog1/'. With subdomains like blog1.example.com,
  * $domain is 'blog1.example.com' and $path is '/'.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
- * @param string $domain
- * @param string $path   Optional. Not required for subdomain installations.
- * @return int 0 if no blog found, otherwise the ID of the matching blog
+ * @param string $domain Website domain.
+ * @param string $path   Optional. Not required for subdomain installations. Default '/'.
+ * @return int 0 if no blog found, otherwise the ID of the matching blog.
  */
 function get_blog_id_from_url( $domain, $path = '/' ) {
 	$domain = strtolower( $domain );
@@ -375,7 +376,7 @@ function get_blog_id_from_url( $domain, $path = '/' ) {
  * self-registrations; user creation at gc-admin/network/users.php
  * bypasses this check.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param string $user_email The email provided by the user at registration.
  * @return bool True when the email address is banned, false otherwise.
@@ -399,13 +400,12 @@ function is_email_address_unsafe( $user_email ) {
 				continue;
 			}
 
-			if ( $email_domain == $banned_domain ) {
+			if ( $email_domain === $banned_domain ) {
 				$is_email_address_unsafe = true;
 				break;
 			}
 
-			$dotted_domain = ".$banned_domain";
-			if ( substr( $normalized_email, -strlen( $dotted_domain ) ) === $dotted_domain ) {
+			if ( str_ends_with( $normalized_email, ".$banned_domain" ) ) {
 				$is_email_address_unsafe = true;
 				break;
 			}
@@ -415,6 +415,7 @@ function is_email_address_unsafe( $user_email ) {
 	/**
 	 * Filters whether an email address is unsafe.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param bool   $is_email_address_unsafe Whether the email address is "unsafe". Default false.
 	 * @param string $user_email              User email address.
@@ -423,7 +424,7 @@ function is_email_address_unsafe( $user_email ) {
 }
 
 /**
- * Sanitize and validate data required for a user sign-up.
+ * Sanitizes and validates data required for a user sign-up.
  *
  * Verifies the validity and uniqueness of user names and user email addresses,
  * and checks email addresses against allowed and disallowed domains provided by
@@ -435,7 +436,7 @@ function is_email_address_unsafe( $user_email ) {
  * allows you to process the data in any way you'd like, and unset the relevant errors if
  * necessary.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -488,7 +489,7 @@ function gcmu_validate_user_signup( $user_name, $user_email ) {
 	if ( ! is_email( $user_email ) ) {
 		$errors->add( 'user_email', __( '请输入有效的电子邮箱。' ) );
 	} elseif ( is_email_address_unsafe( $user_email ) ) {
-		$errors->add( 'user_email', __( '您不能使用此邮箱地址注册。该邮件服务商经常屏蔽我们发送的邮件。请填写您的其他邮箱地址。' ) );
+		$errors->add( 'user_email', __( '您不能使用此电子邮箱注册。此问题是由于该邮件服务屏蔽了来自 GeChiUI 发送的邮件。请使用其他的电子邮件服务商。' ) );
 	}
 
 	if ( strlen( $user_name ) < 4 ) {
@@ -568,7 +569,7 @@ function gcmu_validate_user_signup( $user_name, $user_email ) {
 	 * This does not allow you to override the username or email of the user during
 	 * registration. The values are solely used for validation and error handling.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param array $result {
 	 *     The array of user name, email, and the error messages.
@@ -596,16 +597,17 @@ function gcmu_validate_user_signup( $user_name, $user_email ) {
  * Filter {@see 'gcmu_validate_blog_signup'} if you want to modify
  * the way that GeChiUI validates new site signups.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @global gcdb   $gcdb   GeChiUI database abstraction object.
  * @global string $domain
  *
- * @param string         $blogname   The blog name provided by the user. Must be unique.
- * @param string         $blog_title The blog title provided by the user.
+ * @param string         $blogname   The site name provided by the user. Must be unique.
+ * @param string         $blog_title The site title provided by the user.
  * @param GC_User|string $user       Optional. The user object to check against the new site name.
+ *                                   Default empty string.
  * @return array {
- *     Array of domain, path, blog name, blog title, user and error messages.
+ *     Array of domain, path, site name, site title, user and error messages.
  *
  *     @type string         $domain     Domain for the site.
  *     @type string         $path       Path for the site. Used in subdirectory installations.
@@ -639,11 +641,11 @@ function gcmu_validate_blog_signup( $blogname, $blog_title, $user = '' ) {
 	}
 
 	if ( empty( $blogname ) ) {
-		$errors->add( 'blogname', __( '请输入站点名称。' ) );
+		$errors->add( 'blogname', __( '请输入系统名称。' ) );
 	}
 
 	if ( preg_match( '/[^a-z0-9]+/', $blogname ) ) {
-		$errors->add( 'blogname', __( '站点名称只能包含小写字母（a-z）和数字。' ) );
+		$errors->add( 'blogname', __( '系统名称只能包含小写字母（a-z）和数字。' ) );
 	}
 
 	if ( in_array( $blogname, $illegal_names, true ) ) {
@@ -653,6 +655,7 @@ function gcmu_validate_blog_signup( $blogname, $blog_title, $user = '' ) {
 	/**
 	 * Filters the minimum site name length required when validating a site signup.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param int $length The minimum site name length. Default 4.
 	 */
@@ -660,17 +663,17 @@ function gcmu_validate_blog_signup( $blogname, $blog_title, $user = '' ) {
 
 	if ( strlen( $blogname ) < $minimum_site_name_length ) {
 		/* translators: %s: Minimum site name length. */
-		$errors->add( 'blogname', sprintf( _n( '站点名称至少%s个字符长。', '站点名称至少%s个字符长。', $minimum_site_name_length ), number_format_i18n( $minimum_site_name_length ) ) );
+		$errors->add( 'blogname', sprintf( _n( '系统名称至少%s个字符长。', '系统名称至少%s个字符长。', $minimum_site_name_length ), number_format_i18n( $minimum_site_name_length ) ) );
 	}
 
 	// Do not allow users to create a site that conflicts with a page on the main blog.
 	if ( ! is_subdomain_install() && $gcdb->get_var( $gcdb->prepare( 'SELECT post_name FROM ' . $gcdb->get_blog_prefix( $current_network->site_id ) . "posts WHERE post_type = 'page' AND post_name = %s", $blogname ) ) ) {
-		$errors->add( 'blogname', __( '抱歉，您不能使用该站点名称。' ) );
+		$errors->add( 'blogname', __( '抱歉，您不能使用该系统名称。' ) );
 	}
 
 	// All numeric?
 	if ( preg_match( '/^[0-9]*$/', $blogname ) ) {
-		$errors->add( 'blogname', __( '抱歉，站点名必须要有字母！' ) );
+		$errors->add( 'blogname', __( '抱歉，系统名必须要有字母！' ) );
 	}
 
 	/**
@@ -679,7 +682,7 @@ function gcmu_validate_blog_signup( $blogname, $blog_title, $user = '' ) {
 	 * The name is the site's subdomain or the site's subdirectory
 	 * path depending on the network settings.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param string $blogname Site name.
 	 */
@@ -688,7 +691,7 @@ function gcmu_validate_blog_signup( $blogname, $blog_title, $user = '' ) {
 	$blog_title = gc_unslash( $blog_title );
 
 	if ( empty( $blog_title ) ) {
-		$errors->add( 'blog_title', __( '请输入站点标题。' ) );
+		$errors->add( 'blog_title', __( '请输入系统标题。' ) );
 	}
 
 	// Check if the domain/path has been used already.
@@ -700,7 +703,7 @@ function gcmu_validate_blog_signup( $blogname, $blog_title, $user = '' ) {
 		$path     = $base . $blogname . '/';
 	}
 	if ( domain_exists( $mydomain, $path, $current_network->id ) ) {
-		$errors->add( 'blogname', __( '抱歉，该站点已存在！' ) );
+		$errors->add( 'blogname', __( '抱歉，该系统已存在！' ) );
 	}
 
 	/*
@@ -709,12 +712,14 @@ function gcmu_validate_blog_signup( $blogname, $blog_title, $user = '' ) {
 	 */
 	if ( username_exists( $blogname ) ) {
 		if ( ! is_object( $user ) || ( is_object( $user ) && ( $user->user_login != $blogname ) ) ) {
-			$errors->add( 'blogname', __( '抱歉，该站点被保留注册！' ) );
+			$errors->add( 'blogname', __( '抱歉，该系统被保留注册！' ) );
 		}
 	}
 
-	// Has someone already signed up for this domain?
-	// TODO: Check email too?
+	/*
+	 * Has someone already signed up for this domain?
+	 * TODO: Check email too?
+	 */
 	$signup = $gcdb->get_row( $gcdb->prepare( "SELECT * FROM $gcdb->signups WHERE domain = %s AND path = %s", $mydomain, $path ) );
 	if ( $signup instanceof stdClass ) {
 		$diff = time() - mysql2date( 'U', $signup->registered );
@@ -728,7 +733,7 @@ function gcmu_validate_blog_signup( $blogname, $blog_title, $user = '' ) {
 				)
 			);
 		} else {
-			$errors->add( 'blogname', __( '系统暂时保留该站点，几天后或许开放注册。' ) );
+			$errors->add( 'blogname', __( '系统暂时保留该系统，几天后或许开放注册。' ) );
 		}
 	}
 
@@ -744,15 +749,15 @@ function gcmu_validate_blog_signup( $blogname, $blog_title, $user = '' ) {
 	/**
 	 * Filters site details and error messages following registration.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param array $result {
-	 *     Array of domain, path, blog name, blog title, user and error messages.
+	 *     Array of domain, path, site name, site title, user and error messages.
 	 *
 	 *     @type string         $domain     Domain for the site.
 	 *     @type string         $path       Path for the site. Used in subdirectory installations.
 	 *     @type string         $blogname   The unique site name (slug).
-	 *     @type string         $blog_title Blog title.
+	 *     @type string         $blog_title Site title.
 	 *     @type string|GC_User $user       By default, an empty string. A user object if provided.
 	 *     @type GC_Error       $errors     GC_Error containing any errors found.
 	 * }
@@ -761,9 +766,9 @@ function gcmu_validate_blog_signup( $blogname, $blog_title, $user = '' ) {
 }
 
 /**
- * Record site signup information for future activation.
+ * Records site signup information for future activation.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -784,6 +789,7 @@ function gcmu_signup_blog( $domain, $path, $title, $user, $user_email, $meta = a
 	 *
 	 * The metadata will be serialized prior to storing it in the database.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param array  $meta       Signup meta data. Default empty array.
 	 * @param string $domain     The requested domain.
@@ -812,6 +818,7 @@ function gcmu_signup_blog( $domain, $path, $title, $user, $user_email, $meta = a
 	/**
 	 * Fires after site signup information has been written to the database.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $domain     The requested domain.
 	 * @param string $path       The requested path.
@@ -825,12 +832,12 @@ function gcmu_signup_blog( $domain, $path, $title, $user, $user_email, $meta = a
 }
 
 /**
- * Record user signup information for future activation.
+ * Records user signup information for future activation.
  *
  * This function is used when user registration is open but
  * new site registration is not.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -851,6 +858,7 @@ function gcmu_signup_user( $user, $user_email, $meta = array() ) {
 	 *
 	 * The metadata will be serialized prior to storing it in the database.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param array  $meta       Signup meta data. Default empty array.
 	 * @param string $user       The user's requested login name.
@@ -876,6 +884,7 @@ function gcmu_signup_user( $user, $user_email, $meta = array() ) {
 	/**
 	 * Fires after a user's signup information has been written to the database.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $user       The user's requested login name.
 	 * @param string $user_email The user's email address.
@@ -886,7 +895,7 @@ function gcmu_signup_user( $user, $user_email, $meta = array() ) {
 }
 
 /**
- * Send a confirmation request email to a user when they sign up for a new site. The new site will not become active
+ * Sends a confirmation request email to a user when they sign up for a new site. The new site will not become active
  * until the confirmation link is clicked.
  *
  * This is the notification function used when site registration
@@ -899,14 +908,14 @@ function gcmu_signup_user( $user, $user_email, $meta = array() ) {
  * {@see 'gcmu_signup_blog_notification_subject'} to change the content
  * and subject line of the email sent to newly registered users.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param string $domain     The new blog domain.
  * @param string $path       The new blog path.
  * @param string $title      The site title.
  * @param string $user_login The user's login name.
  * @param string $user_email The user's email address.
- * @param string $key        The activation key created in gcmu_signup_blog()
+ * @param string $key        The activation key created in gcmu_signup_blog().
  * @param array  $meta       Optional. Signup meta data. By default, contains the requested privacy setting and lang_id.
  * @return bool
  */
@@ -914,7 +923,7 @@ function gcmu_signup_blog_notification( $domain, $path, $title, $user_login, $us
 	/**
 	 * Filters whether to bypass the new site email notification.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param string|false $domain     Site domain, or false to prevent the email from sending.
 	 * @param string       $path       Site path.
@@ -947,7 +956,7 @@ function gcmu_signup_blog_notification( $domain, $path, $title, $user_login, $us
 	$message_headers = "From: \"{$from_name}\" <{$admin_email}>\n" . 'Content-Type: text/plain; charset="' . get_option( 'blog_charset' ) . "\"\n";
 
 	$user            = get_user_by( 'login', $user_login );
-	$switched_locale = switch_to_locale( get_user_locale( $user ) );
+	$switched_locale = $user && switch_to_user_locale( $user->ID );
 
 	$message = sprintf(
 		/**
@@ -955,7 +964,7 @@ function gcmu_signup_blog_notification( $domain, $path, $title, $user_login, $us
 		 *
 		 * Content should be formatted for transmission via gc_mail().
 		 *
-		 * @since MU
+		 * @since MU (3.0.0)
 		 *
 		 * @param string $content    Content of the notification email.
 		 * @param string $domain     Site domain.
@@ -969,7 +978,7 @@ function gcmu_signup_blog_notification( $domain, $path, $title, $user_login, $us
 		apply_filters(
 			'gcmu_signup_blog_notification_email',
 			/* translators: New site notification email. 1: Activation URL, 2: New site URL. */
-			__( "要激活您的网站，请单击以下链接：\n\n%1\$s\n\n激活后，您将收到*另一封带有登录名的电子邮件*。\n\n激活后，您可以访问您的网站：\n\n%2\$s" ),
+			__( "To activate your site, please click the following link:\n\n%1\$s\n\nAfter you activate, you will receive *another email* with your login.\n\nAfter you activate, you can visit your site here:\n\n%2\$s" ),
 			$domain,
 			$path,
 			$title,
@@ -987,7 +996,7 @@ function gcmu_signup_blog_notification( $domain, $path, $title, $user_login, $us
 		/**
 		 * Filters the subject of the new blog notification email.
 		 *
-		 * @since MU
+		 * @since MU (3.0.0)
 		 *
 		 * @param string $subject    Subject of the notification email.
 		 * @param string $domain     Site domain.
@@ -1024,7 +1033,7 @@ function gcmu_signup_blog_notification( $domain, $path, $title, $user_login, $us
 }
 
 /**
- * Send a confirmation request email to a user when they sign up for a new user account (without signing up for a site
+ * Sends a confirmation request email to a user when they sign up for a new user account (without signing up for a site
  * at the same time). The user account will not become active until the confirmation link is clicked.
  *
  * This is the notification function used when no new site has
@@ -1037,7 +1046,7 @@ function gcmu_signup_blog_notification( $domain, $path, $title, $user_login, $us
  * {@see 'gcmu_signup_user_notification_subject'} to change the content
  * and subject line of the email sent to newly registered users.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param string $user_login The user's login name.
  * @param string $user_email The user's email address.
@@ -1049,7 +1058,7 @@ function gcmu_signup_user_notification( $user_login, $user_email, $key, $meta = 
 	/**
 	 * Filters whether to bypass the email notification for new user sign-up.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param string $user_login User login name.
 	 * @param string $user_email User email address.
@@ -1061,7 +1070,7 @@ function gcmu_signup_user_notification( $user_login, $user_email, $key, $meta = 
 	}
 
 	$user            = get_user_by( 'login', $user_login );
-	$switched_locale = switch_to_locale( get_user_locale( $user ) );
+	$switched_locale = $user && switch_to_user_locale( $user->ID );
 
 	// Send email with activation link.
 	$admin_email = get_site_option( 'admin_email' );
@@ -1078,7 +1087,7 @@ function gcmu_signup_user_notification( $user_login, $user_email, $key, $meta = 
 		 *
 		 * Content should be formatted for transmission via gc_mail().
 		 *
-		 * @since MU
+		 * @since MU (3.0.0)
 		 *
 		 * @param string $content    Content of the notification email.
 		 * @param string $user_login User login name.
@@ -1089,7 +1098,7 @@ function gcmu_signup_user_notification( $user_login, $user_email, $key, $meta = 
 		apply_filters(
 			'gcmu_signup_user_notification_email',
 			/* translators: New user notification email. %s: Activation URL. */
-			__( "要激活您的用户，请单击以下链接：\n\n%s\n\n激活后，您将收到*另一封带有登录名的电子邮件*。" ),
+			__( "要激活您的用户账户，请点击以下链接：\n\n%s\n\n激活成功后，您将收到另一封邮件，请使用该邮件中的信息登录。" ),
 			$user_login,
 			$user_email,
 			$key,
@@ -1102,7 +1111,7 @@ function gcmu_signup_user_notification( $user_login, $user_email, $key, $meta = 
 		/**
 		 * Filters the subject of the notification email of new user signup.
 		 *
-		 * @since MU
+		 * @since MU (3.0.0)
 		 *
 		 * @param string $subject    Subject of the notification email.
 		 * @param string $user_login User login name.
@@ -1133,19 +1142,19 @@ function gcmu_signup_user_notification( $user_login, $user_email, $key, $meta = 
 }
 
 /**
- * Activate a signup.
+ * Activates a signup.
  *
  * Hook to {@see 'gcmu_activate_user'} or {@see 'gcmu_activate_blog'} for events
  * that should happen only when users or sites are self-created (since
  * those actions are not called when users and sites are created
  * by a Super Admin).
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param string $key The activation key provided to the user.
- * @return array|GC_Error An array containing information about the activated user and/or blog
+ * @return array|GC_Error An array containing information about the activated user and/or blog.
  */
 function gcmu_activate_signup( $key ) {
 	global $gcdb;
@@ -1160,7 +1169,7 @@ function gcmu_activate_signup( $key ) {
 		if ( empty( $signup->domain ) ) {
 			return new GC_Error( 'already_active', __( '此用户已经处于启用状态。' ), $signup );
 		} else {
-			return new GC_Error( 'already_active', __( '此站点已处于启用状态。' ), $signup );
+			return new GC_Error( 'already_active', __( '此系统已处于启用状态。' ), $signup );
 		}
 	}
 
@@ -1198,7 +1207,7 @@ function gcmu_activate_signup( $key ) {
 		/**
 		 * Fires immediately after a new user is activated.
 		 *
-		 * @since MU
+		 * @since MU (3.0.0)
 		 *
 		 * @param int    $user_id  User ID.
 		 * @param string $password User password.
@@ -1248,7 +1257,7 @@ function gcmu_activate_signup( $key ) {
 	/**
 	 * Fires immediately after a site is activated.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param int    $blog_id       Blog ID.
 	 * @param int    $user_id       User ID.
@@ -1268,9 +1277,11 @@ function gcmu_activate_signup( $key ) {
 }
 
 /**
- * Deletes am associated signup entry when a user is deleted from the database.
+ * Deletes an associated signup entry when a user is deleted from the database.
  *
+ * @since 5.5.0
  *
+ * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param int      $id       ID of the user to delete.
  * @param int|null $reassign ID of the user to reassign posts and links to.
@@ -1283,19 +1294,19 @@ function gc_delete_signup_on_user_delete( $id, $reassign, $user ) {
 }
 
 /**
- * Create a user.
+ * Creates a user.
  *
  * This function runs when a user self-registers as well as when
  * a Super Admin creates a new user. Hook to {@see 'gcmu_new_user'} for events
  * that should affect all new users, but only on Multisite (otherwise
  * use {@see 'user_register'}).
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param string $user_name The new user's login name.
  * @param string $password  The new user's password.
  * @param string $email     The new user's email address.
- * @return int|false Returns false on failure, or int $user_id on success
+ * @return int|false Returns false on failure, or int $user_id on success.
  */
 function gcmu_create_user( $user_name, $password, $email ) {
 	$user_name = preg_replace( '/\s+/', '', sanitize_user( $user_name, true ) );
@@ -1312,7 +1323,7 @@ function gcmu_create_user( $user_name, $password, $email ) {
 	/**
 	 * Fires immediately after a new user is created.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param int $user_id User ID.
 	 */
@@ -1322,7 +1333,7 @@ function gcmu_create_user( $user_name, $password, $email ) {
 }
 
 /**
- * Create a site.
+ * Creates a site.
  *
  * This function runs when a user self-registers a new site as well
  * as when a Super Admin creates a new site. Hook to {@see 'gcmu_new_blog'}
@@ -1333,7 +1344,7 @@ function gcmu_create_user( $user_name, $password, $email ) {
  * and '/blog1/'). On subdomain installations, $domain is the new subdomain +
  * root domain (eg 'blog1.example.com'), and $path is '/'.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param string $domain     The new site's domain.
  * @param string $path       The new site's path.
@@ -1345,6 +1356,7 @@ function gcmu_create_user( $user_name, $password, $email ) {
  *                           updated. Otherwise, keys and values will be used to set options for
  *                           the new site. Default empty array.
  * @param int    $network_id Optional. Network ID. Only relevant on multi-network installations.
+ *                           Default 1.
  * @return int|GC_Error Returns GC_Error object on failure, the new site ID on success.
  */
 function gcmu_create_blog( $domain, $path, $title, $user_id, $options = array(), $network_id = 1 ) {
@@ -1358,7 +1370,7 @@ function gcmu_create_blog( $domain, $path, $title, $user_id, $options = array(),
 
 	// Check if the domain has been used already. We should return an error message.
 	if ( domain_exists( $domain, $path, $network_id ) ) {
-		return new GC_Error( 'blog_taken', __( '抱歉，该站点已存在！' ) );
+		return new GC_Error( 'blog_taken', __( '抱歉，该系统已存在！' ) );
 	}
 
 	if ( ! gc_installing() ) {
@@ -1389,7 +1401,7 @@ function gcmu_create_blog( $domain, $path, $title, $user_id, $options = array(),
 		return $blog_id;
 	}
 
-	gc_cache_set( 'last_changed', microtime(), 'sites' );
+	gc_cache_set_sites_last_changed();
 
 	return $blog_id;
 }
@@ -1400,8 +1412,8 @@ function gcmu_create_blog( $domain, $path, $title, $user_id, $options = array(),
  * Filter {@see 'newblog_notify_siteadmin'} to change the content of
  * the notification email.
  *
- * @since MU
- *
+ * @since MU (3.0.0)
+ * @since 5.1.0 $blog_id now supports input from the {@see 'gc_initialize_site'} action.
  *
  * @param GC_Site|int $blog_id    The new site's object or ID.
  * @param string      $deprecated Not used.
@@ -1432,11 +1444,11 @@ function newblog_notify_siteadmin( $blog_id, $deprecated = '' ) {
 	$msg = sprintf(
 		/* translators: New site notification email. 1: Site URL, 2: User IP address, 3: URL to Network Settings screen. */
 		__(
-			'新站点：%1$s
-URL：%2$s
-远端IP地址：%3$s
+			'New Site: %1$s
+URL: %2$s
+Remote IP address: %3$s
 
-禁用这些通知：%4$s'
+Disable these notifications: %4$s'
 		),
 		$blogname,
 		$siteurl,
@@ -1447,7 +1459,8 @@ URL：%2$s
 	 * Filters the message body of the new site activation email sent
 	 * to the network administrator.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
+	 * @since 5.4.0 The `$blog_id` parameter was added.
 	 *
 	 * @param string     $msg     Email body.
 	 * @param int|string $blog_id The new site's ID as an integer or numeric string.
@@ -1455,7 +1468,7 @@ URL：%2$s
 	$msg = apply_filters( 'newblog_notify_siteadmin', $msg, $blog_id );
 
 	/* translators: New site notification email subject. %s: New site URL. */
-	gc_mail( $email, sprintf( __( '新注册站点：%s' ), $siteurl ), $msg );
+	gc_mail( $email, sprintf( __( '新注册系统：%s' ), $siteurl ), $msg );
 
 	return true;
 }
@@ -1466,7 +1479,7 @@ URL：%2$s
  * Filter {@see 'newuser_notify_siteadmin'} to change the content of
  * the notification email.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param int $user_id The new user's ID.
  * @return bool
@@ -1489,10 +1502,10 @@ function newuser_notify_siteadmin( $user_id ) {
 	$msg = sprintf(
 		/* translators: New user notification email. 1: User login, 2: User IP address, 3: URL to Network Settings screen. */
 		__(
-			'新用户：%1$s
-远端IP地址：%2$s
+			'New User: %1$s
+Remote IP address: %2$s
 
-禁用这些通知：%3$s'
+Disable these notifications: %3$s'
 		),
 		$user->user_login,
 		gc_unslash( $_SERVER['REMOTE_ADDR'] ),
@@ -1503,7 +1516,7 @@ function newuser_notify_siteadmin( $user_id ) {
 	 * Filters the message body of the new user activation email sent
 	 * to the network administrator.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param string  $msg  Email body.
 	 * @param GC_User $user GC_User instance of the new user.
@@ -1525,11 +1538,12 @@ function newuser_notify_siteadmin( $user_id ) {
  * Used during the new site registration process to ensure
  * that each site name is unique.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param string $domain     The domain to be checked.
  * @param string $path       The path to be checked.
- * @param int    $network_id Optional. Network ID. Relevant only on multi-network installations.
+ * @param int    $network_id Optional. Network ID. Only relevant on multi-network installations.
+ *                           Default 1.
  * @return int|null The site ID if the site name exists, null otherwise.
  */
 function domain_exists( $domain, $path, $network_id = 1 ) {
@@ -1551,11 +1565,12 @@ function domain_exists( $domain, $path, $network_id = 1 ) {
 	 * The name is the site's subdomain or the site's subdirectory
 	 * path depending on the network settings.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param int|null $result     The site ID if the site name exists, null otherwise.
 	 * @param string   $domain     Domain to be checked.
 	 * @param string   $path       Path to be checked.
-	 * @param int      $network_id Network ID. Relevant only on multi-network installations.
+	 * @param int      $network_id Network ID. Only relevant on multi-network installations.
 	 */
 	return apply_filters( 'domain_exists', $result, $domain, $path, $network_id );
 }
@@ -1568,7 +1583,7 @@ function domain_exists( $domain, $path, $network_id = 1 ) {
  * Filter {@see 'update_welcome_email'} and {@see 'update_welcome_subject'} to
  * modify the content and subject line of the notification email.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param int    $blog_id  Site ID.
  * @param int    $user_id  User ID.
@@ -1585,7 +1600,7 @@ function gcmu_welcome_notification( $blog_id, $user_id, $password, $title, $meta
 	 *
 	 * Returning false disables the welcome email.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param int|false $blog_id  Site ID, or false to prevent the email from sending.
 	 * @param int       $user_id  User ID of the site administrator.
@@ -1599,26 +1614,26 @@ function gcmu_welcome_notification( $blog_id, $user_id, $password, $title, $meta
 
 	$user = get_userdata( $user_id );
 
-	$switched_locale = switch_to_locale( get_user_locale( $user ) );
+	$switched_locale = switch_to_user_locale( $user_id );
 
 	$welcome_email = get_site_option( 'welcome_email' );
 	if ( false == $welcome_email ) {
 		/* translators: Do not translate USERNAME, SITE_NAME, BLOG_URL, PASSWORD: those are placeholders. */
 		$welcome_email = __(
-			'您好，USERNAME：
+			'你好，USERNAME：
 
-您的新站点SITE_NAME已经被成功建立：
+您成功注册了SITE_NAME：
 BLOG_URL
 
-您可以使用以下凭据登录管理员账户：
+您可以使用以下信息登录到管理员帐户：
 
 用户名：USERNAME
 密码：PASSWORD
 在此登录：BLOG_URLgc-login.php
 
-我们希望您享受您的新站点，谢谢！
+我们希望你喜欢。谢谢！
 
-——SITE_NAME团队'
+--团队 @ SITE_NAME'
 		);
 	}
 
@@ -1635,7 +1650,7 @@ BLOG_URL
 	 *
 	 * Content should be formatted for transmission via gc_mail().
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param string $welcome_email Message body of the email.
 	 * @param int    $blog_id       Site ID.
@@ -1661,12 +1676,12 @@ BLOG_URL
 	}
 
 	/* translators: New site notification email subject. 1: Network title, 2: New site title. */
-	$subject = __( '新%1$s站点：%2$s' );
+	$subject = __( '新%1$s系统：%2$s' );
 
 	/**
 	 * Filters the subject of the welcome email sent to the site administrator after site activation.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param string $subject Subject of the email.
 	 */
@@ -1688,8 +1703,6 @@ BLOG_URL
  *
  * Filter {@see 'new_site_email'} to filter the contents.
  *
- *
- *
  * @param int $site_id Site ID of the new site.
  * @param int $user_id User ID of the administrator of the new site.
  * @return bool Whether the email notification was sent.
@@ -1708,6 +1721,7 @@ function gcmu_new_site_admin_notification( $site_id, $user_id ) {
 	 *
 	 * Return false to disable sending the email.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param bool    $send Whether to send the email.
 	 * @param GC_Site $site Site object of the new site.
@@ -1722,7 +1736,7 @@ function gcmu_new_site_admin_notification( $site_id, $user_id ) {
 
 	if ( $network_admin ) {
 		// If the network admin email address corresponds to a user, switch to their locale.
-		$switched_locale = switch_to_locale( get_user_locale( $network_admin ) );
+		$switched_locale = switch_to_user_locale( $network_admin->ID );
 	} else {
 		// Otherwise switch to the locale of the current site.
 		$switched_locale = switch_to_locale( get_locale() );
@@ -1730,17 +1744,17 @@ function gcmu_new_site_admin_notification( $site_id, $user_id ) {
 
 	$subject = sprintf(
 		/* translators: New site notification email subject. %s: Network title. */
-		__( '[%s] 新站点已创建' ),
+		__( '[%s] 新系统已创建' ),
 		get_network()->site_name
 	);
 
 	$message = sprintf(
 		/* translators: New site notification email. 1: User login, 2: Site URL, 3: Site title. */
 		__(
-			'%1$s建立了新站点
+			'New site created by %1$s
 
-地址：%2$s
-名称：%3$s'
+Address: %2$s
+Name: %3$s'
 		),
 		$user->user_login,
 		get_site_url( $site->id ),
@@ -1749,7 +1763,7 @@ function gcmu_new_site_admin_notification( $site_id, $user_id ) {
 
 	$header = sprintf(
 		'From: "%1$s" <%2$s>',
-		_x( '站点管理员', 'email "From" field' ),
+		_x( '系统管理员', 'email "From" field' ),
 		$email
 	);
 
@@ -1765,6 +1779,7 @@ function gcmu_new_site_admin_notification( $site_id, $user_id ) {
 	 *
 	 * Content should be formatted for transmission via gc_mail().
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param array $new_site_email {
 	 *     Used to build gc_mail().
@@ -1794,14 +1809,14 @@ function gcmu_new_site_admin_notification( $site_id, $user_id ) {
 }
 
 /**
- * Notify a user that their account activation has been successful.
+ * Notifies a user that their account activation has been successful.
  *
  * Filter {@see 'gcmu_welcome_user_notification'} to disable or bypass.
  *
  * Filter {@see 'update_welcome_user_email'} and {@see 'update_welcome_user_subject'} to
  * modify the content and subject line of the notification email.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param int    $user_id  User ID.
  * @param string $password User password.
@@ -1816,7 +1831,7 @@ function gcmu_welcome_user_notification( $user_id, $password, $meta = array() ) 
 	 *
 	 * Returning false disables the welcome email.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param int    $user_id  User ID.
 	 * @param string $password User password.
@@ -1830,14 +1845,14 @@ function gcmu_welcome_user_notification( $user_id, $password, $meta = array() ) 
 
 	$user = get_userdata( $user_id );
 
-	$switched_locale = switch_to_locale( get_user_locale( $user ) );
+	$switched_locale = switch_to_user_locale( $user_id );
 
 	/**
 	 * Filters the content of the welcome email after user activation.
 	 *
 	 * Content should be formatted for transmission via gc_mail().
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param string $welcome_email The message body of the account activation success email.
 	 * @param int    $user_id       User ID.
@@ -1870,7 +1885,7 @@ function gcmu_welcome_user_notification( $user_id, $password, $meta = array() ) 
 	/**
 	 * Filters the subject of the welcome email after user activation.
 	 *
-	 * @since MU
+	 * @since MU (3.0.0)
 	 *
 	 * @param string $subject Subject of the email.
 	 */
@@ -1886,18 +1901,18 @@ function gcmu_welcome_user_notification( $user_id, $password, $meta = array() ) 
 }
 
 /**
- * Get the current network.
+ * Gets the current network.
  *
  * Returns an object containing the 'id', 'domain', 'path', and 'site_name'
  * properties of the network being viewed.
  *
  * @see gcmu_current_site()
  *
- * @since MU
+ * @since MU (3.0.0)
  *
- * @global GC_Network $current_site
+ * @global GC_Network $current_site The current network.
  *
- * @return GC_Network
+ * @return GC_Network The current network.
  */
 function get_current_site() {
 	global $current_site;
@@ -1905,17 +1920,17 @@ function get_current_site() {
 }
 
 /**
- * Get a user's most recent post.
+ * Gets a user's most recent post.
  *
  * Walks through each of a user's blogs to find the post with
  * the most recent post_date_gmt.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
- * @param int $user_id
- * @return array Contains the blog_id, post_id, post_date_gmt, and post_gmt_ts
+ * @param int $user_id User ID.
+ * @return array Contains the blog_id, post_id, post_date_gmt, and post_gmt_ts.
  */
 function get_most_recent_post_of_user( $user_id ) {
 	global $gcdb;
@@ -1923,8 +1938,10 @@ function get_most_recent_post_of_user( $user_id ) {
 	$user_blogs       = get_blogs_of_user( (int) $user_id );
 	$most_recent_post = array();
 
-	// Walk through each blog and get the most recent post
-	// published by $user_id.
+	/*
+	 * Walk through each blog and get the most recent post
+	 * published by $user_id.
+	 */
 	foreach ( (array) $user_blogs as $blog ) {
 		$prefix      = $gcdb->get_blog_prefix( $blog->userblog_id );
 		$recent_post = $gcdb->get_row( $gcdb->prepare( "SELECT ID, post_date_gmt FROM {$prefix}posts WHERE post_author = %d AND post_type = 'post' AND post_status = 'publish' ORDER BY post_date_gmt DESC LIMIT 1", $user_id ), ARRAY_A );
@@ -1957,7 +1974,7 @@ function get_most_recent_post_of_user( $user_id ) {
 //
 
 /**
- * Check an array of MIME types against a list of allowed types.
+ * Checks an array of MIME types against a list of allowed types.
  *
  * GeChiUI ships with a set of allowed upload filetypes,
  * which is defined in gc-includes/functions.php in
@@ -1965,7 +1982,7 @@ function get_most_recent_post_of_user( $user_id ) {
  * that list against the filetypes allowed provided by Multisite
  * Super Admins at gc-admin/network/settings.php.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param array $mimes
  * @return array
@@ -1975,7 +1992,7 @@ function check_upload_mimes( $mimes ) {
 	$site_mimes = array();
 	foreach ( $site_exts as $ext ) {
 		foreach ( $mimes as $ext_pattern => $mime ) {
-			if ( '' !== $ext && false !== strpos( $ext_pattern, $ext ) ) {
+			if ( '' !== $ext && str_contains( $ext_pattern, $ext ) ) {
 				$site_mimes[ $ext_pattern ] = $mime;
 			}
 		}
@@ -1984,14 +2001,14 @@ function check_upload_mimes( $mimes ) {
 }
 
 /**
- * Update a blog's post count.
+ * Updates a blog's post count.
  *
  * GeChiUI MS stores a blog's post count as an option so as
  * to avoid extraneous COUNTs when a blog's details are fetched
  * with get_site(). This function is called when posts are published
  * or unpublished to make sure the count stays current.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -2005,8 +2022,8 @@ function update_posts_count( $deprecated = '' ) {
 /**
  * Logs the user email, IP, and registration date of a new site.
  *
- * @since MU
- *
+ * @since MU (3.0.0)
+ * @since 5.1.0 Parameters now support input from the {@see 'gc_initialize_site'} action.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -2039,101 +2056,10 @@ function gcmu_log_new_registrations( $blog_id, $user_id ) {
 }
 
 /**
- * Maintains a canonical list of terms by syncing terms created for each blog with the global terms table.
- *
- *
- *
- * @see term_id_filter
- *
- * @global gcdb $gcdb GeChiUI database abstraction object.
- *
- * @param int    $term_id    An ID for a term on the current blog.
- * @param string $deprecated Not used.
- * @return int An ID from the global terms table mapped from $term_id.
- */
-function global_terms( $term_id, $deprecated = '' ) {
-	global $gcdb;
-	static $global_terms_recurse = null;
-
-	if ( ! global_terms_enabled() ) {
-		return $term_id;
-	}
-
-	// Prevent a race condition.
-	$recurse_start = false;
-	if ( null === $global_terms_recurse ) {
-		$recurse_start        = true;
-		$global_terms_recurse = 1;
-	} elseif ( 10 < $global_terms_recurse++ ) {
-		return $term_id;
-	}
-
-	$term_id = (int) $term_id;
-	$c       = $gcdb->get_row( $gcdb->prepare( "SELECT * FROM $gcdb->terms WHERE term_id = %d", $term_id ) );
-
-	$global_id = $gcdb->get_var( $gcdb->prepare( "SELECT cat_ID FROM $gcdb->sitecategories WHERE category_nicename = %s", $c->slug ) );
-	if ( null == $global_id ) {
-		$used_global_id = $gcdb->get_var( $gcdb->prepare( "SELECT cat_ID FROM $gcdb->sitecategories WHERE cat_ID = %d", $c->term_id ) );
-		if ( null == $used_global_id ) {
-			$gcdb->insert(
-				$gcdb->sitecategories,
-				array(
-					'cat_ID'            => $term_id,
-					'cat_name'          => $c->name,
-					'category_nicename' => $c->slug,
-				)
-			);
-			$global_id = $gcdb->insert_id;
-			if ( empty( $global_id ) ) {
-				return $term_id;
-			}
-		} else {
-			$max_global_id = $gcdb->get_var( "SELECT MAX(cat_ID) FROM $gcdb->sitecategories" );
-			$max_local_id  = $gcdb->get_var( "SELECT MAX(term_id) FROM $gcdb->terms" );
-			$new_global_id = max( $max_global_id, $max_local_id ) + mt_rand( 100, 400 );
-			$gcdb->insert(
-				$gcdb->sitecategories,
-				array(
-					'cat_ID'            => $new_global_id,
-					'cat_name'          => $c->name,
-					'category_nicename' => $c->slug,
-				)
-			);
-			$global_id = $gcdb->insert_id;
-		}
-	} elseif ( $global_id != $term_id ) {
-		$local_id = $gcdb->get_var( $gcdb->prepare( "SELECT term_id FROM $gcdb->terms WHERE term_id = %d", $global_id ) );
-		if ( null != $local_id ) {
-			global_terms( $local_id );
-			if ( 10 < $global_terms_recurse ) {
-				$global_id = $term_id;
-			}
-		}
-	}
-
-	if ( $global_id != $term_id ) {
-		if ( get_option( 'default_category' ) == $term_id ) {
-			update_option( 'default_category', $global_id );
-		}
-
-		$gcdb->update( $gcdb->terms, array( 'term_id' => $global_id ), array( 'term_id' => $term_id ) );
-		$gcdb->update( $gcdb->term_taxonomy, array( 'term_id' => $global_id ), array( 'term_id' => $term_id ) );
-		$gcdb->update( $gcdb->term_taxonomy, array( 'parent' => $global_id ), array( 'parent' => $term_id ) );
-
-		clean_term_cache( $term_id );
-	}
-	if ( $recurse_start ) {
-		$global_terms_recurse = null;
-	}
-
-	return $global_id;
-}
-
-/**
- * Ensure that the current site's domain is listed in the allowed redirect host list.
+ * Ensures that the current site's domain is listed in the allowed redirect host list.
  *
  * @see gc_validate_redirect()
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param array|string $deprecated Not used.
  * @return string[] {
@@ -2147,13 +2073,13 @@ function redirect_this_site( $deprecated = '' ) {
 }
 
 /**
- * Check whether an upload is too big.
+ * Checks whether an upload is too big.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @blessed
  *
- * @param array $upload
+ * @param array $upload An array of information about the newly-uploaded file.
  * @return string|array If the upload is under the size limit, $upload is returned. Otherwise returns an error message.
  */
 function upload_is_file_too_big( $upload ) {
@@ -2170,9 +2096,9 @@ function upload_is_file_too_big( $upload ) {
 }
 
 /**
- * Add a nonce field to the signup page.
+ * Adds a nonce field to the signup page.
  *
- * @since MU
+ * @since MU (3.0.0)
  */
 function signup_nonce_fields() {
 	$id = mt_rand();
@@ -2181,9 +2107,9 @@ function signup_nonce_fields() {
 }
 
 /**
- * Process the signup nonce created in signup_nonce_fields().
+ * Processes the signup nonce created in signup_nonce_fields().
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param array $result
  * @return array
@@ -2201,9 +2127,9 @@ function signup_nonce_check( $result ) {
 }
 
 /**
- * Correct 404 redirects when NOBLOGREDIRECT is defined.
+ * Corrects 404 redirects when NOBLOGREDIRECT is defined.
  *
- * @since MU
+ * @since MU (3.0.0)
  */
 function maybe_redirect_404() {
 	if ( is_main_site() && is_404() && defined( 'NOBLOGREDIRECT' ) ) {
@@ -2212,6 +2138,7 @@ function maybe_redirect_404() {
 		 *
 		 * The filter is only evaluated if the NOBLOGREDIRECT constant is defined.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param string $no_blog_redirect The redirect URL defined in NOBLOGREDIRECT.
 		 */
@@ -2229,16 +2156,16 @@ function maybe_redirect_404() {
 }
 
 /**
- * Add a new user to a blog by visiting /newbloguser/{key}/.
+ * Adds a new user to a blog by visiting /newbloguser/{key}/.
  *
  * This will only work when the user's details are saved as an option
  * keyed as 'new_user_{key}', where '{key}' is a hash generated for the user to be
  * added, as when a user is invited through the regular GC Add User interface.
  *
- * @since MU
+ * @since MU (3.0.0)
  */
 function maybe_add_existing_user_to_blog() {
-	if ( false === strpos( $_SERVER['REQUEST_URI'], '/newbloguser/' ) ) {
+	if ( ! str_contains( $_SERVER['REQUEST_URI'], '/newbloguser/' ) ) {
 		return;
 	}
 
@@ -2258,7 +2185,7 @@ function maybe_add_existing_user_to_blog() {
 		gc_die(
 			sprintf(
 				/* translators: %s: Home URL. */
-				__( '将您加入站点时出错。请前往<a href="%s">首页</a>。' ),
+				__( '将您加入系统时出错。请前往<a href="%s">首页</a>。' ),
 				home_url()
 			)
 		);
@@ -2267,7 +2194,7 @@ function maybe_add_existing_user_to_blog() {
 	gc_die(
 		sprintf(
 			/* translators: 1: Home URL, 2: Admin URL. */
-			__( '您已被添加到此站点。请访问<a href="%1$s">主页</a>或使用您的用户名及密码<a href="%2$s">登录</a>。' ),
+			__( '您已被添加到此系统。请访问<a href="%1$s">主页</a>或使用您的用户名及密码<a href="%2$s">登录</a>。' ),
 			home_url(),
 			admin_url()
 		),
@@ -2277,9 +2204,9 @@ function maybe_add_existing_user_to_blog() {
 }
 
 /**
- * Add a user to a blog based on details from maybe_add_existing_user_to_blog().
+ * Adds a user to a blog based on details from maybe_add_existing_user_to_blog().
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param array|false $details {
  *     User details. Must at least contain values for the keys listed below.
@@ -2298,7 +2225,7 @@ function add_existing_user_to_blog( $details = false ) {
 		/**
 		 * Fires immediately after an existing user is added to a site.
 		 *
-		 * @since MU
+		 * @since MU (3.0.0)
 		 *
 		 * @param int           $user_id User ID.
 		 * @param true|GC_Error $result  True on success or a GC_Error object if the user doesn't exist
@@ -2316,7 +2243,7 @@ function add_existing_user_to_blog( $details = false ) {
  * To add a user in general, use add_user_to_blog(). This function
  * is specifically hooked into the {@see 'gcmu_activate_user'} action.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @see add_user_to_blog()
  *
@@ -2339,9 +2266,9 @@ function add_new_user_to_blog( $user_id, $password, $meta ) {
 }
 
 /**
- * Correct From host on outgoing mail to match the site domain
+ * Corrects From host on outgoing mail to match the site domain.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param PHPMailer $phpmailer The PHPMailer instance (passed by reference).
  */
@@ -2350,9 +2277,9 @@ function fix_phpmailer_messageid( $phpmailer ) {
 }
 
 /**
- * Check to see whether a user is marked as a spammer, based on user login.
+ * Determines whether a user is marked as a spammer, based on user login.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param string|GC_User $user Optional. Defaults to current user. GC_User object,
  *                             or user login name as a string.
@@ -2371,23 +2298,23 @@ function is_user_spammy( $user = null ) {
 }
 
 /**
- * Update this blog's 'public' setting in the global blogs table.
+ * Updates this blog's 'public' setting in the global blogs table.
  *
  * Public blogs have a setting of 1, private blogs are 0.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
- * @param int $old_value
- * @param int $value     The new public value
+ * @param int $old_value The old public value.
+ * @param int $value     The new public value.
  */
 function update_blog_public( $old_value, $value ) {
 	update_blog_status( get_current_blog_id(), 'public', (int) $value );
 }
 
 /**
- * Check whether users can self-register, based on Network settings.
+ * Determines whether users can self-register, based on Network settings.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @return bool
  */
@@ -2397,9 +2324,9 @@ function users_can_register_signup_filter() {
 }
 
 /**
- * Ensure that the welcome message is not empty. Currently unused.
+ * Ensures that the welcome message is not empty. Currently unused.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param string $text
  * @return string
@@ -2410,18 +2337,18 @@ function welcome_user_msg_filter( $text ) {
 
 		/* translators: Do not translate USERNAME, PASSWORD, LOGINLINK, SITE_NAME: those are placeholders. */
 		$text = __(
-			'您好，USERNAME：
+			'你好，USERNAME：
 
-您的新账户已被建立。
+您已成功注册了新账号。
 
-您可以使用以下凭据登录：
+您可以使用以下信息登录：
 用户名：USERNAME
 密码：PASSWORD
 LOGINLINK
 
 谢谢！
 
-——SITE_NAME团队'
+--团队 @ SITE_NAME'
 		);
 		update_site_option( 'welcome_user_email', $text );
 	}
@@ -2429,9 +2356,9 @@ LOGINLINK
 }
 
 /**
- * Whether to force SSL on content.
+ * Determines whether to force SSL on content.
  *
- *
+ * @since 2.8.5
  *
  * @param bool $force
  * @return bool True if forced, false if not forced.
@@ -2453,14 +2380,14 @@ function force_ssl_content( $force = '' ) {
  *
  * Useful as a filter.
  *
+ * @since 2.8.5
  *
- *
- * @param string $url URL
- * @return string URL with https as the scheme
+ * @param string $url URL.
+ * @return string URL with https as the scheme.
  */
 function filter_SSL( $url ) {  // phpcs:ignore GeChiUI.NamingConventions.ValidFunctionName.FunctionNameInvalid
 	if ( ! is_string( $url ) ) {
-		return get_bloginfo( 'url' ); // Return home blog URL with proper scheme.
+		return get_bloginfo( 'url' ); // Return home site URL with proper scheme.
 	}
 
 	if ( force_ssl_content() && is_ssl() ) {
@@ -2471,8 +2398,7 @@ function filter_SSL( $url ) {  // phpcs:ignore GeChiUI.NamingConventions.ValidFu
 }
 
 /**
- * Schedule update of the network-wide counts for the current network.
- *
+ * Schedules update of the network-wide counts for the current network.
  *
  */
 function gc_schedule_update_network_counts() {
@@ -2486,10 +2412,8 @@ function gc_schedule_update_network_counts() {
 }
 
 /**
- * Update the network-wide counts for the current network.
- *
- *
- *
+ * Updates the network-wide counts for the current network.
+ * The `$network_id` parameter has been added.
  *
  * @param int|null $network_id ID of the network. Default is the current network.
  */
@@ -2499,13 +2423,11 @@ function gc_update_network_counts( $network_id = null ) {
 }
 
 /**
- * Update the count of sites for the current network.
+ * Updates the count of sites for the current network.
  *
  * If enabled through the {@see 'enable_live_network_counts'} filter, update the sites count
  * on a network when a site is created or its status is updated.
- *
- *
- *
+ * The `$network_id` parameter has been added.
  *
  * @param int|null $network_id ID of the network. Default is the current network.
  */
@@ -2515,6 +2437,7 @@ function gc_maybe_update_network_site_counts( $network_id = null ) {
 	/**
 	 * Filters whether to update network site or user counts when a new site is created.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @see gc_is_large_network()
 	 *
@@ -2529,13 +2452,11 @@ function gc_maybe_update_network_site_counts( $network_id = null ) {
 }
 
 /**
- * Update the network-wide users count.
+ * Updates the network-wide users count.
  *
  * If enabled through the {@see 'enable_live_network_counts'} filter, update the users count
  * on a network when a user is created or its status is updated.
- *
- *
- *
+ * The `$network_id` parameter has been added.
  *
  * @param int|null $network_id ID of the network. Default is the current network.
  */
@@ -2551,10 +2472,8 @@ function gc_maybe_update_network_user_counts( $network_id = null ) {
 }
 
 /**
- * Update the network-wide site count.
- *
- *
- *
+ * Updates the network-wide site count.
+ * The `$network_id` parameter has been added.
  *
  * @param int|null $network_id ID of the network. Default is the current network.
  */
@@ -2579,26 +2498,18 @@ function gc_update_network_site_counts( $network_id = null ) {
 }
 
 /**
- * Update the network-wide user count.
- *
- *
- *
- *
- * @global gcdb $gcdb GeChiUI database abstraction object.
+ * Updates the network-wide user count.
+ * The `$network_id` parameter has been added.
+ * @since 6.0.0 This function is now a wrapper for gc_update_user_counts().
  *
  * @param int|null $network_id ID of the network. Default is the current network.
  */
 function gc_update_network_user_counts( $network_id = null ) {
-	global $gcdb;
-
-	$count = $gcdb->get_var( "SELECT COUNT(ID) as c FROM $gcdb->users WHERE spam = '0' AND deleted = '0'" );
-	update_network_option( $network_id, 'user_count', $count );
+	gc_update_user_counts( $network_id );
 }
 
 /**
  * Returns the space used by the current site.
- *
- *
  *
  * @return int Used space in megabytes.
  */
@@ -2606,6 +2517,7 @@ function get_space_used() {
 	/**
 	 * Filters the amount of storage space used by the current site, in megabytes.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param int|false $space_used The amount of used space, in megabytes. Default false.
 	 */
@@ -2622,9 +2534,9 @@ function get_space_used() {
 /**
  * Returns the upload quota for the current blog.
  *
- * @since MU
+ * @since MU (3.0.0)
  *
- * @return int Quota in megabytes
+ * @return int Quota in megabytes.
  */
 function get_space_allowed() {
 	$space_allowed = get_option( 'blog_upload_space' );
@@ -2640,6 +2552,7 @@ function get_space_allowed() {
 	/**
 	 * Filters the upload quota for the current site.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param int $space_allowed Upload quota in megabytes for the current blog.
 	 */
@@ -2649,9 +2562,7 @@ function get_space_allowed() {
 /**
  * Determines if there is any upload space left in the current blog's quota.
  *
- *
- *
- * @return int of upload space available in bytes
+ * @return int of upload space available in bytes.
  */
 function get_upload_space_available() {
 	$allowed = get_space_allowed();
@@ -2675,7 +2586,6 @@ function get_upload_space_available() {
 /**
  * Determines if there is any upload space left in the current blog's quota.
  *
- *
  * @return bool True if space is available, false otherwise.
  */
 function is_upload_space_available() {
@@ -2689,30 +2599,28 @@ function is_upload_space_available() {
 /**
  * Filters the maximum upload file size allowed, in bytes.
  *
- *
- *
  * @param int $size Upload size limit in bytes.
  * @return int Upload size limit in bytes.
  */
 function upload_size_limit_filter( $size ) {
-	$fileupload_maxk = KB_IN_BYTES * get_site_option( 'fileupload_maxk', 1500 );
+	$fileupload_maxk         = (int) get_site_option( 'fileupload_maxk', 1500 );
+	$max_fileupload_in_bytes = KB_IN_BYTES * $fileupload_maxk;
+
 	if ( get_site_option( 'upload_space_check_disabled' ) ) {
-		return min( $size, $fileupload_maxk );
+		return min( $size, $max_fileupload_in_bytes );
 	}
 
-	return min( $size, $fileupload_maxk, get_upload_space_available() );
+	return min( $size, $max_fileupload_in_bytes, get_upload_space_available() );
 }
 
 /**
- * Whether or not we have a large network.
+ * Determines whether or not we have a large network.
  *
  * The default criteria for a large network is either more than 10,000 users or more than 10,000 sites.
  * Plugins can alter this criteria using the {@see 'gc_is_large_network'} filter.
+ * The `$network_id` parameter has been added.
  *
- *
- *
- *
- * @param string   $using      'sites or 'users'. Default is 'sites'.
+ * @param string   $using      'sites' or 'users'. Default is 'sites'.
  * @param int|null $network_id ID of the network. Default is the current network.
  * @return bool True if the network meets the criteria for large. False otherwise.
  */
@@ -2726,9 +2634,12 @@ function gc_is_large_network( $using = 'sites', $network_id = null ) {
 		$count = get_user_count( $network_id );
 
 		$is_large_network = gc_is_large_user_count( $network_id );
+
 		/**
 		 * Filters whether the network is considered large.
 		 *
+		 * @since 3.3.0
+		 * @since 4.8.0 The `$network_id` parameter has been added.
 		 *
 		 * @param bool   $is_large_network Whether the network has more than 10000 users or sites.
 		 * @param string $component        The component to count. Accepts 'users', or 'sites'.
@@ -2746,8 +2657,6 @@ function gc_is_large_network( $using = 'sites', $network_id = null ) {
 
 /**
  * Retrieves a list of reserved site on a sub-directory Multisite installation.
- *
- *
  *
  * @return string[] Array of reserved names.
  */
@@ -2768,6 +2677,7 @@ function get_subdirectory_reserved_names() {
 	/**
 	 * Filters reserved site names on a sub-directory Multisite installation.
 	 *
+	 * @since 4.4.0 'gc-admin', 'gc-content', 'gc-includes', 'gc-json', and 'embed' were added
 	 *              to the reserved names list.
 	 *
 	 * @param string[] $subdirectory_reserved_names Array of reserved names.
@@ -2776,11 +2686,9 @@ function get_subdirectory_reserved_names() {
 }
 
 /**
- * Send a confirmation request email when a change of network admin email address is attempted.
+ * Sends a confirmation request email when a change of network admin email address is attempted.
  *
  * The new network admin address will not become active until confirmed.
- *
- *
  *
  * @param string $old_value The old network admin email address.
  * @param string $value     The proposed new network admin email address.
@@ -2797,23 +2705,25 @@ function update_network_option_new_admin_email( $old_value, $value ) {
 	);
 	update_site_option( 'network_admin_hash', $new_admin_email );
 
-	$switched_locale = switch_to_locale( get_user_locale() );
+	$switched_locale = switch_to_user_locale( get_current_user_id() );
 
 	/* translators: Do not translate USERNAME, ADMIN_URL, EMAIL, SITENAME, SITEURL: those are placeholders. */
 	$email_text = __(
-		'您好，###USERNAME###：
+		'Howdy ###USERNAME###,
 
-您最近请求修改了您站点网络的管理员电子邮箱。
+You recently requested to have the network admin email address on
+your network changed.
 
-如果您确实要修改，请点击以下链接：
+If this is correct, please click on the following link to change it:
 ###ADMIN_URL###
 
-如果您并未请求修改，则可安全地忽视并删除此邮件。
+You can safely ignore and delete this email if you do not want to
+take this action.
 
-此邮件发送至###EMAIL###
+This email has been sent to ###EMAIL###
 
-祝好，
-###SITENAME###全体成员敬上
+Regards,
+All at ###SITENAME###
 ###SITEURL###'
 	);
 
@@ -2827,6 +2737,7 @@ function update_network_option_new_admin_email( $old_value, $value ) {
 	 * ###SITENAME###  The name of the network.
 	 * ###SITEURL###   The URL to the network.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param string $email_text      Text in the email.
 	 * @param array  $new_admin_email {
@@ -2849,7 +2760,7 @@ function update_network_option_new_admin_email( $old_value, $value ) {
 		$value,
 		sprintf(
 			/* translators: Email change notification email subject. %s: Network title. */
-			__( '[%s] 网络管理员电子邮箱变更请求' ),
+			__( '[%s] 平台管理员电子邮箱变更请求' ),
 			gc_specialchars_decode( get_site_option( 'site_name' ), ENT_QUOTES )
 		),
 		$content
@@ -2861,9 +2772,7 @@ function update_network_option_new_admin_email( $old_value, $value ) {
 }
 
 /**
- * Send an email to the old network admin email address when the network admin email address changes.
- *
- *
+ * Sends an email to the old network admin email address when the network admin email address changes.
  *
  * @param string $option_name The relevant database option name.
  * @param string $new_email   The new network admin email address.
@@ -2881,6 +2790,7 @@ function gc_network_admin_email_change_notification( $option_name, $new_email, $
 	/**
 	 * Filters whether to send the network admin email change notification email.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param bool   $send       Whether to send the email notification.
 	 * @param string $old_email  The old network admin email address.
@@ -2895,23 +2805,23 @@ function gc_network_admin_email_change_notification( $option_name, $new_email, $
 
 	/* translators: Do not translate OLD_EMAIL, NEW_EMAIL, SITENAME, SITEURL: those are placeholders. */
 	$email_change_text = __(
-		'您好：
+		'Hi,
 
-此通知确认###SITENAME###的网络管理员电子邮箱已被修改。
+This notice confirms that the network admin email address was changed on ###SITENAME###.
 
-新地址为###NEW_EMAIL###。
+The new network admin email address is ###NEW_EMAIL###.
 
-此邮件发送至###OLD_EMAIL###
+This email has been sent to ###OLD_EMAIL###
 
-祝好，
-###SITENAME###全体成员敬上
+Regards,
+All at ###SITENAME###
 ###SITEURL###'
 	);
 
 	$email_change_email = array(
 		'to'      => $old_email,
 		/* translators: Network admin email change notification email subject. %s: Network title. */
-		'subject' => __( '[%s] 网络管理员电子邮箱已更改' ),
+		'subject' => __( '[%s] 平台管理员电子邮箱已更改' ),
 		'message' => $email_change_text,
 		'headers' => '',
 	);
@@ -2921,6 +2831,7 @@ function gc_network_admin_email_change_notification( $option_name, $new_email, $
 	/**
 	 * Filters the contents of the email notification sent when the network admin email address is changed.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param array $email_change_email {
 	 *     Used to build gc_mail().

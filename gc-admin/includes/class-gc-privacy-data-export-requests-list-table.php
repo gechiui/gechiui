@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 if ( ! class_exists( 'GC_Privacy_Requests_Table' ) ) {
@@ -14,12 +13,12 @@ if ( ! class_exists( 'GC_Privacy_Requests_Table' ) ) {
 /**
  * GC_Privacy_Data_Export_Requests_Table class.
  *
- *
  */
 class GC_Privacy_Data_Export_Requests_List_Table extends GC_Privacy_Requests_Table {
 	/**
 	 * Action name for the requests this table will work with.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @var string $request_type Name of action.
 	 */
@@ -28,6 +27,7 @@ class GC_Privacy_Data_Export_Requests_List_Table extends GC_Privacy_Requests_Tab
 	/**
 	 * Post type for the requests.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @var string $post_type The post type.
 	 */
@@ -36,6 +36,7 @@ class GC_Privacy_Data_Export_Requests_List_Table extends GC_Privacy_Requests_Tab
 	/**
 	 * Actions column.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param GC_User_Request $item Item being shown.
 	 * @return string Email column markup.
@@ -55,9 +56,9 @@ class GC_Privacy_Data_Export_Requests_List_Table extends GC_Privacy_Requests_Tab
 			'">';
 
 		$download_data_markup .= '<span class="export-personal-data-idle"><button type="button" class="button-link export-personal-data-handle">' . __( '下载个人数据' ) . '</button></span>' .
-			'<span class="export-personal-data-processing hidden">' . __( '正在下载数据…' ) . ' <span class="export-progress"></span></span>' .
+			'<span class="export-personal-data-processing hidden">' . __( '正在下载数据...'  ) . ' <span class="export-progress"></span></span>' .
 			'<span class="export-personal-data-success hidden"><button type="button" class="button-link export-personal-data-handle">' . __( '重新下载个人数据' ) . '</button></span>' .
-			'<span class="export-personal-data-failed hidden">' . __( '下载失败。' ) . ' <button type="button" class="button-link">' . __( '重试' ) . '</button></span>';
+			'<span class="export-personal-data-failed hidden">' . __( '下载失败。' ) . ' <button type="button" class="button-link export-personal-data-handle">' . __( '重试' ) . '</button></span>';
 
 		$download_data_markup .= '</span>';
 
@@ -101,6 +102,7 @@ class GC_Privacy_Data_Export_Requests_List_Table extends GC_Privacy_Requests_Tab
 	/**
 	 * Displays the next steps column.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param GC_User_Request $item Item being shown.
 	 */
@@ -127,7 +129,7 @@ class GC_Privacy_Data_Export_Requests_List_Table extends GC_Privacy_Requests_Tab
 
 				?>
 				<span class="export-personal-data-idle"><button type="button" class="button-link export-personal-data-handle"><?php _e( '发送资料导出链接' ); ?></button></span>
-				<span class="export-personal-data-processing hidden"><?php _e( '邮件发送中…' ); ?> <span class="export-progress"></span></span>
+				<span class="export-personal-data-processing hidden"><?php _e( '邮件发送中...'  ); ?> <span class="export-progress"></span></span>
 				<span class="export-personal-data-success success-message hidden"><?php _e( '邮件已发送。' ); ?></span>
 				<span class="export-personal-data-failed hidden"><?php _e( '邮件未能发送。' ); ?> <button type="button" class="button-link export-personal-data-handle"><?php _e( '重试' ); ?></button></span>
 				<?php

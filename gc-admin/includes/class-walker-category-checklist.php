@@ -4,13 +4,12 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Core walker class to output an unordered list of category checkbox input elements.
  *
- *
+ * @since 2.5.1
  *
  * @see Walker
  * @see gc_category_checklist()
@@ -58,6 +57,7 @@ class Walker_Category_Checklist extends Walker {
 	 *
 	 * @see Walker::start_el()
 	 *
+	 * @since 5.9.0 Renamed `$category` to `$data_object` and `$id` to `$current_object_id`
 	 *              to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param string  $output            Used to append additional content (passed by reference).
@@ -120,6 +120,7 @@ class Walker_Category_Checklist extends Walker {
 	 *
 	 * @see Walker::end_el()
 	 *
+	 * @since 5.9.0 Renamed `$category` to `$data_object` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param string  $output      Used to append additional content (passed by reference).
 	 * @param GC_Term $data_object The current term object.

@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Get the revision UI diff.
- *
- *
  *
  * @param GC_Post|int $post         The post object or post ID.
  * @param int         $compare_from The revision ID to compare from.
@@ -39,8 +36,10 @@ function gc_get_revision_ui_diff( $post, $compare_from, $compare_to ) {
 		return false;
 	}
 
-	// If comparing revisions, make sure we're dealing with the right post parent.
-	// The parent post may be a 'revision' when revisions are disabled and we're looking at autosaves.
+	/*
+	 * If comparing revisions, make sure we are dealing with the right post parent.
+	 * The parent post may be a 'revision' when revisions are disabled and we're looking at autosaves.
+	 */
 	if ( $compare_from && $compare_from->post_parent !== $post->ID && $compare_from->ID !== $post->ID ) {
 		return false;
 	}
@@ -77,6 +76,7 @@ function gc_get_revision_ui_diff( $post, $compare_from, $compare_to ) {
 		 *  - `_gc_post_revision_field_post_content`
 		 *  - `_gc_post_revision_field_post_excerpt`
 		 *
+		 * @since 3.6.0
 		 *
 		 * @param string  $revision_field The current revision field to compare to or from.
 		 * @param string  $field          The current revision field.
@@ -100,6 +100,7 @@ function gc_get_revision_ui_diff( $post, $compare_from, $compare_to ) {
 		 *
 		 * Filters the options passed to gc_text_diff() when viewing a post revision.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param array   $args {
 		 *     Associative array of options to pass to gc_text_diff().
@@ -116,8 +117,10 @@ function gc_get_revision_ui_diff( $post, $compare_from, $compare_to ) {
 		$diff = gc_text_diff( $content_from, $content_to, $args );
 
 		if ( ! $diff && 'post_title' === $field ) {
-			// It's a better user experience to still show the Title, even if it didn't change.
-			// No, you didn't see this.
+			/*
+			 * It's a better user experience to still show the Title, even if it didn't change.
+			 * No, you didn't see this.
+			 */
 			$diff = '<table class="diff"><colgroup><col class="content diffsplit left"><col class="content diffsplit middle"><col class="content diffsplit right"></colgroup><tbody><tr>';
 
 			// In split screen mode, show the title before/after side by side.
@@ -148,6 +151,7 @@ function gc_get_revision_ui_diff( $post, $compare_from, $compare_to ) {
 	/**
 	 * Filters the fields displayed in the post revision diff UI.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param array[] $return       Array of revision UI fields. Each item is an array of id, name, and diff.
 	 * @param GC_Post $compare_from The revision post to compare from.
@@ -159,8 +163,6 @@ function gc_get_revision_ui_diff( $post, $compare_from, $compare_to ) {
 
 /**
  * Prepare revisions for JavaScript.
- *
- *
  *
  * @param GC_Post|int $post                 The post object or post ID.
  * @param int         $selected_revision_id The selected revision ID.
@@ -191,7 +193,7 @@ function gc_prepare_revisions_for_js( $post, $selected_revision_id, $from = null
 
 	$show_avatars = get_option( 'show_avatars' );
 
-	cache_users( gc_list_pluck( $revisions, 'post_author' ) );
+	update_post_author_caches( $revisions );
 
 	$can_restore = current_user_can( 'edit_post', $post->ID );
 	$current_id  = false;
@@ -254,6 +256,7 @@ function gc_prepare_revisions_for_js( $post, $selected_revision_id, $from = null
 		/**
 		 * Filters the array of revisions used on the revisions screen.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param array   $revisions_data {
 		 *     The bootstrapped data for the revisions screen.
@@ -275,9 +278,9 @@ function gc_prepare_revisions_for_js( $post, $selected_revision_id, $from = null
 		$revisions[ $revision->ID ] = apply_filters( 'gc_prepare_revision_for_js', $revisions_data, $revision, $post );
 	}
 
-	/**
-	 * If we only have one revision, the initial revision is missing; This happens
-	 * when we have an autsosave and the user has clicked 'View the Autosave'
+	/*
+	 * If we only have one revision, the initial revision is missing. This happens
+	 * when we have an autosave and the user has clicked 'View the Autosave'.
 	 */
 	if ( 1 === count( $revisions ) ) {
 		$revisions[ $post->ID ] = array(
@@ -296,7 +299,7 @@ function gc_prepare_revisions_for_js( $post, $selected_revision_id, $from = null
 	}
 
 	/*
-	 * If a post has been saved since the last revision (no revisioned fields
+	 * If a post has been saved since the latest revision (no revisioned fields
 	 * were changed), we may not have a "current" revision. Mark the latest
 	 * revision as "current".
 	 */
@@ -350,7 +353,7 @@ function gc_prepare_revisions_for_js( $post, $selected_revision_id, $from = null
 /**
  * Print JavaScript templates required for the revisions experience.
  *
- *
+ * @since 4.1.0
  *
  * @global GC_Post $post Global post object.
  */
@@ -363,11 +366,11 @@ function gc_print_revision_templates() {
 
 	<script id="tmpl-revisions-buttons" type="text/html">
 		<div class="revisions-previous">
-			<input class="button" type="button" value="<?php echo esc_attr_x( '上一个', 'Button label for a previous revision' ); ?>" />
+			<input class="btn btn-primary btn-tone btn-sm" type="button" value="<?php echo esc_attr_x( '上一个', 'Button label for a previous revision' ); ?>" />
 		</div>
 
 		<div class="revisions-next">
-			<input class="button" type="button" value="<?php echo esc_attr_x( '下一个', 'Button label for a next revision' ); ?>" />
+			<input class="btn btn-primary btn-tone btn-sm" type="button" value="<?php echo esc_attr_x( '下一个', 'Button label for a next revision' ); ?>" />
 		</div>
 	</script>
 
@@ -390,9 +393,9 @@ function gc_print_revision_templates() {
 		<# if ( ! _.isUndefined( data.attributes ) ) { #>
 			<div class="diff-title">
 				<# if ( 'from' === data.type ) { #>
-					<strong><?php _ex( '从:', 'Followed by post revision info' ); ?></strong>
+					<strong><?php _ex( 'From:', 'Followed by post revision info' ); ?></strong>
 				<# } else if ( 'to' === data.type ) { #>
-					<strong><?php _ex( '到:', 'Followed by post revision info' ); ?></strong>
+					<strong><?php _ex( 'To:', 'Followed by post revision info' ); ?></strong>
 				<# } #>
 				<div class="author-card<# if ( data.attributes.autosave ) { #> autosave<# } #>">
 					{{{ data.attributes.author.avatar }}}
@@ -440,9 +443,9 @@ function gc_print_revision_templates() {
 						<# } #>
 					<?php } ?>
 					<# if ( data.attributes.autosave ) { #>
-						type="button" class="restore-revision button button-primary" value="<?php esc_attr_e( '恢复此自动保存' ); ?>" />
+						type="button" class="restore-revision btn btn-primary" value="<?php esc_attr_e( '恢复此自动保存' ); ?>" />
 					<# } else { #>
-						type="button" class="restore-revision button button-primary" value="<?php esc_attr_e( '恢复此版本' ); ?>" />
+						type="button" class="restore-revision btn btn-primary" value="<?php esc_attr_e( '恢复此版本' ); ?>" />
 					<# } #>
 				<# } #>
 			</div>

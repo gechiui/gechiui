@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customize Themes Panel Class
- *
- *
  *
  * @see GC_Customize_Panel
  */
@@ -19,6 +16,7 @@ class GC_Customize_Themes_Panel extends GC_Customize_Panel {
 	/**
 	 * Panel type.
 	 *
+	 * @since 4.9.0
 	 * @var string
 	 */
 	public $type = 'themes';
@@ -30,6 +28,7 @@ class GC_Customize_Themes_Panel extends GC_Customize_Panel {
 	 *
 	 * @see GC_Customize_Panel::print_template()
 	 *
+	 * @since 4.9.0
 	 */
 	protected function render_template() {
 		?>
@@ -44,7 +43,7 @@ class GC_Customize_Themes_Panel extends GC_Customize_Panel {
 				?>
 
 				<?php if ( current_user_can( 'switch_themes' ) ) : ?>
-					<button type="button" class="button change-theme" aria-label="<?php esc_attr_e( '更改主题' ); ?>"><?php _ex( '更改', 'theme' ); ?></button>
+					<button type="button" class="button change-theme" aria-label="<?php esc_attr_e( '更改主题' ); ?>"><?php _ex( 'Change', 'theme' ); ?></button>
 				<?php endif; ?>
 			</h3>
 			<ul class="accordion-sub-container control-panel-content"></ul>
@@ -58,13 +57,19 @@ class GC_Customize_Themes_Panel extends GC_Customize_Panel {
 	 * Class variables for this panel class are available in the `data` JS object;
 	 * export custom variables by overriding GC_Customize_Panel::json().
 	 *
+	 * @since 4.9.0
 	 *
 	 * @see GC_Customize_Panel::print_template()
 	 */
 	protected function content_template() {
 		?>
 		<li class="panel-meta customize-info accordion-section <# if ( ! data.description ) { #> cannot-expand<# } #>">
-			<button class="customize-panel-back" tabindex="-1" type="button"><span class="screen-reader-text"><?php _e( '返回' ); ?></span></button>
+			<button class="customize-panel-back" tabindex="-1" type="button"><span class="screen-reader-text">
+				<?php
+				/* translators: Hidden accessibility text. */
+				_e( '返回' );
+				?>
+			</span></button>
 			<div class="accordion-section-title">
 				<span class="preview-notice">
 					<?php
@@ -77,7 +82,12 @@ class GC_Customize_Themes_Panel extends GC_Customize_Panel {
 				</span>
 				<?php if ( current_user_can( 'install_themes' ) && ! is_multisite() ) : ?>
 					<# if ( data.description ) { #>
-						<button class="customize-help-toggle dashicons dashicons-editor-help" type="button" aria-expanded="false"><span class="screen-reader-text"><?php _e( '帮助' ); ?></span></button>
+						<button class="customize-help-toggle dashicons dashicons-editor-help" type="button" aria-expanded="false"><span class="screen-reader-text">
+							<?php
+							/* translators: Hidden accessibility text. */
+							_e( '帮助' );
+							?>
+						</span></button>
 					<# } #>
 				<?php endif; ?>
 			</div>

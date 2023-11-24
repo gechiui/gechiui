@@ -1,0 +1,95 @@
+.gc-block-table{
+  overflow-x:auto;
+}
+.gc-block-table table{
+  border-collapse:collapse;
+  width:100%;
+}
+.gc-block-table thead{
+  border-bottom:3px solid;
+}
+.gc-block-table tfoot{
+  border-top:3px solid;
+}
+.gc-block-table td,.gc-block-table th{
+  border:1px solid;
+  padding:.5em;
+}
+.gc-block-table .has-fixed-layout{
+  table-layout:fixed;
+  width:100%;
+}
+.gc-block-table .has-fixed-layout td,.gc-block-table .has-fixed-layout th{
+  word-break:break-word;
+}
+.gc-block-table.aligncenter,.gc-block-table.alignleft,.gc-block-table.alignright{
+  display:table;
+  width:auto;
+}
+.gc-block-table.aligncenter td,.gc-block-table.aligncenter th,.gc-block-table.alignleft td,.gc-block-table.alignleft th,.gc-block-table.alignright td,.gc-block-table.alignright th{
+  word-break:break-word;
+}
+.gc-block-table .has-subtle-light-gray-background-color{
+  background-color:#f3f4f5;
+}
+.gc-block-table .has-subtle-pale-green-background-color{
+  background-color:#e9fbe5;
+}
+.gc-block-table .has-subtle-pale-blue-background-color{
+  background-color:#e7f5fe;
+}
+.gc-block-table .has-subtle-pale-pink-background-color{
+  background-color:#fcf0ef;
+}
+.gc-block-table.is-style-stripes{
+  background-color:transparent;
+  border-bottom:1px solid #f0f0f0;
+  border-collapse:inherit;
+  border-spacing:0;
+}
+.gc-block-table.is-style-stripes tbody tr:nth-child(odd){
+  background-color:#f0f0f0;
+}
+.gc-block-table.is-style-stripes.has-subtle-light-gray-background-color tbody tr:nth-child(odd){
+  background-color:#f3f4f5;
+}
+.gc-block-table.is-style-stripes.has-subtle-pale-green-background-color tbody tr:nth-child(odd){
+  background-color:#e9fbe5;
+}
+.gc-block-table.is-style-stripes.has-subtle-pale-blue-background-color tbody tr:nth-child(odd){
+  background-color:#e7f5fe;
+}
+.gc-block-table.is-style-stripes.has-subtle-pale-pink-background-color tbody tr:nth-child(odd){
+  background-color:#fcf0ef;
+}
+.gc-block-table.is-style-stripes td,.gc-block-table.is-style-stripes th{
+  border-color:transparent;
+}
+.gc-block-table .has-border-color td,.gc-block-table .has-border-color th,.gc-block-table .has-border-color tr,.gc-block-table .has-border-color>*{
+  border-color:inherit;
+}
+.gc-block-table table[style*=border-top-color] tr:first-child,.gc-block-table table[style*=border-top-color] tr:first-child td,.gc-block-table table[style*=border-top-color] tr:first-child th,.gc-block-table table[style*=border-top-color]>*,.gc-block-table table[style*=border-top-color]>* td,.gc-block-table table[style*=border-top-color]>* th{
+  border-top-color:inherit;
+}
+.gc-block-table table[style*=border-top-color] tr:not(:first-child){
+  border-top-color:currentColor;
+}
+.gc-block-table table[style*=border-right-color] td:last-child,.gc-block-table table[style*=border-right-color] th,.gc-block-table table[style*=border-right-color] tr,.gc-block-table table[style*=border-right-color]>*{
+  border-right-color:inherit;
+}
+.gc-block-table table[style*=border-bottom-color] tr:last-child,.gc-block-table table[style*=border-bottom-color] tr:last-child td,.gc-block-table table[style*=border-bottom-color] tr:last-child th,.gc-block-table table[style*=border-bottom-color]>*,.gc-block-table table[style*=border-bottom-color]>* td,.gc-block-table table[style*=border-bottom-color]>* th{
+  border-bottom-color:inherit;
+}
+.gc-block-table table[style*=border-bottom-color] tr:not(:last-child){
+  border-bottom-color:currentColor;
+}
+.gc-block-table table[style*=border-left-color] td:first-child,.gc-block-table table[style*=border-left-color] th,.gc-block-table table[style*=border-left-color] tr,.gc-block-table table[style*=border-left-color]>*{
+  border-left-color:inherit;
+}
+.gc-block-table table[style*=border-style] td,.gc-block-table table[style*=border-style] th,.gc-block-table table[style*=border-style] tr,.gc-block-table table[style*=border-style]>*{
+  border-style:inherit;
+}
+.gc-block-table table[style*=border-width] td,.gc-block-table table[style*=border-width] th,.gc-block-table table[style*=border-width] tr,.gc-block-table table[style*=border-width]>*{
+  border-style:inherit;
+  border-width:inherit;
+}

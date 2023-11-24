@@ -10,7 +10,7 @@
  * Controller which provides REST endpoint for exporting current templates
  * and template parts.
  *
- *
+ * @since 5.9.0
  *
  * @see GC_REST_Controller
  */
@@ -19,6 +19,7 @@ class GC_REST_Edit_Site_Export_Controller extends GC_REST_Controller {
 	/**
 	 * Constructor.
 	 *
+	 * @since 5.9.0
 	 */
 	public function __construct() {
 		$this->namespace = 'gc-block-editor/v1';
@@ -28,6 +29,7 @@ class GC_REST_Edit_Site_Export_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the site export route.
 	 *
+	 * @since 5.9.0
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -46,25 +48,27 @@ class GC_REST_Edit_Site_Export_Controller extends GC_REST_Controller {
 	/**
 	 * Checks whether a given request has permission to export.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @return GC_Error|true True if the request has access, or GC_Error object.
 	 */
 	public function permissions_check() {
-		if ( ! current_user_can( 'edit_theme_options' ) ) {
-			return new GC_Error(
-				'rest_cannot_export_templates',
-				__( '抱歉，您无权导出模板和模板组件。' ),
-				array( 'status' => rest_authorization_required_code() )
-			);
+		if ( current_user_can( 'edit_theme_options' ) ) {
+			return true;
 		}
 
-		return true;
+		return new GC_Error(
+			'rest_cannot_export_templates',
+			__( '抱歉，您无权导出模板和模板组件。' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
 	}
 
 	/**
 	 * Output a ZIP file with an export of the current templates
 	 * and template parts from the site editor, and close the connection.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @return GC_Error|void
 	 */
@@ -78,8 +82,9 @@ class GC_REST_Edit_Site_Export_Controller extends GC_REST_Controller {
 			return $filename;
 		}
 
+		$theme_name = basename( get_stylesheet() );
 		header( 'Content-Type: application/zip' );
-		header( 'Content-Disposition: attachment; filename=edit-site-export.zip' );
+		header( 'Content-Disposition: attachment; filename=' . $theme_name . '.zip' );
 		header( 'Content-Length: ' . filesize( $filename ) );
 		flush();
 		readfile( $filename );

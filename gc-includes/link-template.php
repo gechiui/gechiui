@@ -8,9 +8,7 @@
 
 /**
  * Displays the permalink for the current post.
- *
- *
- *
+ * Added the `$post` parameter.
  *
  * @param int|GC_Post $post Optional. Post ID or post object. Default is the global `$post`.
  */
@@ -18,6 +16,8 @@ function the_permalink( $post = 0 ) {
 	/**
 	 * Filters the display of the permalink for the current post.
 	 *
+	 * @since 1.5.0
+	 * @since 4.4.0 Added the `$post` parameter.
 	 *
 	 * @param string      $permalink The permalink for the current post.
 	 * @param int|GC_Post $post      Post ID, GC_Post object, or 0. Default 0.
@@ -33,33 +33,32 @@ function the_permalink( $post = 0 ) {
  * {@see 'user_trailingslashit'} filter. Will remove trailing slash from string, if
  * site is not set to have them.
  *
- *
- *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
- * @param string $string      URL with or without a trailing slash.
+ * @param string $url         URL with or without a trailing slash.
  * @param string $type_of_url Optional. The type of URL being considered (e.g. single, category, etc)
  *                            for use in the filter. Default empty string.
  * @return string The URL with the trailing slash appended or stripped.
  */
-function user_trailingslashit( $string, $type_of_url = '' ) {
+function user_trailingslashit( $url, $type_of_url = '' ) {
 	global $gc_rewrite;
 	if ( $gc_rewrite->use_trailing_slashes ) {
-		$string = trailingslashit( $string );
+		$url = trailingslashit( $url );
 	} else {
-		$string = untrailingslashit( $string );
+		$url = untrailingslashit( $url );
 	}
 
 	/**
 	 * Filters the trailing-slashed string, depending on whether the site is set to use trailing slashes.
 	 *
+	 * @since 2.2.0
 	 *
-	 * @param string $string      URL with or without a trailing slash.
+	 * @param string $url         URL with or without a trailing slash.
 	 * @param string $type_of_url The type of URL being considered. Accepts 'single', 'single_trackback',
 	 *                            'single_feed', 'single_paged', 'commentpaged', 'paged', 'home', 'feed',
 	 *                            'category', 'page', 'year', 'month', 'day', 'post_type_archive'.
 	 */
-	return apply_filters( 'user_trailingslashit', $string, $type_of_url );
+	return apply_filters( 'user_trailingslashit', $url, $type_of_url );
 }
 
 /**
@@ -67,8 +66,6 @@ function user_trailingslashit( $string, $type_of_url = '' ) {
  *
  * The permalink mode title will use the post title for the 'a' element 'id'
  * attribute. The id mode uses 'post-' with the post ID for the 'id' attribute.
- *
- *
  *
  * @param string $mode Optional. Permalink mode. Accepts 'title' or 'id'. Default 'id'.
  */
@@ -89,7 +86,7 @@ function permalink_anchor( $mode = 'id' ) {
 /**
  * Determine whether post should always use a plain permalink structure.
  *
- *
+ * @since 5.7.0
  *
  * @param GC_Post|int|null $post   Optional. Post ID or post object. Defaults to global $post.
  * @param bool|null        $sample Optional. Whether to force consideration based on sample links.
@@ -143,13 +140,13 @@ function gc_force_plain_post_permalink( $post = null, $sample = null ) {
  *
  * This function is an alias for get_permalink().
  *
- *
+ * @since 3.9.0
  *
  * @see get_permalink()
  *
  * @param int|GC_Post $post      Optional. Post ID or post object. Default is the global `$post`.
  * @param bool        $leavename Optional. Whether to keep post name or page name. Default false.
- * @return string|false The permalink URL or false if post does not exist.
+ * @return string|false The permalink URL. False if the post does not exist.
  */
 function get_the_permalink( $post = 0, $leavename = false ) {
 	return get_permalink( $post, $leavename );
@@ -158,11 +155,9 @@ function get_the_permalink( $post = 0, $leavename = false ) {
 /**
  * Retrieves the full permalink for the current post or post ID.
  *
- *
- *
  * @param int|GC_Post $post      Optional. Post ID or post object. Default is the global `$post`.
  * @param bool        $leavename Optional. Whether to keep post name or page name. Default false.
- * @return string|false The permalink URL or false if post does not exist.
+ * @return string|false The permalink URL. False if the post does not exist.
  */
 function get_permalink( $post = 0, $leavename = false ) {
 	$rewritecode = array(
@@ -218,7 +213,7 @@ function get_permalink( $post = 0, $leavename = false ) {
 	) {
 
 		$category = '';
-		if ( strpos( $permalink, '%category%' ) !== false ) {
+		if ( str_contains( $permalink, '%category%' ) ) {
 			$cats = get_the_category( $post->ID );
 			if ( $cats ) {
 				$cats = gc_list_sort(
@@ -231,7 +226,7 @@ function get_permalink( $post = 0, $leavename = false ) {
 				/**
 				 * Filters the category that gets used in the %category% permalink token.
 				 *
-			
+				 * @since 3.5.0
 				 *
 				 * @param GC_Term  $cat  The category to use in the permalink.
 				 * @param array    $cats Array of all categories (GC_Term objects) associated with the post.
@@ -245,8 +240,10 @@ function get_permalink( $post = 0, $leavename = false ) {
 					$category = get_category_parents( $category_object->parent, false, '/', true ) . $category;
 				}
 			}
-			// Show default category in permalinks,
-			// without having to assign it explicitly.
+			/*
+			 * Show default category in permalinks,
+			 * without having to assign it explicitly.
+			 */
 			if ( empty( $category ) ) {
 				$default_category = get_term( get_option( 'default_category' ), 'category' );
 				if ( $default_category && ! is_gc_error( $default_category ) ) {
@@ -256,13 +253,15 @@ function get_permalink( $post = 0, $leavename = false ) {
 		}
 
 		$author = '';
-		if ( strpos( $permalink, '%author%' ) !== false ) {
+		if ( str_contains( $permalink, '%author%' ) ) {
 			$authordata = get_userdata( $post->post_author );
 			$author     = $authordata->user_nicename;
 		}
 
-		// This is not an API call because the permalink is based on the stored post_date value,
-		// which should be parsed as local time regardless of the default PHP timezone.
+		/*
+		 * This is not an API call because the permalink is based on the stored post_date value,
+		 * which should be parsed as local time regardless of the default PHP timezone.
+		 */
 		$date = explode( ' ', str_replace( array( '-', ':' ), ' ', $post->post_date ) );
 
 		$rewritereplace = array(
@@ -291,6 +290,7 @@ function get_permalink( $post = 0, $leavename = false ) {
 	 *
 	 * Only applies to posts with post_type of 'post'.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string  $permalink The post's permalink.
 	 * @param GC_Post $post      The post in question.
@@ -302,22 +302,22 @@ function get_permalink( $post = 0, $leavename = false ) {
 /**
  * Retrieves the permalink for a post of a custom post type.
  *
- *
+ * @since 6.1.0 Returns false if the post does not exist.
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
- * @param int|GC_Post $id        Optional. Post ID or post object. Default is the global `$post`.
+ * @param int|GC_Post $post      Optional. Post ID or post object. Default is the global `$post`.
  * @param bool        $leavename Optional. Whether to keep post name. Default false.
  * @param bool        $sample    Optional. Is it a sample permalink. Default false.
- * @return string|GC_Error The post permalink.
+ * @return string|false The post permalink URL. False if the post does not exist.
  */
-function get_post_permalink( $id = 0, $leavename = false, $sample = false ) {
+function get_post_permalink( $post = 0, $leavename = false, $sample = false ) {
 	global $gc_rewrite;
 
-	$post = get_post( $id );
+	$post = get_post( $post );
 
-	if ( is_gc_error( $post ) ) {
-		return $post;
+	if ( ! $post ) {
+		return false;
 	}
 
 	$post_link = $gc_rewrite->get_extra_permastruct( $post->post_type );
@@ -369,8 +369,6 @@ function get_post_permalink( $id = 0, $leavename = false, $sample = false ) {
  *
  * Respects page_on_front. Use this one.
  *
- *
- *
  * @param int|GC_Post $post      Optional. Post ID or object. Default uses the global `$post`.
  * @param bool        $leavename Optional. Whether to keep the page name. Default false.
  * @param bool        $sample    Optional. Whether it should be treated as a sample permalink.
@@ -389,6 +387,7 @@ function get_page_link( $post = false, $leavename = false, $sample = false ) {
 	/**
 	 * Filters the permalink for a page.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $link    The page's permalink.
 	 * @param int    $post_id The ID of the page.
@@ -401,7 +400,6 @@ function get_page_link( $post = false, $leavename = false, $sample = false ) {
  * Retrieves the page permalink.
  *
  * Ignores page_on_front. Internal use only.
- *
  *
  * @access private
  *
@@ -448,8 +446,6 @@ function _get_page_link( $post = false, $leavename = false, $sample = false ) {
  *
  * This can be used in the GeChiUI Loop or outside of it.
  *
- *
- *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
  * @param int|object $post      Optional. Post ID or object. Default uses the global `$post`.
@@ -487,13 +483,13 @@ function get_attachment_link( $post = null, $leavename = false ) {
 			$parentlink = get_permalink( $post->post_parent );
 		}
 
-		if ( is_numeric( $post->post_name ) || false !== strpos( get_option( 'permalink_structure' ), '%category%' ) ) {
+		if ( is_numeric( $post->post_name ) || str_contains( get_option( 'permalink_structure' ), '%category%' ) ) {
 			$name = 'attachment/' . $post->post_name; // <permalink>/<int>/ is paged so we use the explicit attachment marker.
 		} else {
 			$name = $post->post_name;
 		}
 
-		if ( strpos( $parentlink, '?' ) === false ) {
+		if ( ! str_contains( $parentlink, '?' ) ) {
 			$link = user_trailingslashit( trailingslashit( $parentlink ) . '%postname%' );
 		}
 
@@ -511,6 +507,8 @@ function get_attachment_link( $post = null, $leavename = false ) {
 	/**
 	 * Filters the permalink for an attachment.
 	 *
+	 * @since 2.0.0
+	 * @since 5.6.0 Providing an empty string will now disable
 	 *              the view attachment page link on the media modal.
 	 *
 	 * @param string $link    The attachment's permalink.
@@ -521,8 +519,6 @@ function get_attachment_link( $post = null, $leavename = false ) {
 
 /**
  * Retrieves the permalink for the year archives.
- *
- *
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
@@ -545,6 +541,7 @@ function get_year_link( $year ) {
 	/**
 	 * Filters the year archive permalink.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $yearlink Permalink for the year archive.
 	 * @param int    $year     Year for the archive.
@@ -554,8 +551,6 @@ function get_year_link( $year ) {
 
 /**
  * Retrieves the permalink for the month archives with year.
- *
- *
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
@@ -583,6 +578,7 @@ function get_month_link( $year, $month ) {
 	/**
 	 * Filters the month archive permalink.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $monthlink Permalink for the month archive.
 	 * @param int    $year      Year for the archive.
@@ -593,8 +589,6 @@ function get_month_link( $year, $month ) {
 
 /**
  * Retrieves the permalink for the day archives with year and month.
- *
- *
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
@@ -628,6 +622,7 @@ function get_day_link( $year, $month, $day ) {
 	/**
 	 * Filters the day archive permalink.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $daylink Permalink for the day archive.
 	 * @param int    $year    Year for the archive.
@@ -639,8 +634,6 @@ function get_day_link( $year, $month, $day ) {
 
 /**
  * Displays the permalink for the feed type.
- *
- *
  *
  * @param string $anchor The link's anchor text.
  * @param string $feed   Optional. Feed type. Possible values include 'rss2', 'atom'.
@@ -663,8 +656,6 @@ function the_feed_link( $anchor, $feed = '' ) {
 /**
  * Retrieves the permalink for the feed type.
  *
- *
- *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
  * @param string $feed Optional. Feed type. Possible values include 'rss2', 'atom'.
@@ -677,7 +668,7 @@ function get_feed_link( $feed = '' ) {
 	$permalink = $gc_rewrite->get_feed_permastruct();
 
 	if ( $permalink ) {
-		if ( false !== strpos( $feed, 'comments_' ) ) {
+		if ( str_contains( $feed, 'comments_' ) ) {
 			$feed      = str_replace( 'comments_', '', $feed );
 			$permalink = $gc_rewrite->get_comment_feed_permastruct();
 		}
@@ -694,7 +685,7 @@ function get_feed_link( $feed = '' ) {
 			$feed = get_default_feed();
 		}
 
-		if ( false !== strpos( $feed, 'comments_' ) ) {
+		if ( str_contains( $feed, 'comments_' ) ) {
 			$feed = str_replace( 'comments_', 'comments-', $feed );
 		}
 
@@ -704,6 +695,7 @@ function get_feed_link( $feed = '' ) {
 	/**
 	 * Filters the feed type permalink.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $output The feed permalink.
 	 * @param string $feed   The feed type. Possible values include 'rss2', 'atom',
@@ -714,8 +706,6 @@ function get_feed_link( $feed = '' ) {
 
 /**
  * Retrieves the permalink for the post comments feed.
- *
- *
  *
  * @param int    $post_id Optional. Post ID. Default is the ID of the global `$post`.
  * @param string $feed    Optional. Feed type. Possible values include 'rss2', 'atom'.
@@ -793,6 +783,7 @@ function get_post_comments_feed_link( $post_id = 0, $feed = '' ) {
 	/**
 	 * Filters the post comments feed permalink.
 	 *
+	 * @since 1.5.1
 	 *
 	 * @param string $url Post comments feed permalink.
 	 */
@@ -805,8 +796,6 @@ function get_post_comments_feed_link( $post_id = 0, $feed = '' ) {
  * Prints out the comment feed link for a post. Link text is placed in the
  * anchor. If no link text is specified, default text is used. If no post ID is
  * specified, the current post is used.
- *
- *
  *
  * @param string $link_text Optional. Descriptive link text. Default '评论Feed'.
  * @param int    $post_id   Optional. Post ID. Default is the ID of the global `$post`.
@@ -838,8 +827,6 @@ function post_comments_feed_link( $link_text = '', $post_id = '', $feed = '' ) {
  * Returns a link to the feed for all posts by a given author. A specific feed
  * can be requested or left blank to get the default feed.
  *
- *
- *
  * @param int    $author_id Author ID.
  * @param string $feed      Optional. Feed type. Possible values include 'rss2', 'atom'.
  *                          Default is the value of get_default_feed().
@@ -869,6 +856,7 @@ function get_author_feed_link( $author_id, $feed = '' ) {
 	/**
 	 * Filters the feed link for a given author.
 	 *
+	 * @since 1.5.1
 	 *
 	 * @param string $link The author feed link.
 	 * @param string $feed Feed type. Possible values include 'rss2', 'atom'.
@@ -884,12 +872,10 @@ function get_author_feed_link( $author_id, $feed = '' ) {
  * Returns a link to the feed for all posts in a given category. A specific feed
  * can be requested or left blank to get the default feed.
  *
- *
- *
- * @param int|GC_Term|object $cat  The ID or term object whose feed link will be retrieved.
+ * @param int|GC_Term|object $cat  The ID or category object whose feed link will be retrieved.
  * @param string             $feed Optional. Feed type. Possible values include 'rss2', 'atom'.
  *                                 Default is the value of get_default_feed().
- * @return string Link to the feed for the category specified by $cat_id.
+ * @return string Link to the feed for the category specified by `$cat`.
  */
 function get_category_feed_link( $cat, $feed = '' ) {
 	return get_term_feed_link( $cat, 'category', $feed );
@@ -901,13 +887,11 @@ function get_category_feed_link( $cat, $feed = '' ) {
  * Returns a link to the feed for all posts in a given term. A specific feed
  * can be requested or left blank to get the default feed.
  *
- *
- *
  * @param int|GC_Term|object $term     The ID or term object whose feed link will be retrieved.
  * @param string             $taxonomy Optional. Taxonomy of `$term_id`.
  * @param string             $feed     Optional. Feed type. Possible values include 'rss2', 'atom'.
  *                                     Default is the value of get_default_feed().
- * @return string|false Link to the feed for the term specified by $term_id and $taxonomy.
+ * @return string|false Link to the feed for the term specified by `$term` and `$taxonomy`.
  */
 function get_term_feed_link( $term, $taxonomy = '', $feed = '' ) {
 	if ( ! is_object( $term ) ) {
@@ -952,6 +936,7 @@ function get_term_feed_link( $term, $taxonomy = '', $feed = '' ) {
 		/**
 		 * Filters the category feed link.
 		 *
+		 * @since 1.5.1
 		 *
 		 * @param string $link The category feed link.
 		 * @param string $feed Feed type. Possible values include 'rss2', 'atom'.
@@ -961,6 +946,7 @@ function get_term_feed_link( $term, $taxonomy = '', $feed = '' ) {
 		/**
 		 * Filters the post tag feed link.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @param string $link The tag feed link.
 		 * @param string $feed Feed type. Possible values include 'rss2', 'atom'.
@@ -970,6 +956,7 @@ function get_term_feed_link( $term, $taxonomy = '', $feed = '' ) {
 		/**
 		 * Filters the feed link for a taxonomy other than 'category' or 'post_tag'.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param string $link     The taxonomy feed link.
 		 * @param string $feed     Feed type. Possible values include 'rss2', 'atom'.
@@ -984,8 +971,6 @@ function get_term_feed_link( $term, $taxonomy = '', $feed = '' ) {
 /**
  * Retrieves the permalink for a tag feed.
  *
- *
- *
  * @param int|GC_Term|object $tag  The ID or term object whose feed link will be retrieved.
  * @param string             $feed Optional. Feed type. Possible values include 'rss2', 'atom'.
  *                                 Default is the value of get_default_feed().
@@ -998,7 +983,7 @@ function get_tag_feed_link( $tag, $feed = '' ) {
 /**
  * Retrieves the edit link for a tag.
  *
- *
+ * @since 2.7.0
  *
  * @param int|GC_Term|object $tag      The ID or term object whose edit link will be retrieved.
  * @param string             $taxonomy Optional. Taxonomy slug. Default 'post_tag'.
@@ -1008,6 +993,7 @@ function get_edit_tag_link( $tag, $taxonomy = 'post_tag' ) {
 	/**
 	 * Filters the edit link for a tag (or term in another taxonomy).
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $link The term edit link.
 	 */
@@ -1017,7 +1003,7 @@ function get_edit_tag_link( $tag, $taxonomy = 'post_tag' ) {
 /**
  * Displays or retrieves the edit link for a tag with formatting.
  *
- *
+ * @since 2.7.0
  *
  * @param string  $link   Optional. Anchor text. If empty, default is '编辑'. Default empty.
  * @param string  $before Optional. Display before edit link. Default empty.
@@ -1031,6 +1017,7 @@ function edit_tag_link( $link = '', $before = '', $after = '', $tag = null ) {
 	/**
 	 * Filters the anchor tag for the edit link for a tag (or term in another taxonomy).
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $link The anchor tag for the edit link.
 	 */
@@ -1039,9 +1026,7 @@ function edit_tag_link( $link = '', $before = '', $after = '', $tag = null ) {
 
 /**
  * Retrieves the URL for editing a given term.
- *
- *
- *
+ * The `$taxonomy` parameter was made optional.
  *
  * @param int|GC_Term|object $term        The ID or term object whose edit link will be retrieved.
  * @param string             $taxonomy    Optional. Taxonomy. Defaults to the taxonomy of the term identified
@@ -1095,16 +1080,14 @@ function get_edit_term_link( $term, $taxonomy = '', $object_type = '' ) {
 /**
  * Displays or retrieves the edit term link with formatting.
  *
- *
- *
- * @param string           $link   Optional. Anchor text. If empty, default is '编辑'. Default empty.
- * @param string           $before Optional. Display before edit link. Default empty.
- * @param string           $after  Optional. Display after edit link. Default empty.
- * @param int|GC_Term|null $term   Optional. Term ID or object. If null, the queried object will be inspected. Default null.
- * @param bool             $echo   Optional. Whether or not to echo the return. Default true.
+ * @param string           $link    Optional. Anchor text. If empty, default is '编辑'. Default empty.
+ * @param string           $before  Optional. Display before edit link. Default empty.
+ * @param string           $after   Optional. Display after edit link. Default empty.
+ * @param int|GC_Term|null $term    Optional. Term ID or object. If null, the queried object will be inspected. Default null.
+ * @param bool             $display Optional. Whether or not to echo the return. Default true.
  * @return string|void HTML content.
  */
-function edit_term_link( $link = '', $before = '', $after = '', $term = null, $echo = true ) {
+function edit_term_link( $link = '', $before = '', $after = '', $term = null, $display = true ) {
 	if ( is_null( $term ) ) {
 		$term = get_queried_object();
 	} else {
@@ -1135,7 +1118,7 @@ function edit_term_link( $link = '', $before = '', $after = '', $term = null, $e
 	 */
 	$link = $before . apply_filters( 'edit_term_link', $link, $term->term_id ) . $after;
 
-	if ( $echo ) {
+	if ( $display ) {
 		echo $link;
 	} else {
 		return $link;
@@ -1144,8 +1127,6 @@ function edit_term_link( $link = '', $before = '', $after = '', $term = null, $e
 
 /**
  * Retrieves the permalink for a search.
- *
- *
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
@@ -1185,8 +1166,6 @@ function get_search_link( $query = '' ) {
 /**
  * Retrieves the permalink for the search results feed.
  *
- *
- *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
  * @param string $search_query Optional. Search query. Default empty.
@@ -1225,8 +1204,6 @@ function get_search_feed_link( $search_query = '', $feed = '' ) {
 /**
  * Retrieves the permalink for the search results comments feed.
  *
- *
- *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
  * @param string $search_query Optional. Search query. Default empty.
@@ -1257,9 +1234,7 @@ function get_search_comments_feed_link( $search_query = '', $feed = '' ) {
 
 /**
  * Retrieves the permalink for a post type archive.
- *
- *
- *
+ * Support for posts was added.
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
@@ -1271,6 +1246,7 @@ function get_post_type_archive_link( $post_type ) {
 	global $gc_rewrite;
 
 	$post_type_obj = get_post_type_object( $post_type );
+
 	if ( ! $post_type_obj ) {
 		return false;
 	}
@@ -1317,8 +1293,6 @@ function get_post_type_archive_link( $post_type ) {
 /**
  * Retrieves the permalink for a post type archive feed.
  *
- *
- *
  * @param string $post_type Post type.
  * @param string $feed      Optional. Feed type. Possible values include 'rss2', 'atom'.
  *                          Default is the value of get_default_feed().
@@ -1362,8 +1336,6 @@ function get_post_type_archive_feed_link( $post_type, $feed = '' ) {
  *
  * Allows additional query args to be appended.
  *
- *
- *
  * @param int|GC_Post $post         Optional. Post ID or `GC_Post` object. Defaults to global `$post`.
  * @param array       $query_args   Optional. Array of additional query args to be appended to the link.
  *                                  Default empty array.
@@ -1373,6 +1345,7 @@ function get_post_type_archive_feed_link( $post_type, $feed = '' ) {
  */
 function get_preview_post_link( $post = null, $query_args = array(), $preview_link = '' ) {
 	$post = get_post( $post );
+
 	if ( ! $post ) {
 		return;
 	}
@@ -1390,6 +1363,8 @@ function get_preview_post_link( $post = null, $query_args = array(), $preview_li
 	/**
 	 * Filters the URL used for a post preview.
 	 *
+	 * @since 2.0.5
+	 * @since 4.0.0 Added the `$post` parameter.
 	 *
 	 * @param string  $preview_link URL used for the post preview.
 	 * @param GC_Post $post         Post object.
@@ -1401,17 +1376,19 @@ function get_preview_post_link( $post = null, $query_args = array(), $preview_li
  * Retrieves the edit post link for post.
  *
  * Can be used within the GeChiUI loop or outside of it. Can be used with
- * pages, posts, attachments, and revisions.
+ * pages, posts, attachments, revisions, global styles, templates, and template parts.
  *
+ * @since 6.3.0 Adds custom link for gc_navigation post types.
+ *              Adds custom links for gc_template_part and gc_template post types.
  *
- *
- * @param int|GC_Post $id      Optional. Post ID or post object. Default is the global `$post`.
+ * @param int|GC_Post $post    Optional. Post ID or post object. Default is the global `$post`.
  * @param string      $context Optional. How to output the '&' character. Default '&amp;'.
  * @return string|null The edit post link for the given post. Null if the post type does not exist
  *                     or does not allow an editing UI.
  */
-function get_edit_post_link( $id = 0, $context = 'display' ) {
-	$post = get_post( $id );
+function get_edit_post_link( $post = 0, $context = 'display' ) {
+	$post = get_post( $post );
+
 	if ( ! $post ) {
 		return;
 	}
@@ -1425,6 +1402,7 @@ function get_edit_post_link( $id = 0, $context = 'display' ) {
 	}
 
 	$post_type_object = get_post_type_object( $post->post_type );
+
 	if ( ! $post_type_object ) {
 		return;
 	}
@@ -1433,15 +1411,21 @@ function get_edit_post_link( $id = 0, $context = 'display' ) {
 		return;
 	}
 
-	if ( $post_type_object->_edit_link ) {
+	$link = '';
+
+	if ( 'gc_template' === $post->post_type || 'gc_template_part' === $post->post_type ) {
+		$slug = urlencode( get_stylesheet() . '//' . $post->post_name );
+		$link = admin_url( sprintf( $post_type_object->_edit_link, $post->post_type, $slug ) );
+	} elseif ( 'gc_navigation' === $post->post_type ) {
+		$link = admin_url( sprintf( $post_type_object->_edit_link, (string) $post->ID ) );
+	} elseif ( $post_type_object->_edit_link ) {
 		$link = admin_url( sprintf( $post_type_object->_edit_link . $action, $post->ID ) );
-	} else {
-		$link = '';
 	}
 
 	/**
 	 * Filters the post edit link.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param string $link    The edit link.
 	 * @param int    $post_id Post ID.
@@ -1453,23 +1437,23 @@ function get_edit_post_link( $id = 0, $context = 'display' ) {
 
 /**
  * Displays the edit post link for post.
+ * The `$css_class` argument was added.
  *
- *
- *
- *
- * @param string      $text   Optional. Anchor text. If null, default is '编辑'. Default null.
- * @param string      $before Optional. Display before edit link. Default empty.
- * @param string      $after  Optional. Display after edit link. Default empty.
- * @param int|GC_Post $id     Optional. Post ID or post object. Default is the global `$post`.
- * @param string      $class  Optional. Add custom class to link. Default 'post-edit-link'.
+ * @param string      $text      Optional. Anchor text. If null, default is '编辑'. Default null.
+ * @param string      $before    Optional. Display before edit link. Default empty.
+ * @param string      $after     Optional. Display after edit link. Default empty.
+ * @param int|GC_Post $post      Optional. Post ID or post object. Default is the global `$post`.
+ * @param string      $css_class Optional. Add custom class to link. Default 'post-edit-link'.
  */
-function edit_post_link( $text = null, $before = '', $after = '', $id = 0, $class = 'post-edit-link' ) {
-	$post = get_post( $id );
+function edit_post_link( $text = null, $before = '', $after = '', $post = 0, $css_class = 'post-edit-link' ) {
+	$post = get_post( $post );
+
 	if ( ! $post ) {
 		return;
 	}
 
 	$url = get_edit_post_link( $post->ID );
+
 	if ( ! $url ) {
 		return;
 	}
@@ -1478,11 +1462,12 @@ function edit_post_link( $text = null, $before = '', $after = '', $id = 0, $clas
 		$text = __( '编辑' );
 	}
 
-	$link = '<a class="' . esc_attr( $class ) . '" href="' . esc_url( $url ) . '">' . $text . '</a>';
+	$link = '<a class="' . esc_attr( $css_class ) . '" href="' . esc_url( $url ) . '">' . $text . '</a>';
 
 	/**
 	 * Filters the post edit link anchor tag.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param string $link    Anchor tag for the edit link.
 	 * @param int    $post_id Post ID.
@@ -1496,24 +1481,24 @@ function edit_post_link( $text = null, $before = '', $after = '', $id = 0, $clas
  *
  * Can be used within the GeChiUI loop or outside of it, with any post type.
  *
- *
- *
- * @param int|GC_Post $id           Optional. Post ID or post object. Default is the global `$post`.
+ * @param int|GC_Post $post         Optional. Post ID or post object. Default is the global `$post`.
  * @param string      $deprecated   Not used.
- * @param bool        $force_delete Optional. 是否绕过回收站并强行删除。 Default false.
+ * @param bool        $force_delete Optional. Whether to bypass Trash and force deletion. Default false.
  * @return string|void The delete post link URL for the given post.
  */
-function get_delete_post_link( $id = 0, $deprecated = '', $force_delete = false ) {
+function get_delete_post_link( $post = 0, $deprecated = '', $force_delete = false ) {
 	if ( ! empty( $deprecated ) ) {
 		_deprecated_argument( __FUNCTION__, '3.0.0' );
 	}
 
-	$post = get_post( $id );
+	$post = get_post( $post );
+
 	if ( ! $post ) {
 		return;
 	}
 
 	$post_type_object = get_post_type_object( $post->post_type );
+
 	if ( ! $post_type_object ) {
 		return;
 	}
@@ -1529,6 +1514,7 @@ function get_delete_post_link( $id = 0, $deprecated = '', $force_delete = false 
 	/**
 	 * Filters the post delete link.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param string $link         The delete link.
 	 * @param int    $post_id      Post ID.
@@ -1539,8 +1525,6 @@ function get_delete_post_link( $id = 0, $deprecated = '', $force_delete = false 
 
 /**
  * Retrieves the edit comment link.
- *
- *
  *
  * @param int|GC_Comment $comment_id Optional. Comment ID or GC_Comment object.
  * @return string|void The edit comment link URL for the given comment.
@@ -1557,6 +1541,7 @@ function get_edit_comment_link( $comment_id = 0 ) {
 	/**
 	 * Filters the comment edit link.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param string $location The edit link.
 	 */
@@ -1565,8 +1550,6 @@ function get_edit_comment_link( $comment_id = 0 ) {
 
 /**
  * Displays the edit comment link with formatting.
- *
- *
  *
  * @param string $text   Optional. Anchor text. If null, default is '编辑'. Default null.
  * @param string $before Optional. Display before edit link. Default empty.
@@ -1588,6 +1571,7 @@ function edit_comment_link( $text = null, $before = '', $after = '' ) {
 	/**
 	 * Filters the comment edit link anchor tag.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param string $link       Anchor tag for the edit link.
 	 * @param string $comment_id Comment ID as a numeric string.
@@ -1599,7 +1583,7 @@ function edit_comment_link( $text = null, $before = '', $after = '' ) {
 /**
  * Displays the edit bookmark link.
  *
- *
+ * @since 2.7.0
  *
  * @param int|stdClass $link Optional. Bookmark ID. Default is the ID of the current bookmark.
  * @return string|void The edit bookmark link URL.
@@ -1616,6 +1600,7 @@ function get_edit_bookmark_link( $link = 0 ) {
 	/**
 	 * Filters the bookmark edit link.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $location The edit link.
 	 * @param int    $link_id  Bookmark ID.
@@ -1626,7 +1611,7 @@ function get_edit_bookmark_link( $link = 0 ) {
 /**
  * Displays the edit bookmark link anchor content.
  *
- *
+ * @since 2.7.0
  *
  * @param string $link     Optional. Anchor text. If empty, default is '编辑'. Default empty.
  * @param string $before   Optional. Display before edit link. Default empty.
@@ -1649,6 +1634,7 @@ function edit_bookmark_link( $link = '', $before = '', $after = '', $bookmark = 
 	/**
 	 * Filters the bookmark edit link anchor tag.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $link    Anchor tag for the edit link.
 	 * @param int    $link_id Bookmark ID.
@@ -1658,8 +1644,6 @@ function edit_bookmark_link( $link = '', $before = '', $after = '', $bookmark = 
 
 /**
  * Retrieves the edit user link.
- *
- *
  *
  * @param int $user_id Optional. User ID. Defaults to the current user.
  * @return string URL to edit user page or empty string.
@@ -1688,6 +1672,7 @@ function get_edit_user_link( $user_id = null ) {
 	/**
 	 * Filters the user edit link.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param string $link    The edit link.
 	 * @param int    $user_id User ID.
@@ -1702,13 +1687,13 @@ function get_edit_user_link( $user_id = null ) {
 /**
  * Retrieves the previous post that is adjacent to the current post.
  *
- *
- *
- * @param bool         $in_same_term   Optional. Whether post should be in a same taxonomy term. Default false.
- * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs. Default empty.
- * @param string       $taxonomy       Optional. Taxonomy, if $in_same_term is true. Default 'category'.
- * @return GC_Post|null|string Post object if successful. Null if global $post is not set. Empty string if no
- *                             corresponding post exists.
+ * @param bool         $in_same_term   Optional. Whether post should be in the same taxonomy term.
+ *                                     Default false.
+ * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs.
+ *                                     Default empty.
+ * @param string       $taxonomy       Optional. Taxonomy, if `$in_same_term` is true. Default 'category'.
+ * @return GC_Post|null|string Post object if successful. Null if global `$post` is not set.
+ *                             Empty string if no corresponding post exists.
  */
 function get_previous_post( $in_same_term = false, $excluded_terms = '', $taxonomy = 'category' ) {
 	return get_adjacent_post( $in_same_term, $excluded_terms, true, $taxonomy );
@@ -1717,13 +1702,13 @@ function get_previous_post( $in_same_term = false, $excluded_terms = '', $taxono
 /**
  * Retrieves the next post that is adjacent to the current post.
  *
- *
- *
- * @param bool         $in_same_term   Optional. Whether post should be in a same taxonomy term. Default false.
- * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs. Default empty.
- * @param string       $taxonomy       Optional. Taxonomy, if $in_same_term is true. Default 'category'.
- * @return GC_Post|null|string Post object if successful. Null if global $post is not set. Empty string if no
- *                             corresponding post exists.
+ * @param bool         $in_same_term   Optional. Whether post should be in the same taxonomy term.
+ *                                     Default false.
+ * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs.
+ *                                     Default empty.
+ * @param string       $taxonomy       Optional. Taxonomy, if `$in_same_term` is true. Default 'category'.
+ * @return GC_Post|null|string Post object if successful. Null if global `$post` is not set.
+ *                             Empty string if no corresponding post exists.
  */
 function get_next_post( $in_same_term = false, $excluded_terms = '', $taxonomy = 'category' ) {
 	return get_adjacent_post( $in_same_term, $excluded_terms, false, $taxonomy );
@@ -1734,21 +1719,23 @@ function get_next_post( $in_same_term = false, $excluded_terms = '', $taxonomy =
  *
  * Can either be next or previous post.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
- * @param bool         $in_same_term   Optional. Whether post should be in a same taxonomy term. Default false.
- * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs. Default empty string.
- * @param bool         $previous       Optional. Whether to retrieve previous post. Default true
- * @param string       $taxonomy       Optional. Taxonomy, if $in_same_term is true. Default 'category'.
- * @return GC_Post|null|string Post object if successful. Null if global $post is not set. Empty string if no
- *                             corresponding post exists.
+ * @param bool         $in_same_term   Optional. Whether post should be in the same taxonomy term.
+ *                                     Default false.
+ * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs.
+ *                                     Default empty string.
+ * @param bool         $previous       Optional. Whether to retrieve previous post.
+ *                                     Default true.
+ * @param string       $taxonomy       Optional. Taxonomy, if `$in_same_term` is true. Default 'category'.
+ * @return GC_Post|null|string Post object if successful. Null if global `$post` is not set.
+ *                             Empty string if no corresponding post exists.
  */
 function get_adjacent_post( $in_same_term = false, $excluded_terms = '', $previous = true, $taxonomy = 'category' ) {
 	global $gcdb;
 
 	$post = get_post();
+
 	if ( ! $post || ! taxonomy_exists( $taxonomy ) ) {
 		return null;
 	}
@@ -1761,13 +1748,13 @@ function get_adjacent_post( $in_same_term = false, $excluded_terms = '', $previo
 
 	if ( ! empty( $excluded_terms ) && ! is_array( $excluded_terms ) ) {
 		// Back-compat, $excluded_terms used to be $excluded_categories with IDs separated by " and ".
-		if ( false !== strpos( $excluded_terms, ' and ' ) ) {
+		if ( str_contains( $excluded_terms, ' and ' ) ) {
 			_deprecated_argument(
 				__FUNCTION__,
 				'3.3.0',
 				sprintf(
 					/* translators: %s: The word 'and'. */
-					__( '请使用英文逗号（,）来分隔多个排除项目。请不要使用“%s”。' ),
+					__( '请使用英文逗号（，）来分隔多个排除项目。请不要使用“%s”。' ),
 					"'and'"
 				)
 			);
@@ -1790,8 +1777,9 @@ function get_adjacent_post( $in_same_term = false, $excluded_terms = '', $previo
 	 *  - `get_next_post_excluded_terms`
 	 *  - `get_previous_post_excluded_terms`
 	 *
+	 * @since 4.4.0
 	 *
-	 * @param array|string $excluded_terms Array of excluded term IDs. Empty string if none were provided.
+	 * @param int[]|string $excluded_terms Array of excluded term IDs. Empty string if none were provided.
 	 */
 	$excluded_terms = apply_filters( "get_{$adjacent}_post_excluded_terms", $excluded_terms );
 
@@ -1865,12 +1853,13 @@ function get_adjacent_post( $in_same_term = false, $excluded_terms = '', $previo
 	 *  - `get_next_post_join`
 	 *  - `get_previous_post_join`
 	 *
+	 * @since 4.4.0 Added the `$taxonomy` and `$post` parameters.
 	 *
-	 * @param string  $join           The JOIN clause in the SQL.
-	 * @param bool    $in_same_term   Whether post should be in a same taxonomy term.
-	 * @param array   $excluded_terms Array of excluded term IDs.
-	 * @param string  $taxonomy       Taxonomy. Used to identify the term used when `$in_same_term` is true.
-	 * @param GC_Post $post           GC_Post object.
+	 * @param string       $join           The JOIN clause in the SQL.
+	 * @param bool         $in_same_term   Whether post should be in the same taxonomy term.
+	 * @param int[]|string $excluded_terms Array of excluded term IDs. Empty string if none were provided.
+	 * @param string       $taxonomy       Taxonomy. Used to identify the term used when `$in_same_term` is true.
+	 * @param GC_Post      $post           GC_Post object.
 	 */
 	$join = apply_filters( "get_{$adjacent}_post_join", $join, $in_same_term, $excluded_terms, $taxonomy, $post );
 
@@ -1885,12 +1874,13 @@ function get_adjacent_post( $in_same_term = false, $excluded_terms = '', $previo
 	 *  - `get_next_post_where`
 	 *  - `get_previous_post_where`
 	 *
+	 * @since 4.4.0 Added the `$taxonomy` and `$post` parameters.
 	 *
-	 * @param string  $where          The `WHERE` clause in the SQL.
-	 * @param bool    $in_same_term   Whether post should be in a same taxonomy term.
-	 * @param array   $excluded_terms Array of excluded term IDs.
-	 * @param string  $taxonomy       Taxonomy. Used to identify the term used when `$in_same_term` is true.
-	 * @param GC_Post $post           GC_Post object.
+	 * @param string       $where          The `WHERE` clause in the SQL.
+	 * @param bool         $in_same_term   Whether post should be in the same taxonomy term.
+	 * @param int[]|string $excluded_terms Array of excluded term IDs. Empty string if none were provided.
+	 * @param string       $taxonomy       Taxonomy. Used to identify the term used when `$in_same_term` is true.
+	 * @param GC_Post      $post           GC_Post object.
 	 */
 	$where = apply_filters( "get_{$adjacent}_post_where", $gcdb->prepare( "WHERE p.post_date $op %s AND p.post_type = %s $where", $current_post_date, $post->post_type ), $in_same_term, $excluded_terms, $taxonomy, $post );
 
@@ -1905,6 +1895,8 @@ function get_adjacent_post( $in_same_term = false, $excluded_terms = '', $previo
 	 *  - `get_next_post_sort`
 	 *  - `get_previous_post_sort`
 	 *
+	 * @since 4.4.0 Added the `$post` parameter.
+	 * @since 4.9.0 Added the `$order` parameter.
 	 *
 	 * @param string $order_by The `ORDER BY` clause in the SQL.
 	 * @param GC_Post $post    GC_Post object.
@@ -1912,9 +1904,15 @@ function get_adjacent_post( $in_same_term = false, $excluded_terms = '', $previo
 	 */
 	$sort = apply_filters( "get_{$adjacent}_post_sort", "ORDER BY p.post_date $order LIMIT 1", $post, $order );
 
-	$query     = "SELECT p.ID FROM $gcdb->posts AS p $join $where $sort";
-	$query_key = 'adjacent_post_' . md5( $query );
-	$result    = gc_cache_get( $query_key, 'counts' );
+	$query        = "SELECT p.ID FROM $gcdb->posts AS p $join $where $sort";
+	$key          = md5( $query );
+	$last_changed = gc_cache_get_last_changed( 'posts' );
+	if ( $in_same_term || ! empty( $excluded_terms ) ) {
+		$last_changed .= gc_cache_get_last_changed( 'terms' );
+	}
+	$cache_key = "adjacent_post:$key:$last_changed";
+
+	$result = gc_cache_get( $cache_key, 'post-queries' );
 	if ( false !== $result ) {
 		if ( $result ) {
 			$result = get_post( $result );
@@ -1927,7 +1925,7 @@ function get_adjacent_post( $in_same_term = false, $excluded_terms = '', $previo
 		$result = '';
 	}
 
-	gc_cache_set( $query_key, $result, 'counts' );
+	gc_cache_set( $cache_key, $result, 'post-queries' );
 
 	if ( $result ) {
 		$result = get_post( $result );
@@ -1941,13 +1939,14 @@ function get_adjacent_post( $in_same_term = false, $excluded_terms = '', $previo
  *
  * Can either be next or previous post relational link.
  *
- *
- *
  * @param string       $title          Optional. Link title format. Default '%title'.
- * @param bool         $in_same_term   Optional. Whether link should be in a same taxonomy term. Default false.
- * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs. Default empty.
- * @param bool         $previous       Optional. Whether to display link to previous or next post. Default true.
- * @param string       $taxonomy       Optional. Taxonomy, if $in_same_term is true. Default 'category'.
+ * @param bool         $in_same_term   Optional. Whether link should be in the same taxonomy term.
+ *                                     Default false.
+ * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs.
+ *                                     Default empty.
+ * @param bool         $previous       Optional. Whether to display link to previous or next post.
+ *                                     Default true.
+ * @param string       $taxonomy       Optional. Taxonomy, if `$in_same_term` is true. Default 'category'.
  * @return string|void The adjacent post relational link URL.
  */
 function get_adjacent_post_rel_link( $title = '%title', $in_same_term = false, $excluded_terms = '', $previous = true, $taxonomy = 'category' ) {
@@ -2004,12 +2003,12 @@ function get_adjacent_post_rel_link( $title = '%title', $in_same_term = false, $
 /**
  * Displays the relational links for the posts adjacent to the current post.
  *
- *
- *
  * @param string       $title          Optional. Link title format. Default '%title'.
- * @param bool         $in_same_term   Optional. Whether link should be in a same taxonomy term. Default false.
- * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs. Default empty.
- * @param string       $taxonomy       Optional. Taxonomy, if $in_same_term is true. Default 'category'.
+ * @param bool         $in_same_term   Optional. Whether link should be in the same taxonomy term.
+ *                                     Default false.
+ * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs.
+ *                                     Default empty.
+ * @param string       $taxonomy       Optional. Taxonomy, if `$in_same_term` is true. Default 'category'.
  */
 function adjacent_posts_rel_link( $title = '%title', $in_same_term = false, $excluded_terms = '', $taxonomy = 'category' ) {
 	echo get_adjacent_post_rel_link( $title, $in_same_term, $excluded_terms, true, $taxonomy );
@@ -2021,9 +2020,7 @@ function adjacent_posts_rel_link( $title = '%title', $in_same_term = false, $exc
  *
  * This is meant to be attached to actions like 'gc_head'. Do not call this directly in plugins
  * or theme templates.
- *
- *
- *
+ * No longer used in core.
  *
  * @see adjacent_posts_rel_link()
  */
@@ -2037,14 +2034,14 @@ function adjacent_posts_rel_link_gc_head() {
 /**
  * Displays the relational link for the next post adjacent to the current post.
  *
- *
- *
  * @see get_adjacent_post_rel_link()
  *
  * @param string       $title          Optional. Link title format. Default '%title'.
- * @param bool         $in_same_term   Optional. Whether link should be in a same taxonomy term. Default false.
- * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs. Default empty.
- * @param string       $taxonomy       Optional. Taxonomy, if $in_same_term is true. Default 'category'.
+ * @param bool         $in_same_term   Optional. Whether link should be in the same taxonomy term.
+ *                                     Default false.
+ * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs.
+ *                                     Default empty.
+ * @param string       $taxonomy       Optional. Taxonomy, if `$in_same_term` is true. Default 'category'.
  */
 function next_post_rel_link( $title = '%title', $in_same_term = false, $excluded_terms = '', $taxonomy = 'category' ) {
 	echo get_adjacent_post_rel_link( $title, $in_same_term, $excluded_terms, false, $taxonomy );
@@ -2053,14 +2050,14 @@ function next_post_rel_link( $title = '%title', $in_same_term = false, $excluded
 /**
  * Displays the relational link for the previous post adjacent to the current post.
  *
- *
- *
  * @see get_adjacent_post_rel_link()
  *
  * @param string       $title          Optional. Link title format. Default '%title'.
- * @param bool         $in_same_term   Optional. Whether link should be in a same taxonomy term. Default false.
- * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs. Default true.
- * @param string       $taxonomy       Optional. Taxonomy, if $in_same_term is true. Default 'category'.
+ * @param bool         $in_same_term   Optional. Whether link should be in the same taxonomy term.
+ *                                     Default false.
+ * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs.
+ *                                     Default true.
+ * @param string       $taxonomy       Optional. Taxonomy, if `$in_same_term` is true. Default 'category'.
  */
 function prev_post_rel_link( $title = '%title', $in_same_term = false, $excluded_terms = '', $taxonomy = 'category' ) {
 	echo get_adjacent_post_rel_link( $title, $in_same_term, $excluded_terms, true, $taxonomy );
@@ -2070,20 +2067,20 @@ function prev_post_rel_link( $title = '%title', $in_same_term = false, $excluded
  * Retrieves the boundary post.
  *
  * Boundary being either the first or last post by publish date within the constraints specified
- * by $in_same_term or $excluded_terms.
+ * by `$in_same_term` or `$excluded_terms`.
  *
- *
- *
- * @param bool         $in_same_term   Optional. Whether returned post should be in a same taxonomy term.
+ * @param bool         $in_same_term   Optional. Whether returned post should be in the same taxonomy term.
  *                                     Default false.
  * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs.
  *                                     Default empty.
- * @param bool         $start          Optional. Whether to retrieve first or last post. Default true
- * @param string       $taxonomy       Optional. Taxonomy, if $in_same_term is true. Default 'category'.
- * @return null|array Array containing the boundary post object if successful, null otherwise.
+ * @param bool         $start          Optional. Whether to retrieve first or last post.
+ *                                     Default true.
+ * @param string       $taxonomy       Optional. Taxonomy, if `$in_same_term` is true. Default 'category'.
+ * @return array|null Array containing the boundary post object if successful, null otherwise.
  */
 function get_boundary_post( $in_same_term = false, $excluded_terms = '', $start = true, $taxonomy = 'category' ) {
 	$post = get_post();
+
 	if ( ! $post || ! is_single() || is_attachment() || ! taxonomy_exists( $taxonomy ) ) {
 		return null;
 	}
@@ -2135,13 +2132,13 @@ function get_boundary_post( $in_same_term = false, $excluded_terms = '', $start 
 /**
  * Retrieves the previous post link that is adjacent to the current post.
  *
- *
- *
  * @param string       $format         Optional. Link anchor format. Default '&laquo; %link'.
  * @param string       $link           Optional. Link permalink format. Default '%title'.
- * @param bool         $in_same_term   Optional. Whether link should be in a same taxonomy term. Default false.
- * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs. Default empty.
- * @param string       $taxonomy       Optional. Taxonomy, if $in_same_term is true. Default 'category'.
+ * @param bool         $in_same_term   Optional. Whether link should be in the same taxonomy term.
+ *                                     Default false.
+ * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs.
+ *                                     Default empty.
+ * @param string       $taxonomy       Optional. Taxonomy, if `$in_same_term` is true. Default 'category'.
  * @return string The link URL of the previous post in relation to the current post.
  */
 function get_previous_post_link( $format = '&laquo; %link', $link = '%title', $in_same_term = false, $excluded_terms = '', $taxonomy = 'category' ) {
@@ -2151,15 +2148,15 @@ function get_previous_post_link( $format = '&laquo; %link', $link = '%title', $i
 /**
  * Displays the previous post link that is adjacent to the current post.
  *
- *
- *
  * @see get_previous_post_link()
  *
  * @param string       $format         Optional. Link anchor format. Default '&laquo; %link'.
  * @param string       $link           Optional. Link permalink format. Default '%title'.
- * @param bool         $in_same_term   Optional. Whether link should be in a same taxonomy term. Default false.
- * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs. Default empty.
- * @param string       $taxonomy       Optional. Taxonomy, if $in_same_term is true. Default 'category'.
+ * @param bool         $in_same_term   Optional. Whether link should be in the same taxonomy term.
+ *                                     Default false.
+ * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs.
+ *                                     Default empty.
+ * @param string       $taxonomy       Optional. Taxonomy, if `$in_same_term` is true. Default 'category'.
  */
 function previous_post_link( $format = '&laquo; %link', $link = '%title', $in_same_term = false, $excluded_terms = '', $taxonomy = 'category' ) {
 	echo get_previous_post_link( $format, $link, $in_same_term, $excluded_terms, $taxonomy );
@@ -2168,13 +2165,13 @@ function previous_post_link( $format = '&laquo; %link', $link = '%title', $in_sa
 /**
  * Retrieves the next post link that is adjacent to the current post.
  *
- *
- *
  * @param string       $format         Optional. Link anchor format. Default '&laquo; %link'.
  * @param string       $link           Optional. Link permalink format. Default '%title'.
- * @param bool         $in_same_term   Optional. Whether link should be in a same taxonomy term. Default false.
- * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs. Default empty.
- * @param string       $taxonomy       Optional. Taxonomy, if $in_same_term is true. Default 'category'.
+ * @param bool         $in_same_term   Optional. Whether link should be in the same taxonomy term.
+ *                                     Default false.
+ * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs.
+ *                                     Default empty.
+ * @param string       $taxonomy       Optional. Taxonomy, if `$in_same_term` is true. Default 'category'.
  * @return string The link URL of the next post in relation to the current post.
  */
 function get_next_post_link( $format = '%link &raquo;', $link = '%title', $in_same_term = false, $excluded_terms = '', $taxonomy = 'category' ) {
@@ -2184,15 +2181,15 @@ function get_next_post_link( $format = '%link &raquo;', $link = '%title', $in_sa
 /**
  * Displays the next post link that is adjacent to the current post.
  *
- *
- *
  * @see get_next_post_link()
  *
  * @param string       $format         Optional. Link anchor format. Default '&laquo; %link'.
- * @param string       $link           Optional. Link permalink format. Default '%title'
- * @param bool         $in_same_term   Optional. Whether link should be in a same taxonomy term. Default false.
- * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs. Default empty.
- * @param string       $taxonomy       Optional. Taxonomy, if $in_same_term is true. Default 'category'.
+ * @param string       $link           Optional. Link permalink format. Default '%title'.
+ * @param bool         $in_same_term   Optional. Whether link should be in the same taxonomy term.
+ *                                     Default false.
+ * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded term IDs.
+ *                                     Default empty.
+ * @param string       $taxonomy       Optional. Taxonomy, if `$in_same_term` is true. Default 'category'.
  */
 function next_post_link( $format = '%link &raquo;', $link = '%title', $in_same_term = false, $excluded_terms = '', $taxonomy = 'category' ) {
 	echo get_next_post_link( $format, $link, $in_same_term, $excluded_terms, $taxonomy );
@@ -2203,14 +2200,15 @@ function next_post_link( $format = '%link &raquo;', $link = '%title', $in_same_t
  *
  * Can be either next post link or previous.
  *
- *
- *
  * @param string       $format         Link anchor format.
  * @param string       $link           Link permalink format.
- * @param bool         $in_same_term   Optional. Whether link should be in a same taxonomy term. Default false.
- * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded terms IDs. Default empty.
- * @param bool         $previous       Optional. Whether to display link to previous or next post. Default true.
- * @param string       $taxonomy       Optional. Taxonomy, if $in_same_term is true. Default 'category'.
+ * @param bool         $in_same_term   Optional. Whether link should be in the same taxonomy term.
+ *                                     Default false.
+ * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded terms IDs.
+ *                                     Default empty.
+ * @param bool         $previous       Optional. Whether to display link to previous or next post.
+ *                                     Default true.
+ * @param string       $taxonomy       Optional. Taxonomy, if `$in_same_term` is true. Default 'category'.
  * @return string The link URL of the previous or next post in relation to the current post.
  */
 function get_adjacent_post_link( $format, $link, $in_same_term = false, $excluded_terms = '', $previous = true, $taxonomy = 'category' ) {
@@ -2256,12 +2254,14 @@ function get_adjacent_post_link( $format, $link, $in_same_term = false, $exclude
 	 *  - `next_post_link`
 	 *  - `previous_post_link`
 	 *
+	 * @since 2.6.0
+	 * @since 4.2.0 Added the `$adjacent` parameter.
 	 *
-	 * @param string  $output   The adjacent post link.
-	 * @param string  $format   Link anchor format.
-	 * @param string  $link     Link permalink format.
-	 * @param GC_Post $post     The adjacent post.
-	 * @param string  $adjacent Whether the post is previous or next.
+	 * @param string         $output   The adjacent post link.
+	 * @param string         $format   Link anchor format.
+	 * @param string         $link     Link permalink format.
+	 * @param GC_Post|string $post     The adjacent post. Empty string if no corresponding post exists.
+	 * @param string         $adjacent Whether the post is previous or next.
 	 */
 	return apply_filters( "{$adjacent}_post_link", $output, $format, $link, $post, $adjacent );
 }
@@ -2271,14 +2271,15 @@ function get_adjacent_post_link( $format, $link, $in_same_term = false, $exclude
  *
  * Can be either next post link or previous.
  *
- *
- *
  * @param string       $format         Link anchor format.
  * @param string       $link           Link permalink format.
- * @param bool         $in_same_term   Optional. Whether link should be in a same taxonomy term. Default false.
- * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded category IDs. Default empty.
- * @param bool         $previous       Optional. Whether to display link to previous or next post. Default true.
- * @param string       $taxonomy       Optional. Taxonomy, if $in_same_term is true. Default 'category'.
+ * @param bool         $in_same_term   Optional. Whether link should be in the same taxonomy term.
+ *                                     Default false.
+ * @param int[]|string $excluded_terms Optional. Array or comma-separated list of excluded category IDs.
+ *                                     Default empty.
+ * @param bool         $previous       Optional. Whether to display link to previous or next post.
+ *                                     Default true.
+ * @param string       $taxonomy       Optional. Taxonomy, if `$in_same_term` is true. Default 'category'.
  */
 function adjacent_post_link( $format, $link, $in_same_term = false, $excluded_terms = '', $previous = true, $taxonomy = 'category' ) {
 	echo get_adjacent_post_link( $format, $link, $in_same_term, $excluded_terms, $previous, $taxonomy );
@@ -2287,13 +2288,11 @@ function adjacent_post_link( $format, $link, $in_same_term = false, $excluded_te
 /**
  * Retrieves the link for a page number.
  *
- *
- *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
  * @param int  $pagenum Optional. Page number. Default 1.
- * @param bool $escape  Optional. Whether to escape the URL for display, with esc_url(). Defaults to true.
- *                      Otherwise, prepares the URL with esc_url_raw().
+ * @param bool $escape  Optional. Whether to escape the URL for display, with esc_url().
+ *                      If set to false, prepares the URL with sanitize_url(). Default true.
  * @return string The link URL for the given page number.
  */
 function get_pagenum_link( $pagenum = 1, $escape = true ) {
@@ -2349,6 +2348,7 @@ function get_pagenum_link( $pagenum = 1, $escape = true ) {
 	/**
 	 * Filters the page number link for the current request.
 	 *
+	 * @since 5.2.0 Added the `$pagenum` argument.
 	 *
 	 * @param string $result  The page number link.
 	 * @param int    $pagenum The page number.
@@ -2358,7 +2358,7 @@ function get_pagenum_link( $pagenum = 1, $escape = true ) {
 	if ( $escape ) {
 		return esc_url( $result );
 	} else {
-		return esc_url_raw( $result );
+		return sanitize_url( $result );
 	}
 }
 
@@ -2367,7 +2367,7 @@ function get_pagenum_link( $pagenum = 1, $escape = true ) {
  *
  * Backported from 2.1.3 to 2.0.10.
  *
- *
+ * @since 2.0.10
  *
  * @global int $paged
  *
@@ -2381,9 +2381,11 @@ function get_next_posts_page_link( $max_page = 0 ) {
 		if ( ! $paged ) {
 			$paged = 1;
 		}
-		$nextpage = (int) $paged + 1;
-		if ( ! $max_page || $max_page >= $nextpage ) {
-			return get_pagenum_link( $nextpage );
+
+		$next_page = (int) $paged + 1;
+
+		if ( ! $max_page || $max_page >= $next_page ) {
+			return get_pagenum_link( $next_page );
 		}
 	}
 }
@@ -2391,16 +2393,14 @@ function get_next_posts_page_link( $max_page = 0 ) {
 /**
  * Displays or retrieves the next posts page link.
  *
- *
- *
  * @param int  $max_page Optional. Max pages. Default 0.
- * @param bool $echo     Optional. Whether to echo the link. Default true.
- * @return string|void The link URL for next posts page if `$echo = false`.
+ * @param bool $display  Optional. Whether to echo the link. Default true.
+ * @return string|void The link URL for next posts page if `$display = false`.
  */
-function next_posts( $max_page = 0, $echo = true ) {
+function next_posts( $max_page = 0, $display = true ) {
 	$output = esc_url( get_next_posts_page_link( $max_page ) );
 
-	if ( $echo ) {
+	if ( $display ) {
 		echo $output;
 	} else {
 		return $output;
@@ -2410,7 +2410,7 @@ function next_posts( $max_page = 0, $echo = true ) {
 /**
  * Retrieves the next posts page link.
  *
- *
+ * @since 2.7.0
  *
  * @global int      $paged
  * @global GC_Query $gc_query GeChiUI Query object.
@@ -2430,29 +2430,31 @@ function get_next_posts_link( $label = null, $max_page = 0 ) {
 		$paged = 1;
 	}
 
-	$nextpage = (int) $paged + 1;
+	$next_page = (int) $paged + 1;
 
 	if ( null === $label ) {
 		$label = __( '下一页 &raquo;' );
 	}
 
-	if ( ! is_single() && ( $nextpage <= $max_page ) ) {
+	if ( ! is_single() && ( $next_page <= $max_page ) ) {
 		/**
 		 * Filters the anchor tag attributes for the next posts page link.
-		 *
 		 *
 		 * @param string $attributes Attributes for the anchor tag.
 		 */
 		$attr = apply_filters( 'next_posts_link_attributes', '' );
 
-		return '<a href="' . next_posts( $max_page, false ) . "\" $attr>" . preg_replace( '/&([^#])(?![a-z]{1,8};)/i', '&#038;$1', $label ) . '</a>';
+		return sprintf(
+			'<a href="%1$s" %2$s>%3$s</a>',
+			next_posts( $max_page, false ),
+			$attr,
+			preg_replace( '/&([^#])(?![a-z]{1,8};)/i', '&#038;$1', $label )
+		);
 	}
 }
 
 /**
- * 显示“下一篇文章”的页面链接。
- *
- *
+ * Displays the next posts page link.
  *
  * @param string $label    Content for link text.
  * @param int    $max_page Optional. Max pages. Default 0.
@@ -2468,7 +2470,7 @@ function next_posts_link( $label = null, $max_page = 0 ) {
  *
  * Backported to 2.0.10 from 2.1.3.
  *
- *
+ * @since 2.0.10
  *
  * @global int $paged
  *
@@ -2478,26 +2480,26 @@ function get_previous_posts_page_link() {
 	global $paged;
 
 	if ( ! is_single() ) {
-		$nextpage = (int) $paged - 1;
-		if ( $nextpage < 1 ) {
-			$nextpage = 1;
+		$previous_page = (int) $paged - 1;
+
+		if ( $previous_page < 1 ) {
+			$previous_page = 1;
 		}
-		return get_pagenum_link( $nextpage );
+
+		return get_pagenum_link( $previous_page );
 	}
 }
 
 /**
  * Displays or retrieves the previous posts page link.
  *
- *
- *
- * @param bool $echo Optional. Whether to echo the link. Default true.
- * @return string|void The previous posts page link if `$echo = false`.
+ * @param bool $display Optional. Whether to echo the link. Default true.
+ * @return string|void The previous posts page link if `$display = false`.
  */
-function previous_posts( $echo = true ) {
+function previous_posts( $display = true ) {
 	$output = esc_url( get_previous_posts_page_link() );
 
-	if ( $echo ) {
+	if ( $display ) {
 		echo $output;
 	} else {
 		return $output;
@@ -2507,7 +2509,7 @@ function previous_posts( $echo = true ) {
 /**
  * Retrieves the previous posts page link.
  *
- *
+ * @since 2.7.0
  *
  * @global int $paged
  *
@@ -2525,18 +2527,21 @@ function get_previous_posts_link( $label = null ) {
 		/**
 		 * Filters the anchor tag attributes for the previous posts page link.
 		 *
-		 *
 		 * @param string $attributes Attributes for the anchor tag.
 		 */
 		$attr = apply_filters( 'previous_posts_link_attributes', '' );
-		return '<a href="' . previous_posts( false ) . "\" $attr>" . preg_replace( '/&([^#])(?![a-z]{1,8};)/i', '&#038;$1', $label ) . '</a>';
+
+		return sprintf(
+			'<a href="%1$s" %2$s>%3$s</a>',
+			previous_posts( false ),
+			$attr,
+			preg_replace( '/&([^#])(?![a-z]{1,8};)/i', '&#038;$1', $label )
+		);
 	}
 }
 
 /**
- * 显示“上一篇文章”的页面链接。
- *
- *
+ * Displays the previous posts page link.
  *
  * @param string $label Optional. Previous page link text.
  */
@@ -2546,8 +2551,6 @@ function previous_posts_link( $label = null ) {
 
 /**
  * Retrieves the post pages link navigation for previous and next pages.
- *
- *
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -2596,8 +2599,6 @@ function get_posts_nav_link( $args = array() ) {
 /**
  * Displays the post pages link navigation for previous and next pages.
  *
- *
- *
  * @param string $sep      Optional. Separator for posts navigation links. Default empty.
  * @param string $prelabel Optional. Label for previous pages. Default empty.
  * @param string $nxtlabel Optional Label for next pages. Default empty.
@@ -2610,20 +2611,24 @@ function posts_nav_link( $sep = '', $prelabel = '', $nxtlabel = '' ) {
 /**
  * Retrieves the navigation to next/previous post, when applicable.
  *
- *
- *
- *
- *
+ * @since 4.1.0 Introduced the `in_same_term`, `excluded_terms`, and `taxonomy` arguments.
+ * @since 5.3.0 Added the `aria_label` parameter.
+ * @since 5.5.0 Added the `class` parameter.
  *
  * @param array $args {
  *     Optional. Default post navigation arguments. Default empty array.
  *
- *     @type string       $prev_text          Anchor text to display in the previous post link. Default '%title'.
- *     @type string       $next_text          Anchor text to display in the next post link. Default '%title'.
- *     @type bool         $in_same_term       Whether link should be in a same taxonomy term. Default false.
- *     @type int[]|string $excluded_terms     Array or comma-separated list of excluded term IDs. Default empty.
+ *     @type string       $prev_text          Anchor text to display in the previous post link.
+ *                                            Default '%title'.
+ *     @type string       $next_text          Anchor text to display in the next post link.
+ *                                            Default '%title'.
+ *     @type bool         $in_same_term       Whether link should be in the same taxonomy term.
+ *                                            Default false.
+ *     @type int[]|string $excluded_terms     Array or comma-separated list of excluded term IDs.
+ *                                            Default empty.
  *     @type string       $taxonomy           Taxonomy, if `$in_same_term` is true. Default 'category'.
- *     @type string       $screen_reader_text Screen reader text for the nav element. Default '文章导航'.
+ *     @type string       $screen_reader_text Screen reader text for the nav element.
+ *                                            Default '文章导航'.
  *     @type string       $aria_label         ARIA label text for the nav element. Default 'Posts'.
  *     @type string       $class              Custom class for the nav element. Default 'post-navigation'.
  * }
@@ -2678,7 +2683,7 @@ function get_the_post_navigation( $args = array() ) {
 /**
  * Displays the navigation to next/previous post, when applicable.
  *
- *
+ * @since 4.1.0
  *
  * @param array $args Optional. See get_the_post_navigation() for available arguments.
  *                    Default empty array.
@@ -2690,9 +2695,9 @@ function the_post_navigation( $args = array() ) {
 /**
  * Returns the navigation to next/previous set of posts, when applicable.
  *
- *
- *
- *
+ * @since 4.1.0
+ * @since 5.3.0 Added the `aria_label` parameter.
+ * @since 5.5.0 Added the `class` parameter.
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -2711,10 +2716,12 @@ function the_post_navigation( $args = array() ) {
  * @return string Markup for posts links.
  */
 function get_the_posts_navigation( $args = array() ) {
+	global $gc_query;
+
 	$navigation = '';
 
 	// Don't print empty markup if there's only one page.
-	if ( $GLOBALS['gc_query']->max_num_pages > 1 ) {
+	if ( $gc_query->max_num_pages > 1 ) {
 		// Make sure the nav element has an aria-label attribute: fallback to the screen reader text.
 		if ( ! empty( $args['screen_reader_text'] ) && empty( $args['aria_label'] ) ) {
 			$args['aria_label'] = $args['screen_reader_text'];
@@ -2751,7 +2758,7 @@ function get_the_posts_navigation( $args = array() ) {
 /**
  * Displays the navigation to next/previous set of posts, when applicable.
  *
- *
+ * @since 4.1.0
  *
  * @param array $args Optional. See get_the_posts_navigation() for available arguments.
  *                    Default empty array.
@@ -2763,9 +2770,11 @@ function the_posts_navigation( $args = array() ) {
 /**
  * Retrieves a paginated navigation to next/previous set of posts, when applicable.
  *
+ * @since 4.1.0
+ * @since 5.3.0 Added the `aria_label` parameter.
+ * @since 5.5.0 Added the `class` parameter.
  *
- *
- *
+ * @global GC_Query $gc_query GeChiUI Query object.
  *
  * @param array $args {
  *     Optional. Default pagination arguments, see paginate_links().
@@ -2773,15 +2782,17 @@ function the_posts_navigation( $args = array() ) {
  *     @type string $screen_reader_text Screen reader text for navigation element.
  *                                      Default '文章导航'.
  *     @type string $aria_label         ARIA label text for the nav element. Default 'Posts'.
- *     @type string $class              Custom class for the nav element. Default '分页'.
+ *     @type string $class              Custom class for the nav element. Default 'pagination'.
  * }
  * @return string Markup for pagination links.
  */
 function get_the_posts_pagination( $args = array() ) {
+	global $gc_query;
+
 	$navigation = '';
 
 	// Don't print empty markup if there's only one page.
-	if ( $GLOBALS['gc_query']->max_num_pages > 1 ) {
+	if ( $gc_query->max_num_pages > 1 ) {
 		// Make sure the nav element has an aria-label attribute: fallback to the screen reader text.
 		if ( ! empty( $args['screen_reader_text'] ) && empty( $args['aria_label'] ) ) {
 			$args['aria_label'] = $args['screen_reader_text'];
@@ -2791,13 +2802,29 @@ function get_the_posts_pagination( $args = array() ) {
 			$args,
 			array(
 				'mid_size'           => 1,
-				'prev_text'          => _x( '上一页', 'previous set of posts' ),
-				'next_text'          => _x( '下一页', 'next set of posts' ),
+				'prev_text'          => _x( '上一步', 'previous set of posts' ),
+				'next_text'          => _x( '下一步', 'next set of posts' ),
 				'screen_reader_text' => __( '文章导航' ),
 				'aria_label'         => __( '文章' ),
 				'class'              => 'pagination',
 			)
 		);
+
+		/**
+		 * Filters the arguments for posts pagination links.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param array $args {
+		 *     Optional. Default pagination arguments, see paginate_links().
+		 *
+		 *     @type string $screen_reader_text Screen reader text for navigation element.
+		 *                                      Default '文章导航'.
+		 *     @type string $aria_label         ARIA label text for the nav element. Default 'Posts'.
+		 *     @type string $class              Custom class for the nav element. Default 'pagination'.
+		 * }
+		 */
+		$args = apply_filters( 'the_posts_pagination_args', $args );
 
 		// Make sure we get a string back. Plain is the next best thing.
 		if ( isset( $args['type'] ) && 'array' === $args['type'] ) {
@@ -2816,9 +2843,9 @@ function get_the_posts_pagination( $args = array() ) {
 }
 
 /**
- * 如果适用，显示下一组/上一组文章的分页导航。
+ * Displays a paginated navigation to next/previous set of posts, when applicable.
  *
- *
+ * @since 4.1.0
  *
  * @param array $args Optional. See get_the_posts_pagination() for available arguments.
  *                    Default empty array.
@@ -2830,12 +2857,12 @@ function the_posts_pagination( $args = array() ) {
 /**
  * Wraps passed links in navigational markup.
  *
- *
- *
+ * @since 4.1.0
+ * @since 5.3.0 Added the `aria_label` parameter.
  * @access private
  *
  * @param string $links              Navigational links.
- * @param string $class              Optional. Custom class for the nav element.
+ * @param string $css_class          Optional. Custom class for the nav element.
  *                                   Default 'posts-navigation'.
  * @param string $screen_reader_text Optional. Screen reader text for the nav element.
  *                                   Default '文章导航'.
@@ -2843,9 +2870,9 @@ function the_posts_pagination( $args = array() ) {
  *                                   Defaults to the value of `$screen_reader_text`.
  * @return string Navigation template tag.
  */
-function _navigation_markup( $links, $class = 'posts-navigation', $screen_reader_text = '', $aria_label = '' ) {
+function _navigation_markup( $links, $css_class = 'posts-navigation', $screen_reader_text = '', $aria_label = '' ) {
 	if ( empty( $screen_reader_text ) ) {
-		$screen_reader_text = __( '文章导航' );
+		$screen_reader_text = /* translators: Hidden accessibility text. */ __( '文章导航' );
 	}
 	if ( empty( $aria_label ) ) {
 		$aria_label = $screen_reader_text;
@@ -2869,20 +2896,21 @@ function _navigation_markup( $links, $class = 'posts-navigation', $screen_reader
 	 *         <div class="nav-links">%3$s</div>
 	 *     </nav>
 	 *
+	 * @since 4.4.0
 	 *
-	 * @param string $template The default template.
-	 * @param string $class    The class passed by the calling function.
+	 * @param string $template  The default template.
+	 * @param string $css_class The class passed by the calling function.
 	 * @return string Navigation template.
 	 */
-	$template = apply_filters( 'navigation_markup_template', $template, $class );
+	$template = apply_filters( 'navigation_markup_template', $template, $css_class );
 
-	return sprintf( $template, sanitize_html_class( $class ), esc_html( $screen_reader_text ), $links, esc_html( $aria_label ) );
+	return sprintf( $template, sanitize_html_class( $css_class ), esc_html( $screen_reader_text ), $links, esc_attr( $aria_label ) );
 }
 
 /**
  * Retrieves the comments page number link.
  *
- *
+ * @since 2.7.0
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
@@ -2918,6 +2946,7 @@ function get_comments_pagenum_link( $pagenum = 1, $max_page = 0 ) {
 	/**
 	 * Filters the comments page number link for the current request.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $result The comments page number link.
 	 */
@@ -2927,7 +2956,7 @@ function get_comments_pagenum_link( $pagenum = 1, $max_page = 0 ) {
 /**
  * Retrieves the link to the next comments page.
  *
- *
+ * @since 2.7.1
  *
  * @global GC_Query $gc_query GeChiUI Query object.
  *
@@ -2948,7 +2977,7 @@ function get_next_comments_link( $label = '', $max_page = 0 ) {
 		$page = 1;
 	}
 
-	$nextpage = (int) $page + 1;
+	$next_page = (int) $page + 1;
 
 	if ( empty( $max_page ) ) {
 		$max_page = $gc_query->max_num_comment_pages;
@@ -2958,27 +2987,35 @@ function get_next_comments_link( $label = '', $max_page = 0 ) {
 		$max_page = get_comment_pages_count();
 	}
 
-	if ( $nextpage > $max_page ) {
+	if ( $next_page > $max_page ) {
 		return;
 	}
 
 	if ( empty( $label ) ) {
-		$label = __( '较新评论 &raquo;' );
+		$label = __( '下一页 &raquo;' );
 	}
 
 	/**
 	 * Filters the anchor tag attributes for the next comments page link.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $attributes Attributes for the anchor tag.
 	 */
-	return '<a href="' . esc_url( get_comments_pagenum_link( $nextpage, $max_page ) ) . '" ' . apply_filters( 'next_comments_link_attributes', '' ) . '>' . preg_replace( '/&([^#])(?![a-z]{1,8};)/i', '&#038;$1', $label ) . '</a>';
+	$attr = apply_filters( 'next_comments_link_attributes', '' );
+
+	return sprintf(
+		'<a href="%1$s" %2$s>%3$s</a>',
+		esc_url( get_comments_pagenum_link( $next_page, $max_page ) ),
+		$attr,
+		preg_replace( '/&([^#])(?![a-z]{1,8};)/i', '&#038;$1', $label )
+	);
 }
 
 /**
  * Displays the link to the next comments page.
  *
- *
+ * @since 2.7.0
  *
  * @param string $label    Optional. Label for link text. Default empty.
  * @param int    $max_page Optional. Max page. Default 0.
@@ -2990,7 +3027,7 @@ function next_comments_link( $label = '', $max_page = 0 ) {
 /**
  * Retrieves the link to the previous comments page.
  *
- *
+ * @since 2.7.1
  *
  * @param string $label Optional. Label for comments link text. Default empty.
  * @return string|void HTML-formatted link for the previous page of comments.
@@ -3006,7 +3043,7 @@ function get_previous_comments_link( $label = '' ) {
 		return;
 	}
 
-	$prevpage = (int) $page - 1;
+	$previous_page = (int) $page - 1;
 
 	if ( empty( $label ) ) {
 		$label = __( '&laquo; 先前评论' );
@@ -3015,16 +3052,24 @@ function get_previous_comments_link( $label = '' ) {
 	/**
 	 * Filters the anchor tag attributes for the previous comments page link.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $attributes Attributes for the anchor tag.
 	 */
-	return '<a href="' . esc_url( get_comments_pagenum_link( $prevpage ) ) . '" ' . apply_filters( 'previous_comments_link_attributes', '' ) . '>' . preg_replace( '/&([^#])(?![a-z]{1,8};)/i', '&#038;$1', $label ) . '</a>';
+	$attr = apply_filters( 'previous_comments_link_attributes', '' );
+
+	return sprintf(
+		'<a href="%1$s" %2$s>%3$s</a>',
+		esc_url( get_comments_pagenum_link( $previous_page ) ),
+		$attr,
+		preg_replace( '/&([^#])(?![a-z]{1,8};)/i', '&#038;$1', $label )
+	);
 }
 
 /**
  * Displays the link to the previous comments page.
  *
- *
+ * @since 2.7.0
  *
  * @param string $label Optional. Label for comments link text. Default empty.
  */
@@ -3036,7 +3081,7 @@ function previous_comments_link( $label = '' ) {
  * Displays or retrieves pagination links for the comments on the current post.
  *
  * @see paginate_links()
- *
+ * @since 2.7.0
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
@@ -3084,9 +3129,8 @@ function paginate_comments_links( $args = array() ) {
 /**
  * Retrieves navigation to next/previous set of comments, when applicable.
  *
- *
- *
- *
+ * @since 5.3.0 Added the `aria_label` parameter.
+ * @since 5.5.0 Added the `class` parameter.
  *
  * @param array $args {
  *     Optional. Default comments navigation arguments.
@@ -3094,7 +3138,7 @@ function paginate_comments_links( $args = array() ) {
  *     @type string $prev_text          Anchor text to display in the previous comments link.
  *                                      Default '较早评论'.
  *     @type string $next_text          Anchor text to display in the next comments link.
- *                                      Default '较新评论'.
+ *                                      Default '下一页'.
  *     @type string $screen_reader_text Screen reader text for the nav element. Default '评论导航'.
  *     @type string $aria_label         ARIA label text for the nav element. Default 'Comments'.
  *     @type string $class              Custom class for the nav element. Default 'comment-navigation'.
@@ -3115,7 +3159,7 @@ function get_the_comments_navigation( $args = array() ) {
 			$args,
 			array(
 				'prev_text'          => __( '较早评论' ),
-				'next_text'          => __( '较新评论' ),
+				'next_text'          => __( '下一页' ),
 				'screen_reader_text' => __( '评论导航' ),
 				'aria_label'         => __( '评论' ),
 				'class'              => 'comment-navigation',
@@ -3142,8 +3186,6 @@ function get_the_comments_navigation( $args = array() ) {
 /**
  * Displays navigation to next/previous set of comments, when applicable.
  *
- *
- *
  * @param array $args See get_the_comments_navigation() for available arguments. Default empty array.
  */
 function the_comments_navigation( $args = array() ) {
@@ -3153,9 +3195,8 @@ function the_comments_navigation( $args = array() ) {
 /**
  * Retrieves a paginated navigation to next/previous set of comments, when applicable.
  *
- *
- *
- *
+ * @since 5.3.0 Added the `aria_label` parameter.
+ * @since 5.5.0 Added the `class` parameter.
  *
  * @see paginate_comments_links()
  *
@@ -3203,8 +3244,6 @@ function get_the_comments_pagination( $args = array() ) {
 /**
  * Displays a paginated navigation to next/previous set of comments, when applicable.
  *
- *
- *
  * @param array $args See get_the_comments_pagination() for available arguments. Default empty array.
  */
 function the_comments_pagination( $args = array() ) {
@@ -3217,8 +3256,6 @@ function the_comments_pagination( $args = array() ) {
  * Returns the 'home' option with the appropriate protocol. The protocol will be 'https'
  * if is_ssl() evaluates to true; otherwise, it will be the same as the 'home' option.
  * If `$scheme` is 'http' or 'https', is_ssl() is overridden.
- *
- *
  *
  * @param string      $path   Optional. Path relative to the home URL. Default empty.
  * @param string|null $scheme Optional. Scheme to give the home URL context. Accepts
@@ -3235,8 +3272,6 @@ function home_url( $path = '', $scheme = null ) {
  * Returns the 'home' option with the appropriate protocol. The protocol will be 'https'
  * if is_ssl() evaluates to true; otherwise, it will be the same as the 'home' option.
  * If `$scheme` is 'http' or 'https', is_ssl() is overridden.
- *
- *
  *
  * @param int|null    $blog_id Optional. Site ID. Default null (current site).
  * @param string      $path    Optional. Path relative to the home URL. Default empty.
@@ -3290,8 +3325,6 @@ function get_home_url( $blog_id = null, $path = '', $scheme = null ) {
  * is_ssl() and 'http' otherwise. If $scheme is 'http' or 'https', is_ssl() is
  * overridden.
  *
- *
- *
  * @param string      $path   Optional. Path relative to the site URL. Default empty.
  * @param string|null $scheme Optional. Scheme to give the site URL context. See set_url_scheme().
  * @return string Site URL link with optional path appended.
@@ -3307,8 +3340,6 @@ function site_url( $path = '', $scheme = null ) {
  * Returns the 'site_url' option with the appropriate protocol, 'https' if
  * is_ssl() and 'http' otherwise. If `$scheme` is 'http' or 'https',
  * `is_ssl()` is overridden.
- *
- *
  *
  * @param int|null    $blog_id Optional. Site ID. Default null (current site).
  * @param string      $path    Optional. Path relative to the site URL. Default empty.
@@ -3335,6 +3366,7 @@ function get_site_url( $blog_id = null, $path = '', $scheme = null ) {
 	/**
 	 * Filters the site URL.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string      $url     The complete site URL including scheme and path.
 	 * @param string      $path    Path relative to the site URL. Blank string if no path is specified.
@@ -3348,9 +3380,7 @@ function get_site_url( $blog_id = null, $path = '', $scheme = null ) {
 /**
  * Retrieves the URL to the admin area for the current site.
  *
- *
- *
- * @param string $path   Optional. Path relative to the admin URL. Default 'admin'.
+ * @param string $path   Optional. Path relative to the admin URL. Default empty.
  * @param string $scheme The scheme to use. Default is 'admin', which obeys force_ssl_admin() and is_ssl().
  *                       'http' or 'https' can be passed to force those schemes.
  * @return string Admin URL link with optional path appended.
@@ -3361,8 +3391,6 @@ function admin_url( $path = '', $scheme = 'admin' ) {
 
 /**
  * Retrieves the URL to the admin area for a given site.
- *
- *
  *
  * @param int|null $blog_id Optional. Site ID. Default null (current site).
  * @param string   $path    Optional. Path relative to the admin URL. Default empty.
@@ -3381,6 +3409,7 @@ function get_admin_url( $blog_id = null, $path = '', $scheme = 'admin' ) {
 	/**
 	 * Filters the admin area URL.
 	 *
+	 * @since 5.8.0 The `$scheme` parameter was added.
 	 *
 	 * @param string      $url     The complete admin area URL including scheme and path.
 	 * @param string      $path    Path relative to the admin area URL. Blank string if no path is specified.
@@ -3409,6 +3438,7 @@ function includes_url( $path = '', $scheme = null ) {
 	/**
 	 * Filters the URL to the includes directory.
 	 *
+	 * @since 5.8.0 The `$scheme` parameter was added.
 	 *
 	 * @param string      $url    The complete URL to the includes directory including scheme and path.
 	 * @param string      $path   Path relative to the URL to the gc-includes directory. Blank string
@@ -3421,28 +3451,21 @@ function includes_url( $path = '', $scheme = null ) {
 
 /**
  * 资源目录assets URL
+ * gongenlin
  *
- * @param string      $path   Optional. Path relative to the assets URL. Default empty.
- * @param string|null $scheme Optional. Scheme to give the assets URL context. Accepts
- *                            'http', 'https', or 'relative'. Default null.
- * @return string Includes URL link with optional path appended.
+ * @param string      $path   可选择的相对于资产URL的路径。默认为空。
+ * @param string|null $scheme 可选择的提供资产URL上下文的方案。接受“http”、“https”或“relative”。默认为null。
+ * @return string 包括附加了可选路径的URL链接。
  */
 function assets_url( $path = '', $scheme = null ) {
 	$url = site_url( '/assets/', $scheme );
-
-	if ( defined( 'GC_CDN_URL' ) && GC_CDN_URL && get_pro_license_valid() ) {
-		// 自定义路径
-		// 配置GeChiUI官方的cdn为 'https://cdn.gechiui.com/release/'.$GLOBALS['gc_version'].'/assets/'
-		$url = rtrim( GC_CDN_URL, '/' ).'/assets/';
-
-	}
 
 	if ( $path && is_string( $path ) ) {
 		$url .= ltrim( $path, '/' );
 	}
 
 	/**
-	 * Filters the URL to the assets directory.
+	 * 过滤资源目录的URL。
 	 *
 	 *
 	 * @param string      $url    The complete URL to the assets directory including scheme and path.
@@ -3456,8 +3479,6 @@ function assets_url( $path = '', $scheme = null ) {
 
 /**
  * Retrieves the URL to the content directory.
- *
- *
  *
  * @param string $path Optional. Path relative to the content URL. Default empty.
  * @return string Content URL link with optional path appended.
@@ -3484,8 +3505,6 @@ function content_url( $path = '' ) {
  * Retrieves a URL within the plugins or mu-plugins directory.
  *
  * Defaults to the plugins directory URL if no arguments are supplied.
- * 6.0.4 需改支持CDN
- *
  *
  * @param string $path   Optional. Extra path appended to the end of the URL, including
  *                       the relative directory if $plugin is supplied. Default empty.
@@ -3499,33 +3518,20 @@ function plugins_url( $path = '', $plugin = '' ) {
 	$path          = gc_normalize_path( $path );
 	$plugin        = gc_normalize_path( $plugin );
 	$mu_plugin_dir = gc_normalize_path( GCMU_PLUGIN_DIR );
-	$folder = '';
 
-	// 获取插件的文件夹名称
-	if ( ! empty( $plugin ) && is_string( $plugin ) ) {
-		$folder = dirname( plugin_basename( $plugin ) );
-		if ( '.' == $folder ) {
-			$folder = '';
-		} else {
-			$folder = '/' .ltrim( $folder, '/' );
-		}
+	if ( ! empty( $plugin ) && str_starts_with( $plugin, $mu_plugin_dir ) ) {
+		$url = GCMU_PLUGIN_URL;
+	} else {
+		$url = GC_PLUGIN_URL;
 	}
 
-	if ( defined( 'GC_CDN_URL' ) && GC_CDN_URL && !empty( $folder ) && get_pro_license_valid() ) {
-		if( strstr(GC_CDN_URL, 'cdn.gechiui.com') ){
-			$plugin_cdn = substr( GC_CDN_URL,0 , stripos(GC_CDN_URL, 'cdn.gechiui.com')+15 ).'/plugin';
-			$plugin_version = '/'.get_file_data( $plugin, array('Version'=> 'Version'), 'plugin' )['Version'];
-			$url = $plugin_cdn.$folder.$plugin_version;
-		}else{
-			$url = rtrim( GC_CDN_URL, '/' ).'/gc-content/plugins'.$folder;
+	$url = set_url_scheme( $url );
+
+	if ( ! empty( $plugin ) && is_string( $plugin ) ) {
+		$folder = dirname( plugin_basename( $plugin ) );
+		if ( '.' !== $folder ) {
+			$url .= '/' . ltrim( $folder, '/' );
 		}
-	}else{
-		if ( ! empty( $plugin ) && 0 === strpos( $plugin, $mu_plugin_dir ) ) {
-			$url = GCMU_PLUGIN_URL;
-		} else {
-			$url = GC_PLUGIN_URL;
-		}
-		$url = set_url_scheme( $url ).$folder;
 	}
 
 	if ( $path && is_string( $path ) ) {
@@ -3551,8 +3557,6 @@ function plugins_url( $path = '', $plugin = '' ) {
  * Returns the site URL with the appropriate protocol, 'https' if
  * is_ssl() and 'http' otherwise. If $scheme is 'http' or 'https', is_ssl() is
  * overridden.
- *
- *
  *
  * @see set_url_scheme()
  *
@@ -3598,8 +3602,6 @@ function network_site_url( $path = '', $scheme = null ) {
  * and 'http' otherwise. If `$scheme` is 'http' or 'https', `is_ssl()` is
  * overridden.
  *
- *
- *
  * @param string      $path   Optional. Path relative to the home URL. Default empty.
  * @param string|null $scheme Optional. Scheme to give the home URL context. Accepts
  *                            'http', 'https', or 'relative'. Default null.
@@ -3643,8 +3645,6 @@ function network_home_url( $path = '', $scheme = null ) {
 /**
  * Retrieves the URL to the admin area for the network.
  *
- *
- *
  * @param string $path   Optional path relative to the admin URL. Default empty.
  * @param string $scheme Optional. The scheme to use. Default is 'admin', which obeys force_ssl_admin()
  *                       and is_ssl(). 'http' or 'https' can be passed to force those schemes.
@@ -3664,6 +3664,7 @@ function network_admin_url( $path = '', $scheme = 'admin' ) {
 	/**
 	 * Filters the network admin URL.
 	 *
+	 * @since 5.8.0 The `$scheme` parameter was added.
 	 *
 	 * @param string      $url    The complete network admin URL including scheme and path.
 	 * @param string      $path   Path relative to the network admin URL. Blank string if
@@ -3676,8 +3677,6 @@ function network_admin_url( $path = '', $scheme = 'admin' ) {
 
 /**
  * Retrieves the URL to the admin area for the current user.
- *
- *
  *
  * @param string $path   Optional. Path relative to the admin URL. Default empty.
  * @param string $scheme Optional. The scheme to use. Default is 'admin', which obeys force_ssl_admin()
@@ -3694,6 +3693,7 @@ function user_admin_url( $path = '', $scheme = 'admin' ) {
 	/**
 	 * Filters the user admin URL for the current user.
 	 *
+	 * @since 5.8.0 The `$scheme` parameter was added.
 	 *
 	 * @param string      $url    The complete URL including scheme and path.
 	 * @param string      $path   Path relative to the URL. Blank string if
@@ -3706,8 +3706,6 @@ function user_admin_url( $path = '', $scheme = 'admin' ) {
 
 /**
  * Retrieves the URL to the admin area for either the current site or the network depending on context.
- *
- *
  *
  * @param string $path   Optional. Path relative to the admin URL. Default empty.
  * @param string $scheme Optional. The scheme to use. Default is 'admin', which obeys force_ssl_admin()
@@ -3726,6 +3724,7 @@ function self_admin_url( $path = '', $scheme = 'admin' ) {
 	/**
 	 * Filters the admin URL for the current site or network depending on context.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param string $url    The complete URL including scheme and path.
 	 * @param string $path   Path relative to the URL. Blank string if no path is specified.
@@ -3736,9 +3735,7 @@ function self_admin_url( $path = '', $scheme = 'admin' ) {
 
 /**
  * Sets the scheme for a URL.
- *
- *
- *
+ * The 'rest' scheme was added.
  *
  * @param string      $url    Absolute URL that includes a scheme
  * @param string|null $scheme Optional. Scheme to give $url. Currently 'http', 'https', 'login',
@@ -3757,7 +3754,7 @@ function set_url_scheme( $url, $scheme = null ) {
 	}
 
 	$url = trim( $url );
-	if ( substr( $url, 0, 2 ) === '//' ) {
+	if ( str_starts_with( $url, '//' ) ) {
 		$url = 'http:' . $url;
 	}
 
@@ -3773,6 +3770,7 @@ function set_url_scheme( $url, $scheme = null ) {
 	/**
 	 * Filters the resulting URL after setting the scheme.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param string      $url         The complete URL including scheme and path.
 	 * @param string      $scheme      Scheme applied to the URL. One of 'http', 'https', or 'relative'.
@@ -3788,8 +3786,6 @@ function set_url_scheme( $url, $scheme = null ) {
  * If a user does not belong to any site, the global user dashboard is used. If the user
  * belongs to the current site, the dashboard for the current site is returned. If the user
  * cannot edit the current site, the dashboard to the user's primary site is returned.
- *
- *
  *
  * @param int    $user_id Optional. User ID. Defaults to current user.
  * @param string $path    Optional path relative to the dashboard. Use only paths known to
@@ -3838,8 +3834,6 @@ function get_dashboard_url( $user_id = 0, $path = '', $scheme = 'admin' ) {
 /**
  * Retrieves the URL to the user's profile editor.
  *
- *
- *
  * @param int    $user_id Optional. User ID. Defaults to current user.
  * @param string $scheme  Optional. The scheme to use. Default is 'admin', which obeys force_ssl_admin()
  *                        and is_ssl(). 'http' or 'https' can be passed to force those schemes.
@@ -3874,11 +3868,9 @@ function get_edit_profile_url( $user_id = 0, $scheme = 'admin' ) {
  * When the post is the same as the current requested page the function will handle the
  * pagination arguments too.
  *
- *
- *
  * @param int|GC_Post $post Optional. Post ID or object. Default is global `$post`.
- * @return string|false The canonical URL, or false if the post does not exist or has not
- *                      been published yet.
+ * @return string|false The canonical URL. False if the post does not exist
+ *                      or has not been published yet.
  */
 function gc_get_canonical_url( $post = null ) {
 	$post = get_post( $post );
@@ -3913,6 +3905,7 @@ function gc_get_canonical_url( $post = null ) {
 	/**
 	 * Filters the canonical URL for a post.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string  $canonical_url The post's canonical URL.
 	 * @param GC_Post $post          Post object.
@@ -3922,9 +3915,7 @@ function gc_get_canonical_url( $post = null ) {
 
 /**
  * Outputs rel=canonical for singular queries.
- *
- *
- *
+ * Adjusted to use `gc_get_canonical_url()`.
  */
 function rel_canonical() {
 	if ( ! is_singular() ) {
@@ -3953,8 +3944,6 @@ function rel_canonical() {
  * via the {@see 'pre_get_shortlink'} filter or filter the output via the {@see 'get_shortlink'}
  * filter.
  *
- *
- *
  * @param int    $id          Optional. A post or site ID. Default is 0, which means the current post or site.
  * @param string $context     Optional. Whether the ID is a 'site' ID, 'post' ID, or 'media' ID. If 'post',
  *                            the post_type of the post is consulted. If 'query', the current query is consulted
@@ -3968,7 +3957,7 @@ function gc_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 	/**
 	 * Filters whether to preempt generating a shortlink for the given post.
 	 *
-	 * Returning a truthy value from the filter will effectively short-circuit
+	 * Returning a value other than false from the filter will short-circuit
 	 * the shortlink generation process, returning that value instead.
 	 *
 	 *
@@ -4024,7 +4013,6 @@ function gc_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
  *
  * Attached to the {@see 'gc_head'} action.
  *
- *
  */
 function gc_shortlink_gc_head() {
 	$shortlink = gc_get_shortlink( 0, 'query' );
@@ -4040,7 +4028,6 @@ function gc_shortlink_gc_head() {
  * Sends a Link: rel=shortlink header if a shortlink is defined for the current page.
  *
  * Attached to the {@see 'gc'} action.
- *
  *
  */
 function gc_shortlink_header() {
@@ -4063,8 +4050,6 @@ function gc_shortlink_header() {
  * Must be called from inside "The Loop"
  *
  * Call like the_shortlink( __( 'Shortlinkage FTW' ) )
- *
- *
  *
  * @param string $text   Optional The link text or HTML to be displayed. Defaults to '这是短链接。'
  * @param string $title  Optional The tooltip for the link. Must be sanitized. Defaults to the sanitized post title.
@@ -4090,6 +4075,7 @@ function the_shortlink( $text = '', $title = '', $before = '', $after = '' ) {
 		/**
 		 * Filters the short link anchor tag for a post.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param string $link      Shortlink anchor tag.
 		 * @param string $shortlink Shortlink URL.
@@ -4105,19 +4091,17 @@ function the_shortlink( $text = '', $title = '', $before = '', $after = '' ) {
 /**
  * Retrieves the avatar URL.
  *
- *
- *
  * @param mixed $id_or_email The Gravatar to retrieve a URL for. Accepts a user_id, gravatar md5 hash,
  *                           user email, GC_User object, GC_Post object, or GC_Comment object.
  * @param array $args {
- *     Optional. Arguments to return instead of the default arguments.
+ *     Optional. Arguments to use instead of the default arguments.
  *
  *     @type int    $size           Height and width of the avatar in pixels. Default 96.
  *     @type string $default        URL for the default image or a default type. Accepts '404' (return
- *                                  a 404 instead of a default image), 'retro' (8bit), 'monsterid' (monster),
- *                                  'wavatar' (cartoon face), 'indenticon' (the "quilt"), 'mystery', 'mm',
- *                                  or 'mysteryman' (The Oyster Man), 'blank' (transparent GIF), or
- *                                  'gravatar_default' (the Gravatar logo). Default is the value of the
+ *                                  a 404 instead of a default image), 'retro' (8bit), 'RoboHash' (robohash),
+ *                                  'monsterid' (monster), 'wavatar' (cartoon face), 'indenticon' (the "quilt"),
+ *                                  'mystery', 'mm', or 'mysteryman' (The Oyster Man), 'blank' (transparent GIF),
+ *                                  or 'gravatar_default' (the Gravatar logo). Default is the value of the
  *                                  'avatar_default' option, with a fallback of 'mystery'.
  *     @type bool   $force_default  Whether to always show the default image, never the Gravatar. Default false.
  *     @type string $rating         What rating to display avatars up to. Accepts 'G', 'PG', 'R', 'X', and are
@@ -4131,14 +4115,14 @@ function the_shortlink( $text = '', $title = '', $before = '', $after = '' ) {
  */
 function get_avatar_url( $id_or_email, $args = null ) {
 	$args = get_avatar_data( $id_or_email, $args );
-	return $args['url'];
+	return isset( $args['url'] ) ? $args['url'] : '';
 }
 
 
 /**
  * Check if this comment type allows avatars to be retrieved.
  *
- *
+ * @since 5.1.0
  *
  * @param string $comment_type Comment type to check.
  * @return bool Whether the comment type is allowed for retrieving avatars.
@@ -4158,13 +4142,15 @@ function is_avatar_comment_type( $comment_type ) {
 
 /**
  * Retrieves default data about the avatar.
+ * 
+ * @since 6.3 
+ * 
+ * gongelnin
  *
- *
- *
- * @param mixed $id_or_email The Gravatar to retrieve. Accepts a user ID, Gravatar MD5 hash,
+ * @param mixed $id_or_email The avatar to retrieve. Accepts a user ID, Gravatar MD5 hash,
  *                           user email, GC_User object, GC_Post object, or GC_Comment object.
  * @param array $args {
- *     Optional. Arguments to return instead of the default arguments.
+ *     Optional. Arguments to use instead of the default arguments.
  *
  *     @type int    $size           Height and width of the avatar image file in pixels. Default 96.
  *     @type int    $height         Display height of the avatar in pixels. Defaults to $size.
@@ -4187,9 +4173,9 @@ function is_avatar_comment_type( $comment_type ) {
  * @return array {
  *     Along with the arguments passed in `$args`, this will contain a couple of extra arguments.
  *
- *     @type bool   $found_avatar True if we were able to find an avatar for this user,
- *                                false or not set if we couldn't.
- *     @type string $url          The URL of the avatar we found.
+ *     @type bool         $found_avatar True if an avatar was found for this user,
+ *                                      false or not set if none was found.
+ *     @type string|false $url          The URL of the avatar that was found, or false.
  * }
  */
 function get_avatar_data( $id_or_email, $args = null ) {
@@ -4263,9 +4249,10 @@ function get_avatar_data( $id_or_email, $args = null ) {
 	 * effectively short circuit get_avatar_data(), passing the value through
 	 * the {@see 'get_avatar_data'} filter and returning early.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param array $args        Arguments passed to get_avatar_data(), after processing.
-	 * @param mixed $id_or_email The Gravatar to retrieve. Accepts a user ID, Gravatar MD5 hash,
+	 * @param mixed $id_or_email The avatar to retrieve. Accepts a user ID, Gravatar MD5 hash,
 	 *                           user email, GC_User object, GC_Post object, or GC_Comment object.
 	 */
 	$args = apply_filters( 'pre_get_avatar_data', $args, $id_or_email );
@@ -4275,9 +4262,7 @@ function get_avatar_data( $id_or_email, $args = null ) {
 		return apply_filters( 'get_avatar_data', $args, $id_or_email );
 	}
 
-	$email_hash = '';
-	$user       = false;
-	$email      = false;
+	$user = false;
 
 	if ( is_object( $id_or_email ) && isset( $id_or_email->comment_ID ) ) {
 		$id_or_email = get_comment( $id_or_email );
@@ -4286,8 +4271,6 @@ function get_avatar_data( $id_or_email, $args = null ) {
 	// Process the user identifier.
 	if ( is_numeric( $id_or_email ) ) {
 		$user = get_user_by( 'id', absint( $id_or_email ) );
-	} elseif ( is_string( $id_or_email ) ) {
-		$email = $id_or_email;
 	} elseif ( $id_or_email instanceof GC_User ) {
 		// User object.
 		$user = $id_or_email;
@@ -4304,50 +4287,62 @@ function get_avatar_data( $id_or_email, $args = null ) {
 		if ( ! empty( $id_or_email->user_id ) ) {
 			$user = get_user_by( 'id', (int) $id_or_email->user_id );
 		}
-		if ( ( ! $user || is_gc_error( $user ) ) && ! empty( $id_or_email->comment_author_email ) ) {
-			$email = $id_or_email->comment_author_email;
-		}
 	}
-
-	if ( ! $email_hash ) {
-		if ( $user ) {
-			$email = $user->user_email;
-		}
-
-		if ( $email ) {
-			$email_hash = md5( strtolower( trim( $email ) ) );
-		}
-	}
-
-	if ( $email_hash ) {
-		$args['found_avatar'] = true;
-		// $gravatar_server      = hexdec( $email_hash[0] ) % 3;
-	} 
-
-	$url_args = array();
-	$url = assets_url('/images/avatars/'.$args['default']) ;
-	$url = add_query_arg(
-		rawurlencode_deep( array_filter( $url_args ) ),
-		set_url_scheme( $url, $args['scheme'] )
-	);
 
 	/**
-	 * Filters the avatar URL.
-	 *
-	 *
-	 * @param string $url         The URL of the avatar.
-	 * @param mixed  $id_or_email The Gravatar to retrieve. Accepts a user ID, Gravatar MD5 hash,
-	 *                            user email, GC_User object, GC_Post object, or GC_Comment object.
-	 * @param array  $args        Arguments passed to get_avatar_data(), after processing.
-	 */
-	$args['url'] = apply_filters( 'get_avatar_url', $url, $id_or_email, $args );
+	* 获取自定义头像数据
+	* 
+	* @since 6.3
+	* 
+	* gongenlin
+	* 1. 用户上传自定义头像的：展示头像
+	* 2. 用户没有头像的：不展示头像
+	* 3. 没有用户ID调用头像的：区块编辑器 和 非注册用户，使用系统默认头像
+	*/
+
+	if( isset($user->ID) ) {
+		$local_avatars = get_user_meta( $user->ID, 'simple_local_avatar', true );
+		// 判断用户是否设置自定义头像
+		if ( isset( $local_avatars ) && isset( $local_avatars['full'] ) ) {
+			// 加工头像URL地址
+			$size = $args['size'];
+			if ( empty( $local_avatars[$size] ) ) {
+		        $upload_path = gc_upload_dir();
+		        $avatar_full_path = str_replace( $upload_path['baseurl'], $upload_path['basedir'], $local_avatars['full'] );
+		        // image_resize 此函数用于调整图像的大小。 缩小图像以适应一个特定的尺寸,并保存一个新的图像副本。
+		        $image_sized = image_resize( $avatar_full_path, $size, $size, true );      
+		        // deal with original being >= to original image (or lack of sizing ability)
+		        $local_avatars[$size]  = is_gc_error($image_sized) ? $local_avatars['full'] : str_replace( $upload_path['basedir'], $upload_path['baseurl'], $image_sized );
+		        // save updated avatar sizes
+		        update_user_meta( $user->ID, 'simple_local_avatar', $local_avatars );
+		    } elseif ( substr( $local_avatars[$size], 0, 4 ) != 'http' ) {
+		        $local_avatars[$size]  = home_url( $local_avatars[$size] );
+		    }
+		    $args['found_avatar'] = true;
+		    $args['url'] = apply_filters( 'get_avatar_url', $local_avatars[$size], $id_or_email, $args );
+		}
+		elseif( ! empty( $args['default'] ) ) {
+				// 使用 默认头像
+				$args['url'] = home_url( '/assets/images/avatars/'.$args['default'] );
+		}
+	}
+	elseif( isset( $id_or_email ) && ! empty($args['default']) ) {
+		// 处理游客头像
+		$args['url'] = home_url( '/assets/images/avatars/'.$args['default'] );
+	}
+	elseif(empty( $id_or_email ) ){
+		// 处理区块编辑器调用头像区块
+		$args['url'] = home_url( '/assets/images/avatars/admin.jpg' );
+	}
+
 
 	/**
 	 * Filters the avatar data.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param array $args        Arguments passed to get_avatar_data(), after processing.
-	 * @param mixed $id_or_email The Gravatar to retrieve. Accepts a user ID, Gravatar MD5 hash,
+	 * @param mixed $id_or_email The avatar to retrieve. Accepts a user ID, Gravatar MD5 hash,
 	 *                           user email, GC_User object, GC_Post object, or GC_Comment object.
 	 */
 	return apply_filters( 'get_avatar_data', $args, $id_or_email );
@@ -4358,8 +4353,6 @@ function get_avatar_data( $id_or_email, $args = null ) {
  *
  * Searches in the stylesheet directory before the template directory so themes
  * which inherit from a parent theme can just override one file.
- *
- *
  *
  * @param string $file Optional. File to search for in the stylesheet directory.
  * @return string The URL of the file.
@@ -4378,6 +4371,7 @@ function get_theme_file_uri( $file = '' ) {
 	/**
 	 * Filters the URL to a file in the theme.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string $url  The file URL.
 	 * @param string $file The requested file to search for.
@@ -4387,8 +4381,6 @@ function get_theme_file_uri( $file = '' ) {
 
 /**
  * Retrieves the URL of a file in the parent theme.
- *
- *
  *
  * @param string $file Optional. File to return the URL for in the template directory.
  * @return string The URL of the file.
@@ -4405,6 +4397,7 @@ function get_parent_theme_file_uri( $file = '' ) {
 	/**
 	 * Filters the URL to a file in the parent theme.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string $url  The file URL.
 	 * @param string $file The requested file to search for.
@@ -4417,8 +4410,6 @@ function get_parent_theme_file_uri( $file = '' ) {
  *
  * Searches in the stylesheet directory before the template directory so themes
  * which inherit from a parent theme can just override one file.
- *
- *
  *
  * @param string $file Optional. File to search for in the stylesheet directory.
  * @return string The path of the file.
@@ -4437,6 +4428,7 @@ function get_theme_file_path( $file = '' ) {
 	/**
 	 * Filters the path to a file in the theme.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string $path The file path.
 	 * @param string $file The requested file to search for.
@@ -4446,8 +4438,6 @@ function get_theme_file_path( $file = '' ) {
 
 /**
  * Retrieves the path of a file in the parent theme.
- *
- *
  *
  * @param string $file Optional. File to return the path for in the template directory.
  * @return string The path of the file.
@@ -4464,6 +4454,7 @@ function get_parent_theme_file_path( $file = '' ) {
 	/**
 	 * Filters the path to a file in the parent theme.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string $path The file path.
 	 * @param string $file The requested file to search for.
@@ -4473,8 +4464,6 @@ function get_parent_theme_file_path( $file = '' ) {
 
 /**
  * Retrieves the URL to the privacy policy page.
- *
- *
  *
  * @return string The URL to the privacy policy page. Empty string if it doesn't exist.
  */
@@ -4489,6 +4478,7 @@ function get_privacy_policy_url() {
 	/**
 	 * Filters the URL of the privacy policy page.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param string $url            The URL to the privacy policy page. Empty string
 	 *                               if it doesn't exist.
@@ -4500,8 +4490,6 @@ function get_privacy_policy_url() {
 /**
  * Displays the privacy policy link with formatting, when applicable.
  *
- *
- *
  * @param string $before Optional. Display before privacy policy link. Default empty.
  * @param string $after  Optional. Display after privacy policy link. Default empty.
  */
@@ -4512,7 +4500,7 @@ function the_privacy_policy_link( $before = '', $after = '' ) {
 /**
  * Returns the privacy policy link with formatting, when applicable.
  *
- *
+ * @since 6.2.0 Added 'privacy-policy' rel attribute.
  *
  * @param string $before Optional. Display before privacy policy link. Default empty.
  * @param string $after  Optional. Display after privacy policy link. Default empty.
@@ -4527,7 +4515,7 @@ function get_the_privacy_policy_link( $before = '', $after = '' ) {
 
 	if ( $privacy_policy_url && $page_title ) {
 		$link = sprintf(
-			'<a class="privacy-policy-link" href="%s">%s</a>',
+			'<a class="privacy-policy-link" href="%s" rel="privacy-policy">%s</a>',
 			esc_url( $privacy_policy_url ),
 			esc_html( $page_title )
 		);
@@ -4536,6 +4524,7 @@ function get_the_privacy_policy_link( $before = '', $after = '' ) {
 	/**
 	 * Filters the privacy policy link.
 	 *
+	 * @since 4.9.6
 	 *
 	 * @param string $link               The privacy policy link. Empty string if it
 	 *                                   doesn't exist.
@@ -4549,4 +4538,64 @@ function get_the_privacy_policy_link( $before = '', $after = '' ) {
 	}
 
 	return '';
+}
+
+/**
+ * Returns an array of URL hosts which are considered to be internal hosts.
+ *
+ * By default the list of internal hosts is comprised of the host name of
+ * the site's home_url() (as parsed by gc_parse_url()).
+ *
+ * This list is used when determining if a specificed URL is a link to a page on
+ * the site itself or a link offsite (to an external host). This is used, for
+ * example, when determining if the "nofollow" attribute should be applied to a
+ * link.
+ *
+ * @see gc_is_internal_link
+ *
+ * @since 6.2.0
+ *
+ * @return string[] An array of URL hosts.
+ */
+function gc_internal_hosts() {
+	static $internal_hosts;
+
+	if ( empty( $internal_hosts ) ) {
+		/**
+		 * Filters the array of URL hosts which are considered internal.
+		 *
+		 * @since 6.2.0
+		 *
+		 * @param string[] $internal_hosts An array of internal URL hostnames.
+		 */
+		$internal_hosts = apply_filters(
+			'gc_internal_hosts',
+			array(
+				gc_parse_url( home_url(), PHP_URL_HOST ),
+			)
+		);
+		$internal_hosts = array_unique(
+			array_map( 'strtolower', (array) $internal_hosts )
+		);
+	}
+
+	return $internal_hosts;
+}
+
+/**
+ * Determines whether or not the specified URL is of a host included in the internal hosts list.
+ *
+ * @see gc_internal_hosts()
+ *
+ * @since 6.2.0
+ *
+ * @param string $link The URL to test.
+ * @return bool Returns true for internal URLs and false for all other URLs.
+ */
+function gc_is_internal_link( $link ) {
+	$link = strtolower( $link );
+	if ( in_array( gc_parse_url( $link, PHP_URL_SCHEME ), gc_allowed_protocols(), true ) ) {
+		return in_array( gc_parse_url( $link, PHP_URL_HOST ), gc_internal_hosts(), true );
+	}
+	return false;
 }

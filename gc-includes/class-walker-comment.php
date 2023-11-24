@@ -4,13 +4,12 @@
  *
  * @package GeChiUI
  * @subpackage Comments
- *
  */
 
 /**
  * Core walker class used to create an HTML list of comments.
  *
- *
+ * @since 2.7.0
  *
  * @see Walker
  */
@@ -19,6 +18,7 @@ class Walker_Comment extends Walker {
 	/**
 	 * What the class handles.
 	 *
+	 * @since 2.7.0
 	 * @var string
 	 *
 	 * @see Walker::$tree_type
@@ -28,6 +28,7 @@ class Walker_Comment extends Walker {
 	/**
 	 * Database fields to use.
 	 *
+	 * @since 2.7.0
 	 * @var string[]
 	 *
 	 * @see Walker::$db_fields
@@ -41,6 +42,7 @@ class Walker_Comment extends Walker {
 	/**
 	 * Starts the list before the elements are added.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @see Walker::start_lvl()
 	 * @global int $comment_depth
@@ -68,6 +70,7 @@ class Walker_Comment extends Walker {
 	/**
 	 * Ends the list of items after the elements are added.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @see Walker::end_lvl()
 	 * @global int $comment_depth
@@ -112,6 +115,7 @@ class Walker_Comment extends Walker {
 	 *     2
 	 *      2.2
 	 *
+	 * @since 2.7.0
 	 *
 	 * @see Walker::display_element()
 	 * @see gc_list_comments()
@@ -151,6 +155,8 @@ class Walker_Comment extends Walker {
 	/**
 	 * Starts the element output.
 	 *
+	 * @since 2.7.0
+	 * @since 5.9.0 Renamed `$comment` to `$data_object` and `$id` to `$current_object_id`
 	 *              to match parent class for PHP 8 named parameter support.
 	 *
 	 * @see Walker::start_el()
@@ -205,6 +211,8 @@ class Walker_Comment extends Walker {
 	/**
 	 * Ends the element output, if needed.
 	 *
+	 * @since 2.7.0
+	 * @since 5.9.0 Renamed `$comment` to `$data_object` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @see Walker::end_el()
 	 * @see gc_list_comments()
@@ -236,6 +244,7 @@ class Walker_Comment extends Walker {
 	/**
 	 * Outputs a pingback comment.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @see gc_list_comments()
 	 *
@@ -259,6 +268,7 @@ class Walker_Comment extends Walker {
 	 * Removes links from the pending comment's text if the commenter did not consent
 	 * to the comment cookies.
 	 *
+	 * @since 5.4.2
 	 *
 	 * @param string          $comment_text Text of the current comment.
 	 * @param GC_Comment|null $comment      The comment object. Null if not found.
@@ -278,6 +288,7 @@ class Walker_Comment extends Walker {
 	/**
 	 * Outputs a single comment.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @see gc_list_comments()
 	 *
@@ -339,7 +350,7 @@ class Walker_Comment extends Walker {
 				esc_url( get_comment_link( $comment, $args ) ),
 				sprintf(
 					/* translators: 1: Comment date, 2: Comment time. */
-					__( '%1$s %2$s' ),
+					__( '%2$s, %1$s' ),
 					get_comment_date( '', $comment ),
 					get_comment_time()
 				)
@@ -387,6 +398,7 @@ class Walker_Comment extends Walker {
 	/**
 	 * Outputs a comment in the HTML5 format.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @see gc_list_comments()
 	 *
@@ -438,7 +450,7 @@ class Walker_Comment extends Walker {
 							get_comment_time( 'c' ),
 							sprintf(
 								/* translators: 1: Comment date, 2: Comment time. */
-								__( '%1$s %2$s' ),
+								__( '%2$s, %1$s' ),
 								get_comment_date( '', $comment ),
 								get_comment_time()
 							)

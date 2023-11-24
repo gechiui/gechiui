@@ -6,7 +6,6 @@
  * by Mark Jaquith
  *
  * @package GeChiUI
- *
  */
 
 /**
@@ -26,8 +25,6 @@
  * not exist based on exact GeChiUI query. Will instead try to parse the URL
  * or query in an attempt to figure the correct page to go to.
  *
- *
- *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  * @global bool       $is_IIS
  * @global GC_Query   $gc_query   GeChiUI Query object.
@@ -46,8 +43,10 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 		return;
 	}
 
-	// If we're not in gc-admin and the post has been published and preview nonce
-	// is non-existent or invalid then no need for preview in query.
+	/*
+	 * If we're not in gc-admin and the post has been published and preview nonce
+	 * is non-existent or invalid then no need for preview in query.
+	 */
 	if ( is_preview() && get_query_var( 'p' ) && 'publish' === get_post_status( get_query_var( 'p' ) ) ) {
 		if ( ! isset( $_GET['preview_id'] )
 			|| ! isset( $_GET['preview_nonce'] )
@@ -331,7 +330,9 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 			$term_count = 0;
 
 			foreach ( $gc_query->tax_query->queried_terms as $tax_query ) {
-				$term_count += count( $tax_query['terms'] );
+				if ( isset( $tax_query['terms'] ) && is_countable( $tax_query['terms'] ) ) {
+					$term_count += count( $tax_query['terms'] );
+				}
 			}
 
 			$obj = $gc_query->get_queried_object();
@@ -387,7 +388,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 					}
 				}
 			}
-		} elseif ( is_single() && strpos( $gc_rewrite->permalink_structure, '%category%' ) !== false ) {
+		} elseif ( is_single() && str_contains( $gc_rewrite->permalink_structure, '%category%' ) ) {
 			$category_name = get_query_var( 'category_name' );
 
 			if ( $category_name ) {
@@ -516,7 +517,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 
 			if ( ! empty( $addl_path )
 				&& $gc_rewrite->using_index_permalinks()
-				&& strpos( $redirect['path'], '/' . $gc_rewrite->index . '/' ) === false
+				&& ! str_contains( $redirect['path'], '/' . $gc_rewrite->index . '/' )
 			) {
 				$redirect['path'] = trailingslashit( $redirect['path'] ) . $gc_rewrite->index . '/';
 			}
@@ -675,7 +676,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 	}
 
 	// Strip multiple slashes out of the URL.
-	if ( strpos( $redirect['path'], '//' ) > -1 ) {
+	if ( str_contains( $redirect['path'], '//' ) ) {
 		$redirect['path'] = preg_replace( '|/+|', '/', $redirect['path'] );
 	}
 
@@ -687,8 +688,10 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 	$original_host_low = strtolower( $original['host'] );
 	$redirect_host_low = strtolower( $redirect['host'] );
 
-	// Ignore differences in host capitalization, as this can lead to infinite redirects.
-	// Only redirect no-www <=> yes-www.
+	/*
+	 * Ignore differences in host capitalization, as this can lead to infinite redirects.
+	 * Only redirect no-www <=> yes-www.
+	 */
 	if ( $original_host_low === $redirect_host_low
 		|| ( 'www.' . $original_host_low !== $redirect_host_low
 			&& 'www.' . $redirect_host_low !== $original_host_low )
@@ -734,13 +737,13 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 		return;
 	}
 
-	// Hex encoded octets are case-insensitive.
-	if ( false !== strpos( $requested_url, '%' ) ) {
+	// Hex-encoded octets are case-insensitive.
+	if ( str_contains( $requested_url, '%' ) ) {
 		if ( ! function_exists( 'lowercase_octets' ) ) {
 			/**
 			 * Converts the first hex-encoded octet match to lowercase.
 			 *
-		
+			 * @since 3.1.0
 			 * @ignore
 			 *
 			 * @param array $matches Hex-encoded octet matches for the requested URL.
@@ -781,6 +784,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 	 *
 	 * Returning false to this filter will cancel the redirect.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param string $redirect_url  The redirect URL.
 	 * @param string $requested_url The requested URL.
@@ -811,7 +815,6 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
  * Removes arguments from a query string if they are not present in a URL
  * DO NOT use this in plugin code.
  *
- *
  * @access private
  *
  * @param string $query_string
@@ -840,17 +843,21 @@ function _remove_qs_args_if_not_in_url( $query_string, array $args_to_check, $ur
 /**
  * Strips the #fragment from a URL, if one is present.
  *
- *
- *
  * @param string $url The URL to strip.
  * @return string The altered URL.
  */
 function strip_fragment_from_url( $url ) {
-	$parsed_url = parse_url( $url );
+	$parsed_url = gc_parse_url( $url );
 
 	if ( ! empty( $parsed_url['host'] ) ) {
-		// This mirrors code in redirect_canonical(). It does not handle every case.
-		$url = $parsed_url['scheme'] . '://' . $parsed_url['host'];
+		$url = '';
+
+		if ( ! empty( $parsed_url['scheme'] ) ) {
+			$url = $parsed_url['scheme'] . ':';
+		}
+
+		$url .= '//' . $parsed_url['host'];
+
 		if ( ! empty( $parsed_url['port'] ) ) {
 			$url .= ':' . $parsed_url['port'];
 		}
@@ -870,8 +877,6 @@ function strip_fragment_from_url( $url ) {
 /**
  * Attempts to guess the correct URL for a 404 request based on query vars.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @return string|false The correct URL if one is found. False on failure.
@@ -885,6 +890,7 @@ function redirect_guess_404_permalink() {
 	 * Returning a false value from the filter will disable the URL guessing
 	 * and return early without performing a redirect.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param bool $do_redirect_guess Whether to attempt to guess a redirect URL
 	 *                                for a 404 request. Default true.
@@ -899,6 +905,7 @@ function redirect_guess_404_permalink() {
 	 * Returning a non-null value from the filter will effectively short-circuit
 	 * the URL guessing, returning the passed value instead.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param null|string|false $pre Whether to short-circuit guessing the redirect for a 404.
 	 *                               Default null to continue with the URL guessing.
@@ -914,6 +921,7 @@ function redirect_guess_404_permalink() {
 		 *
 		 * Returning a truthy value from the filter will redirect only exact post_name matches.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param bool $strict_guess Whether to perform a strict guess. Default false (loose guess).
 		 */
@@ -947,8 +955,9 @@ function redirect_guess_404_permalink() {
 			$where .= $gcdb->prepare( ' AND DAYOFMONTH(post_date) = %d', get_query_var( 'day' ) );
 		}
 
+		$publicly_viewable_statuses = array_filter( get_post_stati(), 'is_post_status_viewable' );
 		// phpcs:ignore GeChiUI.DB.PreparedSQL.InterpolatedNotPrepared
-		$post_id = $gcdb->get_var( "SELECT ID FROM $gcdb->posts WHERE $where AND post_status = 'publish'" );
+		$post_id = $gcdb->get_var( "SELECT ID FROM $gcdb->posts WHERE $where AND post_status IN ('" . implode( "', '", esc_sql( $publicly_viewable_statuses ) ) . "')" );
 
 		if ( ! $post_id ) {
 			return false;
@@ -971,8 +980,6 @@ function redirect_guess_404_permalink() {
  *
  * If a user visits example.com/admin, they'll be redirected to /gc-admin.
  * Visiting /login redirects to /gc-login.php, and so on.
- *
- *
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  */

@@ -1,0 +1,52 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/page-list-item",
+	"title": "页面列表项",
+	"category": "widgets",
+	"parent": [ "core/page-list" ],
+	"description": "在页面的列表中显示一个页面。",
+	"keywords": [ "page", "menu", "navigation" ],
+	"textdomain": "default",
+	"attributes": {
+		"id": {
+			"type": "number"
+		},
+		"label": {
+			"type": "string"
+		},
+		"title": {
+			"type": "string"
+		},
+		"link": {
+			"type": "string"
+		},
+		"hasChildren": {
+			"type": "boolean"
+		}
+	},
+	"usesContext": [
+		"textColor",
+		"customTextColor",
+		"backgroundColor",
+		"customBackgroundColor",
+		"overlayTextColor",
+		"customOverlayTextColor",
+		"overlayBackgroundColor",
+		"customOverlayBackgroundColor",
+		"fontSize",
+		"customFontSize",
+		"showSubmenuIcon",
+		"style",
+		"openSubmenusOnClick"
+	],
+	"supports": {
+		"reusable": false,
+		"html": false,
+		"lock": false,
+		"inserter": false,
+		"__experimentalToolbar": false
+	},
+	"editorStyle": "gc-block-page-list-editor",
+	"style": "gc-block-page-list"
+}

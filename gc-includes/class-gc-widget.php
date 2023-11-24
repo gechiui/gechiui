@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
@@ -13,10 +12,9 @@
  * This class must be extended for each widget, and GC_Widget::widget() must be overridden.
  *
  * If adding widget options, GC_Widget::update() and GC_Widget::form() should also be overridden.
- *
- *
- *
+ * Moved to its own file from gc-includes/widgets.php
  */
+#[AllowDynamicProperties]
 class GC_Widget {
 
 	/**
@@ -138,7 +136,7 @@ class GC_Widget {
 	 * PHP5 constructor.
 	 *
 	 *
-	 * @param string $id_base         Optional. Base ID for the widget, lowercase and unique. If left empty,
+	 * @param string $id_base         Base ID for the widget, lowercase and unique. If left empty,
 	 *                                a portion of the widget's PHP class name will be used. Has to be unique.
 	 * @param string $name            Name for the widget displayed on the configuration page.
 	 * @param array  $widget_options  Optional. Widget options. See gc_register_sidebar_widget() for
@@ -173,7 +171,7 @@ class GC_Widget {
 	 *
 	 * @see GC_Widget::__construct()
 	 *
-	 * @param string $id_base         Optional. Base ID for the widget, lowercase and unique. If left empty,
+	 * @param string $id_base         Base ID for the widget, lowercase and unique. If left empty,
 	 *                                a portion of the widget's PHP class name will be used. Has to be unique.
 	 * @param string $name            Name for the widget displayed on the configuration page.
 	 * @param array  $widget_options  Optional. Widget options. See gc_register_sidebar_widget() for
@@ -192,6 +190,7 @@ class GC_Widget {
 	 * This function should be used in form() methods to create name attributes for fields
 	 * to be saved by update()
 	 *
+	 * @since 4.4.0 Array format field names are now accepted.
 	 *
 	 * @param string $field_name Field name.
 	 * @return string Name attribute for `$field_name`.
@@ -215,6 +214,7 @@ class GC_Widget {
 	 * This function should be used in form() methods to create id attributes
 	 * for fields to be saved by GC_Widget::update().
 	 *
+	 * @since 4.4.0 Array format field IDs are now accepted.
 	 *
 	 * @param string $field_name Field name.
 	 * @return string ID attribute for `$field_name`.
@@ -348,7 +348,7 @@ class GC_Widget {
 			 *
 			 * Returning false will effectively short-circuit display of the widget.
 			 *
-		
+			 * @since 2.8.0
 			 *
 			 * @param array     $instance The current widget instance's settings.
 			 * @param GC_Widget $widget   The current widget instance.
@@ -439,7 +439,7 @@ class GC_Widget {
 				 * Returning false will effectively short-circuit the widget's ability
 				 * to update settings.
 				 *
-			
+				 * @since 2.8.0
 				 *
 				 * @param array     $instance     The current widget instance's settings.
 				 * @param array     $new_instance Array of new widget settings.
@@ -494,6 +494,7 @@ class GC_Widget {
 		 *
 		 * Returning false effectively short-circuits display of the control form.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param array     $instance The current widget instance's settings.
 		 * @param GC_Widget $widget   The current widget instance.
@@ -515,7 +516,7 @@ class GC_Widget {
 			 * Note: If the widget has no form, the text echoed from the default
 			 * form method can be hidden using CSS.
 			 *
-		
+			 * @since 2.8.0
 			 *
 			 * @param GC_Widget $widget   The widget instance (passed by reference).
 			 * @param null      $return   Return null if new fields are added.
@@ -581,12 +582,16 @@ class GC_Widget {
 		$settings = get_option( $this->option_name );
 
 		if ( false === $settings ) {
+			$settings = array();
 			if ( isset( $this->alt_option_name ) ) {
-				$settings = get_option( $this->alt_option_name );
-			} else {
-				// Save an option so it can be autoloaded next time.
-				$this->save_settings( array() );
+				// Get settings from alternative (legacy) option.
+				$settings = get_option( $this->alt_option_name, array() );
+
+				// Delete the alternative (legacy) option as the new option will be created using `$this->option_name`.
+				delete_option( $this->alt_option_name );
 			}
+			// Save an option so it can be autoloaded next time.
+			$this->save_settings( $settings );
 		}
 
 		if ( ! is_array( $settings ) && ! ( $settings instanceof ArrayObject || $settings instanceof ArrayIterator ) ) {

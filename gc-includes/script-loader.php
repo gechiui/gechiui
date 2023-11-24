@@ -20,16 +20,16 @@
 require ABSPATH . GCINC . '/class-gc-dependency.php';
 
 /** GeChiUI Dependencies Class */
-require ABSPATH . GCINC . '/class.gc-dependencies.php';
+require ABSPATH . GCINC . '/class-gc-dependencies.php';
 
 /** GeChiUI Scripts Class */
-require ABSPATH . GCINC . '/class.gc-scripts.php';
+require ABSPATH . GCINC . '/class-gc-scripts.php';
 
 /** GeChiUI Scripts Functions */
 require ABSPATH . GCINC . '/functions.gc-scripts.php';
 
 /** GeChiUI Styles Class */
-require ABSPATH . GCINC . '/class.gc-styles.php';
+require ABSPATH . GCINC . '/class-gc-styles.php';
 
 /** GeChiUI Styles Functions */
 require ABSPATH . GCINC . '/functions.gc-styles.php';
@@ -37,7 +37,7 @@ require ABSPATH . GCINC . '/functions.gc-styles.php';
 /**
  * Registers TinyMCE scripts.
  *
- *
+ * @since 5.0.0
  *
  * @global string $tinymce_version
  * @global bool   $concatenate_scripts
@@ -57,16 +57,18 @@ function gc_register_tinymce_scripts( $scripts, $force_uncompressed = false ) {
 	$compressed = $compress_scripts && $concatenate_scripts && isset( $_SERVER['HTTP_ACCEPT_ENCODING'] )
 		&& false !== stripos( $_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip' ) && ! $force_uncompressed;
 
-	// Load tinymce.js when running from /src, otherwise load gc-tinymce.js.gz (in production)
-	// or tinymce.min.js (when SCRIPT_DEBUG is true).
+	/*
+	 * Load tinymce.js when running from /src, otherwise load gc-tinymce.js.gz (in production)
+	 * or tinymce.min.js (when SCRIPT_DEBUG is true).
+	 */
 	if ( $compressed ) {
-		$scripts->add( 'gc-tinymce', '/vendors/tinymce/gc-tinymce.js', array(), $tinymce_version );
+		$scripts->add( 'gc-tinymce', '/assets/vendors/tinymce/gc-tinymce.js', array(), $tinymce_version );
 	} else {
-		$scripts->add( 'gc-tinymce-root', "/vendors/tinymce/tinymce$dev_suffix.js", array(), $tinymce_version );
-		$scripts->add( 'gc-tinymce', "/vendors/tinymce/plugins/compat3x/plugin$dev_suffix.js", array( 'gc-tinymce-root' ), $tinymce_version );
+		$scripts->add( 'gc-tinymce-root', "/assets/vendors/tinymce/tinymce$dev_suffix.js", array(), $tinymce_version );
+		$scripts->add( 'gc-tinymce', "/assets/vendors/tinymce/plugins/compat3x/plugin$dev_suffix.js", array( 'gc-tinymce-root' ), $tinymce_version );
 	}
 
-	$scripts->add( 'gc-tinymce-lists', "/vendors/tinymce/plugins/lists/plugin$suffix.js", array( 'gc-tinymce' ), $tinymce_version );
+	$scripts->add( 'gc-tinymce-lists', "/assets/vendors/tinymce/plugins/lists/plugin$suffix.js", array( 'gc-tinymce' ), $tinymce_version );
 }
 
 /**
@@ -75,7 +77,7 @@ function gc_register_tinymce_scripts( $scripts, $force_uncompressed = false ) {
  *
  * For the order of `$scripts->add` see `gc_default_scripts`.
  *
- *
+ * @since 5.0.0
  *
  * @global GC_Locale $gc_locale GeChiUI date and time locale object.
  *
@@ -99,22 +101,24 @@ function gc_default_packages_vendor( $scripts ) {
 		'gc-polyfill-dom-rect',
 		'gc-polyfill-element-closest',
 		'gc-polyfill-object-fit',
-		'gc-polyfill' => array( 'regenerator-runtime' ),
+		'gc-polyfill-inert',
+		'gc-polyfill' => array( 'gc-polyfill-inert', 'regenerator-runtime' ),
 	);
 
 	$vendor_scripts_versions = array(
-		'react'                       => '17.0.1',
-		'react-dom'                   => '17.0.1',
-		'regenerator-runtime'         => '0.13.9',
-		'moment'                      => '2.29.1',
+		'react'                       => '18.2.0',
+		'react-dom'                   => '18.2.0',
+		'regenerator-runtime'         => '0.13.11',
+		'moment'                      => '2.29.4',
 		'lodash'                      => '4.17.19',
 		'gc-polyfill-fetch'           => '3.6.2',
-		'gc-polyfill-formdata'        => '4.0.0',
-		'gc-polyfill-node-contains'   => '3.105.0',
+		'gc-polyfill-formdata'        => '4.0.10',
+		'gc-polyfill-node-contains'   => '4.6.0',
 		'gc-polyfill-url'             => '3.6.4',
-		'gc-polyfill-dom-rect'        => '3.104.0',
-		'gc-polyfill-element-closest' => '2.0.2',
+		'gc-polyfill-dom-rect'        => '4.6.0',
+		'gc-polyfill-element-closest' => '3.0.2',
 		'gc-polyfill-object-fit'      => '2.3.5',
+		'gc-polyfill-inert'           => '3.1.2',
 		'gc-polyfill'                 => '3.15.0',
 	);
 
@@ -124,7 +128,7 @@ function gc_default_packages_vendor( $scripts ) {
 			$dependencies = array();
 		}
 
-		$path    = "/js/dist/vendor/$handle$suffix.js";
+		$path    = "/assets/js/dist/vendor/$handle$suffix.js";
 		$version = $vendor_scripts_versions[ $handle ];
 
 		$scripts->add( $handle, $path, $dependencies, $version, 1 );
@@ -151,7 +155,7 @@ function gc_default_packages_vendor( $scripts ) {
 						'LTS'  => null,
 						'L'    => null,
 						'LL'   => get_option( 'date_format', __( 'Y年n月j日' ) ),
-						'LLL'  => __( 'Y年n月j日ag:i' ),
+						'LLL'  => __( 'Y年n月j日 ag:i' ),
 						'LLLL' => null,
 					),
 				)
@@ -166,10 +170,10 @@ function gc_default_packages_vendor( $scripts ) {
  * browsers which fail the provided tests. The provided array is a mapping from
  * a condition to verify feature support to its polyfill script handle.
  *
- *
+ * @since 5.0.0
  *
  * @param GC_Scripts $scripts GC_Scripts object.
- * @param array      $tests   Features to detect.
+ * @param string[]   $tests   Features to detect.
  * @return string Conditional polyfill inline script.
  */
 function gc_get_script_polyfill( $scripts, $tests ) {
@@ -182,7 +186,7 @@ function gc_get_script_polyfill( $scripts, $tests ) {
 		$src = $scripts->registered[ $handle ]->src;
 		$ver = $scripts->registered[ $handle ]->ver;
 
-		if ( ! preg_match( '|^(https?:)?//|', $src ) && ! ( $scripts->content_url && 0 === strpos( $src, $scripts->content_url ) ) ) {
+		if ( ! preg_match( '|^(https?:)?//|', $src ) && ! ( $scripts->content_url && str_starts_with( $src, $scripts->content_url ) ) ) {
 			$src = $scripts->base_url . $src;
 		}
 
@@ -190,7 +194,7 @@ function gc_get_script_polyfill( $scripts, $tests ) {
 			$src = add_query_arg( 'ver', $ver, $src );
 		}
 
-		/** This filter is documented in gc-includes/class.gc-scripts.php */
+		/** This filter is documented in gc-includes/class-gc-scripts.php */
 		$src = esc_url( apply_filters( 'script_loader_src', $src, $handle ) );
 
 		if ( ! $src ) {
@@ -215,18 +219,57 @@ function gc_get_script_polyfill( $scripts, $tests ) {
 }
 
 /**
+ * Registers development scripts that integrate with `@gechiui/scripts`.
+ *
+ * @see https://github.com/GeChiUI/gutenberg/tree/trunk/packages/scripts#start
+ *
+ * @since 6.0.0
+ *
+ * @param GC_Scripts $scripts GC_Scripts object.
+ */
+function gc_register_development_scripts( $scripts ) {
+	if (
+		! defined( 'SCRIPT_DEBUG' ) || ! SCRIPT_DEBUG
+		|| empty( $scripts->registered['react'] )
+		|| defined( 'GC_RUN_CORE_TESTS' )
+	) {
+		return;
+	}
+
+	$development_scripts = array(
+		'react-refresh-entry',
+		'react-refresh-runtime',
+	);
+
+	foreach ( $development_scripts as $script_name ) {
+		$assets = include ABSPATH . 'assets/assets/script-loader-' . $script_name . '.php';
+		if ( ! is_array( $assets ) ) {
+			return;
+		}
+		$scripts->add(
+			'gc-' . $script_name,
+			'/assets/js/dist/development/' . $script_name . '.js',
+			$assets['dependencies'],
+			$assets['version']
+		);
+	}
+
+	// See https://github.com/pmmmwh/react-refresh-webpack-plugin/blob/main/docs/TROUBLESHOOTING.md#externalising-react.
+	$scripts->registered['react']->deps[] = 'gc-react-refresh-entry';
+}
+
+/**
  * Registers all the GeChiUI packages scripts that are in the standardized
  * `js/dist/` location.
  *
  * For the order of `$scripts->add` see `gc_default_scripts`.
  *
- *
+ * @since 5.0.0
  *
  * @param GC_Scripts $scripts GC_Scripts object.
  */
 function gc_default_packages_scripts( $scripts ) {
-	$suffix = gc_scripts_get_suffix();
-
+	$suffix = defined( 'GC_RUN_CORE_TESTS' ) ? '.min' : gc_scripts_get_suffix();
 	/*
 	 * Expects multidimensional array like:
 	 *
@@ -234,12 +277,12 @@ function gc_default_packages_scripts( $scripts ) {
 	 *     'annotations.js' => array('dependencies' => array(...), 'version' => '...'),
 	 *     'api-fetch.js' => array(...
 	 */
-	$assets = include ABSPATH . 'assets/assets/script-loader-packages.php';
+	$assets = include ABSPATH . "assets/assets/script-loader-packages{$suffix}.php";
 
-	foreach ( $assets as $package_name => $package_data ) {
-		$basename = basename( $package_name, '.js' );
+	foreach ( $assets as $file_name => $package_data ) {
+		$basename = str_replace( $suffix . '.js', '', basename( $file_name ) );
 		$handle   = 'gc-' . $basename;
-		$path     = "/js/dist/{$basename}{$suffix}.js";
+		$path     = "/assets/js/dist/{$basename}{$suffix}.js";
 
 		if ( ! empty( $package_data['dependencies'] ) ) {
 			$dependencies = $package_data['dependencies'];
@@ -254,6 +297,9 @@ function gc_default_packages_scripts( $scripts ) {
 				break;
 			case 'gc-edit-post':
 				array_push( $dependencies, 'media-models', 'media-views', 'postbox', 'gc-dom-ready' );
+				break;
+			case 'gc-preferences':
+				array_push( $dependencies, 'gc-preferences-persistence' );
 				break;
 		}
 
@@ -282,14 +328,15 @@ function gc_default_packages_scripts( $scripts ) {
 /**
  * Adds inline scripts required for the GeChiUI JavaScript packages.
  *
- *
+ * @since 5.0.0
  *
  * @global GC_Locale $gc_locale GeChiUI date and time locale object.
+ * @global gcdb      $gcdb      GeChiUI database abstraction object.
  *
  * @param GC_Scripts $scripts GC_Scripts object.
  */
 function gc_default_packages_inline_scripts( $scripts ) {
-	global $gc_locale;
+	global $gc_locale, $gcdb;
 
 	if ( isset( $scripts->registered['gc-api-fetch'] ) ) {
 		$scripts->registered['gc-api-fetch']->deps[] = 'gc-hooks';
@@ -298,7 +345,7 @@ function gc_default_packages_inline_scripts( $scripts ) {
 		'gc-api-fetch',
 		sprintf(
 			'gc.apiFetch.use( gc.apiFetch.createRootURLMiddleware( "%s" ) );',
-			esc_url_raw( get_rest_url() )
+			sanitize_url( get_rest_url() )
 		),
 		'after'
 	);
@@ -321,6 +368,26 @@ function gc_default_packages_inline_scripts( $scripts ) {
 		),
 		'after'
 	);
+
+	$meta_key     = $gcdb->get_blog_prefix() . 'persisted_preferences';
+	$user_id      = get_current_user_id();
+	$preload_data = get_user_meta( $user_id, $meta_key, true );
+	$scripts->add_inline_script(
+		'gc-preferences',
+		sprintf(
+			'( function() {
+				var serverData = %s;
+				var userId = "%d";
+				var persistenceLayer = gc.preferencesPersistence.__unstableCreatePersistenceLayer( serverData, userId );
+				var preferencesStore = gc.preferences.store;
+				gc.data.dispatch( preferencesStore ).setPersistenceLayer( persistenceLayer );
+			} ) ();',
+			gc_json_encode( $preload_data ),
+			$user_id
+		)
+	);
+
+	// Backwards compatibility - configure the old gc-data persistence system.
 	$scripts->add_inline_script(
 		'gc-data',
 		implode(
@@ -331,7 +398,6 @@ function gc_default_packages_inline_scripts( $scripts ) {
 				'	var storageKey = "GC_DATA_USER_" + userId;',
 				'	gc.data',
 				'		.use( gc.data.plugins.persistence, { storageKey: storageKey } );',
-				'	gc.data.plugins.persistence.__unstableMigrate( { storageKey: storageKey } );',
 				'} )();',
 			)
 		)
@@ -365,6 +431,7 @@ function gc_default_packages_inline_scripts( $scripts ) {
 							/* translators: %s: Duration. */
 							'past'   => __( '%s前' ),
 						),
+						'startOfWeek'   => (int) get_option( 'start_of_week', 0 ),
 					),
 					'formats'  => array(
 						/* translators: Time format, see https://www.php.net/manual/datetime.format.php */
@@ -372,12 +439,12 @@ function gc_default_packages_inline_scripts( $scripts ) {
 						/* translators: Date format, see https://www.php.net/manual/datetime.format.php */
 						'date'                => get_option( 'date_format', __( 'Y年n月j日' ) ),
 						/* translators: Date/Time format, see https://www.php.net/manual/datetime.format.php */
-						'datetime'            => __( 'Y年n月j日ag:i' ),
+						'datetime'            => __( 'Y年n月j日 ag:i' ),
 						/* translators: Abbreviated date/time format, see https://www.php.net/manual/datetime.format.php */
-						'datetimeAbbreviated' => __( 'Y年n月j日H:i' ),
+						'datetimeAbbreviated' => __( 'Y年n月j日 H:i' ),
 					),
 					'timezone' => array(
-						'offset' => get_option( 'gmt_offset', 0 ),
+						'offset' => (float) get_option( 'gmt_offset', 0 ),
 						'string' => $timezone_string,
 						'abbr'   => $timezone_abbr,
 					),
@@ -413,7 +480,7 @@ function gc_default_packages_inline_scripts( $scripts ) {
  * These TinyMCE init settings are used to extend and override the default settings
  * from `_GC_Editors::default_settings()` for the Classic block.
  *
- *
+ * @since 5.0.0
  *
  * @global GC_Scripts $gc_scripts
  */
@@ -520,8 +587,10 @@ function gc_tinymce_inline_scripts() {
 	/** This filter is documented in gc-includes/class-gc-editor.php */
 	$tinymce_settings = apply_filters( 'tiny_mce_before_init', $tinymce_settings, 'classic-block' );
 
-	// Do "by hand" translation from PHP array to js object.
-	// Prevents breakage in some custom settings.
+	/*
+	 * Do "by hand" translation from PHP array to js object.
+	 * Prevents breakage in some custom settings.
+	 */
 	$init_obj = '';
 	foreach ( $tinymce_settings as $key => $value ) {
 		if ( is_bool( $value ) ) {
@@ -542,7 +611,7 @@ function gc_tinymce_inline_scripts() {
 
 	$script = 'window.gcEditorL10n = {
 		tinymce: {
-			baseURL: ' . gc_json_encode( '/vendors/tinymce' ) . ',
+			baseURL: ' . gc_json_encode( assets_url( 'vendors/tinymce' ) ) . ',
 			suffix: ' . ( SCRIPT_DEBUG ? '""' : '".min"' ) . ',
 			settings: ' . $init_obj . ',
 		}
@@ -554,12 +623,13 @@ function gc_tinymce_inline_scripts() {
 /**
  * Registers all the GeChiUI packages scripts.
  *
- *
+ * @since 5.0.0
  *
  * @param GC_Scripts $scripts GC_Scripts object.
  */
 function gc_default_packages( $scripts ) {
 	gc_default_packages_vendor( $scripts );
+	gc_register_development_scripts( $scripts );
 	gc_register_tinymce_scripts( $scripts );
 	gc_default_packages_scripts( $scripts );
 
@@ -573,7 +643,7 @@ function gc_default_packages( $scripts ) {
  *
  * There are two suffix types, the normal one and the dev suffix.
  *
- *
+ * @since 5.0.0
  *
  * @param string $type The type of suffix to retrieve.
  * @return string The script suffix.
@@ -585,6 +655,11 @@ function gc_scripts_get_suffix( $type = '' ) {
 		// Include an unmodified $gc_version.
 		require ABSPATH . GCINC . '/version.php';
 
+		/*
+		 * Note: str_contains() is not used here, as this file can be included
+		 * via gc-admin/load-scripts.php or gc-admin/load-styles.php, in which case
+		 * the polyfills from gc-includes/compat.php are not loaded.
+		 */
 		$develop_src = false !== strpos( $gc_version, '-src' );
 
 		if ( ! defined( 'SCRIPT_DEBUG' ) ) {
@@ -607,20 +682,18 @@ function gc_scripts_get_suffix( $type = '' ) {
 }
 
 /**
- * Register all GeChiUI scripts.
+ * Registers all GeChiUI scripts.
  *
  * Localizes some of them.
  * args order: `$scripts->add( 'handle', 'url', 'dependencies', 'query-string', 1 );`
  * when last arg === 1 queues the script for the footer
- *
- *
  *
  * @param GC_Scripts $scripts GC_Scripts object.
  */
 function gc_default_scripts( $scripts ) {
 	$suffix     = gc_scripts_get_suffix();
 	$dev_suffix = gc_scripts_get_suffix( 'dev' );
-	$guessurl   = rtrim( assets_url(), '/' );
+	$guessurl   = site_url();
 
 	if ( ! $guessurl ) {
 		$guessed_url = true;
@@ -630,12 +703,9 @@ function gc_default_scripts( $scripts ) {
 	$scripts->base_url        = $guessurl;
 	$scripts->content_url     = defined( 'GC_CONTENT_URL' ) ? GC_CONTENT_URL : '';
 	$scripts->default_version = get_bloginfo( 'version' );
-	//压缩的文件夹，此文件夹开头的js文件压缩到load-scripts.php文件中
-	if ( !defined( 'GC_CDN_URL' ) ){
-		$scripts->default_dirs    = array( '/js/', '/vendors/' );
-	}
+	$scripts->default_dirs    = array( '/assets/js/', '/assets/vendors/' );
 
-	$scripts->add( 'utils', "/js/utils$suffix.js" );
+	$scripts->add( 'utils', "/assets/js/utils$suffix.js" );
 	did_action( 'init' ) && $scripts->localize(
 		'utils',
 		'userSettings',
@@ -648,24 +718,33 @@ function gc_default_scripts( $scripts ) {
 	);
 
 	// 后台主框架脚本
-    $scripts->add( 'gc-bootstrap', "/vendors/bootstrap/bootstrap.bundle$suffix.js", array(), '5.1.3' );
+    $scripts->add( 'gc-bootstrap', "/assets/vendors/bootstrap/bootstrap.bundle$suffix.js", array(), '5.1.3' );
     //自定义滚动条，一个轻量级滚动条插件
-    $scripts->add( 'gc-perfect-scrollbar', "/vendors/perfect-scrollbar/perfect-scrollbar$suffix.js", array(), '1.5.5' );
-    $scripts->add( 'jquery-validation', "/vendors/jquery-validation/jquery.validate$suffix.js", array( 'jquery'), '1.19.3' );
-    $scripts->add( 'app', "/js/app$suffix.js", array( 'jquery', 'gc-bootstrap', 'gc-perfect-scrollbar'), false, 1 );
+    $scripts->add( 'gc-perfect-scrollbar', "/assets/vendors/perfect-scrollbar/perfect-scrollbar$suffix.js", array(), '1.5.5' );
+    $scripts->add( 'jquery-validation', "/assets/vendors/jquery-validation/jquery.validate$suffix.js", array( 'jquery'), '1.19.3' );
+    $scripts->add( 'app', "/assets/js/app$suffix.js", array( 'jquery', 'gc-bootstrap', 'gc-perfect-scrollbar'), false, 1 );
+
+    $scripts->add( 'jquery-dataTables', "/assets/vendors/datatables/jquery.dataTables.min.js", array('jquery'), false, 1 );
+    $scripts->add( 'dataTables', "/assets/vendors/datatables/dataTables.bootstrap.min.js", array('jquery-dataTables'), false, 1 );
+    // $scripts->add( 'dataTables',"/assets/js/pages/datatables$suffix.js", array('dataTables-bootstrap'), false, 1 );
+
+ //    $script = "class TablesDataTable { static init() { $('#data-table').DataTable(); } } $(() => { TablesDataTable.init(); }); ";
+	// $scripts->add_inline_script( 'dataTables-core', $script, 'after' );
+
+	$scripts->add( 'dataTables', false, array('dataTables-bootstrap', 'dataTables-core') );
     
     //在登录页面组中引用 gc_enqueue_script( 'pages-login' );
     $scripts->add( 'pages-login-sms', "/js/login/login_sms$suffix.js", array( 'jquery-validation'), false, 1 );
     $scripts->add( 'pages-login-register-sms', "/js/login/register_sms$suffix.js", array( 'jquery-validation'), false, 1 );
 
-	$scripts->add( 'common', "/js/common$suffix.js", array( 'jquery', 'hoverIntent', 'utils', 'app' ), false, 1 );
+	$scripts->add( 'common', "/assets/js/common$suffix.js", array( 'jquery', 'hoverIntent', 'utils', 'app' ), false, 1 );
 	$scripts->set_translations( 'common' );
 
-	$scripts->add( 'gc-sanitize', "/js/gc-sanitize$suffix.js", array(), false, 1 );
+	$scripts->add( 'gc-sanitize', "/assets/js/gc-sanitize$suffix.js", array(), false, 1 );
 
-	$scripts->add( 'sack', "/vendors/tw-sack$suffix.js", array(), '1.6.1', 1 );
+	$scripts->add( 'sack', "/assets/vendors/tw-sack$suffix.js", array(), '1.6.1', 1 );
 
-	$scripts->add( 'quicktags', "/js/quicktags$suffix.js", array(), false, 1 );
+	$scripts->add( 'quicktags', "/assets/js/quicktags$suffix.js", array(), false, 1 );
 	did_action( 'init' ) && $scripts->localize(
 		'quicktags',
 		'quicktagsL10n',
@@ -702,13 +781,13 @@ function gc_default_scripts( $scripts ) {
 		)
 	);
 
-	$scripts->add( 'colorpicker', "/vendors/colorpicker$suffix.js", array( 'prototype' ), '3517m' );
+	$scripts->add( 'colorpicker', "/assets/vendors/colorpicker$suffix.js", array( 'prototype' ), '3517m' );
 
-	$scripts->add( 'editor', "/js/editor$suffix.js", array( 'utils', 'jquery' ), false, 1 );
+	$scripts->add( 'editor', "/assets/js/editor$suffix.js", array( 'utils', 'jquery' ), false, 1 );
 
-	$scripts->add( 'clipboard', "/vendors/clipboard$suffix.js", array(), false, 1 );
+	$scripts->add( 'clipboard', "/assets/vendors/clipboard$suffix.js", array(), '2.0.11', 1 );
 
-	$scripts->add( 'gc-ajax-response', "/js/gc-ajax-response$suffix.js", array( 'jquery' ), false, 1 );
+	$scripts->add( 'gc-ajax-response', "/assets/js/gc-ajax-response$suffix.js", array( 'jquery', 'gc-a11y' ), false, 1 );
 	did_action( 'init' ) && $scripts->localize(
 		'gc-ajax-response',
 		'gcAjax',
@@ -718,42 +797,44 @@ function gc_default_scripts( $scripts ) {
 		)
 	);
 
-	$scripts->add( 'gc-api-request', "/js/api-request$suffix.js", array( 'jquery' ), false, 1 );
+	$scripts->add( 'gc-api-request', "/assets/js/api-request$suffix.js", array( 'jquery' ), false, 1 );
 	// `gcApiSettings` is also used by `gc-api`, which depends on this script.
 	did_action( 'init' ) && $scripts->localize(
 		'gc-api-request',
 		'gcApiSettings',
 		array(
-			'root'          => esc_url_raw( get_rest_url() ),
+			'root'          => sanitize_url( get_rest_url() ),
 			'nonce'         => gc_installing() ? '' : gc_create_nonce( 'gc_rest' ),
 			'versionString' => 'gc/v2/',
 		)
 	);
 
-	$scripts->add( 'gc-pointer', "/js/gc-pointer$suffix.js", array( 'jquery-ui-core' ), false, 1 );
+	$scripts->add( 'gc-pointer', "/assets/js/gc-pointer$suffix.js", array( 'jquery-ui-core' ), false, 1 );
 	$scripts->set_translations( 'gc-pointer' );
 
-	$scripts->add( 'autosave', "/js/autosave$suffix.js", array( 'heartbeat' ), false, 1 );
+	$scripts->add( 'autosave', "/assets/js/autosave$suffix.js", array( 'heartbeat' ), false, 1 );
 
-	$scripts->add( 'heartbeat', "/js/heartbeat$suffix.js", array( 'jquery', 'gc-hooks' ), false, 1 );
+	$scripts->add( 'heartbeat', "/assets/js/heartbeat$suffix.js", array( 'jquery', 'gc-hooks' ), false, 1 );
 	did_action( 'init' ) && $scripts->localize(
 		'heartbeat',
 		'heartbeatSettings',
 		/**
 		 * Filters the Heartbeat settings.
 		 *
+		 * @since 3.6.0
 		 *
 		 * @param array $settings Heartbeat settings array.
 		 */
 		apply_filters( 'heartbeat_settings', array() )
 	);
 
-	$scripts->add( 'gc-auth-check', "/js/gc-auth-check$suffix.js", array( 'heartbeat' ), false, 1 );
+	$scripts->add( 'gc-auth-check', "/assets/js/gc-auth-check$suffix.js", array( 'heartbeat' ), false, 1 );
 	$scripts->set_translations( 'gc-auth-check' );
 
-	$scripts->add( 'gc-lists', "/js/gc-lists$suffix.js", array( 'gc-ajax-response', 'jquery-color' ), false, 1 );
+	$scripts->add( 'gc-lists', "/assets/js/gc-lists$suffix.js", array( 'gc-ajax-response', 'jquery-color' ), false, 1 );
 
-	// GeChiUI 外部资源
+	// GeChiUI 外部资源 来源于 /ajax.googleapis.com/ajax/libs/
+	// gongenlin
 	$scripts->add( 'prototype', "/vendors/prototype/prototype.min.js", array(), '1.7.1' );
 	$scripts->add( 'scriptaculous-root', "/vendors/scriptaculous/scriptaculous.min.js", array( 'prototype' ), '1.9.0' );
 	$scripts->add( 'scriptaculous-builder', "/vendors/scriptaculous/builder.min.js", array( 'scriptaculous-root' ), '1.9.0' );
@@ -765,68 +846,74 @@ function gc_default_scripts( $scripts ) {
 	$scripts->add( 'scriptaculous', false, array( 'scriptaculous-dragdrop', 'scriptaculous-slider', 'scriptaculous-controls' ) );
 
 	// Not used in core, replaced by Jcrop.js.
-	$scripts->add( 'cropper', '/vendors/crop/cropper.js', array( 'scriptaculous-dragdrop' ) );
+	$scripts->add( 'cropper', '/assets/vendors/crop/cropper.js', array( 'scriptaculous-dragdrop' ) );
 
-	// jQuery.
-	// The unminified jquery.js and jquery-migrate.js are included to facilitate debugging.
-	$scripts->add( 'jquery', false, array( 'jquery-core', 'jquery-migrate' ), '3.6.0' );
-	$scripts->add( 'jquery-core', "/vendors/jquery/jquery$suffix.js", array(), '3.6.0' );
-	$scripts->add( 'jquery-migrate', "/vendors/jquery/jquery-migrate$suffix.js", array(), '3.3.2' ); //用于检查jquery升级带来的不兼容，输出警告。直至解决兼容性侯可删除
+	/*
+	 * jQuery.
+	 * The unminified jquery.js and jquery-migrate.js are included to facilitate debugging.
+	 */
+	$scripts->add( 'jquery', false, array( 'jquery-core', 'jquery-migrate' ), '3.7.0' );
+	$scripts->add( 'jquery-core', "/assets/vendors/jquery/jquery$suffix.js", array(), '3.7.0' );
+	$scripts->add( 'jquery-migrate', "/assets/vendors/jquery/jquery-migrate$suffix.js", array(), '3.4.1' );
 
-	// Full jQuery UI.
-	// The build process in 1.12.1 has changed significantly.
-	// In order to keep backwards compatibility, and to keep the optimized loading,
-	// the source files were flattened and included with some modifications for AMD loading.
-	// A notable change is that 'jquery-ui-core' now contains 'jquery-ui-position' and 'jquery-ui-widget'.
-	$scripts->add( 'jquery-ui-core', "/vendors/jquery/ui/core$suffix.js", array( 'jquery' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-effects-core', "/vendors/jquery/ui/effect$suffix.js", array( 'jquery' ), '1.13.1', 1 );
+	/*
+	 * Full jQuery UI.
+	 * The build process in 1.12.1 has changed significantly.
+	 * In order to keep backwards compatibility, and to keep the optimized loading,
+	 * the source files were flattened and included with some modifications for AMD loading.
+	 * A notable change is that 'jquery-ui-core' now contains 'jquery-ui-position' and 'jquery-ui-widget'.
+	 */
+	$scripts->add( 'jquery-ui-core', "/assets/vendors/jquery/ui/core$suffix.js", array( 'jquery' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-effects-core', "/assets/vendors/jquery/ui/effect$suffix.js", array( 'jquery' ), '1.13.2', 1 );
 
-	$scripts->add( 'jquery-effects-blind', "/vendors/jquery/ui/effect-blind$suffix.js", array( 'jquery-effects-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-effects-bounce', "/vendors/jquery/ui/effect-bounce$suffix.js", array( 'jquery-effects-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-effects-clip', "/vendors/jquery/ui/effect-clip$suffix.js", array( 'jquery-effects-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-effects-drop', "/vendors/jquery/ui/effect-drop$suffix.js", array( 'jquery-effects-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-effects-explode', "/vendors/jquery/ui/effect-explode$suffix.js", array( 'jquery-effects-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-effects-fade', "/vendors/jquery/ui/effect-fade$suffix.js", array( 'jquery-effects-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-effects-fold', "/vendors/jquery/ui/effect-fold$suffix.js", array( 'jquery-effects-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-effects-highlight', "/vendors/jquery/ui/effect-highlight$suffix.js", array( 'jquery-effects-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-effects-puff', "/vendors/jquery/ui/effect-puff$suffix.js", array( 'jquery-effects-core', 'jquery-effects-scale' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-effects-pulsate', "/vendors/jquery/ui/effect-pulsate$suffix.js", array( 'jquery-effects-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-effects-scale', "/vendors/jquery/ui/effect-scale$suffix.js", array( 'jquery-effects-core', 'jquery-effects-size' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-effects-shake', "/vendors/jquery/ui/effect-shake$suffix.js", array( 'jquery-effects-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-effects-size', "/vendors/jquery/ui/effect-size$suffix.js", array( 'jquery-effects-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-effects-slide', "/vendors/jquery/ui/effect-slide$suffix.js", array( 'jquery-effects-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-effects-transfer', "/vendors/jquery/ui/effect-transfer$suffix.js", array( 'jquery-effects-core' ), '1.13.1', 1 );
+	$scripts->add( 'jquery-effects-blind', "/assets/vendors/jquery/ui/effect-blind$suffix.js", array( 'jquery-effects-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-effects-bounce', "/assets/vendors/jquery/ui/effect-bounce$suffix.js", array( 'jquery-effects-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-effects-clip', "/assets/vendors/jquery/ui/effect-clip$suffix.js", array( 'jquery-effects-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-effects-drop', "/assets/vendors/jquery/ui/effect-drop$suffix.js", array( 'jquery-effects-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-effects-explode', "/assets/vendors/jquery/ui/effect-explode$suffix.js", array( 'jquery-effects-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-effects-fade', "/assets/vendors/jquery/ui/effect-fade$suffix.js", array( 'jquery-effects-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-effects-fold', "/assets/vendors/jquery/ui/effect-fold$suffix.js", array( 'jquery-effects-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-effects-highlight', "/assets/vendors/jquery/ui/effect-highlight$suffix.js", array( 'jquery-effects-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-effects-puff', "/assets/vendors/jquery/ui/effect-puff$suffix.js", array( 'jquery-effects-core', 'jquery-effects-scale' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-effects-pulsate', "/assets/vendors/jquery/ui/effect-pulsate$suffix.js", array( 'jquery-effects-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-effects-scale', "/assets/vendors/jquery/ui/effect-scale$suffix.js", array( 'jquery-effects-core', 'jquery-effects-size' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-effects-shake', "/assets/vendors/jquery/ui/effect-shake$suffix.js", array( 'jquery-effects-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-effects-size', "/assets/vendors/jquery/ui/effect-size$suffix.js", array( 'jquery-effects-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-effects-slide', "/assets/vendors/jquery/ui/effect-slide$suffix.js", array( 'jquery-effects-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-effects-transfer', "/assets/vendors/jquery/ui/effect-transfer$suffix.js", array( 'jquery-effects-core' ), '1.13.2', 1 );
 
 	// Widgets
-	$scripts->add( 'jquery-ui-accordion', "/vendors/jquery/ui/accordion$suffix.js", array( 'jquery-ui-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-autocomplete', "/vendors/jquery/ui/autocomplete$suffix.js", array( 'jquery-ui-menu', 'gc-a11y' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-button', "/vendors/jquery/ui/button$suffix.js", array( 'jquery-ui-core', 'jquery-ui-controlgroup', 'jquery-ui-checkboxradio' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-datepicker', "/vendors/jquery/ui/datepicker$suffix.js", array( 'jquery-ui-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-dialog', "/vendors/jquery/ui/dialog$suffix.js", array( 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-button' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-menu', "/vendors/jquery/ui/menu$suffix.js", array( 'jquery-ui-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-mouse', "/vendors/jquery/ui/mouse$suffix.js", array( 'jquery-ui-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-progressbar', "/vendors/jquery/ui/progressbar$suffix.js", array( 'jquery-ui-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-selectmenu', "/vendors/jquery/ui/selectmenu$suffix.js", array( 'jquery-ui-menu' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-slider', "/vendors/jquery/ui/slider$suffix.js", array( 'jquery-ui-mouse' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-spinner', "/vendors/jquery/ui/spinner$suffix.js", array( 'jquery-ui-button' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-tabs', "/vendors/jquery/ui/tabs$suffix.js", array( 'jquery-ui-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-tooltip', "/vendors/jquery/ui/tooltip$suffix.js", array( 'jquery-ui-core' ), '1.13.1', 1 );
+	$scripts->add( 'jquery-ui-accordion', "/assets/vendors/jquery/ui/accordion$suffix.js", array( 'jquery-ui-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-autocomplete', "/assets/vendors/jquery/ui/autocomplete$suffix.js", array( 'jquery-ui-menu', 'gc-a11y' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-button', "/assets/vendors/jquery/ui/button$suffix.js", array( 'jquery-ui-core', 'jquery-ui-controlgroup', 'jquery-ui-checkboxradio' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-datepicker', "/assets/vendors/jquery/ui/datepicker$suffix.js", array( 'jquery-ui-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-dialog', "/assets/vendors/jquery/ui/dialog$suffix.js", array( 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-button' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-menu', "/assets/vendors/jquery/ui/menu$suffix.js", array( 'jquery-ui-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-mouse', "/assets/vendors/jquery/ui/mouse$suffix.js", array( 'jquery-ui-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-progressbar', "/assets/vendors/jquery/ui/progressbar$suffix.js", array( 'jquery-ui-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-selectmenu', "/assets/vendors/jquery/ui/selectmenu$suffix.js", array( 'jquery-ui-menu' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-slider', "/assets/vendors/jquery/ui/slider$suffix.js", array( 'jquery-ui-mouse' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-spinner', "/assets/vendors/jquery/ui/spinner$suffix.js", array( 'jquery-ui-button' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-tabs', "/assets/vendors/jquery/ui/tabs$suffix.js", array( 'jquery-ui-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-tooltip', "/assets/vendors/jquery/ui/tooltip$suffix.js", array( 'jquery-ui-core' ), '1.13.2', 1 );
 
 	// New in 1.12.1
-	$scripts->add( 'jquery-ui-checkboxradio', "/vendors/jquery/ui/checkboxradio$suffix.js", array( 'jquery-ui-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-controlgroup', "/vendors/jquery/ui/controlgroup$suffix.js", array( 'jquery-ui-core' ), '1.13.1', 1 );
+	$scripts->add( 'jquery-ui-checkboxradio', "/assets/vendors/jquery/ui/checkboxradio$suffix.js", array( 'jquery-ui-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-controlgroup', "/assets/vendors/jquery/ui/controlgroup$suffix.js", array( 'jquery-ui-core' ), '1.13.2', 1 );
 
 	// Interactions
-	$scripts->add( 'jquery-ui-draggable', "/vendors/jquery/ui/draggable$suffix.js", array( 'jquery-ui-mouse' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-droppable', "/vendors/jquery/ui/droppable$suffix.js", array( 'jquery-ui-draggable' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-resizable', "/vendors/jquery/ui/resizable$suffix.js", array( 'jquery-ui-mouse' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-selectable', "/vendors/jquery/ui/selectable$suffix.js", array( 'jquery-ui-mouse' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-sortable', "/vendors/jquery/ui/sortable$suffix.js", array( 'jquery-ui-mouse' ), '1.13.1', 1 );
+	$scripts->add( 'jquery-ui-draggable', "/assets/vendors/jquery/ui/draggable$suffix.js", array( 'jquery-ui-mouse' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-droppable', "/assets/vendors/jquery/ui/droppable$suffix.js", array( 'jquery-ui-draggable' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-resizable', "/assets/vendors/jquery/ui/resizable$suffix.js", array( 'jquery-ui-mouse' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-selectable', "/assets/vendors/jquery/ui/selectable$suffix.js", array( 'jquery-ui-mouse' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-sortable', "/assets/vendors/jquery/ui/sortable$suffix.js", array( 'jquery-ui-mouse' ), '1.13.2', 1 );
 
-	// As of 1.12.1 `jquery-ui-position` and `jquery-ui-widget` are part of `jquery-ui-core`.
-	// Listed here for back-compat.
-	$scripts->add( 'jquery-ui-position', false, array( 'jquery-ui-core' ), '1.13.1', 1 );
-	$scripts->add( 'jquery-ui-widget', false, array( 'jquery-ui-core' ), '1.13.1', 1 );
+	/*
+	 * As of 1.12.1 `jquery-ui-position` and `jquery-ui-widget` are part of `jquery-ui-core`.
+	 * Listed here for back-compat.
+	 */
+	$scripts->add( 'jquery-ui-position', false, array( 'jquery-ui-core' ), '1.13.2', 1 );
+	$scripts->add( 'jquery-ui-widget', false, array( 'jquery-ui-core' ), '1.13.2', 1 );
 
 	// Strings for 'jquery-ui-autocomplete' live region messages.
 	did_action( 'init' ) && $scripts->localize(
@@ -843,27 +930,29 @@ function gc_default_scripts( $scripts ) {
 	);
 
 	// Deprecated, not used in core, most functionality is included in jQuery 1.3.
-	$scripts->add( 'jquery-form', "/vendors/jquery/jquery.form$suffix.js", array( 'jquery' ), '4.3.0', 1 );
+	$scripts->add( 'jquery-form', "/assets/vendors/jquery/jquery.form$suffix.js", array( 'jquery' ), '4.3.0', 1 );
 
 	// jQuery plugins.
-	$scripts->add( 'jquery-color', '/vendors/jquery/jquery.color.min.js', array( 'jquery' ), '2.2.0', 1 );
-	$scripts->add( 'schedule', '/vendors/jquery/jquery.schedule.js', array( 'jquery' ), '20m', 1 );
-	$scripts->add( 'jquery-query', '/vendors/jquery/jquery.query.js', array( 'jquery' ), '2.2.3', 1 );
-	$scripts->add( 'jquery-serialize-object', '/vendors/jquery/jquery.serialize-object.js', array( 'jquery' ), '0.2-gc', 1 );
-	$scripts->add( 'jquery-hotkeys', "/vendors/jquery/jquery.hotkeys$suffix.js", array( 'jquery' ), '0.0.2m', 1 );
-	$scripts->add( 'jquery-table-hotkeys', "/vendors/jquery/jquery.table-hotkeys$suffix.js", array( 'jquery', 'jquery-hotkeys' ), false, 1 );
-	$scripts->add( 'jquery-touch-punch', '/vendors/jquery/jquery.ui.touch-punch.js', array( 'jquery-ui-core', 'jquery-ui-mouse' ), '0.2.2', 1 );
+	$scripts->add( 'jquery-color', '/assets/vendors/jquery/jquery.color.min.js', array( 'jquery' ), '2.2.0', 1 );
+	$scripts->add( 'schedule', '/assets/vendors/jquery/jquery.schedule.js', array( 'jquery' ), '20m', 1 );
+	$scripts->add( 'jquery-query', '/assets/vendors/jquery/jquery.query.js', array( 'jquery' ), '2.2.3', 1 );
+	$scripts->add( 'jquery-serialize-object', '/assets/vendors/jquery/jquery.serialize-object.js', array( 'jquery' ), '0.2-gc', 1 );
+	$scripts->add( 'jquery-hotkeys', "/assets/vendors/jquery/jquery.hotkeys$suffix.js", array( 'jquery' ), '0.0.2m', 1 );
+	$scripts->add( 'jquery-table-hotkeys', "/assets/vendors/jquery/jquery.table-hotkeys$suffix.js", array( 'jquery', 'jquery-hotkeys' ), false, 1 );
+	$scripts->add( 'jquery-touch-punch', '/assets/vendors/jquery/jquery.ui.touch-punch.js', array( 'jquery-ui-core', 'jquery-ui-mouse' ), '0.2.2', 1 );
 
 	// Not used any more, registered for backward compatibility.
-	$scripts->add( 'suggest', "/vendors/jquery/suggest$suffix.js", array( 'jquery' ), '1.1-20110113', 1 );
+	$scripts->add( 'suggest', "/assets/vendors/jquery/suggest$suffix.js", array( 'jquery' ), '1.1-20110113', 1 );
 
-	// Masonry v2 depended on jQuery. v3 does not. The older jquery-masonry handle is a shiv.
-	// It sets jQuery as a dependency, as the theme may have been implicitly loading it this way.
-	$scripts->add( 'imagesloaded', "/vendors/imagesloaded$suffix.js", array(), '4.1.4', 1 );
-	$scripts->add( 'masonry', "/vendors/masonry$suffix.js", array( 'imagesloaded' ), '4.2.2', 1 );
-	$scripts->add( 'jquery-masonry', '/vendors/jquery/jquery.masonry.min.js', array( 'jquery', 'masonry' ), '3.1.2b', 1 );
+	/*
+	 * Masonry v2 depended on jQuery. v3 does not. The older jquery-masonry handle is a shiv.
+	 * It sets jQuery as a dependency, as the theme may have been implicitly loading it this way.
+	 */
+	$scripts->add( 'imagesloaded', '/assets/vendors/imagesloaded.min.js', array(), '4.1.4', 1 );
+	$scripts->add( 'masonry', '/assets/vendors/masonry.min.js', array( 'imagesloaded' ), '4.2.2', 1 );
+	$scripts->add( 'jquery-masonry', '/assets/vendors/jquery/jquery.masonry.min.js', array( 'jquery', 'masonry' ), '3.1.2b', 1 );
 
-	$scripts->add( 'thickbox', '/vendors/thickbox/thickbox.js', array( 'jquery' ), '3.1-20121105', 1 );
+	$scripts->add( 'thickbox', '/assets/vendors/thickbox/thickbox.js', array( 'jquery' ), '3.1-20121105', 1 );
 	did_action( 'init' ) && $scripts->localize(
 		'thickbox',
 		'thickboxL10n',
@@ -874,19 +963,20 @@ function gc_default_scripts( $scripts ) {
 			'of'               => __( '/' ),
 			'close'            => __( '关闭' ),
 			'noiframes'        => __( '这个功能需要iframe的支持。您可能禁止了iframe的显示，或您的浏览器不支持此功能。' ),
-			'loadingAnimation' => assets_url( '/vendors/thickbox/loadingAnimation.gif' ),
+			'loadingAnimation' => assets_url( 'vendors/thickbox/loadingAnimation.gif' ),
 		)
 	);
 
-	$scripts->add( 'jcrop', '/vendors/jcrop/jquery.Jcrop.min.js', array( 'jquery' ), '0.9.15' );
+	// Not used in core, replaced by imgAreaSelect.
+	$scripts->add( 'jcrop', '/assets/vendors/jcrop/jquery.Jcrop.min.js', array( 'jquery' ), '0.9.15' );
 
-	$scripts->add( 'swfobject', "/vendors/swfobject$suffix.js", array(), '2.2-20120417' );
+	$scripts->add( 'swfobject', '/assets/vendors/swfobject.js', array(), '2.2-20120417' );
 
 	// Error messages for Plupload.
 	$uploader_l10n = array(
 		'queue_limit_exceeded'      => __( '您向队列中添加的文件过多。' ),
 		/* translators: %s: File name. */
-		'file_exceeds_size_limit'   => __( '%s超过了站点的最大上传限制。' ),
+		'file_exceeds_size_limit'   => __( '%s超过了系统的最大上传限制。' ),
 		'zero_byte_file'            => __( '文件为空，请选择其他文件。' ),
 		'invalid_filetype'          => __( '抱歉，您无权上传此文件类型。' ),
 		'not_an_image'              => __( '该文件不是图片，请选择其他文件。' ),
@@ -896,7 +986,7 @@ function gc_default_scripts( $scripts ) {
 		'missing_upload_url'        => __( '配置有误。请联系您的服务器管理员。' ),
 		'upload_limit_exceeded'     => __( '您只能上传一个文件。' ),
 		'http_error'                => __( '从服务器收到预料之外的响应。此文件可能已被成功上传。请检查媒体库或刷新本页。' ),
-		'http_error_image'          => __( '服务器无法处理图像。如果服务器繁忙或没有足够的资源来完成任务，就会发生这种情况。上传较小的图像可能会有所帮助。建议的最大尺寸为 2560 像素。' ),
+		'http_error_image'          => __( '服务器无法处理图片。如果服务器繁忙或没有足够的资源来完成任务，就会发生这种情况。上传较小的图片可能会有所帮助。建议的最大尺寸为 2560 像素。' ),
 		'upload_failed'             => __( '上传失败。' ),
 		/* translators: 1: Opening link tag, 2: Closing link tag. */
 		'big_upload_failed'         => __( '请尝试使用%1$s标准的浏览器上传工具%2$s来上传这个文件。' ),
@@ -916,34 +1006,34 @@ function gc_default_scripts( $scripts ) {
 		'file_url_copied'           => __( '文件URL已复制至剪贴板' ),
 	);
 
-	$scripts->add( 'moxiejs', "/vendors/plupload/moxie$suffix.js", array(), '1.3.5' );
-	$scripts->add( 'plupload', "/vendors/plupload/plupload$suffix.js", array( 'moxiejs' ), '2.1.9' );
+	$scripts->add( 'moxiejs', "/assets/vendors/plupload/moxie$suffix.js", array(), '1.3.5' );
+	$scripts->add( 'plupload', "/assets/vendors/plupload/plupload$suffix.js", array( 'moxiejs' ), '2.1.9' );
 	// Back compat handles:
 	foreach ( array( 'all', 'html5', 'flash', 'silverlight', 'html4' ) as $handle ) {
 		$scripts->add( "plupload-$handle", false, array( 'plupload' ), '2.1.1' );
 	}
 
-	$scripts->add( 'plupload-handlers', "/vendors/plupload/handlers$suffix.js", array( 'clipboard', 'jquery', 'plupload', 'underscore', 'gc-a11y', 'gc-i18n' ) );
+	$scripts->add( 'plupload-handlers', "/assets/vendors/plupload/handlers$suffix.js", array( 'clipboard', 'jquery', 'plupload', 'underscore', 'gc-a11y', 'gc-i18n' ) );
 	did_action( 'init' ) && $scripts->localize( 'plupload-handlers', 'pluploadL10n', $uploader_l10n );
 
-	$scripts->add( 'gc-plupload', "/vendors/plupload/gc-plupload$suffix.js", array( 'plupload', 'jquery', 'json2', 'media-models' ), false, 1 );
+	$scripts->add( 'gc-plupload', "/assets/vendors/plupload/gc-plupload$suffix.js", array( 'plupload', 'jquery', 'json2', 'media-models' ), false, 1 );
 	did_action( 'init' ) && $scripts->localize( 'gc-plupload', 'pluploadL10n', $uploader_l10n );
 
 	// Keep 'swfupload' for back-compat.
-	$scripts->add( 'swfupload', '/vendors/swfupload/swfupload.js', array(), '2201-20110113' );
+	$scripts->add( 'swfupload', '/assets/vendors/swfupload/swfupload.js', array(), '2201-20110113' );
 	$scripts->add( 'swfupload-all', false, array( 'swfupload' ), '2201' );
-	$scripts->add( 'swfupload-handlers', "/vendors/swfupload/handlers$suffix.js", array( 'swfupload-all', 'jquery' ), '2201-20110524' );
+	$scripts->add( 'swfupload-handlers', "/assets/vendors/swfupload/handlers$suffix.js", array( 'swfupload-all', 'jquery' ), '2201-20110524' );
 	did_action( 'init' ) && $scripts->localize( 'swfupload-handlers', 'swfuploadL10n', $uploader_l10n );
 
-	$scripts->add( 'comment-reply', "/js/comment-reply$suffix.js", array(), false, 1 );
+	$scripts->add( 'comment-reply', "/assets/js/comment-reply$suffix.js", array(), false, 1 );
 
-	$scripts->add( 'json2', "/vendors/json2$suffix.js", array(), '2015-05-03' );
+	$scripts->add( 'json2', "/assets/vendors/json2$suffix.js", array(), '2015-05-03' );
 	did_action( 'init' ) && $scripts->add_data( 'json2', 'conditional', 'lt IE 8' );
 
-	$scripts->add( 'underscore', "/vendors/underscore$dev_suffix.js", array(), '1.13.1', 1 );
-	$scripts->add( 'backbone', "/vendors/backbone$dev_suffix.js", array( 'underscore', 'jquery' ), '1.4.0', 1 );
+	$scripts->add( 'underscore', "/assets/vendors/underscore$dev_suffix.js", array(), '1.13.4', 1 );
+	$scripts->add( 'backbone', "/assets/vendors/backbone$dev_suffix.js", array( 'underscore', 'jquery' ), '1.4.1', 1 );
 
-	$scripts->add( 'gc-util', "/js/gc-util$suffix.js", array( 'underscore', 'jquery' ), false, 1 );
+	$scripts->add( 'gc-util', "/assets/js/gc-util$suffix.js", array( 'underscore', 'jquery' ), false, 1 );
 	did_action( 'init' ) && $scripts->localize(
 		'gc-util',
 		'_gcUtilSettings',
@@ -954,15 +1044,15 @@ function gc_default_scripts( $scripts ) {
 		)
 	);
 
-	$scripts->add( 'gc-backbone', "/js/gc-backbone$suffix.js", array( 'backbone', 'gc-util' ), false, 1 );
+	$scripts->add( 'gc-backbone', "/assets/js/gc-backbone$suffix.js", array( 'backbone', 'gc-util' ), false, 1 );
 
-	$scripts->add( 'revisions', "/js/revisions$suffix.js", array( 'gc-backbone', 'jquery-ui-slider', 'hoverIntent' ), false, 1 );
+	$scripts->add( 'revisions', "/assets/js/revisions$suffix.js", array( 'gc-backbone', 'jquery-ui-slider', 'hoverIntent' ), false, 1 );
 
-	$scripts->add( 'imgareaselect', "/vendors/imgareaselect/jquery.imgareaselect$suffix.js", array( 'jquery' ), false, 1 );
+	$scripts->add( 'imgareaselect', "/assets/vendors/imgareaselect/jquery.imgareaselect$suffix.js", array( 'jquery' ), false, 1 );
 
-	$scripts->add( 'mediaelement', false, array( 'jquery', 'mediaelement-core', 'mediaelement-migrate' ), '4.2.16', 1 );
-	$scripts->add( 'mediaelement-core', "/vendors/mediaelement/mediaelement-and-player$suffix.js", array(), '4.2.16', 1 );
-	$scripts->add( 'mediaelement-migrate', "/vendors/mediaelement/mediaelement-migrate$suffix.js", array(), false, 1 );
+	$scripts->add( 'mediaelement', false, array( 'jquery', 'mediaelement-core', 'mediaelement-migrate' ), '4.2.17', 1 );
+	$scripts->add( 'mediaelement-core', "/assets/vendors/mediaelement/mediaelement-and-player$suffix.js", array(), '4.2.17', 1 );
+	$scripts->add( 'mediaelement-migrate', "/assets/vendors/mediaelement/mediaelement-migrate$suffix.js", array(), false, 1 );
 
 	did_action( 'init' ) && $scripts->add_inline_script(
 		'mediaelement-core',
@@ -1051,12 +1141,16 @@ function gc_default_scripts( $scripts ) {
 		'before'
 	);
 
-	$scripts->add( 'mediaelement-vimeo', '/vendors/mediaelement/renderers/vimeo.min.js', array( 'mediaelement' ), '4.2.16', 1 );
-	$scripts->add( 'gc-mediaelement', "/vendors/mediaelement/gc-mediaelement$suffix.js", array( 'mediaelement' ), false, 1 );
+	$scripts->add( 'mediaelement-vimeo', '/assets/vendors/mediaelement/renderers/vimeo.min.js', array( 'mediaelement' ), '4.2.17', 1 );
+	$scripts->add( 'gc-mediaelement', "/assets/vendors/mediaelement/gc-mediaelement$suffix.js", array( 'mediaelement' ), false, 1 );
 	$mejs_settings = array(
-		'pluginPath'  => assets_url( '/js/mediaelement/', 'relative' ),
-		'classPrefix' => 'mejs-',
-		'stretching'  => 'responsive',
+		'pluginPath'            => assets_url( 'vendors/mediaelement/', 'relative' ),
+		'classPrefix'           => 'mejs-',
+		'stretching'            => 'responsive',
+		/** This filter is documented in gc-includes/media.php */
+		'audioShortcodeLibrary' => apply_filters( 'gc_audio_shortcode_library', 'mediaelement' ),
+		/** This filter is documented in gc-includes/media.php */
+		'videoShortcodeLibrary' => apply_filters( 'gc_video_shortcode_library', 'mediaelement' ),
 	);
 	did_action( 'init' ) && $scripts->localize(
 		'mediaelement',
@@ -1064,35 +1158,36 @@ function gc_default_scripts( $scripts ) {
 		/**
 		 * Filters the MediaElement configuration settings.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param array $mejs_settings MediaElement settings array.
 		 */
 		apply_filters( 'mejs_settings', $mejs_settings )
 	);
 
-	$scripts->add( 'gc-codemirror', '/vendors/codemirror/codemirror.min.js', array(), '5.29.1-alpha-ee20357' );
-	$scripts->add( 'csslint', '/vendors/codemirror/csslint.js', array(), '1.0.5' );
-	$scripts->add( 'esprima', '/vendors/codemirror/esprima.js', array(), '4.0.0' );
-	$scripts->add( 'jshint', '/vendors/codemirror/fakejshint.js', array( 'esprima' ), '2.9.5' );
-	$scripts->add( 'jsonlint', '/vendors/codemirror/jsonlint.js', array(), '1.6.2' );
-	$scripts->add( 'htmlhint', '/vendors/codemirror/htmlhint.js', array(), '0.9.14-xgc' );
-	$scripts->add( 'htmlhint-kses', '/vendors/codemirror/htmlhint-kses.js', array( 'htmlhint' ) );
-	$scripts->add( 'code-editor', "/js/code-editor$suffix.js", array( 'jquery', 'gc-codemirror', 'underscore' ) );
-	$scripts->add( 'gc-theme-plugin-editor', "/js/theme-plugin-editor$suffix.js", array( 'app', 'common', 'gc-util', 'gc-sanitize', 'jquery', 'jquery-ui-core', 'gc-a11y', 'underscore' ) );
+	$scripts->add( 'gc-codemirror', '/assets/vendors/codemirror/codemirror.min.js', array(), '5.29.1-alpha-ee20357' );
+	$scripts->add( 'csslint', '/assets/vendors/codemirror/csslint.js', array(), '1.0.5' );
+	$scripts->add( 'esprima', '/assets/vendors/codemirror/esprima.js', array(), '4.0.0' );
+	$scripts->add( 'jshint', '/assets/vendors/codemirror/fakejshint.js', array( 'esprima' ), '2.9.5' );
+	$scripts->add( 'jsonlint', '/assets/vendors/codemirror/jsonlint.js', array(), '1.6.2' );
+	$scripts->add( 'htmlhint', '/assets/vendors/codemirror/htmlhint.js', array(), '0.9.14-xgc' );
+	$scripts->add( 'htmlhint-kses', '/assets/vendors/codemirror/htmlhint-kses.js', array( 'htmlhint' ) );
+	$scripts->add( 'code-editor', "/assets/js/code-editor$suffix.js", array( 'jquery', 'gc-codemirror', 'underscore' ) );
+	$scripts->add( 'gc-theme-plugin-editor', "/assets/js/theme-plugin-editor$suffix.js", array( 'app', 'common', 'gc-util', 'gc-sanitize', 'jquery', 'jquery-ui-core', 'gc-a11y', 'underscore' ), false, 1 );
 	$scripts->set_translations( 'gc-theme-plugin-editor' );
 
-	$scripts->add( 'gc-playlist', "/vendors/mediaelement/gc-playlist$suffix.js", array( 'gc-util', 'backbone', 'mediaelement' ), false, 1 );
+	$scripts->add( 'gc-playlist', "/assets/vendors/mediaelement/gc-playlist$suffix.js", array( 'gc-util', 'backbone', 'mediaelement' ), false, 1 );
 
-	$scripts->add( 'zxcvbn-async', "/js/zxcvbn-async$suffix.js", array(), '1.0' );
+	$scripts->add( 'zxcvbn-async', "/assets/js/zxcvbn-async$suffix.js", array(), '1.0' );
 	did_action( 'init' ) && $scripts->localize(
 		'zxcvbn-async',
 		'_zxcvbnSettings',
 		array(
-			'src' => assets_url( '/vendors/zxcvbn.min.js' ),
+			'src' => empty( $guessed_url ) ? assets_url( '/vendors/zxcvbn.min.js' ) : $scripts->base_url . '/assets/vendors/zxcvbn.min.js',
 		)
 	);
 
-	$scripts->add( 'password-strength-meter', "/js/password-strength-meter$suffix.js", array( 'jquery', 'zxcvbn-async' ), false, 1 );
+	$scripts->add( 'password-strength-meter', "/assets/js/password-strength-meter$suffix.js", array( 'jquery', 'zxcvbn-async' ), false, 1 );
 	did_action( 'init' ) && $scripts->localize(
 		'password-strength-meter',
 		'pwsL10n',
@@ -1107,13 +1202,16 @@ function gc_default_scripts( $scripts ) {
 	);
 	$scripts->set_translations( 'password-strength-meter' );
 
-	$scripts->add( 'appkeys', "/js/appkeys$suffix.js", array( 'jquery', 'gc-util', 'gc-api-request', 'gc-date', 'gc-i18n', 'gc-hooks' ), false, 1 );
+	$scripts->add( 'password-toggle', "/assets/js/password-toggle$suffix.js", array(), false, 1 );
+	$scripts->set_translations( 'password-toggle' );
+
+	$scripts->add( 'appkeys', "/assets/js/appkeys$suffix.js", array( 'jquery', 'gc-util', 'gc-api-request', 'gc-date', 'gc-i18n', 'gc-hooks' ), false, 1 );
 	$scripts->set_translations( 'appkeys' );
 
-	$scripts->add( 'auth-app', "/js/auth-app$suffix.js", array( 'jquery', 'gc-api-request', 'gc-i18n', 'gc-hooks' ), false, 1 );
+	$scripts->add( 'auth-app', "/assets/js/auth-app$suffix.js", array( 'jquery', 'gc-api-request', 'gc-i18n', 'gc-hooks' ), false, 1 );
 	$scripts->set_translations( 'auth-app' );
 
-	$scripts->add( 'user-profile', "/js/user-profile$suffix.js", array( 'jquery', 'password-strength-meter', 'gc-util' ), false, 1 );
+	$scripts->add( 'user-profile', "/assets/js/user-profile$suffix.js", array( 'jquery', 'password-strength-meter', 'gc-util' ), false, 1 );
 	$scripts->set_translations( 'user-profile' );
 	$user_id = isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : 0;
 	did_action( 'init' ) && $scripts->localize(
@@ -1125,11 +1223,13 @@ function gc_default_scripts( $scripts ) {
 		)
 	);
 
-	$scripts->add( 'language-chooser', "/js/language-chooser$suffix.js", array( 'jquery' ), false, 1 );
+	$scripts->add( 'language-chooser', "/assets/js/language-chooser$suffix.js", array( 'jquery' ), false, 1 );
 
-	$scripts->add( 'user-suggest', "/js/user-suggest$suffix.js", array( 'jquery-ui-autocomplete' ), false, 1 );
+	$scripts->add( 'user-suggest', "/assets/js/user-suggest$suffix.js", array( 'jquery-ui-autocomplete' ), false, 1 );
 
-	$scripts->add( 'gclink', "/js/gclink$suffix.js", array( 'jquery', 'gc-a11y' ), false, 1 );
+	// $scripts->add( 'admin-bar', "/assets/js/admin-bar$suffix.js", array( 'hoverintent-js' ), false, 1 );
+
+	$scripts->add( 'gclink', "/assets/js/gclink$suffix.js", array( 'jquery', 'gc-a11y' ), false, 1 );
 	did_action( 'init' ) && $scripts->localize(
 		'gclink',
 		'gcLinkL10n',
@@ -1146,23 +1246,23 @@ function gc_default_scripts( $scripts ) {
 		)
 	);
 
-	$scripts->add( 'gcdialogs', "/js/gcdialog$suffix.js", array( 'jquery-ui-dialog' ), false, 1 );
+	$scripts->add( 'gcdialogs', "/assets/js/gcdialog$suffix.js", array( 'jquery-ui-dialog' ), false, 1 );
 
-	$scripts->add( 'word-count', "/js/word-count$suffix.js", array(), false, 1 );
+	$scripts->add( 'word-count', "/assets/js/word-count$suffix.js", array(), false, 1 );
 
-	$scripts->add( 'media-upload', "/js/media-upload$suffix.js", array( 'thickbox', 'shortcode' ), false, 1 );
+	$scripts->add( 'media-upload', "/assets/js/media-upload$suffix.js", array( 'thickbox', 'shortcode' ), false, 1 );
 
-	$scripts->add( 'hoverIntent', "/vendors/hoverIntent$suffix.js", array( 'jquery' ), '1.10.2', 1 );
+	$scripts->add( 'hoverIntent', "/assets/vendors/hoverIntent$suffix.js", array( 'jquery' ), '1.10.2', 1 );
 
 	// JS-only version of hoverintent (no dependencies).
-	$scripts->add( 'hoverintent-js', '/vendors/hoverintent-js.min.js', array(), '2.2.1', 1 );
+	$scripts->add( 'hoverintent-js', '/assets/vendors/hoverintent-js.min.js', array(), '2.2.1', 1 );
 
-	$scripts->add( 'customize-base', "/js/customize-base$suffix.js", array( 'jquery', 'json2', 'underscore' ), false, 1 );
-	$scripts->add( 'customize-loader', "/js/customize-loader$suffix.js", array( 'customize-base' ), false, 1 );
-	$scripts->add( 'customize-preview', "/js/customize-preview$suffix.js", array( 'gc-a11y', 'customize-base' ), false, 1 );
-	$scripts->add( 'customize-models', '/js/customize-models.js', array( 'underscore', 'backbone' ), false, 1 );
-	$scripts->add( 'customize-views', '/js/customize-views.js', array( 'jquery', 'underscore', 'imgareaselect', 'customize-models', 'media-editor', 'media-views' ), false, 1 );
-	$scripts->add( 'customize-controls', "/js/customize-controls$suffix.js", array( 'customize-base', 'gc-a11y', 'gc-util', 'jquery-ui-core' ), false, 1 );
+	$scripts->add( 'customize-base', "/assets/js/customize-base$suffix.js", array( 'jquery', 'json2', 'underscore' ), false, 1 );
+	$scripts->add( 'customize-loader', "/assets/js/customize-loader$suffix.js", array( 'customize-base' ), false, 1 );
+	$scripts->add( 'customize-preview', "/assets/js/customize-preview$suffix.js", array( 'gc-a11y', 'customize-base' ), false, 1 );
+	$scripts->add( 'customize-models', '/assets/js/customize-models.js', array( 'underscore', 'backbone' ), false, 1 );
+	$scripts->add( 'customize-views', '/assets/js/customize-views.js', array( 'jquery', 'underscore', 'imgareaselect', 'customize-models', 'media-editor', 'media-views' ), false, 1 );
+	$scripts->add( 'customize-controls', "/assets/js/customize-controls$suffix.js", array( 'customize-base', 'gc-a11y', 'gc-util', 'jquery-ui-core' ), false, 1 );
 	did_action( 'init' ) && $scripts->localize(
 		'customize-controls',
 		'_gcCustomizeControlsL10n',
@@ -1175,7 +1275,7 @@ function gc_default_scripts( $scripts ) {
 			'draftSaved'              => __( '草稿已保存' ),
 			'updating'                => __( '正在更新' ),
 			'schedule'                => _x( '计划', 'customizer changeset action/button label' ),
-			'scheduled'               => _x( '定时发布', 'customizer changeset status' ),
+			'scheduled'               => _x( '已计划', 'customizer changeset status' ),
 			'invalid'                 => __( '无效' ),
 			'saveBeforeShare'         => __( '要分享预览，请先保存您的修改。' ),
 			'futureDateError'         => __( '您必须提供一个将来的日期来计划发布。' ),
@@ -1187,16 +1287,16 @@ function gc_default_scripts( $scripts ) {
 			'discardChanges'          => __( '放弃修改' ),
 			'cheatin'                 => __( '出现了问题。' ),
 			'notAllowedHeading'       => __( '您需要更高级别的权限。' ),
-			'notAllowed'              => __( '抱歉，您不能自定义此站点。' ),
-			'previewIframeTitle'      => __( '站点预览' ),
+			'notAllowed'              => __( '抱歉，您不能自定义此系统。' ),
+			'previewIframeTitle'      => __( '系统预览' ),
 			'loginIframeTitle'        => __( '会话已过期' ),
-			'collapseSidebar'         => _x( '隐藏控制区', 'label for hide controls button without length constraints' ),
+			'collapseSidebar'         => _x( '隐藏控制栏', 'label for hide controls button without length constraints' ),
 			'expandSidebar'           => _x( '显示控制栏', 'label for hide controls button without length constraints' ),
-			'untitledBlogName'        => __( '未命名' ),
+			'untitledBlogName'        => __( '(未命名)' ),
 			'unknownRequestFail'      => __( '看来出现了问题。请等待几秒并重试。' ),
-			'themeDownloading'        => __( '正在下载您的新主题…' ),
+			'themeDownloading'        => __( '正在下载您的新主题...'  ),
 			'themePreviewWait'        => __( '正在设置实时预览，请稍等。' ),
-			'revertingChanges'        => __( '回滚未发布的修改…' ),
+			'revertingChanges'        => __( '回滚未发布的修改...'  ),
 			'trashConfirm'            => __( '您确定要丢弃未发布的修改吗？' ),
 			/* translators: %s: Display name of the user who has taken over the changeset in customizer. */
 			'takenOverMessage'        => __( '%s已接管并正在定制。' ),
@@ -1221,10 +1321,10 @@ function gc_default_scripts( $scripts ) {
 				// @todo This is lacking, as some languages have a dedicated dual form. For proper handling of plurals in JS, see #20491.
 			),
 			'scheduleDescription'     => __( '计划您的定制修改来在将来的日期发布。' ),
-			'themePreviewUnavailable' => __( '抱歉，您不能在有计划更改或保存的草稿时预览新主题。请发布您的更改或等待其发布后再预览新主题。' ),
+			'themePreviewUnavailable' => __( '抱歉，当您计划更改或保存为草稿时无法预览新主题。请发布您的更改或等待其发布后再进行预览。' ),
 			'themeInstallUnavailable' => sprintf(
 				/* translators: %s: URL to Add Themes admin screen. */
-				__( '因为您的安装需要SFTP凭据，您不能在此安装新主题。请<a href="%s">在管理界面添加主题</a>。' ),
+				__( '由于安装需要SFTP凭据，因此您还无法从此处安装新主题。请<a href="%s">在管理界面添加主题</a>。' ),
 				esc_url( admin_url( 'theme-install.php' ) )
 			),
 			'publishSettings'         => __( '发布设置' ),
@@ -1232,30 +1332,30 @@ function gc_default_scripts( $scripts ) {
 			'invalidValue'            => __( '无效值。' ),
 			'blockThemeNotification'  => sprintf(
 				/* translators: 1: Link to Site Editor documentation on HelpHub, 2: HTML button. */
-				__( '万岁！您的主题支持使用块进行完整的站点编辑。 <a href="%1$s">告诉我更多</a>. %2$s' ),
-				__( 'https://www.gechiui.com/support/article/site-editor/' ),
+				__( '好耶！您的主题支持带有区块的系统编辑。<a href="%1$s">了解更多</a>。 %2$s' ),
+				__( 'https://www.gechiui.com/support/site-editor/' ),
 				sprintf(
-					'<button type="button" data-action="%1$s" class="button switch-to-editor">%2$s</button>',
+					'<button type="button" data-action="%1$s" class="btn btn-primary btn-tone btn-sm switch-to-editor">%2$s</button>',
 					esc_url( admin_url( 'site-editor.php' ) ),
-					__( '使用网站编辑器' )
+					__( '使用系统编辑器' )
 				)
 			),
 		)
 	);
-	$scripts->add( 'customize-selective-refresh', "/js/customize-selective-refresh$suffix.js", array( 'jquery', 'gc-util', 'customize-preview' ), false, 1 );
+	$scripts->add( 'customize-selective-refresh', "/assets/js/customize-selective-refresh$suffix.js", array( 'jquery', 'gc-util', 'customize-preview' ), false, 1 );
 
-	$scripts->add( 'customize-widgets', "/js/customize-widgets$suffix.js", array( 'jquery', 'jquery-ui-sortable', 'jquery-ui-droppable', 'gc-backbone', 'customize-controls' ), false, 1 );
-	$scripts->add( 'customize-preview-widgets', "/js/customize-preview-widgets$suffix.js", array( 'jquery', 'gc-util', 'customize-preview', 'customize-selective-refresh' ), false, 1 );
+	$scripts->add( 'customize-widgets', "/assets/js/customize-widgets$suffix.js", array( 'jquery', 'jquery-ui-sortable', 'jquery-ui-droppable', 'gc-backbone', 'customize-controls' ), false, 1 );
+	$scripts->add( 'customize-preview-widgets', "/assets/js/customize-preview-widgets$suffix.js", array( 'jquery', 'gc-util', 'customize-preview', 'customize-selective-refresh' ), false, 1 );
 
-	$scripts->add( 'customize-nav-menus', "/js/customize-nav-menus$suffix.js", array( 'jquery', 'gc-backbone', 'customize-controls', 'accordion', 'nav-menu', 'gc-sanitize' ), false, 1 );
-	$scripts->add( 'customize-preview-nav-menus', "/js/customize-preview-nav-menus$suffix.js", array( 'jquery', 'gc-util', 'customize-preview', 'customize-selective-refresh' ), false, 1 );
+	$scripts->add( 'customize-nav-menus', "/assets/js/customize-nav-menus$suffix.js", array( 'jquery', 'gc-backbone', 'customize-controls', 'accordion', 'nav-menu', 'gc-sanitize' ), false, 1 );
+	$scripts->add( 'customize-preview-nav-menus', "/assets/js/customize-preview-nav-menus$suffix.js", array( 'jquery', 'gc-util', 'customize-preview', 'customize-selective-refresh' ), false, 1 );
 
-	$scripts->add( 'gc-custom-header', "/js/gc-custom-header$suffix.js", array( 'gc-a11y' ), false, 1 );
+	$scripts->add( 'gc-custom-header', "/assets/js/gc-custom-header$suffix.js", array( 'gc-a11y' ), false, 1 );
 
-	$scripts->add( 'accordion', "/js/accordion$suffix.js", array( 'jquery' ), false, 1 );
+	$scripts->add( 'accordion', "/assets/js/accordion$suffix.js", array( 'jquery' ), false, 1 );
 
-	$scripts->add( 'shortcode', "/js/shortcode$suffix.js", array( 'underscore' ), false, 1 );
-	$scripts->add( 'media-models', "/js/media-models$suffix.js", array( 'gc-backbone' ), false, 1 );
+	$scripts->add( 'shortcode', "/assets/js/shortcode$suffix.js", array( 'underscore' ), false, 1 );
+	$scripts->add( 'media-models', "/assets/js/media-models$suffix.js", array( 'gc-backbone' ), false, 1 );
 	did_action( 'init' ) && $scripts->localize(
 		'media-models',
 		'_gcMediaModelsL10n',
@@ -1267,25 +1367,27 @@ function gc_default_scripts( $scripts ) {
 		)
 	);
 
-	$scripts->add( 'gc-embed', "/js/gc-embed$suffix.js", array(), false, 1 );
+	$scripts->add( 'gc-embed', "/assets/js/gc-embed$suffix.js", array(), false, 1 );
 
-	// To enqueue media-views or media-editor, call gc_enqueue_media().
-	// Both rely on numerous settings, styles, and templates to operate correctly.
-	$scripts->add( 'media-views', "/js/media-views$suffix.js", array( 'utils', 'media-models', 'gc-plupload', 'jquery-ui-sortable', 'gc-mediaelement', 'gc-api-request', 'gc-a11y', 'clipboard' ), false, 1 );
+	/*
+	 * To enqueue media-views or media-editor, call gc_enqueue_media().
+	 * Both rely on numerous settings, styles, and templates to operate correctly.
+	 */
+	$scripts->add( 'media-views', "/assets/js/media-views$suffix.js", array( 'utils', 'media-models', 'gc-plupload', 'jquery-ui-sortable', 'gc-mediaelement', 'gc-api-request', 'gc-a11y', 'clipboard' ), false, 1 );
 	$scripts->set_translations( 'media-views' );
 
-	$scripts->add( 'media-editor', "/js/media-editor$suffix.js", array( 'shortcode', 'media-views' ), false, 1 );
+	$scripts->add( 'media-editor', "/assets/js/media-editor$suffix.js", array( 'shortcode', 'media-views' ), false, 1 );
 	$scripts->set_translations( 'media-editor' );
-	$scripts->add( 'media-audiovideo', "/js/media-audiovideo$suffix.js", array( 'media-editor' ), false, 1 );
-	$scripts->add( 'mce-view', "/js/mce-view$suffix.js", array( 'shortcode', 'jquery', 'media-views', 'media-audiovideo' ), false, 1 );
+	$scripts->add( 'media-audiovideo', "/assets/js/media-audiovideo$suffix.js", array( 'media-editor' ), false, 1 );
+	$scripts->add( 'mce-view', "/assets/js/mce-view$suffix.js", array( 'shortcode', 'jquery', 'media-views', 'media-audiovideo' ), false, 1 );
 
-	$scripts->add( 'gc-api', "/js/gc-api$suffix.js", array( 'jquery', 'backbone', 'underscore', 'gc-api-request' ), false, 1 );
+	$scripts->add( 'gc-api', "/assets/js/gc-api$suffix.js", array( 'jquery', 'backbone', 'underscore', 'gc-api-request' ), false, 1 );
 
 	if ( is_admin() ) {
-		$scripts->add( 'admin-tags', "/js/tags$suffix.js", array( 'jquery', 'gc-ajax-response' ), false, 1 );
+		$scripts->add( 'admin-tags', "/assets/js/tags$suffix.js", array( 'jquery', 'gc-ajax-response' ), false, 1 );
 		$scripts->set_translations( 'admin-tags' );
 
-		$scripts->add( 'admin-comments', "/js/edit-comments$suffix.js", array( 'gc-lists', 'quicktags', 'jquery-query' ), false, 1 );
+		$scripts->add( 'admin-comments', "/assets/js/edit-comments$suffix.js", array( 'gc-lists', 'quicktags', 'jquery-query' ), false, 1 );
 		$scripts->set_translations( 'admin-comments' );
 		did_action( 'init' ) && $scripts->localize(
 			'admin-comments',
@@ -1296,58 +1398,60 @@ function gc_default_scripts( $scripts ) {
 			)
 		);
 
-		$scripts->add( 'postbox', "/js/postbox$suffix.js", array( 'jquery-ui-sortable', 'gc-a11y' ), false, 1 );
+		$scripts->add( 'xfn', "/assets/js/xfn$suffix.js", array( 'jquery' ), false, 1 );
+
+		$scripts->add( 'postbox', "/assets/js/postbox$suffix.js", array( 'jquery-ui-sortable', 'gc-a11y' ), false, 1 );
 		$scripts->set_translations( 'postbox' );
 
-		$scripts->add( 'tags-box', "/js/tags-box$suffix.js", array( 'jquery', 'tags-suggest' ), false, 1 );
+		$scripts->add( 'tags-box', "/assets/js/tags-box$suffix.js", array( 'jquery', 'tags-suggest' ), false, 1 );
 		$scripts->set_translations( 'tags-box' );
 
-		$scripts->add( 'tags-suggest', "/js/tags-suggest$suffix.js", array( 'jquery-ui-autocomplete', 'gc-a11y' ), false, 1 );
+		$scripts->add( 'tags-suggest', "/assets/js/tags-suggest$suffix.js", array( 'jquery-ui-autocomplete', 'gc-a11y' ), false, 1 );
 		$scripts->set_translations( 'tags-suggest' );
 
-		$scripts->add( 'post', "/js/post$suffix.js", array( 'suggest', 'gc-lists', 'postbox', 'tags-box', 'underscore', 'word-count', 'gc-a11y', 'gc-sanitize', 'clipboard' ), false, 1 );
+		$scripts->add( 'post', "/assets/js/post$suffix.js", array( 'suggest', 'gc-lists', 'postbox', 'tags-box', 'underscore', 'word-count', 'gc-a11y', 'gc-sanitize', 'clipboard' ), false, 1 );
 		$scripts->set_translations( 'post' );
 
-		$scripts->add( 'editor-expand', "/js/editor-expand$suffix.js", array( 'jquery', 'underscore' ), false, 1 );
+		$scripts->add( 'editor-expand', "/assets/js/editor-expand$suffix.js", array( 'jquery', 'underscore' ), false, 1 );
 
-		$scripts->add( 'link', "/js/link$suffix.js", array( 'gc-lists', 'postbox' ), false, 1 );
+		$scripts->add( 'link', "/assets/js/link$suffix.js", array( 'gc-lists', 'postbox' ), false, 1 );
 
-		$scripts->add( 'comment', "/js/comment$suffix.js", array( 'jquery', 'postbox' ), false, 1 );
+		$scripts->add( 'comment', "/assets/js/comment$suffix.js", array( 'jquery', 'postbox' ), false, 1 );
 		$scripts->set_translations( 'comment' );
 
-		$scripts->add( 'admin-gallery', "/js/gallery$suffix.js", array( 'jquery-ui-sortable' ) );
+		$scripts->add( 'admin-gallery', "/assets/js/gallery$suffix.js", array( 'jquery-ui-sortable' ) );
 
-		$scripts->add( 'admin-widgets', "/js/widgets$suffix.js", array( 'jquery-ui-sortable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'gc-a11y' ), false, 1 );
+		$scripts->add( 'admin-widgets', "/assets/js/widgets$suffix.js", array( 'jquery-ui-sortable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'gc-a11y' ), false, 1 );
 		$scripts->set_translations( 'admin-widgets' );
 
-		$scripts->add( 'media-widgets', "/js/widgets/media-widgets$suffix.js", array( 'jquery', 'media-models', 'media-views', 'gc-api-request' ) );
+		$scripts->add( 'media-widgets', "/assets/js/widgets/media-widgets$suffix.js", array( 'jquery', 'media-models', 'media-views', 'gc-api-request' ) );
 		$scripts->add_inline_script( 'media-widgets', 'gc.mediaWidgets.init();', 'after' );
 
-		$scripts->add( 'media-audio-widget', "/js/widgets/media-audio-widget$suffix.js", array( 'media-widgets', 'media-audiovideo' ) );
-		$scripts->add( 'media-image-widget', "/js/widgets/media-image-widget$suffix.js", array( 'media-widgets' ) );
-		$scripts->add( 'media-gallery-widget', "/js/widgets/media-gallery-widget$suffix.js", array( 'media-widgets' ) );
-		$scripts->add( 'media-video-widget', "/js/widgets/media-video-widget$suffix.js", array( 'media-widgets', 'media-audiovideo', 'gc-api-request' ) );
-		$scripts->add( 'text-widgets', "/js/widgets/text-widgets$suffix.js", array( 'jquery', 'backbone', 'editor', 'gc-util', 'gc-a11y' ) );
-		$scripts->add( 'custom-html-widgets', "/js/widgets/custom-html-widgets$suffix.js", array( 'jquery', 'backbone', 'gc-util', 'jquery-ui-core', 'gc-a11y' ) );
+		$scripts->add( 'media-audio-widget', "/assets/js/widgets/media-audio-widget$suffix.js", array( 'media-widgets', 'media-audiovideo' ) );
+		$scripts->add( 'media-image-widget', "/assets/js/widgets/media-image-widget$suffix.js", array( 'media-widgets' ) );
+		$scripts->add( 'media-gallery-widget', "/assets/js/widgets/media-gallery-widget$suffix.js", array( 'media-widgets' ) );
+		$scripts->add( 'media-video-widget', "/assets/js/widgets/media-video-widget$suffix.js", array( 'media-widgets', 'media-audiovideo', 'gc-api-request' ) );
+		$scripts->add( 'text-widgets', "/assets/js/widgets/text-widgets$suffix.js", array( 'jquery', 'backbone', 'editor', 'gc-util', 'gc-a11y' ) );
+		$scripts->add( 'custom-html-widgets', "/assets/js/widgets/custom-html-widgets$suffix.js", array( 'jquery', 'backbone', 'gc-util', 'jquery-ui-core', 'gc-a11y' ) );
 
-		$scripts->add( 'theme', "/js/theme$suffix.js", array( 'gc-backbone', 'gc-a11y', 'customize-base' ), false, 1 );
+		$scripts->add( 'theme', "/assets/js/theme$suffix.js", array( 'gc-backbone', 'gc-a11y', 'customize-base' ), false, 1 );
 
-		$scripts->add( 'inline-edit-post', "/js/inline-edit-post$suffix.js", array( 'jquery', 'tags-suggest', 'gc-a11y' ), false, 1 );
+		$scripts->add( 'inline-edit-post', "/assets/js/inline-edit-post$suffix.js", array( 'jquery', 'tags-suggest', 'gc-a11y' ), false, 1 );
 		$scripts->set_translations( 'inline-edit-post' );
 
-		$scripts->add( 'inline-edit-tax', "/js/inline-edit-tax$suffix.js", array( 'jquery', 'gc-a11y' ), false, 1 );
+		$scripts->add( 'inline-edit-tax', "/assets/js/inline-edit-tax$suffix.js", array( 'jquery', 'gc-a11y' ), false, 1 );
 		$scripts->set_translations( 'inline-edit-tax' );
 
-		$scripts->add( 'plugin-install', "/js/plugin-install$suffix.js", array( 'jquery', 'jquery-ui-core', 'thickbox' ), false, 1 );
+		$scripts->add( 'plugin-install', "/assets/js/plugin-install$suffix.js", array( 'jquery', 'jquery-ui-core', 'thickbox' ), false, 1 );
 		$scripts->set_translations( 'plugin-install' );
 
-		$scripts->add( 'site-health', "/js/site-health$suffix.js", array( 'clipboard', 'jquery', 'gc-util', 'gc-a11y', 'gc-api-request', 'gc-url', 'gc-i18n', 'gc-hooks' ), false, 1 );
+		$scripts->add( 'site-health', "/assets/js/site-health$suffix.js", array( 'clipboard', 'jquery', 'gc-util', 'gc-a11y', 'gc-api-request', 'gc-url', 'gc-i18n', 'gc-hooks' ), false, 1 );
 		$scripts->set_translations( 'site-health' );
 
-		$scripts->add( 'privacy-tools', "/js/privacy-tools$suffix.js", array( 'jquery', 'gc-a11y' ), false, 1 );
+		$scripts->add( 'privacy-tools', "/assets/js/privacy-tools$suffix.js", array( 'jquery', 'gc-a11y' ), false, 1 );
 		$scripts->set_translations( 'privacy-tools' );
 
-		$scripts->add( 'updates', "/js/updates$suffix.js", array( 'app', 'common', 'jquery', 'gc-util', 'gc-a11y', 'gc-sanitize' ), false, 1 );
+		$scripts->add( 'updates', "/assets/js/updates$suffix.js", array( 'app', 'common', 'jquery', 'gc-util', 'gc-a11y', 'gc-sanitize', 'gc-i18n' ), false, 1 );
 		$scripts->set_translations( 'updates' );
 		did_action( 'init' ) && $scripts->localize(
 			'updates',
@@ -1357,44 +1461,44 @@ function gc_default_scripts( $scripts ) {
 			)
 		);
 
-		$scripts->add( 'farbtastic', "/vendors/farbtastic$suffix.js", array( 'jquery' ), '1.2' );
+		$scripts->add( 'farbtastic', '/assets/vendors/farbtastic.js', array( 'jquery' ), '1.2' );
 
-		$scripts->add( 'iris', '/vendors/iris.min.js', array( 'jquery-ui-draggable', 'jquery-ui-slider', 'jquery-touch-punch' ), '1.1.1', 1 );
-		$scripts->add( 'gc-color-picker', "/js/color-picker$suffix.js", array( 'iris' ), false, 1 );
+		$scripts->add( 'iris', '/assets/vendors/iris.min.js', array( 'jquery-ui-draggable', 'jquery-ui-slider', 'jquery-touch-punch' ), '1.1.1', 1 );
+		$scripts->add( 'gc-color-picker', "/assets/js/color-picker$suffix.js", array( 'iris' ), false, 1 );
 		$scripts->set_translations( 'gc-color-picker' );
 
-		$scripts->add( 'dashboard', "/js/dashboard$suffix.js", array( 'jquery', 'admin-comments', 'postbox', 'gc-util', 'gc-a11y', 'gc-date' ), false, 1 );
+		$scripts->add( 'dashboard', "/assets/js/dashboard$suffix.js", array( 'jquery', 'admin-comments', 'postbox', 'gc-util', 'gc-a11y', 'gc-date' ), false, 1 );
 		$scripts->set_translations( 'dashboard' );
 
-		$scripts->add( 'list-revisions', "/js/gc-list-revisions$suffix.js" );
+		$scripts->add( 'list-revisions', "/assets/js/gc-list-revisions$suffix.js" );
 
-		$scripts->add( 'media-grid', "/js/media-grid$suffix.js", array( 'media-editor' ), false, 1 );
-		$scripts->add( 'media', "/js/media$suffix.js", array( 'jquery', 'clipboard', 'gc-i18n', 'gc-a11y' ), false, 1 );
+		$scripts->add( 'media-grid', "/assets/js/media-grid$suffix.js", array( 'media-editor' ), false, 1 );
+		$scripts->add( 'media', "/assets/js/media$suffix.js", array( 'jquery', 'clipboard', 'gc-i18n', 'gc-a11y' ), false, 1 );
 		$scripts->set_translations( 'media' );
 
-		$scripts->add( 'image-edit', "/js/image-edit$suffix.js", array( 'jquery', 'jquery-ui-core', 'json2', 'imgareaselect', 'gc-a11y' ), false, 1 );
+		$scripts->add( 'image-edit', "/assets/js/image-edit$suffix.js", array( 'jquery', 'jquery-ui-core', 'json2', 'imgareaselect', 'gc-a11y' ), false, 1 );
 		$scripts->set_translations( 'image-edit' );
 
-		$scripts->add( 'set-post-thumbnail', "/js/set-post-thumbnail$suffix.js", array( 'jquery' ), false, 1 );
+		$scripts->add( 'set-post-thumbnail', "/assets/js/set-post-thumbnail$suffix.js", array( 'jquery' ), false, 1 );
 		$scripts->set_translations( 'set-post-thumbnail' );
 
 		/*
 		 * Navigation Menus: Adding underscore as a dependency to utilize _.debounce
 		 * see https://core.trac.gechiui.com/ticket/42321
 		 */
-		$scripts->add( 'nav-menu', "/js/nav-menu$suffix.js", array( 'jquery-ui-sortable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'gc-lists', 'postbox', 'json2', 'underscore' ) );
+		$scripts->add( 'nav-menu', "/assets/js/nav-menu$suffix.js", array( 'jquery-ui-sortable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'gc-lists', 'postbox', 'json2', 'underscore' ) );
 		$scripts->set_translations( 'nav-menu' );
 
-		$scripts->add( 'custom-header', '/js/custom-header.js', array( 'jquery-masonry' ), false, 1 );
-		$scripts->add( 'custom-background', "/js/custom-background$suffix.js", array( 'gc-color-picker', 'media-views' ), false, 1 );
-		$scripts->add( 'media-gallery', "/js/media-gallery$suffix.js", array( 'jquery' ), false, 1 );
+		$scripts->add( 'custom-header', '/assets/js/custom-header.js', array( 'jquery-masonry' ), false, 1 );
+		$scripts->add( 'custom-background', "/assets/js/custom-background$suffix.js", array( 'gc-color-picker', 'media-views' ), false, 1 );
+		$scripts->add( 'media-gallery', "/assets/js/media-gallery$suffix.js", array( 'jquery' ), false, 1 );
 
-		$scripts->add( 'svg-painter', '/js/svg-painter.js', array( 'jquery' ), false, 1 );
+		$scripts->add( 'svg-painter', '/assets/js/svg-painter.js', array( 'jquery' ), false, 1 );
 	}
 }
 
 /**
- * Assign default styles to $styles object.
+ * Assigns default styles to $styles object.
  *
  * Nothing is returned, because the $styles parameter is passed by reference.
  * Meaning that whatever object is passed will be updated without having to
@@ -1403,8 +1507,6 @@ function gc_default_scripts( $scripts ) {
  *
  * Adding default styles is not the only task, it also assigns the base_url
  * property, the default version, and text direction for the object.
- *
- *
  *
  * @global array $editor_styles
  *
@@ -1417,10 +1519,15 @@ function gc_default_styles( $styles ) {
 	require ABSPATH . GCINC . '/version.php';
 
 	if ( ! defined( 'SCRIPT_DEBUG' ) ) {
+		/*
+		 * Note: str_contains() is not used here, as this file can be included
+		 * via gc-admin/load-scripts.php or gc-admin/load-styles.php, in which case
+		 * the polyfills from gc-includes/compat.php are not loaded.
+		 */
 		define( 'SCRIPT_DEBUG', false !== strpos( $gc_version, '-src' ) );
 	}
 
-	$guessurl = rtrim( assets_url(), '/' );
+	$guessurl = site_url();
 
 	if ( ! $guessurl ) {
 		$guessurl = gc_guess_url();
@@ -1431,8 +1538,10 @@ function gc_default_styles( $styles ) {
 	$styles->default_version = get_bloginfo( 'version' );
 	$styles->text_direction  = function_exists( 'is_rtl' ) && is_rtl() ? 'rtl' : 'ltr';
 	//压缩的文件夹，此文件夹开头的CSS文件压缩到load-styles.php文件中
-	$styles->default_dirs    = array( '/css/', '/vendors/' );
+	$styles->default_dirs    = array( '/assets/css/', '/assets/vendors/' );
 
+	// Open Sans is no longer used by core, but may be relied upon by themes and plugins.
+	// $open_sans_font_url = '';
 
 	/*
 	 * translators: If there are characters in your language that are not supported
@@ -1454,6 +1563,9 @@ function gc_default_styles( $styles ) {
 		} elseif ( 'vietnamese' === $subset ) {
 			$subsets .= ',vietnamese';
 		}
+
+		// Hotlink Open Sans, for now.
+		// $open_sans_font_url = "https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,300,400,600&subset=$subsets&display=fallback";
 	}
 
 	// Register a stylesheet for the selected admin color scheme.
@@ -1462,101 +1574,133 @@ function gc_default_styles( $styles ) {
 	$suffix = SCRIPT_DEBUG ? '' : '.min';
 
 	// Admin CSS.
-	$styles->add( 'perfect-scrollbar', "/vendors/perfect-scrollbar/css/perfect-scrollbar$suffix.css" );  /*轻量级滚动条样式*/
-    $styles->add( 'app', "/css/app$suffix.css" , array( 'perfect-scrollbar' ));
-    $styles->add( 'admin-bar', "/css/admin-bar$suffix.css" );
-	$styles->add( 'common', "/css/common$suffix.css" );
-	$styles->add( 'forms', "/css/forms$suffix.css" );
-	$styles->add( 'dashboard', "/css/dashboard$suffix.css" );
-	$styles->add( 'list-tables', "/css/list-tables$suffix.css" );
-	$styles->add( 'edit', "/css/edit$suffix.css" );
-	$styles->add( 'revisions', "/css/revisions$suffix.css" );
-	$styles->add( 'media', "/css/media$suffix.css" );
-	$styles->add( 'themes', "/css/themes$suffix.css" );
-	$styles->add( 'about', "/css/about$suffix.css" );
-	$styles->add( 'nav-menus', "/css/nav-menus$suffix.css" );
-	$styles->add( 'widgets', "/css/widgets$suffix.css", array( 'gc-pointer' ) );
-	$styles->add( 'site-icon', "/css/site-icon$suffix.css" );
-	$styles->add( 'l10n', "/css/l10n$suffix.css" );
-	$styles->add( 'code-editor', "/css/code-editor$suffix.css", array( 'gc-codemirror' ) );
-	$styles->add( 'site-health', "/css/site-health$suffix.css" );
+	$styles->add( 'perfect-scrollbar', "/assets/vendors/perfect-scrollbar/css/perfect-scrollbar$suffix.css" );  /*轻量级滚动条样式*/
+    $styles->add( 'app', "/assets/css/app$suffix.css" , array( 'perfect-scrollbar' ));
+    $styles->add( 'dataTables', "/assets/vendors/datatables/dataTables.bootstrap$suffix.css" ); 
+    $styles->add( 'admin-bar', "/assets/css/admin-bar$suffix.css" );
 
-	$styles->add( 'gc-admin', false, array( 'dashicons', 'app', 'common', 'forms', 'dashboard', 'list-tables', 'edit', 'revisions', 'media', 'themes', 'about', 'nav-menus', 'widgets', 'site-icon', 'l10n' ) );
+	$styles->add( 'common', "/assets/css/common$suffix.css" );
+	$styles->add( 'forms', "/assets/css/forms$suffix.css" );
+	// $styles->add( 'admin-menu', "/assets/css/admin-menu$suffix.css" );
+	$styles->add( 'dashboard', "/assets/css/dashboard$suffix.css" );
+	$styles->add( 'list-tables', "/assets/css/list-tables$suffix.css" );
+	$styles->add( 'edit', "/assets/css/edit$suffix.css" );
+	$styles->add( 'revisions', "/assets/css/revisions$suffix.css" );
+	$styles->add( 'media', "/assets/css/media$suffix.css" );
+	$styles->add( 'themes', "/assets/css/themes$suffix.css" );
+	$styles->add( 'about', "/assets/css/about$suffix.css" );
+	$styles->add( 'nav-menus', "/assets/css/nav-menus$suffix.css" );
+	$styles->add( 'widgets', "/assets/css/widgets$suffix.css", array( 'gc-pointer' ) );
+	$styles->add( 'site-icon', "/assets/css/site-icon$suffix.css" );
+	$styles->add( 'l10n', "/assets/css/l10n$suffix.css" );
+	$styles->add( 'code-editor', "/assets/css/code-editor$suffix.css", array( 'gc-codemirror' ) );
+	$styles->add( 'site-health', "/assets/css/site-health$suffix.css" );
 
-	$styles->add( 'login', "/css/login$suffix.css", array( 'dashicons', 'buttons', 'forms', 'l10n' ) );
-	$styles->add( 'install', "/css/install$suffix.css", array( 'dashicons', 'buttons', 'forms', 'l10n' ) );
-	$styles->add( 'gc-color-picker', "/css/color-picker$suffix.css" );
-	$styles->add( 'customize-controls', "/css/customize-controls$suffix.css", array( 'gc-admin', 'colors', 'imgareaselect' ) );
-	$styles->add( 'customize-widgets', "/css/customize-widgets$suffix.css", array( 'gc-admin', 'colors' ) );
-	$styles->add( 'customize-nav-menus', "/css/customize-nav-menus$suffix.css", array( 'gc-admin', 'colors' ) );
+	$styles->add( 'gc-admin', false, array( 'dashicons', 'common', 'forms', 'dashboard', 'list-tables', 'edit', 'revisions', 'media', 'themes', 'about', 'nav-menus', 'widgets', 'site-icon', 'l10n', 'app' ) );
+
+	$styles->add( 'login', "/assets/css/login$suffix.css", array( 'dashicons', 'buttons', 'forms', 'l10n', 'app' ) );
+	$styles->add( 'install', "/assets/css/install$suffix.css", array( 'dashicons', 'buttons', 'forms', 'l10n', 'app' ) );
+	$styles->add( 'gc-color-picker', "/assets/css/color-picker$suffix.css" );
+	$styles->add( 'customize-controls', "/assets/css/customize-controls$suffix.css", array( 'gc-admin', 'colors', 'imgareaselect' ) );
+	$styles->add( 'customize-widgets', "/assets/css/customize-widgets$suffix.css", array( 'gc-admin', 'colors' ) );
+	$styles->add( 'customize-nav-menus', "/assets/css/customize-nav-menus$suffix.css", array( 'gc-admin', 'colors' ) );
 
 	// Common dependencies.
-	$styles->add( 'buttons', "/css/buttons$suffix.css" );
-	$styles->add( 'dashicons', "/css/dashicons$suffix.css" );
+	$styles->add( 'buttons', "/assets/css/buttons$suffix.css" );
+	$styles->add( 'dashicons', "/assets/css/dashicons$suffix.css" );
 
 	// Includes CSS.
-	$styles->add( 'gc-auth-check', "/css/gc-auth-check$suffix.css", array( 'dashicons' ) );
-	$styles->add( 'editor-buttons', "/css/editor$suffix.css", array( 'dashicons' ) );
-	$styles->add( 'media-views', "/css/media-views$suffix.css", array( 'buttons', 'dashicons', 'gc-mediaelement' ) );
-	$styles->add( 'gc-pointer', "/css/gc-pointer$suffix.css", array( 'dashicons' ) );
-	$styles->add( 'customize-preview', "/css/customize-preview$suffix.css", array( 'dashicons' ) );
-	$styles->add( 'gc-embed-template-ie', "/css/gc-embed-template-ie$suffix.css" );
+	// $styles->add( 'admin-bar', "/assets/css/admin-bar$suffix.css", array( 'dashicons' ) );
+	$styles->add( 'gc-auth-check', "/assets/css/gc-auth-check$suffix.css", array( 'dashicons' ) );
+	$styles->add( 'editor-buttons', "/assets/css/editor$suffix.css", array( 'dashicons' ) );
+	$styles->add( 'media-views', "/assets/css/media-views$suffix.css", array( 'buttons', 'dashicons', 'gc-mediaelement' ) );
+	$styles->add( 'gc-pointer', "/assets/css/gc-pointer$suffix.css", array( 'dashicons' ) );
+	$styles->add( 'customize-preview', "/assets/css/customize-preview$suffix.css", array( 'dashicons' ) );
+	$styles->add( 'gc-embed-template-ie', "/assets/css/gc-embed-template-ie$suffix.css" );
 	$styles->add_data( 'gc-embed-template-ie', 'conditional', 'lte IE 8' );
 
 	// External libraries and friends.
-	$styles->add( 'imgareaselect', '/vendors/imgareaselect/imgareaselect.css', array(), '0.9.8' );
-	$styles->add( 'gc-jquery-ui-dialog', "/css/jquery-ui-dialog$suffix.css", array( 'dashicons' ) );
-	$styles->add( 'mediaelement', '/vendors/mediaelement/mediaelementplayer-legacy.min.css', array(), '4.2.16' );
-	$styles->add( 'gc-mediaelement', "/vendors/mediaelement/gc-mediaelement$suffix.css", array( 'mediaelement' ) );
-	$styles->add( 'thickbox', '/vendors/thickbox/thickbox.css', array( 'dashicons' ) );
-	$styles->add( 'gc-codemirror', '/vendors/codemirror/codemirror.min.css', array(), '5.29.1-alpha-ee20357' );
+	$styles->add( 'imgareaselect', '/assets/vendors/imgareaselect/imgareaselect.css', array(), '0.9.8' );
+	$styles->add( 'gc-jquery-ui-dialog', "/assets/css/jquery-ui-dialog$suffix.css", array( 'dashicons' ) );
+	$styles->add( 'mediaelement', '/assets/vendors/mediaelement/mediaelementplayer-legacy.min.css', array(), '4.2.17' );
+	$styles->add( 'gc-mediaelement', "/assets/vendors/mediaelement/gc-mediaelement$suffix.css", array( 'mediaelement' ) );
+	$styles->add( 'thickbox', '/assets/vendors/thickbox/thickbox.css', array( 'dashicons' ) );
+	$styles->add( 'gc-codemirror', '/assets/vendors/codemirror/codemirror.min.css', array(), '5.29.1-alpha-ee20357' );
 
 	// Deprecated CSS.
-	$styles->add( 'deprecated-media', "/css/deprecated-media$suffix.css" );
-	$styles->add( 'farbtastic', "/css/farbtastic$suffix.css", array(), '1.3u1' );
-	$styles->add( 'jcrop', '/vendors/jcrop/jquery.Jcrop.min.css', array(), '0.9.15' );
+	$styles->add( 'deprecated-media', "/assets/css/deprecated-media$suffix.css" );
+	$styles->add( 'farbtastic', "/assets/css/farbtastic$suffix.css", array(), '1.3u1' );
+	$styles->add( 'jcrop', '/assets/vendors/jcrop/jquery.Jcrop.min.css', array(), '0.9.15' );
 	$styles->add( 'colors-fresh', false, array( 'gc-admin', 'buttons' ) ); // Old handle.
+	// $styles->add( 'open-sans', $open_sans_font_url ); // No longer used in core as of 4.6.
 
+	// Noto Serif is no longer used by core, but may be relied upon by themes and plugins.
+	// $fonts_url = '';
 
-	$block_library_theme_path = "/css/dist/block-library/theme$suffix.css";
-	$styles->add( 'gc-block-library-theme', $block_library_theme_path );
-	$styles->add_data( 'gc-block-library-theme', 'path', ABSPATH . 'assets/' . $block_library_theme_path );
+	/*
+	 * translators: Use this to specify the proper Google Font name and variants
+	 * to load that is supported by your language. Do not translate.
+	 * Set to 'off' to disable loading.
+	 */
+	$font_family = _x( 'Noto Serif:400,400i,700,700i', 'Google Font Name and Variants' );
+	// if ( 'off' !== $font_family ) {
+	// 	$fonts_url = 'https://fonts.googleapis.com/css?family=' . urlencode( $font_family );
+	// }
+	// $styles->add( 'gc-editor-font', $fonts_url ); // No longer used in core as of 5.7.
+	$block_library_theme_path = "assets/css/dist/block-library/theme$suffix.css";
+	$styles->add( 'gc-block-library-theme', "/$block_library_theme_path" );
+	$styles->add_data( 'gc-block-library-theme', 'path', ABSPATH . $block_library_theme_path );
 
 	$styles->add(
 		'gc-reset-editor-styles',
-		"/css/dist/block-library/reset$suffix.css",
-		array( 'app', 'common', 'forms' ) // Make sure the reset is loaded after the default GC Admin styles.
+		"/assets/css/dist/block-library/reset$suffix.css",
+		array( 'common', 'forms', 'app' ) // Make sure the reset is loaded after the default GC Admin styles.
 	);
 
 	$styles->add(
 		'gc-editor-classic-layout-styles',
-		"/css/dist/edit-post/classic$suffix.css",
+		"/assets/css/dist/edit-post/classic$suffix.css",
 		array()
+	);
+
+	$styles->add(
+		'gc-block-editor-content',
+		"/assets/css/dist/block-editor/content$suffix.css",
+		array( 'gc-components' )
 	);
 
 	$gc_edit_blocks_dependencies = array(
 		'gc-components',
 		'gc-editor',
-		// This need to be added before the block library styles,
-		// The block library styles override the "reset" styles.
+		/*
+		 * This needs to be added before the block library styles,
+		 * The block library styles override the "reset" styles.
+		 */
 		'gc-reset-editor-styles',
 		'gc-block-library',
 		'gc-reusable-blocks',
+		'gc-block-editor-content',
 	);
 
 	// Only load the default layout and margin styles for themes without theme.json file.
-	if ( ! GC_Theme_JSON_Resolver::theme_has_support() ) {
+	if ( ! gc_theme_has_theme_json() ) {
 		$gc_edit_blocks_dependencies[] = 'gc-editor-classic-layout-styles';
 	}
 
-	if ( ! is_array( $editor_styles ) || count( $editor_styles ) === 0 ) {
-		// Include opinionated block styles if no $editor_styles are declared, so the editor never appears broken.
+	if (
+		current_theme_supports( 'gc-block-styles' ) &&
+		( ! is_array( $editor_styles ) || count( $editor_styles ) === 0 )
+	) {
+		/*
+		 * Include opinionated block styles if the theme supports block styles and
+		 * no $editor_styles are declared, so the editor never appears broken.
+		 */
 		$gc_edit_blocks_dependencies[] = 'gc-block-library-theme';
 	}
 
 	$styles->add(
 		'gc-edit-blocks',
-		"/css/dist/block-library/editor$suffix.css",
+		"/assets/css/dist/block-library/editor$suffix.css",
 		$gc_edit_blocks_dependencies
 	);
 
@@ -1565,18 +1709,18 @@ function gc_default_styles( $styles ) {
 		'block-library'        => array(),
 		'block-directory'      => array(),
 		'components'           => array(),
+		'commands'             => array(),
 		'edit-post'            => array(
 			'gc-components',
 			'gc-block-editor',
 			'gc-editor',
 			'gc-edit-blocks',
 			'gc-block-library',
-			'gc-nux',
+			'gc-commands',
 		),
 		'editor'               => array(
 			'gc-components',
 			'gc-block-editor',
-			'gc-nux',
 			'gc-reusable-blocks',
 		),
 		'format-library'       => array(),
@@ -1604,18 +1748,19 @@ function gc_default_styles( $styles ) {
 			'gc-components',
 			'gc-block-editor',
 			'gc-edit-blocks',
+			'gc-commands',
 		),
 	);
 
 	foreach ( $package_styles as $package => $dependencies ) {
 		$handle = 'gc-' . $package;
-		$path   = "/css/dist/$package/style$suffix.css";
+		$path   = "/assets/css/dist/$package/style$suffix.css";
 
 		if ( 'block-library' === $package && gc_should_load_separate_core_block_assets() ) {
-			$path = "/css/dist/$package/common$suffix.css";
+			$path = "/assets/css/dist/$package/common$suffix.css";
 		}
 		$styles->add( $handle, $path, $dependencies );
-		$styles->add_data( $handle, 'path', ABSPATH . 'assets/' . $path );
+		$styles->add_data( $handle, 'path', ABSPATH . $path );
 	}
 
 	// RTL CSS.
@@ -1624,6 +1769,7 @@ function gc_default_styles( $styles ) {
 		'app',
 		'common',
 		'forms',
+		// 'admin-menu',
 		'dashboard',
 		'list-tables',
 		'edit',
@@ -1645,6 +1791,7 @@ function gc_default_styles( $styles ) {
 		'site-health',
 		// Includes CSS.
 		'buttons',
+		// 'admin-bar',
 		'gc-auth-check',
 		'editor-buttons',
 		'media-views',
@@ -1658,6 +1805,7 @@ function gc_default_styles( $styles ) {
 		'gc-block-editor',
 		'gc-block-library',
 		'gc-block-directory',
+		'gc-commands',
 		'gc-components',
 		'gc-customize-widgets',
 		'gc-edit-post',
@@ -1683,12 +1831,12 @@ function gc_default_styles( $styles ) {
 }
 
 /**
- * Reorder JavaScript scripts array to place prototype before jQuery.
+ * Reorders JavaScript scripts array to place prototype before jQuery.
  *
+ * @since 2.3.1
  *
- *
- * @param array $js_array JavaScript scripts array
- * @return array Reordered array, if needed.
+ * @param string[] $js_array JavaScript scripts array
+ * @return string[] Reordered array, if needed.
  */
 function gc_prototype_before_jquery( $js_array ) {
 	$prototype = array_search( 'prototype', $js_array, true );
@@ -1715,10 +1863,9 @@ function gc_prototype_before_jquery( $js_array ) {
 }
 
 /**
- * Load localized data on print rather than initialization.
+ * Loads localized data on print rather than initialization.
  *
  * These localizations require information that may not be loaded even by init.
- *
  *
  */
 function gc_just_in_time_script_localization() {
@@ -1744,12 +1891,7 @@ function gc_just_in_time_script_localization() {
 		'word-count',
 		'wordCountL10n',
 		array(
-			/*
-			 * translators: If your word count is based on single characters (e.g. East Asian characters),
-			 * enter 'characters_excluding_spaces' or 'characters_including_spaces'. Otherwise, enter 'words'.
-			 * Do not translate into your own language.
-			 */
-			'type'       => _x( 'characters_excluding_spaces', 'Word count type. Do not translate!' ),
+			'type'       => gc_get_word_count_type(),
 			'shortcodes' => ! empty( $GLOBALS['shortcode_tags'] ) ? array_keys( $GLOBALS['shortcode_tags'] ) : array(),
 		)
 	);
@@ -1757,8 +1899,6 @@ function gc_just_in_time_script_localization() {
 
 /**
  * Localizes the jQuery UI datepicker.
- *
- *
  *
  * @link https://api.jqueryui.com/datepicker/#options
  *
@@ -1806,8 +1946,8 @@ function gc_localize_jquery_ui_datepicker() {
 			'currentText'     => __( '今天' ),
 			'monthNames'      => array_values( $gc_locale->month ),
 			'monthNamesShort' => array_values( $gc_locale->month_abbrev ),
-			'nextText'        => __( '下一步' ),
-			'prevText'        => __( '上一步' ),
+			'nextText'        => __( '下个' ),
+			'prevText'        => __( '上个' ),
 			'dayNames'        => array_values( $gc_locale->weekday ),
 			'dayNamesShort'   => array_values( $gc_locale->weekday_abbrev ),
 			'dayNamesMin'     => array_values( $gc_locale->weekday_initial ),
@@ -1822,7 +1962,6 @@ function gc_localize_jquery_ui_datepicker() {
 
 /**
  * Localizes community events data that needs to be passed to dashboard.js.
- *
  *
  */
 function gc_localize_community_events() {
@@ -1875,8 +2014,6 @@ function gc_localize_community_events() {
  * The query from $src parameter will be appended to the URL that is given from
  * the $_gc_admin_css_colors array value URL.
  *
- *
- *
  * @global array $_gc_admin_css_colors
  *
  * @param string $src    Source URL.
@@ -1923,8 +2060,6 @@ function gc_style_loader_src( $src, $handle ) {
  * Postpones the scripts that were queued for the footer.
  * print_footer_scripts() is called in the footer to print these scripts.
  *
- *
- *
  * @see gc_print_scripts()
  *
  * @global bool $concatenate_scripts
@@ -1962,8 +2097,6 @@ function print_head_scripts() {
 /**
  * Prints the scripts that were queued for the footer or too late for the HTML head.
  *
- *
- *
  * @global GC_Scripts $gc_scripts
  * @global bool       $concatenate_scripts
  *
@@ -1994,7 +2127,7 @@ function print_footer_scripts() {
 }
 
 /**
- * Print scripts (internal use only)
+ * Prints scripts (internal use only)
  *
  * @ignore
  *
@@ -2028,7 +2161,7 @@ function _print_scripts() {
 			$concatenated .= "&load%5Bchunk_{$key}%5D={$chunk}";
 		}
 
-		$src = site_url( "/gc-admin/load-scripts.php?c={$zip}" . $concatenated . '&ver=' . $gc_scripts->default_version );
+		$src = $gc_scripts->base_url . "/gc-admin/load-scripts.php?c={$zip}" . $concatenated . '&ver=' . $gc_scripts->default_version;
 		echo "<script{$type_attr} src='" . esc_attr( $src ) . "'></script>\n";
 	}
 
@@ -2042,8 +2175,6 @@ function _print_scripts() {
  *
  * Postpones the scripts that were queued for the footer.
  * gc_print_footer_scripts() is called in the footer to print these scripts.
- *
- *
  *
  * @global GC_Scripts $gc_scripts
  *
@@ -2067,7 +2198,6 @@ function gc_print_head_scripts() {
 /**
  * Private, for use in *_footer_scripts hooks
  *
- *
  */
 function _gc_footer_scripts() {
 	print_late_styles();
@@ -2076,7 +2206,6 @@ function _gc_footer_scripts() {
 
 /**
  * Hooks to print the scripts and styles in the footer.
- *
  *
  */
 function gc_print_footer_scripts() {
@@ -2093,7 +2222,6 @@ function gc_print_footer_scripts() {
  * Allows plugins to queue scripts for the front end using gc_enqueue_script().
  * Runs first in gc_head() where all is_home(), is_page(), etc. functions are available.
  *
- *
  */
 function gc_enqueue_scripts() {
 	/**
@@ -2105,8 +2233,6 @@ function gc_enqueue_scripts() {
 
 /**
  * Prints the styles queue in the HTML head on admin pages.
- *
- *
  *
  * @global bool $concatenate_scripts
  *
@@ -2137,8 +2263,6 @@ function print_admin_styles() {
 
 /**
  * Prints the styles that were queued too late for the HTML head.
- *
- *
  *
  * @global GC_Styles $gc_styles
  * @global bool      $concatenate_scripts
@@ -2171,10 +2295,9 @@ function print_late_styles() {
 }
 
 /**
- * Print styles (internal use only)
+ * Prints styles (internal use only).
  *
  * @ignore
- *
  *
  * @global bool $compress_css
  */
@@ -2202,7 +2325,7 @@ function _print_styles() {
 			$concatenated .= "&load%5Bchunk_{$key}%5D={$chunk}";
 		}
 
-		$href = site_url( "/gc-admin/load-styles.php?c={$zip}&dir={$dir}" . $concatenated . '&ver=' . $ver );
+		$href = $gc_styles->base_url . "/gc-admin/load-styles.php?c={$zip}&dir={$dir}" . $concatenated . '&ver=' . $ver;
 		echo "<link rel='stylesheet' href='" . esc_attr( $href ) . "'{$type_attr} media='all' />\n";
 
 		if ( ! empty( $gc_styles->print_code ) ) {
@@ -2218,9 +2341,7 @@ function _print_styles() {
 }
 
 /**
- * Determine the concatenation and compression settings for scripts and styles.
- *
- *
+ * Determines the concatenation and compression settings for scripts and styles.
  *
  * @global bool $concatenate_scripts
  * @global bool $compress_scripts
@@ -2259,7 +2380,7 @@ function script_concat_settings() {
  * Handles the enqueueing of block scripts and styles that are common to both
  * the editor and the front-end.
  *
- *
+ * @since 5.0.0
  */
 function gc_common_block_scripts_and_styles() {
 	if ( is_admin() && ! gc_should_load_block_editor_scripts_and_styles() ) {
@@ -2268,20 +2389,8 @@ function gc_common_block_scripts_and_styles() {
 
 	gc_enqueue_style( 'gc-block-library' );
 
-	if ( current_theme_supports( 'gc-block-styles' ) ) {
-		if ( gc_should_load_separate_core_block_assets() ) {
-			$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? 'css' : 'min.css';
-			$files  = glob( ABSPATH . "assets/blocks/**/theme.$suffix" );
-			foreach ( $files as $path ) {
-				$block_name = basename( dirname( $path ) );
-				if ( is_rtl() && file_exists( ABSPATH . "assets/blocks/$block_name/theme-rtl.$suffix" ) ) {
-					$path = ABSPATH . "assets/blocks/$block_name/theme-rtl.$suffix";
-				}
-				gc_add_inline_style( "gc-block-{$block_name}", file_get_contents( $path ) );
-			}
-		} else {
-			gc_enqueue_style( 'gc-block-library-theme' );
-		}
+	if ( current_theme_supports( 'gc-block-styles' ) && ! gc_should_load_separate_core_block_assets() ) {
+		gc_enqueue_style( 'gc-block-library-theme' );
 	}
 
 	/**
@@ -2292,14 +2401,39 @@ function gc_common_block_scripts_and_styles() {
 	 * In the function call you supply, simply use `gc_enqueue_script` and
 	 * `gc_enqueue_style` to add your functionality to the Gutenberg editor.
 	 *
+	 * @since 5.0.0
 	 */
 	do_action( 'enqueue_block_assets' );
 }
 
 /**
+ * Applies a filter to the list of style nodes that comes from GC_Theme_JSON::get_style_nodes().
+ *
+ * This particular filter removes all of the blocks from the array.
+ *
+ * We want GC_Theme_JSON to be ignorant of the implementation details of how the CSS is being used.
+ * This filter allows us to modify the output of GC_Theme_JSON depending on whether or not we are
+ * loading separate assets, without making the class aware of that detail.
+ *
+ * @since 6.1.0
+ *
+ * @param array $nodes The nodes to filter.
+ * @return array A filtered array of style nodes.
+ */
+function gc_filter_out_block_nodes( $nodes ) {
+	return array_filter(
+		$nodes,
+		static function( $node ) {
+			return ! in_array( 'blocks', $node['path'], true );
+		},
+		ARRAY_FILTER_USE_BOTH
+	);
+}
+
+/**
  * Enqueues the global styles defined via theme.json.
  *
- *
+ * @since 5.8.0
  */
 function gc_enqueue_global_styles() {
 	$separate_assets  = gc_should_load_separate_core_block_assets();
@@ -2317,9 +2451,15 @@ function gc_enqueue_global_styles() {
 		( $is_classic_theme && doing_action( 'gc_footer' ) && ! $separate_assets ) ||
 		( $is_classic_theme && doing_action( 'gc_enqueue_scripts' ) && $separate_assets )
 	) {
-
 		return;
 	}
+
+	/*
+	 * If loading the CSS for each block separately, then load the theme.json CSS conditionally.
+	 * This removes the CSS from the global-styles stylesheet and adds it to the inline CSS for each block.
+	 * This filter must be registered before calling gc_get_global_stylesheet();
+	 */
+	add_filter( 'gc_theme_json_get_style_nodes', 'gc_filter_out_block_nodes' );
 
 	$stylesheet = gc_get_global_stylesheet();
 
@@ -2327,44 +2467,38 @@ function gc_enqueue_global_styles() {
 		return;
 	}
 
-	gc_register_style( 'global-styles', false, array(), true, true );
+	gc_register_style( 'global-styles', false );
 	gc_add_inline_style( 'global-styles', $stylesheet );
 	gc_enqueue_style( 'global-styles' );
+
+	// Add each block as an inline css.
+	gc_add_global_styles_for_blocks();
 }
 
 /**
- * Render the SVG filters supplied by theme.json.
+ * Enqueues the global styles custom css defined via theme.json.
  *
- * Note that this doesn't render the per-block user-defined
- * filters which are handled by gc_render_duotone_support,
- * but it should be rendered before the filtered content
- * in the body to satisfy Safari's rendering quirks.
- *
- * @since 5.9.1
+ * @since 6.2.0
  */
-function gc_global_styles_render_svg_filters() {
-	/*
-	 * When calling via the in_admin_header action, we only want to render the
-	 * SVGs on block editor pages.
-	 */
-	if (
-		is_admin() &&
-		! get_current_screen()->is_block_editor()
-	) {
+function gc_enqueue_global_styles_custom_css() {
+	if ( ! gc_is_block_theme() ) {
 		return;
 	}
 
-	$filters = gc_get_global_styles_svg_filters();
-	if ( ! empty( $filters ) ) {
-		echo $filters;
+	// Don't enqueue Customizer's custom CSS separately.
+	remove_action( 'gc_head', 'gc_custom_css_cb', 101 );
+
+	$custom_css  = gc_get_custom_css();
+	$custom_css .= gc_get_global_styles_custom_css();
+
+	if ( ! empty( $custom_css ) ) {
+		gc_add_inline_style( 'global-styles', $custom_css );
 	}
 }
 
 /**
  * Checks if the editor scripts and styles for all registered block types
  * should be enqueued on the current screen.
- *
- *
  *
  * @global GC_Screen $current_screen GeChiUI current screen object.
  *
@@ -2379,6 +2513,7 @@ function gc_should_load_block_editor_scripts_and_styles() {
 	 * Filters the flag that decides whether or not block editor scripts and styles
 	 * are going to be enqueued on the current screen.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param bool $is_block_editor_screen Current value of the flag.
 	 */
@@ -2402,7 +2537,7 @@ function gc_should_load_block_editor_scripts_and_styles() {
  * @see gc_enqueue_registered_block_scripts_and_styles()
  * @see register_block_style_handle()
  *
- *
+ * @since 5.8.0
  *
  * @return bool Whether separate assets will be loaded.
  */
@@ -2417,6 +2552,7 @@ function gc_should_load_separate_core_block_assets() {
 	 * Returning false loads all core block assets, regardless of whether they are rendered
 	 * in a page or not. Returning true loads core block assets only when they are rendered.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param bool $load_separate_assets Whether separate assets will be loaded.
 	 *                                   Default false (all block assets are loaded, even when not used).
@@ -2428,7 +2564,7 @@ function gc_should_load_separate_core_block_assets() {
  * Enqueues registered block scripts and styles, depending on current rendered
  * context (only enqueuing editor scripts while in context of the editor).
  *
- *
+ * @since 5.0.0
  *
  * @global GC_Screen $current_screen GeChiUI current screen object.
  */
@@ -2439,28 +2575,30 @@ function gc_enqueue_registered_block_scripts_and_styles() {
 		return;
 	}
 
-	$load_editor_scripts = is_admin() && gc_should_load_block_editor_scripts_and_styles();
+	$load_editor_scripts_and_styles = is_admin() && gc_should_load_block_editor_scripts_and_styles();
 
 	$block_registry = GC_Block_Type_Registry::get_instance();
 	foreach ( $block_registry->get_all_registered() as $block_name => $block_type ) {
-		// Front-end styles.
-		if ( ! empty( $block_type->style ) ) {
-			gc_enqueue_style( $block_type->style );
+		// Front-end and editor styles.
+		foreach ( $block_type->style_handles as $style_handle ) {
+			gc_enqueue_style( $style_handle );
 		}
 
-		// Front-end script.
-		if ( ! empty( $block_type->script ) ) {
-			gc_enqueue_script( $block_type->script );
+		// Front-end and editor scripts.
+		foreach ( $block_type->script_handles as $script_handle ) {
+			gc_enqueue_script( $script_handle );
 		}
 
-		// Editor styles.
-		if ( $load_editor_scripts && ! empty( $block_type->editor_style ) ) {
-			gc_enqueue_style( $block_type->editor_style );
-		}
+		if ( $load_editor_scripts_and_styles ) {
+			// Editor styles.
+			foreach ( $block_type->editor_style_handles as $editor_style_handle ) {
+				gc_enqueue_style( $editor_style_handle );
+			}
 
-		// Editor script.
-		if ( $load_editor_scripts && ! empty( $block_type->editor_script ) ) {
-			gc_enqueue_script( $block_type->editor_script );
+			// Editor scripts.
+			foreach ( $block_type->editor_script_handles as $editor_script_handle ) {
+				gc_enqueue_script( $editor_script_handle );
+			}
 		}
 	}
 }
@@ -2468,7 +2606,7 @@ function gc_enqueue_registered_block_scripts_and_styles() {
 /**
  * Function responsible for enqueuing the styles required for block styles functionality on the editor and on the frontend.
  *
- *
+ * @since 5.3.0
  *
  * @global GC_Styles $gc_styles
  */
@@ -2485,7 +2623,7 @@ function enqueue_block_styles_assets() {
 				if ( gc_should_load_separate_core_block_assets() ) {
 					add_filter(
 						'render_block',
-						function( $html, $block ) use ( $block_name, $style_properties ) {
+						static function( $html, $block ) use ( $block_name, $style_properties ) {
 							if ( $block['blockName'] === $block_name ) {
 								gc_enqueue_style( $style_properties['style_handle'] );
 							}
@@ -2522,7 +2660,7 @@ function enqueue_block_styles_assets() {
 /**
  * Function responsible for enqueuing the assets required for block styles functionality on the editor.
  *
- *
+ * @since 5.3.0
  */
 function enqueue_editor_block_styles_assets() {
 	$block_styles = GC_Block_Styles_Registry::get_instance()->get_all_registered();
@@ -2555,7 +2693,7 @@ function enqueue_editor_block_styles_assets() {
 /**
  * Enqueues the assets required for the block directory within the block editor.
  *
- *
+ * @since 5.5.0
  */
 function gc_enqueue_editor_block_directory_assets() {
 	gc_enqueue_script( 'gc-block-directory' );
@@ -2565,7 +2703,7 @@ function gc_enqueue_editor_block_directory_assets() {
 /**
  * Enqueues the assets required for the format library within the block editor.
  *
- *
+ * @since 5.8.0
  */
 function gc_enqueue_editor_format_library_assets() {
 	gc_enqueue_script( 'gc-format-library' );
@@ -2578,7 +2716,7 @@ function gc_enqueue_editor_format_library_assets() {
  * Automatically injects type attribute if needed.
  * Used by {@see gc_get_script_tag()} and {@see gc_get_inline_script_tag()}.
  *
- *
+ * @since 5.7.0
  *
  * @param array $attributes Key-value pairs representing `<script>` tag attributes.
  * @return string String made of sanitized `<script>` tag attributes.
@@ -2587,8 +2725,10 @@ function gc_sanitize_script_attributes( $attributes ) {
 	$html5_script_support = ! is_admin() && ! current_theme_supports( 'html5', 'script' );
 	$attributes_string    = '';
 
-	// If HTML5 script tag is supported, only the attribute name is added
-	// to $attributes_string for entries with a boolean value, and that are true.
+	/*
+	 * If HTML5 script tag is supported, only the attribute name is added
+	 * to $attributes_string for entries with a boolean value, and that are true.
+	 */
 	foreach ( $attributes as $attribute_name => $attribute_value ) {
 		if ( is_bool( $attribute_value ) ) {
 			if ( $attribute_value ) {
@@ -2608,7 +2748,7 @@ function gc_sanitize_script_attributes( $attributes ) {
  * It is possible to inject attributes in the `<script>` tag via the {@see 'gc_script_attributes'} filter.
  * Automatically injects type attribute if needed.
  *
- *
+ * @since 5.7.0
  *
  * @param array $attributes Key-value pairs representing `<script>` tag attributes.
  * @return string String containing `<script>` opening and closing tags.
@@ -2620,6 +2760,7 @@ function gc_get_script_tag( $attributes ) {
 	/**
 	 * Filters attributes to be added to a script tag.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param array $attributes Key-value pairs representing `<script>` tag attributes.
 	 *                          Only the attribute name is added to the `<script>` tag for
@@ -2636,7 +2777,7 @@ function gc_get_script_tag( $attributes ) {
  * It is possible to inject attributes in the `<script>` tag via the  {@see 'gc_script_attributes'}  filter.
  * Automatically injects type attribute if needed.
  *
- *
+ * @since 5.7.0
  *
  * @param array $attributes Key-value pairs representing `<script>` tag attributes.
  */
@@ -2650,7 +2791,7 @@ function gc_print_script_tag( $attributes ) {
  * It is possible to inject attributes in the `<script>` tag via the  {@see 'gc_script_attributes'}  filter.
  * Automatically injects type attribute if needed.
  *
- *
+ * @since 5.7.0
  *
  * @param string $javascript Inline JavaScript code.
  * @param array  $attributes Optional. Key-value pairs representing `<script>` tag attributes.
@@ -2663,6 +2804,7 @@ function gc_get_inline_script_tag( $javascript, $attributes = array() ) {
 	/**
 	 * Filters attributes to be added to a script tag.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param array  $attributes Key-value pairs representing `<script>` tag attributes.
 	 *                           Only the attribute name is added to the `<script>` tag for
@@ -2682,7 +2824,7 @@ function gc_get_inline_script_tag( $javascript, $attributes = array() ) {
  * It is possible to inject attributes in the `<script>` tag via the  {@see 'gc_script_attributes'}  filter.
  * Automatically injects type attribute if needed.
  *
- *
+ * @since 5.7.0
  *
  * @param string $javascript Inline JavaScript code.
  * @param array  $attributes Optional. Key-value pairs representing `<script>` tag attributes.
@@ -2699,7 +2841,7 @@ function gc_print_inline_script_tag( $javascript, $attributes = array() ) {
  *
  *     gc_style_add_data( $style_handle, 'path', $file_path );
  *
- *
+ * @since 5.8.0
  *
  * @global GC_Styles $gc_styles
  */
@@ -2710,6 +2852,7 @@ function gc_maybe_inline_styles() {
 	/**
 	 * The maximum size of inlined styles in bytes.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param int $total_inline_limit The file-size threshold, in bytes. Default 20000.
 	 */
@@ -2719,12 +2862,21 @@ function gc_maybe_inline_styles() {
 
 	// Build an array of styles that have a path defined.
 	foreach ( $gc_styles->queue as $handle ) {
-		if ( gc_styles()->get_data( $handle, 'path' ) && file_exists( $gc_styles->registered[ $handle ]->extra['path'] ) ) {
+		if ( ! isset( $gc_styles->registered[ $handle ] ) ) {
+			continue;
+		}
+		$src  = $gc_styles->registered[ $handle ]->src;
+		$path = $gc_styles->get_data( $handle, 'path' );
+		if ( $path && $src ) {
+			$size = gc_filesize( $path );
+			if ( ! $size ) {
+				continue;
+			}
 			$styles[] = array(
 				'handle' => $handle,
-				'src'    => $gc_styles->registered[ $handle ]->src,
-				'path'   => $gc_styles->registered[ $handle ]->extra['path'],
-				'size'   => filesize( $gc_styles->registered[ $handle ]->extra['path'] ),
+				'src'    => $src,
+				'path'   => $path,
+				'size'   => $size,
 			);
 		}
 	}
@@ -2757,8 +2909,10 @@ function gc_maybe_inline_styles() {
 			// Get the styles if we don't already have them.
 			$style['css'] = file_get_contents( $style['path'] );
 
-			// Check if the style contains relative URLs that need to be modified.
-			// URLs relative to the stylesheet's path should be converted to relative to the site's root.
+			/*
+			 * Check if the style contains relative URLs that need to be modified.
+			 * URLs relative to the stylesheet's path should be converted to relative to the site's root.
+			 */
 			$style['css'] = _gc_normalize_relative_css_links( $style['css'], $style['src'] );
 
 			// Set `src` to `false` and add styles inline.
@@ -2775,9 +2929,9 @@ function gc_maybe_inline_styles() {
 }
 
 /**
- * Make URLs relative to the GeChiUI installation.
+ * Makes URLs relative to the GeChiUI installation.
  *
- *
+ * @since 5.9.0
  * @access private
  *
  * @param string $css            The CSS to make URLs relative to the GeChiUI installation.
@@ -2786,144 +2940,61 @@ function gc_maybe_inline_styles() {
  * @return string The CSS with URLs made relative to the GeChiUI installation.
  */
 function _gc_normalize_relative_css_links( $css, $stylesheet_url ) {
-	$has_src_results = preg_match_all( '#url\s*\(\s*[\'"]?\s*([^\'"\)]+)#', $css, $src_results );
-	if ( $has_src_results ) {
-		// Loop through the URLs to find relative ones.
-		foreach ( $src_results[1] as $src_index => $src_result ) {
-			// Skip if this is an absolute URL.
-			if ( 0 === strpos( $src_result, 'http' ) || 0 === strpos( $src_result, '//' ) ) {
-				continue;
-			}
+	return preg_replace_callback(
+		'#(url\s*\(\s*[\'"]?\s*)([^\'"\)]+)#',
+		static function ( $matches ) use ( $stylesheet_url ) {
+			list( , $prefix, $url ) = $matches;
 
-			// Skip if the URL is an HTML ID.
-			if ( str_starts_with( $src_result, '#' ) ) {
-				continue;
-			}
-
-			// Skip if the URL is a data URI.
-			if ( str_starts_with( $src_result, 'data:' ) ) {
-				continue;
+			// Short-circuit if the URL does not require normalization.
+			if (
+				str_starts_with( $url, 'http:' ) ||
+				str_starts_with( $url, 'https:' ) ||
+				str_starts_with( $url, '//' ) ||
+				str_starts_with( $url, '#' ) ||
+				str_starts_with( $url, 'data:' )
+			) {
+				return $matches[0];
 			}
 
 			// Build the absolute URL.
-			$absolute_url = dirname( $stylesheet_url ) . '/' . $src_result;
+			$absolute_url = dirname( $stylesheet_url ) . '/' . $url;
 			$absolute_url = str_replace( '/./', '/', $absolute_url );
+
 			// Convert to URL related to the site root.
-			$relative_url = gc_make_link_relative( $absolute_url );
+			$url = gc_make_link_relative( $absolute_url );
 
-			// Replace the URL in the CSS.
-			$css = str_replace(
-				$src_results[0][ $src_index ],
-				str_replace( $src_result, $relative_url, $src_results[0][ $src_index ] ),
-				$css
-			);
-		}
-	}
-
-	return $css;
-}
-
-/**
- * Inject the block editor assets that need to be loaded into the editor's iframe as an inline script.
- *
- *
- */
-function gc_add_iframed_editor_assets_html() {
-	global $pagenow;
-
-	if ( ! gc_should_load_block_editor_scripts_and_styles() ) {
-		return;
-	}
-
-	$script_handles = array();
-	$style_handles  = array(
-		'gc-block-editor',
-		'gc-block-library',
-		'gc-block-library-theme',
-		'gc-edit-blocks',
+			return $prefix . $url;
+		},
+		$css
 	);
-
-	if ( 'widgets.php' === $pagenow || 'customize.php' === $pagenow ) {
-		$style_handles[] = 'gc-widgets';
-		$style_handles[] = 'gc-edit-widgets';
-	}
-
-	$block_registry = GC_Block_Type_Registry::get_instance();
-
-	foreach ( $block_registry->get_all_registered() as $block_type ) {
-		if ( ! empty( $block_type->style ) ) {
-			$style_handles[] = $block_type->style;
-		}
-
-		if ( ! empty( $block_type->editor_style ) ) {
-			$style_handles[] = $block_type->editor_style;
-		}
-
-		if ( ! empty( $block_type->script ) ) {
-			$script_handles[] = $block_type->script;
-		}
-	}
-
-	$style_handles = array_unique( $style_handles );
-	$done          = gc_styles()->done;
-
-	ob_start();
-
-	// We do not need reset styles for the iframed editor.
-	gc_styles()->done = array( 'gc-reset-editor-styles' );
-	gc_styles()->do_items( $style_handles );
-	gc_styles()->done = $done;
-
-	$styles = ob_get_clean();
-
-	$script_handles = array_unique( $script_handles );
-	$done           = gc_scripts()->done;
-
-	ob_start();
-
-	gc_scripts()->done = array();
-	gc_scripts()->do_items( $script_handles );
-	gc_scripts()->done = $done;
-
-	$scripts = ob_get_clean();
-
-	$editor_assets = gc_json_encode(
-		array(
-			'styles'  => $styles,
-			'scripts' => $scripts,
-		)
-	);
-
-	echo "<script>window.__editorAssets = $editor_assets</script>";
 }
 
 /**
  * Function that enqueues the CSS Custom Properties coming from theme.json.
  *
- *
+ * @since 5.9.0
  */
 function gc_enqueue_global_styles_css_custom_properties() {
-	gc_register_style( 'global-styles-css-custom-properties', false, array(), true, true );
+	gc_register_style( 'global-styles-css-custom-properties', false );
 	gc_add_inline_style( 'global-styles-css-custom-properties', gc_get_global_stylesheet( array( 'variables' ) ) );
 	gc_enqueue_style( 'global-styles-css-custom-properties' );
 }
 
 /**
- * This function takes care of adding inline styles
- * in the proper place, depending on the theme in use.
+ * Hooks inline styles in the proper place, depending on the active theme.
  *
  * @since 5.9.1
+ * @since 6.1.0 Added the `$priority` parameter.
  *
- * For block themes, it's loaded in the head.
- * For classic ones, it's loaded in the body
- * because the gc_head action happens before
- * the render_block.
+ * For block themes, styles are loaded in the head.
+ * For classic ones, styles are loaded in the body because the gc_head action happens before render_block.
  *
- * @link https://core.trac.wordpress.org/ticket/53494.
+ * @link https://core.trac.gechiui.com/ticket/53494.
  *
- * @param string $style String containing the CSS styles to be added.
+ * @param string $style    String containing the CSS styles to be added.
+ * @param int    $priority To set the priority for the add_action.
  */
-function gc_enqueue_block_support_styles( $style ) {
+function gc_enqueue_block_support_styles( $style, $priority = 10 ) {
 	$action_hook_name = 'gc_footer';
 	if ( gc_is_block_theme() ) {
 		$action_hook_name = 'gc_head';
@@ -2932,7 +3003,741 @@ function gc_enqueue_block_support_styles( $style ) {
 		$action_hook_name,
 		static function () use ( $style ) {
 			echo "<style>$style</style>\n";
-		}
+		},
+		$priority
 	);
 }
 
+/**
+ * Fetches, processes and compiles stored core styles, then combines and renders them to the page.
+ * Styles are stored via the style engine API.
+ *
+ * @link https://developer.gechiui.com/block-editor/reference-guides/packages/packages-style-engine/
+ *
+ * @since 6.1.0
+ *
+ * @param array $options {
+ *     Optional. An array of options to pass to gc_style_engine_get_stylesheet_from_context().
+ *     Default empty array.
+ *
+ *     @type bool $optimize Whether to optimize the CSS output, e.g., combine rules.
+ *                          Default true.
+ *     @type bool $prettify Whether to add new lines and indents to output.
+ *                          Default to whether the `SCRIPT_DEBUG` constant is defined.
+ * }
+ */
+function gc_enqueue_stored_styles( $options = array() ) {
+	$is_block_theme   = gc_is_block_theme();
+	$is_classic_theme = ! $is_block_theme;
+
+	/*
+	 * For block themes, this function prints stored styles in the header.
+	 * For classic themes, in the footer.
+	 */
+	if (
+		( $is_block_theme && doing_action( 'gc_footer' ) ) ||
+		( $is_classic_theme && doing_action( 'gc_enqueue_scripts' ) )
+	) {
+		return;
+	}
+
+	$core_styles_keys         = array( 'block-supports' );
+	$compiled_core_stylesheet = '';
+	$style_tag_id             = 'core';
+	// Adds comment if code is prettified to identify core styles sections in debugging.
+	$should_prettify = isset( $options['prettify'] ) ? true === $options['prettify'] : defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
+	foreach ( $core_styles_keys as $style_key ) {
+		if ( $should_prettify ) {
+			$compiled_core_stylesheet .= "/**\n * Core styles: $style_key\n */\n";
+		}
+		// Chains core store ids to signify what the styles contain.
+		$style_tag_id             .= '-' . $style_key;
+		$compiled_core_stylesheet .= gc_style_engine_get_stylesheet_from_context( $style_key, $options );
+	}
+
+	// Combines Core styles.
+	if ( ! empty( $compiled_core_stylesheet ) ) {
+		gc_register_style( $style_tag_id, false );
+		gc_add_inline_style( $style_tag_id, $compiled_core_stylesheet );
+		gc_enqueue_style( $style_tag_id );
+	}
+
+	// Prints out any other stores registered by themes or otherwise.
+	$additional_stores = GC_Style_Engine_CSS_Rules_Store::get_stores();
+	foreach ( array_keys( $additional_stores ) as $store_name ) {
+		if ( in_array( $store_name, $core_styles_keys, true ) ) {
+			continue;
+		}
+		$styles = gc_style_engine_get_stylesheet_from_context( $store_name, $options );
+		if ( ! empty( $styles ) ) {
+			$key = "gc-style-engine-$store_name";
+			gc_register_style( $key, false );
+			gc_add_inline_style( $key, $styles );
+			gc_enqueue_style( $key );
+		}
+	}
+}
+
+/**
+ * Enqueues a stylesheet for a specific block.
+ *
+ * If the theme has opted-in to separate-styles loading,
+ * then the stylesheet will be enqueued on-render,
+ * otherwise when the block inits.
+ *
+ * @since 5.9.0
+ *
+ * @param string $block_name The block-name, including namespace.
+ * @param array  $args       {
+ *     An array of arguments. See gc_register_style() for full information about each argument.
+ *
+ *     @type string           $handle The handle for the stylesheet.
+ *     @type string|false     $src    The source URL of the stylesheet.
+ *     @type string[]         $deps   Array of registered stylesheet handles this stylesheet depends on.
+ *     @type string|bool|null $ver    Stylesheet version number.
+ *     @type string           $media  The media for which this stylesheet has been defined.
+ * }
+ */
+function gc_enqueue_block_style( $block_name, $args ) {
+	$args = gc_parse_args(
+		$args,
+		array(
+			'handle' => '',
+			'src'    => '',
+			'deps'   => array(),
+			'ver'    => false,
+			'media'  => 'all',
+		)
+	);
+
+	/**
+	 * Callback function to register and enqueue styles.
+	 *
+	 * @param string $content When the callback is used for the render_block filter,
+	 *                        the content needs to be returned so the function parameter
+	 *                        is to ensure the content exists.
+	 * @return string Block content.
+	 */
+	$callback = static function( $content ) use ( $args ) {
+		// Register the stylesheet.
+		if ( ! empty( $args['src'] ) ) {
+			gc_register_style( $args['handle'], $args['src'], $args['deps'], $args['ver'], $args['media'] );
+		}
+
+		// Add `path` data if provided.
+		if ( isset( $args['path'] ) ) {
+			gc_style_add_data( $args['handle'], 'path', $args['path'] );
+
+			// Get the RTL file path.
+			$rtl_file_path = str_replace( '.css', '-rtl.css', $args['path'] );
+
+			// Add RTL stylesheet.
+			if ( file_exists( $rtl_file_path ) ) {
+				gc_style_add_data( $args['handle'], 'rtl', 'replace' );
+
+				if ( is_rtl() ) {
+					gc_style_add_data( $args['handle'], 'path', $rtl_file_path );
+				}
+			}
+		}
+
+		// Enqueue the stylesheet.
+		gc_enqueue_style( $args['handle'] );
+
+		return $content;
+	};
+
+	$hook = did_action( 'gc_enqueue_scripts' ) ? 'gc_footer' : 'gc_enqueue_scripts';
+	if ( gc_should_load_separate_core_block_assets() ) {
+		/**
+		 * Callback function to register and enqueue styles.
+		 *
+		 * @param string $content The block content.
+		 * @param array  $block   The full block, including name and attributes.
+		 * @return string Block content.
+		 */
+		$callback_separate = static function( $content, $block ) use ( $block_name, $callback ) {
+			if ( ! empty( $block['blockName'] ) && $block_name === $block['blockName'] ) {
+				return $callback( $content );
+			}
+			return $content;
+		};
+
+		/*
+		 * The filter's callback here is an anonymous function because
+		 * using a named function in this case is not possible.
+		 *
+		 * The function cannot be unhooked, however, users are still able
+		 * to dequeue the stylesheets registered/enqueued by the callback
+		 * which is why in this case, using an anonymous function
+		 * was deemed acceptable.
+		 */
+		add_filter( 'render_block', $callback_separate, 10, 2 );
+		return;
+	}
+
+	/*
+	 * The filter's callback here is an anonymous function because
+	 * using a named function in this case is not possible.
+	 *
+	 * The function cannot be unhooked, however, users are still able
+	 * to dequeue the stylesheets registered/enqueued by the callback
+	 * which is why in this case, using an anonymous function
+	 * was deemed acceptable.
+	 */
+	add_filter( $hook, $callback );
+
+	// Enqueue assets in the editor.
+	add_action( 'enqueue_block_assets', $callback );
+}
+
+/**
+ * Runs the theme.json webfonts handler.
+ *
+ * Using `GC_Theme_JSON_Resolver`, it gets the fonts defined
+ * in the `theme.json` for the current selection and style
+ * variations, validates the font-face properties, generates
+ * the '@font-face' style declarations, and then enqueues the
+ * styles for both the editor and front-end.
+ *
+ * Design Notes:
+ * This is not a public API, but rather an internal handler.
+ * A future public Webfonts API will replace this stopgap code.
+ *
+ * This code design is intentional.
+ *    a. It hides the inner-workings.
+ *    b. It does not expose API ins or outs for consumption.
+ *    c. It only works with a theme's `theme.json`.
+ *
+ * Why?
+ *    a. To avoid backwards-compatibility issues when
+ *       the Webfonts API is introduced in Core.
+ *    b. To make `fontFace` declarations in `theme.json` work.
+ *
+ * @link  https://github.com/GeChiUI/gutenberg/issues/40472
+ *
+ * @since 6.0.0
+ * @access private
+ */
+function _gc_theme_json_webfonts_handler() {
+	// Block themes are unavailable during installation.
+	if ( gc_installing() ) {
+		return;
+	}
+
+	if ( ! gc_theme_has_theme_json() ) {
+		return;
+	}
+
+	// Webfonts to be processed.
+	$registered_webfonts = array();
+
+	/**
+	 * Gets the webfonts from theme.json.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @return array Array of defined webfonts.
+	 */
+	$fn_get_webfonts_from_theme_json = static function() {
+		// Get settings from theme.json.
+		$settings = GC_Theme_JSON_Resolver::get_merged_data()->get_settings();
+
+		// If in the editor, add webfonts defined in variations.
+		if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+			$variations = GC_Theme_JSON_Resolver::get_style_variations();
+			foreach ( $variations as $variation ) {
+				// Skip if fontFamilies are not defined in the variation.
+				if ( empty( $variation['settings']['typography']['fontFamilies'] ) ) {
+					continue;
+				}
+
+				// Initialize the array structure.
+				if ( empty( $settings['typography'] ) ) {
+					$settings['typography'] = array();
+				}
+				if ( empty( $settings['typography']['fontFamilies'] ) ) {
+					$settings['typography']['fontFamilies'] = array();
+				}
+				if ( empty( $settings['typography']['fontFamilies']['theme'] ) ) {
+					$settings['typography']['fontFamilies']['theme'] = array();
+				}
+
+				// Combine variations with settings. Remove duplicates.
+				$settings['typography']['fontFamilies']['theme'] = array_merge( $settings['typography']['fontFamilies']['theme'], $variation['settings']['typography']['fontFamilies']['theme'] );
+				$settings['typography']['fontFamilies']          = array_unique( $settings['typography']['fontFamilies'] );
+			}
+		}
+
+		// Bail out early if there are no settings for webfonts.
+		if ( empty( $settings['typography']['fontFamilies'] ) ) {
+			return array();
+		}
+
+		$webfonts = array();
+
+		// Look for fontFamilies.
+		foreach ( $settings['typography']['fontFamilies'] as $font_families ) {
+			foreach ( $font_families as $font_family ) {
+
+				// Skip if fontFace is not defined.
+				if ( empty( $font_family['fontFace'] ) ) {
+					continue;
+				}
+
+				// Skip if fontFace is not an array of webfonts.
+				if ( ! is_array( $font_family['fontFace'] ) ) {
+					continue;
+				}
+
+				$webfonts = array_merge( $webfonts, $font_family['fontFace'] );
+			}
+		}
+
+		return $webfonts;
+	};
+
+	/**
+	 * Transforms each 'src' into an URI by replacing 'file:./'
+	 * placeholder from theme.json.
+	 *
+	 * The absolute path to the webfont file(s) cannot be defined in
+	 * theme.json. `file:./` is the placeholder which is replaced by
+	 * the theme's URL path to the theme's root.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param array $src Webfont file(s) `src`.
+	 * @return array Webfont's `src` in URI.
+	 */
+	$fn_transform_src_into_uri = static function( array $src ) {
+		foreach ( $src as $key => $url ) {
+			// Tweak the URL to be relative to the theme root.
+			if ( ! str_starts_with( $url, 'file:./' ) ) {
+				continue;
+			}
+
+			$src[ $key ] = get_theme_file_uri( str_replace( 'file:./', '', $url ) );
+		}
+
+		return $src;
+	};
+
+	/**
+	 * Converts the font-face properties (i.e. keys) into kebab-case.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param array $font_face Font face to convert.
+	 * @return array Font faces with each property in kebab-case format.
+	 */
+	$fn_convert_keys_to_kebab_case = static function( array $font_face ) {
+		foreach ( $font_face as $property => $value ) {
+			$kebab_case               = _gc_to_kebab_case( $property );
+			$font_face[ $kebab_case ] = $value;
+			if ( $kebab_case !== $property ) {
+				unset( $font_face[ $property ] );
+			}
+		}
+
+		return $font_face;
+	};
+
+	/**
+	 * Validates a webfont.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param array $webfont The webfont arguments.
+	 * @return array|false The validated webfont arguments, or false if the webfont is invalid.
+	 */
+	$fn_validate_webfont = static function( $webfont ) {
+		$webfont = gc_parse_args(
+			$webfont,
+			array(
+				'font-family'  => '',
+				'font-style'   => 'normal',
+				'font-weight'  => '400',
+				'font-display' => 'fallback',
+				'src'          => array(),
+			)
+		);
+
+		// Check the font-family.
+		if ( empty( $webfont['font-family'] ) || ! is_string( $webfont['font-family'] ) ) {
+			trigger_error( __( '网络字体系列必须是非空字符串。' ) );
+
+			return false;
+		}
+
+		// Check that the `src` property is defined and a valid type.
+		if ( empty( $webfont['src'] ) || ( ! is_string( $webfont['src'] ) && ! is_array( $webfont['src'] ) ) ) {
+			trigger_error( __( '网络字体 src 必须是非空字符串或字符串数组。' ) );
+
+			return false;
+		}
+
+		// Validate the `src` property.
+		foreach ( (array) $webfont['src'] as $src ) {
+			if ( ! is_string( $src ) || '' === trim( $src ) ) {
+				trigger_error( __( '每个网络字体 src 必须是非空字符串。' ) );
+
+				return false;
+			}
+		}
+
+		// Check the font-weight.
+		if ( ! is_string( $webfont['font-weight'] ) && ! is_int( $webfont['font-weight'] ) ) {
+			trigger_error( __( '网络字体的字体粗细必须是正确格式化的字符串或整数。' ) );
+
+			return false;
+		}
+
+		// Check the font-display.
+		if ( ! in_array( $webfont['font-display'], array( 'auto', 'block', 'fallback', 'swap' ), true ) ) {
+			$webfont['font-display'] = 'fallback';
+		}
+
+		$valid_props = array(
+			'ascend-override',
+			'descend-override',
+			'font-display',
+			'font-family',
+			'font-stretch',
+			'font-style',
+			'font-weight',
+			'font-variant',
+			'font-feature-settings',
+			'font-variation-settings',
+			'line-gap-override',
+			'size-adjust',
+			'src',
+			'unicode-range',
+		);
+
+		foreach ( $webfont as $prop => $value ) {
+			if ( ! in_array( $prop, $valid_props, true ) ) {
+				unset( $webfont[ $prop ] );
+			}
+		}
+
+		return $webfont;
+	};
+
+	/**
+	 * Registers webfonts declared in theme.json.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @uses $registered_webfonts To access and update the registered webfonts registry (passed by reference).
+	 * @uses $fn_get_webfonts_from_theme_json To run the function that gets the webfonts from theme.json.
+	 * @uses $fn_convert_keys_to_kebab_case To run the function that converts keys into kebab-case.
+	 * @uses $fn_validate_webfont To run the function that validates each font-face (webfont) from theme.json.
+	 */
+	$fn_register_webfonts = static function() use ( &$registered_webfonts, $fn_get_webfonts_from_theme_json, $fn_convert_keys_to_kebab_case, $fn_validate_webfont, $fn_transform_src_into_uri ) {
+		$registered_webfonts = array();
+
+		foreach ( $fn_get_webfonts_from_theme_json() as $webfont ) {
+			if ( ! is_array( $webfont ) ) {
+				continue;
+			}
+
+			$webfont = $fn_convert_keys_to_kebab_case( $webfont );
+
+			$webfont = $fn_validate_webfont( $webfont );
+
+			$webfont['src'] = $fn_transform_src_into_uri( (array) $webfont['src'] );
+
+			// Skip if not valid.
+			if ( empty( $webfont ) ) {
+				continue;
+			}
+
+			$registered_webfonts[] = $webfont;
+		}
+	};
+
+	/**
+	 * Orders 'src' items to optimize for browser support.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param array $webfont Webfont to process.
+	 * @return array Ordered `src` items.
+	 */
+	$fn_order_src = static function( array $webfont ) {
+		$src         = array();
+		$src_ordered = array();
+
+		foreach ( $webfont['src'] as $url ) {
+			// Add data URIs first.
+			if ( str_starts_with( trim( $url ), 'data:' ) ) {
+				$src_ordered[] = array(
+					'url'    => $url,
+					'format' => 'data',
+				);
+				continue;
+			}
+			$format         = pathinfo( $url, PATHINFO_EXTENSION );
+			$src[ $format ] = $url;
+		}
+
+		// Add woff2.
+		if ( ! empty( $src['woff2'] ) ) {
+			$src_ordered[] = array(
+				'url'    => sanitize_url( $src['woff2'] ),
+				'format' => 'woff2',
+			);
+		}
+
+		// Add woff.
+		if ( ! empty( $src['woff'] ) ) {
+			$src_ordered[] = array(
+				'url'    => sanitize_url( $src['woff'] ),
+				'format' => 'woff',
+			);
+		}
+
+		// Add ttf.
+		if ( ! empty( $src['ttf'] ) ) {
+			$src_ordered[] = array(
+				'url'    => sanitize_url( $src['ttf'] ),
+				'format' => 'truetype',
+			);
+		}
+
+		// Add eot.
+		if ( ! empty( $src['eot'] ) ) {
+			$src_ordered[] = array(
+				'url'    => sanitize_url( $src['eot'] ),
+				'format' => 'embedded-opentype',
+			);
+		}
+
+		// Add otf.
+		if ( ! empty( $src['otf'] ) ) {
+			$src_ordered[] = array(
+				'url'    => sanitize_url( $src['otf'] ),
+				'format' => 'opentype',
+			);
+		}
+		$webfont['src'] = $src_ordered;
+
+		return $webfont;
+	};
+
+	/**
+	 * Compiles the 'src' into valid CSS.
+	 *
+	 * @since 6.0.0
+	 * @since 6.2.0 Removed local() CSS.
+	 *
+	 * @param string $font_family Font family.
+	 * @param array  $value       Value to process.
+	 * @return string The CSS.
+	 */
+	$fn_compile_src = static function( $font_family, array $value ) {
+		$src = '';
+
+		foreach ( $value as $item ) {
+			$src .= ( 'data' === $item['format'] )
+				? ", url({$item['url']})"
+				: ", url('{$item['url']}') format('{$item['format']}')";
+		}
+
+		$src = ltrim( $src, ', ' );
+
+		return $src;
+	};
+
+	/**
+	 * Compiles the font variation settings.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param array $font_variation_settings Array of font variation settings.
+	 * @return string The CSS.
+	 */
+	$fn_compile_variations = static function( array $font_variation_settings ) {
+		$variations = '';
+
+		foreach ( $font_variation_settings as $key => $value ) {
+			$variations .= "$key $value";
+		}
+
+		return $variations;
+	};
+
+	/**
+	 * Builds the font-family's CSS.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @uses $fn_compile_src To run the function that compiles the src.
+	 * @uses $fn_compile_variations To run the function that compiles the variations.
+	 *
+	 * @param array $webfont Webfont to process.
+	 * @return string This font-family's CSS.
+	 */
+	$fn_build_font_face_css = static function( array $webfont ) use ( $fn_compile_src, $fn_compile_variations ) {
+		$css = '';
+
+		// Wrap font-family in quotes if it contains spaces.
+		if (
+			str_contains( $webfont['font-family'], ' ' ) &&
+			! str_contains( $webfont['font-family'], '"' ) &&
+			! str_contains( $webfont['font-family'], "'" )
+		) {
+			$webfont['font-family'] = '"' . $webfont['font-family'] . '"';
+		}
+
+		foreach ( $webfont as $key => $value ) {
+			/*
+			 * Skip "provider", since it's for internal API use,
+			 * and not a valid CSS property.
+			 */
+			if ( 'provider' === $key ) {
+				continue;
+			}
+
+			// Compile the "src" parameter.
+			if ( 'src' === $key ) {
+				$value = $fn_compile_src( $webfont['font-family'], $value );
+			}
+
+			// If font-variation-settings is an array, convert it to a string.
+			if ( 'font-variation-settings' === $key && is_array( $value ) ) {
+				$value = $fn_compile_variations( $value );
+			}
+
+			if ( ! empty( $value ) ) {
+				$css .= "$key:$value;";
+			}
+		}
+
+		return $css;
+	};
+
+	/**
+	 * Gets the '@font-face' CSS styles for locally-hosted font files.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @uses $registered_webfonts To access and update the registered webfonts registry (passed by reference).
+	 * @uses $fn_order_src To run the function that orders the src.
+	 * @uses $fn_build_font_face_css To run the function that builds the font-face CSS.
+	 *
+	 * @return string The `@font-face` CSS.
+	 */
+	$fn_get_css = static function() use ( &$registered_webfonts, $fn_order_src, $fn_build_font_face_css ) {
+		$css = '';
+
+		foreach ( $registered_webfonts as $webfont ) {
+			// Order the webfont's `src` items to optimize for browser support.
+			$webfont = $fn_order_src( $webfont );
+
+			// Build the @font-face CSS for this webfont.
+			$css .= '@font-face{' . $fn_build_font_face_css( $webfont ) . '}';
+		}
+
+		return $css;
+	};
+
+	/**
+	 * Generates and enqueues webfonts styles.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @uses $fn_get_css To run the function that gets the CSS.
+	 */
+	$fn_generate_and_enqueue_styles = static function() use ( $fn_get_css ) {
+		// Generate the styles.
+		$styles = $fn_get_css();
+
+		// Bail out if there are no styles to enqueue.
+		if ( '' === $styles ) {
+			return;
+		}
+
+		// Enqueue the stylesheet.
+		gc_register_style( 'gc-webfonts', '' );
+		gc_enqueue_style( 'gc-webfonts' );
+
+		// Add the styles to the stylesheet.
+		gc_add_inline_style( 'gc-webfonts', $styles );
+	};
+
+	/**
+	 * Generates and enqueues editor styles.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @uses $fn_get_css To run the function that gets the CSS.
+	 */
+	$fn_generate_and_enqueue_editor_styles = static function() use ( $fn_get_css ) {
+		// Generate the styles.
+		$styles = $fn_get_css();
+
+		// Bail out if there are no styles to enqueue.
+		if ( '' === $styles ) {
+			return;
+		}
+
+		gc_add_inline_style( 'gc-block-library', $styles );
+	};
+
+	add_action( 'gc_loaded', $fn_register_webfonts );
+	add_action( 'gc_enqueue_scripts', $fn_generate_and_enqueue_styles );
+	add_action( 'admin_init', $fn_generate_and_enqueue_editor_styles );
+}
+
+/**
+ * Loads classic theme styles on classic themes in the frontend.
+ *
+ * This is needed for backwards compatibility for button blocks specifically.
+ *
+ * @since 6.1.0
+ */
+function gc_enqueue_classic_theme_styles() {
+	if ( ! gc_theme_has_theme_json() ) {
+		$suffix = gc_scripts_get_suffix();
+		gc_register_style( 'classic-theme-styles', "/assets/css/classic-themes$suffix.css" );
+		gc_style_add_data( 'classic-theme-styles', 'path', ABSPATH . "assets/css/classic-themes$suffix.css" );
+		gc_enqueue_style( 'classic-theme-styles' );
+	}
+}
+
+/**
+ * Loads classic theme styles on classic themes in the editor.
+ *
+ * This is needed for backwards compatibility for button blocks specifically.
+ *
+ * @since 6.1.0
+ *
+ * @param array $editor_settings The array of editor settings.
+ * @return array A filtered array of editor settings.
+ */
+function gc_add_editor_classic_theme_styles( $editor_settings ) {
+	if ( gc_theme_has_theme_json() ) {
+		return $editor_settings;
+	}
+
+	$suffix               = gc_scripts_get_suffix();
+	$classic_theme_styles = ABSPATH . "assets/css/classic-themes$suffix.css";
+
+	/*
+	 * This follows the pattern of get_block_editor_theme_styles,
+	 * but we can't use get_block_editor_theme_styles directly as it
+	 * only handles external files or theme files.
+	 */
+	$classic_theme_styles_settings = array(
+		'css'            => file_get_contents( $classic_theme_styles ),
+		'__unstableType' => 'core',
+		'isGlobalStyles' => false,
+	);
+
+	// Add these settings to the start of the array so that themes can override them.
+	array_unshift( $editor_settings['styles'], $classic_theme_styles_settings );
+
+	return $editor_settings;
+}

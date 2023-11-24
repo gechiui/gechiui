@@ -10,7 +10,7 @@
 require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'manage_options' ) ) {
-	gc_die( __( '抱歉，您不能管理此站点的选项。' ) );
+	gc_die( __( '抱歉，您不能管理此系统的选项。' ) );
 }
 
 // Used in the HTML title tag.
@@ -206,239 +206,243 @@ flush_rewrite_rules();
 require_once ABSPATH . 'gc-admin/admin-header.php';
 ?>
 <div class="wrap">
-<h1><?php echo esc_html( $title ); ?></h1>
+	<div class="page-header"><h2 class="header-title"><?php echo esc_html( $title ); ?></h2></div>
+	<form name="form" action="options-permalink.php" method="post">
+		<?php gc_nonce_field( 'update-permalink' ); ?>
+		<?php
+		if ( is_multisite() && ! is_subdomain_install() && is_main_site() && 0 === strpos( $permalink_structure, '/blog/' ) ) {
+			$permalink_structure = preg_replace( '|^/?blog|', '', $permalink_structure );
+			$category_base       = preg_replace( '|^/?blog|', '', $category_base );
+			$tag_base            = preg_replace( '|^/?blog|', '', $tag_base );
+		}
 
-<form name="form" action="options-permalink.php" method="post">
-<?php gc_nonce_field( 'update-permalink' ); ?>
-
-	<p>
-	<?php
-		printf(
-			/* translators: %s: Documentation URL. */
-			__( 'GeChiUI让您能够为您的固定链接和归档建立自定义URL结构。自定义URL结构可以为您的链接提高美感、可用性和前向兼容性。这里有<a href="%s">一些可用的标签</a>，以及一些入门范例。' ),
-			__( 'https://www.gechiui.com/support/using-permalinks/' )
+		$structures = array(
+			0 => '',
+			1 => $prefix . '/%year%/%monthnum%/%day%/%postname%/',
+			2 => $prefix . '/%year%/%monthnum%/%postname%/',
+			3 => $prefix . '/' . _x( '归档', 'sample permalink base' ) . '/%post_id%',
+			4 => $prefix . '/%postname%/',
 		);
 		?>
-	</p>
-
-<?php
-if ( is_multisite() && ! is_subdomain_install() && is_main_site() && 0 === strpos( $permalink_structure, '/blog/' ) ) {
-	$permalink_structure = preg_replace( '|^/?blog|', '', $permalink_structure );
-	$category_base       = preg_replace( '|^/?blog|', '', $category_base );
-	$tag_base            = preg_replace( '|^/?blog|', '', $tag_base );
-}
-
-$structures = array(
-	0 => '',
-	1 => $prefix . '/%year%/%monthnum%/%day%/%postname%/',
-	2 => $prefix . '/%year%/%monthnum%/%postname%/',
-	3 => $prefix . '/' . _x( 'archives', 'sample permalink base' ) . '/%post_id%',
-	4 => $prefix . '/%postname%/',
-);
-?>
-<h2 class="title"><?php _e( '常用设置' ); ?></h2>
-<table class="form-table permalink-structure">
-	<tr>
-		<th scope="row"><label><input name="selection" type="radio" value="" <?php checked( '', $permalink_structure ); ?> /> <?php _e( '朴素' ); ?></label></th>
-		<td><code><?php echo get_option( 'home' ); ?>/?p=123</code></td>
-	</tr>
-	<tr>
-		<th scope="row"><label><input name="selection" type="radio" value="<?php echo esc_attr( $structures[1] ); ?>" <?php checked( $structures[1], $permalink_structure ); ?> /> <?php _e( '日期和名称型' ); ?></label></th>
-		<td><code><?php echo get_option( 'home' ) . $blog_prefix . $prefix . '/' . gmdate( 'Y' ) . '/' . gmdate( 'm' ) . '/' . gmdate( 'd' ) . '/' . _x( 'sample-post', 'sample permalink structure' ) . '/'; ?></code></td>
-	</tr>
-	<tr>
-		<th scope="row"><label><input name="selection" type="radio" value="<?php echo esc_attr( $structures[2] ); ?>" <?php checked( $structures[2], $permalink_structure ); ?> /> <?php _e( '月份和名称型' ); ?></label></th>
-		<td><code><?php echo get_option( 'home' ) . $blog_prefix . $prefix . '/' . gmdate( 'Y' ) . '/' . gmdate( 'm' ) . '/' . _x( 'sample-post', 'sample permalink structure' ) . '/'; ?></code></td>
-	</tr>
-	<tr>
-		<th scope="row"><label><input name="selection" type="radio" value="<?php echo esc_attr( $structures[3] ); ?>" <?php checked( $structures[3], $permalink_structure ); ?> /> <?php _e( '数字型' ); ?></label></th>
-		<td><code><?php echo get_option( 'home' ) . $blog_prefix . $prefix . '/' . _x( 'archives', 'sample permalink base' ) . '/123'; ?></code></td>
-	</tr>
-	<tr>
-		<th scope="row"><label><input name="selection" type="radio" value="<?php echo esc_attr( $structures[4] ); ?>" <?php checked( $structures[4], $permalink_structure ); ?> /> <?php _e( '文章名' ); ?></label></th>
-		<td><code><?php echo get_option( 'home' ) . $blog_prefix . $prefix . '/' . _x( 'sample-post', 'sample permalink structure' ) . '/'; ?></code></td>
-	</tr>
-	<tr>
-		<th scope="row">
-			<label><input name="selection" id="custom_selection" type="radio" value="custom" <?php checked( ! in_array( $permalink_structure, $structures, true ) ); ?> />
-			<?php _e( '自定义结构' ); ?>
-			</label>
-		</th>
-		<td>
-			<code><?php echo get_option( 'home' ) . $blog_prefix; ?></code>
-			<input name="permalink_structure" id="permalink_structure" type="text" value="<?php echo esc_attr( $permalink_structure ); ?>" class="regular-text code" />
-			<div class="available-structure-tags hide-if-no-js">
-				<div id="custom_selection_updated" aria-live="assertive" class="screen-reader-text"></div>
-				<?php
-				$available_tags = array(
-					/* translators: %s: Permalink structure tag. */
-					'year'     => __( '%s（文章的年份，四位数字，形如2004。）' ),
-					/* translators: %s: Permalink structure tag. */
-					'monthnum' => __( '%s（月份，形如05。）' ),
-					/* translators: %s: Permalink structure tag. */
-					'day'      => __( '%s（日期，形如28。）' ),
-					/* translators: %s: Permalink structure tag. */
-					'hour'     => __( '%s（小时，形如15。）' ),
-					/* translators: %s: Permalink structure tag. */
-					'minute'   => __( '%s（分钟，形如43。）' ),
-					/* translators: %s: Permalink structure tag. */
-					'second'   => __( '%s（秒数，形如33。）' ),
-					/* translators: %s: Permalink structure tag. */
-					'post_id'  => __( '%s（文章的唯一ID，形如423。）' ),
-					/* translators: %s: Permalink structure tag. */
-					'postname' => __( '%s（处理过的文章标题（别名）。）' ),
-					/* translators: %s: Permalink structure tag. */
-					'category' => __( '%s（分类别名，嵌套的子分类在URL中会显示为嵌套的文件夹。）' ),
-					/* translators: %s: Permalink structure tag. */
-					'author'   => __( '%s（处理过的作者名。）' ),
+	<div class="card">
+		<div class="card-header">
+			<h4 class="card-title"><?php _e( '常用设置' ); ?></h4>
+		</div>
+		<div class="card-body">
+			<p>
+			<?php
+				printf(
+					/* translators: %s: Documentation URL. */
+					__( 'GeChiUI让您能够为您的固定链接和归档建立自定义URL结构。自定义URL结构可以为您的链接提高美感、可用性和前向兼容性。这里有<a href="%s">一些可用的标签</a>，以及一些入门范例。' ),
+					__( 'https://www.gechiui.com/support/using-permalinks/' )
 				);
-
-				/**
-				 * Filters the list of available permalink structure tags on the Permalinks settings page.
-				 *
-			
-				 *
-				 * @param string[] $available_tags An array of key => value pairs of available permalink structure tags.
-				 */
-				$available_tags = apply_filters( 'available_permalink_structure_tags', $available_tags );
-
-				/* translators: %s: Permalink structure tag. */
-				$structure_tag_added = __( '%s已加入固定链接结构' );
-
-				/* translators: %s: Permalink structure tag. */
-				$structure_tag_already_used = __( '%s（已在固定链接结构中使用）' );
-
-				if ( ! empty( $available_tags ) ) :
-					?>
-					<p><?php _e( '可用标签：' ); ?></p>
-					<ul role="list">
-						<?php
-						foreach ( $available_tags as $tag => $explanation ) {
-							?>
-							<li>
-								<button type="button"
-										class="button button-secondary"
-										aria-label="<?php echo esc_attr( sprintf( $explanation, $tag ) ); ?>"
-										data-added="<?php echo esc_attr( sprintf( $structure_tag_added, $tag ) ); ?>"
-										data-used="<?php echo esc_attr( sprintf( $structure_tag_already_used, $tag ) ); ?>">
-									<?php echo '%' . $tag . '%'; ?>
-								</button>
-							</li>
-							<?php
-						}
-						?>
-					</ul>
-				<?php endif; ?>
-			</div>
-		</td>
-	</tr>
-</table>
-
-<h2 class="title"><?php _e( '可选' ); ?></h2>
-<p>
-<?php
-/* translators: %s: Placeholder that must come at the start of the URL. */
-printf( __( '如果您喜欢，您可以在此给您的分类和标签自定义URL。比如，使用<code>topics</code>作为您的分类基础将会使您的分类链接变成<code>%s/topics/uncategorized/</code>。如果您留空此处，默认值将被使用。' ), get_option( 'home' ) . $blog_prefix . $prefix );
-?>
-</p>
-
-<table class="form-table" role="presentation">
-	<tr>
-		<th><label for="category_base"><?php /* translators: Prefix for category permalinks. */ _e( '分类前缀' ); ?></label></th>
-		<td><?php echo $blog_prefix; ?> <input name="category_base" id="category_base" type="text" value="<?php echo esc_attr( $category_base ); ?>" class="regular-text code" /></td>
-	</tr>
-	<tr>
-		<th><label for="tag_base"><?php _e( '标签前缀' ); ?></label></th>
-		<td><?php echo $blog_prefix; ?> <input name="tag_base" id="tag_base" type="text" value="<?php echo esc_attr( $tag_base ); ?>" class="regular-text code" /></td>
-	</tr>
-	<?php do_settings_fields( 'permalink', 'optional' ); ?>
-</table>
-
-<?php do_settings_sections( 'permalink' ); ?>
-
-<?php submit_button(); ?>
-</form>
-<?php if ( ! is_multisite() ) { ?>
-	<?php
-	if ( $iis7_permalinks ) :
-		if ( isset( $_POST['submit'] ) && $permalink_structure && ! $using_index_permalinks && ! $writable ) :
-			if ( file_exists( $home_path . 'web.config' ) ) :
 				?>
-<p id="iis-description-a">
+			</p>
+			<table class="form-table permalink-structure">
+				<tr>
+					<th scope="row"><label><input name="selection" type="radio" value="" <?php checked( '', $permalink_structure ); ?> /> <?php _e( '朴素' ); ?></label></th>
+					<td><code><?php echo get_option( 'home' ); ?>/?p=123</code></td>
+				</tr>
+				<tr>
+					<th scope="row"><label><input name="selection" type="radio" value="<?php echo esc_attr( $structures[1] ); ?>" <?php checked( $structures[1], $permalink_structure ); ?> /> <?php _e( '日期和名称型' ); ?></label></th>
+					<td><code><?php echo get_option( 'home' ) . $blog_prefix . $prefix . '/' . gmdate( 'Y' ) . '/' . gmdate( 'm' ) . '/' . gmdate( 'd' ) . '/' . _x( 'sample-post', 'sample permalink structure' ) . '/'; ?></code></td>
+				</tr>
+				<tr>
+					<th scope="row"><label><input name="selection" type="radio" value="<?php echo esc_attr( $structures[2] ); ?>" <?php checked( $structures[2], $permalink_structure ); ?> /> <?php _e( '月份和名称型' ); ?></label></th>
+					<td><code><?php echo get_option( 'home' ) . $blog_prefix . $prefix . '/' . gmdate( 'Y' ) . '/' . gmdate( 'm' ) . '/' . _x( 'sample-post', 'sample permalink structure' ) . '/'; ?></code></td>
+				</tr>
+				<tr>
+					<th scope="row"><label><input name="selection" type="radio" value="<?php echo esc_attr( $structures[3] ); ?>" <?php checked( $structures[3], $permalink_structure ); ?> /> <?php _e( '数字型' ); ?></label></th>
+					<td><code><?php echo get_option( 'home' ) . $blog_prefix . $prefix . '/' . _x( '归档', 'sample permalink base' ) . '/123'; ?></code></td>
+				</tr>
+				<tr>
+					<th scope="row"><label><input name="selection" type="radio" value="<?php echo esc_attr( $structures[4] ); ?>" <?php checked( $structures[4], $permalink_structure ); ?> /> <?php _e( '文章名' ); ?></label></th>
+					<td><code><?php echo get_option( 'home' ) . $blog_prefix . $prefix . '/' . _x( 'sample-post', 'sample permalink structure' ) . '/'; ?></code></td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<label><input name="selection" id="custom_selection" type="radio" value="custom" <?php checked( ! in_array( $permalink_structure, $structures, true ) ); ?> />
+						<?php _e( '自定义结构' ); ?>
+						</label>
+					</th>
+					<td>
+						<code><?php echo get_option( 'home' ) . $blog_prefix; ?></code>
+						<input name="permalink_structure" id="permalink_structure" type="text" value="<?php echo esc_attr( $permalink_structure ); ?>" class="regular-text code" />
+						<div class="available-structure-tags hide-if-no-js">
+							<div id="custom_selection_updated" aria-live="assertive" class="screen-reader-text"></div>
+							<?php
+							$available_tags = array(
+								/* translators: %s: Permalink structure tag. */
+								'year'     => __( '%s（文章的年份，四位数字，形如2004。）' ),
+								/* translators: %s: Permalink structure tag. */
+								'monthnum' => __( '%s（月份，形如05。）' ),
+								/* translators: %s: Permalink structure tag. */
+								'day'      => __( '%s（日期，形如28。）' ),
+								/* translators: %s: Permalink structure tag. */
+								'hour'     => __( '%s（小时，形如15。）' ),
+								/* translators: %s: Permalink structure tag. */
+								'minute'   => __( '%s（分钟，形如43。）' ),
+								/* translators: %s: Permalink structure tag. */
+								'second'   => __( '%s（秒数，形如33。）' ),
+								/* translators: %s: Permalink structure tag. */
+								'post_id'  => __( '%s（文章的唯一ID，形如423。）' ),
+								/* translators: %s: Permalink structure tag. */
+								'postname' => __( '%s（处理过的文章标题（别名）。）' ),
+								/* translators: %s: Permalink structure tag. */
+								'category' => __( '%s（分类别名，嵌套的子分类在URL中会显示为嵌套的文件夹。）' ),
+								/* translators: %s: Permalink structure tag. */
+								'author'   => __( '%s（处理过的作者名。）' ),
+							);
+
+							/**
+							 * Filters the list of available permalink structure tags on the Permalinks settings page.
+							 *
+						
+							 *
+							 * @param string[] $available_tags An array of key => value pairs of available permalink structure tags.
+							 */
+							$available_tags = apply_filters( 'available_permalink_structure_tags', $available_tags );
+
+							/* translators: %s: Permalink structure tag. */
+							$structure_tag_added = __( '%s已加入固定链接结构' );
+
+							/* translators: %s: Permalink structure tag. */
+							$structure_tag_already_used = __( '%s（已在固定链接结构中使用）' );
+
+							if ( ! empty( $available_tags ) ) :
+								?>
+								<p><?php _e( '可用标签：' ); ?></p>
+								<ul role="list">
+									<?php
+									foreach ( $available_tags as $tag => $explanation ) {
+										?>
+										<li>
+											<button type="button"
+													class="button button-secondary"
+													aria-label="<?php echo esc_attr( sprintf( $explanation, $tag ) ); ?>"
+													data-added="<?php echo esc_attr( sprintf( $structure_tag_added, $tag ) ); ?>"
+													data-used="<?php echo esc_attr( sprintf( $structure_tag_already_used, $tag ) ); ?>">
+												<?php echo '%' . $tag . '%'; ?>
+											</button>
+										</li>
+										<?php
+									}
+									?>
+								</ul>
+							<?php endif; ?>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div class="card">
+	    <div class="card-header">
+	        <h4 class="card-title"><?php _e( '可选' ); ?></h4>
+		</div>
+		<div class="card-body">
+			<p>
+			<?php
+			/* translators: %s: Placeholder that must come at the start of the URL. */
+			printf( __( '如果您喜欢，您可以在此给您的分类和标签自定义URL。比如，使用<code>topics</code>作为您的分类基础将会使您的分类链接变成<code>%s/topics/uncategorized/</code>。如果您留空此处，默认值将被使用。' ), get_option( 'home' ) . $blog_prefix . $prefix );
+			?>
+			</p>
+			<table class="form-table" role="presentation">
+				<tr>
+					<th><label for="category_base"><?php /* translators: Prefix for category permalinks. */ _e( '分类前缀' ); ?></label></th>
+					<td><?php echo $blog_prefix; ?> <input name="category_base" id="category_base" type="text" value="<?php echo esc_attr( $category_base ); ?>" class="regular-text code" /></td>
+				</tr>
+				<tr>
+					<th><label for="tag_base"><?php _e( '标签前缀' ); ?></label></th>
+					<td><?php echo $blog_prefix; ?> <input name="tag_base" id="tag_base" type="text" value="<?php echo esc_attr( $tag_base ); ?>" class="regular-text code" /></td>
+				</tr>
+				<?php do_settings_fields( 'permalink', 'optional' ); ?>
+			</table>
+			<?php do_settings_sections( 'permalink' ); ?>
+		</div>
+	</div>
+	<?php submit_button(); ?>
+	</form>
+	<?php if ( ! is_multisite() ) { ?>
+		<?php
+		if ( $iis7_permalinks ) :
+			if ( isset( $_POST['submit'] ) && $permalink_structure && ! $using_index_permalinks && ! $writable ) :
+				if ( file_exists( $home_path . 'web.config' ) ) :
+					?>
+	<p id="iis-description-a">
+					<?php
+					printf(
+						/* translators: 1: web.config, 2: Documentation URL, 3: CTRL + a, 4: Element code. */
+						__( '如果您的%1$s文件<a href="%2$s">可写</a>，我们即会自动帮您完成，但其目前不可写，所以以下是您需要加入您的%1$s文件中的URL重写规则。点击文本框并按%3$s来全选，然后将其粘贴入%1$s内的%4$s元素中。' ),
+						'<code>web.config</code>',
+						__( 'https://www.gechiui.com/support/changing-file-permissions/' ),
+						'<kbd>CTRL + a</kbd>',
+						'<code>/&lt;configuration&gt;/&lt;system.webServer&gt;/&lt;rewrite&gt;/&lt;rules&gt;</code>'
+					);
+					?>
+	</p>
+	<form action="options-permalink.php" method="post">
+					<?php gc_nonce_field( 'update-permalink' ); ?>
+		<p><label for="rules"><?php _e( '重写规则：' ); ?></label><br /><textarea rows="9" class="large-text readonly" name="rules" id="rules" readonly="readonly" aria-describedby="iis-description-a"><?php echo esc_textarea( $gc_rewrite->iis7_url_rewrite_rules() ); ?></textarea></p>
+	</form>
+	<p>
+					<?php
+					printf(
+						/* translators: %s: web.config */
+						__( '如果您暂时将%s文件设置为可写，请在规则保存后恢复其原有权限。' ),
+						'<code>web.config</code>'
+					);
+					?>
+	</p>
+			<?php else : ?>
+	<p id="iis-description-b">
 				<?php
 				printf(
-					/* translators: 1: web.config, 2: Documentation URL, 3: CTRL + a, 4: Element code. */
-					__( '如果您的%1$s文件<a href="%2$s">可写</a>，我们即会自动帮您完成，但其目前不可写，所以以下是您需要加入您的%1$s文件中的URL重写规则。点击文本框并按%3$s来全选，然后将其粘贴入%1$s内的%4$s元素中。' ),
-					'<code>web.config</code>',
+					/* translators: 1: Documentation URL, 2: web.config, 3: CTRL + a */
+					__( '如果您的系统根目录<a href="%1$s">可写</a>，我们即会自动帮您完成，但其目前不可写，所以以下是您需要加入您的%2$s文件中的URL重写规则。请在系统根目录中创建名为%2$s的文件，点击文本框并按%3$s来全选，并粘贴入%2$s文件。' ),
 					__( 'https://www.gechiui.com/support/changing-file-permissions/' ),
-					'<kbd>CTRL + a</kbd>',
-					'<code>/&lt;configuration&gt;/&lt;system.webServer&gt;/&lt;rewrite&gt;/&lt;rules&gt;</code>'
+					'<code>web.config</code>',
+					'<kbd>CTRL + a</kbd>'
 				);
 				?>
-</p>
-<form action="options-permalink.php" method="post">
+	</p>
+	<form action="options-permalink.php" method="post">
 				<?php gc_nonce_field( 'update-permalink' ); ?>
-	<p><label for="rules"><?php _e( '重写规则：' ); ?></label><br /><textarea rows="9" class="large-text readonly" name="rules" id="rules" readonly="readonly" aria-describedby="iis-description-a"><?php echo esc_textarea( $gc_rewrite->iis7_url_rewrite_rules() ); ?></textarea></p>
-</form>
-<p>
+		<p><label for="rules"><?php _e( '重写规则：' ); ?></label><br /><textarea rows="18" class="large-text readonly" name="rules" id="rules" readonly="readonly" aria-describedby="iis-description-b"><?php echo esc_textarea( $gc_rewrite->iis7_url_rewrite_rules( true ) ); ?></textarea></p>
+	</form>
+	<p>
 				<?php
 				printf(
 					/* translators: %s: web.config */
-					__( '如果您暂时将%s文件设置为可写，请在规则保存后恢复其原有权限。' ),
+					__( '如果您暂时将您的系统根目录设置为可写供我们自动创建%s文件，请不要忘记在文件创建完成后恢复相应的权限。' ),
 					'<code>web.config</code>'
 				);
 				?>
-</p>
-		<?php else : ?>
-<p id="iis-description-b">
+	</p>
+			<?php endif; ?>
+		<?php endif; ?>
+			<?php
+	else :
+		if ( $permalink_structure && ! $using_index_permalinks && ! $writable && $htaccess_update_required ) :
+			?>
+	<p id="htaccess-description">
 			<?php
 			printf(
-				/* translators: 1: Documentation URL, 2: web.config, 3: CTRL + a */
-				__( '如果您的站点根目录<a href="%1$s">可写</a>，我们即会自动帮您完成，但其目前不可写，所以以下是您需要加入您的%2$s文件中的URL重写规则。请在站点根目录中创建名为%2$s的文件，点击文本框并按%3$s来全选，并粘贴入%2$s文件。' ),
+				/* translators: 1: .htaccess, 2: Documentation URL, 3: CTRL + a */
+				__( '如果您的%1$s文件<a href="%2$s">可写</a>，我们即会自动帮您完成，但其目前不可写，所以以下是您需要加入您的%1$s文件中的mod_rewrite规则。点击文本框并按%3$s来全选。' ),
+				'<code>.htaccess</code>',
 				__( 'https://www.gechiui.com/support/changing-file-permissions/' ),
-				'<code>web.config</code>',
 				'<kbd>CTRL + a</kbd>'
 			);
 			?>
-</p>
-<form action="options-permalink.php" method="post">
+	</p>
+	<form action="options-permalink.php" method="post">
 			<?php gc_nonce_field( 'update-permalink' ); ?>
-	<p><label for="rules"><?php _e( '重写规则：' ); ?></label><br /><textarea rows="18" class="large-text readonly" name="rules" id="rules" readonly="readonly" aria-describedby="iis-description-b"><?php echo esc_textarea( $gc_rewrite->iis7_url_rewrite_rules( true ) ); ?></textarea></p>
-</form>
-<p>
-			<?php
-			printf(
-				/* translators: %s: web.config */
-				__( '如果您暂时将您的站点根目录设置为可写供我们自动创建%s文件，请不要忘记在文件创建完成后恢复相应的权限。' ),
-				'<code>web.config</code>'
-			);
-			?>
-</p>
+		<p><label for="rules"><?php _e( '重写规则：' ); ?></label><br /><textarea rows="8" class="large-text readonly" name="rules" id="rules" readonly="readonly" aria-describedby="htaccess-description"><?php echo esc_textarea( $gc_rewrite->mod_rewrite_rules() ); ?></textarea></p>
+	</form>
 		<?php endif; ?>
 	<?php endif; ?>
-		<?php
-else :
-	if ( $permalink_structure && ! $using_index_permalinks && ! $writable && $htaccess_update_required ) :
-		?>
-<p id="htaccess-description">
-		<?php
-		printf(
-			/* translators: 1: .htaccess, 2: Documentation URL, 3: CTRL + a */
-			__( '如果您的%1$s文件<a href="%2$s">可写</a>，我们即会自动帮您完成，但其目前不可写，所以以下是您需要加入您的%1$s文件中的mod_rewrite规则。点击文本框并按%3$s来全选。' ),
-			'<code>.htaccess</code>',
-			__( 'https://www.gechiui.com/support/changing-file-permissions/' ),
-			'<kbd>CTRL + a</kbd>'
-		);
-		?>
-</p>
-<form action="options-permalink.php" method="post">
-		<?php gc_nonce_field( 'update-permalink' ); ?>
-	<p><label for="rules"><?php _e( '重写规则：' ); ?></label><br /><textarea rows="8" class="large-text readonly" name="rules" id="rules" readonly="readonly" aria-describedby="htaccess-description"><?php echo esc_textarea( $gc_rewrite->mod_rewrite_rules() ); ?></textarea></p>
-</form>
-	<?php endif; ?>
-<?php endif; ?>
-<?php } // End if ! is_multisite(). ?>
-
+	<?php } // End if ! is_multisite(). ?>
 </div>
 
 <?php require_once ABSPATH . 'gc-admin/admin-footer.php'; ?>

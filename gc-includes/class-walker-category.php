@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Template
- *
  */
 
 /**
  * Core class used to create an HTML list of categories.
- *
- *
  *
  * @see Walker
  */
@@ -81,6 +78,7 @@ class Walker_Category extends Walker {
 	/**
 	 * Starts the element output.
 	 *
+	 * @since 5.9.0 Renamed `$category` to `$data_object` and `$id` to `$current_object_id`
 	 *              to match parent class for PHP 8 named parameter support.
 	 *
 	 * @see Walker::start_el()
@@ -111,7 +109,7 @@ class Walker_Category extends Walker {
 			/**
 			 * Filters the category description for display.
 			 *
-		
+			 * @since 1.2.0
 			 *
 			 * @param string  $description Category description.
 			 * @param GC_Term $category    Category object.
@@ -122,6 +120,7 @@ class Walker_Category extends Walker {
 		/**
 		 * Filters the HTML attributes applied to a category list item's anchor element.
 		 *
+		 * @since 5.2.0
 		 *
 		 * @param array   $atts {
 		 *     The HTML attributes applied to the list item's `<a>` element, empty strings are ignored.
@@ -175,6 +174,7 @@ class Walker_Category extends Walker {
 			} else {
 				$link .= "<img src='" . esc_url( $args['feed_image'] ) . "'$alt" . ' />';
 			}
+
 			$link .= '</a>';
 
 			if ( empty( $args['feed_image'] ) ) {
@@ -185,6 +185,7 @@ class Walker_Category extends Walker {
 		if ( ! empty( $args['show_count'] ) ) {
 			$link .= ' (' . number_format_i18n( $category->count ) . ')';
 		}
+
 		if ( 'list' === $args['style'] ) {
 			$output     .= "\t<li";
 			$css_classes = array(
@@ -203,17 +204,19 @@ class Walker_Category extends Walker {
 				);
 
 				foreach ( $_current_terms as $_current_term ) {
-					if ( $category->term_id == $_current_term->term_id ) {
+					if ( $category->term_id === $_current_term->term_id ) {
 						$css_classes[] = 'current-cat';
 						$link          = str_replace( '<a', '<a aria-current="page"', $link );
-					} elseif ( $category->term_id == $_current_term->parent ) {
+					} elseif ( $category->term_id === $_current_term->parent ) {
 						$css_classes[] = 'current-cat-parent';
 					}
+
 					while ( $_current_term->parent ) {
-						if ( $category->term_id == $_current_term->parent ) {
+						if ( $category->term_id === $_current_term->parent ) {
 							$css_classes[] = 'current-cat-ancestor';
 							break;
 						}
+
 						$_current_term = get_term( $_current_term->parent, $category->taxonomy );
 					}
 				}
@@ -222,7 +225,7 @@ class Walker_Category extends Walker {
 			/**
 			 * Filters the list of CSS classes to include with each category in the list.
 			 *
-		
+			 * @since 4.2.0
 			 *
 			 * @see gc_list_categories()
 			 *
@@ -246,6 +249,7 @@ class Walker_Category extends Walker {
 	/**
 	 * Ends the element output, if needed.
 	 *
+	 * @since 5.9.0 Renamed `$page` to `$data_object` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @see Walker::end_el()
 	 *

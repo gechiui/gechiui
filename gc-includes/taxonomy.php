@@ -17,13 +17,14 @@
  * backward compatibility reasons), and again on the {@see 'init'} action. We must
  * avoid registering rewrite rules before the {@see 'init'} action.
  *
- *
- *
+ * @since 5.9.0 Added `'gc_template_part_area'` taxonomy.
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  */
 function create_initial_taxonomies() {
 	global $gc_rewrite;
+
+	GC_Taxonomy::reset_default_labels();
 
 	if ( ! did_action( 'init' ) ) {
 		$rewrite = array(
@@ -36,6 +37,7 @@ function create_initial_taxonomies() {
 		/**
 		 * Filters the post formats rewrite base.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param string $context Context of the rewrite base. Default 'type'.
 		 */
@@ -172,7 +174,7 @@ function create_initial_taxonomies() {
 			'hierarchical'      => false,
 			'labels'            => array(
 				'name'          => _x( '形式', 'post format' ),
-				'singular_name' => _x( '形式', 'post format' ),
+				'singular_name' => _x( '格式', 'post format' ),
 			),
 			'query_var'         => true,
 			'rewrite'           => $rewrite['post_format'],
@@ -224,8 +226,6 @@ function create_initial_taxonomies() {
 /**
  * Retrieves a list of registered taxonomy names or objects.
  *
- *
- *
  * @global GC_Taxonomy[] $gc_taxonomies The registered taxonomies.
  *
  * @param array  $args     Optional. An array of `key => value` arguments to match against the taxonomy objects.
@@ -246,8 +246,8 @@ function get_taxonomies( $args = array(), $output = 'names', $operator = 'and' )
 }
 
 /**
- * Return the names or objects of the taxonomies which are registered for the requested object or object type, such as
- * a post object or post type name.
+ * Returns the names or objects of the taxonomies which are registered for the requested object or object type,
+ * such as a post object or post type name.
  *
  * Example:
  *
@@ -257,30 +257,28 @@ function get_taxonomies( $args = array(), $output = 'names', $operator = 'and' )
  *
  *     Array( 'category', 'post_tag' )
  *
- *
- *
  * @global GC_Taxonomy[] $gc_taxonomies The registered taxonomies.
  *
- * @param string|string[]|GC_Post $object Name of the type of taxonomy object, or an object (row from posts)
- * @param string                  $output Optional. The type of output to return in the array. Accepts either
- *                                        'names' or 'objects'. Default 'names'.
+ * @param string|string[]|GC_Post $object_type Name of the type of taxonomy object, or an object (row from posts).
+ * @param string                  $output      Optional. The type of output to return in the array. Accepts either
+ *                                             'names' or 'objects'. Default 'names'.
  * @return string[]|GC_Taxonomy[] The names or objects of all taxonomies of `$object_type`.
  */
-function get_object_taxonomies( $object, $output = 'names' ) {
+function get_object_taxonomies( $object_type, $output = 'names' ) {
 	global $gc_taxonomies;
 
-	if ( is_object( $object ) ) {
-		if ( 'attachment' === $object->post_type ) {
-			return get_attachment_taxonomies( $object, $output );
+	if ( is_object( $object_type ) ) {
+		if ( 'attachment' === $object_type->post_type ) {
+			return get_attachment_taxonomies( $object_type, $output );
 		}
-		$object = $object->post_type;
+		$object_type = $object_type->post_type;
 	}
 
-	$object = (array) $object;
+	$object_type = (array) $object_type;
 
 	$taxonomies = array();
 	foreach ( (array) $gc_taxonomies as $tax_name => $tax_obj ) {
-		if ( array_intersect( $object, (array) $tax_obj->object_type ) ) {
+		if ( array_intersect( $object_type, (array) $tax_obj->object_type ) ) {
 			if ( 'names' === $output ) {
 				$taxonomies[] = $tax_name;
 			} else {
@@ -298,12 +296,10 @@ function get_object_taxonomies( $object, $output = 'names' ) {
  * The get_taxonomy function will first check that the parameter string given
  * is a taxonomy object and if it is, it will return it.
  *
- *
- *
  * @global GC_Taxonomy[] $gc_taxonomies The registered taxonomies.
  *
  * @param string $taxonomy Name of taxonomy object to return.
- * @return GC_Taxonomy|false The Taxonomy Object or false if $taxonomy doesn't exist.
+ * @return GC_Taxonomy|false The taxonomy object or false if $taxonomy doesn't exist.
  */
 function get_taxonomy( $taxonomy ) {
 	global $gc_taxonomies;
@@ -324,8 +320,6 @@ function get_taxonomy( $taxonomy ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
- *
  * @global GC_Taxonomy[] $gc_taxonomies The registered taxonomies.
  *
  * @param string $taxonomy Name of taxonomy object.
@@ -334,7 +328,7 @@ function get_taxonomy( $taxonomy ) {
 function taxonomy_exists( $taxonomy ) {
 	global $gc_taxonomies;
 
-	return isset( $gc_taxonomies[ $taxonomy ] );
+	return is_string( $taxonomy ) && isset( $gc_taxonomies[ $taxonomy ] );
 }
 
 /**
@@ -348,8 +342,6 @@ function taxonomy_exists( $taxonomy ) {
  * For more information on this and similar theme functions, check out
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- *
- *
  *
  * @param string $taxonomy Name of taxonomy object.
  * @return bool Whether the taxonomy is hierarchical.
@@ -372,22 +364,17 @@ function is_taxonomy_hierarchical( $taxonomy ) {
  * the parameters given. If modifying an existing taxonomy object, note
  * that the `$object_type` value from the original registration will be
  * overwritten.
- *
- *
- *
- *
- *
- *
- *
- *              arguments to register the Taxonomy in REST API.
- *
- *
- *
- *
+ * Introduced `show_in_quick_edit` argument. The `show_ui` argument is now enforced on the term editing screen. The `public` argument now controls whether the taxonomy can be queried on the front end. Introduced `publicly_queryable` argument. Introduced `show_in_rest`, 'rest_base' and 'rest_controller_class'
+ *              arguments to register the taxonomy in REST API.
+ * @since 5.1.0 Introduced `meta_box_sanitize_cb` argument.
+ * @since 5.4.0 Added the registered taxonomy object as a return value.
+ * @since 5.5.0 Introduced `default_term` argument.
+ * @since 5.9.0 Introduced `rest_namespace` argument.
  *
  * @global GC_Taxonomy[] $gc_taxonomies Registered taxonomies.
  *
- * @param string       $taxonomy    Taxonomy key, must not exceed 32 characters.
+ * @param string       $taxonomy    Taxonomy key. Must not exceed 32 characters and may only contain
+ *                                  lowercase alphanumeric characters, dashes, and underscores. See sanitize_key().
  * @param array|string $object_type Object type or array of object types with which the taxonomy should be associated.
  * @param array|string $args        {
  *     Optional. Array or query string of arguments for registering a taxonomy.
@@ -401,7 +388,7 @@ function is_taxonomy_hierarchical( $taxonomy ) {
  *                                                the admin interface or by front-end users. The default settings
  *                                                of `$publicly_queryable`, `$show_ui`, and `$show_in_nav_menus`
  *                                                are inherited from `$public`.
- *     @type bool          $publicly_queryable    此分类法是否可公开查询。
+ *     @type bool          $publicly_queryable    Whether the taxonomy is publicly queryable.
  *                                                If not set, the default is inherited from `$public`
  *     @type bool          $hierarchical          Whether the taxonomy is hierarchical. Default false.
  *     @type bool          $show_ui               Whether to generate and allow a UI for managing terms in this taxonomy in
@@ -420,7 +407,7 @@ function is_taxonomy_hierarchical( $taxonomy ) {
  *     @type string        $rest_controller_class REST API Controller class name. Default is 'GC_REST_Terms_Controller'.
  *     @type bool          $show_tagcloud         Whether to list the taxonomy in the Tag Cloud Widget controls. If not set,
  *                                                the default is inherited from `$show_ui` (default true).
- *     @type bool          $show_in_quick_edit    是否在快速/批量编辑面板显示分类法。 It not set,
+ *     @type bool          $show_in_quick_edit    Whether to show the taxonomy in the quick/bulk edit panel. It not set,
  *                                                the default is inherited from `$show_ui` (default true).
  *     @type bool          $show_admin_column     Whether to display a column for the taxonomy on its post type listing
  *                                                screens. Default false.
@@ -525,6 +512,24 @@ function register_taxonomy( $taxonomy, $object_type, $args = array() ) {
 	 */
 	do_action( 'registered_taxonomy', $taxonomy, $object_type, (array) $taxonomy_object );
 
+	/**
+	 * Fires after a specific taxonomy is registered.
+	 *
+	 * The dynamic portion of the filter name, `$taxonomy`, refers to the taxonomy key.
+	 *
+	 * Possible hook names include:
+	 *
+	 *  - `registered_taxonomy_category`
+	 *  - `registered_taxonomy_post_tag`
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param string       $taxonomy    Taxonomy slug.
+	 * @param array|string $object_type Object type or array of object types.
+	 * @param array        $args        Array of taxonomy registration arguments.
+	 */
+	do_action( "registered_taxonomy_{$taxonomy}", $taxonomy, $object_type, (array) $taxonomy_object );
+
 	return $taxonomy_object;
 }
 
@@ -533,15 +538,14 @@ function register_taxonomy( $taxonomy, $object_type, $args = array() ) {
  *
  * Can not be used to unregister built-in taxonomies.
  *
- *
- *
- * @global GC    $gc            Current GeChiUI environment instance.
  * @global GC_Taxonomy[] $gc_taxonomies List of taxonomies.
  *
  * @param string $taxonomy Taxonomy name.
  * @return true|GC_Error True on success, GC_Error on failure or if the taxonomy doesn't exist.
  */
 function unregister_taxonomy( $taxonomy ) {
+	global $gc_taxonomies;
+
 	if ( ! taxonomy_exists( $taxonomy ) ) {
 		return new GC_Error( 'invalid_taxonomy', __( '无效分类法。' ) );
 	}
@@ -553,15 +557,8 @@ function unregister_taxonomy( $taxonomy ) {
 		return new GC_Error( 'invalid_taxonomy', __( '不能反注册内建分类法。' ) );
 	}
 
-	global $gc_taxonomies;
-
 	$taxonomy_object->remove_rewrite_rules();
 	$taxonomy_object->remove_hooks();
-
-	// Remove custom taxonomy default term option.
-	if ( ! empty( $taxonomy_object->default_term ) ) {
-		delete_option( 'default_term_' . $taxonomy_object->name );
-	}
 
 	// Remove the taxonomy.
 	unset( $gc_taxonomies[ $taxonomy ] );
@@ -569,6 +566,7 @@ function unregister_taxonomy( $taxonomy ) {
 	/**
 	 * Fires after a taxonomy is unregistered.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @param string $taxonomy Taxonomy name.
 	 */
@@ -580,13 +578,10 @@ function unregister_taxonomy( $taxonomy ) {
 /**
  * Builds an object with all taxonomy labels out of a taxonomy object.
  *
- *
- *
- *
- *
- *
- *
- *
+ * @since 4.3.0 Added the `no_terms` label. Added the `items_list_navigation` and `items_list` labels. Added the `most_used` and `back_to_items` labels.
+ * @since 5.7.0 Added the `filter_by_item` label.
+ * @since 5.8.0 Added the `item_link` and `item_link_description` labels.
+ * @since 5.9.0 Added the `name_field_description`, `slug_field_description`,
  *              `parent_field_description`, and `desc_field_description` labels.
  *
  * @param GC_Taxonomy $tax Taxonomy object.
@@ -595,12 +590,12 @@ function unregister_taxonomy( $taxonomy ) {
  *     (like tags) and the second one is for hierarchical taxonomies (like categories).
  *
  *     @type string $name                       General name for the taxonomy, usually plural. The same
- *                                              as and overridden by `$tax->label`. Default 'Tags'/'分类'.
+ *                                              as and overridden by `$tax->label`. Default 'Tags'/'Categories'.
  *     @type string $singular_name              Name for one object of this taxonomy. Default 'Tag'/'Category'.
  *     @type string $search_items               Default '搜索标签'/'搜索分类'.
  *     @type string $popular_items              This label is only used for non-hierarchical taxonomies.
  *                                              Default '热门标签'.
- *     @type string $all_items                  Default 'All Tags'/'所有分类'.
+ *     @type string $all_items                  Default '所有标签'/'所有分类'.
  *     @type string $parent_item                This label is only used for hierarchical taxonomies. Default
  *                                              '父级分类'.
  *     @type string $parent_item_colon          The same as `parent_item`, but with colon `:` in the end.
@@ -617,8 +612,8 @@ function unregister_taxonomy( $taxonomy ) {
  *     @type string $desc_field_description     Description for the Description field on Edit Tags screen.
  *                                              Default 'The description is not prominent by default;
  *                                              however, some themes may show it'.
- *     @type string $edit_item                  Default 'Edit Tag'/'编辑分类'.
- *     @type string $view_item                  Default 'View Tag'/'查看分类'.
+ *     @type string $edit_item                  Default '编辑标签'/'编辑分类'.
+ *     @type string $view_item                  Default '查看标签'/'查看分类'.
  *     @type string $update_item                Default '更新标签'/'更新分类'.
  *     @type string $add_new_item               Default '添加新标签'/'添加新分类'.
  *     @type string $new_item_name              Default '新标签名'/'新分类名'.
@@ -631,7 +626,7 @@ function unregister_taxonomy( $taxonomy ) {
  *                                              '从常用标签中选择', used in the meta box.
  *     @type string $not_found                  Default 'No tags found'/'No categories found', used in
  *                                              the meta box and taxonomy list table.
- *     @type string $no_terms                   Default 'No tags'/'没有分类', used in the posts and media
+ *     @type string $no_terms                   Default '没有标签'/'没有分类', used in the posts and media
  *                                              list tables.
  *     @type string $filter_by_item             This label is only used for hierarchical taxonomies. Default
  *                                              '按分类筛选', used in the posts list table.
@@ -640,7 +635,7 @@ function unregister_taxonomy( $taxonomy ) {
  *     @type string $most_used                  Title for the Most Used tab. Default '最多使用'.
  *     @type string $back_to_items              Label displayed after a term has been updated.
  *     @type string $item_link                  Used in the block editor. Title for a navigation link block variation.
- *                                              Default 'Tag Link'/'分类链接'.
+ *                                              Default '标签链接'/'分类链接'.
  *     @type string $item_link_description      Used in the block editor. Description for a navigation link block
  *                                              variation. Default 'A link to a tag'/'A link to a category'.
  * }
@@ -656,48 +651,7 @@ function get_taxonomy_labels( $tax ) {
 		$tax->labels['not_found'] = $tax->no_tagcloud;
 	}
 
-	$name_field_description   = __( '名称是它在您网站上的显示方式。' );
-	$slug_field_description   = __( '“slug”是名称的 URL 友好版本。它通常都是小写的，并且只包含字母、数字和连字符。' );
-	$parent_field_description = __( '分配父术语以创建层次结构。例如，爵士乐一词将是 Bebop 和 Big Band 的父级。' );
-	$desc_field_description   = __( '默认情况下，描述不突出；但是，某些主题可能会显示它。' );
-
-	$nohier_vs_hier_defaults = array(
-		'name'                       => array( _x( '标签', 'taxonomy general name' ), _x( '分类', 'taxonomy general name' ) ),
-		'singular_name'              => array( _x( '标签', 'taxonomy singular name' ), _x( '分类', 'taxonomy singular name' ) ),
-		'search_items'               => array( __( '搜索标签' ), __( '搜索分类' ) ),
-		'popular_items'              => array( __( '热门标签' ), null ),
-		'all_items'                  => array( __( '所有标签' ), __( '所有分类' ) ),
-		'parent_item'                => array( null, __( '父级分类' ) ),
-		'parent_item_colon'          => array( null, __( '父级分类：' ) ),
-		'name_field_description'     => array( $name_field_description, $name_field_description ),
-		'slug_field_description'     => array( $slug_field_description, $slug_field_description ),
-		'parent_field_description'   => array( null, $parent_field_description ),
-		'desc_field_description'     => array( $desc_field_description, $desc_field_description ),
-		'edit_item'                  => array( __( '编辑标签' ), __( '编辑分类' ) ),
-		'view_item'                  => array( __( '查看标签' ), __( '查看分类' ) ),
-		'update_item'                => array( __( '更新标签' ), __( '更新分类' ) ),
-		'add_new_item'               => array( __( '添加新标签' ), __( '添加新分类' ) ),
-		'new_item_name'              => array( __( '新标签名' ), __( '新分类名' ) ),
-		'separate_items_with_commas' => array( __( '多个标签请用英文逗号（,）分开' ), null ),
-		'add_or_remove_items'        => array( __( '添加或移除标签' ), null ),
-		'choose_from_most_used'      => array( __( '从常用标签中选择' ), null ),
-		'not_found'                  => array( __( '未找到标签。' ), __( '未找到分类。' ) ),
-		'no_terms'                   => array( __( '没有标签' ), __( '没有分类' ) ),
-		'filter_by_item'             => array( null, __( '按分类筛选' ) ),
-		'items_list_navigation'      => array( __( '标签列表导航' ), __( '分类列表导航' ) ),
-		'items_list'                 => array( __( '标签列表' ), __( '分类列表' ) ),
-		/* translators: Tab heading when selecting from the most used terms. */
-		'most_used'                  => array( _x( '最多使用', 'tags' ), _x( '最多使用', 'categories' ) ),
-		'back_to_items'              => array( __( '&larr; 转到“标签”页面' ), __( '&larr; 转到“分类”页面' ) ),
-		'item_link'                  => array(
-			_x( '标签链接', 'navigation link block title' ),
-			_x( '分类链接', 'navigation link block title' ),
-		),
-		'item_link_description'      => array(
-			_x( '目标标签的链接。', 'navigation link block description' ),
-			_x( '目标分类的链接。', 'navigation link block description' ),
-		),
-	);
+	$nohier_vs_hier_defaults = GC_Taxonomy::get_default_labels();
 
 	$nohier_vs_hier_defaults['menu_name'] = $nohier_vs_hier_defaults['name'];
 
@@ -717,6 +671,7 @@ function get_taxonomy_labels( $tax ) {
 	 *  - `taxonomy_labels_category`
 	 *  - `taxonomy_labels_post_tag`
 	 *
+	 * @since 4.4.0
 	 *
 	 * @see get_taxonomy_labels() for the full list of taxonomy labels.
 	 *
@@ -731,9 +686,7 @@ function get_taxonomy_labels( $tax ) {
 }
 
 /**
- * Add an already registered taxonomy to an object type.
- *
- *
+ * Adds an already registered taxonomy to an object type.
  *
  * @global GC_Taxonomy[] $gc_taxonomies The registered taxonomies.
  *
@@ -762,6 +715,7 @@ function register_taxonomy_for_object_type( $taxonomy, $object_type ) {
 	/**
 	 * Fires after a taxonomy is registered for an object type.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param string $taxonomy    Taxonomy name.
 	 * @param string $object_type Name of the object type.
@@ -772,9 +726,7 @@ function register_taxonomy_for_object_type( $taxonomy, $object_type ) {
 }
 
 /**
- * Remove an already registered taxonomy from an object type.
- *
- *
+ * Removes an already registered taxonomy from an object type.
  *
  * @global GC_Taxonomy[] $gc_taxonomies The registered taxonomies.
  *
@@ -803,6 +755,7 @@ function unregister_taxonomy_for_object_type( $taxonomy, $object_type ) {
 	/**
 	 * Fires after a taxonomy is unregistered for an object type.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param string $taxonomy    Taxonomy name.
 	 * @param string $object_type Name of the object type.
@@ -817,7 +770,7 @@ function unregister_taxonomy_for_object_type( $taxonomy, $object_type ) {
 //
 
 /**
- * Retrieve object IDs of valid taxonomy and term.
+ * Retrieves object IDs of valid taxonomy and term.
  *
  * The strings of `$taxonomies` must exist before this function will continue.
  * On failure of finding a valid taxonomy, it will return a GC_Error.
@@ -828,13 +781,15 @@ function unregister_taxonomy_for_object_type( $taxonomy, $object_type ) {
  * It is possible to change the order that object IDs are returned by using `$args`
  * with either ASC or DESC array. The value should be in the key named 'order'.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param int|int[]       $term_ids   Term ID or array of term IDs of terms that will be used.
  * @param string|string[] $taxonomies String of taxonomy name or Array of string values of taxonomy names.
- * @param array|string    $args       Change the order of the object IDs, either ASC or DESC.
+ * @param array|string    $args       {
+ *     Change the order of the object IDs.
+ *
+ *     @type string $order Order to retrieve terms. Accepts 'ASC' or 'DESC'. Default 'ASC'.
+ * }
  * @return string[]|GC_Error An array of object IDs as numeric strings on success,
  *                           GC_Error if the taxonomy does not exist.
  */
@@ -867,10 +822,10 @@ function get_objects_in_term( $term_ids, $taxonomies, $args = array() ) {
 
 	$last_changed = gc_cache_get_last_changed( 'terms' );
 	$cache_key    = 'get_objects_in_term:' . md5( $sql ) . ":$last_changed";
-	$cache        = gc_cache_get( $cache_key, 'terms' );
+	$cache        = gc_cache_get( $cache_key, 'term-queries' );
 	if ( false === $cache ) {
 		$object_ids = $gcdb->get_col( $sql );
-		gc_cache_set( $cache_key, $object_ids, 'terms' );
+		gc_cache_set( $cache_key, $object_ids, 'term-queries' );
 	} else {
 		$object_ids = (array) $cache;
 	}
@@ -883,8 +838,6 @@ function get_objects_in_term( $term_ids, $taxonomies, $args = array() ) {
 
 /**
  * Given a taxonomy query, generates SQL to be appended to a main query.
- *
- *
  *
  * @see GC_Tax_Query
  *
@@ -899,7 +852,7 @@ function get_tax_sql( $tax_query, $primary_table, $primary_id_column ) {
 }
 
 /**
- * Get all Term data from database by Term ID.
+ * Gets all term data from database by term ID.
  *
  * The usage of the get_term function is to apply filters to a term object. It
  * is possible to get a term object from the database before applying the
@@ -912,7 +865,7 @@ function get_tax_sql( $tax_query, $primary_table, $primary_id_column ) {
  * There are two hooks, one is specifically for each term, named 'get_term', and
  * the second is for the taxonomy name, 'term_$taxonomy'. Both hooks gets the
  * term object, and the taxonomy name as parameters. Both hooks are expected to
- * return a Term object.
+ * return a term object.
  *
  * {@see 'get_term'} hook - Takes two parameters the term Object and the taxonomy name.
  * Must return term object. Used in get_term() as a catch-all filter for every
@@ -924,9 +877,7 @@ function get_tax_sql( $tax_query, $primary_table, $primary_id_column ) {
  * for custom taxonomies or plugging into default taxonomies.
  *
  * @todo Better formatting for DocBlock
- *
- *
- *
+ * Converted to return a GC_Term object if `$output` is `OBJECT`.
  *              The `$taxonomy` parameter was made optional.
  *
  * @see sanitize_term_field() The $context param lists the available values for get_term_by() $filter param.
@@ -981,6 +932,8 @@ function get_term( $term, $taxonomy = '', $output = OBJECT, $filter = 'raw' ) {
 	 * The {@see 'get_$taxonomy'} hook is also available for targeting a specific
 	 * taxonomy.
 	 *
+	 * @since 2.3.0
+	 * @since 4.4.0 `$_term` is now a `GC_Term` object.
 	 *
 	 * @param GC_Term $_term    Term object.
 	 * @param string  $taxonomy The taxonomy slug.
@@ -998,6 +951,8 @@ function get_term( $term, $taxonomy = '', $output = OBJECT, $filter = 'raw' ) {
 	 *  - `get_category`
 	 *  - `get_post_tag`
 	 *
+	 * @since 2.3.0
+	 * @since 4.4.0 `$_term` is now a `GC_Term` object.
 	 *
 	 * @param GC_Term $_term    Term object.
 	 * @param string  $taxonomy The taxonomy slug.
@@ -1022,7 +977,7 @@ function get_term( $term, $taxonomy = '', $output = OBJECT, $filter = 'raw' ) {
 }
 
 /**
- * Get all Term data from database by Term field and data.
+ * Gets all term data from database by term field and data.
  *
  * Warning: $value is not escaped for 'name' $field. You must do it yourself, if
  * required.
@@ -1031,7 +986,7 @@ function get_term( $term, $taxonomy = '', $output = OBJECT, $filter = 'raw' ) {
  * field, but not recommended that you do so.
  *
  * If $value does not exist, the return value will be false. If $taxonomy exists
- * and $field and $value combinations exist, the Term will be returned.
+ * and $field and $value combinations exist, the term will be returned.
  *
  * This function will always return the first term that matches the `$field`-
  * `$value`-`$taxonomy` combination specified in the parameters. If your query
@@ -1041,11 +996,9 @@ function get_term( $term, $taxonomy = '', $output = OBJECT, $filter = 'raw' ) {
  * deciding which one was intended.
  *
  * @todo Better formatting for DocBlock.
- *
- *
- *
+ * `$taxonomy` is optional if `$field` is 'term_taxonomy_id'. Converted to return
  *              a GC_Term object if `$output` is `OBJECT`.
- *
+ * @since 5.5.0 Added 'ID' as an alias of 'id' for the `$field` parameter.
  *
  * @see sanitize_term_field() The $context param lists the available values for get_term_by() $filter param.
  *
@@ -1123,18 +1076,16 @@ function get_term_by( $field, $value, $taxonomy = '', $output = OBJECT, $filter 
 }
 
 /**
- * Merge all term children into a single array of their IDs.
+ * Merges all term children into a single array of their IDs.
  *
  * This recursive function will merge all of the children of $term into the same
  * array of term IDs. Only useful for taxonomies which are hierarchical.
  *
  * Will return an empty array if $term does not exist in $taxonomy.
  *
- *
- *
  * @param int    $term_id  ID of term to get children.
  * @param string $taxonomy Taxonomy name.
- * @return array|GC_Error List of Term IDs. GC_Error returned if `$taxonomy` does not exist.
+ * @return array|GC_Error List of term IDs. GC_Error returned if `$taxonomy` does not exist.
  */
 function get_term_children( $term_id, $taxonomy ) {
 	if ( ! taxonomy_exists( $taxonomy ) ) {
@@ -1165,12 +1116,10 @@ function get_term_children( $term_id, $taxonomy ) {
 }
 
 /**
- * Get sanitized Term field.
+ * Gets sanitized term field.
  *
  * The function is for contextual reasons and for simplicity of usage.
- *
- *
- *
+ * The `$taxonomy` parameter was made optional. `$term` can also now accept a GC_Term object.
  *
  * @see sanitize_term_field()
  *
@@ -1199,12 +1148,10 @@ function get_term_field( $field, $term, $taxonomy = '', $context = 'display' ) {
 }
 
 /**
- * Sanitizes Term for editing.
+ * Sanitizes term for editing.
  *
  * Return value is sanitize_term() and usage is for sanitizing the term for
  * editing. Function is for contextual and simplicity.
- *
- *
  *
  * @param int|object $id       Term ID or object.
  * @param string     $taxonomy Taxonomy name.
@@ -1245,27 +1192,19 @@ function get_term_to_edit( $id, $taxonomy ) {
  * The {@see 'get_terms_orderby'} filter passes the `ORDER BY` clause for the query
  * along with the $args array.
  *
- * Prior to 4.5.0, the first parameter of `get_terms()` was a taxonomy or list of taxonomies:
- *
- *     $terms = get_terms( 'post_tag', array(
- *         'hide_empty' => false,
- *     ) );
- *
- * Since 4.5.0, taxonomies should be passed via the 'taxonomy' argument in the `$args` array:
+ * Taxonomy or an array of taxonomies should be passed via the 'taxonomy' argument
+ * in the `$args` array:
  *
  *     $terms = get_terms( array(
- *         'taxonomy' => 'post_tag',
+ *         'taxonomy'   => 'post_tag',
  *         'hide_empty' => false,
  *     ) );
  *
- *
- *
- *
+ * Prior to 4.5.0, taxonomy was passed as the first parameter of `get_terms()`.
+ * Introduced 'name' and 'childless' parameters. Introduced the ability to pass 'term_id' as an alias of 'id' for the `orderby` parameter.
  *              Introduced the 'meta_query' and 'update_term_meta_cache' parameters. Converted to return
- *              a list of GC_Term objects.
- *
- *              Introduced 'meta_key' and 'meta_value' parameters. Introduced the ability to order results by metadata.
- *
+ *              a list of GC_Term objects. Changed the function signature so that the `$args` array can be provided as the first parameter.
+ *              Introduced 'meta_key' and 'meta_value' parameters. Introduced the ability to order results by metadata. Introduced 'suppress_filter' parameter.
  *
  * @internal The `$deprecated` parameter is parsed for backward compatibility only.
  *
@@ -1334,6 +1273,8 @@ function get_terms( $args = array(), $deprecated = '' ) {
 	/**
 	 * Filters the found terms.
 	 *
+	 * @since 2.3.0
+	 * @since 4.6.0 Added the `$term_query` parameter.
 	 *
 	 * @param array         $terms      Array of found terms.
 	 * @param array|null    $taxonomies An array of taxonomies if known.
@@ -1345,8 +1286,6 @@ function get_terms( $args = array(), $deprecated = '' ) {
 
 /**
  * Adds metadata to a term.
- *
- *
  *
  * @param int    $term_id    Term ID.
  * @param string $meta_key   Metadata name.
@@ -1367,8 +1306,6 @@ function add_term_meta( $term_id, $meta_key, $meta_value, $unique = false ) {
 /**
  * Removes metadata matching criteria from a term.
  *
- *
- *
  * @param int    $term_id    Term ID.
  * @param string $meta_key   Metadata name.
  * @param mixed  $meta_value Optional. Metadata value. If provided,
@@ -1382,8 +1319,6 @@ function delete_term_meta( $term_id, $meta_key, $meta_value = '' ) {
 
 /**
  * Retrieves metadata for a term.
- *
- *
  *
  * @param int    $term_id Term ID.
  * @param string $key     Optional. The meta key to retrieve. By default,
@@ -1406,8 +1341,6 @@ function get_term_meta( $term_id, $key = '', $single = false ) {
  * Use the `$prev_value` parameter to differentiate between meta fields with the same key and term ID.
  *
  * If the meta field for the term does not exist, it will be added.
- *
- *
  *
  * @param int    $term_id    Term ID.
  * @param string $meta_key   Metadata key.
@@ -1434,8 +1367,6 @@ function update_term_meta( $term_id, $meta_key, $meta_value, $prev_value = '' ) 
  * Performs SQL query to retrieve all metadata for the terms matching `$term_ids` and stores them in the cache.
  * Subsequent calls to `get_term_meta()` will not need to query the database.
  *
- *
- *
  * @param array $term_ids List of term IDs.
  * @return array|false An array of metadata on success, false if there is nothing to update.
  */
@@ -1443,10 +1374,24 @@ function update_termmeta_cache( $term_ids ) {
 	return update_meta_cache( 'term', $term_ids );
 }
 
+
 /**
- * Get all meta data, including meta IDs, for the given term ID.
+ * Queue term meta for lazy-loading.
  *
+ * @since 6.3.0
  *
+ * @param array $term_ids List of term IDs.
+ */
+function gc_lazyload_term_meta( array $term_ids ) {
+	if ( empty( $term_ids ) ) {
+		return;
+	}
+	$lazyloader = gc_metadata_lazyloader();
+	$lazyloader->queue_objects( 'term', $term_ids );
+}
+
+/**
+ * Gets all meta data, including meta IDs, for the given term ID.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -1467,7 +1412,7 @@ function has_term_meta( $term_id ) {
 /**
  * Registers a meta key for terms.
  *
- *
+ * @since 4.9.8
  *
  * @param string $taxonomy Taxonomy to register a meta key for. Pass an empty string
  *                         to register the meta key across all existing taxonomies.
@@ -1485,7 +1430,7 @@ function register_term_meta( $taxonomy, $meta_key, array $args ) {
 /**
  * Unregisters a meta key for terms.
  *
- *
+ * @since 4.9.8
  *
  * @param string $taxonomy Taxonomy the meta key is currently registered for. Pass
  *                         an empty string if the meta key is registered across all
@@ -1506,86 +1451,104 @@ function unregister_term_meta( $taxonomy, $meta_key ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
+ * @since 6.0.0 Converted to use `get_terms()`.
  *
+ * @global bool $_gc_suspend_cache_invalidation
  *
- * @global gcdb $gcdb GeChiUI database abstraction object.
- *
- * @param int|string $term     The term to check. Accepts term ID, slug, or name.
- * @param string     $taxonomy Optional. The taxonomy name to use.
- * @param int        $parent   Optional. ID of parent term under which to confine the exists search.
+ * @param int|string $term        The term to check. Accepts term ID, slug, or name.
+ * @param string     $taxonomy    Optional. The taxonomy name to use.
+ * @param int        $parent_term Optional. ID of parent term under which to confine the exists search.
  * @return mixed Returns null if the term does not exist.
  *               Returns the term ID if no taxonomy is specified and the term ID exists.
  *               Returns an array of the term ID and the term taxonomy ID if the taxonomy is specified and the pairing exists.
  *               Returns 0 if term ID 0 is passed to the function.
  */
-function term_exists( $term, $taxonomy = '', $parent = null ) {
-	global $gcdb;
+function term_exists( $term, $taxonomy = '', $parent_term = null ) {
+	global $_gc_suspend_cache_invalidation;
 
 	if ( null === $term ) {
 		return null;
 	}
 
-	$select     = "SELECT term_id FROM $gcdb->terms as t WHERE ";
-	$tax_select = "SELECT tt.term_id, tt.term_taxonomy_id FROM $gcdb->terms AS t INNER JOIN $gcdb->term_taxonomy as tt ON tt.term_id = t.term_id WHERE ";
+	$defaults = array(
+		'get'                    => 'all',
+		'fields'                 => 'ids',
+		'number'                 => 1,
+		'update_term_meta_cache' => false,
+		'order'                  => 'ASC',
+		'orderby'                => 'term_id',
+		'suppress_filter'        => true,
+	);
+
+	// Ensure that while importing, queries are not cached.
+	if ( ! empty( $_gc_suspend_cache_invalidation ) ) {
+		// @todo Disable caching once #52710 is merged.
+		$defaults['cache_domain'] = microtime();
+	}
+
+	if ( ! empty( $taxonomy ) ) {
+		$defaults['taxonomy'] = $taxonomy;
+		$defaults['fields']   = 'all';
+	}
+
+	/**
+	 * Filters default query arguments for checking if a term exists.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param array      $defaults    An array of arguments passed to get_terms().
+	 * @param int|string $term        The term to check. Accepts term ID, slug, or name.
+	 * @param string     $taxonomy    The taxonomy name to use. An empty string indicates
+	 *                                the search is against all taxonomies.
+	 * @param int|null   $parent_term ID of parent term under which to confine the exists search.
+	 *                                Null indicates the search is unconfined.
+	 */
+	$defaults = apply_filters( 'term_exists_default_query_args', $defaults, $term, $taxonomy, $parent_term );
 
 	if ( is_int( $term ) ) {
 		if ( 0 === $term ) {
 			return 0;
 		}
-		$where = 't.term_id = %d';
-		if ( ! empty( $taxonomy ) ) {
-			// phpcs:ignore GeChiUI.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-			return $gcdb->get_row( $gcdb->prepare( $tax_select . $where . ' AND tt.taxonomy = %s', $term, $taxonomy ), ARRAY_A );
-		} else {
-			return $gcdb->get_var( $gcdb->prepare( $select . $where, $term ) );
+		$args  = gc_parse_args( array( 'include' => array( $term ) ), $defaults );
+		$terms = get_terms( $args );
+	} else {
+		$term = trim( gc_unslash( $term ) );
+		if ( '' === $term ) {
+			return null;
+		}
+
+		if ( ! empty( $taxonomy ) && is_numeric( $parent_term ) ) {
+			$defaults['parent'] = (int) $parent_term;
+		}
+
+		$args  = gc_parse_args( array( 'slug' => sanitize_title( $term ) ), $defaults );
+		$terms = get_terms( $args );
+		if ( empty( $terms ) || is_gc_error( $terms ) ) {
+			$args  = gc_parse_args( array( 'name' => $term ), $defaults );
+			$terms = get_terms( $args );
 		}
 	}
 
-	$term = trim( gc_unslash( $term ) );
-	$slug = sanitize_title( $term );
+	if ( empty( $terms ) || is_gc_error( $terms ) ) {
+		return null;
+	}
 
-	$where             = 't.slug = %s';
-	$else_where        = 't.name = %s';
-	$where_fields      = array( $slug );
-	$else_where_fields = array( $term );
-	$orderby           = 'ORDER BY t.term_id ASC';
-	$limit             = 'LIMIT 1';
+	$_term = array_shift( $terms );
+
 	if ( ! empty( $taxonomy ) ) {
-		if ( is_numeric( $parent ) ) {
-			$parent              = (int) $parent;
-			$where_fields[]      = $parent;
-			$else_where_fields[] = $parent;
-			$where              .= ' AND tt.parent = %d';
-			$else_where         .= ' AND tt.parent = %d';
-		}
-
-		$where_fields[]      = $taxonomy;
-		$else_where_fields[] = $taxonomy;
-
-		$result = $gcdb->get_row( $gcdb->prepare( "SELECT tt.term_id, tt.term_taxonomy_id FROM $gcdb->terms AS t INNER JOIN $gcdb->term_taxonomy as tt ON tt.term_id = t.term_id WHERE $where AND tt.taxonomy = %s $orderby $limit", $where_fields ), ARRAY_A );
-		if ( $result ) {
-			return $result;
-		}
-
-		return $gcdb->get_row( $gcdb->prepare( "SELECT tt.term_id, tt.term_taxonomy_id FROM $gcdb->terms AS t INNER JOIN $gcdb->term_taxonomy as tt ON tt.term_id = t.term_id WHERE $else_where AND tt.taxonomy = %s $orderby $limit", $else_where_fields ), ARRAY_A );
+		return array(
+			'term_id'          => (string) $_term->term_id,
+			'term_taxonomy_id' => (string) $_term->term_taxonomy_id,
+		);
 	}
 
-	// phpcs:ignore GeChiUI.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-	$result = $gcdb->get_var( $gcdb->prepare( "SELECT term_id FROM $gcdb->terms as t WHERE $where $orderby $limit", $where_fields ) );
-	if ( $result ) {
-		return $result;
-	}
-
-	// phpcs:ignore GeChiUI.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-	return $gcdb->get_var( $gcdb->prepare( "SELECT term_id FROM $gcdb->terms as t WHERE $else_where $orderby $limit", $else_where_fields ) );
+	return (string) $_term;
 }
 
 /**
- * Check if a term is an ancestor of another term.
+ * Checks if a term is an ancestor of another term.
  *
  * You can use either an ID or the term object for both parameters.
- *
- *
  *
  * @param int|object $term1    ID or object to check if this is the parent term.
  * @param int|object $term2    The child term.
@@ -1611,15 +1574,13 @@ function term_is_ancestor_of( $term1, $term2, $taxonomy ) {
 }
 
 /**
- * Sanitize all term fields.
+ * Sanitizes all term fields.
  *
  * Relies on sanitize_term_field() to sanitize the term. The difference is that
  * this function will sanitize **all** fields. The context is based
  * on sanitize_term_field().
  *
  * The `$term` is expected to be either an array or an object.
- *
- *
  *
  * @param array|object $term     The term to check.
  * @param string       $taxonomy The taxonomy name to use.
@@ -1657,7 +1618,7 @@ function sanitize_term( $term, $taxonomy, $context = 'display' ) {
 }
 
 /**
- * Cleanse the field value in the term based on the context.
+ * Sanitizes the field value in the term based on the context.
  *
  * Passing a term field value through the function should be assumed to have
  * cleansed the value for whatever context the term field is going to be used.
@@ -1668,8 +1629,6 @@ function sanitize_term( $term, $taxonomy, $context = 'display' ) {
  * There are enough filters for each context to support a custom filtering
  * without creating your own filter function. Simply create a function that
  * hooks into the filter you need.
- *
- *
  *
  * @param string $field    Term field to sanitize.
  * @param string $value    Search for this term value.
@@ -1702,6 +1661,7 @@ function sanitize_term_field( $field, $value, $term_id, $taxonomy, $context ) {
 		 *
 		 * The dynamic portion of the hook name, `$field`, refers to the term field.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @param mixed $value     Value of the term field.
 		 * @param int   $term_id   Term ID.
@@ -1715,6 +1675,7 @@ function sanitize_term_field( $field, $value, $term_id, $taxonomy, $context ) {
 		 * The dynamic portions of the filter name, `$taxonomy` and `$field`, refer
 		 * to the taxonomy slug and taxonomy field, respectively.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @param mixed $value   Value of the taxonomy field to edit.
 		 * @param int   $term_id Term ID.
@@ -1733,6 +1694,7 @@ function sanitize_term_field( $field, $value, $term_id, $taxonomy, $context ) {
 		 *
 		 * The dynamic portion of the hook name, `$field`, refers to the term field.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @param mixed  $value    Value of the term field.
 		 * @param string $taxonomy Taxonomy slug.
@@ -1745,6 +1707,7 @@ function sanitize_term_field( $field, $value, $term_id, $taxonomy, $context ) {
 		 * The dynamic portions of the filter name, `$taxonomy` and `$field`, refer
 		 * to the taxonomy slug and field name, respectively.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @param mixed $value Value of the taxonomy field.
 		 */
@@ -1757,7 +1720,7 @@ function sanitize_term_field( $field, $value, $term_id, $taxonomy, $context ) {
 			 *
 			 * Use the {@see 'pre_$taxonomy_$field'} hook instead.
 			 *
-		
+			 * @since 2.0.3
 			 *
 			 * @param string $value The category nicename.
 			 */
@@ -1770,6 +1733,7 @@ function sanitize_term_field( $field, $value, $term_id, $taxonomy, $context ) {
 		 *
 		 * The dynamic portion of the hook name, `$field`, refers to the term field.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @param mixed  $value    Value of the term field.
 		 * @param string $taxonomy Taxonomy slug.
@@ -1782,6 +1746,7 @@ function sanitize_term_field( $field, $value, $term_id, $taxonomy, $context ) {
 		 * The dynamic portions of the hook name, `$taxonomy`, and `$field`, refer
 		 * to the taxonomy slug and field name, respectively.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @param mixed $value Value of the taxonomy field.
 		 */
@@ -1794,6 +1759,7 @@ function sanitize_term_field( $field, $value, $term_id, $taxonomy, $context ) {
 		 *
 		 * The dynamic portion of the hook name, `$field`, refers to the term field name.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @param mixed  $value    Value of the term field.
 		 * @param int    $term_id  Term ID.
@@ -1808,6 +1774,7 @@ function sanitize_term_field( $field, $value, $term_id, $taxonomy, $context ) {
 		 * The dynamic portions of the filter name, `$taxonomy`, and `$field`, refer
 		 * to the taxonomy slug and taxonomy field, respectively.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @param mixed  $value   Value of the taxonomy field.
 		 * @param int    $term_id Term ID.
@@ -1831,17 +1798,15 @@ function sanitize_term_field( $field, $value, $term_id, $taxonomy, $context ) {
 }
 
 /**
- * Count how many terms are in Taxonomy.
+ * Counts how many terms are in taxonomy.
  *
  * Default $args is 'hide_empty' which can be 'hide_empty=true' or array('hide_empty' => true).
- *
- *
- *
+ * Changed the function signature so that the `$args` array can be provided as the first parameter.
  *
  * @internal The `$deprecated` parameter is parsed for backward compatibility only.
  *
- * @param array|string $args       Optional. Array of arguments that get passed to get_terms().
- *                                 Default empty array.
+ * @param array|string $args       Optional. Array or string of arguments. See GC_Term_Query::__construct()
+ *                                 for information on accepted arguments. Default empty array.
  * @param array|string $deprecated Optional. Argument array, when using the legacy function parameter format.
  *                                 If present, this parameter will be interpreted as `$args`, and the first
  *                                 function parameter will be parsed as a taxonomy or array of taxonomies.
@@ -1881,13 +1846,11 @@ function gc_count_terms( $args = array(), $deprecated = '' ) {
 }
 
 /**
- * Will unlink the object from the taxonomy or taxonomies.
+ * Unlinks the object from the taxonomy or taxonomies.
  *
  * Will remove all relationships between the object and any terms in
  * a particular taxonomy or taxonomies. Does not remove the term or
  * taxonomy itself.
- *
- *
  *
  * @param int          $object_id  The term object ID that refers to the term.
  * @param string|array $taxonomies List of taxonomy names or single taxonomy name.
@@ -1913,8 +1876,6 @@ function gc_delete_object_term_relationships( $object_id, $taxonomies ) {
  * that term's parent.
  *
  * Metadata associated with the term will be deleted.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -1982,6 +1943,7 @@ function gc_delete_term( $term, $taxonomy, $args = array() ) {
 	/**
 	 * Fires when deleting a term, before any modifications are made to posts or terms.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param int    $term     Term ID.
 	 * @param string $taxonomy Taxonomy name.
@@ -2002,7 +1964,6 @@ function gc_delete_term( $term, $taxonomy, $args = array() ) {
 		/**
 		 * Fires immediately before a term to delete's children are reassigned a parent.
 		 *
-		 *
 		 * @param array $edit_tt_ids An array of term taxonomy IDs for the given term.
 		 */
 		do_action( 'edit_term_taxonomies', $edit_tt_ids );
@@ -2015,7 +1976,6 @@ function gc_delete_term( $term, $taxonomy, $args = array() ) {
 
 		/**
 		 * Fires immediately after a term to delete's children are reassigned a parent.
-		 *
 		 *
 		 * @param array $edit_tt_ids An array of term taxonomy IDs for the given term.
 		 */
@@ -2069,6 +2029,7 @@ function gc_delete_term( $term, $taxonomy, $args = array() ) {
 	/**
 	 * Fires immediately before a term taxonomy ID is deleted.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param int $tt_id Term taxonomy ID.
 	 */
@@ -2079,6 +2040,7 @@ function gc_delete_term( $term, $taxonomy, $args = array() ) {
 	/**
 	 * Fires immediately after a term taxonomy ID is deleted.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param int $tt_id Term taxonomy ID.
 	 */
@@ -2097,6 +2059,7 @@ function gc_delete_term( $term, $taxonomy, $args = array() ) {
 	 * The {@see 'delete_$taxonomy'} hook is also available for targeting a specific
 	 * taxonomy.
 	 *
+	 * @since 4.5.0 Introduced the `$object_ids` argument.
 	 *
 	 * @param int     $term         Term ID.
 	 * @param int     $tt_id        Term taxonomy ID.
@@ -2117,6 +2080,8 @@ function gc_delete_term( $term, $taxonomy, $args = array() ) {
 	 *  - `delete_category`
 	 *  - `delete_post_tag`
 	 *
+	 * @since 2.3.0
+	 * @since 4.5.0 Introduced the `$object_ids` argument.
 	 *
 	 * @param int     $term         Term ID.
 	 * @param int     $tt_id        Term taxonomy ID.
@@ -2131,31 +2096,29 @@ function gc_delete_term( $term, $taxonomy, $args = array() ) {
 /**
  * Deletes one existing category.
  *
- *
- *
- * @param int $cat_ID Category term ID.
+ * @param int $cat_id Category term ID.
  * @return bool|int|GC_Error Returns true if completes delete action; false if term doesn't exist;
- *  Zero on attempted deletion of default Category; GC_Error object is also a possibility.
+ *                           Zero on attempted deletion of default Category; GC_Error object is
+ *                           also a possibility.
  */
-function gc_delete_category( $cat_ID ) {
-	return gc_delete_term( $cat_ID, 'category' );
+function gc_delete_category( $cat_id ) {
+	return gc_delete_term( $cat_id, 'category' );
 }
 
 /**
  * Retrieves the terms associated with the given object(s), in the supplied taxonomies.
- *
- *
- *
- *              Introduced `$parent` argument.
- *
- *              'all_with_object_id', an array of `GC_Term` objects will be returned.
- *
+ * Added support for 'taxonomy', 'parent', and 'term_taxonomy_id' values of `$orderby`.
+ *              Introduced `$parent` argument. Introduced `$meta_query` and `$update_term_meta_cache` arguments. When `$fields` is 'all' or
+ *              'all_with_object_id', an array of `GC_Term` objects will be returned. Refactored to use GC_Term_Query, and to support any GC_Term_Query arguments.
+ * @since 6.3.0 Passing `update_term_meta_cache` argument value false by default resulting in get_terms() to not
+ *              prime the term meta cache.
  *
  * @param int|int[]       $object_ids The ID(s) of the object(s) to retrieve.
  * @param string|string[] $taxonomies The taxonomy names to retrieve terms from.
  * @param array|string    $args       See GC_Term_Query::__construct() for supported arguments.
- * @return GC_Term[]|GC_Error Array of terms or empty array if no terms found.
- *                            GC_Error if any of the taxonomies don't exist.
+ * @return GC_Term[]|int[]|string[]|string|GC_Error Array of terms, a count thereof as a numeric string,
+ *                                                  or GC_Error if any of the taxonomies do not exist.
+ *                                                  See GC_Term_Query::get_terms() for more information.
  */
 function gc_get_object_terms( $object_ids, $taxonomies, $args = array() ) {
 	if ( empty( $object_ids ) || empty( $taxonomies ) ) {
@@ -2177,11 +2140,16 @@ function gc_get_object_terms( $object_ids, $taxonomies, $args = array() ) {
 	}
 	$object_ids = array_map( 'intval', $object_ids );
 
-	$args = gc_parse_args( $args );
+	$defaults = array(
+		'update_term_meta_cache' => false,
+	);
+
+	$args = gc_parse_args( $args, $defaults );
 
 	/**
 	 * Filters arguments for retrieving object terms.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param array    $args       An array of arguments for retrieving terms for the given object(s).
 	 *                             See {@see gc_get_object_terms()} for details.
@@ -2218,7 +2186,7 @@ function gc_get_object_terms( $object_ids, $taxonomies, $args = array() ) {
 		$terms_from_remaining_taxonomies = get_terms( $args );
 
 		// Array keys should be preserved for values of $fields that use term_id for keys.
-		if ( ! empty( $args['fields'] ) && 0 === strpos( $args['fields'], 'id=>' ) ) {
+		if ( ! empty( $args['fields'] ) && str_starts_with( $args['fields'], 'id=>' ) ) {
 			$terms = $terms + $terms_from_remaining_taxonomies;
 		} else {
 			$terms = array_merge( $terms, $terms_from_remaining_taxonomies );
@@ -2228,12 +2196,13 @@ function gc_get_object_terms( $object_ids, $taxonomies, $args = array() ) {
 	/**
 	 * Filters the terms for a given object or objects.
 	 *
+	 * @since 4.2.0
 	 *
-	 * @param GC_Term[] $terms      Array of terms for the given object or objects.
-	 * @param int[]     $object_ids Array of object IDs for which terms were retrieved.
-	 * @param string[]  $taxonomies Array of taxonomy names from which terms were retrieved.
-	 * @param array     $args       Array of arguments for retrieving terms for the given
-	 *                              object(s). See gc_get_object_terms() for details.
+	 * @param GC_Term[]|int[]|string[]|string $terms      Array of terms or a count thereof as a numeric string.
+	 * @param int[]                           $object_ids Array of object IDs for which terms were retrieved.
+	 * @param string[]                        $taxonomies Array of taxonomy names from which terms were retrieved.
+	 * @param array                           $args       Array of arguments for retrieving terms for the given
+	 *                                                    object(s). See gc_get_object_terms() for details.
 	 */
 	$terms = apply_filters( 'get_object_terms', $terms, $object_ids, $taxonomies, $args );
 
@@ -2247,17 +2216,17 @@ function gc_get_object_terms( $object_ids, $taxonomies, $args = array() ) {
 	 * {@see 'get_object_terms'} filter is recommended as an alternative.
 	 *
 	 *
-	 * @param GC_Term[] $terms      Array of terms for the given object or objects.
-	 * @param string    $object_ids Comma separated list of object IDs for which terms were retrieved.
-	 * @param string    $taxonomies SQL fragment of taxonomy names from which terms were retrieved.
-	 * @param array     $args       Array of arguments for retrieving terms for the given
-	 *                              object(s). See gc_get_object_terms() for details.
+	 * @param GC_Term[]|int[]|string[]|string $terms      Array of terms or a count thereof as a numeric string.
+	 * @param string                          $object_ids Comma separated list of object IDs for which terms were retrieved.
+	 * @param string                          $taxonomies SQL fragment of taxonomy names from which terms were retrieved.
+	 * @param array                           $args       Array of arguments for retrieving terms for the given
+	 *                                                    object(s). See gc_get_object_terms() for details.
 	 */
 	return apply_filters( 'gc_get_object_terms', $terms, $object_ids, $taxonomies, $args );
 }
 
 /**
- * Add a new term to the database.
+ * Adds a new term to the database.
  *
  * A non-existent term is inserted in the following sequence:
  * 1. The term is added to the term table, then related to the taxonomy.
@@ -2282,8 +2251,6 @@ function gc_get_object_terms( $object_ids, $taxonomies, $args = array() ) {
  * or the term slug and name are not unique, a GC_Error object will be returned.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
- *
- *
  *
  * @param string       $term     The term name to add.
  * @param string       $taxonomy The taxonomy to which to add the term.
@@ -2313,11 +2280,13 @@ function gc_insert_term( $term, $taxonomy, $args = array() ) {
 	/**
 	 * Filters a term before it is sanitized and inserted into the database.
 	 *
+	 * @since 6.1.0 The `$args` parameter was added.
 	 *
 	 * @param string|GC_Error $term     The term name to add, or a GC_Error object if there's an error.
 	 * @param string          $taxonomy Taxonomy slug.
+	 * @param array|string    $args     Array or query string of arguments passed to gc_insert_term().
 	 */
-	$term = apply_filters( 'pre_insert_term', $term, $taxonomy );
+	$term = apply_filters( 'pre_insert_term', $term, $taxonomy, $args );
 
 	if ( is_gc_error( $term ) ) {
 		return $term;
@@ -2453,6 +2422,7 @@ function gc_insert_term( $term, $taxonomy, $args = array() ) {
 	/**
 	 * Filters term data before it is inserted into the database.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array  $data     Term data to be inserted.
 	 * @param string $taxonomy Taxonomy slug.
@@ -2504,16 +2474,17 @@ function gc_insert_term( $term, $taxonomy, $args = array() ) {
 	/**
 	 * Filters the duplicate term check that takes place during term creation.
 	 *
-	 * Term parent+taxonomy+slug combinations are meant to be unique, and gc_insert_term()
+	 * Term parent + taxonomy + slug combinations are meant to be unique, and gc_insert_term()
 	 * performs a last-minute confirmation of this uniqueness before allowing a new term
 	 * to be created. Plugins with different uniqueness requirements may use this filter
 	 * to bypass or modify the duplicate-term check.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param object $duplicate_term Duplicate term row from terms table, if found.
 	 * @param string $term           Term being inserted.
 	 * @param string $taxonomy       Taxonomy name.
-	 * @param array  $args           Term arguments passed to the function.
+	 * @param array  $args           Arguments passed to gc_insert_term().
 	 * @param int    $tt_id          term_taxonomy_id for the newly created term.
 	 */
 	$duplicate_term = apply_filters( 'gc_insert_term_duplicate_term_check', $duplicate_term, $term, $taxonomy, $args, $tt_id );
@@ -2538,12 +2509,15 @@ function gc_insert_term( $term, $taxonomy, $args = array() ) {
 	 * The {@see 'create_$taxonomy'} hook is also available for targeting a specific
 	 * taxonomy.
 	 *
+	 * @since 2.3.0
+	 * @since 6.1.0 The `$args` parameter was added.
 	 *
 	 * @param int    $term_id  Term ID.
 	 * @param int    $tt_id    Term taxonomy ID.
 	 * @param string $taxonomy Taxonomy slug.
+	 * @param array  $args     Arguments passed to gc_insert_term().
 	 */
-	do_action( 'create_term', $term_id, $tt_id, $taxonomy );
+	do_action( 'create_term', $term_id, $tt_id, $taxonomy, $args );
 
 	/**
 	 * Fires after a new term is created for a specific taxonomy.
@@ -2556,20 +2530,26 @@ function gc_insert_term( $term, $taxonomy, $args = array() ) {
 	 *  - `create_category`
 	 *  - `create_post_tag`
 	 *
+	 * @since 2.3.0
+	 * @since 6.1.0 The `$args` parameter was added.
 	 *
-	 * @param int $term_id Term ID.
-	 * @param int $tt_id   Term taxonomy ID.
+	 * @param int   $term_id Term ID.
+	 * @param int   $tt_id   Term taxonomy ID.
+	 * @param array $args    Arguments passed to gc_insert_term().
 	 */
-	do_action( "create_{$taxonomy}", $term_id, $tt_id );
+	do_action( "create_{$taxonomy}", $term_id, $tt_id, $args );
 
 	/**
 	 * Filters the term ID after a new term is created.
 	 *
+	 * @since 2.3.0
+	 * @since 6.1.0 The `$args` parameter was added.
 	 *
-	 * @param int $term_id Term ID.
-	 * @param int $tt_id   Term taxonomy ID.
+	 * @param int   $term_id Term ID.
+	 * @param int   $tt_id   Term taxonomy ID.
+	 * @param array $args    Arguments passed to gc_insert_term().
 	 */
-	$term_id = apply_filters( 'term_id_filter', $term_id, $tt_id );
+	$term_id = apply_filters( 'term_id_filter', $term_id, $tt_id, $args );
 
 	clean_term_cache( $term_id, $taxonomy );
 
@@ -2579,12 +2559,15 @@ function gc_insert_term( $term, $taxonomy, $args = array() ) {
 	 * The {@see 'created_$taxonomy'} hook is also available for targeting a specific
 	 * taxonomy.
 	 *
+	 * @since 2.3.0
+	 * @since 6.1.0 The `$args` parameter was added.
 	 *
 	 * @param int    $term_id  Term ID.
 	 * @param int    $tt_id    Term taxonomy ID.
 	 * @param string $taxonomy Taxonomy slug.
+	 * @param array  $args     Arguments passed to gc_insert_term().
 	 */
-	do_action( 'created_term', $term_id, $tt_id, $taxonomy );
+	do_action( 'created_term', $term_id, $tt_id, $taxonomy, $args );
 
 	/**
 	 * Fires after a new term in a specific taxonomy is created, and after the term
@@ -2597,11 +2580,14 @@ function gc_insert_term( $term, $taxonomy, $args = array() ) {
 	 *  - `created_category`
 	 *  - `created_post_tag`
 	 *
+	 * @since 2.3.0
+	 * @since 6.1.0 The `$args` parameter was added.
 	 *
-	 * @param int $term_id Term ID.
-	 * @param int $tt_id   Term taxonomy ID.
+	 * @param int   $term_id Term ID.
+	 * @param int   $tt_id   Term taxonomy ID.
+	 * @param array $args    Arguments passed to gc_insert_term().
 	 */
-	do_action( "created_{$taxonomy}", $term_id, $tt_id );
+	do_action( "created_{$taxonomy}", $term_id, $tt_id, $args );
 
 	/**
 	 * Fires after a term has been saved, and the term cache has been cleared.
@@ -2609,13 +2595,16 @@ function gc_insert_term( $term, $taxonomy, $args = array() ) {
 	 * The {@see 'saved_$taxonomy'} hook is also available for targeting a specific
 	 * taxonomy.
 	 *
+	 * @since 5.5.0
+	 * @since 6.1.0 The `$args` parameter was added.
 	 *
 	 * @param int    $term_id  Term ID.
 	 * @param int    $tt_id    Term taxonomy ID.
 	 * @param string $taxonomy Taxonomy slug.
 	 * @param bool   $update   Whether this is an existing term being updated.
+	 * @param array  $args     Arguments passed to gc_insert_term().
 	 */
-	do_action( 'saved_term', $term_id, $tt_id, $taxonomy, false );
+	do_action( 'saved_term', $term_id, $tt_id, $taxonomy, false, $args );
 
 	/**
 	 * Fires after a term in a specific taxonomy has been saved, and the term
@@ -2628,12 +2617,15 @@ function gc_insert_term( $term, $taxonomy, $args = array() ) {
 	 *  - `saved_category`
 	 *  - `saved_post_tag`
 	 *
+	 * @since 5.5.0
+	 * @since 6.1.0 The `$args` parameter was added.
 	 *
-	 * @param int  $term_id Term ID.
-	 * @param int  $tt_id   Term taxonomy ID.
-	 * @param bool $update  Whether this is an existing term being updated.
+	 * @param int   $term_id Term ID.
+	 * @param int   $tt_id   Term taxonomy ID.
+	 * @param bool  $update  Whether this is an existing term being updated.
+	 * @param array $args    Arguments passed to gc_insert_term().
 	 */
-	do_action( "saved_{$taxonomy}", $term_id, $tt_id, false );
+	do_action( "saved_{$taxonomy}", $term_id, $tt_id, false, $args );
 
 	return array(
 		'term_id'          => $term_id,
@@ -2642,9 +2634,9 @@ function gc_insert_term( $term, $taxonomy, $args = array() ) {
 }
 
 /**
- * Create Term and Taxonomy Relationships.
+ * Creates term and taxonomy relationships.
  *
- * Relates an object (post, link etc) to a term and taxonomy type. Creates the
+ * Relates an object (post, link, etc.) to a term and taxonomy type. Creates the
  * term and taxonomy relationship if it doesn't already exist. Creates a term if
  * it doesn't exist (using the slug).
  *
@@ -2652,14 +2644,12 @@ function gc_insert_term( $term, $taxonomy, $args = array() ) {
  * A term has no meaning until it is given context by defining which taxonomy it
  * exists under.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param int              $object_id The object to relate to.
  * @param string|int|array $terms     A single term slug, single term ID, or array of either term slugs or IDs.
  *                                    Will replace all existing related terms in this taxonomy. Passing an
- *                                    empty value will remove all related terms.
+ *                                    empty array will remove all related terms.
  * @param string           $taxonomy  The context in which to relate the term to the object.
  * @param bool             $append    Optional. If false will delete difference of terms. Default false.
  * @return array|GC_Error Term taxonomy IDs of the affected terms or GC_Error on failure.
@@ -2673,7 +2663,9 @@ function gc_set_object_terms( $object_id, $terms, $taxonomy, $append = false ) {
 		return new GC_Error( 'invalid_taxonomy', __( '无效分类法。' ) );
 	}
 
-	if ( ! is_array( $terms ) ) {
+	if ( empty( $terms ) ) {
+		$terms = array();
+	} elseif ( ! is_array( $terms ) ) {
 		$terms = array( $terms );
 	}
 
@@ -2726,6 +2718,7 @@ function gc_set_object_terms( $object_id, $terms, $taxonomy, $append = false ) {
 		/**
 		 * Fires immediately before an object-term relationship is added.
 		 *
+		 * @since 4.7.0 Added the `$taxonomy` parameter.
 		 *
 		 * @param int    $object_id Object ID.
 		 * @param int    $tt_id     Term taxonomy ID.
@@ -2744,6 +2737,7 @@ function gc_set_object_terms( $object_id, $terms, $taxonomy, $append = false ) {
 		/**
 		 * Fires immediately after an object-term relationship is added.
 		 *
+		 * @since 4.7.0 Added the `$taxonomy` parameter.
 		 *
 		 * @param int    $object_id Object ID.
 		 * @param int    $tt_id     Term taxonomy ID.
@@ -2802,7 +2796,7 @@ function gc_set_object_terms( $object_id, $terms, $taxonomy, $append = false ) {
 	}
 
 	gc_cache_delete( $object_id, $taxonomy . '_relationships' );
-	gc_cache_delete( 'last_changed', 'terms' );
+	gc_cache_set_terms_last_changed();
 
 	/**
 	 * Fires after an object's terms have been set.
@@ -2821,9 +2815,7 @@ function gc_set_object_terms( $object_id, $terms, $taxonomy, $append = false ) {
 }
 
 /**
- * Add term(s) associated with a given object.
- *
- *
+ * Adds term(s) associated with a given object.
  *
  * @param int              $object_id The ID of the object to which the terms will be added.
  * @param string|int|array $terms     The slug(s) or ID(s) of the term(s) to add.
@@ -2835,9 +2827,7 @@ function gc_add_object_terms( $object_id, $terms, $taxonomy ) {
 }
 
 /**
- * Remove term(s) associated with a given object.
- *
- *
+ * Removes term(s) associated with a given object.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -2887,9 +2877,10 @@ function gc_remove_object_terms( $object_id, $terms, $taxonomy ) {
 		/**
 		 * Fires immediately before an object-term relationship is deleted.
 		 *
+		 * @since 4.7.0 Added the `$taxonomy` parameter.
 		 *
-		 * @param int   $object_id Object ID.
-		 * @param array $tt_ids    An array of term taxonomy IDs.
+		 * @param int    $object_id Object ID.
+		 * @param array  $tt_ids    An array of term taxonomy IDs.
 		 * @param string $taxonomy  Taxonomy slug.
 		 */
 		do_action( 'delete_term_relationships', $object_id, $tt_ids, $taxonomy );
@@ -2897,11 +2888,12 @@ function gc_remove_object_terms( $object_id, $terms, $taxonomy ) {
 		$deleted = $gcdb->query( $gcdb->prepare( "DELETE FROM $gcdb->term_relationships WHERE object_id = %d AND term_taxonomy_id IN ($in_tt_ids)", $object_id ) );
 
 		gc_cache_delete( $object_id, $taxonomy . '_relationships' );
-		gc_cache_delete( 'last_changed', 'terms' );
+		gc_cache_set_terms_last_changed();
 
 		/**
 		 * Fires immediately after an object-term relationship is deleted.
 		 *
+		 * @since 4.7.0 Added the `$taxonomy` parameter.
 		 *
 		 * @param int    $object_id Object ID.
 		 * @param array  $tt_ids    An array of term taxonomy IDs.
@@ -2918,7 +2910,7 @@ function gc_remove_object_terms( $object_id, $terms, $taxonomy ) {
 }
 
 /**
- * Will make slug unique, if it isn't already.
+ * Makes term slug unique, if it isn't already.
  *
  * The `$slug` has to be unique global to every taxonomy, meaning that one
  * taxonomy term can't have a matching slug with another taxonomy term. Each
@@ -2931,8 +2923,6 @@ function gc_remove_object_terms( $object_id, $terms, $taxonomy ) {
  * until it finds a number that is truly unique.
  *
  * The only purpose for `$term` is for appending a parent, if one exists.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -2980,6 +2970,7 @@ function gc_unique_term_slug( $slug, $term ) {
 	/**
 	 * Filters whether the proposed unique term slug is bad.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param bool   $needs_suffix Whether the slug needs to be made unique with a suffix.
 	 * @param string $slug         The slug.
@@ -3010,6 +3001,7 @@ function gc_unique_term_slug( $slug, $term ) {
 	/**
 	 * Filters the unique term slug.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param string $slug          Unique term slug.
 	 * @param object $term          Term object.
@@ -3019,7 +3011,7 @@ function gc_unique_term_slug( $slug, $term ) {
 }
 
 /**
- * Update term based on arguments provided.
+ * Updates term based on arguments provided.
  *
  * The `$args` will indiscriminately override all values with the same field name.
  * Care must be taken to not override important information need to update or
@@ -3035,14 +3027,12 @@ function gc_unique_term_slug( $slug, $term ) {
  * If you set 'slug' and it isn't unique, then a GC_Error is returned.
  * If you don't pass any slug, then a unique one will be created.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param int          $term_id  The ID of the term.
  * @param string       $taxonomy The taxonomy of the term.
- * @param array|string $args {
- *     Optional. Array or string of arguments for updating a term.
+ * @param array        $args {
+ *     Optional. Array of arguments for updating a term.
  *
  *     @type string $alias_of    Slug of the term to make this term an alias of.
  *                               Default empty string. Accepts a term slug.
@@ -3147,19 +3137,21 @@ function gc_update_term( $term_id, $taxonomy, $args = array() ) {
 	 * Hook to this filter to see if it will cause a hierarchy loop.
 	 *
 	 *
-	 * @param int    $parent      ID of the parent term.
+	 * @param int    $parent_term ID of the parent term.
 	 * @param int    $term_id     Term ID.
 	 * @param string $taxonomy    Taxonomy slug.
 	 * @param array  $parsed_args An array of potentially altered update arguments for the given term.
-	 * @param array  $args        An array of update arguments for the given term.
+	 * @param array  $args        Arguments passed to gc_update_term().
 	 */
 	$parent = (int) apply_filters( 'gc_update_term_parent', $args['parent'], $term_id, $taxonomy, $parsed_args, $args );
 
 	// Check for duplicate slug.
 	$duplicate = get_term_by( 'slug', $slug, $taxonomy );
 	if ( $duplicate && $duplicate->term_id !== $term_id ) {
-		// If an empty slug was passed or the parent changed, reset the slug to something unique.
-		// Otherwise, bail.
+		/*
+		 * If an empty slug was passed or the parent changed, reset the slug to something unique.
+		 * Otherwise, bail.
+		 */
 		if ( $empty_slug || ( $parent !== (int) $term['parent'] ) ) {
 			$slug = gc_unique_term_slug( $slug, (object) $args );
 		} else {
@@ -3179,17 +3171,21 @@ function gc_update_term( $term_id, $taxonomy, $args = array() ) {
 	/**
 	 * Fires immediately before the given terms are edited.
 	 *
+	 * @since 2.9.0
+	 * @since 6.1.0 The `$args` parameter was added.
 	 *
 	 * @param int    $term_id  Term ID.
 	 * @param string $taxonomy Taxonomy slug.
+	 * @param array  $args     Arguments passed to gc_update_term().
 	 */
-	do_action( 'edit_terms', $term_id, $taxonomy );
+	do_action( 'edit_terms', $term_id, $taxonomy, $args );
 
 	$data = compact( 'name', 'slug', 'term_group' );
 
 	/**
 	 * Filters term data before it is updated in the database.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array  $data     Term data to be updated.
 	 * @param int    $term_id  Term ID.
@@ -3209,31 +3205,40 @@ function gc_update_term( $term_id, $taxonomy, $args = array() ) {
 	 * Fires immediately after a term is updated in the database, but before its
 	 * term-taxonomy relationship is updated.
 	 *
+	 * @since 2.9.0
+	 * @since 6.1.0 The `$args` parameter was added.
 	 *
-	 * @param int    $term_id  Term ID
+	 * @param int    $term_id  Term ID.
 	 * @param string $taxonomy Taxonomy slug.
+	 * @param array  $args     Arguments passed to gc_update_term().
 	 */
-	do_action( 'edited_terms', $term_id, $taxonomy );
+	do_action( 'edited_terms', $term_id, $taxonomy, $args );
 
 	/**
 	 * Fires immediate before a term-taxonomy relationship is updated.
 	 *
+	 * @since 2.9.0
+	 * @since 6.1.0 The `$args` parameter was added.
 	 *
 	 * @param int    $tt_id    Term taxonomy ID.
 	 * @param string $taxonomy Taxonomy slug.
+	 * @param array  $args     Arguments passed to gc_update_term().
 	 */
-	do_action( 'edit_term_taxonomy', $tt_id, $taxonomy );
+	do_action( 'edit_term_taxonomy', $tt_id, $taxonomy, $args );
 
 	$gcdb->update( $gcdb->term_taxonomy, compact( 'term_id', 'taxonomy', 'description', 'parent' ), array( 'term_taxonomy_id' => $tt_id ) );
 
 	/**
 	 * Fires immediately after a term-taxonomy relationship is updated.
 	 *
+	 * @since 2.9.0
+	 * @since 6.1.0 The `$args` parameter was added.
 	 *
 	 * @param int    $tt_id    Term taxonomy ID.
 	 * @param string $taxonomy Taxonomy slug.
+	 * @param array  $args     Arguments passed to gc_update_term().
 	 */
-	do_action( 'edited_term_taxonomy', $tt_id, $taxonomy );
+	do_action( 'edited_term_taxonomy', $tt_id, $taxonomy, $args );
 
 	/**
 	 * Fires after a term has been updated, but before the term cache has been cleaned.
@@ -3241,12 +3246,15 @@ function gc_update_term( $term_id, $taxonomy, $args = array() ) {
 	 * The {@see 'edit_$taxonomy'} hook is also available for targeting a specific
 	 * taxonomy.
 	 *
+	 * @since 2.3.0
+	 * @since 6.1.0 The `$args` parameter was added.
 	 *
 	 * @param int    $term_id  Term ID.
 	 * @param int    $tt_id    Term taxonomy ID.
 	 * @param string $taxonomy Taxonomy slug.
+	 * @param array  $args     Arguments passed to gc_update_term().
 	 */
-	do_action( 'edit_term', $term_id, $tt_id, $taxonomy );
+	do_action( 'edit_term', $term_id, $tt_id, $taxonomy, $args );
 
 	/**
 	 * Fires after a term in a specific taxonomy has been updated, but before the term
@@ -3259,11 +3267,14 @@ function gc_update_term( $term_id, $taxonomy, $args = array() ) {
 	 *  - `edit_category`
 	 *  - `edit_post_tag`
 	 *
+	 * @since 2.3.0
+	 * @since 6.1.0 The `$args` parameter was added.
 	 *
-	 * @param int $term_id Term ID.
-	 * @param int $tt_id   Term taxonomy ID.
+	 * @param int   $term_id Term ID.
+	 * @param int   $tt_id   Term taxonomy ID.
+	 * @param array $args    Arguments passed to gc_update_term().
 	 */
-	do_action( "edit_{$taxonomy}", $term_id, $tt_id );
+	do_action( "edit_{$taxonomy}", $term_id, $tt_id, $args );
 
 	/** This filter is documented in gc-includes/taxonomy.php */
 	$term_id = apply_filters( 'term_id_filter', $term_id, $tt_id );
@@ -3276,12 +3287,15 @@ function gc_update_term( $term_id, $taxonomy, $args = array() ) {
 	 * The {@see 'edited_$taxonomy'} hook is also available for targeting a specific
 	 * taxonomy.
 	 *
+	 * @since 2.3.0
+	 * @since 6.1.0 The `$args` parameter was added.
 	 *
 	 * @param int    $term_id  Term ID.
 	 * @param int    $tt_id    Term taxonomy ID.
 	 * @param string $taxonomy Taxonomy slug.
+	 * @param array  $args     Arguments passed to gc_update_term().
 	 */
-	do_action( 'edited_term', $term_id, $tt_id, $taxonomy );
+	do_action( 'edited_term', $term_id, $tt_id, $taxonomy, $args );
 
 	/**
 	 * Fires after a term for a specific taxonomy has been updated, and the term
@@ -3294,17 +3308,20 @@ function gc_update_term( $term_id, $taxonomy, $args = array() ) {
 	 *  - `edited_category`
 	 *  - `edited_post_tag`
 	 *
+	 * @since 2.3.0
+	 * @since 6.1.0 The `$args` parameter was added.
 	 *
-	 * @param int $term_id Term ID.
-	 * @param int $tt_id   Term taxonomy ID.
+	 * @param int   $term_id Term ID.
+	 * @param int   $tt_id   Term taxonomy ID.
+	 * @param array $args    Arguments passed to gc_update_term().
 	 */
-	do_action( "edited_{$taxonomy}", $term_id, $tt_id );
+	do_action( "edited_{$taxonomy}", $term_id, $tt_id, $args );
 
 	/** This action is documented in gc-includes/taxonomy.php */
-	do_action( 'saved_term', $term_id, $tt_id, $taxonomy, true );
+	do_action( 'saved_term', $term_id, $tt_id, $taxonomy, true, $args );
 
 	/** This action is documented in gc-includes/taxonomy.php */
-	do_action( "saved_{$taxonomy}", $term_id, $tt_id, true );
+	do_action( "saved_{$taxonomy}", $term_id, $tt_id, true, $args );
 
 	return array(
 		'term_id'          => $term_id,
@@ -3313,9 +3330,7 @@ function gc_update_term( $term_id, $taxonomy, $args = array() ) {
 }
 
 /**
- * Enable or disable term counting.
- *
- *
+ * Enables or disables term counting.
  *
  * @param bool $defer Optional. Enable if true, disable if false.
  * @return bool Whether term counting is enabled or disabled.
@@ -3342,8 +3357,6 @@ function gc_defer_term_counting( $defer = null ) {
  *
  * The default action is to count what the amount of terms have the relationship
  * of term ID. Once that is done, then update the database.
- *
- *
  *
  * @param int|array $terms       The term_taxonomy_id of the terms.
  * @param string    $taxonomy    The context of the term.
@@ -3380,9 +3393,7 @@ function gc_update_term_count( $terms, $taxonomy, $do_deferred = false ) {
 }
 
 /**
- * Perform term count update immediately.
- *
- *
+ * Performs term count update immediately.
  *
  * @param array  $terms    The term_taxonomy_id of terms to update.
  * @param string $taxonomy The context of the term.
@@ -3397,7 +3408,7 @@ function gc_update_term_count_now( $terms, $taxonomy ) {
 	} else {
 		$object_types = (array) $taxonomy->object_type;
 		foreach ( $object_types as &$object_type ) {
-			if ( 0 === strpos( $object_type, 'attachment:' ) ) {
+			if ( str_starts_with( $object_type, 'attachment:' ) ) {
 				list( $object_type ) = explode( ':', $object_type );
 			}
 		}
@@ -3427,8 +3438,6 @@ function gc_update_term_count_now( $terms, $taxonomy ) {
  * term IDs have to exist within the taxonomy `$object_type` for the deletion to
  * take place.
  *
- *
- *
  * @global bool $_gc_suspend_cache_invalidation
  *
  * @see get_object_taxonomies() for more on $object_type.
@@ -3449,13 +3458,11 @@ function clean_object_term_cache( $object_ids, $object_type ) {
 
 	$taxonomies = get_object_taxonomies( $object_type );
 
-	foreach ( $object_ids as $id ) {
-		foreach ( $taxonomies as $taxonomy ) {
-			gc_cache_delete( $id, "{$taxonomy}_relationships" );
-		}
+	foreach ( $taxonomies as $taxonomy ) {
+		gc_cache_delete_multiple( $object_ids, "{$taxonomy}_relationships" );
 	}
 
-	gc_cache_delete( 'last_changed', 'terms' );
+	gc_cache_set_terms_last_changed();
 
 	/**
 	 * Fires after the object term cache has been cleaned.
@@ -3468,9 +3475,7 @@ function clean_object_term_cache( $object_ids, $object_type ) {
 }
 
 /**
- * Will remove all of the term IDs from the cache.
- *
- *
+ * Removes all of the term IDs from the cache.
  *
  * @global gcdb $gcdb                           GeChiUI database abstraction object.
  * @global bool $_gc_suspend_cache_invalidation
@@ -3503,18 +3508,12 @@ function clean_term_cache( $ids, $taxonomy = '', $clean_taxonomy = true ) {
 		foreach ( (array) $terms as $term ) {
 			$taxonomies[] = $term->taxonomy;
 			$ids[]        = $term->term_id;
-			gc_cache_delete( $term->term_id, 'terms' );
 		}
-
+		gc_cache_delete_multiple( $ids, 'terms' );
 		$taxonomies = array_unique( $taxonomies );
 	} else {
+		gc_cache_delete_multiple( $ids, 'terms' );
 		$taxonomies = array( $taxonomy );
-
-		foreach ( $taxonomies as $taxonomy ) {
-			foreach ( $ids as $id ) {
-				gc_cache_delete( $id, 'terms' );
-			}
-		}
 	}
 
 	foreach ( $taxonomies as $taxonomy ) {
@@ -3525,6 +3524,8 @@ function clean_term_cache( $ids, $taxonomy = '', $clean_taxonomy = true ) {
 		/**
 		 * Fires once after each taxonomy's term cache has been cleaned.
 		 *
+		 * @since 2.5.0
+		 * @since 4.5.0 Added the `$clean_taxonomy` parameter.
 		 *
 		 * @param array  $ids            An array of term IDs.
 		 * @param string $taxonomy       Taxonomy slug.
@@ -3533,20 +3534,18 @@ function clean_term_cache( $ids, $taxonomy = '', $clean_taxonomy = true ) {
 		do_action( 'clean_term_cache', $ids, $taxonomy, $clean_taxonomy );
 	}
 
-	gc_cache_set( 'last_changed', microtime(), 'terms' );
+	gc_cache_set_terms_last_changed();
 }
 
 /**
- * Clean the caches for a taxonomy.
- *
- *
+ * Cleans the caches for a taxonomy.
  *
  * @param string $taxonomy Taxonomy slug.
  */
 function clean_taxonomy_cache( $taxonomy ) {
 	gc_cache_delete( 'all_ids', $taxonomy );
 	gc_cache_delete( 'get', $taxonomy );
-	gc_cache_delete( 'last_changed', 'terms' );
+	gc_cache_set_terms_last_changed();
 
 	// Regenerate cached hierarchy.
 	delete_option( "{$taxonomy}_children" );
@@ -3555,6 +3554,7 @@ function clean_taxonomy_cache( $taxonomy ) {
 	/**
 	 * Fires after a taxonomy's caches have been cleaned.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param string $taxonomy Taxonomy slug.
 	 */
@@ -3567,9 +3567,7 @@ function clean_taxonomy_cache( $taxonomy ) {
  * Upstream functions (like get_the_terms() and is_object_in_term()) are
  * responsible for populating the object-term relationship cache. The current
  * function only fetches relationship data that is already in the cache.
- *
- *
- *
+ * Returns a `GC_Error` object if there's an error with
  *              any of the matched terms.
  *
  * @param int    $id       Term object ID, for example a post, comment, or user ID.
@@ -3621,8 +3619,6 @@ function get_object_term_cache( $id, $taxonomy ) {
  * belong to.
  *
  * Caches will only be updated for terms not already cached.
- *
- *
  *
  * @param string|int[]    $object_ids  Comma-separated list or array of term object IDs.
  * @param string|string[] $object_type The taxonomy object type or array of the same.
@@ -3685,22 +3681,25 @@ function update_object_term_cache( $object_ids, $object_type ) {
 		}
 	}
 
+	$cache_values = array();
 	foreach ( $object_terms as $id => $value ) {
 		foreach ( $value as $taxonomy => $terms ) {
-			gc_cache_add( $id, $terms, "{$taxonomy}_relationships" );
+			$cache_values[ $taxonomy ][ $id ] = $terms;
 		}
+	}
+	foreach ( $cache_values as $taxonomy => $data ) {
+		gc_cache_add_multiple( $data, "{$taxonomy}_relationships" );
 	}
 }
 
 /**
- * Updates Terms to Taxonomy in cache.
- *
- *
+ * Updates terms in cache.
  *
  * @param GC_Term[] $terms    Array of term objects to change.
  * @param string    $taxonomy Not used.
  */
 function update_term_cache( $terms, $taxonomy = '' ) {
+	$data = array();
 	foreach ( (array) $terms as $term ) {
 		// Create a copy in case the array was passed by reference.
 		$_term = clone $term;
@@ -3708,8 +3707,9 @@ function update_term_cache( $terms, $taxonomy = '' ) {
 		// Object ID should not be cached.
 		unset( $_term->object_id );
 
-		gc_cache_add( $term->term_id, $_term, 'terms' );
+		$data[ $term->term_id ] = $_term;
 	}
+	gc_cache_add_multiple( $data, 'terms' );
 }
 
 //
@@ -3717,13 +3717,12 @@ function update_term_cache( $terms, $taxonomy = '' ) {
 //
 
 /**
- * Retrieves children of taxonomy as Term IDs.
+ * Retrieves children of taxonomy as term IDs.
  *
  * @access private
  *
- *
  * @param string $taxonomy Taxonomy name.
- * @return array Empty if $taxonomy isn't hierarchical or returns children as Term IDs.
+ * @return array Empty if $taxonomy isn't hierarchical or returns children as term IDs.
  */
 function _get_term_hierarchy( $taxonomy ) {
 	if ( ! is_taxonomy_hierarchical( $taxonomy ) ) {
@@ -3755,13 +3754,12 @@ function _get_term_hierarchy( $taxonomy ) {
 }
 
 /**
- * Get the subset of $terms that are descendants of $term_id.
+ * Gets the subset of $terms that are descendants of $term_id.
  *
  * If `$terms` is an array of objects, then _get_term_children() returns an array of objects.
  * If `$terms` is an array of IDs, then _get_term_children() returns an array of IDs.
  *
  * @access private
- *
  *
  * @param int    $term_id   The ancestor term: all returned terms should be descendants of `$term_id`.
  * @param array  $terms     The set of terms - either an array of term objects or term IDs - from which those that
@@ -3831,13 +3829,12 @@ function _get_term_children( $term_id, $terms, $taxonomy, &$ancestors = array() 
 }
 
 /**
- * Add count of children to parent count.
+ * Adds count of children to parent count.
  *
  * Recalculates term counts by including items from child terms. Assumes all
  * relevant children are already in the $terms argument.
  *
  * @access private
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -3910,8 +3907,8 @@ function _pad_term_counts( &$terms, $taxonomy ) {
 /**
  * Adds any terms from the given IDs to the cache that do not already exist in cache.
  *
- *
- * @access private
+ * @since 6.1.0 This function is no longer marked as "private".
+ * @since 6.3.0 Use gc_lazyload_term_meta() for lazy-loading of term meta.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -3925,11 +3922,11 @@ function _prime_term_caches( $term_ids, $update_meta_cache = true ) {
 	if ( ! empty( $non_cached_ids ) ) {
 		$fresh_terms = $gcdb->get_results( sprintf( "SELECT t.*, tt.* FROM $gcdb->terms AS t INNER JOIN $gcdb->term_taxonomy AS tt ON t.term_id = tt.term_id WHERE t.term_id IN (%s)", implode( ',', array_map( 'intval', $non_cached_ids ) ) ) );
 
-		update_term_cache( $fresh_terms, $update_meta_cache );
+		update_term_cache( $fresh_terms );
+	}
 
-		if ( $update_meta_cache ) {
-			update_termmeta_cache( $non_cached_ids );
-		}
+	if ( $update_meta_cache ) {
+		gc_lazyload_term_meta( $term_ids );
 	}
 }
 
@@ -3938,17 +3935,16 @@ function _prime_term_caches( $term_ids, $update_meta_cache = true ) {
 //
 
 /**
- * Will update term count based on object types of the current taxonomy.
+ * Updates term count based on object types of the current taxonomy.
  *
  * Private function for the default callback for post_tag and category
  * taxonomies.
  *
  * @access private
  *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
- * @param int[]       $terms    List of Term taxonomy IDs.
+ * @param int[]       $terms    List of term taxonomy IDs.
  * @param GC_Taxonomy $taxonomy Current taxonomy object of terms.
  */
 function _update_post_term_count( $terms, $taxonomy ) {
@@ -3977,6 +3973,7 @@ function _update_post_term_count( $terms, $taxonomy ) {
 	/**
 	 * Filters the post statuses for updating the term count.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param string[]    $post_statuses List of post statuses to include in the count. Default is 'publish'.
 	 * @param GC_Taxonomy $taxonomy      Current taxonomy object.
@@ -4007,11 +4004,9 @@ function _update_post_term_count( $terms, $taxonomy ) {
 }
 
 /**
- * Will update term count based on number of objects.
+ * Updates term count based on number of objects.
  *
  * Default callback for the 'link_category' taxonomy.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -4034,12 +4029,11 @@ function _update_generic_term_count( $terms, $taxonomy ) {
 }
 
 /**
- * Create a new term for a term_taxonomy item that currently shares its term
+ * Creates a new term for a term_taxonomy item that currently shares its term
  * with another term_taxonomy.
  *
  * @ignore
- *
- *
+ * @since 4.3.0 Introduced `$record` parameter. Also, `$term_id` and
  *              `$term_taxonomy_id` can now accept objects.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -4171,6 +4165,7 @@ function _split_shared_term( $term_id, $term_taxonomy_id, $record = true ) {
 	/**
 	 * Fires after a previously shared taxonomy term is split into two separate terms.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param int    $term_id          ID of the formerly shared term.
 	 * @param int    $new_term_id      ID of the new term created for the $term_taxonomy_id.
@@ -4185,7 +4180,7 @@ function _split_shared_term( $term_id, $term_taxonomy_id, $record = true ) {
 /**
  * Splits a batch of shared taxonomy terms.
  *
- *
+ * @since 4.3.0
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  */
@@ -4280,10 +4275,10 @@ function _gc_batch_split_terms() {
 
 /**
  * In order to avoid the _gc_batch_split_terms() job being accidentally removed,
- * check that it's still scheduled while we haven't finished splitting terms.
+ * checks that it's still scheduled while we haven't finished splitting terms.
  *
  * @ignore
- *
+ * @since 4.3.0
  */
 function _gc_check_for_scheduled_split_terms() {
 	if ( ! get_option( 'finished_splitting_shared_terms' ) && ! gc_next_scheduled( 'gc_split_shared_term_batch' ) ) {
@@ -4292,10 +4287,9 @@ function _gc_check_for_scheduled_split_terms() {
 }
 
 /**
- * Check default categories when a term gets split to see if any of them need to be updated.
+ * Checks default categories when a term gets split to see if any of them need to be updated.
  *
  * @ignore
- *
  *
  * @param int    $term_id          ID of the formerly shared term.
  * @param int    $new_term_id      ID of the new term created for the $term_taxonomy_id.
@@ -4315,10 +4309,9 @@ function _gc_check_split_default_terms( $term_id, $new_term_id, $term_taxonomy_i
 }
 
 /**
- * Check menu items when a term gets split to see if any of them need to be updated.
+ * Checks menu items when a term gets split to see if any of them need to be updated.
  *
  * @ignore
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -4351,10 +4344,10 @@ function _gc_check_split_terms_in_menus( $term_id, $new_term_id, $term_taxonomy_
 }
 
 /**
- * If the term being split is a nav_menu, change associations.
+ * If the term being split is a nav_menu, changes associations.
  *
  * @ignore
- *
+ * @since 4.3.0
  *
  * @param int    $term_id          ID of the formerly shared term.
  * @param int    $new_term_id      ID of the new term created for the $term_taxonomy_id.
@@ -4377,9 +4370,7 @@ function _gc_check_split_nav_menu_terms( $term_id, $new_term_id, $term_taxonomy_
 }
 
 /**
- * Get data about terms that previously shared a single term_id, but have since been split.
- *
- *
+ * Gets data about terms that previously shared a single term_id, but have since been split.
  *
  * @param int $old_term_id Term ID. This is the old, pre-split term ID.
  * @return array Array of new term IDs, keyed by taxonomy.
@@ -4396,9 +4387,7 @@ function gc_get_split_terms( $old_term_id ) {
 }
 
 /**
- * Get the new term ID corresponding to a previously split term.
- *
- *
+ * Gets the new term ID corresponding to a previously split term.
  *
  * @param int    $old_term_id Term ID. This is the old, pre-split term ID.
  * @param string $taxonomy    Taxonomy that the term belongs to.
@@ -4418,12 +4407,12 @@ function gc_get_split_term( $old_term_id, $taxonomy ) {
 }
 
 /**
- * Determine whether a term is shared between multiple taxonomies.
+ * Determines whether a term is shared between multiple taxonomies.
  *
  * Shared taxonomy terms began to be split in 4.3, but failed cron tasks or
  * other delays in upgrade routines may cause shared terms to remain.
  *
- *
+ * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param int $term_id Term ID.
  * @return bool Returns false if a term is not shared between multiple taxonomies or
@@ -4442,9 +4431,7 @@ function gc_term_is_shared( $term_id ) {
 }
 
 /**
- * Generate a permalink for a taxonomy term archive.
- *
- *
+ * Generates a permalink for a taxonomy term archive.
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
@@ -4478,6 +4465,7 @@ function get_term_link( $term, $taxonomy = '' ) {
 	/**
 	 * Filters the permalink structure for a term before token replacement occurs.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param string  $termlink The permalink structure for the term's taxonomy.
 	 * @param GC_Term $term     The term object.
@@ -4519,6 +4507,9 @@ function get_term_link( $term, $taxonomy = '' ) {
 		/**
 		 * Filters the tag link.
 		 *
+		 * @since 2.3.0
+		 * @since 2.5.0 Deprecated in favor of {@see 'term_link'} filter.
+		 * @since 5.4.1 Restored (un-deprecated).
 		 *
 		 * @param string $termlink Tag link URL.
 		 * @param int    $term_id  Term ID.
@@ -4529,6 +4520,9 @@ function get_term_link( $term, $taxonomy = '' ) {
 		/**
 		 * Filters the category link.
 		 *
+		 * @since 1.5.0
+		 * @since 2.5.0 Deprecated in favor of {@see 'term_link'} filter.
+		 * @since 5.4.1 Restored (un-deprecated).
 		 *
 		 * @param string $termlink Category link URL.
 		 * @param int    $term_id  Term ID.
@@ -4548,13 +4542,11 @@ function get_term_link( $term, $taxonomy = '' ) {
 }
 
 /**
- * Display the taxonomies of a post with available options.
+ * Displays the taxonomies of a post with available options.
  *
  * This function can be used within the loop to display the taxonomies for a
  * post without specifying the Post ID. You can also use it outside the Loop to
  * display the taxonomies for a specific post.
- *
- *
  *
  * @param array $args {
  *     Arguments about which post to use and how to format the output. Shares all of the arguments
@@ -4580,12 +4572,10 @@ function the_taxonomies( $args = array() ) {
 }
 
 /**
- * Retrieve all taxonomies associated with a post.
+ * Retrieves all taxonomies associated with a post.
  *
  * This function can be used within the loop. It will also return an array of
  * the taxonomies with links to the taxonomy and name.
- *
- *
  *
  * @param int|GC_Post $post Optional. Post ID or GC_Post object. Default is global $post.
  * @param array       $args {
@@ -4596,7 +4586,7 @@ function the_taxonomies( $args = array() ) {
  *     @type string $term_template Template for displaying a single term in the list. Default is the term name
  *                                 linked to its archive.
  * }
- * @return array List of taxonomies.
+ * @return string[] List of taxonomies.
  */
 function get_the_taxonomies( $post = 0, $args = array() ) {
 	$post = get_post( $post );
@@ -4648,9 +4638,7 @@ function get_the_taxonomies( $post = 0, $args = array() ) {
 }
 
 /**
- * Retrieve all taxonomy names for the given post.
- *
- *
+ * Retrieves all taxonomy names for the given post.
  *
  * @param int|GC_Post $post Optional. Post ID or GC_Post object. Default is global $post.
  * @return string[] An array of all taxonomy names for the given post.
@@ -4662,13 +4650,13 @@ function get_post_taxonomies( $post = 0 ) {
 }
 
 /**
- * Determine if the given object is associated with any of the given terms.
+ * Determines if the given object is associated with any of the given terms.
  *
  * The given terms are checked against the object's terms' term_ids, names and slugs.
  * Terms given as integers will only be checked against the object's terms' term_ids.
  * If no terms are given, determines if object is associated with any terms in the given taxonomy.
  *
- *
+ * @since 2.7.0
  *
  * @param int                       $object_id ID of the object (post ID, link ID, ...).
  * @param string                    $taxonomy  Single taxonomy name.
@@ -4737,9 +4725,7 @@ function is_object_in_term( $object_id, $taxonomy, $terms = null ) {
 }
 
 /**
- * Determine if the given object type is associated with the given taxonomy.
- *
- *
+ * Determines if the given object type is associated with the given taxonomy.
  *
  * @param string $object_type Object type string.
  * @param string $taxonomy    Single taxonomy name.
@@ -4754,10 +4740,9 @@ function is_object_in_taxonomy( $object_type, $taxonomy ) {
 }
 
 /**
- * Get an array of ancestor IDs for a given object.
+ * Gets an array of ancestor IDs for a given object.
  *
- *
- *
+ * @since 4.1.0 Introduced the `$resource_type` argument.
  *
  * @param int    $object_id     Optional. The ID of the object. Default 0.
  * @param string $object_type   Optional. The type of object for which we'll be retrieving
@@ -4798,6 +4783,7 @@ function get_ancestors( $object_id = 0, $object_type = '', $resource_type = '' )
 	/**
 	 * Filters a given object's ancestors.
 	 *
+	 * @since 4.1.1 Introduced the `$resource_type` parameter.
 	 *
 	 * @param int[]  $ancestors     An array of IDs of object ancestors.
 	 * @param int    $object_id     Object ID.
@@ -4808,9 +4794,7 @@ function get_ancestors( $object_id = 0, $object_type = '', $resource_type = '' )
 }
 
 /**
- * Returns the term's parent's term_ID.
- *
- *
+ * Returns the term's parent's term ID.
  *
  * @param int    $term_id  Term ID.
  * @param string $taxonomy Taxonomy name.
@@ -4830,31 +4814,29 @@ function gc_get_term_taxonomy_parent_id( $term_id, $taxonomy ) {
  *
  * Attached to the {@see 'gc_update_term_parent'} filter.
  *
- *
- *
- * @param int    $parent   `term_id` of the parent for the term we're checking.
- * @param int    $term_id  The term we're checking.
- * @param string $taxonomy The taxonomy of the term we're checking.
+ * @param int    $parent_term `term_id` of the parent for the term we're checking.
+ * @param int    $term_id     The term we're checking.
+ * @param string $taxonomy    The taxonomy of the term we're checking.
  * @return int The new parent for the term.
  */
-function gc_check_term_hierarchy_for_loops( $parent, $term_id, $taxonomy ) {
+function gc_check_term_hierarchy_for_loops( $parent_term, $term_id, $taxonomy ) {
 	// Nothing fancy here - bail.
-	if ( ! $parent ) {
+	if ( ! $parent_term ) {
 		return 0;
 	}
 
 	// Can't be its own parent.
-	if ( $parent === $term_id ) {
+	if ( $parent_term === $term_id ) {
 		return 0;
 	}
 
 	// Now look for larger loops.
-	$loop = gc_find_hierarchy_loop( 'gc_get_term_taxonomy_parent_id', $term_id, $parent, array( $taxonomy ) );
+	$loop = gc_find_hierarchy_loop( 'gc_get_term_taxonomy_parent_id', $term_id, $parent_term, array( $taxonomy ) );
 	if ( ! $loop ) {
-		return $parent; // No loop.
+		return $parent_term; // No loop.
 	}
 
-	// Setting $parent to the given value causes a loop.
+	// Setting $parent_term to the given value causes a loop.
 	if ( isset( $loop[ $term_id ] ) ) {
 		return 0;
 	}
@@ -4864,13 +4846,13 @@ function gc_check_term_hierarchy_for_loops( $parent, $term_id, $taxonomy ) {
 		gc_update_term( $loop_member, $taxonomy, array( 'parent' => 0 ) );
 	}
 
-	return $parent;
+	return $parent_term;
 }
 
 /**
  * Determines whether a taxonomy is considered "viewable".
  *
- *
+ * @since 5.1.0
  *
  * @param string|GC_Taxonomy $taxonomy Taxonomy name or object.
  * @return bool Whether the taxonomy should be considered viewable.
@@ -4887,18 +4869,38 @@ function is_taxonomy_viewable( $taxonomy ) {
 }
 
 /**
+ * Determines whether a term is publicly viewable.
+ *
+ * A term is considered publicly viewable if its taxonomy is viewable.
+ *
+ * @since 6.1.0
+ *
+ * @param int|GC_Term $term Term ID or term object.
+ * @return bool Whether the term is publicly viewable.
+ */
+function is_term_publicly_viewable( $term ) {
+	$term = get_term( $term );
+
+	if ( ! $term ) {
+		return false;
+	}
+
+	return is_taxonomy_viewable( $term->taxonomy );
+}
+
+/**
  * Sets the last changed time for the 'terms' cache group.
  *
- *
+ * @since 5.0.0
  */
 function gc_cache_set_terms_last_changed() {
-	gc_cache_set( 'last_changed', microtime(), 'terms' );
+	gc_cache_set_last_changed( 'terms' );
 }
 
 /**
  * Aborts calls to term meta if it is not supported.
  *
- *
+ * @since 5.0.0
  *
  * @param mixed $check Skip-value for whether to proceed term meta function execution.
  * @return mixed Original value of $check, or false if term meta is not supported.

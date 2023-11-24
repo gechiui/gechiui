@@ -18,7 +18,6 @@
  *
  * @package GeChiUI
  * @subpackage Plugin
- *
  */
 
 // Initialize the filter globals.
@@ -29,6 +28,9 @@ global $gc_filter;
 
 /** @var int[] $gc_actions */
 global $gc_actions;
+
+/** @var int[] $gc_filters */
+global $gc_filters;
 
 /** @var string[] $gc_current_filter */
 global $gc_current_filter;
@@ -41,6 +43,10 @@ if ( $gc_filter ) {
 
 if ( ! isset( $gc_actions ) ) {
 	$gc_actions = array();
+}
+
+if ( ! isset( $gc_filters ) ) {
+	$gc_filters = array();
 }
 
 if ( ! isset( $gc_current_filter ) ) {
@@ -97,8 +103,6 @@ if ( ! isset( $gc_current_filter ) ) {
  * It is up to you to take care. This is done for optimization purposes, so
  * everything is as quick as possible.
  *
- *
- *
  * @global GC_Hook[] $gc_filter A multidimensional array of all hooks and the callbacks hooked to them.
  *
  * @param string   $hook_name     The name of the filter to add the callback to.
@@ -150,25 +154,33 @@ function add_filter( $hook_name, $callback, $priority = 10, $accepted_args = 1 )
  *      * - $arg1 and $arg2 are the additional arguments passed to the callback.
  *     $value = apply_filters( 'example_filter', 'filter me', $arg1, $arg2 );
  *
- *
+ * @since 6.0.0 Formalized the existing and already documented `...$args` parameter
+ *              by adding it to the function signature.
  *
  * @global GC_Hook[] $gc_filter         Stores all of the filters and actions.
+ * @global int[]     $gc_filters        Stores the number of times each filter was triggered.
  * @global string[]  $gc_current_filter Stores the list of current filters with the current one last.
  *
  * @param string $hook_name The name of the filter hook.
  * @param mixed  $value     The value to filter.
- * @param mixed  ...$args   Additional parameters to pass to the callback functions.
+ * @param mixed  ...$args   Optional. Additional parameters to pass to the callback functions.
  * @return mixed The filtered value after all hooked functions are applied to it.
  */
-function apply_filters( $hook_name, $value ) {
-	global $gc_filter, $gc_current_filter;
+function apply_filters( $hook_name, $value, ...$args ) {
+	global $gc_filter, $gc_filters, $gc_current_filter;
 
-	$args = func_get_args();
+	if ( ! isset( $gc_filters[ $hook_name ] ) ) {
+		$gc_filters[ $hook_name ] = 1;
+	} else {
+		++$gc_filters[ $hook_name ];
+	}
 
 	// Do 'all' actions first.
 	if ( isset( $gc_filter['all'] ) ) {
 		$gc_current_filter[] = $hook_name;
-		_gc_call_all_hook( $args );
+
+		$all_args = func_get_args(); // phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
+		_gc_call_all_hook( $all_args );
 	}
 
 	if ( ! isset( $gc_filter[ $hook_name ] ) ) {
@@ -183,8 +195,8 @@ function apply_filters( $hook_name, $value ) {
 		$gc_current_filter[] = $hook_name;
 	}
 
-	// Don't pass the tag name to GC_Hook.
-	array_shift( $args );
+	// Pass the value to GC_Hook.
+	array_unshift( $args, $value );
 
 	$filtered = $gc_filter[ $hook_name ]->apply_filters( $value, $args );
 
@@ -196,12 +208,11 @@ function apply_filters( $hook_name, $value ) {
 /**
  * Calls the callback functions that have been added to a filter hook, specifying arguments in an array.
  *
- *
- *
  * @see apply_filters() This function is identical, but the arguments passed to the
  *                      functions hooked to `$hook_name` are supplied using an array.
  *
  * @global GC_Hook[] $gc_filter         Stores all of the filters and actions.
+ * @global int[]     $gc_filters        Stores the number of times each filter was triggered.
  * @global string[]  $gc_current_filter Stores the list of current filters with the current one last.
  *
  * @param string $hook_name The name of the filter hook.
@@ -209,7 +220,13 @@ function apply_filters( $hook_name, $value ) {
  * @return mixed The filtered value after all hooked functions are applied to it.
  */
 function apply_filters_ref_array( $hook_name, $args ) {
-	global $gc_filter, $gc_current_filter;
+	global $gc_filter, $gc_filters, $gc_current_filter;
+
+	if ( ! isset( $gc_filters[ $hook_name ] ) ) {
+		$gc_filters[ $hook_name ] = 1;
+	} else {
+		++$gc_filters[ $hook_name ];
+	}
 
 	// Do 'all' actions first.
 	if ( isset( $gc_filter['all'] ) ) {
@@ -243,8 +260,6 @@ function apply_filters_ref_array( $hook_name, $args ) {
  * When using the `$callback` argument, this function may return a non-boolean value
  * that evaluates to false (e.g. 0), so use the `===` operator for testing the return value.
  *
- *
- *
  * @global GC_Hook[] $gc_filter Stores all of the filters and actions.
  *
  * @param string                      $hook_name The name of the filter hook.
@@ -275,8 +290,6 @@ function has_filter( $hook_name, $callback = false ) {
  * when the hook was added. This goes for both filters and actions. No warning
  * will be given on removal failure.
  *
- *
- *
  * @global GC_Hook[] $gc_filter Stores all of the filters and actions.
  *
  * @param string                $hook_name The filter hook to which the function to be removed is hooked.
@@ -306,7 +319,7 @@ function remove_filter( $hook_name, $callback, $priority = 10 ) {
 /**
  * Removes all of the callback functions from a filter hook.
  *
- *
+ * @since 2.7.0
  *
  * @global GC_Hook[] $gc_filter Stores all of the filters and actions.
  *
@@ -332,8 +345,6 @@ function remove_all_filters( $hook_name, $priority = false ) {
 /**
  * Retrieves the name of the current filter hook.
  *
- *
- *
  * @global string[] $gc_current_filter Stores the list of current filters with the current one last
  *
  * @return string Hook name of the current filter.
@@ -347,21 +358,21 @@ function current_filter() {
 /**
  * Returns whether or not a filter hook is currently being processed.
  *
- * The function current_filter() only returns the most recent filter or action
- * being executed. did_action() returns true once the action is initially
- * processed.
+ * The function current_filter() only returns the most recent filter being executed.
+ * did_filter() returns the number of times a filter has been applied during
+ * the current request.
  *
  * This function allows detection for any filter currently being executed
  * (regardless of whether it's the most recent filter to fire, in the case of
  * hooks called from hook callbacks) to be verified.
  *
- *
+ * @since 3.9.0
  *
  * @see current_filter()
- * @see did_action()
+ * @see did_filter()
  * @global string[] $gc_current_filter Current filter.
  *
- * @param null|string $hook_name Optional. Filter hook to check. Defaults to null,
+ * @param string|null $hook_name Optional. Filter hook to check. Defaults to null,
  *                               which checks if any filter is currently being run.
  * @return bool Whether the filter is currently in the stack.
  */
@@ -376,14 +387,32 @@ function doing_filter( $hook_name = null ) {
 }
 
 /**
+ * Retrieves the number of times a filter has been applied during the current request.
+ *
+ * @since 6.1.0
+ *
+ * @global int[] $gc_filters Stores the number of times each filter was triggered.
+ *
+ * @param string $hook_name The name of the filter hook.
+ * @return int The number of times the filter hook has been applied.
+ */
+function did_filter( $hook_name ) {
+	global $gc_filters;
+
+	if ( ! isset( $gc_filters[ $hook_name ] ) ) {
+		return 0;
+	}
+
+	return $gc_filters[ $hook_name ];
+}
+
+/**
  * Adds a callback function to an action hook.
  *
  * Actions are the hooks that the GeChiUI core launches at specific points
  * during execution, or when specific events occur. Plugins can specify that
  * one or more of its PHP functions are executed at these points, using the
  * Action API.
- *
- *
  *
  * @param string   $hook_name       The name of the action to add the callback to.
  * @param callable $callback        The callback to be run when the action is called.
@@ -422,10 +451,9 @@ function add_action( $hook_name, $callback, $priority = 10, $accepted_args = 1 )
  *      *
  *      * - 'example_action' is the action hook.
  *      * - $arg1 and $arg2 are the additional arguments passed to the callback.
- *     $value = do_action( 'example_action', $arg1, $arg2 );
+ *     do_action( 'example_action', $arg1, $arg2 );
  *
- *
- *
+ * @since 5.3.0 Formalized the existing and already documented `...$arg` parameter
  *              by adding it to the function signature.
  *
  * @global GC_Hook[] $gc_filter         Stores all of the filters and actions.
@@ -479,8 +507,6 @@ function do_action( $hook_name, ...$arg ) {
 /**
  * Calls the callback functions that have been added to an action hook, specifying arguments in an array.
  *
- *
- *
  * @see do_action() This function is identical, but the arguments passed to the
  *                  functions hooked to `$hook_name` are supplied using an array.
  *
@@ -530,9 +556,7 @@ function do_action_ref_array( $hook_name, $args ) {
  * When using the `$callback` argument, this function may return a non-boolean value
  * that evaluates to false (e.g. 0), so use the `===` operator for testing the return value.
  *
- *
- *
- * @see has_filter() has_action() is an alias of has_filter().
+ * @see has_filter() This function is an alias of has_filter().
  *
  * @param string                      $hook_name The name of the action hook.
  * @param callable|string|array|false $callback  Optional. The callback to check for.
@@ -556,8 +580,6 @@ function has_action( $hook_name, $callback = false ) {
  * when the hook was added. This goes for both filters and actions. No warning
  * will be given on removal failure.
  *
- *
- *
  * @param string                $hook_name The action hook to which the function to be removed is hooked.
  * @param callable|string|array $callback  The name of the function which should be removed.
  *                                         This function can be called unconditionally to speculatively remove
@@ -573,7 +595,7 @@ function remove_action( $hook_name, $callback, $priority = 10 ) {
 /**
  * Removes all of the callback functions from an action hook.
  *
- *
+ * @since 2.7.0
  *
  * @param string    $hook_name The action to remove callbacks from.
  * @param int|false $priority  Optional. The priority number to remove them from.
@@ -587,7 +609,7 @@ function remove_all_actions( $hook_name, $priority = false ) {
 /**
  * Retrieves the name of the current action hook.
  *
- *
+ * @since 3.9.0
  *
  * @return string Hook name of the current action.
  */
@@ -598,7 +620,18 @@ function current_action() {
 /**
  * Returns whether or not an action hook is currently being processed.
  *
+ * The function current_action() only returns the most recent action being executed.
+ * did_action() returns the number of times an action has been fired during
+ * the current request.
  *
+ * This function allows detection for any action currently being executed
+ * (regardless of whether it's the most recent action to fire, in the case of
+ * hooks called from hook callbacks) to be verified.
+ *
+ * @since 3.9.0
+ *
+ * @see current_action()
+ * @see did_action()
  *
  * @param string|null $hook_name Optional. Action hook to check. Defaults to null,
  *                               which checks if any action is currently being run.
@@ -610,8 +643,6 @@ function doing_action( $hook_name = null ) {
 
 /**
  * Retrieves the number of times an action has been fired during the current request.
- *
- *
  *
  * @global int[] $gc_actions Stores the number of times each action was triggered.
  *
@@ -644,8 +675,6 @@ function did_action( $hook_name ) {
  *     // Deprecated.
  *     return apply_filters_deprecated( 'gcdocs_filter', array( $value, $extra_arg ), '4.9.0', 'gcdocs_new_filter' );
  *
- *
- *
  * @see _deprecated_hook()
  *
  * @param string $hook_name   The name of the filter hook.
@@ -653,6 +682,7 @@ function did_action( $hook_name ) {
  * @param string $version     The version of GeChiUI that deprecated the hook.
  * @param string $replacement Optional. The hook that should have been used. Default empty.
  * @param string $message     Optional. A message regarding the change. Default empty.
+ * @return mixed The filtered value after all hooked functions are applied to it.
  */
 function apply_filters_deprecated( $hook_name, $args, $version, $replacement = '', $message = '' ) {
 	if ( ! has_filter( $hook_name ) ) {
@@ -670,8 +700,6 @@ function apply_filters_deprecated( $hook_name, $args, $version, $replacement = '
  * When an action hook is deprecated, the do_action() call is replaced with
  * do_action_deprecated(), which triggers a deprecation notice and then fires
  * the original hook.
- *
- *
  *
  * @see _deprecated_hook()
  *
@@ -700,8 +728,6 @@ function do_action_deprecated( $hook_name, $args, $version, $replacement = '', $
  *
  * This method extracts the name of a plugin from its filename.
  *
- *
- *
  * @global array $gc_plugin_paths
  *
  * @param string $file The filename of plugin.
@@ -716,7 +742,7 @@ function plugin_basename( $file ) {
 	arsort( $gc_plugin_paths );
 
 	foreach ( $gc_plugin_paths as $dir => $realdir ) {
-		if ( strpos( $file, $realdir ) === 0 ) {
+		if ( str_starts_with( $file, $realdir ) ) {
 			$file = $dir . substr( $file, strlen( $realdir ) );
 		}
 	}
@@ -735,7 +761,7 @@ function plugin_basename( $file ) {
  *
  * This is used in plugin_basename() to resolve symlinked paths.
  *
- *
+ * @since 3.9.0
  *
  * @see gc_normalize_path()
  *
@@ -772,8 +798,6 @@ function gc_register_plugin_realpath( $file ) {
 /**
  * Get the filesystem directory path (with trailing slash) for the plugin __FILE__ passed in.
  *
- *
- *
  * @param string $file The filename of the plugin (__FILE__).
  * @return string the filesystem path of the directory that contains the plugin.
  */
@@ -783,8 +807,6 @@ function plugin_dir_path( $file ) {
 
 /**
  * Get the URL directory path (with trailing slash) for the plugin __FILE__ passed in.
- *
- *
  *
  * @param string $file The filename of the plugin (__FILE__).
  * @return string the URL path of the directory that contains the plugin.
@@ -806,8 +828,6 @@ function plugin_dir_url( $file ) {
  * gc-content/plugins/sample.php the name of this hook will be
  * 'activate_sample.php'.
  *
- *
- *
  * @param string   $file     The filename of the plugin including the path.
  * @param callable $callback The function hooked to the 'activate_PLUGIN' action.
  */
@@ -828,8 +848,6 @@ function register_activation_hook( $file, $callback ) {
  * When the plugin consists of only one file and is (as by default) located at
  * gc-content/plugins/sample.php the name of this hook will be
  * 'deactivate_sample.php'.
- *
- *
  *
  * @param string   $file     The filename of the plugin including the path.
  * @param callable $callback The function hooked to the 'deactivate_PLUGIN' action.
@@ -859,7 +877,7 @@ function register_deactivation_hook( $file, $callback ) {
  * should always check for the 'GC_UNINSTALL_PLUGIN' constant, before
  * executing.
  *
- *
+ * @since 2.7.0
  *
  * @param string   $file     Plugin file.
  * @param callable $callback The callback to run when the hook is called. Must be
@@ -896,7 +914,6 @@ function register_uninstall_hook( $file, $callback ) {
  * functions. This function does not check for the existence of the all hook, so
  * it will fail unless the all hook exists prior to this function call.
  *
- *
  * @access private
  *
  * @global GC_Hook[] $gc_filter Stores all of the filters and actions.
@@ -910,26 +927,15 @@ function _gc_call_all_hook( $args ) {
 }
 
 /**
- * Builds Unique ID for storage and retrieval.
- *
- * The old way to serialize the callback caused issues and this function is the
- * solution. It works by checking for objects and creating a new property in
- * the class to keep track of the object and new objects of the same class that
- * need to be added.
- *
- * It also allows for the removal of actions and filters for objects after they
- * change class properties. It is possible to include the property $gc_filter_id
- * in your class and set it to "null" or a number to bypass the workaround.
- * However this will prevent you from adding new classes and any new classes
- * will overwrite the previous hook by the same class.
+ * Builds a unique string ID for a hook callback function.
  *
  * Functions and static method callbacks are just returned as strings and
  * shouldn't have any speed penalty.
  *
  * @link https://core.trac.gechiui.com/ticket/3875
  *
- *
- *
+ * @since 2.2.3
+ * @since 5.3.0 Removed workarounds for spl_object_hash().
  *              `$hook_name` and `$priority` are no longer used,
  *              and the function always returns a string.
  *

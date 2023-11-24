@@ -55,7 +55,7 @@ foreach ( $load as $handle ) {
 		continue;
 	}
 
-	$path = ABSPATH . 'assets' . $gc_scripts->registered[ $handle ]->src;
+	$path = ABSPATH . $gc_scripts->registered[ $handle ]->src;
 	$out .= get_file( $path ) . "\n";
 }
 

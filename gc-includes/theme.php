@@ -12,8 +12,6 @@
  * Despite advances over get_themes(), this function is quite expensive, and grows
  * linearly with additional themes. Stick to gc_get_theme() if possible.
  *
- *
- *
  * @global array $gc_theme_directories
  *
  * @param array $args {
@@ -45,8 +43,10 @@ function gc_get_themes( $args = array() ) {
 	$theme_directories = search_theme_directories();
 
 	if ( is_array( $gc_theme_directories ) && count( $gc_theme_directories ) > 1 ) {
-		// Make sure the active theme wins out, in case search_theme_directories() picks the wrong
-		// one in the case of a conflict. (Normally, last registered theme root wins.)
+		/*
+		 * Make sure the active theme wins out, in case search_theme_directories() picks the wrong
+		 * one in the case of a conflict. (Normally, last registered theme root wins.)
+		 */
 		$current_theme = get_stylesheet();
 		if ( isset( $theme_directories[ $current_theme ] ) ) {
 			$root_of_current_theme = get_raw_theme_root( $current_theme );
@@ -101,8 +101,6 @@ function gc_get_themes( $args = array() ) {
 /**
  * Gets a GC_Theme object for a theme.
  *
- *
- *
  * @global array $gc_theme_directories
  *
  * @param string $stylesheet Optional. Directory name for the theme. Defaults to active theme.
@@ -134,7 +132,6 @@ function gc_get_theme( $stylesheet = '', $theme_root = '' ) {
 /**
  * Clears the cache held by get_theme_roots() and GC_Theme.
  *
- *
  * @param bool $clear_update_cache Whether to clear the theme updates cache.
  */
 function gc_clean_themes_cache( $clear_update_cache = true ) {
@@ -150,8 +147,6 @@ function gc_clean_themes_cache( $clear_update_cache = true ) {
 /**
  * Whether a child theme is in use.
  *
- *
- *
  * @return bool True if a child theme is in use, false otherwise.
  */
 function is_child_theme() {
@@ -166,14 +161,13 @@ function is_child_theme() {
  * For all intents and purposes, the template name and the stylesheet name
  * are going to be the same for most cases.
  *
- *
- *
  * @return string Stylesheet name.
  */
 function get_stylesheet() {
 	/**
 	 * Filters the name of current stylesheet.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $stylesheet Name of the current stylesheet.
 	 */
@@ -182,8 +176,6 @@ function get_stylesheet() {
 
 /**
  * Retrieves stylesheet directory path for the active theme.
- *
- *
  *
  * @return string Path to active theme's stylesheet directory.
  */
@@ -195,6 +187,7 @@ function get_stylesheet_directory() {
 	/**
 	 * Filters the stylesheet directory path for the active theme.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $stylesheet_dir Absolute path to the active theme.
 	 * @param string $stylesheet     Directory name of the active theme.
@@ -206,8 +199,6 @@ function get_stylesheet_directory() {
 /**
  * Retrieves stylesheet directory URI for the active theme.
  *
- *
- *
  * @return string URI to active theme's stylesheet directory.
  */
 function get_stylesheet_directory_uri() {
@@ -218,6 +209,7 @@ function get_stylesheet_directory_uri() {
 	/**
 	 * Filters the stylesheet directory URI.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $stylesheet_dir_uri Stylesheet directory URI.
 	 * @param string $stylesheet         Name of the activated theme's directory.
@@ -232,8 +224,6 @@ function get_stylesheet_directory_uri() {
  * The stylesheet file name is 'style.css' which is appended to the stylesheet directory URI path.
  * See get_stylesheet_directory_uri().
  *
- *
- *
  * @return string URI to active theme's stylesheet.
  */
 function get_stylesheet_uri() {
@@ -242,6 +232,7 @@ function get_stylesheet_uri() {
 	/**
 	 * Filters the URI of the active theme stylesheet.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $stylesheet_uri     Stylesheet URI for the active theme/child theme.
 	 * @param string $stylesheet_dir_uri Stylesheet directory URI for the active theme/child theme.
@@ -263,8 +254,6 @@ function get_stylesheet_uri() {
  * If you want to change the location of the stylesheet files for the entire
  * GeChiUI workflow, then change the former. If you just have the locale in a
  * separate folder, then change the latter.
- *
- *
  *
  * @global GC_Locale $gc_locale GeChiUI date and time locale object.
  *
@@ -295,14 +284,13 @@ function get_locale_stylesheet_uri() {
 /**
  * Retrieves name of the active theme.
  *
- *
- *
  * @return string Template name.
  */
 function get_template() {
 	/**
 	 * Filters the name of the active theme.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $template active theme's directory name.
 	 */
@@ -311,8 +299,6 @@ function get_template() {
 
 /**
  * Retrieves template directory path for the active theme.
- *
- *
  *
  * @return string Path to active theme's template directory.
  */
@@ -324,6 +310,7 @@ function get_template_directory() {
 	/**
 	 * Filters the active theme directory path.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $template_dir The path of the active theme directory.
 	 * @param string $template     Directory name of the active theme.
@@ -333,32 +320,19 @@ function get_template_directory() {
 }
 
 /**
- * 检索活动主题的模板目录URI。
- * 6.0.4 修改支持CDN
+ * Retrieves template directory URI for the active theme.
  *
  * @return string URI to active theme's template directory.
  */
 function get_template_directory_uri() {
 	$template         = str_replace( '%2F', '/', rawurlencode( get_template() ) );
-
-	if ( defined( 'GC_CDN_URL' ) && GC_CDN_URL && get_pro_license_valid() ) {
-		if( strstr(GC_CDN_URL, 'cdn.gechiui.com') ){
-			$theme_cdn = substr( GC_CDN_URL,0 , stripos(GC_CDN_URL, 'cdn.gechiui.com')+15 );
-			$theme_version = gc_get_theme()->get('Version');
-			$theme_root_uri = "$theme_cdn/theme";
-			$template_dir_uri = "$theme_root_uri/$template/$theme_version";
-		}else{
-			$theme_root_uri = rtrim( GC_CDN_URL, '/' ).'/gc-content/themes';
-			$template_dir_uri = "$theme_root_uri/$template";
-		}
-	}else{
-		$theme_root_uri   = get_theme_root_uri( $template );
-		$template_dir_uri = "$theme_root_uri/$template";
-	}
+	$theme_root_uri   = get_theme_root_uri( $template );
+	$template_dir_uri = "$theme_root_uri/$template";
 
 	/**
 	 * Filters the active theme directory URI.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $template_dir_uri The URI of the active theme directory.
 	 * @param string $template         Directory name of the active theme.
@@ -369,8 +343,6 @@ function get_template_directory_uri() {
 
 /**
  * Retrieves theme roots.
- *
- *
  *
  * @global array $gc_theme_directories
  *
@@ -394,8 +366,6 @@ function get_theme_roots() {
 
 /**
  * Registers a directory that contains themes.
- *
- *
  *
  * @global array $gc_theme_directories
  *
@@ -431,8 +401,6 @@ function register_theme_directory( $directory ) {
 /**
  * Searches all registered theme directories for complete and valid themes.
  *
- *
- *
  * @global array $gc_theme_directories
  *
  * @param bool $force Optional. Whether to force a new directory scan. Default false.
@@ -461,7 +429,7 @@ function search_theme_directories( $force = false ) {
 	 * to use in get_theme_root().
 	 */
 	foreach ( $gc_theme_directories as $theme_root ) {
-		if ( 0 === strpos( $theme_root, GC_CONTENT_DIR ) ) {
+		if ( str_starts_with( $theme_root, GC_CONTENT_DIR ) ) {
 			$relative_theme_roots[ str_replace( GC_CONTENT_DIR, '', $theme_root ) ] = $theme_root;
 		} else {
 			$relative_theme_roots[ $theme_root ] = $theme_root;
@@ -471,6 +439,7 @@ function search_theme_directories( $force = false ) {
 	/**
 	 * Filters whether to get the cache of the registered theme directories.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param bool   $cache_expiration Whether to get the cache of the theme directories. Default false.
 	 * @param string $context          The class or function name calling the filter.
@@ -513,16 +482,20 @@ function search_theme_directories( $force = false ) {
 				continue;
 			}
 			if ( file_exists( $theme_root . '/' . $dir . '/style.css' ) ) {
-				// gc-content/themes/a-single-theme
-				// gc-content/themes is $theme_root, a-single-theme is $dir.
+				/*
+				 * gc-content/themes/a-single-theme
+				 * gc-content/themes is $theme_root, a-single-theme is $dir.
+				 */
 				$found_themes[ $dir ] = array(
 					'theme_file' => $dir . '/style.css',
 					'theme_root' => $theme_root,
 				);
 			} else {
 				$found_theme = false;
-				// gc-content/themes/a-folder-of-themes/*
-				// gc-content/themes is $theme_root, a-folder-of-themes is $dir, then themes are $sub_dirs.
+				/*
+				 * gc-content/themes/a-folder-of-themes/*
+				 * gc-content/themes is $theme_root, a-folder-of-themes is $dir, then themes are $sub_dirs.
+				 */
 				$sub_dirs = @ scandir( $theme_root . '/' . $dir );
 				if ( ! $sub_dirs ) {
 					trigger_error( "$theme_root/$dir is not readable", E_USER_NOTICE );
@@ -541,8 +514,10 @@ function search_theme_directories( $force = false ) {
 					);
 					$found_theme                           = true;
 				}
-				// Never mind the above, it's just a theme missing a style.css.
-				// Return it; GC_Theme will catch the error.
+				/*
+				 * Never mind the above, it's just a theme missing a style.css.
+				 * Return it; GC_Theme will catch the error.
+				 */
 				if ( ! $found_theme ) {
 					$found_themes[ $dir ] = array(
 						'theme_file' => $dir . '/style.css',
@@ -574,8 +549,6 @@ function search_theme_directories( $force = false ) {
  *
  * Does not have trailing slash.
  *
- *
- *
  * @global array $gc_theme_directories
  *
  * @param string $stylesheet_or_template Optional. The stylesheet or template name of the theme.
@@ -590,8 +563,10 @@ function get_theme_root( $stylesheet_or_template = '' ) {
 	if ( $stylesheet_or_template ) {
 		$theme_root = get_raw_theme_root( $stylesheet_or_template );
 		if ( $theme_root ) {
-			// Always prepend GC_CONTENT_DIR unless the root currently registered as a theme directory.
-			// This gives relative theme roots the benefit of the doubt when things go haywire.
+			/*
+			 * Always prepend GC_CONTENT_DIR unless the root currently registered as a theme directory.
+			 * This gives relative theme roots the benefit of the doubt when things go haywire.
+			 */
 			if ( ! in_array( $theme_root, (array) $gc_theme_directories, true ) ) {
 				$theme_root = GC_CONTENT_DIR . $theme_root;
 			}
@@ -605,6 +580,7 @@ function get_theme_root( $stylesheet_or_template = '' ) {
 	/**
 	 * Filters the absolute path to the themes directory.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $theme_root Absolute path to themes directory.
 	 */
@@ -615,8 +591,6 @@ function get_theme_root( $stylesheet_or_template = '' ) {
  * Retrieves URI for themes directory.
  *
  * Does not have trailing slash.
- *
- *
  *
  * @global array $gc_theme_directories
  *
@@ -636,11 +610,11 @@ function get_theme_root_uri( $stylesheet_or_template = '', $theme_root = '' ) {
 	if ( $stylesheet_or_template && $theme_root ) {
 		if ( in_array( $theme_root, (array) $gc_theme_directories, true ) ) {
 			// Absolute path. Make an educated guess. YMMV -- but note the filter below.
-			if ( 0 === strpos( $theme_root, GC_CONTENT_DIR ) ) {
+			if ( str_starts_with( $theme_root, GC_CONTENT_DIR ) ) {
 				$theme_root_uri = content_url( str_replace( GC_CONTENT_DIR, '', $theme_root ) );
-			} elseif ( 0 === strpos( $theme_root, ABSPATH ) ) {
+			} elseif ( str_starts_with( $theme_root, ABSPATH ) ) {
 				$theme_root_uri = site_url( str_replace( ABSPATH, '', $theme_root ) );
-			} elseif ( 0 === strpos( $theme_root, GC_PLUGIN_DIR ) || 0 === strpos( $theme_root, GCMU_PLUGIN_DIR ) ) {
+			} elseif ( str_starts_with( $theme_root, GC_PLUGIN_DIR ) || str_starts_with( $theme_root, GCMU_PLUGIN_DIR ) ) {
 				$theme_root_uri = plugins_url( basename( $theme_root ), $theme_root );
 			} else {
 				$theme_root_uri = $theme_root;
@@ -655,6 +629,7 @@ function get_theme_root_uri( $stylesheet_or_template = '', $theme_root = '' ) {
 	/**
 	 * Filters the URI for themes directory.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $theme_root_uri         The URI for themes directory.
 	 * @param string $siteurl                GeChiUI web address which is set in General Options.
@@ -665,8 +640,6 @@ function get_theme_root_uri( $stylesheet_or_template = '', $theme_root = '' ) {
 
 /**
  * Gets the raw theme root relative to the content directory with no filters applied.
- *
- *
  *
  * @global array $gc_theme_directories
  *
@@ -706,7 +679,6 @@ function get_raw_theme_root( $stylesheet_or_template, $skip_cache = false ) {
 /**
  * Displays localized stylesheet link element.
  *
- *
  */
 function locale_stylesheet() {
 	$stylesheet = get_locale_stylesheet_uri();
@@ -729,16 +701,15 @@ function locale_stylesheet() {
  * Accepts one argument: $stylesheet of the theme. It also accepts an additional function signature
  * of two arguments: $template then $stylesheet. This is for backward compatibility.
  *
- *
- *
  * @global array                $gc_theme_directories
  * @global GC_Customize_Manager $gc_customize
  * @global array                $sidebars_widgets
+ * @global array                $gc_registered_sidebars
  *
  * @param string $stylesheet Stylesheet name.
  */
 function switch_theme( $stylesheet ) {
-	global $gc_theme_directories, $gc_customize, $sidebars_widgets;
+	global $gc_theme_directories, $gc_customize, $sidebars_widgets, $gc_registered_sidebars;
 
 	$requirements = validate_theme_requirements( $stylesheet );
 	if ( is_gc_error( $requirements ) ) {
@@ -815,11 +786,20 @@ function switch_theme( $stylesheet ) {
 		}
 	}
 
+	// Stores classic sidebars for later use by block themes.
+	if ( $new_theme->is_block_theme() ) {
+		set_theme_mod( 'gc_classic_sidebars', $gc_registered_sidebars );
+	}
+
 	update_option( 'theme_switched', $old_theme->get_stylesheet() );
 
 	/**
 	 * Fires after the theme is switched.
 	 *
+	 * See {@see 'after_switch_theme'}.
+	 *
+	 * @since 1.5.0
+	 * @since 4.5.0 Introduced the `$old_theme` parameter.
 	 *
 	 * @param string   $new_name  Name of the new theme.
 	 * @param GC_Theme $new_theme GC_Theme instance of the new theme.
@@ -829,7 +809,10 @@ function switch_theme( $stylesheet ) {
 }
 
 /**
- * Checks that the active theme has 'index.php' and 'style.css' files.
+ * Checks that the active theme has the required files.
+ *
+ * Standalone themes need to have a `templates/index.html` or `index.php` template file.
+ * Child themes need to have a `Template` header in the `style.css` stylesheet.
  *
  * Does not initially check the default theme, which is the fallback and should always exist.
  * But if it doesn't exist, it'll fall back to the latest core default theme that does exist.
@@ -838,7 +821,7 @@ function switch_theme( $stylesheet ) {
  * You can use the {@see 'validate_current_theme'} filter to return false to disable
  * this functionality.
  *
- *
+ * @since 6.0.0 Removed the requirement for block themes to have an `index.php` template.
  *
  * @see GC_DEFAULT_THEME
  *
@@ -848,6 +831,7 @@ function validate_current_theme() {
 	/**
 	 * Filters whether to validate the active theme.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param bool $validate Whether to validate the active theme. Default true.
 	 */
@@ -855,7 +839,11 @@ function validate_current_theme() {
 		return true;
 	}
 
-	if ( ! file_exists( get_template_directory() . '/index.php' ) ) {
+	if (
+		! file_exists( get_template_directory() . '/templates/index.html' )
+		&& ! file_exists( get_template_directory() . '/block-templates/index.html' ) // Deprecated path support since 5.9.0.
+		&& ! file_exists( get_template_directory() . '/index.php' )
+	) {
 		// Invalid.
 	} elseif ( ! file_exists( get_template_directory() . '/style.css' ) ) {
 		// Invalid.
@@ -897,8 +885,8 @@ function validate_current_theme() {
  * Uses the information from `Requires at least` and `Requires PHP` headers
  * defined in the theme's `style.css` file.
  *
- *
- *
+ * @since 5.5.0
+ * @since 5.8.0 Removed support for using `readme.txt` as a fallback.
  *
  * @param string $stylesheet Directory name for the theme.
  * @return true|GC_Error True if requirements are met, GC_Error on failure.
@@ -949,8 +937,7 @@ function validate_theme_requirements( $stylesheet ) {
 /**
  * Retrieves all theme modifications.
  *
- *
- *
+ * @since 5.9.0 The return value is always an array.
  *
  * @return array Theme modifications.
  */
@@ -981,18 +968,16 @@ function get_theme_mods() {
 /**
  * Retrieves theme modification value for the active theme.
  *
- * If the modification name does not exist and `$default` is a string, then the
+ * If the modification name does not exist and `$default_value` is a string, then the
  * default will be passed through the {@link https://www.php.net/sprintf sprintf()}
  * PHP function with the template directory URI as the first value and the
  * stylesheet directory URI as the second value.
  *
- *
- *
- * @param string $name    Theme modification name.
- * @param mixed  $default Optional. Theme modification default value. Default false.
+ * @param string $name          Theme modification name.
+ * @param mixed  $default_value Optional. Theme modification default value. Default false.
  * @return mixed Theme modification value.
  */
-function get_theme_mod( $name, $default = false ) {
+function get_theme_mod( $name, $default_value = false ) {
 	$mods = get_theme_mods();
 
 	if ( isset( $mods[ $name ] ) ) {
@@ -1003,30 +988,29 @@ function get_theme_mod( $name, $default = false ) {
 		 * of the modification array. For example, 'header_textcolor', 'header_image',
 		 * and so on depending on the theme options.
 		 *
+		 * @since 2.2.0
 		 *
 		 * @param mixed $current_mod The value of the active theme modification.
 		 */
 		return apply_filters( "theme_mod_{$name}", $mods[ $name ] );
 	}
 
-	if ( is_string( $default ) ) {
+	if ( is_string( $default_value ) ) {
 		// Only run the replacement if an sprintf() string format pattern was found.
-		if ( preg_match( '#(?<!%)%(?:\d+\$?)?s#', $default ) ) {
+		if ( preg_match( '#(?<!%)%(?:\d+\$?)?s#', $default_value ) ) {
 			// Remove a single trailing percent sign.
-			$default = preg_replace( '#(?<!%)%$#', '', $default );
-			$default = sprintf( $default, get_template_directory_uri(), get_stylesheet_directory_uri() );
+			$default_value = preg_replace( '#(?<!%)%$#', '', $default_value );
+			$default_value = sprintf( $default_value, get_template_directory_uri(), get_stylesheet_directory_uri() );
 		}
 	}
 
 	/** This filter is documented in gc-includes/theme.php */
-	return apply_filters( "theme_mod_{$name}", $default );
+	return apply_filters( "theme_mod_{$name}", $default_value );
 }
 
 /**
  * Updates theme modification value for the active theme.
- *
- *
- *
+ * A return value was added.
  *
  * @param string $name  Theme modification name.
  * @param mixed  $value Theme modification value.
@@ -1060,8 +1044,6 @@ function set_theme_mod( $name, $value ) {
  * If removing the name also removes all elements, then the entire option
  * will be removed.
  *
- *
- *
  * @param string $name Theme modification name.
  */
 function remove_theme_mod( $name ) {
@@ -1086,7 +1068,6 @@ function remove_theme_mod( $name ) {
 /**
  * Removes theme modifications option for the active theme.
  *
- *
  */
 function remove_theme_mods() {
 	delete_option( 'theme_mods_' . get_option( 'stylesheet' ) );
@@ -1103,8 +1084,6 @@ function remove_theme_mods() {
 /**
  * Retrieves the custom header text color in 3- or 6-digit hexadecimal form.
  *
- *
- *
  * @return string Header text color in 3- or 6-digit hexadecimal form (minus the hash symbol).
  */
 function get_header_textcolor() {
@@ -1114,7 +1093,6 @@ function get_header_textcolor() {
 /**
  * Displays the custom header text color in 3- or 6-digit hexadecimal form (minus the hash symbol).
  *
- *
  */
 function header_textcolor() {
 	echo get_header_textcolor();
@@ -1122,8 +1100,6 @@ function header_textcolor() {
 
 /**
  * Whether to display the header text.
- *
- *
  *
  * @return bool
  */
@@ -1139,8 +1115,6 @@ function display_header_text() {
 /**
  * Checks whether a header image is set or not.
  *
- *
- *
  * @see get_header_image()
  *
  * @return bool Whether a header image is set or not.
@@ -1151,8 +1125,6 @@ function has_header_image() {
 
 /**
  * Retrieves header image for custom header.
- *
- *
  *
  * @return string|false
  */
@@ -1167,13 +1139,25 @@ function get_header_image() {
 		$url = get_random_header_image();
 	}
 
-	return esc_url_raw( set_url_scheme( $url ) );
+	/**
+	 * Filters the header image URL.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param string $url Header image URL.
+	 */
+	$url = apply_filters( 'get_header_image', $url );
+
+	if ( ! is_string( $url ) ) {
+		return false;
+	}
+
+	$url = trim( $url );
+	return sanitize_url( set_url_scheme( $url ) );
 }
 
 /**
  * Creates image tag markup for a custom header image.
- *
- *
  *
  * @param array $attr Optional. Additional attributes for the image tag. Can be used
  *                              to override the default attributes. Default empty.
@@ -1203,10 +1187,11 @@ function get_header_image_tag( $attr = array() ) {
 	$attr = gc_parse_args(
 		$attr,
 		array(
-			'src'    => $header->url,
-			'width'  => $width,
-			'height' => $height,
-			'alt'    => $alt,
+			'src'      => $header->url,
+			'width'    => $width,
+			'height'   => $height,
+			'alt'      => $alt,
+			'decoding' => 'async',
 		)
 	);
 
@@ -1231,9 +1216,33 @@ function get_header_image_tag( $attr = array() ) {
 		}
 	}
 
+	$attr = array_merge(
+		$attr,
+		gc_get_loading_optimization_attributes( 'img', $attr, 'get_header_image_tag' )
+	);
+
+	/*
+	 * If the default value of `lazy` for the `loading` attribute is overridden
+	 * to omit the attribute for this image, ensure it is not included.
+	 */
+	if ( isset( $attr['loading'] ) && ! $attr['loading'] ) {
+		unset( $attr['loading'] );
+	}
+
+	// If the `fetchpriority` attribute is overridden and set to false or an empty string.
+	if ( isset( $attr['fetchpriority'] ) && ! $attr['fetchpriority'] ) {
+		unset( $attr['fetchpriority'] );
+	}
+
+	// If the `decoding` attribute is overridden and set to false or an empty string.
+	if ( isset( $attr['decoding'] ) && ! $attr['decoding'] ) {
+		unset( $attr['decoding'] );
+	}
+
 	/**
 	 * Filters the list of header image attributes.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param array  $attr   Array of the attributes for the image tag.
 	 * @param object $header The custom header object returned by 'get_custom_header()'.
@@ -1252,6 +1261,7 @@ function get_header_image_tag( $attr = array() ) {
 	/**
 	 * Filters the markup of header images.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $html   The HTML image tag markup being filtered.
 	 * @param object $header The custom header object returned by 'get_custom_header()'.
@@ -1263,8 +1273,6 @@ function get_header_image_tag( $attr = array() ) {
 /**
  * Displays the image markup for a custom header image.
  *
- *
- *
  * @param array $attr Optional. Attributes for the image markup. Default empty.
  */
 function the_header_image_tag( $attr = array() ) {
@@ -1273,8 +1281,6 @@ function the_header_image_tag( $attr = array() ) {
 
 /**
  * Gets random header image data from registered images in theme.
- *
- *
  *
  * @access private
  *
@@ -1303,7 +1309,7 @@ function _get_random_header_data() {
 		}
 
 		if ( empty( $headers ) ) {
-			return new stdClass;
+			return new stdClass();
 		}
 
 		$_gc_random_header = (object) $headers[ array_rand( $headers ) ];
@@ -1327,8 +1333,6 @@ function _get_random_header_data() {
 /**
  * Gets random header image URL from registered images in theme.
  *
- *
- *
  * @return string Path to header image.
  */
 function get_random_header_image() {
@@ -1347,8 +1351,6 @@ function get_random_header_image() {
  * Always true if user expressly chooses the option in Appearance > Header.
  * Also true if theme has multiple header images registered, no specific header image
  * is chosen, and theme turns on random headers with add_theme_support().
- *
- *
  *
  * @param string $type The random pool to use. Possible values include 'any',
  *                     'default', 'uploaded'. Default 'any'.
@@ -1378,7 +1380,6 @@ function is_random_header_image( $type = 'any' ) {
 /**
  * Displays header image URL.
  *
- *
  */
 function header_image() {
 	$image = get_header_image();
@@ -1390,8 +1391,6 @@ function header_image() {
 
 /**
  * Gets the header images uploaded for the active theme.
- *
- *
  *
  * @return array
  */
@@ -1414,7 +1413,7 @@ function get_uploaded_header_images() {
 	}
 
 	foreach ( (array) $headers as $header ) {
-		$url          = esc_url_raw( gc_get_attachment_url( $header->ID ) );
+		$url          = sanitize_url( gc_get_attachment_url( $header->ID ) );
 		$header_data  = gc_get_attachment_metadata( $header->ID );
 		$header_index = $header->ID;
 
@@ -1443,8 +1442,6 @@ function get_uploaded_header_images() {
 
 /**
  * Gets the header image data.
- *
- *
  *
  * @global array $_gc_default_headers
  *
@@ -1489,8 +1486,6 @@ function get_custom_header() {
 /**
  * Registers a selection of default headers to be displayed by the custom header admin UI.
  *
- *
- *
  * @global array $_gc_default_headers
  *
  * @param array $headers Array of headers keyed by a string ID. The IDs point to arrays
@@ -1509,7 +1504,6 @@ function register_default_headers( $headers ) {
  * header you want to remove.
  *
  * @see register_default_headers()
- *
  *
  * @global array $_gc_default_headers
  *
@@ -1533,8 +1527,6 @@ function unregister_default_headers( $header ) {
 /**
  * Checks whether a header video is set or not.
  *
- *
- *
  * @see get_header_video_url()
  *
  * @return bool Whether a header video is set or not.
@@ -1547,8 +1539,6 @@ function has_header_video() {
  * Retrieves header video URL for custom header.
  *
  * Uses a local video if present, or falls back to an external video.
- *
- *
  *
  * @return string|false Header video URL or false if there is no video.
  */
@@ -1565,6 +1555,7 @@ function get_header_video_url() {
 	/**
 	 * Filters the header video URL.
 	 *
+	 * @since 4.7.3
 	 *
 	 * @param string $url Header video URL, if available.
 	 */
@@ -1574,12 +1565,11 @@ function get_header_video_url() {
 		return false;
 	}
 
-	return esc_url_raw( set_url_scheme( $url ) );
+	return sanitize_url( set_url_scheme( $url ) );
 }
 
 /**
  * Displays header video URL.
- *
  *
  */
 function the_header_video_url() {
@@ -1592,8 +1582,6 @@ function the_header_video_url() {
 
 /**
  * Retrieves header video settings.
- *
- *
  *
  * @return array
  */
@@ -1618,8 +1606,8 @@ function get_header_video_settings() {
 		),
 	);
 
-	if ( preg_match( '#^https?://(?:www\.)?(?:youtube\.com/watch|youtu\.be/)#', $video_url ) ) {
-		$settings['mimeType'] = 'video/x-youtube';
+	if ( preg_match( '#^https?://(?:www\.)?(?:youku\.com/watch|youtu\.be/)#', $video_url ) ) {
+		$settings['mimeType'] = 'video/x-youku';
 	} elseif ( ! empty( $video_type['type'] ) ) {
 		$settings['mimeType'] = $video_type['type'];
 	}
@@ -1627,6 +1615,7 @@ function get_header_video_settings() {
 	/**
 	 * Filters header video settings.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array $settings An array of header video settings.
 	 */
@@ -1635,8 +1624,6 @@ function get_header_video_settings() {
 
 /**
  * Checks whether a custom header is set or not.
- *
- *
  *
  * @return bool True if a custom header is set. False if not.
  */
@@ -1650,8 +1637,6 @@ function has_custom_header() {
 
 /**
  * Checks whether the custom header video is eligible to show on the current page.
- *
- *
  *
  * @return bool True if the custom header video should be shown. False if not.
  */
@@ -1671,6 +1656,7 @@ function is_header_video_active() {
 	/**
 	 * Filters whether the custom header video is eligible to show on the current page.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param bool $show_video Whether the custom header video should be shown. Returns the value
 	 *                         of the theme setting for the `custom-header`'s `video-active-callback`.
@@ -1683,8 +1669,6 @@ function is_header_video_active() {
  * Retrieves the markup for a custom header.
  *
  * The container div will always be returned in the Customizer preview.
- *
- *
  *
  * @return string The markup for a custom header on success.
  */
@@ -1704,7 +1688,6 @@ function get_custom_header_markup() {
  *
  * A container div will always be printed in the Customizer preview.
  *
- *
  */
 function the_custom_header_markup() {
 	$custom_header = get_custom_header_markup();
@@ -1723,8 +1706,6 @@ function the_custom_header_markup() {
 /**
  * Retrieves background image for custom background.
  *
- *
- *
  * @return string
  */
 function get_background_image() {
@@ -1734,7 +1715,6 @@ function get_background_image() {
 /**
  * Displays background image path.
  *
- *
  */
 function background_image() {
 	echo get_background_image();
@@ -1742,8 +1722,6 @@ function background_image() {
 
 /**
  * Retrieves value for custom background color.
- *
- *
  *
  * @return string
  */
@@ -1754,7 +1732,6 @@ function get_background_color() {
 /**
  * Displays background color value.
  *
- *
  */
 function background_color() {
 	echo get_background_color();
@@ -1763,14 +1740,15 @@ function background_color() {
 /**
  * Default custom background callback.
  *
- *
  */
 function _custom_background_cb() {
 	// $background is the saved custom image, or the default image.
 	$background = set_url_scheme( get_background_image() );
 
-	// $color is the saved custom color.
-	// A default has to be specified in style.css. It will not be printed here.
+	/*
+	 * $color is the saved custom color.
+	 * A default has to be specified in style.css. It will not be printed here.
+	 */
 	$color = get_background_color();
 
 	if ( get_theme_support( 'custom-background', 'default-color' ) === $color ) {
@@ -1789,7 +1767,7 @@ function _custom_background_cb() {
 	$style = $color ? "background-color: #$color;" : '';
 
 	if ( $background ) {
-		$image = ' background-image: url("' . esc_url_raw( $background ) . '");';
+		$image = ' background-image: url("' . sanitize_url( $background ) . '");';
 
 		// Background Position.
 		$position_x = get_theme_mod( 'background_position_x', get_theme_support( 'custom-background', 'default-position-x' ) );
@@ -1844,7 +1822,6 @@ body.custom-background { <?php echo trim( $style ); ?> }
 /**
  * Renders the Custom CSS style element.
  *
- *
  */
 function gc_custom_css_cb() {
 	$styles = gc_get_custom_css();
@@ -1863,8 +1840,6 @@ function gc_custom_css_cb() {
 
 /**
  * Fetches the `custom_css` post for a given theme.
- *
- *
  *
  * @param string $stylesheet Optional. A theme object stylesheet name. Defaults to the active theme.
  * @return GC_Post|null The custom_css post or null if none exists.
@@ -1915,8 +1890,6 @@ function gc_get_custom_css_post( $stylesheet = '' ) {
 /**
  * Fetches the saved Custom CSS content for rendering.
  *
- *
- *
  * @param string $stylesheet Optional. A theme object stylesheet name. Defaults to the active theme.
  * @return string The Custom CSS Post content.
  */
@@ -1933,8 +1906,9 @@ function gc_get_custom_css( $stylesheet = '' ) {
 	}
 
 	/**
-	 * Filters the Custom CSS Output into the <head>.
+	 * Filters the custom CSS output into the head element.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string $css        CSS pulled in from the Custom CSS post type.
 	 * @param string $stylesheet The theme stylesheet name.
@@ -1948,8 +1922,6 @@ function gc_get_custom_css( $stylesheet = '' ) {
  * Updates the `custom_css` post for a given theme.
  *
  * Inserts a `custom_css` post when one doesn't yet exist.
- *
- *
  *
  * @param string $css CSS, stored in `post_content`.
  * @param array  $args {
@@ -1995,6 +1967,7 @@ function gc_update_custom_css_post( $css, $args = array() ) {
 	 * }, 10, 2 );
 	 * </code>
 	 *
+	 * @since 4.7.0
 	 * @param array $data {
 	 *     Custom CSS data.
 	 *
@@ -2035,7 +2008,8 @@ function gc_update_custom_css_post( $css, $args = array() ) {
 			}
 
 			// Trigger creation of a revision. This should be removed once #30854 is resolved.
-			if ( 0 === count( gc_get_post_revisions( $r ) ) ) {
+			$revisions = gc_get_latest_revision_id_and_total_count( $r );
+			if ( ! is_gc_error( $revisions ) && 0 === $revisions['count'] ) {
 				gc_save_post_revision( $r );
 			}
 		}
@@ -2062,8 +2036,6 @@ function gc_update_custom_css_post( $css, $args = array() ) {
  * Since version 3.4 the TinyMCE body has .rtl CSS class.
  * It is a better option to use that class and add any RTL styles to the main stylesheet.
  *
- *
- *
  * @global array $editor_styles
  *
  * @param array|string $stylesheet Optional. Stylesheet name or array thereof, relative to theme root.
@@ -2088,8 +2060,6 @@ function add_editor_style( $stylesheet = 'editor-style.css' ) {
 /**
  * Removes all visual editor stylesheets.
  *
- *
- *
  * @global array $editor_styles
  *
  * @return bool True on success, false if there were no stylesheets to remove.
@@ -2108,7 +2078,7 @@ function remove_editor_styles() {
 /**
  * Retrieves any registered editor stylesheet URLs.
  *
- *
+ * @since 4.0.0
  *
  * @global array $editor_styles Registered editor stylesheets
  *
@@ -2127,7 +2097,7 @@ function get_editor_stylesheets() {
 		// Support externally referenced styles (like, say, fonts).
 		foreach ( $editor_styles as $key => $file ) {
 			if ( preg_match( '~^(https?:)?//~', $file ) ) {
-				$stylesheets[] = esc_url_raw( $file );
+				$stylesheets[] = sanitize_url( $file );
 				unset( $editor_styles[ $key ] );
 			}
 		}
@@ -2154,6 +2124,7 @@ function get_editor_stylesheets() {
 	/**
 	 * Filters the array of URLs of stylesheets applied to the editor.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param string[] $stylesheets Array of URLs of stylesheets to be applied to the editor.
 	 */
@@ -2162,8 +2133,6 @@ function get_editor_stylesheets() {
 
 /**
  * Expands a theme's starter content configuration using core-provided data.
- *
- *
  *
  * @return array Array of starter content.
  */
@@ -2185,8 +2154,8 @@ function get_theme_starter_content() {
 						'',
 						array(
 							'<strong>' . _x( '地址', 'Theme starter content' ) . "</strong>\n",
-							_x( '北清路123号', 'Theme starter content' ) . "\n",
-							_x( '北京市海淀区，邮编：100001', 'Theme starter content' ) . "\n\n",
+							_x( '123 Main Street', 'Theme starter content' ) . "\n",
+							_x( 'New York, NY 10001', 'Theme starter content' ) . "\n\n",
 							'<strong>' . _x( '营业时间', 'Theme starter content' ) . "</strong>\n",
 							_x( '星期一&mdash;五：9:00&ndash;17:00', 'Theme starter content' ) . "\n",
 							_x( '星期六&mdash;日：11:00&ndash;15:00', 'Theme starter content' ),
@@ -2200,7 +2169,7 @@ function get_theme_starter_content() {
 				'text',
 				array(
 					'title'  => _x( '关于本站', 'Theme starter content' ),
-					'text'   => _x( '这里也许是个介绍您自己的好地方，也能介绍您的站点或放进一些工作人员名单。', 'Theme starter content' ),
+					'text'   => _x( '这里也许是个介绍您自己的好地方，也能介绍您的系统或放进一些工作人员名单。', 'Theme starter content' ),
 					'filter' => true,
 					'visual' => true,
 				),
@@ -2220,7 +2189,7 @@ function get_theme_starter_content() {
 			'categories'         => array(
 				'categories',
 				array(
-					'title' => _x( '分类', 'Theme starter content' ),
+					'title' => _x( '分类目录', 'Theme starter content' ),
 				),
 			),
 			'meta'               => array(
@@ -2288,6 +2257,10 @@ function get_theme_starter_content() {
 				'title' => _x( 'GitHub', 'Theme starter content' ),
 				'url'   => 'https://github.com/gechiui/',
 			),
+			'link_youku'    => array(
+				'title' => _x( 'YouKu', 'Theme starter content' ),
+				'url'   => 'https://www.youku.com/channel/UCdof4Ju7amm1chz1gi1T2ZA',
+			),
 		),
 		'posts'     => array(
 			'home'             => array(
@@ -2295,12 +2268,12 @@ function get_theme_starter_content() {
 				'post_title'   => _x( '首页', 'Theme starter content' ),
 				'post_content' => sprintf(
 					"<!-- gc:paragraph -->\n<p>%s</p>\n<!-- /gc:paragraph -->",
-					_x( '欢迎来到您的站点！这是您的主页，也就是大多数访客第一次造访时看到的页面。', 'Theme starter content' )
+					_x( '欢迎来到您的系统！这是您的主页，也就是大多数访客第一次造访时看到的页面。', 'Theme starter content' )
 				),
 			),
 			'about'            => array(
 				'post_type'    => 'page',
-				'post_title'   => _x( '关于', 'Theme starter content' ),
+				'post_title'   => _x( '关于我们', 'Theme starter content' ),
 				'post_content' => sprintf(
 					"<!-- gc:paragraph -->\n<p>%s</p>\n<!-- /gc:paragraph -->",
 					_x( '您也许是位创作者，想要在这里介绍自己和自己的作品；或者您是一位商务人士，想在这里谈谈您的业务。', 'Theme starter content' )
@@ -2308,7 +2281,7 @@ function get_theme_starter_content() {
 			),
 			'contact'          => array(
 				'post_type'    => 'page',
-				'post_title'   => _x( '联系', 'Theme starter content' ),
+				'post_title'   => _x( '联系方式', 'Theme starter content' ),
 				'post_content' => sprintf(
 					"<!-- gc:paragraph -->\n<p>%s</p>\n<!-- /gc:paragraph -->",
 					_x( '这个页面包含了一些基本的联系资料，像是地址和联系电话。您也可以尝试使用插件增加联系表单。', 'Theme starter content' )
@@ -2328,7 +2301,7 @@ function get_theme_starter_content() {
 				'post_title'   => _x( '主页章节', 'Theme starter content' ),
 				'post_content' => sprintf(
 					"<!-- gc:paragraph -->\n<p>%s</p>\n<!-- /gc:paragraph -->",
-					_x( '这是首页章节的范例。首页章节可以是除了首页本身以外的任何其他页面，包括显示最新博客文章的页面。', 'Theme starter content' )
+					_x( '这是首页章节的范例。首页章节可以是除了首页本身以外的任何其他页面，包括显示最新文章的页面。', 'Theme starter content' )
 				),
 			),
 		),
@@ -2408,8 +2381,10 @@ function get_theme_starter_content() {
 				}
 				break;
 
-			// All that's left now are posts (besides attachments).
-			// Not a default case for the sake of clarity and future work.
+			/*
+			 * All that's left now are posts (besides attachments).
+			 * Not a default case for the sake of clarity and future work.
+			 */
 			case 'posts':
 				foreach ( $config[ $type ] as $id => $item ) {
 					if ( is_array( $item ) ) {
@@ -2445,6 +2420,7 @@ function get_theme_starter_content() {
 	/**
 	 * Filters the expanded array of starter content.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array $content Array of starter content.
 	 * @param array $config  Array of theme-specific starter content configuration.
@@ -2466,24 +2442,21 @@ function get_theme_starter_content() {
  *         'height' => 480,
  *         'width'  => 720,
  *     ) );
- *
- *
- *
- *
- *
- *
- *
- *
- *
+ * The `custom-header-uploads` feature was deprecated. The `html5` feature was added.
+ * @since 3.6.1 The `html5` feature requires an array of types to be passed. Defaults to
+ *              'comment-list', 'comment-form', 'search-form' for backward compatibility.
+ * @since 3.9.0 The `html5` feature now also accepts 'gallery' and 'caption'.
+ * @since 4.1.0 The `title-tag` feature was added. The `customize-selective-refresh-widgets` feature was added. The `starter-content` feature was added.
+ * @since 5.0.0 The `responsive-embeds`, `align-wide`, `dark-editor-style`, `disable-custom-colors`,
  *              `disable-custom-font-sizes`, `editor-color-palette`, `editor-font-sizes`,
  *              `editor-styles`, and `gc-block-styles` features were added.
- *
- *
+ * @since 5.3.0 The `html5` feature now also accepts 'script' and 'style'.
+ * @since 5.3.0 Formalized the existing and already documented `...$args` parameter
  *              by adding it to the function signature.
- *
- *
- *
- *
+ * @since 5.5.0 The `core-block-patterns` feature was added and is enabled by default.
+ * @since 5.5.0 The `custom-logo` feature now also accepts 'unlink-homepage-logo'. The `post-formats` feature warns if no array is passed as the second parameter.
+ * @since 5.8.0 The `widgets-block-editor` feature enables the Widgets block editor.
+ * @since 6.0.0 The `html5` feature warns if no array is passed as the second parameter.
  *
  * @global array $_gc_theme_features
  *
@@ -2562,16 +2535,19 @@ function add_theme_support( $feature, ...$args ) {
 
 		case 'html5':
 			// You can't just pass 'html5', you need to pass an array of types.
-			if ( empty( $args[0] ) ) {
-				// Build an array of types for back-compat.
-				$args = array( 0 => array( 'comment-list', 'comment-form', 'search-form' ) );
-			} elseif ( ! isset( $args[0] ) || ! is_array( $args[0] ) ) {
+			if ( empty( $args[0] ) || ! is_array( $args[0] ) ) {
 				_doing_it_wrong(
 					"add_theme_support( 'html5' )",
 					__( '您需要传入类型数组。' ),
 					'3.6.1'
 				);
-				return false;
+
+				if ( ! empty( $args[0] ) && ! is_array( $args[0] ) ) {
+					return false;
+				}
+
+				// Build an array of types for back-compat.
+				$args = array( 0 => array( 'comment-list', 'comment-form', 'search-form' ) );
 			}
 
 			// Calling 'html5' again merges, rather than overwrites.
@@ -2629,14 +2605,18 @@ function add_theme_support( $feature, ...$args ) {
 			$jit = isset( $args[0]['__jit'] );
 			unset( $args[0]['__jit'] );
 
-			// Merge in data from previous add_theme_support() calls.
-			// The first value registered wins. (A child theme is set up first.)
+			/*
+			 * Merge in data from previous add_theme_support() calls.
+			 * The first value registered wins. (A child theme is set up first.)
+			 */
 			if ( isset( $_gc_theme_features['custom-header'] ) ) {
 				$args[0] = gc_parse_args( $_gc_theme_features['custom-header'][0], $args[0] );
 			}
 
-			// Load in the defaults at the end, as we need to insure first one wins.
-			// This will cause all constants to be defined, as each arg will then be set to the default.
+			/*
+			 * Load in the defaults at the end, as we need to insure first one wins.
+			 * This will cause all constants to be defined, as each arg will then be set to the default.
+			 */
 			if ( $jit ) {
 				$args[0] = gc_parse_args( $args[0], $defaults );
 			}
@@ -2683,8 +2663,10 @@ function add_theme_support( $feature, ...$args ) {
 				$args[0]['random-default'] = false;
 			}
 
-			// If headers are supported, and we still don't have a defined width or height,
-			// we have implicit flex sizes.
+			/*
+			 * If headers are supported, and we still don't have a defined width or height,
+			 * we have implicit flex sizes.
+			 */
 			if ( $jit ) {
 				if ( empty( $args[0]['width'] ) && empty( $args[0]['flex-width'] ) ) {
 					$args[0]['flex-width'] = true;
@@ -2766,7 +2748,6 @@ function add_theme_support( $feature, ...$args ) {
 /**
  * Registers the internal custom header and background routines.
  *
- *
  * @access private
  *
  * @global Custom_Image_Header $custom_image_header
@@ -2807,7 +2788,6 @@ function _custom_header_background_just_in_time() {
 /**
  * Adds CSS to hide header text for custom logo, based on Customizer setting.
  *
- *
  * @access private
  */
 function _custom_logo_header_styles() {
@@ -2840,8 +2820,7 @@ function _custom_logo_header_styles() {
  *     get_theme_support( 'custom-logo' );
  *     get_theme_support( 'custom-header', 'width' );
  *
- *
- *
+ * @since 5.3.0 Formalized the existing and already documented `...$args` parameter
  *              by adding it to the function signature.
  *
  * @global array $_gc_theme_features
@@ -2882,8 +2861,6 @@ function get_theme_support( $feature, ...$args ) {
  * Should be called in the theme's functions.php file. Generally would
  * be used for child themes to override support from the parent theme.
  *
- *
- *
  * @see add_theme_support()
  *
  * @param string $feature The feature being removed. See add_theme_support() for the list
@@ -2904,7 +2881,6 @@ function remove_theme_support( $feature ) {
  * by themes directly.
  *
  * @access private
- *
  * @global array               $_gc_theme_features
  * @global Custom_Image_Header $custom_image_header
  * @global Custom_Background   $custom_background
@@ -2970,8 +2946,7 @@ function _remove_theme_support( $feature ) {
  *     current_theme_supports( 'custom-logo' );
  *     current_theme_supports( 'html5', 'comment-form' );
  *
- *
- *
+ * @since 5.3.0 Formalized the existing and already documented `...$args` parameter
  *              by adding it to the function signature.
  *
  * @global array $_gc_theme_features
@@ -2992,9 +2967,10 @@ function current_theme_supports( $feature, ...$args ) {
 		return false;
 	}
 
-	// If no args passed then no extra checks need be performed.
+	// If no args passed then no extra checks need to be performed.
 	if ( ! $args ) {
-		return true;
+		/** This filter is documented in gc-includes/theme.php */
+		return apply_filters( "current_theme_supports-{$feature}", true, $args, $_gc_theme_features[ $feature ] ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 	}
 
 	switch ( $feature ) {
@@ -3034,6 +3010,7 @@ function current_theme_supports( $feature, ...$args ) {
 	 * The dynamic portion of the hook name, `$feature`, refers to the specific
 	 * theme feature. See add_theme_support() for the list of possible values.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param bool   $supports Whether the active theme supports the given feature. Default true.
 	 * @param array  $args     Array of arguments for the feature.
@@ -3045,16 +3022,14 @@ function current_theme_supports( $feature, ...$args ) {
 /**
  * Checks a theme's support for a given feature before loading the functions which implement it.
  *
- *
- *
  * @param string $feature The feature being checked. See add_theme_support() for the list
  *                        of possible values.
- * @param string $include Path to the file.
+ * @param string $file    Path to the file.
  * @return bool True if the active theme supports the supplied feature, false otherwise.
  */
-function require_if_theme_supports( $feature, $include ) {
+function require_if_theme_supports( $feature, $file ) {
 	if ( current_theme_supports( $feature ) ) {
-		require $include;
+		require $file;
 		return true;
 	}
 	return false;
@@ -3066,7 +3041,7 @@ function require_if_theme_supports( $feature, $include ) {
  * This does not indicate that the active theme supports the feature, it only describes
  * the feature's supported options.
  *
- *
+ * @since 5.5.0
  *
  * @see add_theme_support()
  *
@@ -3150,21 +3125,21 @@ function register_theme_feature( $feature, $args = array() ) {
 		if ( ! is_array( $args['show_in_rest'] ) || empty( $args['show_in_rest']['schema'] ) ) {
 			return new GC_Error(
 				'missing_schema',
-				__( '如需注册“array”或“object”功能以显示于REST API中，还需要定义此功能的模式描述。' )
+				__( '注册要在REST API中显示的“array数组”或“object对象”功能时，还必须定义该功能的架构。' )
 			);
 		}
 
 		if ( 'array' === $args['type'] && ! isset( $args['show_in_rest']['schema']['items'] ) ) {
 			return new GC_Error(
 				'missing_schema_items',
-				__( '如需注册“array”功能，此功能的模式描述必须包含“items”关键字。' )
+				__( '注册“array”功能时，该功能的架构必须包含“items”关键字。' )
 			);
 		}
 
 		if ( 'object' === $args['type'] && ! isset( $args['show_in_rest']['schema']['properties'] ) ) {
 			return new GC_Error(
 				'missing_schema_properties',
-				__( '如需注册“object”功能，此功能的模式描述必须包含“properties”关键字。' )
+				__( '注册“object对象”功能时，该功能的架构必须包含“properties”关键字。' )
 			);
 		}
 	}
@@ -3211,7 +3186,7 @@ function register_theme_feature( $feature, $args = array() ) {
 /**
  * Gets the list of registered theme features.
  *
- *
+ * @since 5.5.0
  *
  * @global array $_gc_registered_theme_features
  *
@@ -3230,7 +3205,7 @@ function get_registered_theme_features() {
 /**
  * Gets the registration config for a theme feature.
  *
- *
+ * @since 5.5.0
  *
  * @global array $_gc_registered_theme_features
  *
@@ -3255,9 +3230,7 @@ function get_registered_theme_feature( $feature ) {
  * attachment.
  *
  * @access private
- *
- *
- *
+ * @since 4.3.0 Also removes `header_image_data`. Also removes custom logo theme mods.
  *
  * @param int $id The attachment ID.
  */
@@ -3287,7 +3260,6 @@ function _delete_attachment_theme_mod( $id ) {
  *
  * See {@see 'after_switch_theme'}.
  *
- *
  */
 function check_theme_switched() {
 	$stylesheet = get_option( 'theme_switched' );
@@ -3304,14 +3276,15 @@ function check_theme_switched() {
 
 		if ( $old_theme->exists() ) {
 			/**
-			 * Fires on the first GC load after a theme switch if the old theme still exists.
+			 * Fires on the next GC load after the theme has been switched.
 			 *
-			 * This action fires multiple times and the parameters differs
-			 * according to the context, if the old theme exists or not.
-			 * If the old theme is missing, the parameter will be the slug
+			 * The parameters differ according to whether the old theme exists or not.
+			 * If the old theme is missing, the old name will instead be the slug
 			 * of the old theme.
 			 *
-		
+			 * See {@see 'switch_theme'}.
+			 *
+			 * @since 3.3.0
 			 *
 			 * @param string   $old_name  Old theme name.
 			 * @param GC_Theme $old_theme GC_Theme instance of the old theme.
@@ -3336,8 +3309,6 @@ function check_theme_switched() {
  * param (a UUID). This param is a signal for whether to bootstrap the Customizer when
  * GeChiUI is loading, especially in the Customizer preview
  * or when making Customizer Ajax requests for widgets or menus.
- *
- *
  *
  * @global GC_Customize_Manager $gc_customize
  */
@@ -3378,12 +3349,16 @@ function _gc_customize_include() {
 	$autosaved         = null;
 	$messenger_channel = null;
 
-	// Value false indicates UUID should be determined after_setup_theme
-	// to either re-use existing saved changeset or else generate a new UUID if none exists.
+	/*
+	 * Value false indicates UUID should be determined after_setup_theme
+	 * to either re-use existing saved changeset or else generate a new UUID if none exists.
+	 */
 	$changeset_uuid = false;
 
-	// Set initially fo false since defaults to true for back-compat;
-	// can be overridden via the customize_changeset_branching filter.
+	/*
+	 * Set initially fo false since defaults to true for back-compat;
+	 * can be overridden via the customize_changeset_branching filter.
+	 */
 	$branching = false;
 
 	if ( $is_customize_admin_page && isset( $input_vars['changeset_uuid'] ) ) {
@@ -3439,7 +3414,6 @@ function _gc_customize_include() {
 /**
  * Publishes a snapshot's changes.
  *
- *
  * @access private
  *
  * @global gcdb                 $gcdb         GeChiUI database abstraction object.
@@ -3491,7 +3465,7 @@ function _gc_customize_publish_changeset( $new_status, $old_status, $changeset_p
 		remove_action( 'customize_register', array( $gc_customize, 'register_controls' ) );
 		$gc_customize->register_controls();
 
-		/** This filter is documented in /gc-includes/class-gc-customize-manager.php */
+		/** This filter is documented in gc-includes/class-gc-customize-manager.php */
 		do_action( 'customize_register', $gc_customize );
 	}
 	$gc_customize->_publish_changeset_values( $changeset_post->ID );
@@ -3516,8 +3490,6 @@ function _gc_customize_publish_changeset( $new_status, $old_status, $changeset_p
  * This is needed to prevent the post_name from being dropped when the post is
  * transitioned into pending status by a contributor.
  *
- *
- *
  * @see gc_insert_post()
  *
  * @param array $post_data          An array of slashed post data.
@@ -3538,12 +3510,11 @@ function _gc_customize_changeset_filter_insert_post_data( $post_data, $supplied_
 /**
  * Adds settings for the customize-loader script.
  *
- *
  */
 function _gc_customize_loader_settings() {
 	$admin_origin = parse_url( admin_url() );
 	$home_origin  = parse_url( home_url() );
-	$cross_domain = ( strtolower( $admin_origin['host'] ) != strtolower( $home_origin['host'] ) );
+	$cross_domain = ( strtolower( $admin_origin['host'] ) !== strtolower( $home_origin['host'] ) );
 
 	$browser = array(
 		'mobile' => gc_is_mobile(),
@@ -3574,8 +3545,6 @@ function _gc_customize_loader_settings() {
 /**
  * Returns a URL to load the Customizer.
  *
- *
- *
  * @param string $stylesheet Optional. Theme to customize. Defaults to active theme.
  *                           The theme's stylesheet will be urlencoded if necessary.
  * @return string
@@ -3600,15 +3569,13 @@ function gc_customize_url( $stylesheet = '' ) {
  *
  * It is also recommended that you add the "no-customize-support" class
  * to the body tag by default.
- *
- *
- *
- *
+ * Support for IE8 and below is explicitly removed via conditional comments.
+ * @since 5.5.0 IE8 and older are no longer supported.
  */
 function gc_customize_support_script() {
 	$admin_origin = parse_url( admin_url() );
 	$home_origin  = parse_url( home_url() );
-	$cross_domain = ( strtolower( $admin_origin['host'] ) != strtolower( $home_origin['host'] ) );
+	$cross_domain = ( strtolower( $admin_origin['host'] ) !== strtolower( $home_origin['host'] ) );
 	$type_attr    = current_theme_supports( 'html5', 'script' ) ? '' : ' type="text/javascript"';
 	?>
 	<script<?php echo $type_attr; ?>>
@@ -3632,7 +3599,7 @@ function gc_customize_support_script() {
 /**
  * Whether the site is being previewed in the Customizer.
  *
- *
+ * @since 4.0.0
  *
  * @global GC_Customize_Manager $gc_customize Customizer instance.
  *
@@ -3662,7 +3629,6 @@ function is_customize_preview() {
  * editing flow in the Customizer. See #39752.
  *
  * @link https://core.trac.gechiui.com/ticket/39752
- *
  *
  * @access private
  * @see gc_delete_auto_drafts()
@@ -3742,7 +3708,8 @@ function _gc_keep_alive_customize_changeset_dependent_auto_drafts( $new_status, 
  *
  * See {@see 'setup_theme'}.
  *
- *
+ * @since 5.5.0
+ * @since 6.0.1 The `block-templates` feature was added.
  */
 function create_initial_theme_features() {
 	register_theme_feature(
@@ -3756,6 +3723,20 @@ function create_initial_theme_features() {
 		'automatic-feed-links',
 		array(
 			'description'  => __( '是否将文章和评论RSS feed链接加入头部。' ),
+			'show_in_rest' => true,
+		)
+	);
+	register_theme_feature(
+		'block-templates',
+		array(
+			'description'  => __( '主题是否使用基于区块的模版。' ),
+			'show_in_rest' => true,
+		)
+	);
+	register_theme_feature(
+		'block-template-parts',
+		array(
+			'description'  => __( '主题是否使用基于区块的模板组件。' ),
 			'show_in_rest' => true,
 		)
 	);
@@ -3938,7 +3919,14 @@ function create_initial_theme_features() {
 	register_theme_feature(
 		'disable-custom-gradients',
 		array(
-			'description'  => __( '主题是否禁用自定义渐变色。' ),
+			'description'  => __( '主题是否禁用自定义梯度。' ),
+			'show_in_rest' => true,
+		)
+	);
+	register_theme_feature(
+		'disable-layout-styles',
+		array(
+			'description'  => __( '主题是否禁用生成的布局样式。' ),
 			'show_in_rest' => true,
 		)
 	);
@@ -3996,7 +3984,7 @@ function create_initial_theme_features() {
 		'editor-gradient-presets',
 		array(
 			'type'         => 'array',
-			'description'  => __( '如果可由主题定义，便自定义预设渐变色。' ),
+			'description'  => __( '如果可由主题定义，便自定义预设梯度。' ),
 			'show_in_rest' => array(
 				'schema' => array(
 					'items' => array(
@@ -4111,7 +4099,7 @@ function create_initial_theme_features() {
 /**
  * Returns whether the active theme is a block-based theme or not.
  *
- *
+ * @since 5.9.0
  *
  * @return boolean Whether the active theme is a block-based theme or not.
  */
@@ -4120,11 +4108,26 @@ function gc_is_block_theme() {
 }
 
 /**
+ * Given an element name, returns a class name.
+ *
+ * Alias of GC_Theme_JSON::get_element_class_name.
+ *
+ * @since 6.1.0
+ *
+ * @param string $element The name of the element.
+ *
+ * @return string The name of the class.
+ */
+function gc_theme_get_element_class_name( $element ) {
+	return GC_Theme_JSON::get_element_class_name( $element );
+}
+
+/**
  * Adds default theme supports for block themes when the 'setup_theme' action fires.
  *
  * See {@see 'setup_theme'}.
  *
- *
+ * @since 5.9.0
  * @access private
  */
 function _add_default_theme_supports() {
@@ -4144,4 +4147,23 @@ function _add_default_theme_supports() {
 	add_theme_support( 'automatic-feed-links' );
 
 	add_filter( 'should_load_separate_core_block_assets', '__return_true' );
+
+	/*
+	 * Remove the Customizer's Menus panel when block theme is active.
+	 */
+	add_filter(
+		'customize_panel_active',
+		static function ( $active, GC_Customize_Panel $panel ) {
+			if (
+				'nav_menus' === $panel->id &&
+				! current_theme_supports( 'menus' ) &&
+				! current_theme_supports( 'widgets' )
+			) {
+				$active = false;
+			}
+			return $active;
+		},
+		10,
+		2
+	);
 }

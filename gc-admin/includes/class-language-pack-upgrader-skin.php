@@ -4,14 +4,11 @@
  *
  * @package GeChiUI
  * @subpackage Upgrader
- *
  */
 
 /**
  * Translation Upgrader Skin for GeChiUI Translation Upgrades.
- *
- *
- *
+ * Moved to its own file from gc-admin/includes/class-gc-upgrader-skins.php.
  *
  * @see GC_Upgrader_Skin
  */
@@ -48,10 +45,11 @@ class Language_Pack_Upgrader_Skin extends GC_Upgrader_Skin {
 		echo '<div class="update-messages lp-show-latest">';
 
 		/* translators: 1: Project name (plugin, theme, or GeChiUI), 2: Language. */
-		printf( '<h2>' . __( '正在更新%1$s（%2$s）的翻译…' ) . '</h2>', $name, $this->language_update->language );
+		printf( '<h2>' . __( '正在更新%1$s（%2$s）的翻译...'  ) . '</h2>', $name, $this->language_update->language );
 	}
 
 	/**
+	 * @since 5.9.0 Renamed `$error` to `$errors` for PHP 8 named parameter support.
 	 *
 	 * @param string|GC_Error $errors Errors.
 	 */
@@ -83,6 +81,7 @@ class Language_Pack_Upgrader_Skin extends GC_Upgrader_Skin {
 		/**
 		 * Filters the list of action links available following a translations update.
 		 *
+		 * @since 3.7.0
 		 *
 		 * @param string[] $update_actions Array of translations update links.
 		 */

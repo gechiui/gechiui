@@ -11,8 +11,6 @@
  *
  * Manipulates `$_POST` directly.
  *
- *
- *
  * @param bool       $update    Whether the post already exists.
  * @param array|null $post_data Optional. The array of post data to process.
  *                              Defaults to the `$_POST` superglobal.
@@ -32,9 +30,9 @@ function _gc_translate_postdata( $update = false, $post_data = null ) {
 
 	if ( $update && ! current_user_can( 'edit_post', $post_data['ID'] ) ) {
 		if ( 'page' === $post_data['post_type'] ) {
-			return new GC_Error( 'edit_others_pages', __( '抱歉，您不能以此用户编辑页面。' ) );
+			return new GC_Error( 'edit_others_pages', __( '很抱歉，您不允许以此用户身份编辑页面。' ) );
 		} else {
-			return new GC_Error( 'edit_others_posts', __( '抱歉，您不能以此用户编辑文章。' ) );
+			return new GC_Error( 'edit_others_posts', __( '很抱歉，您不允许以此用户身份编辑文章。' ) );
 		}
 	} elseif ( ! $update && ! current_user_can( $ptype->cap->create_posts ) ) {
 		if ( 'page' === $post_data['post_type'] ) {
@@ -135,8 +133,10 @@ function _gc_translate_postdata( $update = false, $post_data = null ) {
 
 	$published_statuses = array( 'publish', 'future' );
 
-	// Posts 'submitted for approval' are submitted to $_POST the same as if they were being published.
-	// Change status from 'publish' to 'pending' if user lacks permissions to publish or to resave published posts.
+	/*
+	 * Posts 'submitted for approval' are submitted to $_POST the same as if they were being published.
+	 * Change status from 'publish' to 'pending' if user lacks permissions to publish or to resave published posts.
+	 */
 	if ( isset( $post_data['post_status'] )
 		&& ( in_array( $post_data['post_status'], $published_statuses, true )
 		&& ! current_user_can( $ptype->cap->publish_posts ) )
@@ -167,6 +167,10 @@ function _gc_translate_postdata( $update = false, $post_data = null ) {
 			$post_data['edit_date'] = '1';
 			break;
 		}
+	}
+
+	if ( isset( $post_data['edit_date'] ) && 'false' === $post_data['edit_date'] ) {
+		$post_data['edit_date'] = false;
 	}
 
 	if ( ! empty( $post_data['edit_date'] ) ) {
@@ -207,7 +211,7 @@ function _gc_translate_postdata( $update = false, $post_data = null ) {
 /**
  * Returns only allowed post data fields.
  *
- *
+ * @since 5.0.1
  *
  * @param array|GC_Error|null $post_data The array of post data to process, or an error object.
  *                                       Defaults to the `$_POST` superglobal.
@@ -234,8 +238,6 @@ function _gc_get_allowed_postdata( $post_data = null ) {
  *
  * If post data is not passed, the `$_POST` global variable is used instead.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param array|null $post_data Optional. The array of post data to process.
@@ -252,8 +254,8 @@ function edit_post( $post_data = null ) {
 	// Clear out any data in internal vars.
 	unset( $post_data['filter'] );
 
-	$post_ID = (int) $post_data['post_ID'];
-	$post    = get_post( $post_ID );
+	$post_id = (int) $post_data['post_ID'];
+	$post    = get_post( $post_id );
 
 	$post_data['post_type']      = $post->post_type;
 	$post_data['post_mime_type'] = $post->post_mime_type;
@@ -267,7 +269,7 @@ function edit_post( $post_data = null ) {
 	}
 
 	$ptype = get_post_type_object( $post_data['post_type'] );
-	if ( ! current_user_can( 'edit_post', $post_ID ) ) {
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
 		if ( 'page' === $post_data['post_type'] ) {
 			gc_die( __( '抱歉，您不能编辑此页面。' ) );
 		} else {
@@ -277,7 +279,7 @@ function edit_post( $post_data = null ) {
 
 	if ( post_type_supports( $ptype->name, 'revisions' ) ) {
 		$revisions = gc_get_post_revisions(
-			$post_ID,
+			$post_id,
 			array(
 				'order'          => 'ASC',
 				'posts_per_page' => 1,
@@ -287,7 +289,7 @@ function edit_post( $post_data = null ) {
 
 		// Check if the revisions have been upgraded.
 		if ( $revisions && _gc_get_post_revision_version( $revision ) < 1 ) {
-			_gc_upgrade_revisions_of_post( $post, gc_get_post_revisions( $post_ID ) );
+			_gc_upgrade_revisions_of_post( $post, gc_get_post_revisions( $post_id ) );
 		}
 	}
 
@@ -315,14 +317,14 @@ function edit_post( $post_data = null ) {
 
 	// Post formats.
 	if ( isset( $post_data['post_format'] ) ) {
-		set_post_format( $post_ID, $post_data['post_format'] );
+		set_post_format( $post_id, $post_data['post_format'] );
 	}
 
 	$format_meta_urls = array( 'url', 'link_url', 'quote_source_url' );
 	foreach ( $format_meta_urls as $format_meta_url ) {
 		$keyed = '_format_' . $format_meta_url;
 		if ( isset( $post_data[ $keyed ] ) ) {
-			update_post_meta( $post_ID, $keyed, gc_slash( esc_url_raw( gc_unslash( $post_data[ $keyed ] ) ) ) );
+			update_post_meta( $post_id, $keyed, gc_slash( sanitize_url( gc_unslash( $post_data[ $keyed ] ) ) ) );
 		}
 	}
 
@@ -332,15 +334,15 @@ function edit_post( $post_data = null ) {
 		$keyed = '_format_' . $key;
 		if ( isset( $post_data[ $keyed ] ) ) {
 			if ( current_user_can( 'unfiltered_html' ) ) {
-				update_post_meta( $post_ID, $keyed, $post_data[ $keyed ] );
+				update_post_meta( $post_id, $keyed, $post_data[ $keyed ] );
 			} else {
-				update_post_meta( $post_ID, $keyed, gc_filter_post_kses( $post_data[ $keyed ] ) );
+				update_post_meta( $post_id, $keyed, gc_filter_post_kses( $post_data[ $keyed ] ) );
 			}
 		}
 	}
 
 	if ( 'attachment' === $post_data['post_type'] && preg_match( '#^(audio|video)/#', $post_data['post_mime_type'] ) ) {
-		$id3data = gc_get_attachment_metadata( $post_ID );
+		$id3data = gc_get_attachment_metadata( $post_id );
 		if ( ! is_array( $id3data ) ) {
 			$id3data = array();
 		}
@@ -350,7 +352,7 @@ function edit_post( $post_data = null ) {
 				$id3data[ $key ] = sanitize_text_field( gc_unslash( $post_data[ 'id3_' . $key ] ) );
 			}
 		}
-		gc_update_attachment_metadata( $post_ID, $id3data );
+		gc_update_attachment_metadata( $post_id, $id3data );
 	}
 
 	// Meta stuff.
@@ -360,15 +362,23 @@ function edit_post( $post_data = null ) {
 			if ( ! $meta ) {
 				continue;
 			}
-			if ( $meta->post_id != $post_ID ) {
+
+			if ( $meta->post_id != $post_id ) {
 				continue;
 			}
-			if ( is_protected_meta( $meta->meta_key, 'post' ) || ! current_user_can( 'edit_post_meta', $post_ID, $meta->meta_key ) ) {
+
+			if ( is_protected_meta( $meta->meta_key, 'post' )
+				|| ! current_user_can( 'edit_post_meta', $post_id, $meta->meta_key )
+			) {
 				continue;
 			}
-			if ( is_protected_meta( $value['key'], 'post' ) || ! current_user_can( 'edit_post_meta', $post_ID, $value['key'] ) ) {
+
+			if ( is_protected_meta( $value['key'], 'post' )
+				|| ! current_user_can( 'edit_post_meta', $post_id, $value['key'] )
+			) {
 				continue;
 			}
+
 			update_meta( $key, $value['key'], $value['value'] );
 		}
 	}
@@ -379,12 +389,17 @@ function edit_post( $post_data = null ) {
 			if ( ! $meta ) {
 				continue;
 			}
-			if ( $meta->post_id != $post_ID ) {
+
+			if ( $meta->post_id != $post_id ) {
 				continue;
 			}
-			if ( is_protected_meta( $meta->meta_key, 'post' ) || ! current_user_can( 'delete_post_meta', $post_ID, $meta->meta_key ) ) {
+
+			if ( is_protected_meta( $meta->meta_key, 'post' )
+				|| ! current_user_can( 'delete_post_meta', $post_id, $meta->meta_key )
+			) {
 				continue;
 			}
+
 			delete_meta( $key );
 		}
 	}
@@ -394,15 +409,15 @@ function edit_post( $post_data = null ) {
 		if ( isset( $post_data['_gc_attachment_image_alt'] ) ) {
 			$image_alt = gc_unslash( $post_data['_gc_attachment_image_alt'] );
 
-			if ( get_post_meta( $post_ID, '_gc_attachment_image_alt', true ) !== $image_alt ) {
+			if ( get_post_meta( $post_id, '_gc_attachment_image_alt', true ) !== $image_alt ) {
 				$image_alt = gc_strip_all_tags( $image_alt, true );
 
 				// update_post_meta() expects slashed.
-				update_post_meta( $post_ID, '_gc_attachment_image_alt', gc_slash( $image_alt ) );
+				update_post_meta( $post_id, '_gc_attachment_image_alt', gc_slash( $image_alt ) );
 			}
 		}
 
-		$attachment_data = isset( $post_data['attachments'][ $post_ID ] ) ? $post_data['attachments'][ $post_ID ] : array();
+		$attachment_data = isset( $post_data['attachments'][ $post_id ] ) ? $post_data['attachments'][ $post_id ] : array();
 
 		/** This filter is documented in gc-admin/includes/media.php */
 		$translated = apply_filters( 'attachment_fields_to_save', $translated, $attachment_data );
@@ -419,9 +434,9 @@ function edit_post( $post_data = null ) {
 		}
 	}
 
-	add_meta( $post_ID );
+	add_meta( $post_id );
 
-	update_post_meta( $post_ID, '_edit_last', get_current_user_id() );
+	update_post_meta( $post_id, '_edit_last', get_current_user_id() );
 
 	$success = gc_update_post( $translated );
 
@@ -439,19 +454,19 @@ function edit_post( $post_data = null ) {
 	}
 
 	// Now that we have an ID we can fix any attachment anchor hrefs.
-	_fix_attachment_links( $post_ID );
+	_fix_attachment_links( $post_id );
 
-	gc_set_post_lock( $post_ID );
+	gc_set_post_lock( $post_id );
 
 	if ( current_user_can( $ptype->cap->edit_others_posts ) && current_user_can( $ptype->cap->publish_posts ) ) {
 		if ( ! empty( $post_data['sticky'] ) ) {
-			stick_post( $post_ID );
+			stick_post( $post_id );
 		} else {
-			unstick_post( $post_ID );
+			unstick_post( $post_id );
 		}
 	}
 
-	return $post_ID;
+	return $post_id;
 }
 
 /**
@@ -460,7 +475,7 @@ function edit_post( $post_data = null ) {
  * Updates all bulk edited posts/pages, adding (but not removing) tags and
  * categories. Skips pages when they would be their own parent or child.
  *
- *
+ * @since 2.7.0
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -505,7 +520,7 @@ function bulk_edit_posts( $post_data = null ) {
 		}
 	}
 
-	$post_IDs = array_map( 'intval', (array) $post_data['post'] );
+	$post_ids = array_map( 'intval', (array) $post_data['post'] );
 
 	$reset = array(
 		'post_author',
@@ -542,10 +557,11 @@ function bulk_edit_posts( $post_data = null ) {
 			if ( empty( $terms ) ) {
 				continue;
 			}
+
 			if ( is_taxonomy_hierarchical( $tax_name ) ) {
 				$tax_input[ $tax_name ] = array_map( 'absint', $terms );
 			} else {
-				$comma = _x( '、', 'tag delimiter' );
+				$comma = _x( ',', 'tag delimiter' );
 				if ( ',' !== $comma ) {
 					$terms = str_replace( $comma, ',', $terms );
 				}
@@ -576,29 +592,35 @@ function bulk_edit_posts( $post_data = null ) {
 	$locked           = array();
 	$shared_post_data = $post_data;
 
-	foreach ( $post_IDs as $post_ID ) {
+	foreach ( $post_ids as $post_id ) {
 		// Start with fresh post data with each iteration.
 		$post_data = $shared_post_data;
 
-		$post_type_object = get_post_type_object( get_post_type( $post_ID ) );
+		$post_type_object = get_post_type_object( get_post_type( $post_id ) );
 
 		if ( ! isset( $post_type_object )
-			|| ( isset( $children ) && in_array( $post_ID, $children, true ) )
-			|| ! current_user_can( 'edit_post', $post_ID )
+			|| ( isset( $children ) && in_array( $post_id, $children, true ) )
+			|| ! current_user_can( 'edit_post', $post_id )
 		) {
-			$skipped[] = $post_ID;
+			$skipped[] = $post_id;
 			continue;
 		}
 
-		if ( gc_check_post_lock( $post_ID ) ) {
-			$locked[] = $post_ID;
+		if ( gc_check_post_lock( $post_id ) ) {
+			$locked[] = $post_id;
 			continue;
 		}
 
-		$post      = get_post( $post_ID );
+		$post      = get_post( $post_id );
 		$tax_names = get_object_taxonomies( $post );
+
 		foreach ( $tax_names as $tax_name ) {
 			$taxonomy_obj = get_taxonomy( $tax_name );
+
+			if ( ! $taxonomy_obj->show_in_quick_edit ) {
+				continue;
+			}
+
 			if ( isset( $tax_input[ $tax_name ] ) && current_user_can( $taxonomy_obj->cap->assign_terms ) ) {
 				$new_terms = $tax_input[ $tax_name ];
 			} else {
@@ -606,21 +628,21 @@ function bulk_edit_posts( $post_data = null ) {
 			}
 
 			if ( $taxonomy_obj->hierarchical ) {
-				$current_terms = (array) gc_get_object_terms( $post_ID, $tax_name, array( 'fields' => 'ids' ) );
+				$current_terms = (array) gc_get_object_terms( $post_id, $tax_name, array( 'fields' => 'ids' ) );
 			} else {
-				$current_terms = (array) gc_get_object_terms( $post_ID, $tax_name, array( 'fields' => 'names' ) );
+				$current_terms = (array) gc_get_object_terms( $post_id, $tax_name, array( 'fields' => 'names' ) );
 			}
 
 			$post_data['tax_input'][ $tax_name ] = array_merge( $current_terms, $new_terms );
 		}
 
 		if ( isset( $new_cats ) && in_array( 'category', $tax_names, true ) ) {
-			$cats                       = (array) gc_get_post_categories( $post_ID );
+			$cats                       = (array) gc_get_post_categories( $post_id );
 			$post_data['post_category'] = array_unique( array_merge( $cats, $new_cats ) );
 			unset( $post_data['tax_input']['category'] );
 		}
 
-		$post_data['post_ID']        = $post_ID;
+		$post_data['post_ID']        = $post_id;
 		$post_data['post_type']      = $post->post_type;
 		$post_data['post_mime_type'] = $post->post_mime_type;
 
@@ -632,17 +654,26 @@ function bulk_edit_posts( $post_data = null ) {
 
 		$post_data = _gc_translate_postdata( true, $post_data );
 		if ( is_gc_error( $post_data ) ) {
-			$skipped[] = $post_ID;
+			$skipped[] = $post_id;
 			continue;
 		}
 		$post_data = _gc_get_allowed_postdata( $post_data );
 
 		if ( isset( $shared_post_data['post_format'] ) ) {
-			set_post_format( $post_ID, $shared_post_data['post_format'] );
+			set_post_format( $post_id, $shared_post_data['post_format'] );
 		}
 
 		// Prevent gc_insert_post() from overwriting post format with the old data.
 		unset( $post_data['tax_input']['post_format'] );
+
+		// Reset post date of scheduled post to be published.
+		if (
+			in_array( $post->post_status, array( 'future', 'draft' ), true ) &&
+			'publish' === $post_data['post_status']
+		) {
+			$post_data['post_date']     = current_time( 'mysql' );
+			$post_data['post_date_gmt'] = '';
+		}
 
 		$post_id = gc_update_post( $post_data );
 		update_post_meta( $post_id, '_edit_last', get_current_user_id() );
@@ -650,12 +681,22 @@ function bulk_edit_posts( $post_data = null ) {
 
 		if ( isset( $post_data['sticky'] ) && current_user_can( $ptype->cap->edit_others_posts ) ) {
 			if ( 'sticky' === $post_data['sticky'] ) {
-				stick_post( $post_ID );
+				stick_post( $post_id );
 			} else {
-				unstick_post( $post_ID );
+				unstick_post( $post_id );
 			}
 		}
 	}
+
+	/**
+	 * Fires after processing the post data for bulk edit.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @param int[] $updated          An array of updated post IDs.
+	 * @param array $shared_post_data Associative array containing the post data.
+	 */
+	do_action( 'bulk_edit_posts', $updated, $shared_post_data );
 
 	return array(
 		'updated' => $updated,
@@ -666,8 +707,6 @@ function bulk_edit_posts( $post_data = null ) {
 
 /**
  * Returns default post information to use when populating the "Write Post" form.
- *
- *
  *
  * @param string $post_type    Optional. A post type string. Default 'post'.
  * @param bool   $create_in_db Optional. Whether to insert the post into database. Default false.
@@ -710,7 +749,7 @@ function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) 
 			gc_schedule_event( time(), 'daily', 'gc_scheduled_auto_draft_delete' );
 		}
 	} else {
-		$post                 = new stdClass;
+		$post                 = new stdClass();
 		$post->ID             = 0;
 		$post->post_author    = '';
 		$post->post_date      = '';
@@ -734,6 +773,7 @@ function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) 
 	/**
 	 * Filters the default post content initially used in the "Write Post" form.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string  $post_content Default post content.
 	 * @param GC_Post $post         Post object.
@@ -743,6 +783,7 @@ function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) 
 	/**
 	 * Filters the default post title initially used in the "Write Post" form.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string  $post_title Default post title.
 	 * @param GC_Post $post       Post object.
@@ -752,6 +793,7 @@ function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) 
 	/**
 	 * Filters the default post excerpt initially used in the "Write Post" form.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string  $post_excerpt Default post excerpt.
 	 * @param GC_Post $post         Post object.
@@ -764,9 +806,8 @@ function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) 
 /**
  * Determines if a post exists based on title, content, date and type.
  *
- *
- *
- *
+ * @since 5.2.0 Added the `$type` parameter.
+ * @since 5.8.0 Added the `$status` parameter.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -824,8 +865,6 @@ function post_exists( $title, $content = '', $date = '', $type = '', $status = '
 /**
  * Creates a new post from the "Write Post" form using `$_POST` information.
  *
- *
- *
  * @global GC_User $current_user
  *
  * @return int|GC_Error Post ID on success, GC_Error on failure.
@@ -839,9 +878,9 @@ function gc_write_post() {
 
 	if ( ! current_user_can( $ptype->cap->edit_posts ) ) {
 		if ( 'page' === $ptype->name ) {
-			return new GC_Error( 'edit_pages', __( '抱歉，您不能在此站点上创建页面。' ) );
+			return new GC_Error( 'edit_pages', __( '抱歉，您不能在此系统上创建页面。' ) );
 		} else {
-			return new GC_Error( 'edit_posts', __( '抱歉，您不能在此站点上创建文章或草稿。' ) );
+			return new GC_Error( 'edit_posts', __( '抱歉，您不能在此系统上创建文章或草稿。' ) );
 		}
 	}
 
@@ -878,31 +917,29 @@ function gc_write_post() {
 	$translated = _gc_get_allowed_postdata( $translated );
 
 	// Create the post.
-	$post_ID = gc_insert_post( $translated );
-	if ( is_gc_error( $post_ID ) ) {
-		return $post_ID;
+	$post_id = gc_insert_post( $translated );
+	if ( is_gc_error( $post_id ) ) {
+		return $post_id;
 	}
 
-	if ( empty( $post_ID ) ) {
+	if ( empty( $post_id ) ) {
 		return 0;
 	}
 
-	add_meta( $post_ID );
+	add_meta( $post_id );
 
-	add_post_meta( $post_ID, '_edit_last', $GLOBALS['current_user']->ID );
+	add_post_meta( $post_id, '_edit_last', $GLOBALS['current_user']->ID );
 
 	// Now that we have an ID we can fix any attachment anchor hrefs.
-	_fix_attachment_links( $post_ID );
+	_fix_attachment_links( $post_id );
 
-	gc_set_post_lock( $post_ID );
+	gc_set_post_lock( $post_id );
 
-	return $post_ID;
+	return $post_id;
 }
 
 /**
  * Calls gc_write_post() and handles the errors.
- *
- *
  *
  * @return int|void Post ID on success, void on failure.
  */
@@ -922,13 +959,11 @@ function write_post() {
 /**
  * Adds post meta data defined in the `$_POST` superglobal for a post with given ID.
  *
- *
- *
- * @param int $post_ID
+ * @param int $post_id
  * @return int|bool
  */
-function add_meta( $post_ID ) {
-	$post_ID = (int) $post_ID;
+function add_meta( $post_id ) {
+	$post_id = (int) $post_id;
 
 	$metakeyselect = isset( $_POST['metakeyselect'] ) ? gc_unslash( trim( $_POST['metakeyselect'] ) ) : '';
 	$metakeyinput  = isset( $_POST['metakeyinput'] ) ? gc_unslash( trim( $_POST['metakeyinput'] ) ) : '';
@@ -950,13 +985,13 @@ function add_meta( $post_ID ) {
 			$metakey = $metakeyinput; // Default.
 		}
 
-		if ( is_protected_meta( $metakey, 'post' ) || ! current_user_can( 'add_post_meta', $post_ID, $metakey ) ) {
+		if ( is_protected_meta( $metakey, 'post' ) || ! current_user_can( 'add_post_meta', $post_id, $metakey ) ) {
 			return false;
 		}
 
 		$metakey = gc_slash( $metakey );
 
-		return add_post_meta( $post_ID, $metakey, $metavalue );
+		return add_post_meta( $post_id, $metakey, $metavalue );
 	}
 
 	return false;
@@ -964,8 +999,6 @@ function add_meta( $post_ID ) {
 
 /**
  * Deletes post meta data by meta ID.
- *
- *
  *
  * @param int $mid
  * @return bool
@@ -977,8 +1010,6 @@ function delete_meta( $mid ) {
 /**
  * Returns a list of previously defined keys.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @return string[] Array of meta key names.
@@ -987,11 +1018,10 @@ function get_meta_keys() {
 	global $gcdb;
 
 	$keys = $gcdb->get_col(
-		"
-			SELECT meta_key
-			FROM $gcdb->postmeta
-			GROUP BY meta_key
-			ORDER BY meta_key"
+		"SELECT meta_key
+		FROM $gcdb->postmeta
+		GROUP BY meta_key
+		ORDER BY meta_key"
 	);
 
 	return $keys;
@@ -999,8 +1029,6 @@ function get_meta_keys() {
 
 /**
  * Returns post meta data by meta ID.
- *
- *
  *
  * @param int $mid
  * @return object|bool
@@ -1011,8 +1039,6 @@ function get_post_meta_by_id( $mid ) {
 
 /**
  * Returns meta data for the given post ID.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -1047,8 +1073,6 @@ function has_meta( $postid ) {
 /**
  * Updates post meta data by meta ID.
  *
- *
- *
  * @param int    $meta_id    Meta ID.
  * @param string $meta_key   Meta key. Expect slashed.
  * @param string $meta_value Meta value. Expect slashed.
@@ -1066,8 +1090,7 @@ function update_meta( $meta_id, $meta_key, $meta_value ) {
 //
 
 /**
- * Replace hrefs of attachment anchors with up-to-date permalinks.
- *
+ * Replaces hrefs of attachment anchors with up-to-date permalinks.
  *
  * @access private
  *
@@ -1103,7 +1126,7 @@ function _fix_attachment_links( $post ) {
 		$url_id = (int) $url_match[2];
 		$rel_id = (int) $rel_match[1];
 
-		if ( ! $url_id || ! $rel_id || $url_id != $rel_id || strpos( $url_match[0], $site_url ) === false ) {
+		if ( ! $url_id || ! $rel_id || $url_id != $rel_id || ! str_contains( $url_match[0], $site_url ) ) {
 			continue;
 		}
 
@@ -1125,8 +1148,6 @@ function _fix_attachment_links( $post ) {
 /**
  * Returns all the possible statuses for a post type.
  *
- *
- *
  * @param string $type The post_type you want the statuses for. Default 'post'.
  * @return string[] An array of all the statuses for the supplied post type.
  */
@@ -1138,8 +1159,6 @@ function get_available_post_statuses( $type = 'post' ) {
 
 /**
  * Runs the query to fetch the posts for listing on the edit posts page.
- *
- *
  *
  * @param array|false $q Optional. Array of query variables to use to build the query.
  *                       Defaults to the `$_GET` superglobal.
@@ -1239,8 +1258,6 @@ function gc_edit_posts_query( $q = false ) {
 /**
  * Returns the query variables for the current attachments request.
  *
- *
- *
  * @param array|false $q Optional. Array of query variables to use to build the query.
  *                       Defaults to the `$_GET` superglobal.
  * @return array The parsed query vars.
@@ -1269,6 +1286,7 @@ function gc_edit_attachments_query_vars( $q = false ) {
 	/**
 	 * Filters the number of items to list per page when listing media items.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param int $media_per_page Number of media to list. Default 20.
 	 */
@@ -1296,7 +1314,7 @@ function gc_edit_attachments_query_vars( $q = false ) {
 
 	// Filter query clauses to include filenames.
 	if ( isset( $q['s'] ) ) {
-		add_filter( 'posts_clauses', '_filter_query_attachment_filenames' );
+		add_filter( 'gc_allow_query_attachment_by_filename', '__return_true' );
 	}
 
 	return $q;
@@ -1305,8 +1323,6 @@ function gc_edit_attachments_query_vars( $q = false ) {
 /**
  * Executes a query for attachments. An array of GC_Query arguments
  * can be passed in, which will override the arguments set by this function.
- *
- *
  *
  * @param array|false $q Optional. Array of query variables to use to build the query.
  *                       Defaults to the `$_GET` superglobal.
@@ -1323,8 +1339,6 @@ function gc_edit_attachments_query( $q = false ) {
 
 /**
  * Returns the list of classes to be used by a meta box.
- *
- *
  *
  * @param string $box_id    Meta box ID (used in the 'id' attribute for the meta box).
  * @param string $screen_id The screen on which the meta box is shown.
@@ -1350,19 +1364,19 @@ function postbox_classes( $box_id, $screen_id ) {
 	 * The dynamic portions of the hook name, `$screen_id` and `$box_id`, refer to
 	 * the screen ID and meta box ID, respectively.
 	 *
+	 * @since 3.2.0
 	 *
 	 * @param string[] $classes An array of postbox classes.
 	 */
 	$classes = apply_filters( "postbox_classes_{$screen_id}_{$box_id}", $classes );
+
 	return implode( ' ', $classes );
 }
 
 /**
  * Returns a sample permalink based on the post name.
  *
- *
- *
- * @param int|GC_Post $id    Post ID or post object.
+ * @param int|GC_Post $post  Post ID or post object.
  * @param string|null $title Optional. Title to override the post's current title
  *                           when generating the post name. Default null.
  * @param string|null $name  Optional. Name to override the post name. Default null.
@@ -1373,8 +1387,9 @@ function postbox_classes( $box_id, $screen_id ) {
  *     @type string $1 The post name.
  * }
  */
-function get_sample_permalink( $id, $title = null, $name = null ) {
-	$post = get_post( $id );
+function get_sample_permalink( $post, $title = null, $name = null ) {
+	$post = get_post( $post );
+
 	if ( ! $post ) {
 		return array( '', '' );
 	}
@@ -1384,6 +1399,7 @@ function get_sample_permalink( $id, $title = null, $name = null ) {
 	$original_status = $post->post_status;
 	$original_date   = $post->post_date;
 	$original_name   = $post->post_name;
+	$original_filter = $post->filter;
 
 	// Hack: get_permalink() would return plain permalink for drafts, so we will fake that our post is published.
 	if ( in_array( $post->post_status, array( 'draft', 'pending', 'future' ), true ) ) {
@@ -1391,8 +1407,10 @@ function get_sample_permalink( $id, $title = null, $name = null ) {
 		$post->post_name   = sanitize_title( $post->post_name ? $post->post_name : $post->post_title, $post->ID );
 	}
 
-	// If the user wants to set a new name -- override the current one.
-	// Note: if empty name is supplied -- use the title instead, see #6072.
+	/*
+	 * If the user wants to set a new name -- override the current one.
+	 * Note: if empty name is supplied -- use the title instead, see #6072.
+	 */
 	if ( ! is_null( $name ) ) {
 		$post->post_name = sanitize_title( $name ? $name : $title, $post->ID );
 	}
@@ -1428,11 +1446,12 @@ function get_sample_permalink( $id, $title = null, $name = null ) {
 	$post->post_status = $original_status;
 	$post->post_date   = $original_date;
 	$post->post_name   = $original_name;
-	unset( $post->filter );
+	$post->filter      = $original_filter;
 
 	/**
 	 * Filters the sample permalink.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array   $permalink {
 	 *     Array containing the sample permalink with placeholder for the post name, and the post name.
@@ -1451,15 +1470,14 @@ function get_sample_permalink( $id, $title = null, $name = null ) {
 /**
  * Returns the HTML of the sample permalink slug editor.
  *
- *
- *
- * @param int|GC_Post $id        Post ID or post object.
+ * @param int|GC_Post $post      Post ID or post object.
  * @param string|null $new_title Optional. New title. Default null.
  * @param string|null $new_slug  Optional. New slug. Default null.
  * @return string The HTML of the sample permalink slug editor.
  */
-function get_sample_permalink_html( $id, $new_title = null, $new_slug = null ) {
-	$post = get_post( $id );
+function get_sample_permalink_html( $post, $new_title = null, $new_slug = null ) {
+	$post = get_post( $post );
+
 	if ( ! $post ) {
 		return '';
 	}
@@ -1484,7 +1502,7 @@ function get_sample_permalink_html( $id, $new_title = null, $new_slug = null ) {
 	}
 
 	// Permalinks without a post/page name placeholder don't have anything to edit.
-	if ( false === strpos( $permalink, '%postname%' ) && false === strpos( $permalink, '%pagename%' ) ) {
+	if ( ! str_contains( $permalink, '%postname%' ) && ! str_contains( $permalink, '%pagename%' ) ) {
 		$return = '<strong>' . __( '固定链接：' ) . "</strong>\n";
 
 		if ( false !== $view_link ) {
@@ -1496,9 +1514,9 @@ function get_sample_permalink_html( $id, $new_title = null, $new_slug = null ) {
 
 		// Encourage a pretty permalink setting.
 		if ( ! get_option( 'permalink_structure' ) && current_user_can( 'manage_options' )
-			&& ! ( 'page' === get_option( 'show_on_front' ) && get_option( 'page_on_front' ) == $id )
+			&& ! ( 'page' === get_option( 'show_on_front' ) && get_option( 'page_on_front' ) == $post->ID )
 		) {
-			$return .= '<span id="change-permalinks"><a href="options-permalink.php" class="button button-small" target="_blank">' . __( '修改固定链接' ) . "</a></span>\n";
+			$return .= '<span id="change-permalinks"><a href="options-permalink.php" class="button button-small">' . __( '变更固定链接结构' ) . "</a></span>\n";
 		}
 	} else {
 		if ( mb_strlen( $post_name ) > 34 ) {
@@ -1520,12 +1538,14 @@ function get_sample_permalink_html( $id, $new_title = null, $new_slug = null ) {
 	/**
 	 * Filters the sample permalink HTML markup.
 	 *
+	 * @since 2.9.0
+	 * @since 4.4.0 Added `$post` parameter.
 	 *
-	 * @param string  $return    Sample permalink HTML markup.
-	 * @param int     $post_id   Post ID.
-	 * @param string  $new_title New sample permalink title.
-	 * @param string  $new_slug  New sample permalink slug.
-	 * @param GC_Post $post      Post object.
+	 * @param string      $return    Sample permalink HTML markup.
+	 * @param int         $post_id   Post ID.
+	 * @param string|null $new_title New sample permalink title.
+	 * @param string|null $new_slug  New sample permalink slug.
+	 * @param GC_Post     $post      Post object.
 	 */
 	$return = apply_filters( 'get_sample_permalink_html', $return, $post->ID, $new_title, $new_slug, $post );
 
@@ -1534,8 +1554,6 @@ function get_sample_permalink_html( $id, $new_title = null, $new_slug = null ) {
 
 /**
  * Returns HTML for the post thumbnail meta box.
- *
- *
  *
  * @param int|null         $thumbnail_id Optional. Thumbnail attachment ID. Default null.
  * @param int|GC_Post|null $post         Optional. The post ID or object associated
@@ -1567,6 +1585,7 @@ function _gc_post_thumbnail_html( $thumbnail_id = null, $post = null ) {
 		 * image size is registered, which differs from the 'thumbnail' image size
 		 * managed via the Settings > Media screen.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param string|int[] $size         Requested image size. Can be any registered image size name, or
 		 *                                   an array of width and height values in pixels (in that order).
@@ -1594,6 +1613,9 @@ function _gc_post_thumbnail_html( $thumbnail_id = null, $post = null ) {
 	/**
 	 * Filters the admin post thumbnail HTML markup to return.
 	 *
+	 * @since 2.9.0
+	 * @since 3.5.0 Added the `$post_id` parameter.
+	 * @since 4.6.0 Added the `$thumbnail_id` parameter.
 	 *
 	 * @param string   $content      Admin post thumbnail HTML markup.
 	 * @param int      $post_id      Post ID.
@@ -1605,19 +1627,19 @@ function _gc_post_thumbnail_html( $thumbnail_id = null, $post = null ) {
 /**
  * Determines whether the post is currently being edited by another user.
  *
- *
- *
- * @param int|GC_Post $post_id ID or object of the post to check for editing.
+ * @param int|GC_Post $post ID or object of the post to check for editing.
  * @return int|false ID of the user with lock. False if the post does not exist, post is not locked,
  *                   the user with lock does not exist, or the post is locked by current user.
  */
-function gc_check_post_lock( $post_id ) {
-	$post = get_post( $post_id );
+function gc_check_post_lock( $post ) {
+	$post = get_post( $post );
+
 	if ( ! $post ) {
 		return false;
 	}
 
 	$lock = get_post_meta( $post->ID, '_edit_lock', true );
+
 	if ( ! $lock ) {
 		return false;
 	}
@@ -1643,19 +1665,24 @@ function gc_check_post_lock( $post_id ) {
 /**
  * Marks the post as currently being edited by the current user.
  *
+ * @param int|GC_Post $post ID or object of the post being edited.
+ * @return array|false {
+ *     Array of the lock time and user ID. False if the post does not exist, or there
+ *     is no current user.
  *
- *
- * @param int|GC_Post $post_id ID or object of the post being edited.
- * @return array|false Array of the lock time and user ID. False if the post does not exist, or
- *                     there is no current user.
+ *     @type int $0 The current time as a Unix timestamp.
+ *     @type int $1 The ID of the current user.
+ * }
  */
-function gc_set_post_lock( $post_id ) {
-	$post = get_post( $post_id );
+function gc_set_post_lock( $post ) {
+	$post = get_post( $post );
+
 	if ( ! $post ) {
 		return false;
 	}
 
 	$user_id = get_current_user_id();
+
 	if ( 0 == $user_id ) {
 		return false;
 	}
@@ -1671,16 +1698,18 @@ function gc_set_post_lock( $post_id ) {
 /**
  * Outputs the HTML for the notice to say that someone else is editing or has taken over editing of this post.
  *
- *
+ * @since 2.8.5
  */
 function _admin_notice_post_locked() {
 	$post = get_post();
+
 	if ( ! $post ) {
 		return;
 	}
 
 	$user    = null;
 	$user_id = gc_check_post_lock( $post->ID );
+
 	if ( $user_id ) {
 		$user = get_userdata( $user_id );
 	}
@@ -1691,6 +1720,7 @@ function _admin_notice_post_locked() {
 		 *
 		 * Returning false from the filter will prevent the dialog from being displayed.
 		 *
+		 * @since 3.6.0
 		 *
 		 * @param bool    $display Whether to display the dialog. Default true.
 		 * @param GC_Post $post    Post object.
@@ -1706,7 +1736,7 @@ function _admin_notice_post_locked() {
 	}
 
 	$sendback = gc_get_referer();
-	if ( $locked && $sendback && false === strpos( $sendback, 'post.php' ) && false === strpos( $sendback, 'post-new.php' ) ) {
+	if ( $locked && $sendback && ! str_contains( $sendback, 'post.php' ) && ! str_contains( $sendback, 'post-new.php' ) ) {
 
 		$sendback_text = __( '返回' );
 	} else {
@@ -1746,6 +1776,7 @@ function _admin_notice_post_locked() {
 		 * Returning false from the filter will disable the ability
 		 * to override the post lock.
 		 *
+		 * @since 3.6.0
 		 *
 		 * @param bool    $override Whether to allow the post lock to be overridden. Default true.
 		 * @param GC_Post $post     Post object.
@@ -1772,6 +1803,8 @@ function _admin_notice_post_locked() {
 		/**
 		 * Fires inside the post locked dialog before the buttons are displayed.
 		 *
+		 * @since 3.6.0
+		 * @since 5.4.0 The $user parameter was added.
 		 *
 		 * @param GC_Post $post Post object.
 		 * @param GC_User $user The user with the lock for the post.
@@ -1779,16 +1812,16 @@ function _admin_notice_post_locked() {
 		do_action( 'post_locked_dialog', $post, $user );
 		?>
 		<p>
-		<a class="button" href="<?php echo esc_url( $sendback ); ?>"><?php echo $sendback_text; ?></a>
+		<a class="btn btn-primary btn-tone btn-sm" href="<?php echo esc_url( $sendback ); ?>"><?php echo $sendback_text; ?></a>
 		<?php if ( $preview_link ) { ?>
-		<a class="button<?php echo $tab_last; ?>" href="<?php echo esc_url( $preview_link ); ?>"><?php _e( '预览' ); ?></a>
+		<a class="btn btn-primary btn-tone btn-sm<?php echo $tab_last; ?>" href="<?php echo esc_url( $preview_link ); ?>"><?php _e( '预览' ); ?></a>
 			<?php
 		}
 
 		// Allow plugins to prevent some users overriding the post lock.
 		if ( $override ) {
 			?>
-	<a class="button button-primary gc-tab-last" href="<?php echo esc_url( add_query_arg( 'get-post-lock', '1', gc_nonce_url( get_edit_post_link( $post->ID, 'url' ), 'lock-post_' . $post->ID ) ) ); ?>"><?php _e( '接管' ); ?></a>
+	<a class="btn btn-primary gc-tab-last" href="<?php echo esc_url( add_query_arg( 'get-post-lock', '1', gc_nonce_url( get_edit_post_link( $post->ID, 'url' ), 'lock-post_' . $post->ID ) ) ); ?>"><?php _e( '接管' ); ?></a>
 			<?php
 		}
 
@@ -1802,20 +1835,20 @@ function _admin_notice_post_locked() {
 			<div class="post-locked-avatar"></div>
 			<p class="gc-tab-first" tabindex="0">
 			<span class="currently-editing"></span><br />
-			<span class="locked-saving hidden"><img src="<?php echo esc_url( assets_url( '/images/spinner-2x.gif' ) ); ?>" width="16" height="16" alt="" /> <?php _e( '保存修订版本…' ); ?></span>
+			<span class="locked-saving hidden"><img src="<?php echo esc_url( assets_url( 'images/spinner-2x.gif' ) ); ?>" width="16" height="16" alt="" /> <?php _e( '保存修订版本...'  ); ?></span>
 			<span class="locked-saved hidden"><?php _e( '您最近的更改已保存为修订版本。' ); ?></span>
 			</p>
 			<?php
 			/**
 			 * Fires inside the dialog displayed when a user has lost the post lock.
 			 *
-		
+			 * @since 3.6.0
 			 *
 			 * @param GC_Post $post Post object.
 			 */
 			do_action( 'post_lock_lost_dialog', $post );
 			?>
-			<p><a class="button button-primary gc-tab-last" href="<?php echo esc_url( $sendback ); ?>"><?php echo $sendback_text; ?></a></p>
+			<p><a class="btn btn-primary gc-tab-last" href="<?php echo esc_url( $sendback ); ?>"><?php echo $sendback_text; ?></a></p>
 		</div>
 		<?php
 	}
@@ -1828,8 +1861,6 @@ function _admin_notice_post_locked() {
 
 /**
  * Creates autosave data for the specified post from `$_POST` data.
- *
- *
  *
  * @param array|int $post_data Associative array containing the post data, or integer post ID.
  *                             If a numeric post ID is provided, will use the `$_POST` superglobal.
@@ -1877,6 +1908,7 @@ function gc_create_post_autosave( $post_data ) {
 		/**
 		 * Fires before an autosave is stored.
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param array $new_autosave Post array - the autosave that is about to be saved.
 		 */
@@ -1895,16 +1927,17 @@ function gc_create_post_autosave( $post_data ) {
 /**
  * Saves a draft or manually autosaves for the purpose of showing a post preview.
  *
- *
+ * @since 2.7.0
  *
  * @return string URL to redirect to show the preview.
  */
 function post_preview() {
 
-	$post_ID     = (int) $_POST['post_ID'];
-	$_POST['ID'] = $post_ID;
+	$post_id     = (int) $_POST['post_ID'];
+	$_POST['ID'] = $post_id;
 
-	$post = get_post( $post_ID );
+	$post = get_post( $post_id );
+
 	if ( ! $post ) {
 		gc_die( __( '抱歉，您不能修改这篇文章。' ) );
 	}
@@ -1956,7 +1989,7 @@ function post_preview() {
  *
  * Intended for use with heartbeat and autosave.js
  *
- *
+ * @since 3.9.0
  *
  * @param array $post_data Associative array of the submitted post data.
  * @return mixed The value 0 or GC_Error on failure. The saved post ID on success.
@@ -1996,8 +2029,10 @@ function gc_autosave( $post_data ) {
 		// Drafts and auto-drafts are just overwritten by autosave for the same user if the post is not locked.
 		return edit_post( gc_slash( $post_data ) );
 	} else {
-		// Non-drafts or other users' drafts are not overwritten.
-		// The autosave is stored in a special post revision for each user.
+		/*
+		 * Non-drafts or other users' drafts are not overwritten.
+		 * The autosave is stored in a special post revision for each user.
+		 */
 		return gc_create_post_autosave( gc_slash( $post_data ) );
 	}
 }
@@ -2005,7 +2040,7 @@ function gc_autosave( $post_data ) {
 /**
  * Redirects to previous page.
  *
- *
+ * @since 2.7.0
  *
  * @param int $post_id Optional. Post ID.
  */
@@ -2044,6 +2079,7 @@ function redirect_post( $post_id = '' ) {
 	/**
 	 * Filters the post redirect destination URL.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param string $location The destination URL.
 	 * @param int    $post_id  The post ID.
@@ -2055,7 +2091,7 @@ function redirect_post( $post_id = '' ) {
 /**
  * Sanitizes POST values from a checkbox taxonomy metabox.
  *
- *
+ * @since 5.1.0
  *
  * @param string $taxonomy The taxonomy name.
  * @param array  $terms    Raw term data from the 'tax_input' field.
@@ -2068,7 +2104,7 @@ function taxonomy_meta_box_sanitize_cb_checkboxes( $taxonomy, $terms ) {
 /**
  * Sanitizes POST values from an input taxonomy metabox.
  *
- *
+ * @since 5.1.0
  *
  * @param string       $taxonomy The taxonomy name.
  * @param array|string $terms    Raw term data from the 'tax_input' field.
@@ -2081,7 +2117,7 @@ function taxonomy_meta_box_sanitize_cb_input( $taxonomy, $terms ) {
 	 * commas before parsing the list.
 	 */
 	if ( ! is_array( $terms ) ) {
-		$comma = _x( '、', 'tag delimiter' );
+		$comma = _x( ',', 'tag delimiter' );
 		if ( ',' !== $comma ) {
 			$terms = str_replace( $comma, ',', $terms );
 		}
@@ -2116,80 +2152,13 @@ function taxonomy_meta_box_sanitize_cb_input( $taxonomy, $terms ) {
 }
 
 /**
- * Returns whether the post can be edited in the block editor.
- *
- *
- *
- * @param int|GC_Post $post Post ID or GC_Post object.
- * @return bool Whether the post can be edited in the block editor.
- */
-function use_block_editor_for_post( $post ) {
-	$post = get_post( $post );
-
-	if ( ! $post ) {
-		return false;
-	}
-
-	// We're in the meta box loader, so don't use the block editor.
-	if ( isset( $_GET['meta-box-loader'] ) ) {
-		check_admin_referer( 'meta-box-loader', 'meta-box-loader-nonce' );
-		return false;
-	}
-
-	$use_block_editor = use_block_editor_for_post_type( $post->post_type );
-
-	/**
-	 * Filters whether a post is able to be edited in the block editor.
-	 *
-	 *
-	 * @param bool    $use_block_editor Whether the post can be edited or not.
-	 * @param GC_Post $post             The post being checked.
-	 */
-	return apply_filters( 'use_block_editor_for_post', $use_block_editor, $post );
-}
-
-/**
- * Returns whether a post type is compatible with the block editor.
- *
- * The block editor depends on the REST API, and if the post type is not shown in the
- * REST API, then it won't work with the block editor.
- *
- *
- *
- * @param string $post_type The post type.
- * @return bool Whether the post type can be edited with the block editor.
- */
-function use_block_editor_for_post_type( $post_type ) {
-	if ( ! post_type_exists( $post_type ) ) {
-		return false;
-	}
-
-	if ( ! post_type_supports( $post_type, 'editor' ) ) {
-		return false;
-	}
-
-	$post_type_object = get_post_type_object( $post_type );
-	if ( $post_type_object && ! $post_type_object->show_in_rest ) {
-		return false;
-	}
-
-	/**
-	 * Filters whether a post is able to be edited in the block editor.
-	 *
-	 *
-	 * @param bool   $use_block_editor  Whether the post type can be edited or not. Default true.
-	 * @param string $post_type         The post type being checked.
-	 */
-	return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
-}
-
-/**
  * Prepares server-registered blocks for the block editor.
  *
  * Returns an associative array of registered block data keyed by block name. Data includes properties
  * of a block relevant for client registration.
  *
- *
+ * @since 5.0.0
+ * @since 6.3.0 Added `selectors` field.
  *
  * @return array An associative array of registered block data.
  */
@@ -2204,11 +2173,13 @@ function get_block_editor_server_block_settings() {
 		'attributes'       => 'attributes',
 		'provides_context' => 'providesContext',
 		'uses_context'     => 'usesContext',
+		'selectors'        => 'selectors',
 		'supports'         => 'supports',
 		'category'         => 'category',
 		'styles'           => 'styles',
 		'textdomain'       => 'textdomain',
 		'parent'           => 'parent',
+		'ancestor'         => 'ancestor',
 		'keywords'         => 'keywords',
 		'example'          => 'example',
 		'variations'       => 'variations',
@@ -2234,7 +2205,11 @@ function get_block_editor_server_block_settings() {
 /**
  * Renders the meta boxes forms.
  *
+ * @since 5.0.0
  *
+ * @global GC_Post   $post           Global post object.
+ * @global GC_Screen $current_screen GeChiUI current screen object.
+ * @global array     $gc_meta_boxes
  */
 function the_block_editor_meta_boxes() {
 	global $post, $current_screen, $gc_meta_boxes;
@@ -2248,6 +2223,7 @@ function the_block_editor_meta_boxes() {
 	 * This allows for the filtering of meta box data, that should already be
 	 * present by this point. Do not use as a means of adding meta box data.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param array $gc_meta_boxes Global meta box state.
 	 */
@@ -2313,12 +2289,12 @@ function the_block_editor_meta_boxes() {
 		}
 	}
 
-	/**
-	 * Sadly we probably can not add this data directly into editor settings.
+	/*
+	 * Sadly we probably cannot add this data directly into editor settings.
 	 *
-	 * Some meta boxes need admin_head to fire for meta box registry.
-	 * admin_head fires after admin_enqueue_scripts, which is where we create our
-	 * editor instance.
+	 * Some meta boxes need `admin_head` to fire for meta box registry.
+	 * `admin_head` fires after `admin_enqueue_scripts`, which is where we create
+	 * our editor instance.
 	 */
 	$script = 'window._gcLoadBlockEditor.then( function() {
 		gc.data.dispatch( \'core/edit-post\' ).setAvailableMetaBoxesPerLocation( ' . gc_json_encode( $meta_boxes_per_location ) . ' );
@@ -2326,19 +2302,21 @@ function the_block_editor_meta_boxes() {
 
 	gc_add_inline_script( 'gc-edit-post', $script );
 
-	/**
-	 * When `gc-edit-post` is output in the `<head>`, the inline script needs to be manually printed. Otherwise,
-	 * meta boxes will not display because inline scripts for `gc-edit-post` will not be printed again after this point.
+	/*
+	 * When `gc-edit-post` is output in the `<head>`, the inline script needs to be manually printed.
+	 * Otherwise, meta boxes will not display because inline scripts for `gc-edit-post`
+	 * will not be printed again after this point.
 	 */
 	if ( gc_script_is( 'gc-edit-post', 'done' ) ) {
 		printf( "<script type='text/javascript'>\n%s\n</script>\n", trim( $script ) );
 	}
 
-	/**
-	 * If the 'postcustom' meta box is enabled, then we need to perform some
-	 * extra initialization on it.
+	/*
+	 * If the 'postcustom' meta box is enabled, then we need to perform
+	 * some extra initialization on it.
 	 */
 	$enable_custom_fields = (bool) get_user_meta( get_current_user_id(), 'enable_custom_fields', true );
+
 	if ( $enable_custom_fields ) {
 		$script = "( function( $ ) {
 			if ( $('#postcustom').length ) {
@@ -2357,6 +2335,50 @@ function the_block_editor_meta_boxes() {
 		gc_add_inline_script( 'gc-lists', $script );
 	}
 
+	/*
+	 * Refresh nonces used by the meta box loader.
+	 *
+	 * The logic is very similar to that provided by post.js for the classic editor.
+	 */
+	$script = "( function( $ ) {
+		var check, timeout;
+
+		function schedule() {
+			check = false;
+			window.clearTimeout( timeout );
+			timeout = window.setTimeout( function() { check = true; }, 300000 );
+		}
+
+		$( document ).on( 'heartbeat-send.gc-refresh-nonces', function( e, data ) {
+			var post_id, \$authCheck = $( '#gc-auth-check-wrap' );
+
+			if ( check || ( \$authCheck.length && ! \$authCheck.hasClass( 'hidden' ) ) ) {
+				if ( ( post_id = $( '#post_ID' ).val() ) && $( '#_gcnonce' ).val() ) {
+					data['gc-refresh-metabox-loader-nonces'] = {
+						post_id: post_id
+					};
+				}
+			}
+		}).on( 'heartbeat-tick.gc-refresh-nonces', function( e, data ) {
+			var nonces = data['gc-refresh-metabox-loader-nonces'];
+
+			if ( nonces ) {
+				if ( nonces.replace ) {
+					if ( nonces.replace.metabox_loader_nonce && window._gcMetaBoxUrl && gc.url ) {
+						window._gcMetaBoxUrl= gc.url.addQueryArgs( window._gcMetaBoxUrl, { 'meta-box-loader-nonce': nonces.replace.metabox_loader_nonce } );
+					}
+
+					if ( nonces.replace._gcnonce ) {
+						$( '#_gcnonce' ).val( nonces.replace._gcnonce );
+					}
+				}
+			}
+		}).ready( function() {
+			schedule();
+		});
+	} )( jQuery );";
+	gc_add_inline_script( 'heartbeat', $script );
+
 	// Reset meta box data.
 	$gc_meta_boxes = $_original_meta_boxes;
 }
@@ -2364,7 +2386,7 @@ function the_block_editor_meta_boxes() {
 /**
  * Renders the hidden form required for the meta boxes form.
  *
- *
+ * @since 5.0.0
  *
  * @param GC_Post $post Current post object.
  */
@@ -2382,8 +2404,9 @@ function the_block_editor_meta_box_post_form_hidden_fields( $post ) {
 	gc_nonce_field( $nonce_action );
 
 	/*
-	 * Some meta boxes hook into these actions to add hidden input fields in the classic post form. For backwards
-	 * compatibility, we can capture the output from these actions, and extract the hidden input fields.
+	 * Some meta boxes hook into these actions to add hidden input fields in the classic post form.
+	 * For backward compatibility, we can capture the output from these actions,
+	 * and extract the hidden input fields.
 	 */
 	ob_start();
 	/** This filter is documented in gc-admin/edit-form-advanced.php */
@@ -2395,7 +2418,7 @@ function the_block_editor_meta_box_post_form_hidden_fields( $post ) {
 	$classic_elements = gc_html_split( $classic_output );
 	$hidden_inputs    = '';
 	foreach ( $classic_elements as $element ) {
-		if ( 0 !== strpos( $element, '<input ' ) ) {
+		if ( ! str_starts_with( $element, '<input ' ) ) {
 			continue;
 		}
 
@@ -2427,6 +2450,7 @@ function the_block_editor_meta_box_post_form_hidden_fields( $post ) {
 	 * Hook into this action to print `<input type="hidden" ... />` fields, which will be POSTed back to
 	 * the server when meta boxes are saved.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param GC_Post $post The post that is being edited.
 	 */
@@ -2436,7 +2460,7 @@ function the_block_editor_meta_box_post_form_hidden_fields( $post ) {
 /**
  * Disables block editor for gc_navigation type posts so they can be managed via the UI.
  *
- *
+ * @since 5.9.0
  * @access private
  *
  * @param bool   $value Whether the CPT supports block editor or not.
@@ -2457,7 +2481,7 @@ function _disable_block_editor_for_navigation_post_type( $value, $post_type ) {
  * We cannot disable the "editor" feature in the gc_navigation's CPT definition
  * because it disables the ability to save navigation blocks via REST API.
  *
- *
+ * @since 5.9.0
  * @access private
  *
  * @param GC_Post $post An instance of GC_Post class.
@@ -2476,7 +2500,7 @@ function _disable_content_editor_for_navigation_post_type( $post ) {
  * We need to enable it back because we disable it to hide
  * the content editor for gc_navigation type posts.
  *
- *
+ * @since 5.9.0
  * @access private
  *
  * @see _disable_content_editor_for_navigation_post_type

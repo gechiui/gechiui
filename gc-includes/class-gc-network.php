@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Multisite
- *
  */
 
 /**
@@ -16,16 +15,17 @@
  * This class is most useful in GeChiUI multi-network installations where the
  * ability to interact with any network of sites is required.
  *
- *
- *
  * @property int $id
  * @property int $site_id
  */
+#[AllowDynamicProperties]
 class GC_Network {
 
 	/**
 	 * Network ID.
 	 *
+	 * @since 4.4.0
+	 * @since 4.6.0 Converted from public to private to explicitly enable more intuitive
 	 *              access via magic methods. As part of the access change, the type was
 	 *              also changed from `string` to `int`.
 	 * @var int
@@ -35,6 +35,7 @@ class GC_Network {
 	/**
 	 * Domain of the network.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $domain = '';
@@ -42,6 +43,7 @@ class GC_Network {
 	/**
 	 * Path of the network.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $path = '';
@@ -54,6 +56,7 @@ class GC_Network {
 	 *
 	 * A numeric string, for compatibility reasons.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	private $blog_id = '0';
@@ -61,6 +64,7 @@ class GC_Network {
 	/**
 	 * Domain used to set cookies for this network.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $cookie_domain = '';
@@ -70,13 +74,15 @@ class GC_Network {
 	 *
 	 * Named "site" vs. "network" for legacy reasons.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	public $site_name = '';
 
 	/**
-	 * Retrieve a network from the database by its ID.
+	 * Retrieves a network from the database by its ID.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -111,11 +117,12 @@ class GC_Network {
 	}
 
 	/**
-	 * Create a new GC_Network object.
+	 * Creates a new GC_Network object.
 	 *
 	 * Will populate object properties from the object provided and assign other
 	 * default properties based on that information.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param GC_Network|object $network A network object.
 	 */
@@ -133,6 +140,7 @@ class GC_Network {
 	 *
 	 * Allows current multisite naming conventions when getting properties.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string $key Property to get.
 	 * @return mixed Value of the property. Null if not available.
@@ -155,6 +163,7 @@ class GC_Network {
 	 *
 	 * Allows current multisite naming conventions when checking for properties.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string $key Property to check if set.
 	 * @return bool Whether the property is set.
@@ -175,6 +184,7 @@ class GC_Network {
 	 *
 	 * Allows current multisite naming conventions while setting properties.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string $key   Property to set.
 	 * @param mixed  $value Value to assign to the property.
@@ -199,6 +209,7 @@ class GC_Network {
 	 * Internal method used by the magic getter for the 'blog_id' and 'site_id'
 	 * properties.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @return int The ID of the main site.
 	 */
@@ -208,11 +219,13 @@ class GC_Network {
 		 *
 		 * Returning a positive integer will effectively short-circuit the function.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param int|null   $main_site_id If a positive integer is returned, it is interpreted as the main site ID.
 		 * @param GC_Network $network      The network object for which the main site was detected.
 		 */
 		$main_site_id = (int) apply_filters( 'pre_get_main_site_id', null, $this );
+
 		if ( 0 < $main_site_id ) {
 			return $main_site_id;
 		}
@@ -221,8 +234,10 @@ class GC_Network {
 			return (int) $this->blog_id;
 		}
 
-		if ( ( defined( 'DOMAIN_CURRENT_SITE' ) && defined( 'PATH_CURRENT_SITE' ) && DOMAIN_CURRENT_SITE === $this->domain && PATH_CURRENT_SITE === $this->path )
-			|| ( defined( 'SITE_ID_CURRENT_SITE' ) && SITE_ID_CURRENT_SITE == $this->id ) ) {
+		if ( ( defined( 'DOMAIN_CURRENT_SITE' ) && defined( 'PATH_CURRENT_SITE' )
+			&& DOMAIN_CURRENT_SITE === $this->domain && PATH_CURRENT_SITE === $this->path )
+			|| ( defined( 'SITE_ID_CURRENT_SITE' ) && (int) SITE_ID_CURRENT_SITE === $this->id )
+		) {
 			if ( defined( 'BLOG_ID_CURRENT_SITE' ) ) {
 				$this->blog_id = (string) BLOG_ID_CURRENT_SITE;
 
@@ -240,9 +255,8 @@ class GC_Network {
 		if ( $site->domain === $this->domain && $site->path === $this->path ) {
 			$main_site_id = (int) $site->id;
 		} else {
-			$cache_key = 'network:' . $this->id . ':main_site';
 
-			$main_site_id = gc_cache_get( $cache_key, 'site-options' );
+			$main_site_id = get_network_option( $this->id, 'main_site' );
 			if ( false === $main_site_id ) {
 				$_sites       = get_sites(
 					array(
@@ -255,7 +269,7 @@ class GC_Network {
 				);
 				$main_site_id = ! empty( $_sites ) ? array_shift( $_sites ) : 0;
 
-				gc_cache_add( $cache_key, $main_site_id, 'site-options' );
+				update_network_option( $this->id, 'main_site', $main_site_id );
 			}
 		}
 
@@ -265,8 +279,9 @@ class GC_Network {
 	}
 
 	/**
-	 * Set the site name assigned to the network if one has not been populated.
+	 * Sets the site name assigned to the network if one has not been populated.
 	 *
+	 * @since 4.4.0
 	 */
 	private function _set_site_name() {
 		if ( ! empty( $this->site_name ) ) {
@@ -278,11 +293,12 @@ class GC_Network {
 	}
 
 	/**
-	 * Set the cookie domain based on the network domain if one has
+	 * Sets the cookie domain based on the network domain if one has
 	 * not been populated.
 	 *
 	 * @todo What if the domain of the network doesn't match the current site?
 	 *
+	 * @since 4.4.0
 	 */
 	private function _set_cookie_domain() {
 		if ( ! empty( $this->cookie_domain ) ) {
@@ -290,13 +306,13 @@ class GC_Network {
 		}
 
 		$this->cookie_domain = $this->domain;
-		if ( 'www.' === substr( $this->cookie_domain, 0, 4 ) ) {
+		if ( str_starts_with( $this->cookie_domain, 'www.' ) ) {
 			$this->cookie_domain = substr( $this->cookie_domain, 4 );
 		}
 	}
 
 	/**
-	 * Retrieve the closest matching network for a domain and path.
+	 * Retrieves the closest matching network for a domain and path.
 	 *
 	 * This will not necessarily return an exact match for a domain and path. Instead, it
 	 * breaks the domain and path into pieces that are then used to match the closest
@@ -305,6 +321,7 @@ class GC_Network {
 	 * The intent of this method is to match a network during bootstrap for a
 	 * requested site address.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string   $domain   Domain to check.
 	 * @param string   $path     Path to check.
@@ -336,17 +353,13 @@ class GC_Network {
 		 */
 		$using_paths = true;
 		if ( gc_using_ext_object_cache() ) {
-			$using_paths = gc_cache_get( 'networks_have_paths', 'site-options' );
-			if ( false === $using_paths ) {
-				$using_paths = get_networks(
-					array(
-						'number'       => 1,
-						'count'        => true,
-						'path__not_in' => '/',
-					)
-				);
-				gc_cache_add( 'networks_have_paths', $using_paths, 'site-options' );
-			}
+			$using_paths = get_networks(
+				array(
+					'number'       => 1,
+					'count'        => true,
+					'path__not_in' => '/',
+				)
+			);
 		}
 
 		$paths = array();
@@ -356,7 +369,7 @@ class GC_Network {
 			/**
 			 * Filters the number of path segments to consider when searching for a site.
 			 *
-		
+			 * @since 3.9.0
 			 *
 			 * @param int|null $segments The number of path segments to consider. GeChiUI by default looks at
 			 *                           one path segment. The function default of null only makes sense when you
@@ -379,7 +392,7 @@ class GC_Network {
 		}
 
 		/**
-		 * Determine a network by its domain and path.
+		 * Determines a network by its domain and path.
 		 *
 		 * This allows one to short-circuit the default logic, perhaps by
 		 * replacing it with a routine that is more optimal for your setup.
@@ -388,14 +401,15 @@ class GC_Network {
 		 * can be found at the requested domain and path. Otherwise, return
 		 * an object from gc_get_network().
 		 *
+		 * @since 3.9.0
 		 *
 		 * @param null|false|GC_Network $network  Network value to return by path. Default null
-		 *                                       to continue retrieving the network.
-		 * @param string               $domain   The requested domain.
-		 * @param string               $path     The requested path, in full.
-		 * @param int|null             $segments The suggested number of paths to consult.
-		 *                                       Default null, meaning the entire path was to be consulted.
-		 * @param string[]             $paths    Array of paths to search for, based on `$path` and `$segments`.
+		 *                                        to continue retrieving the network.
+		 * @param string                $domain   The requested domain.
+		 * @param string                $path     The requested path, in full.
+		 * @param int|null              $segments The suggested number of paths to consult.
+		 *                                        Default null, meaning the entire path was to be consulted.
+		 * @param string[]              $paths    Array of paths to search for, based on `$path` and `$segments`.
 		 */
 		$pre = apply_filters( 'pre_get_network_by_path', null, $domain, $path, $segments, $paths );
 		if ( null !== $pre ) {

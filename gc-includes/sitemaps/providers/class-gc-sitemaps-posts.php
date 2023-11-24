@@ -6,18 +6,19 @@
  *
  * @package GeChiUI
  * @subpackage Sitemaps
- *
+ * @since 5.5.0
  */
 
 /**
  * Posts XML sitemap provider.
  *
- *
+ * @since 5.5.0
  */
 class GC_Sitemaps_Posts extends GC_Sitemaps_Provider {
 	/**
 	 * GC_Sitemaps_Posts constructor.
 	 *
+	 * @since 5.5.0
 	 */
 	public function __construct() {
 		$this->name        = 'posts';
@@ -28,6 +29,7 @@ class GC_Sitemaps_Posts extends GC_Sitemaps_Provider {
 	 * Returns the public post types, which excludes nav_items and similar types.
 	 * Attachments are also excluded. This includes custom post types with public = true.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return GC_Post_Type[] Array of registered post type objects keyed by their name.
 	 */
@@ -40,6 +42,7 @@ class GC_Sitemaps_Posts extends GC_Sitemaps_Provider {
 		/**
 		 * Filters the list of post object sub types available within the sitemap.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param GC_Post_Type[] $post_types Array of registered post type objects keyed by their name.
 		 */
@@ -49,6 +52,8 @@ class GC_Sitemaps_Posts extends GC_Sitemaps_Provider {
 	/**
 	 * Gets a URL list for a post type sitemap.
 	 *
+	 * @since 5.5.0
+	 * @since 5.9.0 Renamed `$post_type` to `$object_subtype` to match parent class
 	 *              for PHP 8 named parameter support.
 	 *
 	 * @param int    $page_num       Page of results.
@@ -73,6 +78,7 @@ class GC_Sitemaps_Posts extends GC_Sitemaps_Provider {
 		 * Returning a non-null value will effectively short-circuit the generation,
 		 * returning that value instead.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param array[]|null $url_list  The URL list. Default null.
 		 * @param string       $post_type Post type name.
@@ -109,7 +115,7 @@ class GC_Sitemaps_Posts extends GC_Sitemaps_Provider {
 			/**
 			 * Filters the sitemap entry for the home page when the 'show_on_front' option equals 'posts'.
 			 *
-		
+			 * @since 5.5.0
 			 *
 			 * @param array $sitemap_entry Sitemap entry for the home page.
 			 */
@@ -125,7 +131,7 @@ class GC_Sitemaps_Posts extends GC_Sitemaps_Provider {
 			/**
 			 * Filters the sitemap entry for an individual post.
 			 *
-		
+			 * @since 5.5.0
 			 *
 			 * @param array   $sitemap_entry Sitemap entry for the post.
 			 * @param GC_Post $post          Post object.
@@ -141,6 +147,8 @@ class GC_Sitemaps_Posts extends GC_Sitemaps_Provider {
 	/**
 	 * Gets the max number of pages available for the object type.
 	 *
+	 * @since 5.5.0
+	 * @since 5.9.0 Renamed `$post_type` to `$object_subtype` to match parent class
 	 *              for PHP 8 named parameter support.
 	 *
 	 * @param string $object_subtype Optional. Post type name. Default empty.
@@ -160,6 +168,7 @@ class GC_Sitemaps_Posts extends GC_Sitemaps_Provider {
 		 * Passing a non-null value will short-circuit the generation,
 		 * returning that value instead.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param int|null $max_num_pages The maximum number of pages. Default null.
 		 * @param string   $post_type     Post type name.
@@ -183,6 +192,8 @@ class GC_Sitemaps_Posts extends GC_Sitemaps_Provider {
 	/**
 	 * Returns the query args for retrieving posts to list in the sitemap.
 	 *
+	 * @since 5.5.0
+	 * @since 6.1.0 Added `ignore_sticky_posts` default parameter.
 	 *
 	 * @param string $post_type Post type name.
 	 * @return array Array of GC_Query arguments.
@@ -193,6 +204,8 @@ class GC_Sitemaps_Posts extends GC_Sitemaps_Provider {
 		 *
 		 * @see GC_Query for a full list of arguments.
 		 *
+		 * @since 5.5.0
+		 * @since 6.1.0 Added `ignore_sticky_posts` default parameter.
 		 *
 		 * @param array  $args      Array of GC_Query arguments.
 		 * @param string $post_type Post type name.
@@ -208,6 +221,7 @@ class GC_Sitemaps_Posts extends GC_Sitemaps_Provider {
 				'no_found_rows'          => true,
 				'update_post_term_cache' => false,
 				'update_post_meta_cache' => false,
+				'ignore_sticky_posts'    => true, // Sticky posts will still appear, but they won't be moved to the front.
 			),
 			$post_type
 		);

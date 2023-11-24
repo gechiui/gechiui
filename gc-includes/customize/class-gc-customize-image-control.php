@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customize Image Control class.
- *
- *
  *
  * @see GC_Customize_Upload_Control
  */
@@ -18,6 +15,7 @@ class GC_Customize_Image_Control extends GC_Customize_Upload_Control {
 	/**
 	 * Control type.
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	public $type = 'image';
@@ -25,16 +23,19 @@ class GC_Customize_Image_Control extends GC_Customize_Upload_Control {
 	/**
 	 * Media control mime type.
 	 *
+	 * @since 4.1.0
 	 * @var string
 	 */
 	public $mime_type = 'image';
 
 	/**
+	 * @since 3.4.2
 	 * @deprecated 4.1.0
 	 */
 	public function prepare_control() {}
 
 	/**
+	 * @since 3.4.0
 	 * @deprecated 4.1.0
 	 *
 	 * @param string $id
@@ -46,6 +47,7 @@ class GC_Customize_Image_Control extends GC_Customize_Upload_Control {
 	}
 
 	/**
+	 * @since 3.4.0
 	 * @deprecated 4.1.0
 	 *
 	 * @param string $id
@@ -55,6 +57,7 @@ class GC_Customize_Image_Control extends GC_Customize_Upload_Control {
 	}
 
 	/**
+	 * @since 3.4.0
 	 * @deprecated 4.1.0
 	 *
 	 * @param string $url

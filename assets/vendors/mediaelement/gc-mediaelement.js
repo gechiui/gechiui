@@ -14,10 +14,13 @@
 		 *
 		 * @memberOf gc.mediaelement
 		 *
+		 * @since 4.4.0
 		 *
 		 * @return {void}
 		 */
 		function initialize() {
+			var selectors = [];
+
 			if ( typeof _gcmejsSettings !== 'undefined' ) {
 				settings = $.extend( true, {}, _gcmejsSettings );
 			}
@@ -49,7 +52,7 @@
 			 * Sets up a custom error handler in case a video render fails, and provides a download
 			 * link as the fallback.
 			 *
-		
+			 * @since 4.9.3
 			 *
 			 * @param {object} media The wrapper that mimics all the native events/properties/methods for all renderers.
 			 * @param {object} node  The original HTML video, audio, or iframe tag where the media was loaded.
@@ -62,8 +65,18 @@
 				}
 			};
 
+			if ( 'undefined' === typeof settings.videoShortcodeLibrary || 'mediaelement' === settings.videoShortcodeLibrary ) {
+				selectors.push( '.gc-video-shortcode' );
+			}
+			if ( 'undefined' === typeof settings.audioShortcodeLibrary || 'mediaelement' === settings.audioShortcodeLibrary ) {
+				selectors.push( '.gc-audio-shortcode' );
+			}
+			if ( ! selectors.length ) {
+				return;
+			}
+
 			// Only initialize new media elements.
-			$( '.gc-audio-shortcode, .gc-video-shortcode' )
+			$( selectors.join( ', ' ) )
 				.not( '.mejs-container' )
 				.filter(function () {
 					return ! $( this ).parent().hasClass( 'mejs-mediaelement' );

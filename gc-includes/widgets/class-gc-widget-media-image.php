@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class that implements an image widget.
- *
- *
  *
  * @see GC_Widget_Media
  * @see GC_Widget
@@ -20,6 +17,7 @@ class GC_Widget_Media_Image extends GC_Widget_Media {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.8.0
 	 */
 	public function __construct() {
 		parent::__construct(
@@ -40,7 +38,7 @@ class GC_Widget_Media_Image extends GC_Widget_Media {
 				'edit_media'                 => _x( '编辑图片', 'label for button in the image widget; should preferably not be longer than ~13 characters long' ),
 				'missing_attachment'         => sprintf(
 					/* translators: %s: URL to media library. */
-					__( '找不到指定的图片。请使用<a href="%s">媒体库</a>确认图片没有被删除。' ),
+					__( '找不到指定图片。检查您的<a href="%s">媒体库</a>并确保其未被删除。' ),
 					esc_url( admin_url( 'upload.php' ) )
 				),
 				/* translators: %d: Widget count. */
@@ -53,6 +51,7 @@ class GC_Widget_Media_Image extends GC_Widget_Media {
 	/**
 	 * Get schema for properties of a widget instance (item).
 	 *
+	 * @since 4.8.0
 	 *
 	 * @see GC_REST_Controller::get_item_schema()
 	 * @see GC_REST_Controller::get_additional_fields()
@@ -168,6 +167,7 @@ class GC_Widget_Media_Image extends GC_Widget_Media {
 	/**
 	 * Render the media on the frontend.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param array $instance Widget instance props.
 	 */
@@ -236,14 +236,31 @@ class GC_Widget_Media_Image extends GC_Widget_Media {
 				$instance['height'] = '';
 			}
 
-			$image = sprintf(
-				'<img class="%1$s" src="%2$s" alt="%3$s" width="%4$s" height="%5$s" />',
-				esc_attr( $classes ),
-				esc_url( $instance['url'] ),
-				esc_attr( $instance['alt'] ),
-				esc_attr( $instance['width'] ),
-				esc_attr( $instance['height'] )
+			$attr = array(
+				'class'    => $classes,
+				'src'      => $instance['url'],
+				'alt'      => $instance['alt'],
+				'width'    => $instance['width'],
+				'height'   => $instance['height'],
+				'decoding' => 'async',
 			);
+
+			$loading_optimization_attr = gc_get_loading_optimization_attributes(
+				'img',
+				$attr,
+				'widget_media_image'
+			);
+
+			$attr = array_merge( $attr, $loading_optimization_attr );
+
+			$attr  = array_map( 'esc_attr', $attr );
+			$image = '<img';
+
+			foreach ( $attr as $name => $value ) {
+				$image .= ' ' . $name . '="' . $value . '"';
+			}
+
+			$image .= ' />';
 		} // End if().
 
 		$url = '';
@@ -288,6 +305,7 @@ class GC_Widget_Media_Image extends GC_Widget_Media {
 	/**
 	 * Loads the required media files for the media manager and scripts for media widgets.
 	 *
+	 * @since 4.8.0
 	 */
 	public function enqueue_admin_scripts() {
 		parent::enqueue_admin_scripts();
@@ -325,6 +343,7 @@ class GC_Widget_Media_Image extends GC_Widget_Media {
 	/**
 	 * Render form template scripts.
 	 *
+	 * @since 4.8.0
 	 */
 	public function render_control_template_scripts() {
 		parent::render_control_template_scripts();
@@ -341,11 +360,11 @@ class GC_Widget_Media_Image extends GC_Widget_Media {
 		</script>
 		<script type="text/html" id="tmpl-gc-media-widget-image-preview">
 			<# if ( data.error && 'missing_attachment' === data.error ) { #>
-				<div class="notice notice-error notice-alt notice-missing-attachment">
+				<div class="alert alert-danger notice-alt notice-missing-attachment">
 					<p><?php echo $this->l10n['missing_attachment']; ?></p>
 				</div>
 			<# } else if ( data.error ) { #>
-				<div class="notice notice-error notice-alt">
+				<div class="alert alert-danger notice-alt">
 					<p><?php _e( '发生了未知错误，无法预览媒体。' ); ?></p>
 				</div>
 			<# } else if ( data.url ) { #>

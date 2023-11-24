@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/auth-app.js
+ * @output assets/js/auth-app.js
  */
 
 /* global authApp */
@@ -41,11 +41,12 @@
 		}
 
 		/**
-		 * Filters the request data used to Authorize an AppKey request.
+		 * Filters the request data used to Authorize an Application Password request.
 		 *
+		 * @since 5.6.0
 		 *
 		 * @param {Object} request            The request data.
-		 * @param {Object} context            Context about the AppKey request.
+		 * @param {Object} context            Context about the Application Password request.
 		 * @param {string} context.userLogin  The user's login username.
 		 * @param {string} context.successUrl The URL the user will be redirected to after approving the request.
 		 * @param {string} context.rejectUrl  The URL the user will be redirected to after rejecting the request.
@@ -59,12 +60,12 @@
 		} ).done( function( response, textStatus, jqXHR ) {
 
 			/**
-			 * Fires when an Authorize AppKey request has been successfully approved.
+			 * Fires when an Authorize Application Password request has been successfully approved.
 			 *
 			 * In most cases, this should be used in combination with the {@see 'gc_authorize_appkey_form_approved_no_js'}
 			 * action to ensure that both the JS and no-JS variants are handled.
 			 *
-		
+			 * @since 5.6.0
 			 *
 			 * @param {Object} response          The response from the REST API.
 			 * @param {string} response.password The newly created password.
@@ -86,7 +87,7 @@
 			} else {
 				message = gc.i18n.sprintf(
 					/* translators: %s: Application name. */
-					'<label for="new-appkey-value">' + gc.i18n.__( '%s的新Appkey为：' ) + '</label>',
+					'<label for="new-appkey-value">' + gc.i18n.__( '%s的新应用程序密码为：' ) + '</label>',
 					'<strong></strong>'
 				) + ' <input id="new-appkey-value" type="text" class="code" readonly="readonly" value="" />';
 				$notice = $( '<div></div>' )
@@ -125,10 +126,10 @@
 			$approveBtn.removeProp( 'aria-disabled', false ).removeClass( 'disabled' );
 
 			/**
-			 * Fires when an Authorize AppKey request encountered an error when trying to approve the request.
+			 * Fires when an Authorize Application Password request encountered an error when trying to approve the request.
 			 *
-		
-		
+			 * @since 5.6.0
+			 * @since 5.6.1 Corrected action name and signature.
 			 *
 			 * @param {Object|null} error       The error from the REST API. May be null if the server did not send proper JSON.
 			 * @param {string}      textStatus  The status of the request.
@@ -143,10 +144,11 @@
 		e.preventDefault();
 
 		/**
-		 * Fires when an Authorize AppKey request has been rejected by the user.
+		 * Fires when an Authorize Application Password request has been rejected by the user.
 		 *
+		 * @since 5.6.0
 		 *
-		 * @param {Object} context            Context about the AppKey request.
+		 * @param {Object} context            Context about the Application Password request.
 		 * @param {string} context.userLogin  The user's login username.
 		 * @param {string} context.successUrl The URL the user will be redirected to after approving the request.
 		 * @param {string} context.rejectUrl  The URL the user will be redirected to after rejecting the request.

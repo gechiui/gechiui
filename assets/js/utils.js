@@ -1,7 +1,7 @@
 /**
  * Cookie functions.
  *
- * @output gc-includes/js/utils.js
+ * @output assets/js/utils.js
  */
 
 /* global userSettings, getAllUserSettings, gcCookies, setUserSetting */

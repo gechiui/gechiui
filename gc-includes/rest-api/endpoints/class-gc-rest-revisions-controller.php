@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core class used to access revisions via the REST API.
- *
- *
  *
  * @see GC_REST_Controller
  */
@@ -19,6 +16,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	/**
 	 * Parent post type.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	private $parent_post_type;
@@ -26,6 +24,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	/**
 	 * Parent controller.
 	 *
+	 * @since 4.7.0
 	 * @var GC_REST_Controller
 	 */
 	private $parent_controller;
@@ -33,6 +32,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	/**
 	 * The base of the parent controller's route.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	private $parent_base;
@@ -40,25 +40,29 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string $parent_post_type Post type of the parent.
 	 */
 	public function __construct( $parent_post_type ) {
-		$this->parent_post_type  = $parent_post_type;
+		$this->parent_post_type = $parent_post_type;
+		$post_type_object       = get_post_type_object( $parent_post_type );
+		$parent_controller      = $post_type_object->get_rest_controller();
+
+		if ( ! $parent_controller ) {
+			$parent_controller = new GC_REST_Posts_Controller( $parent_post_type );
+		}
+
+		$this->parent_controller = $parent_controller;
 		$this->rest_base         = 'revisions';
-		$post_type_object        = get_post_type_object( $parent_post_type );
 		$this->parent_base       = ! empty( $post_type_object->rest_base ) ? $post_type_object->rest_base : $post_type_object->name;
 		$this->namespace         = ! empty( $post_type_object->rest_namespace ) ? $post_type_object->rest_namespace : 'gc/v2';
-		$this->parent_controller = $post_type_object->get_rest_controller();
-
-		if ( ! $this->parent_controller ) {
-			$this->parent_controller = new GC_REST_Posts_Controller( $parent_post_type );
-		}
 	}
 
 	/**
 	 * Registers the routes for revisions based on post types supporting revisions.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @see register_rest_route()
 	 */
@@ -127,31 +131,37 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	/**
 	 * Get the parent post, if the ID is valid.
 	 *
+	 * @since 4.7.2
 	 *
-	 * @param int $parent Supplied ID.
+	 * @param int $parent_post_id Supplied ID.
 	 * @return GC_Post|GC_Error Post object if ID is valid, GC_Error otherwise.
 	 */
-	protected function get_parent( $parent ) {
+	protected function get_parent( $parent_post_id ) {
 		$error = new GC_Error(
 			'rest_post_invalid_parent',
 			__( '文章父 ID 无效。' ),
 			array( 'status' => 404 )
 		);
-		if ( (int) $parent <= 0 ) {
+
+		if ( (int) $parent_post_id <= 0 ) {
 			return $error;
 		}
 
-		$parent = get_post( (int) $parent );
-		if ( empty( $parent ) || empty( $parent->ID ) || $this->parent_post_type !== $parent->post_type ) {
+		$parent_post = get_post( (int) $parent_post_id );
+
+		if ( empty( $parent_post ) || empty( $parent_post->ID )
+			|| $this->parent_post_type !== $parent_post->post_type
+		) {
 			return $error;
 		}
 
-		return $parent;
+		return $parent_post;
 	}
 
 	/**
 	 * Checks if a given request has access to get revisions.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -176,6 +186,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	/**
 	 * Get the revision, if the ID is valid.
 	 *
+	 * @since 4.7.2
 	 *
 	 * @param int $id Supplied ID.
 	 * @return GC_Post|GC_Error Revision post object if ID is valid, GC_Error otherwise.
@@ -202,6 +213,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	/**
 	 * Gets a collection of revisions.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -325,7 +337,8 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 		$response->header( 'X-GC-TotalPages', (int) $max_pages );
 
 		$request_params = $request->get_query_params();
-		$base           = add_query_arg( urlencode_deep( $request_params ), rest_url( sprintf( '%s/%s/%d/%s', $this->namespace, $this->parent_base, $request['parent'], $this->rest_base ) ) );
+		$base_path      = rest_url( sprintf( '%s/%s/%d/%s', $this->namespace, $this->parent_base, $request['parent'], $this->rest_base ) );
+		$base           = add_query_arg( urlencode_deep( $request_params ), $base_path );
 
 		if ( $page > 1 ) {
 			$prev_page = $page - 1;
@@ -350,6 +363,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to get a specific revision.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access for the item, GC_Error object otherwise.
@@ -361,6 +375,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves one revision from the collection.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -383,6 +398,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to delete a revision.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to delete the item, GC_Error object otherwise.
@@ -392,8 +408,6 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 		if ( is_gc_error( $parent ) ) {
 			return $parent;
 		}
-
-		$parent_post_type = get_post_type_object( $parent->post_type );
 
 		if ( ! current_user_can( 'delete_post', $parent->ID ) ) {
 			return new GC_Error(
@@ -427,6 +441,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	/**
 	 * Deletes a single revision.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -456,6 +471,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 		/**
 		 * Fires after a revision is deleted via the REST API.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_Post|false|null $result The revision object (if it was deleted or moved to the Trash successfully)
 		 *                                   or false or null (failure). If the revision was moved to the Trash, $result represents
@@ -486,6 +502,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	 * Determines the allowed query_vars for a get_items() response and prepares
 	 * them for GC_Query.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param array           $prepared_args Optional. Prepared GC_Query arguments. Default empty array.
 	 * @param GC_REST_Request $request       Optional. Full details about the request.
@@ -519,6 +536,8 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares the revision for the REST response.
 	 *
+	 * @since 4.7.0
+	 * @since 5.9.0 Renamed `$post` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Post         $item    Post revision object.
 	 * @param GC_REST_Request $request Request object.
@@ -603,7 +622,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 		$response = rest_ensure_response( $data );
 
 		if ( ! empty( $data['parent'] ) ) {
-			$response->add_link( 'parent', rest_url( sprintf( '%s/%s/%d', $this->namespace, $this->parent_base, $data['parent'] ) ) );
+			$response->add_link( 'parent', rest_url( rest_get_route_for_post( $data['parent'] ) ) );
 		}
 
 		/**
@@ -611,6 +630,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 		 *
 		 * Allows modification of the revision right before it is returned.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_REST_Response $response The response object.
 		 * @param GC_Post          $post     The original revision object.
@@ -623,6 +643,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	 * Checks the post_date_gmt or modified_gmt and prepare any post or
 	 * modified date for single post output.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string      $date_gmt GMT publication time.
 	 * @param string|null $date     Optional. Local publication time. Default null.
@@ -643,6 +664,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the revision's schema, conforming to JSON Schema.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Item schema data.
 	 */
@@ -663,7 +685,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'date'         => array(
-					'description' => __( "修订版本发布的日期“站点时区）。" ),
+					'description' => __( "修订版本发布的日期“系统时区）。" ),
 					'type'        => 'string',
 					'format'      => 'date-time',
 					'context'     => array( 'view', 'edit', 'embed' ),
@@ -685,7 +707,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 					'context'     => array( 'view', 'edit', 'embed' ),
 				),
 				'modified'     => array(
-					'description' => __( "修订版本的最后修改日期（站点时区）。" ),
+					'description' => __( "修订版本的最后修改日期（系统时区）。" ),
 					'type'        => 'string',
 					'format'      => 'date-time',
 					'context'     => array( 'view', 'edit' ),
@@ -735,6 +757,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the query params for collections.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Collection parameters.
 	 */
@@ -796,6 +819,7 @@ class GC_REST_Revisions_Controller extends GC_REST_Controller {
 	/**
 	 * Checks the post excerpt and prepare it for single post output.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string  $excerpt The post excerpt.
 	 * @param GC_Post $post    Post revision object.

@@ -4,14 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage Media
- *
  */
 
 /**
- * Output the markup for a audio tag to be used in an Underscore template
+ * Outputs the markup for an audio tag to be used in an Underscore template
  * when data.model is passed.
  *
- *
+ * @since 3.9.0
  */
 function gc_underscore_audio_template() {
 	$audio_types = gc_get_audio_extensions();
@@ -48,20 +47,20 @@ function gc_underscore_audio_template() {
 }
 
 /**
- * Output the markup for a video tag to be used in an Underscore template
+ * Outputs the markup for a video tag to be used in an Underscore template
  * when data.model is passed.
  *
- *
+ * @since 3.9.0
  */
 function gc_underscore_video_template() {
 	$video_types = gc_get_video_extensions();
 	?>
 <#  var w_rule = '', classes = [],
 		w, h, settings = gc.media.view.settings,
-		isYouTube = isVimeo = false;
+		isYouKu = isVimeo = false;
 
 	if ( ! _.isEmpty( data.model.src ) ) {
-		isYouTube = data.model.src.match(/youtube|youtu\.be/);
+		isYouKu = data.model.src.match(/youku|youtu\.be/);
 		isVimeo = -1 !== data.model.src.indexOf('vimeo');
 	}
 
@@ -81,8 +80,8 @@ function gc_underscore_video_template() {
 		w_rule = 'width: ' + w + 'px; ';
 	}
 
-	if ( isYouTube ) {
-		classes.push( 'youtube-video' );
+	if ( isYouKu ) {
+		classes.push( 'youku-video' );
 	}
 
 	if ( isVimeo ) {
@@ -126,8 +125,8 @@ function gc_underscore_video_template() {
 	<?php endforeach; ?>#>
 >
 	<# if ( ! _.isEmpty( data.model.src ) ) {
-		if ( isYouTube ) { #>
-		<source src="{{ data.model.src }}" type="video/youtube" />
+		if ( isYouKu ) { #>
+		<source src="{{ data.model.src }}" type="video/youku" />
 		<# } else if ( isVimeo ) { #>
 		<source src="{{ data.model.src }}" type="video/vimeo" />
 		<# } else { #>
@@ -151,7 +150,6 @@ function gc_underscore_video_template() {
 /**
  * Prints the templates used in the media manager.
  *
- *
  */
 function gc_print_media_templates() {
 	$class = 'media-modal gc-core-ui';
@@ -163,7 +161,7 @@ function gc_print_media_templates() {
 		'target="_blank" rel="noopener"',
 		sprintf(
 			'<span class="screen-reader-text"> %s</span>',
-			/* translators: Accessibility text. */
+			/* translators: Hidden accessibility text. */
 			__( '（在新窗口中打开）' )
 		)
 	);
@@ -172,9 +170,9 @@ function gc_print_media_templates() {
 	<?php // Template for the media frame: used both in the media grid and in the media modal. ?>
 	<script type="text/html" id="tmpl-media-frame">
 		<div class="media-frame-title" id="media-frame-title"></div>
-		<h2 class="media-frame-menu-heading"><?php _ex( '操作', 'media modal menu actions' ); ?></h2>
+		<h2 class="media-frame-menu-heading"><?php _ex( 'Actions', 'media modal menu actions' ); ?></h2>
 		<button type="button" class="button button-link media-frame-menu-toggle" aria-expanded="false">
-			<?php _ex( '菜单', 'media modal menu' ); ?>
+			<?php _ex( 'Menu', 'media modal menu' ); ?>
 			<span class="dashicons dashicons-arrow-down" aria-hidden="true"></span>
 		</button>
 		<div class="media-frame-menu"></div>
@@ -184,7 +182,7 @@ function gc_print_media_templates() {
 		</div>
 		<h2 class="media-frame-actions-heading screen-reader-text">
 		<?php
-			/* translators: Accessibility text. */
+			/* translators: Hidden accessibility text. */
 			_e( '选择媒体动作' );
 		?>
 		</h2>
@@ -196,7 +194,12 @@ function gc_print_media_templates() {
 	<script type="text/html" id="tmpl-media-modal">
 		<div tabindex="0" class="<?php echo $class; ?>" role="dialog" aria-labelledby="media-frame-title">
 			<# if ( data.hasCloseButton ) { #>
-				<button type="button" class="media-modal-close"><span class="media-modal-icon"><span class="screen-reader-text"><?php _e( '关闭对话框' ); ?></span></span></button>
+				<button type="button" class="media-modal-close"><span class="media-modal-icon"><span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '关闭对话框' );
+					?>
+				</span></span></button>
 			<# } #>
 			<div class="media-modal-content" role="document"></div>
 		</div>
@@ -221,7 +224,12 @@ function gc_print_media_templates() {
 	<script type="text/html" id="tmpl-uploader-inline">
 		<# var messageClass = data.message ? 'has-upload-message' : 'no-upload-message'; #>
 		<# if ( data.canClose ) { #>
-		<button class="close dashicons dashicons-no"><span class="screen-reader-text"><?php _e( '关闭上传器' ); ?></span></button>
+		<button class="close dashicons dashicons-no"><span class="screen-reader-text">
+			<?php
+			/* translators: Hidden accessibility text. */
+			_e( '关闭上传器' );
+			?>
+		</span></button>
 		<# } #>
 		<div class="uploader-inline-content {{ messageClass }}">
 		<# if ( data.message ) { #>
@@ -251,7 +259,7 @@ function gc_print_media_templates() {
 		<?php else : ?>
 			<div class="upload-ui">
 				<h2 class="upload-instructions drop-instructions"><?php _e( '拖文件至此可上传' ); ?></h2>
-				<p class="upload-instructions drop-instructions"><?php _ex( '或', 'Uploader: Drop files here - or - Select Files' ); ?></p>
+				<p class="upload-instructions drop-instructions"><?php _ex( 'or', 'Uploader: Drop files here - or - Select Files' ); ?></p>
 				<button type="button" class="browser button button-hero" aria-labelledby="post-upload-info"><?php _e( '选择文件' ); ?></button>
 			</div>
 
@@ -310,16 +318,26 @@ function gc_print_media_templates() {
 	<?php // Template for the view switchers, used for example in the Media Grid. ?>
 	<script type="text/html" id="tmpl-media-library-view-switcher">
 		<a href="<?php echo esc_url( add_query_arg( 'mode', 'list', admin_url( 'upload.php' ) ) ); ?>" class="view-list">
-			<span class="screen-reader-text"><?php _e( '列表视图' ); ?></span>
+			<span class="screen-reader-text">
+				<?php
+				/* translators: Hidden accessibility text. */
+				_e( '列表视图' );
+				?>
+			</span>
 		</a>
 		<a href="<?php echo esc_url( add_query_arg( 'mode', 'grid', admin_url( 'upload.php' ) ) ); ?>" class="view-grid current" aria-current="page">
-			<span class="screen-reader-text"><?php _e( '网格视图' ); ?></span>
+			<span class="screen-reader-text">
+				<?php
+				/* translators: Hidden accessibility text. */
+				_e( '网格视图' );
+				?>
+			</span>
 		</a>
 	</script>
 
 	<?php // Template for the uploading status UI. ?>
 	<script type="text/html" id="tmpl-uploader-status">
-		<h2><?php _e( '正上传' ); ?></h2>
+		<h4><?php _e( '正上传' ); ?></h4>
 
 		<div class="media-progress-bar"><div></div></div>
 		<div class="upload-details">
@@ -342,8 +360,8 @@ function gc_print_media_templates() {
 	<?php // Template for the Attachment Details layout in the media browser. ?>
 	<script type="text/html" id="tmpl-edit-attachment-frame">
 		<div class="edit-media-header">
-			<button class="left dashicons"<# if ( ! data.hasPrevious ) { #> disabled<# } #>><span class="screen-reader-text"><?php _e( '编辑上一媒体项目' ); ?></span></button>
-			<button class="right dashicons"<# if ( ! data.hasNext ) { #> disabled<# } #>><span class="screen-reader-text"><?php _e( '编辑下一媒体项目' ); ?></span></button>
+			<button class="left dashicons"<# if ( ! data.hasPrevious ) { #> disabled<# } #>><span class="screen-reader-text"><?php /* translators: Hidden accessibility text. */ _e( '编辑上一媒体项目' ); ?></span></button>
+			<button class="right dashicons"<# if ( ! data.hasNext ) { #> disabled<# } #>><span class="screen-reader-text"><?php /* translators: Hidden accessibility text. */ _e( '编辑下一媒体项目' ); ?></span></button>
 			<button type="button" class="media-modal-close"><span class="media-modal-icon"><span class="screen-reader-text"><?php _e( '关闭对话框' ); ?></span></span></button>
 		</div>
 		<div class="media-frame-title"></div>
@@ -353,14 +371,19 @@ function gc_print_media_templates() {
 	<?php // Template for the Attachment Details two columns layout. ?>
 	<script type="text/html" id="tmpl-attachment-details-two-column">
 		<div class="attachment-media-view {{ data.orientation }}">
-			<h2 class="screen-reader-text"><?php _e( '附件预览' ); ?></h2>
+			<?php
+			if ( isset( $_GET['error'] ) && 'deprecated' === $_GET['error'] ) {
+				echo '<div id="message" class="error notice"><p>' . __( '自GeChiUI 6.3起，“编辑媒体”屏幕已弃用。请改用媒体库。' ) . '</p></div>';
+			}
+			?>
+			<h2 class="screen-reader-text"><?php /* translators: Hidden accessibility text. */ _e( '附件预览' ); ?></h2>
 			<div class="thumbnail thumbnail-{{ data.type }}">
 				<# if ( data.uploading ) { #>
 					<div class="media-progress-bar"><div></div></div>
-				<# } else if ( data.sizes && data.sizes.large ) { #>
-					<img class="details-image" src="{{ data.sizes.large.url }}" draggable="false" alt="" />
 				<# } else if ( data.sizes && data.sizes.full ) { #>
 					<img class="details-image" src="{{ data.sizes.full.url }}" draggable="false" alt="" />
+				<# } else if ( data.sizes && data.sizes.large ) { #>
+					<img class="details-image" src="{{ data.sizes.large.url }}" draggable="false" alt="" />
 				<# } else if ( -1 === jQuery.inArray( data.type, [ 'audio', 'video' ] ) ) { #>
 					<img class="details-image icon" src="{{ data.icon }}" draggable="false" alt="" />
 				<# } #>
@@ -391,7 +414,7 @@ function gc_print_media_templates() {
 
 				<div class="attachment-actions">
 					<# if ( 'image' === data.type && ! data.uploading && data.sizes && data.can.save ) { #>
-					<button type="button" class="button edit-attachment"><?php _e( '编辑图片' ); ?></button>
+					<button type="button" class="btn btn-primary btn-tone btn-sm edit-attachment"><?php _e( '编辑图片' ); ?></button>
 					<# } else if ( 'pdf' === data.subtype && data.sizes ) { #>
 					<p><?php _e( '文档预览' ); ?></p>
 					<# } #>
@@ -404,7 +427,12 @@ function gc_print_media_templates() {
 				<span class="saved"><?php esc_html_e( '已保存。' ); ?></span>
 			</span>
 			<div class="details">
-				<h2 class="screen-reader-text"><?php _e( '详情' ); ?></h2>
+				<h2 class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '详细信息' );
+					?>
+				</h2>
 				<div class="uploaded"><strong><?php _e( '上传于：' ); ?></strong> {{ data.dateFormatted }}</div>
 				<div class="uploaded-by">
 					<strong><?php _e( '上传者：' ); ?></strong>
@@ -438,8 +466,10 @@ function gc_print_media_templates() {
 					<# } #>
 
 					<# if ( data.originalImageURL && data.originalImageName ) { #>
-						<?php _e( '原始图片：' ); ?>
-						<a href="{{ data.originalImageURL }}">{{data.originalImageName}}</a>
+						<div class="word-wrap-break-word">
+							<strong><?php _e( '原始图片：' ); ?></strong>
+							<a href="{{ data.originalImageURL }}">{{data.originalImageName}}</a>
+						</div>
 					<# } #>
 				<# } #>
 
@@ -473,9 +503,9 @@ function gc_print_media_templates() {
 			<div class="settings">
 				<# var maybeReadOnly = data.can.save || data.allowLocalEdits ? '' : 'readonly'; #>
 				<# if ( 'image' === data.type ) { #>
-					<span class="setting has-description" data-setting="alt">
+					<span class="setting alt-text has-description" data-setting="alt">
 						<label for="attachment-details-two-column-alt-text" class="name"><?php _e( '替代文本' ); ?></label>
-						<input type="text" id="attachment-details-two-column-alt-text" value="{{ data.alt }}" aria-describedby="alt-text-description" {{ maybeReadOnly }} />
+						<textarea id="attachment-details-two-column-alt-text" aria-describedby="alt-text-description" {{ maybeReadOnly }}>{{ data.alt }}</textarea>
 					</span>
 					<p class="description" id="alt-text-description"><?php echo $alt_text_description; ?></p>
 				<# } #>
@@ -510,7 +540,7 @@ function gc_print_media_templates() {
 					<label for="attachment-details-two-column-copy-link" class="name"><?php _e( '文件URL：' ); ?></label>
 					<input type="text" class="attachment-details-copy-link" id="attachment-details-two-column-copy-link" value="{{ data.url }}" readonly />
 					<span class="copy-to-clipboard-container">
-						<button type="button" class="button button-small copy-attachment-url" data-clipboard-target="#attachment-details-two-column-copy-link"><?php _e( '复制网址至剪贴板' ); ?></button>
+						<button type="button" class="btn btn-primary btn-tone btn-sm copy-attachment-url" data-clipboard-target="#attachment-details-two-column-copy-link"><?php _e( '复制网址至剪贴板' ); ?></button>
 						<span class="success hidden" aria-hidden="true"><?php _e( '已复制！' ); ?></span>
 					</span>
 				</span>
@@ -526,6 +556,10 @@ function gc_print_media_templates() {
 						<span class="links-separator">|</span>
 					<# } #>
 					<a href="{{ data.editLink }}"><?php _e( '编辑详细信息' ); ?></a>
+				<# } #>
+				<# if ( data.can.save && data.link ) { #>
+					<span class="links-separator">|</span>
+					<a href="{{ data.url }}" download><?php _e( '下载文件' ); ?></a>
 				<# } #>
 				<# if ( ! data.uploading && data.can.remove ) { #>
 					<# if ( data.link || data.can.save ) { #>
@@ -571,11 +605,21 @@ function gc_print_media_templates() {
 				<# } #>
 			</div>
 			<# if ( data.buttons.close ) { #>
-				<button type="button" class="button-link attachment-close media-modal-icon"><span class="screen-reader-text"><?php _e( '移除' ); ?></span></button>
+				<button type="button" class="button-link attachment-close media-modal-icon"><span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '移除' );
+					?>
+				</span></button>
 			<# } #>
 		</div>
 		<# if ( data.buttons.check ) { #>
-			<button type="button" class="check" tabindex="-1"><span class="media-modal-icon"></span><span class="screen-reader-text"><?php _e( '取消选择' ); ?></span></button>
+			<button type="button" class="check" tabindex="-1"><span class="media-modal-icon"></span><span class="screen-reader-text">
+				<?php
+				/* translators: Hidden accessibility text. */
+				_e( '取消选择' );
+				?>
+			</span></button>
 		<# } #>
 		<#
 		var maybeReadOnly = data.can.save || data.allowLocalEdits ? '' : 'readonly';
@@ -583,18 +627,18 @@ function gc_print_media_templates() {
 			if ( 'image' === data.type ) { #>
 				<input type="text" value="{{ data.caption }}" class="describe" data-setting="caption"
 					aria-label="<?php esc_attr_e( '说明文字' ); ?>"
-					placeholder="<?php esc_attr_e( '说明文字…' ); ?>" {{ maybeReadOnly }} />
+					placeholder="<?php esc_attr_e( '说明文字...'  ); ?>" {{ maybeReadOnly }} />
 			<# } else { #>
 				<input type="text" value="{{ data.title }}" class="describe" data-setting="title"
 					<# if ( 'video' === data.type ) { #>
 						aria-label="<?php esc_attr_e( '视频标题' ); ?>"
-						placeholder="<?php esc_attr_e( '视频标题…' ); ?>"
+						placeholder="<?php esc_attr_e( '视频标题...'  ); ?>"
 					<# } else if ( 'audio' === data.type ) { #>
 						aria-label="<?php esc_attr_e( '音频标题' ); ?>"
-						placeholder="<?php esc_attr_e( '音频标题…' ); ?>"
+						placeholder="<?php esc_attr_e( '音频标题...'  ); ?>"
 					<# } else { #>
 						aria-label="<?php esc_attr_e( '媒体标题' ); ?>"
-						placeholder="<?php esc_attr_e( '媒体标题…' ); ?>"
+						placeholder="<?php esc_attr_e( '媒体标题...'  ); ?>"
 					<# } #> {{ maybeReadOnly }} />
 			<# }
 		} #>
@@ -661,8 +705,10 @@ function gc_print_media_templates() {
 					<# } #>
 
 					<# if ( data.originalImageURL && data.originalImageName ) { #>
-						<?php _e( '原始图片：' ); ?>
-						<a href="{{ data.originalImageURL }}">{{data.originalImageName}}</a>
+						<div class="word-wrap-break-word">
+							<?php _e( '原始图片：' ); ?>
+							<a href="{{ data.originalImageURL }}">{{data.originalImageName}}</a>
+						</div>
 					<# } #>
 
 					<# if ( data.can.save && data.sizes ) { #>
@@ -702,9 +748,9 @@ function gc_print_media_templates() {
 		</div>
 		<# var maybeReadOnly = data.can.save || data.allowLocalEdits ? '' : 'readonly'; #>
 		<# if ( 'image' === data.type ) { #>
-			<span class="setting has-description" data-setting="alt">
+			<span class="setting alt-text has-description" data-setting="alt">
 				<label for="attachment-details-alt-text" class="name"><?php _e( '替代文本' ); ?></label>
-				<input type="text" id="attachment-details-alt-text" value="{{ data.alt }}" aria-describedby="alt-text-description" {{ maybeReadOnly }} />
+				<textarea id="attachment-details-alt-text" aria-describedby="alt-text-description" {{ maybeReadOnly }}>{{ data.alt }}</textarea>
 			</span>
 			<p class="description" id="alt-text-description"><?php echo $alt_text_description; ?></p>
 		<# } #>
@@ -739,7 +785,7 @@ function gc_print_media_templates() {
 			<label for="attachment-details-copy-link" class="name"><?php _e( '文件URL：' ); ?></label>
 			<input type="text" class="attachment-details-copy-link" id="attachment-details-copy-link" value="{{ data.url }}" readonly />
 			<div class="copy-to-clipboard-container">
-				<button type="button" class="button button-small copy-attachment-url" data-clipboard-target="#attachment-details-copy-link"><?php _e( '复制网址至剪贴板' ); ?></button>
+				<button type="button" class="btn btn-primary btn-tone btn-sm copy-attachment-url" data-clipboard-target="#attachment-details-copy-link"><?php _e( '复制网址至剪贴板' ); ?></button>
 				<span class="success hidden" aria-hidden="true"><?php _e( '已复制！' ); ?></span>
 			</div>
 		</span>
@@ -761,7 +807,7 @@ function gc_print_media_templates() {
 
 	<?php // Template for the Attachment display settings, used for example in the sidebar. ?>
 	<script type="text/html" id="tmpl-attachment-display-settings">
-		<h2><?php _e( '附件显示设置' ); ?></h2>
+		<h4><?php _e( '附件显示设置' ); ?></h4>
 
 		<# if ( 'image' === data.type ) { #>
 			<span class="setting align">
@@ -854,7 +900,7 @@ function gc_print_media_templates() {
 							'thumbnail' => __( '缩略图' ),
 							'medium'    => __( '中等' ),
 							'large'     => __( '大' ),
-							'full'      => __( '全尺寸' ),
+							'full'      => __( '实际大小' ),
 						)
 					);
 
@@ -875,7 +921,7 @@ function gc_print_media_templates() {
 
 	<?php // Template for the Gallery settings, used for example in the sidebar. ?>
 	<script type="text/html" id="tmpl-gallery-settings">
-		<h2><?php _e( '相册设置' ); ?></h2>
+		<h4><?php _e( '相册设置' ); ?></h4>
 
 		<span class="setting">
 			<label for="gallery-settings-link-to" class="name"><?php _e( '链接到' ); ?></label>
@@ -934,7 +980,7 @@ function gc_print_media_templates() {
 						'thumbnail' => __( '缩略图' ),
 						'medium'    => __( '中等' ),
 						'large'     => __( '大' ),
-						'full'      => __( '全尺寸' ),
+						'full'      => __( '实际大小' ),
 					)
 				);
 
@@ -950,7 +996,7 @@ function gc_print_media_templates() {
 
 	<?php // Template for the Playlists settings, used for example in the sidebar. ?>
 	<script type="text/html" id="tmpl-playlist-settings">
-		<h2><?php _e( '播放列表设置' ); ?></h2>
+		<h4><?php _e( '播放列表设置' ); ?></h4>
 
 		<# var emptyModel = _.isEmpty( data.model ),
 			isVideo = 'video' === data.controller.get('library').props.get('type'); #>
@@ -1010,7 +1056,7 @@ function gc_print_media_templates() {
 
 		<span class="setting alt-text has-description">
 			<label for="embed-image-settings-alt-text" class="name"><?php _e( '替代文本' ); ?></label>
-			<input type="text" id="embed-image-settings-alt-text" data-setting="alt" aria-describedby="alt-text-description" />
+			<textarea id="embed-image-settings-alt-text" data-setting="alt" aria-describedby="alt-text-description"></textarea>
 		</span>
 		<p class="description" id="alt-text-description"><?php echo $alt_text_description; ?></p>
 
@@ -1028,13 +1074,13 @@ function gc_print_media_templates() {
 			<legend class="name"><?php _e( '对齐' ); ?></legend>
 			<span class="setting align">
 				<span class="button-group button-large" data-setting="align">
-					<button class="button" value="left">
+					<button class="btn btn-primary btn-tone btn-sm" value="left">
 						<?php esc_html_e( '左' ); ?>
 					</button>
-					<button class="button" value="center">
+					<button class="btn btn-primary btn-tone btn-sm" value="center">
 						<?php esc_html_e( '中' ); ?>
 					</button>
-					<button class="button" value="right">
+					<button class="btn btn-primary btn-tone btn-sm" value="right">
 						<?php esc_html_e( '右' ); ?>
 					</button>
 					<button class="button active" value="none">
@@ -1048,10 +1094,10 @@ function gc_print_media_templates() {
 			<legend class="name"><?php _e( '链接到' ); ?></legend>
 			<span class="setting link-to">
 				<span class="button-group button-large" data-setting="link">
-					<button class="button" value="file">
+					<button class="btn btn-primary btn-tone btn-sm" value="file">
 						<?php esc_html_e( '图片URL' ); ?>
 					</button>
-					<button class="button" value="custom">
+					<button class="btn btn-primary btn-tone btn-sm" value="custom">
 						<?php esc_html_e( '自定义URL' ); ?>
 					</button>
 					<button class="button active" value="none">
@@ -1073,7 +1119,7 @@ function gc_print_media_templates() {
 				<div class="column-settings">
 					<span class="setting alt-text has-description">
 						<label for="image-details-alt-text" class="name"><?php _e( '替代文本' ); ?></label>
-						<input type="text" id="image-details-alt-text" data-setting="alt" value="{{ data.model.alt }}" aria-describedby="alt-text-description" />
+						<textarea id="image-details-alt-text" data-setting="alt" aria-describedby="alt-text-description">{{ data.model.alt }}</textarea>
 					</span>
 					<p class="description" id="alt-text-description"><?php echo $alt_text_description; ?></p>
 
@@ -1087,18 +1133,18 @@ function gc_print_media_templates() {
 						</span>
 					<?php endif; ?>
 
-					<h2><?php _e( '显示设置' ); ?></h2>
+					<h4><?php _e( '显示设置' ); ?></h4>
 					<fieldset class="setting-group">
 						<legend class="legend-inline"><?php _e( '对齐' ); ?></legend>
 						<span class="setting align">
 							<span class="button-group button-large" data-setting="align">
-								<button class="button" value="left">
+								<button class="btn btn-primary btn-tone btn-sm" value="left">
 									<?php esc_html_e( '左' ); ?>
 								</button>
-								<button class="button" value="center">
+								<button class="btn btn-primary btn-tone btn-sm" value="center">
 									<?php esc_html_e( '中' ); ?>
 								</button>
-								<button class="button" value="right">
+								<button class="btn btn-primary btn-tone btn-sm" value="right">
 									<?php esc_html_e( '右' ); ?>
 								</button>
 								<button class="button active" value="none">
@@ -1125,7 +1171,7 @@ function gc_print_media_templates() {
 											'thumbnail' => __( '缩略图' ),
 											'medium'    => __( '中等' ),
 											'large'     => __( '大' ),
-											'full'      => __( '全尺寸' ),
+											'full'      => __( '实际大小' ),
 										)
 									);
 
@@ -1296,8 +1342,8 @@ function gc_print_media_templates() {
 					<legend class="name"><?php _e( '预加载' ); ?></legend>
 					<span class="setting preload">
 						<span class="button-group button-large" data-setting="preload">
-							<button class="button" value="auto"><?php _ex( '自动', 'auto preload' ); ?></button>
-							<button class="button" value="metadata"><?php _e( '元数据' ); ?></button>
+							<button class="btn btn-primary btn-tone btn-sm" value="auto"><?php _ex( 'Auto', 'auto preload' ); ?></button>
+							<button class="btn btn-primary btn-tone btn-sm" value="metadata"><?php _e( '元数据' ); ?></button>
 							<button class="button active" value="none"><?php _e( '无' ); ?></button>
 						</span>
 					</span>
@@ -1395,8 +1441,8 @@ function gc_print_media_templates() {
 					<legend class="name"><?php _e( '预加载' ); ?></legend>
 					<span class="setting preload">
 						<span class="button-group button-large" data-setting="preload">
-							<button class="button" value="auto"><?php _ex( '自动', 'auto preload' ); ?></button>
-							<button class="button" value="metadata"><?php _e( '元数据' ); ?></button>
+							<button class="btn btn-primary btn-tone btn-sm" value="auto"><?php _ex( 'Auto', 'auto preload' ); ?></button>
+							<button class="btn btn-primary btn-tone btn-sm" value="metadata"><?php _e( '元数据' ); ?></button>
 							<button class="button active" value="none"><?php _e( '无' ); ?></button>
 						</span>
 					</span>
@@ -1434,7 +1480,7 @@ function gc_print_media_templates() {
 							);
 						?>
 						</span>
-						<button type="button" class="button-link remove-setting remove-track"><?php _ex( '移除视频轨道', 'media' ); ?></button><br/>
+						<button type="button" class="button-link remove-setting remove-track"><?php _ex( '移除视频轨道', 'media' ); ?></button><br />
 						<# } ); #>
 					<# } else { #>
 					<span class="name"><?php _e( '“音轨”（字幕、说明文字、内容描述、章节或元数据）' ); ?></span><br />
@@ -1466,7 +1512,7 @@ function gc_print_media_templates() {
 						<# } #>
 					</dl>
 					<# if ( index % data.columns === data.columns - 1 ) { #>
-						<br style="clear: both;">
+						<br style="clear: both;" />
 					<# } #>
 				<# } ); #>
 			</div>
@@ -1485,15 +1531,15 @@ function gc_print_media_templates() {
 
 	<?php // Template for the Site Icon preview, used for example in the Customizer. ?>
 	<script type="text/html" id="tmpl-site-icon-preview">
-		<h2><?php _e( '预览' ); ?></h2>
+		<h4><?php _e( '预览' ); ?></h4>
 		<strong aria-hidden="true"><?php _e( '作为浏览器图标' ); ?></strong>
 		<div class="favicon-preview">
-			<img src="<?php echo esc_url( assets_url( '/images/' . ( is_rtl() ? 'browser-rtl.png' : 'browser.png' ) ) ); ?>" class="browser-preview" width="182" height="" alt="" />
+			<img src="<?php echo esc_url( assets_url( 'images/' . ( is_rtl() ? 'browser-rtl.png' : 'browser.png' ) ) ); ?>" class="browser-preview" width="182" height="" alt="" />
 
 			<div class="favicon">
 				<img id="preview-favicon" src="{{ data.url }}" alt="<?php esc_attr_e( '作为浏览器图标预览' ); ?>" />
 			</div>
-			<span class="browser-title" aria-hidden="true"><# print( '<?php bloginfo( 'name' ); ?>' ) #></span>
+			<span class="browser-title" aria-hidden="true"><# print( '<?php echo esc_js( get_bloginfo( 'name' ) ); ?>' ) #></span>
 		</div>
 
 		<strong aria-hidden="true"><?php _e( '作为app图标' ); ?></strong>
@@ -1507,6 +1553,7 @@ function gc_print_media_templates() {
 	/**
 	 * Fires when the custom Backbone media templates are printed.
 	 *
+	 * @since 3.5.0
 	 */
 	do_action( 'print_media_templates' );
 }

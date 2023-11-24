@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Users
- *
  */
 
 /**
@@ -21,12 +20,13 @@
  *          )
  *     )
  *
- *
  */
+#[AllowDynamicProperties]
 class GC_Roles {
 	/**
 	 * List of roles and capabilities.
 	 *
+	 * @since 2.0.0
 	 * @var array[]
 	 */
 	public $roles;
@@ -34,6 +34,7 @@ class GC_Roles {
 	/**
 	 * List of the role objects.
 	 *
+	 * @since 2.0.0
 	 * @var GC_Role[]
 	 */
 	public $role_objects = array();
@@ -41,6 +42,7 @@ class GC_Roles {
 	/**
 	 * List of role names.
 	 *
+	 * @since 2.0.0
 	 * @var string[]
 	 */
 	public $role_names = array();
@@ -48,6 +50,7 @@ class GC_Roles {
 	/**
 	 * Option name for storing role list.
 	 *
+	 * @since 2.0.0
 	 * @var string
 	 */
 	public $role_key;
@@ -62,13 +65,16 @@ class GC_Roles {
 	/**
 	 * The site ID the roles are initialized for.
 	 *
+	 * @since 4.9.0
 	 * @var int
 	 */
 	protected $site_id = 0;
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 *
+	 * @since 2.0.0
+	 * @since 4.9.0 The `$site_id` argument was added.
 	 *
 	 * @global array $gc_user_roles Used to set the 'roles' property value.
 	 *
@@ -83,8 +89,9 @@ class GC_Roles {
 	}
 
 	/**
-	 * Make private/protected methods readable for backward compatibility.
+	 * Makes private/protected methods readable for backward compatibility.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $name      Method to call.
 	 * @param array  $arguments Arguments to pass when calling.
@@ -98,7 +105,7 @@ class GC_Roles {
 	}
 
 	/**
-	 * Set up the object properties.
+	 * Sets up the object properties.
 	 *
 	 * The role key is set to the current prefix for the $gcdb object with
 	 * 'user_roles' appended. If the $gc_user_roles global is set, then it will
@@ -113,11 +120,12 @@ class GC_Roles {
 	}
 
 	/**
-	 * Reinitialize the object
+	 * Reinitializes the object.
 	 *
 	 * Recreates the role objects. This is typically called only by switch_to_blog()
 	 * after switching gcdb to a new site ID.
 	 *
+	 * @since 3.5.0
 	 * @deprecated 4.7.0 Use GC_Roles::for_site()
 	 */
 	public function reinit() {
@@ -127,19 +135,21 @@ class GC_Roles {
 	}
 
 	/**
-	 * Add role name with capabilities to list.
+	 * Adds a role name with capabilities to the list.
 	 *
 	 * Updates the list of roles, if the role doesn't already exist.
 	 *
-	 * The capabilities are defined in the following format `array( 'read' => true );`
-	 * To explicitly deny a role a capability you set the value for that capability to false.
+	 * The capabilities are defined in the following format: `array( 'read' => true )`.
+	 * To explicitly deny the role a capability, set the value for that capability to false.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $role         Role name.
 	 * @param string $display_name Role display name.
-	 * @param bool[] $capabilities List of capabilities keyed by the capability name,
-	 *                             e.g. array( 'edit_posts' => true, 'delete_posts' => false ).
-	 * @return GC_Role|void GC_Role object, if role is added.
+	 * @param bool[] $capabilities Optional. List of capabilities keyed by the capability name,
+	 *                             e.g. `array( 'edit_posts' => true, 'delete_posts' => false )`.
+	 *                             Default empty array.
+	 * @return GC_Role|void GC_Role object, if the role is added.
 	 */
 	public function add_role( $role, $display_name, $capabilities = array() ) {
 		if ( empty( $role ) || isset( $this->roles[ $role ] ) ) {
@@ -159,8 +169,9 @@ class GC_Roles {
 	}
 
 	/**
-	 * Remove role by name.
+	 * Removes a role by name.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $role Role name.
 	 */
@@ -183,8 +194,9 @@ class GC_Roles {
 	}
 
 	/**
-	 * Add capability to role.
+	 * Adds a capability to role.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $role  Role name.
 	 * @param string $cap   Capability name.
@@ -203,8 +215,9 @@ class GC_Roles {
 	}
 
 	/**
-	 * Remove capability from role.
+	 * Removes a capability from role.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $role Role name.
 	 * @param string $cap  Capability name.
@@ -221,8 +234,9 @@ class GC_Roles {
 	}
 
 	/**
-	 * Retrieve role object by name.
+	 * Retrieves a role object by name.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $role Role name.
 	 * @return GC_Role|null GC_Role object if found, null if the role does not exist.
@@ -236,8 +250,9 @@ class GC_Roles {
 	}
 
 	/**
-	 * Retrieve list of role names.
+	 * Retrieves a list of role names.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @return string[] List of role names.
 	 */
@@ -246,8 +261,9 @@ class GC_Roles {
 	}
 
 	/**
-	 * Whether role name is currently in the list of available roles.
+	 * Determines whether a role name is currently in the list of available roles.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $role Role name to look up.
 	 * @return bool
@@ -259,6 +275,7 @@ class GC_Roles {
 	/**
 	 * Initializes all of the available roles.
 	 *
+	 * @since 4.9.0
 	 */
 	public function init_roles() {
 		if ( empty( $this->roles ) ) {
@@ -273,8 +290,9 @@ class GC_Roles {
 		}
 
 		/**
-		 * After the roles have been initialized, allow plugins to add their own roles.
+		 * Fires after the roles have been initialized, allowing plugins to add their own roles.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_Roles $gc_roles A reference to the GC_Roles object.
 		 */
@@ -284,6 +302,7 @@ class GC_Roles {
 	/**
 	 * Sets the site to operate on. Defaults to the current site.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -312,6 +331,7 @@ class GC_Roles {
 	/**
 	 * Gets the ID of the site for which roles are currently initialized.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @return int Site ID.
 	 */
@@ -322,6 +342,7 @@ class GC_Roles {
 	/**
 	 * Gets the available roles data.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @global array $gc_user_roles Used to set the 'roles' property value.
 	 *

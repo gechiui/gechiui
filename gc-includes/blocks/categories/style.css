@@ -1,0 +1,12 @@
+.gc-block-categories{
+  box-sizing:border-box;
+}
+.gc-block-categories.alignleft{
+  margin-right:2em;
+}
+.gc-block-categories.alignright{
+  margin-left:2em;
+}
+.gc-block-categories.gc-block-categories-dropdown.aligncenter{
+  text-align:center;
+}

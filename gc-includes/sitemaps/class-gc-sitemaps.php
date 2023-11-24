@@ -6,18 +6,20 @@
  *
  * @package GeChiUI
  * @subpackage Sitemaps
- *
+ * @since 5.5.0
  */
 
 /**
  * Class GC_Sitemaps.
  *
- *
+ * @since 5.5.0
  */
+#[AllowDynamicProperties]
 class GC_Sitemaps {
 	/**
 	 * The main index of supported sitemaps.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @var GC_Sitemaps_Index
 	 */
@@ -26,6 +28,7 @@ class GC_Sitemaps {
 	/**
 	 * The main registry of supported sitemaps.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @var GC_Sitemaps_Registry
 	 */
@@ -34,6 +37,7 @@ class GC_Sitemaps {
 	/**
 	 * An instance of the renderer class.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @var GC_Sitemaps_Renderer
 	 */
@@ -42,6 +46,7 @@ class GC_Sitemaps {
 	/**
 	 * GC_Sitemaps constructor.
 	 *
+	 * @since 5.5.0
 	 */
 	public function __construct() {
 		$this->registry = new GC_Sitemaps_Registry();
@@ -55,6 +60,7 @@ class GC_Sitemaps {
 	 * If sitemaps are disabled, only the rewrite rules will be registered
 	 * by this method, in order to properly send 404s.
 	 *
+	 * @since 5.5.0
 	 */
 	public function init() {
 		// These will all fire on the init hook.
@@ -76,6 +82,7 @@ class GC_Sitemaps {
 	/**
 	 * Determines whether sitemaps are enabled or not.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return bool Whether sitemaps are enabled.
 	 */
@@ -90,9 +97,10 @@ class GC_Sitemaps {
 		 *
 		 * @see GC_Sitemaps::register_rewrites()
 		 *
+		 * @since 5.5.0
 		 *
-		 * @param bool $is_enabled Whether XML Sitemaps are enabled or not. Defaults
-		 * to true for public sites.
+		 * @param bool $is_enabled Whether XML Sitemaps are enabled or not.
+		 *                         Defaults to true for public sites.
 		 */
 		return (bool) apply_filters( 'gc_sitemaps_enabled', $is_enabled );
 	}
@@ -100,10 +108,10 @@ class GC_Sitemaps {
 	/**
 	 * Registers and sets up the functionality for all supported sitemaps.
 	 *
+	 * @since 5.5.0
 	 */
 	public function register_sitemaps() {
 		$providers = array(
-			'sites'      => new GC_Sitemaps_Sites(),
 			'posts'      => new GC_Sitemaps_Posts(),
 			'taxonomies' => new GC_Sitemaps_Taxonomies(),
 			'users'      => new GC_Sitemaps_Users(),
@@ -118,6 +126,7 @@ class GC_Sitemaps {
 	/**
 	 * Registers sitemap rewrite tags and routing rules.
 	 *
+	 * @since 5.5.0
 	 */
 	public function register_rewrites() {
 		// Add rewrite tags.
@@ -148,6 +157,7 @@ class GC_Sitemaps {
 	/**
 	 * Renders sitemap templates based on rewrite rules.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @global GC_Query $gc_query GeChiUI Query object.
 	 */
@@ -212,6 +222,7 @@ class GC_Sitemaps {
 	/**
 	 * Redirects a URL to the gc-sitemap.xml
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param bool     $bypass Pass-through of the pre_handle_404 filter value.
 	 * @param GC_Query $query  The GC_Query object.
@@ -237,13 +248,14 @@ class GC_Sitemaps {
 	/**
 	 * Adds the sitemap index to robots.txt.
 	 *
+	 * @since 5.5.0
 	 *
-	 * @param string $output robots.txt output.
-	 * @param bool   $public Whether the site is public.
+	 * @param string $output    robots.txt output.
+	 * @param bool   $is_public Whether the site is public.
 	 * @return string The robots.txt output.
 	 */
-	public function add_robots( $output, $public ) {
-		if ( $public ) {
+	public function add_robots( $output, $is_public ) {
+		if ( $is_public ) {
 			$output .= "\nSitemap: " . esc_url( $this->index->get_index_url() ) . "\n";
 		}
 

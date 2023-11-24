@@ -1,0 +1,43 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/preformatted",
+	"title": "预格式",
+	"category": "text",
+	"description": "添加符合间距和标签的文字，也可设置样式。",
+	"textdomain": "default",
+	"attributes": {
+		"content": {
+			"type": "string",
+			"source": "html",
+			"selector": "pre",
+			"default": "",
+			"__unstablePreserveWhiteSpace": true,
+			"__experimentalRole": "content"
+		}
+	},
+	"supports": {
+		"anchor": true,
+		"color": {
+			"gradients": true,
+			"__experimentalDefaultControls": {
+				"background": true,
+				"text": true
+			}
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalTextTransform": true,
+			"__experimentalTextDecoration": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		}
+	},
+	"style": "gc-block-preformatted"
+}

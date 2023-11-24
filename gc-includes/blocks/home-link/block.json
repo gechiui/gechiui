@@ -1,0 +1,43 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/home-link",
+	"category": "design",
+	"parent": [ "core/navigation" ],
+	"title": "首页链接",
+	"description": "创建一个始终指向系统主页的链接。如果在标题中已经存在系统标题链接，通常没有必要。",
+	"textdomain": "default",
+	"attributes": {
+		"label": {
+			"type": "string"
+		}
+	},
+	"usesContext": [
+		"textColor",
+		"customTextColor",
+		"backgroundColor",
+		"customBackgroundColor",
+		"fontSize",
+		"customFontSize",
+		"style"
+	],
+	"supports": {
+		"reusable": false,
+		"html": false,
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalTextTransform": true,
+			"__experimentalTextDecoration": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		}
+	},
+	"editorStyle": "gc-block-home-link-editor",
+	"style": "gc-block-home-link"
+}

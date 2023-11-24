@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/gc-backbone.js
+ * @output assets/js/gc-backbone.js
  */
 
 /** @namespace gc */
@@ -16,6 +16,8 @@ window.gc = window.gc || {};
 	/**
 	 * A backbone subview manager.
 	 *
+	 * @since 3.5.0
+	 * @since 3.6.0 Moved gc.media.Views to gc.Backbone.Subviews.
 	 *
 	 * @memberOf gc.Backbone
 	 *
@@ -35,6 +37,7 @@ window.gc = window.gc || {};
 		/**
 		 * Fetches all of the subviews.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @return {Array} All the subviews.
 		 */
@@ -48,6 +51,7 @@ window.gc = window.gc || {};
 		 * If no `selector` is provided, it will grab all subviews attached
 		 * to the view's root.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @param {string} selector A jQuery selector.
 		 *
@@ -66,6 +70,7 @@ window.gc = window.gc || {};
 		 *
 		 * Useful when a selector only has one subview at a time.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @param {string} selector A jQuery selector.
 		 *
@@ -104,6 +109,7 @@ window.gc = window.gc || {};
 		 * When adding, to insert `views` at a specific index, use `options.at`.
 		 * By default, `views` are added to the end of the array.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @param {string}       selector A jQuery selector.
 		 * @param {Array|Object} views    The subviews for the main view.
@@ -192,6 +198,7 @@ window.gc = window.gc || {};
 		 *
 		 * For more information on the `options` object, see `Views.set()`.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @param {string}       selector A jQuery selector.
 		 * @param {Array|Object} views    The subviews for the main view.
@@ -222,6 +229,7 @@ window.gc = window.gc || {};
 		 * Accepts an `options` object. If `options.silent` is set, `remove`
 		 * will *not* be triggered on the unregistered views.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @param {string}       selector A jQuery selector.
 		 * @param {Array|Object} views    The subviews for the main view.
@@ -259,6 +267,7 @@ window.gc = window.gc || {};
 		 * Helps to preserve all subview events when re-rendering the master
 		 * view. Used in conjunction with `Views.render()`.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @return {gc.Backbone.Subviews} The current Subviews instance.
 		 */
@@ -272,6 +281,7 @@ window.gc = window.gc || {};
 		 *
 		 * Used in conjunction with `Views.detach()`.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @return {gc.Backbone.Subviews} The current Subviews instance.
 		*/
@@ -297,6 +307,7 @@ window.gc = window.gc || {};
 		 * Accepts an `options` object. If `options.silent` is set, `unset`
 		 * will *not* be triggered on the master view's parent.
 		 *
+		 * @since 3.6.0
 		 *
 		 * @param {Object}  options        Options for call.
 		 * @param {boolean} options.silent If true, `unset` wil *not* be triggered on
@@ -324,6 +335,7 @@ window.gc = window.gc || {};
 		 *
 		 * Can be overridden in subclasses.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @param {string} $target Selector where to put the elements.
 		 * @param {*} els HTML or elements to put into the selector's HTML.
@@ -344,6 +356,7 @@ window.gc = window.gc || {};
 		 *
 		 * Can be overridden in subclasses.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @param {string}  $target    Selector where to put the elements.
 		 * @param {*}       els        HTML or elements to put at the end of the
@@ -374,6 +387,7 @@ window.gc = window.gc || {};
 		 *
 		 * Fires the ready event on the current view and all attached subviews.
 		 *
+		 * @since 3.5.0
 		 */
 		ready: function() {
 			this.view.trigger('ready');
@@ -390,6 +404,7 @@ window.gc = window.gc || {};
 		 * performs the proper DOM operation, and then checks if the view is
 		 * attached to the document.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @private
 		 *
@@ -439,6 +454,7 @@ window.gc = window.gc || {};
 		/**
 		 * Determines whether or not the current view is in the DOM.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @private
 		 *
@@ -467,6 +483,8 @@ window.gc = window.gc || {};
 		 * This extends the backbone view to have a build-in way to use subviews. This
 		 * makes it easier to have nested views.
 		 *
+		 * @since 3.5.0
+		 * @since 3.6.0 Moved gc.media.View to gc.Backbone.View
 		 *
 		 * @constructs
 		 * @augments Backbone.View
@@ -488,6 +506,7 @@ window.gc = window.gc || {};
 		/**
 		 * Removes this view and all subviews.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @return {gc.Backbone.Subviews} The current Subviews instance.
 		 */
@@ -504,6 +523,7 @@ window.gc = window.gc || {};
 		/**
 		 * Renders this view and all subviews.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @return {gc.Backbone.View} The current instance of the view.
 		 */
@@ -528,6 +548,7 @@ window.gc = window.gc || {};
 		/**
 		 * Returns the options for this view.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @return {Object} The options for this view.
 		 */
@@ -538,6 +559,7 @@ window.gc = window.gc || {};
 		/**
 		 * Method that is called when the ready event is triggered.
 		 *
+		 * @since 3.5.0
 		 */
 		ready: function() {}
 	});

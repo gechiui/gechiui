@@ -8,10 +8,10 @@
  * - Sends the REST API nonce as a request header.
  * - Allows specifying only an endpoint namespace/path instead of a full URL.
  *
- *
- *
+ * @since 4.9.0
+ * @since 5.6.0 Added overriding of the "PUT" and "DELETE" methods with "POST".
  *              Added an "application/json" Accept header to all requests.
- * @output gc-includes/js/api-request.js
+ * @output assets/js/api-request.js
  */
 
 ( function( $ ) {

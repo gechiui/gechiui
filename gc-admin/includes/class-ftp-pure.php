@@ -4,7 +4,6 @@
  *
  * @package PemFTP
  *
- *
  * @version 1.0
  * @copyright Alexey Dotsenko
  * @author Alexey Dotsenko
@@ -17,7 +16,6 @@
  *
  * @package PemFTP
  * @subpackage Pure
- *
  *
  * @version 1.0
  * @copyright Alexey Dotsenko

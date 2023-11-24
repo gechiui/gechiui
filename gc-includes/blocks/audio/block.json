@@ -1,0 +1,61 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/audio",
+	"title": "音频",
+	"category": "media",
+	"description": "嵌入简单音频播放器。",
+	"keywords": [ "music", "sound", "podcast", "recording" ],
+	"textdomain": "default",
+	"attributes": {
+		"src": {
+			"type": "string",
+			"source": "attribute",
+			"selector": "audio",
+			"attribute": "src",
+			"__experimentalRole": "content"
+		},
+		"caption": {
+			"type": "string",
+			"source": "html",
+			"selector": "figcaption",
+			"__experimentalRole": "content"
+		},
+		"id": {
+			"type": "number",
+			"__experimentalRole": "content"
+		},
+		"autoplay": {
+			"type": "boolean",
+			"source": "attribute",
+			"selector": "audio",
+			"attribute": "autoplay"
+		},
+		"loop": {
+			"type": "boolean",
+			"source": "attribute",
+			"selector": "audio",
+			"attribute": "loop"
+		},
+		"preload": {
+			"type": "string",
+			"source": "attribute",
+			"selector": "audio",
+			"attribute": "preload"
+		}
+	},
+	"supports": {
+		"anchor": true,
+		"align": true,
+		"spacing": {
+			"margin": true,
+			"padding": true,
+			"__experimentalDefaultControls": {
+				"margin": false,
+				"padding": false
+			}
+		}
+	},
+	"editorStyle": "gc-block-audio-editor",
+	"style": "gc-block-audio"
+}

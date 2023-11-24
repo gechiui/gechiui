@@ -6,7 +6,6 @@
  *
  * @package GeChiUI
  * @subpackage Upgrader
- *
  */
 
 /** GC_Upgrader_Skin class */
@@ -46,8 +45,8 @@ require_once ABSPATH . 'gc-admin/includes/class-gc-ajax-upgrader-skin.php';
  * Core class used for upgrading/installing a local set of files via
  * the Filesystem Abstraction classes from a Zip file.
  *
- *
  */
+#[AllowDynamicProperties]
 class GC_Upgrader {
 
 	/**
@@ -107,6 +106,26 @@ class GC_Upgrader {
 	public $update_current = 0;
 
 	/**
+	 * Stores the list of plugins or themes added to temporary backup directory.
+	 *
+	 * Used by the rollback functions.
+	 *
+	 * @since 6.3.0
+	 * @var array
+	 */
+	private $temp_backups = array();
+
+	/**
+	 * Stores the list of plugins or themes to be restored from temporary backup directory.
+	 *
+	 * Used by the rollback functions.
+	 *
+	 * @since 6.3.0
+	 * @var array
+	 */
+	private $temp_restores = array();
+
+	/**
 	 * Construct the upgrader with a skin.
 	 *
 	 *
@@ -122,28 +141,46 @@ class GC_Upgrader {
 	}
 
 	/**
-	 * Initialize the upgrader.
+	 * Initializes the upgrader.
 	 *
 	 * This will set the relationship between the skin being used and this upgrader,
 	 * and also add the generic strings to `GC_Upgrader::$strings`.
 	 *
+	 * Additionally, it will schedule a weekly task to clean up the temporary backup directory.
+	 *
+	 * @since 6.3.0 Added the `schedule_temp_backup_cleanup()` task.
 	 */
 	public function init() {
 		$this->skin->set_upgrader( $this );
 		$this->generic_strings();
+
+		if ( ! gc_installing() ) {
+			$this->schedule_temp_backup_cleanup();
+		}
 	}
 
 	/**
-	 * Add the generic strings to GC_Upgrader::$strings.
+	 * Schedules the cleanup of the temporary backup directory.
+	 *
+	 * @since 6.3.0
+	 */
+	protected function schedule_temp_backup_cleanup() {
+		if ( false === gc_next_scheduled( 'gc_delete_temp_updater_backups' ) ) {
+			gc_schedule_event( time(), 'weekly', 'gc_delete_temp_updater_backups' );
+		}
+	}
+
+	/**
+	 * Adds the generic strings to GC_Upgrader::$strings.
 	 *
 	 */
 	public function generic_strings() {
 		$this->strings['bad_request']       = __( '提供了无效资料。' );
 		$this->strings['fs_unavailable']    = __( '无法访问文件系统。' );
 		$this->strings['fs_error']          = __( '文件系统错误。' );
-		$this->strings['fs_no_root_dir']    = __( '无法找到GeChiUI根目录。' );
-		$this->strings['fs_no_content_dir'] = __( '无法找到GeChiUI内容目录（gc-content）。' );
-		$this->strings['fs_no_plugins_dir'] = __( '无法找到GeChiUI插件目录。' );
+		$this->strings['fs_no_root_dir']    = __( '无法找到 GeChiUI 根目录。' );
+		$this->strings['fs_no_content_dir'] = sprintf( __( '无法找到 GeChiUI 内容目录 (%s)。' ), 'gc-content' );
+		$this->strings['fs_no_plugins_dir'] = __( '无法找到 GeChiUI 插件目录。' );
 		$this->strings['fs_no_themes_dir']  = __( '无法找到GeChiUI主题目录。' );
 		/* translators: %s: Directory name. */
 		$this->strings['fs_no_folder'] = __( '无法找到所需目录（%s）。' );
@@ -154,14 +191,23 @@ class GC_Upgrader {
 		$this->strings['folder_exists']        = __( '目标目录已存在。' );
 		$this->strings['mkdir_failed']         = __( '无法创建目录。' );
 		$this->strings['incompatible_archive'] = __( '无法安装这个包。' );
-		$this->strings['files_not_writable']   = __( '因为我们不能复制一些文件，升级未被安装。这通常是因为存在不一致的文件权限。' );
+		$this->strings['files_not_writable']   = __( '由于某些文件无法被复制，更新无法进行。此问题通常是由于文件权限不一致造成的。' );
 
 		$this->strings['maintenance_start'] = __( '正在启用维护模式&#8230;' );
 		$this->strings['maintenance_end']   = __( '正在停用维护模式&#8230;' );
+
+		/* translators: %s: upgrade-temp-backup */
+		$this->strings['temp_backup_mkdir_failed'] = sprintf( __( '无法创建 %s 目录。' ), 'upgrade-temp-backup' );
+		/* translators: %s: upgrade-temp-backup */
+		$this->strings['temp_backup_move_failed'] = sprintf( __( '无法将旧版本移动到 %s 目录。' ), 'upgrade-temp-backup' );
+		/* translators: %s: The plugin or theme slug. */
+		$this->strings['temp_backup_restore_failed'] = __( '无法恢复 %s 的原始版本。' );
+		/* translators: %s: The plugin or theme slug. */
+		$this->strings['temp_backup_delete_failed'] = __( '无法删除 %s 的临时备份目录。' );
 	}
 
 	/**
-	 * Connect to the filesystem.
+	 * Connects to the filesystem.
 	 *
 	 *
 	 * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
@@ -232,8 +278,10 @@ class GC_Upgrader {
 	}
 
 	/**
-	 * Download a package.
+	 * Downloads a package.
 	 *
+	 * @since 5.2.0 Added the `$check_signatures` parameter.
+	 * @since 5.5.0 Added the `$hook_extra` parameter.
 	 *
 	 * @param string $package          The URI of the package. If this is the full path to an
 	 *                                 existing local file, it will be returned untouched.
@@ -245,6 +293,8 @@ class GC_Upgrader {
 		/**
 		 * Filters whether to return the package.
 		 *
+		 * @since 3.7.0
+		 * @since 5.5.0 Added the `$hook_extra` parameter.
 		 *
 		 * @param bool        $reply      Whether to bail without returning the package.
 		 *                                Default false.
@@ -277,7 +327,7 @@ class GC_Upgrader {
 	}
 
 	/**
-	 * Unpack a compressed package file.
+	 * Unpacks a compressed package file.
 	 *
 	 *
 	 * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
@@ -291,6 +341,10 @@ class GC_Upgrader {
 		global $gc_filesystem;
 
 		$this->skin->feedback( 'unpack_package' );
+
+		if ( ! $gc_filesystem->gc_content_dir() ) {
+			return new GC_Error( 'fs_no_content_dir', $this->strings['fs_no_content_dir'] );
+		}
 
 		$upgrade_folder = $gc_filesystem->gc_content_dir() . 'upgrade/';
 
@@ -330,8 +384,9 @@ class GC_Upgrader {
 	}
 
 	/**
-	 * Flatten the results of GC_Filesystem_Base::dirlist() for iterating over.
+	 * Flattens the results of GC_Filesystem_Base::dirlist() for iterating over.
 	 *
+	 * @since 4.9.0
 	 * @access protected
 	 *
 	 * @param array  $nested_files Array of files as returned by GC_Filesystem_Base::dirlist().
@@ -359,6 +414,7 @@ class GC_Upgrader {
 	/**
 	 * Clears the directory where this item is going to be installed into.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
 	 *
@@ -410,6 +466,7 @@ class GC_Upgrader {
 	 * a destination directory. Optionally removes the source. It can also optionally
 	 * clear out the destination folder if it already exists.
 	 *
+	 * @since 6.2.0 Use move_dir() instead of copy_dir() when possible.
 	 *
 	 * @global GC_Filesystem_Base $gc_filesystem        GeChiUI filesystem subclass.
 	 * @global array              $gc_theme_directories
@@ -451,7 +508,9 @@ class GC_Upgrader {
 		$destination       = $args['destination'];
 		$clear_destination = $args['clear_destination'];
 
-		set_time_limit( 300 );
+		if ( function_exists( 'set_time_limit' ) ) {
+			set_time_limit( 300 );
+		}
 
 		if ( empty( $source ) || empty( $destination ) ) {
 			return new GC_Error( 'bad_request', $this->strings['bad_request'] );
@@ -459,13 +518,14 @@ class GC_Upgrader {
 		$this->skin->feedback( 'installing_package' );
 
 		/**
-		 * Filters the install response before the installation has started.
+		 * Filters the installation response before the installation has started.
 		 *
 		 * Returning a value that could be evaluated as a `GC_Error` will effectively
 		 * short-circuit the installation, returning that value instead.
 		 *
+		 * @since 2.8.0
 		 *
-		 * @param bool|GC_Error $response   Response.
+		 * @param bool|GC_Error $response   Installation response.
 		 * @param array         $hook_extra Extra arguments passed to hooked filters.
 		 */
 		$res = apply_filters( 'upgrader_pre_install', true, $args['hook_extra'] );
@@ -489,14 +549,18 @@ class GC_Upgrader {
 			// There are no files?
 			return new GC_Error( 'incompatible_archive_empty', $this->strings['incompatible_archive'], $this->strings['no_files'] );
 		} else {
-			// It's only a single file, the upgrader will use the folder name of this file as the destination folder.
-			// Folder name is based on zip filename.
+			/*
+			 * It's only a single file, the upgrader will use the folder name of this file as the destination folder.
+			 * Folder name is based on zip filename.
+			 */
 			$source = trailingslashit( $args['source'] );
 		}
 
 		/**
 		 * Filters the source file location for the upgrade package.
 		 *
+		 * @since 2.8.0
+		 * @since 4.4.0 The $hook_extra parameter became available.
 		 *
 		 * @param string      $source        File source location.
 		 * @param string      $remote_source Remote file source location.
@@ -507,6 +571,16 @@ class GC_Upgrader {
 
 		if ( is_gc_error( $source ) ) {
 			return $source;
+		}
+
+		if ( ! empty( $args['hook_extra']['temp_backup'] ) ) {
+			$temp_backup = $this->move_to_temp_backup_dir( $args['hook_extra']['temp_backup'] );
+
+			if ( is_gc_error( $temp_backup ) ) {
+				return $temp_backup;
+			}
+
+			$this->temp_backups[] = $args['hook_extra']['temp_backup'];
 		}
 
 		// Has the source location changed? If so, we need a new source_files list.
@@ -541,7 +615,7 @@ class GC_Upgrader {
 			/**
 			 * Filters whether the upgrader cleared the destination.
 			 *
-		
+			 * @since 2.8.0
 			 *
 			 * @param true|GC_Error $removed            Whether the destination was cleared.
 			 *                                          True upon success, GC_Error on failure.
@@ -555,8 +629,10 @@ class GC_Upgrader {
 				return $removed;
 			}
 		} elseif ( $args['abort_if_destination_exists'] && $gc_filesystem->exists( $remote_destination ) ) {
-			// If we're not clearing the destination folder and something exists there already, bail.
-			// But first check to see if there are actually any files in the folder.
+			/*
+			 * If we're not clearing the destination folder and something exists there already, bail.
+			 * But first check to see if there are actually any files in the folder.
+			 */
 			$_files = $gc_filesystem->dirlist( $remote_destination );
 			if ( ! empty( $_files ) ) {
 				$gc_filesystem->delete( $remote_source, true ); // Clear out the source files.
@@ -564,25 +640,38 @@ class GC_Upgrader {
 			}
 		}
 
-		// Create destination if needed.
-		if ( ! $gc_filesystem->exists( $remote_destination ) ) {
-			if ( ! $gc_filesystem->mkdir( $remote_destination, FS_CHMOD_DIR ) ) {
-				return new GC_Error( 'mkdir_failed_destination', $this->strings['mkdir_failed'], $remote_destination );
+		/*
+		 * If 'clear_working' is false, the source should not be removed, so use copy_dir() instead.
+		 *
+		 * Partial updates, like language packs, may want to retain the destination.
+		 * If the destination exists or has contents, this may be a partial update,
+		 * and the destination should not be removed, so use copy_dir() instead.
+		 */
+		if ( $args['clear_working']
+			&& (
+				// Destination does not exist or has no contents.
+				! $gc_filesystem->exists( $remote_destination )
+				|| empty( $gc_filesystem->dirlist( $remote_destination ) )
+			)
+		) {
+			$result = move_dir( $source, $remote_destination, true );
+		} else {
+			// Create destination if needed.
+			if ( ! $gc_filesystem->exists( $remote_destination ) ) {
+				if ( ! $gc_filesystem->mkdir( $remote_destination, FS_CHMOD_DIR ) ) {
+					return new GC_Error( 'mkdir_failed_destination', $this->strings['mkdir_failed'], $remote_destination );
+				}
 			}
+			$result = copy_dir( $source, $remote_destination );
 		}
 
-		// Copy new version of item into place.
-		$result = copy_dir( $source, $remote_destination );
-		if ( is_gc_error( $result ) ) {
-			if ( $args['clear_working'] ) {
-				$gc_filesystem->delete( $remote_source, true );
-			}
-			return $result;
-		}
-
-		// Clear the working folder?
+		// Clear the working directory?
 		if ( $args['clear_working'] ) {
 			$gc_filesystem->delete( $remote_source, true );
+		}
+
+		if ( is_gc_error( $result ) ) {
+			return $result;
 		}
 
 		$destination_name = basename( str_replace( $local_destination, '', $destination ) );
@@ -595,6 +684,7 @@ class GC_Upgrader {
 		/**
 		 * Filters the installation response after the installation has finished.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param bool  $response   Installation response.
 		 * @param array $hook_extra Extra arguments passed to hooked filters.
@@ -612,7 +702,7 @@ class GC_Upgrader {
 	}
 
 	/**
-	 * Run an upgrade/installation.
+	 * Runs an upgrade/installation.
 	 *
 	 * Attempts to download the package (if it is not a local file), unpack it, and
 	 * install it in the destination folder.
@@ -629,7 +719,7 @@ class GC_Upgrader {
 	 *                                               destination folder. Default false.
 	 *     @type bool   $clear_working               Whether to delete the files from the working
 	 *                                               directory after copying them to the destination.
-	 *                                               Default false.
+	 *                                               Default true.
 	 *     @type bool   $abort_if_destination_exists Whether to abort the installation if the destination
 	 *                                               folder already exists. When true, `$clear_destination`
 	 *                                               should be false. Default true.
@@ -649,8 +739,8 @@ class GC_Upgrader {
 			'package'                     => '', // Please always pass this.
 			'destination'                 => '', // ...and this.
 			'clear_destination'           => false,
-			'abort_if_destination_exists' => true, // Abort if the destination directory exists. Pass clear_destination as false please.
 			'clear_working'               => true,
+			'abort_if_destination_exists' => true, // Abort if the destination directory exists. Pass clear_destination as false please.
 			'is_multi'                    => false,
 			'hook_extra'                  => array(), // Pass any extra $hook_extra args here, this will be passed to any hooked filters.
 		);
@@ -662,6 +752,7 @@ class GC_Upgrader {
 		 *
 		 * See also {@see 'upgrader_process_complete'}.
 		 *
+		 * @since 4.3.0
 		 *
 		 * @param array $options {
 		 *     Options used by the upgrader.
@@ -719,8 +810,10 @@ class GC_Upgrader {
 		 */
 		$download = $this->download_package( $options['package'], true, $options['hook_extra'] );
 
-		// Allow for signature soft-fail.
-		// WARNING: This may be removed in the future.
+		/*
+		 * Allow for signature soft-fail.
+		 * WARNING: This may be removed in the future.
+		 */
 		if ( is_gc_error( $download ) && $download->get_error_data( 'softfail-filename' ) ) {
 
 			// Don't output the 'no signature could be found' failure message for now.
@@ -778,6 +871,7 @@ class GC_Upgrader {
 		/**
 		 * Filters the result of GC_Upgrader::install_package().
 		 *
+		 * @since 5.7.0
 		 *
 		 * @param array|GC_Error $result     Result from GC_Upgrader::install_package().
 		 * @param array          $hook_extra Extra arguments passed to hooked filters.
@@ -785,7 +879,19 @@ class GC_Upgrader {
 		$result = apply_filters( 'upgrader_install_package_result', $result, $options['hook_extra'] );
 
 		$this->skin->set_result( $result );
+
 		if ( is_gc_error( $result ) ) {
+			if ( ! empty( $options['hook_extra']['temp_backup'] ) ) {
+				$this->temp_restores[] = $options['hook_extra']['temp_backup'];
+
+				/*
+				 * Restore the backup on shutdown.
+				 * Actions running on `shutdown` are immune to PHP timeouts,
+				 * so in case the failure was due to a PHP timeout,
+				 * it will still be able to properly restore the previous version.
+				 */
+				add_action( 'shutdown', array( $this, 'restore_temp_backup' ) );
+			}
 			$this->skin->error( $result );
 
 			if ( ! method_exists( $this->skin, 'hide_process_failed' ) || ! $this->skin->hide_process_failed( $result ) ) {
@@ -798,6 +904,12 @@ class GC_Upgrader {
 
 		$this->skin->after();
 
+		// Clean up the backup kept in the temporary backup directory.
+		if ( ! empty( $options['hook_extra']['temp_backup'] ) ) {
+			// Delete the backup on `shutdown` to avoid a PHP timeout.
+			add_action( 'shutdown', array( $this, 'delete_temp_backup' ), 100, 0 );
+		}
+
 		if ( ! $options['is_multi'] ) {
 
 			/**
@@ -805,9 +917,9 @@ class GC_Upgrader {
 			 *
 			 * See also {@see 'upgrader_package_options'}.
 			 *
-		
-		
-		
+			 * @since 3.6.0
+			 * @since 3.7.0 Added to GC_Upgrader::run().
+			 * @since 4.6.0 `$translations` was added as a possible argument to `$hook_extra`.
 			 *
 			 * @param GC_Upgrader $upgrader   GC_Upgrader instance. In other contexts this might be a
 			 *                                Theme_Upgrader, Plugin_Upgrader, Core_Upgrade, or Language_Pack_Upgrader instance.
@@ -839,7 +951,7 @@ class GC_Upgrader {
 	}
 
 	/**
-	 * Toggle maintenance mode for the site.
+	 * Toggles maintenance mode for the site.
 	 *
 	 * Creates/deletes the maintenance file to enable/disable maintenance mode.
 	 *
@@ -866,6 +978,9 @@ class GC_Upgrader {
 	/**
 	 * Creates a lock using GeChiUI options.
 	 *
+	 * @since 4.5.0
+	 *
+	 * @global gcdb $gcdb The GeChiUI database abstraction object.
 	 *
 	 * @param string $lock_name       The name of this unique lock.
 	 * @param int    $release_timeout Optional. The duration in seconds to respect an existing lock.
@@ -910,6 +1025,7 @@ class GC_Upgrader {
 	/**
 	 * Releases an upgrader lock.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @see GC_Upgrader::create_lock()
 	 *
@@ -918,6 +1034,170 @@ class GC_Upgrader {
 	 */
 	public static function release_lock( $lock_name ) {
 		return delete_option( $lock_name . '.lock' );
+	}
+
+	/**
+	 * Moves the plugin or theme being updated into a temporary backup directory.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
+	 *
+	 * @param string[] $args {
+	 *     Array of data for the temporary backup.
+	 *
+	 *     @type string $slug Plugin or theme slug.
+	 *     @type string $src  Path to the root directory for plugins or themes.
+	 *     @type string $dir  Destination subdirectory name. Accepts 'plugins' or 'themes'.
+	 * }
+	 *
+	 * @return bool|GC_Error True on success, false on early exit, otherwise GC_Error.
+	 */
+	public function move_to_temp_backup_dir( $args ) {
+		global $gc_filesystem;
+
+		if ( empty( $args['slug'] ) || empty( $args['src'] ) || empty( $args['dir'] ) ) {
+			return false;
+		}
+
+		/*
+		 * Skip any plugin that has "." as its slug.
+		 * A slug of "." will result in a `$src` value ending in a period.
+		 *
+		 * On Windows, this will cause the 'plugins' folder to be moved,
+		 * and will cause a failure when attempting to call `mkdir()`.
+		 */
+		if ( '.' === $args['slug'] ) {
+			return false;
+		}
+
+		if ( ! $gc_filesystem->gc_content_dir() ) {
+			return new GC_Error( 'fs_no_content_dir', $this->strings['fs_no_content_dir'] );
+		}
+
+		$dest_dir = $gc_filesystem->gc_content_dir() . 'upgrade-temp-backup/';
+		$sub_dir  = $dest_dir . $args['dir'] . '/';
+
+		// Create the temporary backup directory if it does not exist.
+		if ( ! $gc_filesystem->is_dir( $sub_dir ) ) {
+			if ( ! $gc_filesystem->is_dir( $dest_dir ) ) {
+				$gc_filesystem->mkdir( $dest_dir, FS_CHMOD_DIR );
+			}
+
+			if ( ! $gc_filesystem->mkdir( $sub_dir, FS_CHMOD_DIR ) ) {
+				// Could not create the backup directory.
+				return new GC_Error( 'fs_temp_backup_mkdir', $this->strings['temp_backup_mkdir_failed'] );
+			}
+		}
+
+		$src_dir = $gc_filesystem->find_folder( $args['src'] );
+		$src     = trailingslashit( $src_dir ) . $args['slug'];
+		$dest    = $dest_dir . trailingslashit( $args['dir'] ) . $args['slug'];
+
+		// Delete the temporary backup directory if it already exists.
+		if ( $gc_filesystem->is_dir( $dest ) ) {
+			$gc_filesystem->delete( $dest, true );
+		}
+
+		// Move to the temporary backup directory.
+		$result = move_dir( $src, $dest, true );
+		if ( is_gc_error( $result ) ) {
+			return new GC_Error( 'fs_temp_backup_move', $this->strings['temp_backup_move_failed'] );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Restores the plugin or theme from temporary backup.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
+	 *
+	 * @return bool|GC_Error True on success, false on early exit, otherwise GC_Error.
+	 */
+	public function restore_temp_backup() {
+		global $gc_filesystem;
+
+		$errors = new GC_Error();
+
+		foreach ( $this->temp_restores as $args ) {
+			if ( empty( $args['slug'] ) || empty( $args['src'] ) || empty( $args['dir'] ) ) {
+				return false;
+			}
+
+			if ( ! $gc_filesystem->gc_content_dir() ) {
+				$errors->add( 'fs_no_content_dir', $this->strings['fs_no_content_dir'] );
+				return $errors;
+			}
+
+			$src      = $gc_filesystem->gc_content_dir() . 'upgrade-temp-backup/' . $args['dir'] . '/' . $args['slug'];
+			$dest_dir = $gc_filesystem->find_folder( $args['src'] );
+			$dest     = trailingslashit( $dest_dir ) . $args['slug'];
+
+			if ( $gc_filesystem->is_dir( $src ) ) {
+				// Cleanup.
+				if ( $gc_filesystem->is_dir( $dest ) && ! $gc_filesystem->delete( $dest, true ) ) {
+					$errors->add(
+						'fs_temp_backup_delete',
+						sprintf( $this->strings['temp_backup_restore_failed'], $args['slug'] )
+					);
+					continue;
+				}
+
+				// Move it.
+				$result = move_dir( $src, $dest, true );
+				if ( is_gc_error( $result ) ) {
+					$errors->add(
+						'fs_temp_backup_delete',
+						sprintf( $this->strings['temp_backup_restore_failed'], $args['slug'] )
+					);
+					continue;
+				}
+			}
+		}
+
+		return $errors->has_errors() ? $errors : true;
+	}
+
+	/**
+	 * Deletes a temporary backup.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
+	 *
+	 * @return bool|GC_Error True on success, false on early exit, otherwise GC_Error.
+	 */
+	public function delete_temp_backup() {
+		global $gc_filesystem;
+
+		$errors = new GC_Error();
+
+		foreach ( $this->temp_backups as $args ) {
+			if ( empty( $args['slug'] ) || empty( $args['dir'] ) ) {
+				return false;
+			}
+
+			if ( ! $gc_filesystem->gc_content_dir() ) {
+				$errors->add( 'fs_no_content_dir', $this->strings['fs_no_content_dir'] );
+				return $errors;
+			}
+
+			$temp_backup_dir = $gc_filesystem->gc_content_dir() . "upgrade-temp-backup/{$args['dir']}/{$args['slug']}";
+
+			if ( ! $gc_filesystem->delete( $temp_backup_dir, true ) ) {
+				$errors->add(
+					'temp_backup_delete_failed',
+					sprintf( $this->strings['temp_backup_delete_failed'] ),
+					$args['slug']
+				);
+				continue;
+			}
+		}
+
+		return $errors->has_errors() ? $errors : true;
 	}
 }
 

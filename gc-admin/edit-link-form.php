@@ -39,7 +39,6 @@ do_action( 'add_meta_boxes', 'link', $link );
  * Fires when link-specific meta boxes are added.
  *
  *
- *
  * @param object $link Link object.
  */
 do_action( 'add_meta_boxes_link', $link );
@@ -75,23 +74,18 @@ get_current_screen()->set_help_sidebar(
 	'<p>' . __( '<a href="https://www.gechiui.com/support/">支持</a>' ) . '</p>'
 );
 
+if ( isset( $_GET['added'] ) ) {
+	add_settings_error( 'general', 'settings_updated', __( '链接已添加。' ), 'success' );
+}
+
 require_once ABSPATH . 'gc-admin/admin-header.php';
 ?>
 
 <div class="wrap">
-<h1 class="gc-heading-inline">
-<?php
-echo esc_html( $title );
-?>
-</h1>
-
-<a href="link-add.php" class="page-title-action"><?php echo esc_html_x( '添加新链接', 'link' ); ?></a>
-
-<hr class="gc-header-end">
-
-<?php if ( isset( $_GET['added'] ) ) : ?>
-<div id="message" class="updated notice is-dismissible"><p><?php _e( '链接已添加。' ); ?></p></div>
-<?php endif; ?>
+	<div class="page-header">
+		<h2 class="header-title"><?php echo esc_html( $title ); ?></h2>
+		<a href="link-add.php" class="btn btn-primary btn-tone btn-sm"><?php echo esc_html_x( '添加新链接', 'link' ); ?></a>
+	</div>
 
 <form name="<?php echo esc_attr( $form_name ); ?>" id="<?php echo esc_attr( $form_name ); ?>" method="post" action="link.php">
 <?php
@@ -112,7 +106,7 @@ gc_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false );
 <h2 class="postbox-header"><label for="link_name"><?php _ex( '名称', 'link name' ); ?></label></h2>
 <div class="inside">
 	<input type="text" name="link_name" size="30" maxlength="255" value="<?php echo esc_attr( $link->link_name ); ?>" id="link_name" />
-	<p><?php _e( '例如：实用的博客软件' ); ?></p>
+	<p><?php _e( '例如：实用的系统软件' ); ?></p>
 </div>
 </div>
 

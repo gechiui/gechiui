@@ -3,14 +3,13 @@
  * GC_MatchesMapRegex helper class
  *
  * @package GeChiUI
- *
  */
 
 /**
  * Helper class to remove the need to use eval to replace $matches[] in query strings.
  *
- *
  */
+#[AllowDynamicProperties]
 class GC_MatchesMapRegex {
 	/**
 	 * store for matches

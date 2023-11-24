@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core class used to manage taxonomies via the REST API.
- *
- *
  *
  * @see GC_REST_Controller
  */
@@ -19,6 +16,7 @@ class GC_REST_Taxonomies_Controller extends GC_REST_Controller {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.7.0
 	 */
 	public function __construct() {
 		$this->namespace = 'gc/v2';
@@ -28,6 +26,7 @@ class GC_REST_Taxonomies_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the routes for taxonomies.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @see register_rest_route()
 	 */
@@ -73,6 +72,7 @@ class GC_REST_Taxonomies_Controller extends GC_REST_Controller {
 	/**
 	 * Checks whether a given request has permission to read taxonomies.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -104,6 +104,7 @@ class GC_REST_Taxonomies_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves all public taxonomies.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response Response object on success, or GC_Error object on failure.
@@ -142,6 +143,7 @@ class GC_REST_Taxonomies_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to a taxonomy.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access for the item, otherwise false or GC_Error object.
@@ -170,6 +172,7 @@ class GC_REST_Taxonomies_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves a specific taxonomy.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -193,6 +196,8 @@ class GC_REST_Taxonomies_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a taxonomy object for serialization.
 	 *
+	 * @since 4.7.0
+	 * @since 5.9.0 Renamed `$taxonomy` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Taxonomy     $item    Taxonomy data.
 	 * @param GC_REST_Request $request Full details about the request.
@@ -264,22 +269,16 @@ class GC_REST_Taxonomies_Controller extends GC_REST_Controller {
 		// Wrap the data in a response object.
 		$response = rest_ensure_response( $data );
 
-		$response->add_links(
-			array(
-				'collection'              => array(
-					'href' => rest_url( sprintf( '%s/%s', $this->namespace, $this->rest_base ) ),
-				),
-				'https://api.w.org/items' => array(
-					'href' => rest_url( rest_get_route_for_taxonomy_items( $taxonomy->name ) ),
-				),
-			)
-		);
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$response->add_links( $this->prepare_links( $taxonomy ) );
+		}
 
 		/**
 		 * Filters a taxonomy returned from the REST API.
 		 *
 		 * Allows modification of the taxonomy data right before it is returned.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_REST_Response $response The response object.
 		 * @param GC_Taxonomy      $item     The original taxonomy object.
@@ -289,8 +288,30 @@ class GC_REST_Taxonomies_Controller extends GC_REST_Controller {
 	}
 
 	/**
+	 * Prepares links for the request.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param GC_Taxonomy $taxonomy The taxonomy.
+	 * @return array Links for the given taxonomy.
+	 */
+	protected function prepare_links( $taxonomy ) {
+		return array(
+			'collection'              => array(
+				'href' => rest_url( sprintf( '%s/%s', $this->namespace, $this->rest_base ) ),
+			),
+			'https://api.w.org/items' => array(
+				'href' => rest_url( rest_get_route_for_taxonomy_items( $taxonomy->name ) ),
+			),
+		);
+	}
+
+	/**
 	 * Retrieves the taxonomy's schema, conforming to JSON Schema.
 	 *
+	 * @since 4.7.0
+	 * @since 5.0.0 The `visibility` property was added.
+	 * @since 5.9.0 The `rest_namespace` property was added.
 	 *
 	 * @return array Item schema data.
 	 */
@@ -411,6 +432,7 @@ class GC_REST_Taxonomies_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the query params for collections.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Collection parameters.
 	 */
@@ -423,5 +445,4 @@ class GC_REST_Taxonomies_Controller extends GC_REST_Controller {
 		);
 		return $new_params;
 	}
-
 }

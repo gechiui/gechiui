@@ -3,7 +3,6 @@
  * IXR_Value
  *
  * @package IXR
- *
  */
 class IXR_Value {
     var $data;

@@ -12,7 +12,7 @@
 /**
  * Returns the initialized GC_Http Object
  *
- *
+ * @since 2.7.0
  * @access private
  *
  * @return GC_Http HTTP Transport object.
@@ -32,13 +32,12 @@ function _gc_http_get_object() {
  * This function is ideal when the HTTP request is being made to an arbitrary
  * URL. The URL is validated to avoid redirection and request forgery attacks.
  *
- *
- *
  * @see gc_remote_request() For more information on the response array format.
  * @see GC_Http::request() For default arguments information.
  *
  * @param string $url  URL to retrieve.
  * @param array  $args Optional. Request arguments. Default empty array.
+ *                     See GC_Http::request() for information on accepted arguments.
  * @return array|GC_Error The response or GC_Error on failure.
  */
 function gc_safe_remote_request( $url, $args = array() ) {
@@ -53,13 +52,12 @@ function gc_safe_remote_request( $url, $args = array() ) {
  * This function is ideal when the HTTP request is being made to an arbitrary
  * URL. The URL is validated to avoid redirection and request forgery attacks.
  *
- *
- *
  * @see gc_remote_request() For more information on the response array format.
  * @see GC_Http::request() For default arguments information.
  *
  * @param string $url  URL to retrieve.
  * @param array  $args Optional. Request arguments. Default empty array.
+ *                     See GC_Http::request() for information on accepted arguments.
  * @return array|GC_Error The response or GC_Error on failure.
  */
 function gc_safe_remote_get( $url, $args = array() ) {
@@ -74,13 +72,12 @@ function gc_safe_remote_get( $url, $args = array() ) {
  * This function is ideal when the HTTP request is being made to an arbitrary
  * URL. The URL is validated to avoid redirection and request forgery attacks.
  *
- *
- *
  * @see gc_remote_request() For more information on the response array format.
  * @see GC_Http::request() For default arguments information.
  *
  * @param string $url  URL to retrieve.
  * @param array  $args Optional. Request arguments. Default empty array.
+ *                     See GC_Http::request() for information on accepted arguments.
  * @return array|GC_Error The response or GC_Error on failure.
  */
 function gc_safe_remote_post( $url, $args = array() ) {
@@ -95,13 +92,12 @@ function gc_safe_remote_post( $url, $args = array() ) {
  * This function is ideal when the HTTP request is being made to an arbitrary
  * URL. The URL is validated to avoid redirection and request forgery attacks.
  *
- *
- *
  * @see gc_remote_request() For more information on the response array format.
  * @see GC_Http::request() For default arguments information.
  *
  * @param string $url  URL to retrieve.
  * @param array  $args Optional. Request arguments. Default empty array.
+ *                     See GC_Http::request() for information on accepted arguments.
  * @return array|GC_Error The response or GC_Error on failure.
  */
 function gc_safe_remote_head( $url, $args = array() ) {
@@ -119,12 +115,13 @@ function gc_safe_remote_head( $url, $args = array() ) {
  *  - Default 'POST' for gc_remote_post()
  *  - Default 'HEAD' for gc_remote_head()
  *
- *
+ * @since 2.7.0
  *
  * @see GC_Http::request() For information on default arguments.
  *
  * @param string $url  URL to retrieve.
  * @param array  $args Optional. Request arguments. Default empty array.
+ *                     See GC_Http::request() for information on accepted arguments.
  * @return array|GC_Error {
  *     The response array or a GC_Error on failure.
  *
@@ -148,13 +145,14 @@ function gc_remote_request( $url, $args = array() ) {
 /**
  * Performs an HTTP request using the GET method and returns its response.
  *
- *
+ * @since 2.7.0
  *
  * @see gc_remote_request() For more information on the response array format.
  * @see GC_Http::request() For default arguments information.
  *
  * @param string $url  URL to retrieve.
  * @param array  $args Optional. Request arguments. Default empty array.
+ *                     See GC_Http::request() for information on accepted arguments.
  * @return array|GC_Error The response or GC_Error on failure.
  */
 function gc_remote_get( $url, $args = array() ) {
@@ -165,13 +163,14 @@ function gc_remote_get( $url, $args = array() ) {
 /**
  * Performs an HTTP request using the POST method and returns its response.
  *
- *
+ * @since 2.7.0
  *
  * @see gc_remote_request() For more information on the response array format.
  * @see GC_Http::request() For default arguments information.
  *
  * @param string $url  URL to retrieve.
  * @param array  $args Optional. Request arguments. Default empty array.
+ *                     See GC_Http::request() for information on accepted arguments.
  * @return array|GC_Error The response or GC_Error on failure.
  */
 function gc_remote_post( $url, $args = array() ) {
@@ -182,13 +181,14 @@ function gc_remote_post( $url, $args = array() ) {
 /**
  * Performs an HTTP request using the HEAD method and returns its response.
  *
- *
+ * @since 2.7.0
  *
  * @see gc_remote_request() For more information on the response array format.
  * @see GC_Http::request() For default arguments information.
  *
  * @param string $url  URL to retrieve.
  * @param array  $args Optional. Request arguments. Default empty array.
+ *                     See GC_Http::request() for information on accepted arguments.
  * @return array|GC_Error The response or GC_Error on failure.
  */
 function gc_remote_head( $url, $args = array() ) {
@@ -199,13 +199,13 @@ function gc_remote_head( $url, $args = array() ) {
 /**
  * Retrieve only the headers from the raw response.
  *
+ * @since 2.7.0 Return value changed from an array to an GcOrg\Requests\Utility\CaseInsensitiveDictionary instance.
  *
- *
- *
- * @see \Requests_Utility_CaseInsensitiveDictionary
+ * @see \GcOrg\Requests\Utility\CaseInsensitiveDictionary
  *
  * @param array|GC_Error $response HTTP response.
- * @return array|\Requests_Utility_CaseInsensitiveDictionary The headers of the response. Empty array if incorrect parameter given.
+ * @return \GcOrg\Requests\Utility\CaseInsensitiveDictionary|array The headers of the response, or empty array
+ *                                                                 if incorrect parameter given.
  */
 function gc_remote_retrieve_headers( $response ) {
 	if ( is_gc_error( $response ) || ! isset( $response['headers'] ) ) {
@@ -218,7 +218,7 @@ function gc_remote_retrieve_headers( $response ) {
 /**
  * Retrieve a single header by name from the raw response.
  *
- *
+ * @since 2.7.0
  *
  * @param array|GC_Error $response HTTP response.
  * @param string         $header   Header name to retrieve value from.
@@ -242,10 +242,10 @@ function gc_remote_retrieve_header( $response, $header ) {
  *
  * Will return an empty string if incorrect parameter value is given.
  *
- *
+ * @since 2.7.0
  *
  * @param array|GC_Error $response HTTP response.
- * @return int|string The response code as an integer. Empty string on incorrect parameter given.
+ * @return int|string The response code as an integer. Empty string if incorrect parameter given.
  */
 function gc_remote_retrieve_response_code( $response ) {
 	if ( is_gc_error( $response ) || ! isset( $response['response'] ) || ! is_array( $response['response'] ) ) {
@@ -260,10 +260,10 @@ function gc_remote_retrieve_response_code( $response ) {
  *
  * Will return an empty string if incorrect parameter value is given.
  *
- *
+ * @since 2.7.0
  *
  * @param array|GC_Error $response HTTP response.
- * @return string The response message. Empty string on incorrect parameter given.
+ * @return string The response message. Empty string if incorrect parameter given.
  */
 function gc_remote_retrieve_response_message( $response ) {
 	if ( is_gc_error( $response ) || ! isset( $response['response'] ) || ! is_array( $response['response'] ) ) {
@@ -276,7 +276,7 @@ function gc_remote_retrieve_response_message( $response ) {
 /**
  * Retrieve only the body from the raw response.
  *
- *
+ * @since 2.7.0
  *
  * @param array|GC_Error $response HTTP response.
  * @return string The body of the response. Empty string if no body or incorrect parameter given.
@@ -292,10 +292,9 @@ function gc_remote_retrieve_body( $response ) {
 /**
  * Retrieve only the cookies from the raw response.
  *
- *
- *
  * @param array|GC_Error $response HTTP response.
- * @return GC_Http_Cookie[] An array of `GC_Http_Cookie` objects from the response. Empty array if there are none, or the response is a GC_Error.
+ * @return GC_Http_Cookie[] An array of `GC_Http_Cookie` objects from the response.
+ *                          Empty array if there are none, or the response is a GC_Error.
  */
 function gc_remote_retrieve_cookies( $response ) {
 	if ( is_gc_error( $response ) || empty( $response['cookies'] ) ) {
@@ -308,11 +307,10 @@ function gc_remote_retrieve_cookies( $response ) {
 /**
  * Retrieve a single cookie by name from the raw response.
  *
- *
- *
  * @param array|GC_Error $response HTTP response.
  * @param string         $name     The name of the cookie to retrieve.
- * @return GC_Http_Cookie|string The `GC_Http_Cookie` object. Empty string if the cookie isn't present in the response.
+ * @return GC_Http_Cookie|string The `GC_Http_Cookie` object, or empty string
+ *                               if the cookie is not present in the response.
  */
 function gc_remote_retrieve_cookie( $response, $name ) {
 	$cookies = gc_remote_retrieve_cookies( $response );
@@ -333,11 +331,10 @@ function gc_remote_retrieve_cookie( $response, $name ) {
 /**
  * Retrieve a single cookie's value by name from the raw response.
  *
- *
- *
  * @param array|GC_Error $response HTTP response.
  * @param string         $name     The name of the cookie to retrieve.
- * @return string The value of the cookie. Empty string if the cookie isn't present in the response.
+ * @return string The value of the cookie, or empty string
+ *                if the cookie is not present in the response.
  */
 function gc_remote_retrieve_cookie_value( $response, $name ) {
 	$cookie = gc_remote_retrieve_cookie( $response, $name );
@@ -351,8 +348,6 @@ function gc_remote_retrieve_cookie_value( $response, $name ) {
 
 /**
  * Determines if there is an HTTP Transport that can process this request.
- *
- *
  *
  * @param array  $capabilities Array of capabilities to test or a gc_remote_request() $args array.
  * @param string $url          Optional. If given, will check if the URL requires SSL and adds
@@ -368,7 +363,7 @@ function gc_http_supports( $capabilities = array(), $url = null ) {
 	$count = count( $capabilities );
 
 	// If we have a numeric $capabilities array, spoof a gc_remote_request() associative $args array.
-	if ( $count && count( array_filter( array_keys( $capabilities ), 'is_numeric' ) ) == $count ) {
+	if ( $count && count( array_filter( array_keys( $capabilities ), 'is_numeric' ) ) === $count ) {
 		$capabilities = array_combine( array_values( $capabilities ), array_fill( 0, $count, true ) );
 	}
 
@@ -385,8 +380,6 @@ function gc_http_supports( $capabilities = array(), $url = null ) {
 /**
  * Get the HTTP Origin of the current request.
  *
- *
- *
  * @return string URL of the origin. Empty string if no origin.
  */
 function get_http_origin() {
@@ -398,6 +391,7 @@ function get_http_origin() {
 	/**
 	 * Change the origin of an HTTP request.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param string $origin The original origin for the request.
 	 */
@@ -406,8 +400,6 @@ function get_http_origin() {
 
 /**
  * Retrieve list of allowed HTTP origins.
- *
- *
  *
  * @return string[] Array of origin URLs.
  */
@@ -428,6 +420,7 @@ function get_allowed_http_origins() {
 	/**
 	 * Change the origin types allowed for HTTP requests.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param string[] $allowed_origins {
 	 *     Array of default allowed HTTP origins.
@@ -444,9 +437,7 @@ function get_allowed_http_origins() {
 /**
  * Determines if the HTTP origin is an authorized one.
  *
- *
- *
- * @param null|string $origin Origin URL. If not provided, the value of get_http_origin() is used.
+ * @param string|null $origin Origin URL. If not provided, the value of get_http_origin() is used.
  * @return string Origin URL if allowed, empty string if not.
  */
 function is_allowed_http_origin( $origin = null ) {
@@ -463,6 +454,7 @@ function is_allowed_http_origin( $origin = null ) {
 	/**
 	 * Change the allowed HTTP origin result.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param string $origin     Origin URL if allowed, empty string if not.
 	 * @param string $origin_arg Original origin string passed into is_allowed_http_origin function.
@@ -477,8 +469,6 @@ function is_allowed_http_origin( $origin = null ) {
  * If the request is an OPTIONS request, the script exits with either access
  * control headers sent, or a 403 response if the origin is not allowed. For
  * other request methods, you will receive a return value.
- *
- *
  *
  * @return string|false Returns the origin URL if headers are sent. Returns false
  *                      if headers are not sent.
@@ -506,7 +496,7 @@ function send_origin_headers() {
 /**
  * Validate a URL for safe use in the HTTP API.
  *
- *
+ * @since 3.5.2
  *
  * @param string $url Request URL.
  * @return string|false URL or false on failure.
@@ -560,7 +550,7 @@ function gc_http_validate_url( $url ) {
 				 *
 				 * Allows to change and allow external requests for the HTTP request.
 				 *
-			
+				 * @since 3.6.0
 				 *
 				 * @param bool   $external Whether HTTP request is external or not.
 				 * @param string $host     Host name of the requested URL.
@@ -584,8 +574,9 @@ function gc_http_validate_url( $url ) {
 	 *
 	 * Allows to change and allow external requests for the HTTP request.
 	 *
+	 * @since 5.9.0
 	 *
-	 * @param array  $allowed_ports Array of integers for valid ports.
+	 * @param int[]  $allowed_ports Array of integers for valid ports.
 	 * @param string $host          Host name of the requested URL.
 	 * @param string $url           Requested URL.
 	 */
@@ -606,8 +597,6 @@ function gc_http_validate_url( $url ) {
  *
  * Attached to the {@see 'http_request_host_is_external'} filter.
  *
- *
- *
  * @param bool   $is_external
  * @param string $host
  * @return bool
@@ -624,8 +613,6 @@ function allowed_http_request_hosts( $is_external, $host ) {
  * allowed list.
  *
  * Attached to the {@see 'http_request_host_is_external'} filter.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -650,19 +637,16 @@ function ms_allowed_http_request_hosts( $is_external, $host ) {
 }
 
 /**
- * A wrapper for PHP's parse_url() function that handles consistency in the return
- * values across PHP versions.
+ * A wrapper for PHP's parse_url() function that handles consistency in the return values
+ * across PHP versions.
  *
- * PHP 5.4.7 expanded parse_url()'s ability to handle non-absolute url's, including
- * schemeless and relative url's with :// in the path. This function works around
+ * PHP 5.4.7 expanded parse_url()'s ability to handle non-absolute URLs, including
+ * schemeless and relative URLs with "://" in the path. This function works around
  * those limitations providing a standard output on PHP 5.2~5.4+.
  *
- * Secondly, across various PHP versions, schemeless URLs starting containing a ":"
- * in the query are being handled inconsistently. This function works around those
- * differences as well.
- *
- *
- *
+ * Secondly, across various PHP versions, schemeless URLs containing a ":" in the query
+ * are being handled inconsistently. This function works around those differences as well.
+ * The `$component` parameter was added for parity with PHP's `parse_url()`.
  *
  * @link https://www.php.net/manual/en/function.parse-url.php
  *
@@ -679,10 +663,10 @@ function gc_parse_url( $url, $component = -1 ) {
 	$to_unset = array();
 	$url      = (string) $url;
 
-	if ( '//' === substr( $url, 0, 2 ) ) {
+	if ( str_starts_with( $url, '//' ) ) {
 		$to_unset[] = 'scheme';
 		$url        = 'placeholder:' . $url;
-	} elseif ( '/' === substr( $url, 0, 1 ) ) {
+	} elseif ( str_starts_with( $url, '/' ) ) {
 		$to_unset[] = 'scheme';
 		$to_unset[] = 'host';
 		$url        = 'placeholder://placeholder' . $url;
@@ -707,7 +691,6 @@ function gc_parse_url( $url, $component = -1 ) {
  * Retrieve a specific component from a parsed URL array.
  *
  * @internal
- *
  *
  * @access private
  *
@@ -739,7 +722,6 @@ function _get_component_from_parsed_url_array( $url_parts, $component = -1 ) {
  * Translate a PHP_URL_* constant to the named array keys PHP uses.
  *
  * @internal
- *
  *
  * @access private
  *

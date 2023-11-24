@@ -9,7 +9,6 @@
 /**
  * This is a profile page.
  *
- *
  * @var bool
  */
 define( 'IS_PROFILE_PAGE', true );

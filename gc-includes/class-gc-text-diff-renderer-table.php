@@ -4,26 +4,27 @@
  *
  * @package GeChiUI
  * @subpackage Diff
- *
  */
 
 /**
  * Table renderer to display the diff lines.
  *
- *
  * @uses Text_Diff_Renderer Extends
  */
+#[AllowDynamicProperties]
 class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 
 	/**
 	 * @see Text_Diff_Renderer::_leading_context_lines
 	 * @var int
+	 * @since 2.6.0
 	 */
 	public $_leading_context_lines = 10000;
 
 	/**
 	 * @see Text_Diff_Renderer::_trailing_context_lines
 	 * @var int
+	 * @since 2.6.0
 	 */
 	public $_trailing_context_lines = 10000;
 
@@ -31,6 +32,7 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	 * Threshold for when a diff should be saved or omitted.
 	 *
 	 * @var float
+	 * @since 2.6.0
 	 */
 	protected $_diff_threshold = 0.6;
 
@@ -38,6 +40,7 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	 * Inline display helper object name.
 	 *
 	 * @var string
+	 * @since 2.6.0
 	 */
 	protected $inline_diff_renderer = 'GC_Text_Diff_Renderer_inline';
 
@@ -45,6 +48,7 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	 * Should we show the split view or not
 	 *
 	 * @var string
+	 * @since 3.6.0
 	 */
 	protected $_show_split_view = true;
 
@@ -54,6 +58,7 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	 * Caches the output of count_chars() in compute_string_distance()
 	 *
 	 * @var array
+	 * @since 5.0.0
 	 */
 	protected $count_cache = array();
 
@@ -61,6 +66,7 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	 * Caches the difference calculation in compute_string_distance()
 	 *
 	 * @var array
+	 * @since 5.0.0
 	 */
 	protected $difference_cache = array();
 
@@ -69,6 +75,7 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	 *
 	 * This will set class properties based on the key value pairs in the array.
 	 *
+	 * @since 2.6.0
 	 *
 	 * @param array $params
 	 */
@@ -105,7 +112,10 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	 * @return string
 	 */
 	public function addedLine( $line ) {
-		return "<td class='diff-addedline'><span aria-hidden='true' class='dashicons dashicons-plus'></span><span class='screen-reader-text'>" . __( '已添加：' ) . " </span>{$line}</td>";
+		return "<td class='diff-addedline'><span aria-hidden='true' class='dashicons dashicons-plus'></span><span class='screen-reader-text'>" .
+			/* translators: Hidden accessibility text. */
+			__( '已添加：' ) .
+		" </span>{$line}</td>";
 
 	}
 
@@ -116,7 +126,10 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	 * @return string
 	 */
 	public function deletedLine( $line ) {
-		return "<td class='diff-deletedline'><span aria-hidden='true' class='dashicons dashicons-minus'></span><span class='screen-reader-text'>" . __( '已删除：' ) . " </span>{$line}</td>";
+		return "<td class='diff-deletedline'><span aria-hidden='true' class='dashicons dashicons-minus'></span><span class='screen-reader-text'>" .
+			/* translators: Hidden accessibility text. */
+			__( '已删除：' ) .
+		" </span>{$line}</td>";
 	}
 
 	/**
@@ -126,7 +139,10 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	 * @return string
 	 */
 	public function contextLine( $line ) {
-		return "<td class='diff-context'><span class='screen-reader-text'>" . __( '未更改：' ) . " </span>{$line}</td>";
+		return "<td class='diff-context'><span class='screen-reader-text'>" .
+			/* translators: Hidden accessibility text. */
+			__( '未更改：' ) .
+		" </span>{$line}</td>";
 	}
 
 	/**
@@ -158,7 +174,7 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 				 * htmlspecialchars. Use this filter to remove or change the processing. Passes a context
 				 * indicating if the line is added, deleted or unchanged.
 				 *
-			
+				 * @since 4.1.0
 				 *
 				 * @param string $processed_line The processed diffed line.
 				 * @param string $line           The unprocessed diffed line.
@@ -232,12 +248,13 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	 * (TRAC style) sometimes these lines can actually be deleted or added rows.
 	 * We do additional processing to figure that out
 	 *
+	 * @since 2.6.0
 	 *
 	 * @param array $orig
 	 * @param array $final
 	 * @return string
 	 */
-	public function _changed( $orig, $final ) {
+	public function _changed( $orig, $final ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.finalFound
 		$r = '';
 
 		/*
@@ -259,15 +276,17 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 		foreach ( $orig_matches as $o => $f ) {
 			if ( is_numeric( $o ) && is_numeric( $f ) ) {
 				$text_diff = new Text_Diff( 'auto', array( array( $orig[ $o ] ), array( $final[ $f ] ) ) );
-				$renderer  = new $this->inline_diff_renderer;
+				$renderer  = new $this->inline_diff_renderer();
 				$diff      = $renderer->render( $text_diff );
 
 				// If they're too different, don't include any <ins> or <del>'s.
 				if ( preg_match_all( '!(<ins>.*?</ins>|<del>.*?</del>)!', $diff, $diff_matches ) ) {
 					// Length of all text between <ins> or <del>.
 					$stripped_matches = strlen( strip_tags( implode( ' ', $diff_matches[0] ) ) );
-					// Since we count length of text between <ins> or <del> (instead of picking just one),
-					// we double the length of chars not in those tags.
+					/*
+					 * Since we count length of text between <ins> or <del> (instead of picking just one),
+					 * we double the length of chars not in those tags.
+					 */
 					$stripped_diff = strlen( strip_tags( $diff ) ) * 2 - $stripped_matches;
 					$diff_ratio    = $stripped_matches / $stripped_diff;
 					if ( $diff_ratio > $this->_diff_threshold ) {
@@ -323,6 +342,7 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	/**
 	 * Takes changed blocks and matches which rows in orig turned into which rows in final.
 	 *
+	 * @since 2.6.0
 	 *
 	 * @param array $orig  Lines of the original version of the text.
 	 * @param array $final Lines of the final version of the text.
@@ -347,7 +367,7 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	 *                                Value < 0 indicates a blank row.
 	 * }
 	 */
-	public function interleave_changed_lines( $orig, $final ) {
+	public function interleave_changed_lines( $orig, $final ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.finalFound
 
 		// Contains all pairwise string comparisons. Keys are such that this need only be a one dimensional array.
 		$matches = array();
@@ -396,8 +416,10 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 		$orig_rows_copy = $orig_rows;
 		$final_rows     = array_keys( $final_matches );
 
-		// Interleaves rows with blanks to keep matches aligned.
-		// We may end up with some extraneous blank rows, but we'll just ignore them later.
+		/*
+		 * Interleaves rows with blanks to keep matches aligned.
+		 * We may end up with some extraneous blank rows, but we'll just ignore them later.
+		 */
 		foreach ( $orig_rows_copy as $orig_row ) {
 			$final_pos = array_search( $orig_matches[ $orig_row ], $final_rows, true );
 			$orig_pos  = (int) array_search( $orig_row, $orig_rows, true );
@@ -432,6 +454,7 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	/**
 	 * Computes a number that is intended to reflect the "distance" between two strings.
 	 *
+	 * @since 2.6.0
 	 *
 	 * @param string $string1
 	 * @param string $string2
@@ -472,6 +495,7 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 
 	/**
 	 * @ignore
+	 * @since 2.6.0
 	 *
 	 * @param int $a
 	 * @param int $b
@@ -484,6 +508,7 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	/**
 	 * Make private properties readable for backward compatibility.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $name Property to get.
 	 * @return mixed Property.
@@ -497,6 +522,7 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	/**
 	 * Make private properties settable for backward compatibility.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $name  Property to check if set.
 	 * @param mixed  $value Property value.
@@ -511,6 +537,7 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	/**
 	 * Make private properties checkable for backward compatibility.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $name Property to check if set.
 	 * @return bool Whether the property is set.
@@ -524,6 +551,7 @@ class GC_Text_Diff_Renderer_Table extends Text_Diff_Renderer {
 	/**
 	 * Make private properties un-settable for backward compatibility.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $name Property to unset.
 	 */

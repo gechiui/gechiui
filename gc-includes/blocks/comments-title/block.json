@@ -1,0 +1,66 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/comments-title",
+	"title": "评论标题",
+	"category": "theme",
+	"ancestor": [ "core/comments" ],
+	"description": "显示包含评论数量的标题",
+	"textdomain": "default",
+	"usesContext": [ "postId", "postType" ],
+	"attributes": {
+		"textAlign": {
+			"type": "string"
+		},
+		"showPostTitle": {
+			"type": "boolean",
+			"default": true
+		},
+		"showCommentsCount": {
+			"type": "boolean",
+			"default": true
+		},
+		"level": {
+			"type": "number",
+			"default": 2
+		}
+	},
+	"supports": {
+		"anchor": false,
+		"align": true,
+		"html": false,
+		"__experimentalBorder": {
+			"radius": true,
+			"color": true,
+			"width": true,
+			"style": true
+		},
+		"color": {
+			"gradients": true,
+			"__experimentalDefaultControls": {
+				"background": true,
+				"text": true
+			}
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalTextTransform": true,
+			"__experimentalTextDecoration": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true,
+				"__experimentalFontFamily": true,
+				"__experimentalFontStyle": true,
+				"__experimentalFontWeight": true
+			}
+		}
+	}
+}

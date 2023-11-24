@@ -9,8 +9,8 @@
 /**
  * The custom background class.
  *
- *
  */
+#[AllowDynamicProperties]
 class Custom_Background {
 
 	/**
@@ -35,7 +35,7 @@ class Custom_Background {
 	private $updated;
 
 	/**
-	 * Constructor - Register administration header callback.
+	 * Constructor - Registers administration header callback.
 	 *
 	 * @param callable $admin_header_callback
 	 * @param callable $admin_image_div_callback Optional custom image div output callback.
@@ -53,11 +53,18 @@ class Custom_Background {
 	}
 
 	/**
-	 * Set up the hooks for the Custom Background admin page.
+	 * Sets up the hooks for the Custom Background admin page.
 	 *
 	 */
 	public function init() {
-		$page = add_theme_page( __( '背景' ), __( '背景' ), 'edit_theme_options', 'custom-background', array( $this, 'admin_page' ) );
+		$page = add_theme_page(
+			_x( '背景', 'custom background' ),
+			_x( '背景', 'custom background' ),
+			'edit_theme_options',
+			'custom-background',
+			array( $this, 'admin_page' )
+		);
+
 		if ( ! $page ) {
 			return;
 		}
@@ -72,7 +79,7 @@ class Custom_Background {
 	}
 
 	/**
-	 * Set up the enqueue for the CSS & JavaScript files.
+	 * Sets up the enqueue for the CSS & JavaScript files.
 	 *
 	 */
 	public function admin_load() {
@@ -81,8 +88,8 @@ class Custom_Background {
 				'id'      => 'overview',
 				'title'   => __( '概述' ),
 				'content' =>
-					'<p>' . __( '通过自定义背景，您无须修改模板的任何代码，就可使您的站点外观焕然一新！背景可以是图片或某种色彩。' ) . '</p>' .
-					'<p>' . __( '要使用背景图片，您需先上传，或从媒体库中已上传过的图片中选择。您可选择令其单次显示，或平铺多次以充满屏幕。您还可以使背景固定不动，站点的内容在其上滚动。也可让背景与站点内容同步滚动。' ) . '</p>' .
+					'<p>' . __( '通过自定义背景，您无须修改模板的任何代码，就可使您的系统外观焕然一新！背景可以是图片或某种色彩。' ) . '</p>' .
+					'<p>' . __( '要使用背景图片，您需先上传，或从媒体库中已上传过的图片中选择。您可选择令其单次显示，或平铺多次以充满屏幕。您还可以使背景固定不动，系统的内容在其上滚动。也可让背景与系统内容同步滚动。' ) . '</p>' .
 					'<p>' . __( '颜色可以通过点击“选择颜色”来使用选色器选择，或者手工输入HTML十六进制颜色代码（如红色“#ff0000”）。' ) . '</p>' .
 					'<p>' . __( '请不要忘记在完成时点击“保存更改”按钮。' ) . '</p>',
 			)
@@ -91,7 +98,7 @@ class Custom_Background {
 		get_current_screen()->set_help_sidebar(
 			'<p><strong>' . __( '更多信息：' ) . '</strong></p>' .
 			'<p>' . __( '<a href="https://codex.gechiui.com/Appearance_Background_Screen">自定义背景文档</a>' ) . '</p>' .
-			'<p>' . __( '<a href="https://www.gechiui.com/support/">支持</a>' ) . '</p>'
+			'<p>' . __( '<a href="https://www.gechiui.com/support/forums/">支持论坛</a>' ) . '</p>'
 		);
 
 		gc_enqueue_media();
@@ -100,7 +107,7 @@ class Custom_Background {
 	}
 
 	/**
-	 * Execute custom background modification.
+	 * Executes custom background modification.
 	 *
 	 */
 	public function take_action() {
@@ -215,7 +222,7 @@ class Custom_Background {
 	}
 
 	/**
-	 * Display the custom background page.
+	 * Displays the custom background page.
 	 *
 	 */
 	public function admin_page() {
@@ -224,7 +231,7 @@ class Custom_Background {
 <h1><?php _e( '自定义背景' ); ?></h1>
 
 		<?php if ( current_user_can( 'customize' ) ) { ?>
-<div class="notice notice-info hide-if-no-customize">
+<div class="alert alert-primary hide-if-no-customize">
 	<p>
 			<?php
 			printf(
@@ -242,13 +249,13 @@ class Custom_Background {
 	<p>
 			<?php
 			/* translators: %s: Home URL. */
-			printf( __( '背景已更新。<a href="%s">访问您的站点</a>来看看效果。' ), home_url( '/' ) );
+			printf( __( '背景已更新。<a href="%s">访问您的系统</a>来看看效果。' ), esc_url( home_url( '/' ) ) );
 			?>
 	</p>
 </div>
 		<?php } ?>
 
-<h2><?php _e( '背景图片' ); ?></h2>
+<h4><?php _e( '背景图片' ); ?></h4>
 
 <table class="form-table" role="presentation">
 <tbody>
@@ -298,7 +305,7 @@ class Custom_Background {
 <td>
 <form method="post">
 			<?php gc_nonce_field( 'custom-background-remove', '_gcnonce-custom-background-remove' ); ?>
-			<?php submit_button( __( '移除背景图片' ), '', 'remove-background', false ); ?><br/>
+			<?php submit_button( __( '移除背景图片' ), '', 'remove-background', false ); ?><br />
 			<?php _e( '这将移除背景图片。之后，您将无法还原任何自定义元素。' ); ?>
 </form>
 </td>
@@ -312,7 +319,7 @@ class Custom_Background {
 <td>
 <form method="post">
 			<?php gc_nonce_field( 'custom-background-reset', '_gcnonce-custom-background-reset' ); ?>
-			<?php submit_button( __( '还原原始图片' ), '', 'reset-background', false ); ?><br/>
+			<?php submit_button( __( '还原原始图片' ), '', 'reset-background', false ); ?><br />
 			<?php _e( '这将恢复原始背景图图片。您将无法还原任何自定义元素。' ); ?>
 </form>
 </td>
@@ -332,7 +339,7 @@ class Custom_Background {
 	</p>
 	<p>
 		<label for="choose-from-library-link"><?php _e( '或从您的媒体库中选择图片：' ); ?></label><br />
-		<button id="choose-from-library-link" class="button"
+		<button id="choose-from-library-link" class="btn btn-primary btn-tone btn-sm"
 			data-choose="<?php esc_attr_e( '选择背景图片' ); ?>"
 			data-update="<?php esc_attr_e( '设为背景' ); ?>"><?php _e( '选择图片' ); ?></button>
 	</p>
@@ -343,7 +350,7 @@ class Custom_Background {
 </tbody>
 </table>
 
-<h2><?php _e( '显示选项' ); ?></h2>
+<h4><?php _e( '显示选项' ); ?></h4>
 <form method="post">
 <table class="form-table" role="presentation">
 <tbody>
@@ -404,14 +411,19 @@ class Custom_Background {
 			?>
 <tr>
 <th scope="row"><?php _e( '图片位置' ); ?></th>
-<td><fieldset><legend class="screen-reader-text"><span><?php _e( '图片位置' ); ?></span></legend>
+<td><fieldset><legend class="screen-reader-text"><span>
+			<?php
+			/* translators: Hidden accessibility text. */
+			_e( '图片位置' );
+			?>
+</span></legend>
 <div class="background-position-control">
 			<?php foreach ( $background_position_options as $group ) : ?>
 	<div class="button-group">
 				<?php foreach ( $group as $value => $input ) : ?>
 		<label>
 			<input class="ui-helper-hidden-accessible" name="background-position" type="radio" value="<?php echo esc_attr( $value ); ?>"<?php checked( $value, $background_position ); ?>>
-			<span class="button display-options position"><span class="<?php echo esc_attr( $input['icon'] ); ?>" aria-hidden="true"></span></span>
+			<span class="btn btn-primary btn-tone btn-sm display-options position"><span class="<?php echo esc_attr( $input['icon'] ); ?>" aria-hidden="true"></span></span>
 			<span class="screen-reader-text"><?php echo $input['label']; ?></span>
 		</label>
 	<?php endforeach; ?>
@@ -423,9 +435,14 @@ class Custom_Background {
 
 <tr>
 <th scope="row"><label for="background-size"><?php _e( '图片尺寸' ); ?></label></th>
-<td><fieldset><legend class="screen-reader-text"><span><?php _e( '图片尺寸' ); ?></span></legend>
+<td><fieldset><legend class="screen-reader-text"><span>
+			<?php
+			/* translators: Hidden accessibility text. */
+			_e( '图片尺寸' );
+			?>
+</span></legend>
 <select id="background-size" name="background-size">
-<option value="auto"<?php selected( 'auto', get_theme_mod( 'background_size', get_theme_support( 'custom-background', 'default-size' ) ) ); ?>><?php _ex( '原始', 'Original Size' ); ?></option>
+<option value="auto"<?php selected( 'auto', get_theme_mod( 'background_size', get_theme_support( 'custom-background', 'default-size' ) ) ); ?>><?php _ex( 'Original', 'Original Size' ); ?></option>
 <option value="contain"<?php selected( 'contain', get_theme_mod( 'background_size', get_theme_support( 'custom-background', 'default-size' ) ) ); ?>><?php _e( '适合屏幕' ); ?></option>
 <option value="cover"<?php selected( 'cover', get_theme_mod( 'background_size', get_theme_support( 'custom-background', 'default-size' ) ) ); ?>><?php _e( '填满屏幕' ); ?></option>
 </select>
@@ -433,16 +450,26 @@ class Custom_Background {
 </tr>
 
 <tr>
-<th scope="row"><?php _ex( '重复', 'Background Repeat' ); ?></th>
-<td><fieldset><legend class="screen-reader-text"><span><?php _ex( '重复', 'Background Repeat' ); ?></span></legend>
+<th scope="row"><?php _ex( 'Repeat', 'Background Repeat' ); ?></th>
+<td><fieldset><legend class="screen-reader-text"><span>
+			<?php
+			/* translators: Hidden accessibility text. */
+			_ex( 'Repeat', 'Background Repeat' );
+			?>
+</span></legend>
 <input name="background-repeat" type="hidden" value="no-repeat">
 <label><input type="checkbox" name="background-repeat" value="repeat"<?php checked( 'repeat', get_theme_mod( 'background_repeat', get_theme_support( 'custom-background', 'default-repeat' ) ) ); ?>> <?php _e( '重复背景图片' ); ?></label>
 </fieldset></td>
 </tr>
 
 <tr>
-<th scope="row"><?php _ex( '滚动', 'Background Scroll' ); ?></th>
-<td><fieldset><legend class="screen-reader-text"><span><?php _ex( '滚动', 'Background Scroll' ); ?></span></legend>
+<th scope="row"><?php _ex( 'Scroll', 'Background Scroll' ); ?></th>
+<td><fieldset><legend class="screen-reader-text"><span>
+			<?php
+			/* translators: Hidden accessibility text. */
+			_ex( 'Scroll', 'Background Scroll' );
+			?>
+</span></legend>
 <input name="background-attachment" type="hidden" value="fixed">
 <label><input name="background-attachment" type="checkbox" value="scroll" <?php checked( 'scroll', get_theme_mod( 'background_attachment', get_theme_support( 'custom-background', 'default-attachment' ) ) ); ?>> <?php _e( '随页面滚动' ); ?></label>
 </fieldset></td>
@@ -450,7 +477,12 @@ class Custom_Background {
 <?php endif; // get_background_image() ?>
 <tr>
 <th scope="row"><?php _e( '背景颜色' ); ?></th>
-<td><fieldset><legend class="screen-reader-text"><span><?php _e( '背景颜色' ); ?></span></legend>
+<td><fieldset><legend class="screen-reader-text"><span>
+		<?php
+		/* translators: Hidden accessibility text. */
+		_e( '背景颜色' );
+		?>
+</span></legend>
 		<?php
 		$default_color = '';
 		if ( current_theme_supports( 'custom-background', 'default-color' ) ) {
@@ -472,7 +504,7 @@ class Custom_Background {
 	}
 
 	/**
-	 * Handle an Image upload for the background image.
+	 * Handles an Image upload for the background image.
 	 *
 	 */
 	public function handle_upload() {
@@ -501,8 +533,8 @@ class Custom_Background {
 		$file     = $file['file'];
 		$filename = gc_basename( $file );
 
-		// Construct the object array.
-		$object = array(
+		// Construct the attachment array.
+		$attachment = array(
 			'post_title'     => $filename,
 			'post_content'   => $url,
 			'post_mime_type' => $type,
@@ -511,16 +543,16 @@ class Custom_Background {
 		);
 
 		// Save the data.
-		$id = gc_insert_attachment( $object, $file );
+		$id = gc_insert_attachment( $attachment, $file );
 
 		// Add the metadata.
 		gc_update_attachment_metadata( $id, gc_generate_attachment_metadata( $id, $file ) );
 		update_post_meta( $id, '_gc_attachment_is_custom_background', get_option( 'stylesheet' ) );
 
-		set_theme_mod( 'background_image', esc_url_raw( $url ) );
+		set_theme_mod( 'background_image', sanitize_url( $url ) );
 
 		$thumbnail = gc_get_attachment_image_src( $id, 'thumbnail' );
-		set_theme_mod( 'background_image_thumb', esc_url_raw( $thumbnail[0] ) );
+		set_theme_mod( 'background_image_thumb', sanitize_url( $thumbnail[0] ) );
 
 		/** This action is documented in gc-admin/includes/class-custom-image-header.php */
 		do_action( 'gc_create_file_in_uploads', $file, $id ); // For replication.
@@ -528,11 +560,12 @@ class Custom_Background {
 	}
 
 	/**
-	 * Ajax handler for adding custom background context to an attachment.
+	 * Handles Ajax request for adding custom background context to an attachment.
 	 *
 	 * Triggers when the user adds a new background image from the
 	 * Media Manager.
 	 *
+	 * @since 4.1.0
 	 */
 	public function ajax_background_add() {
 		check_ajax_referer( 'background-add', 'nonce' );
@@ -552,6 +585,7 @@ class Custom_Background {
 	}
 
 	/**
+	 * @since 3.4.0
 	 * @deprecated 3.5.0
 	 *
 	 * @param array $form_fields
@@ -562,6 +596,7 @@ class Custom_Background {
 	}
 
 	/**
+	 * @since 3.4.0
 	 * @deprecated 3.5.0
 	 *
 	 * @param array $tabs
@@ -572,6 +607,7 @@ class Custom_Background {
 	}
 
 	/**
+	 * @since 3.4.0
 	 * @deprecated 3.5.0
 	 */
 	public function gc_set_background_image() {
@@ -591,7 +627,7 @@ class Custom_Background {
 					'thumbnail' => __( '缩略图' ),
 					'medium'    => __( '中等' ),
 					'large'     => __( '大' ),
-					'full'      => __( '全尺寸' ),
+					'full'      => __( '实际大小' ),
 				)
 			)
 		);
@@ -605,8 +641,8 @@ class Custom_Background {
 
 		$url       = gc_get_attachment_image_src( $attachment_id, $size );
 		$thumbnail = gc_get_attachment_image_src( $attachment_id, 'thumbnail' );
-		set_theme_mod( 'background_image', esc_url_raw( $url[0] ) );
-		set_theme_mod( 'background_image_thumb', esc_url_raw( $thumbnail[0] ) );
+		set_theme_mod( 'background_image', sanitize_url( $url[0] ) );
+		set_theme_mod( 'background_image_thumb', sanitize_url( $thumbnail[0] ) );
 		exit;
 	}
 }

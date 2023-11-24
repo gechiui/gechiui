@@ -10,7 +10,7 @@
 /**
  * Retrieve translations from GeChiUI Translation API.
  *
- *
+ * @since 4.0.0
  *
  * @param string       $type Type of translations. Accepts 'plugins', 'themes', 'core'.
  * @param array|object $args Translation API arguments. Optional.
@@ -27,6 +27,7 @@ function translations_api( $type, $args = null ) {
 	/**
 	 * Allows a plugin to override the www.GeChiUI.com Translation Installation API entirely.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param false|array $result The result array. Default false.
 	 * @param string      $type   The type of translations being requested.
@@ -99,6 +100,7 @@ function translations_api( $type, $args = null ) {
 	/**
 	 * Filters the Translation Installation API response results.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param array|GC_Error $res  Response as an associative array or GC_Error.
 	 * @param string         $type The type of translations being requested.
@@ -110,7 +112,7 @@ function translations_api( $type, $args = null ) {
 /**
  * Get available translations from the www.GeChiUI.com API.
  *
- *
+ * @since 4.0.0
  *
  * @see translations_api()
  *
@@ -150,7 +152,7 @@ function gc_get_available_translations() {
 /**
  * Output the select form for the language selection on the installation screen.
  *
- *
+ * @since 4.0.0
  *
  * @global string $gc_local_package Locale code of the package.
  *
@@ -161,9 +163,9 @@ function gc_install_language_form( $languages ) {
 
 	$installed_languages = get_available_languages();
 
-	echo "<label class='screen-reader-text' for='language'>选择一个默认语言</label>\n";
+	echo "<label class='screen-reader-text' for='language'>Select a default language</label>\n";
 	echo "<select size='14' name='language' id='language'>\n";
-	echo '<option value="" lang="zh" selected="selected" data-continue="Continue" data-installed="1">中文（简体）</option>';
+	echo '<option value="" lang="en" selected="selected" data-continue="Continue" data-installed="1">English (United States)</option>';
 	echo "\n";
 
 	if ( ! empty( $gc_local_package ) && isset( $languages[ $gc_local_package ] ) ) {
@@ -193,13 +195,13 @@ function gc_install_language_form( $languages ) {
 		);
 	}
 	echo "</select>\n";
-	echo '<p class="step"><span class="spinner"></span><input id="language-continue" type="submit" class="button button-primary button-large" value="Continue" /></p>';
+	echo '<p class="step"><span class="spinner"></span><input id="language-continue" type="submit" class="btn btn-primary button-large" value="Continue" /></p>';
 }
 
 /**
  * Download a language pack.
  *
- *
+ * @since 4.0.0
  *
  * @see gc_get_available_translations()
  *
@@ -235,7 +237,7 @@ function gc_download_language_pack( $download ) {
 	$translation = (object) $translation;
 
 	require_once ABSPATH . 'gc-admin/includes/class-gc-upgrader.php';
-	$skin              = new Automatic_Upgrader_Skin;
+	$skin              = new Automatic_Upgrader_Skin();
 	$upgrader          = new Language_Pack_Upgrader( $skin );
 	$translation->type = 'core';
 	$result            = $upgrader->upgrade( $translation, array( 'clear_update_cache' => false ) );
@@ -251,7 +253,7 @@ function gc_download_language_pack( $download ) {
  * Check if GeChiUI has access to the filesystem without asking for
  * credentials.
  *
- *
+ * @since 4.0.0
  *
  * @return bool Returns true on success, false on failure.
  */
@@ -261,7 +263,7 @@ function gc_can_install_language_pack() {
 	}
 
 	require_once ABSPATH . 'gc-admin/includes/class-gc-upgrader.php';
-	$skin     = new Automatic_Upgrader_Skin;
+	$skin     = new Automatic_Upgrader_Skin();
 	$upgrader = new Language_Pack_Upgrader( $skin );
 	$upgrader->init();
 

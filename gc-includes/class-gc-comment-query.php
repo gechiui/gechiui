@@ -4,21 +4,20 @@
  *
  * @package GeChiUI
  * @subpackage Comments
- *
  */
 
 /**
  * Core class used for querying comments.
  *
- *
- *
  * @see GC_Comment_Query::__construct() for accepted arguments.
  */
+#[AllowDynamicProperties]
 class GC_Comment_Query {
 
 	/**
 	 * SQL for database query.
 	 *
+	 * @since 4.0.1
 	 * @var string
 	 */
 	public $request;
@@ -26,6 +25,7 @@ class GC_Comment_Query {
 	/**
 	 * Metadata query container
 	 *
+	 * @since 3.5.0
 	 * @var GC_Meta_Query A meta query instance.
 	 */
 	public $meta_query = false;
@@ -33,6 +33,7 @@ class GC_Comment_Query {
 	/**
 	 * Metadata query clauses.
 	 *
+	 * @since 4.4.0
 	 * @var array
 	 */
 	protected $meta_query_clauses;
@@ -40,6 +41,7 @@ class GC_Comment_Query {
 	/**
 	 * SQL query clauses.
 	 *
+	 * @since 4.4.0
 	 * @var array
 	 */
 	protected $sql_clauses = array(
@@ -56,6 +58,7 @@ class GC_Comment_Query {
 	 *
 	 * Stored after the {@see 'comments_clauses'} filter is run on the compiled WHERE sub-clauses.
 	 *
+	 * @since 4.4.2
 	 * @var string
 	 */
 	protected $filtered_where_clause;
@@ -63,6 +66,7 @@ class GC_Comment_Query {
 	/**
 	 * Date query container
 	 *
+	 * @since 3.7.0
 	 * @var GC_Date_Query A date query instance.
 	 */
 	public $date_query = false;
@@ -77,6 +81,7 @@ class GC_Comment_Query {
 	/**
 	 * Default values for query vars.
 	 *
+	 * @since 4.2.0
 	 * @var array
 	 */
 	public $query_var_defaults;
@@ -84,13 +89,15 @@ class GC_Comment_Query {
 	/**
 	 * List of comments located by the query.
 	 *
-	 * @var array
+	 * @since 4.0.0
+	 * @var int[]|GC_Comment[]
 	 */
 	public $comments;
 
 	/**
 	 * The amount of found comments for the current query.
 	 *
+	 * @since 4.4.0
 	 * @var int
 	 */
 	public $found_comments = 0;
@@ -98,6 +105,7 @@ class GC_Comment_Query {
 	/**
 	 * The number of pages.
 	 *
+	 * @since 4.4.0
 	 * @var int
 	 */
 	public $max_num_pages = 0;
@@ -105,6 +113,7 @@ class GC_Comment_Query {
 	/**
 	 * Make private/protected methods readable for backward compatibility.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $name      Method to call.
 	 * @param array  $arguments Arguments to pass when calling.
@@ -122,7 +131,15 @@ class GC_Comment_Query {
 	 *
 	 * Sets up the comment query, based on the query vars passed.
 	 *
+	 * @since 4.2.0
+	 * @since 4.4.0 `$parent__in` and `$parent__not_in` were added.
+	 * @since 4.4.0 Order by `comment__in` was added. `$update_comment_meta_cache`, `$no_found_rows`,
 	 *              `$hierarchical`, and `$update_comment_post_cache` were added.
+	 * @since 4.5.0 Introduced the `$author_url` argument.
+	 * @since 4.6.0 Introduced the `$cache_domain` argument.
+	 * @since 4.9.0 Introduced the `$paged` argument.
+	 * @since 5.1.0 Introduced the `$meta_compare_key` argument.
+	 * @since 5.3.0 Introduced the `$meta_type_key` argument.
 	 *
 	 * @param string|array $query {
 	 *     Optional. Array or query string of comment query parameters. Default empty.
@@ -139,7 +156,6 @@ class GC_Comment_Query {
 	 *                                                      Default null.
 	 *     @type string          $fields                    Comment fields to return. Accepts 'ids' for comment IDs
 	 *                                                      only or empty for all fields. Default empty.
-	 *     @type int             $ID                        Currently unused.
 	 *     @type array           $include_unapproved        Array of IDs or email addresses of users whose unapproved
 	 *                                                      comments will be returned by the query regardless of
 	 *                                                      `$status`. Default empty.
@@ -148,15 +164,15 @@ class GC_Comment_Query {
 	 *     @type string|string[] $meta_key                  Meta key or keys to filter by.
 	 *     @type string|string[] $meta_value                Meta value or values to filter by.
 	 *     @type string          $meta_compare              MySQL operator used for comparing the meta value.
-	 *                                                      See GC_Meta_Query::__construct for accepted values and default value.
+	 *                                                      See GC_Meta_Query::__construct() for accepted values and default value.
 	 *     @type string          $meta_compare_key          MySQL operator used for comparing the meta key.
-	 *                                                      See GC_Meta_Query::__construct for accepted values and default value.
+	 *                                                      See GC_Meta_Query::__construct() for accepted values and default value.
 	 *     @type string          $meta_type                 MySQL data type that the meta_value column will be CAST to for comparisons.
-	 *                                                      See GC_Meta_Query::__construct for accepted values and default value.
+	 *                                                      See GC_Meta_Query::__construct() for accepted values and default value.
 	 *     @type string          $meta_type_key             MySQL data type that the meta_key column will be CAST to for comparisons.
-	 *                                                      See GC_Meta_Query::__construct for accepted values and default value.
+	 *                                                      See GC_Meta_Query::__construct() for accepted values and default value.
 	 *     @type array           $meta_query                An associative array of GC_Meta_Query arguments.
-	 *                                                      See GC_Meta_Query::__construct for accepted values.
+	 *                                                      See GC_Meta_Query::__construct() for accepted values.
 	 *     @type int             $number                    Maximum number of comments to retrieve.
 	 *                                                      Default empty (no limit).
 	 *     @type int             $paged                     When used with `$number`, defines the page of results to return.
@@ -203,7 +219,6 @@ class GC_Comment_Query {
 	 *                                                      Default empty.
 	 *     @type int[]           $post_author__not_in       Array of author IDs *not* to retrieve comments for.
 	 *                                                      Default empty.
-	 *     @type int             $post_ID                   Currently unused.
 	 *     @type int             $post_id                   Limit results to those affiliated with a given post ID.
 	 *                                                      Default 0.
 	 *     @type int[]           $post__in                  Array of post IDs to include affiliated comments for.
@@ -308,6 +323,7 @@ class GC_Comment_Query {
 	/**
 	 * Parse arguments passed to the comment query with default query parameters.
 	 *
+	 * @since 4.2.0 Extracted from GC_Comment_Query::query().
 	 *
 	 * @param string|array $query GC_Comment_Query arguments. See GC_Comment_Query::__construct()
 	 */
@@ -321,6 +337,7 @@ class GC_Comment_Query {
 		/**
 		 * Fires after the comment query vars have been parsed.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @param GC_Comment_Query $query The GC_Comment_Query instance (passed by reference).
 		 */
@@ -330,9 +347,11 @@ class GC_Comment_Query {
 	/**
 	 * Sets up the GeChiUI query for retrieving comments.
 	 *
+	 * @since 4.1.0 Introduced 'comment__in', 'comment__not_in', 'post_author__in',
 	 *              'post_author__not_in', 'author__in', 'author__not_in', 'post__in',
 	 *              'post__not_in', 'include_unapproved', 'type__in', and 'type__not_in'
 	 *              arguments to $query_vars.
+	 * @since 4.2.0 Moved parsing to GC_Comment_Query::parse_query().
 	 *
 	 * @param string|array $query Array or URL query string of parameters.
 	 * @return array|int List of comments, or number of comments when 'count' is passed as a query var.
@@ -345,10 +364,11 @@ class GC_Comment_Query {
 	/**
 	 * Get a list of comments matching the query vars.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
-	 * @return int|array List of comments or number of found comments if `$count` argument is true.
+	 * @return int|int[]|GC_Comment[] List of comments or number of found comments if `$count` argument is true.
 	 */
 	public function get_comments() {
 		global $gcdb;
@@ -362,6 +382,7 @@ class GC_Comment_Query {
 		/**
 		 * Fires before comments are retrieved.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param GC_Comment_Query $query Current instance of GC_Comment_Query (passed by reference).
 		 */
@@ -396,6 +417,8 @@ class GC_Comment_Query {
 		 * passed to the filter by reference. If GC_Comment_Query does not perform a database
 		 * query, it will not have enough information to generate these values itself.
 		 *
+		 * @since 5.3.0
+		 * @since 5.6.0 The returned array of comment data is assigned to the `comments` property
 		 *              of the current GC_Comment_Query instance.
 		 *
 		 * @param array|int|null   $comment_data Return an array of comment data to short-circuit GC's comment query,
@@ -415,16 +438,16 @@ class GC_Comment_Query {
 
 		/*
 		 * Only use the args defined in the query_var_defaults to compute the key,
-		 * but ignore 'fields', which does not affect query results.
+		 * but ignore 'fields', 'update_comment_meta_cache', 'update_comment_post_cache' which does not affect query results.
 		 */
 		$_args = gc_array_slice_assoc( $this->query_vars, array_keys( $this->query_var_defaults ) );
-		unset( $_args['fields'] );
+		unset( $_args['fields'], $_args['update_comment_meta_cache'], $_args['update_comment_post_cache'] );
 
 		$key          = md5( serialize( $_args ) );
 		$last_changed = gc_cache_get_last_changed( 'comment' );
 
 		$cache_key   = "get_comments:$key:$last_changed";
-		$cache_value = gc_cache_get( $cache_key, 'comment' );
+		$cache_value = gc_cache_get( $cache_key, 'comment-queries' );
 		if ( false === $cache_value ) {
 			$comment_ids = $this->get_comment_ids();
 			if ( $comment_ids ) {
@@ -435,7 +458,7 @@ class GC_Comment_Query {
 				'comment_ids'    => $comment_ids,
 				'found_comments' => $this->found_comments,
 			);
-			gc_cache_add( $cache_key, $cache_value, 'comment' );
+			gc_cache_add( $cache_key, $cache_value, 'comment-queries' );
 		} else {
 			$comment_ids          = $cache_value['comment_ids'];
 			$this->found_comments = $cache_value['found_comments'];
@@ -453,12 +476,16 @@ class GC_Comment_Query {
 
 		$comment_ids = array_map( 'intval', $comment_ids );
 
+		if ( $this->query_vars['update_comment_meta_cache'] ) {
+			gc_lazyload_comment_meta( $comment_ids );
+		}
+
 		if ( 'ids' === $this->query_vars['fields'] ) {
 			$this->comments = $comment_ids;
 			return $this->comments;
 		}
 
-		_prime_comment_caches( $comment_ids, $this->query_vars['update_comment_meta_cache'] );
+		_prime_comment_caches( $comment_ids, false );
 
 		// Fetch full comment objects from the primed cache.
 		$_comments = array();
@@ -482,6 +509,7 @@ class GC_Comment_Query {
 		/**
 		 * Filters the comment query results.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param GC_Comment[]     $_comments An array of comments.
 		 * @param GC_Comment_Query $query     Current instance of GC_Comment_Query (passed by reference).
@@ -502,6 +530,7 @@ class GC_Comment_Query {
 	/**
 	 * Used internally to get a list of comment IDs matching the query vars.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -554,8 +583,6 @@ class GC_Comment_Query {
 		if ( ! empty( $this->query_vars['include_unapproved'] ) ) {
 			$include_unapproved = gc_parse_list( $this->query_vars['include_unapproved'] );
 
-			$unapproved_ids    = array();
-			$unapproved_emails = array();
 			foreach ( $include_unapproved as $unapproved_identifier ) {
 				// Numeric values are assumed to be user IDs.
 				if ( is_numeric( $unapproved_identifier ) ) {
@@ -564,7 +591,7 @@ class GC_Comment_Query {
 					// Otherwise we match against email addresses.
 					if ( ! empty( $_GET['unapproved'] ) && ! empty( $_GET['moderation-hash'] ) ) {
 						// Only include requested comment.
-						$approved_clauses[] = $gcdb->prepare( "( comment_author_email = %s AND comment_approved = '0' AND comment_ID = %d )", $unapproved_identifier, (int) $_GET['unapproved'] );
+						$approved_clauses[] = $gcdb->prepare( "( comment_author_email = %s AND comment_approved = '0' AND {$gcdb->comments}.comment_ID = %d )", $unapproved_identifier, (int) $_GET['unapproved'] );
 					} else {
 						// Include all of the author's unapproved comments.
 						$approved_clauses[] = $gcdb->prepare( "( comment_author_email = %s AND comment_approved = '0' )", $unapproved_identifier );
@@ -645,7 +672,7 @@ class GC_Comment_Query {
 				// If no date-related order is available, use the date from the first available clause.
 				if ( ! $comment_id_order ) {
 					foreach ( $orderby_array as $orderby_clause ) {
-						if ( false !== strpos( 'ASC', $orderby_clause ) ) {
+						if ( str_contains( 'ASC', $orderby_clause ) ) {
 							$comment_id_order = 'ASC';
 						} else {
 							$comment_id_order = 'DESC';
@@ -880,21 +907,25 @@ class GC_Comment_Query {
 		}
 
 		if ( ! empty( $this->query_vars['date_query'] ) && is_array( $this->query_vars['date_query'] ) ) {
-			$this->date_query                         = new GC_Date_Query( $this->query_vars['date_query'], 'comment_date' );
+			$this->date_query = new GC_Date_Query( $this->query_vars['date_query'], 'comment_date' );
+
+			// Strip leading 'AND'.
 			$this->sql_clauses['where']['date_query'] = preg_replace( '/^\s*AND\s*/', '', $this->date_query->get_sql() );
 		}
 
 		$where = implode( ' AND ', $this->sql_clauses['where'] );
 
-		$clauses = compact( 'fields', 'join', 'where', 'orderby', 'limits', 'groupby' );
+		$pieces = array( 'fields', 'join', 'where', 'orderby', 'limits', 'groupby' );
+
 		/**
 		 * Filters the comment query clauses.
 		 *
+		 * @since 3.1.0
 		 *
-		 * @param string[]         $pieces An associative array of comment query clauses.
-		 * @param GC_Comment_Query $query  Current instance of GC_Comment_Query (passed by reference).
+		 * @param string[]         $clauses An associative array of comment query clauses.
+		 * @param GC_Comment_Query $query   Current instance of GC_Comment_Query (passed by reference).
 		 */
-		$clauses = apply_filters_ref_array( 'comments_clauses', array( $clauses, &$this ) );
+		$clauses = apply_filters_ref_array( 'comments_clauses', array( compact( $pieces ), &$this ) );
 
 		$fields  = isset( $clauses['fields'] ) ? $clauses['fields'] : '';
 		$join    = isset( $clauses['join'] ) ? $clauses['join'] : '';
@@ -949,6 +980,7 @@ class GC_Comment_Query {
 	 * Populates found_comments and max_num_pages properties for the current
 	 * query if the limit clause was used.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 */
@@ -959,7 +991,7 @@ class GC_Comment_Query {
 			/**
 			 * Filters the query used to retrieve found comment count.
 			 *
-		
+			 * @since 4.4.0
 			 *
 			 * @param string           $found_comments_query SQL query. Default 'SELECT FOUND_ROWS()'.
 			 * @param GC_Comment_Query $comment_query        The `GC_Comment_Query` instance.
@@ -976,15 +1008,12 @@ class GC_Comment_Query {
 	 * Instead of calling `get_children()` separately on each child comment, we do a single set of queries to fetch
 	 * the descendant trees for all matched top-level comments.
 	 *
-	 *
-	 * @global gcdb $gcdb GeChiUI database abstraction object.
+	 * @since 4.4.0
 	 *
 	 * @param GC_Comment[] $comments Array of top-level comments whose descendants should be filled in.
 	 * @return array
 	 */
 	protected function fill_descendants( $comments ) {
-		global $gcdb;
-
 		$levels = array(
 			0 => gc_list_pluck( $comments, 'comment_ID' ),
 		);
@@ -1000,13 +1029,19 @@ class GC_Comment_Query {
 			$child_ids           = array();
 			$uncached_parent_ids = array();
 			$_parent_ids         = $levels[ $level ];
-			foreach ( $_parent_ids as $parent_id ) {
-				$cache_key        = "get_comment_child_ids:$parent_id:$key:$last_changed";
-				$parent_child_ids = gc_cache_get( $cache_key, 'comment' );
-				if ( false !== $parent_child_ids ) {
-					$child_ids = array_merge( $child_ids, $parent_child_ids );
-				} else {
-					$uncached_parent_ids[] = $parent_id;
+			if ( $_parent_ids ) {
+				$cache_keys = array();
+				foreach ( $_parent_ids as $parent_id ) {
+					$cache_keys[ $parent_id ] = "get_comment_child_ids:$parent_id:$key:$last_changed";
+				}
+				$cache_data = gc_cache_get_multiple( array_values( $cache_keys ), 'comment-queries' );
+				foreach ( $_parent_ids as $parent_id ) {
+					$parent_child_ids = $cache_data[ $cache_keys[ $parent_id ] ];
+					if ( false !== $parent_child_ids ) {
+						$child_ids = array_merge( $child_ids, $parent_child_ids );
+					} else {
+						$uncached_parent_ids[] = $parent_id;
+					}
 				}
 			}
 
@@ -1036,7 +1071,7 @@ class GC_Comment_Query {
 					$cache_key          = "get_comment_child_ids:$parent_id:$key:$last_changed";
 					$data[ $cache_key ] = $children;
 				}
-				gc_cache_set_multiple( $data, 'comment' );
+				gc_cache_set_multiple( $data, 'comment-queries' );
 			}
 
 			$level++;
@@ -1091,23 +1126,23 @@ class GC_Comment_Query {
 	}
 
 	/**
-	 * Used internally to generate an SQL string for searching across multiple columns
+	 * Used internally to generate an SQL string for searching across multiple columns.
 	 *
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
-	 * @param string $string
-	 * @param array  $cols
-	 * @return string
+	 * @param string   $search  Search string.
+	 * @param string[] $columns Array of columns to search.
+	 * @return string Search SQL.
 	 */
-	protected function get_search_sql( $string, $cols ) {
+	protected function get_search_sql( $search, $columns ) {
 		global $gcdb;
 
-		$like = '%' . $gcdb->esc_like( $string ) . '%';
+		$like = '%' . $gcdb->esc_like( $search ) . '%';
 
 		$searches = array();
-		foreach ( $cols as $col ) {
-			$searches[] = $gcdb->prepare( "$col LIKE %s", $like );
+		foreach ( $columns as $column ) {
+			$searches[] = $gcdb->prepare( "$column LIKE %s", $like );
 		}
 
 		return ' AND (' . implode( ' OR ', $searches ) . ')';
@@ -1116,6 +1151,7 @@ class GC_Comment_Query {
 	/**
 	 * Parse and sanitize 'orderby' keys passed to the comment query.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -1178,6 +1214,7 @@ class GC_Comment_Query {
 	/**
 	 * Parse an 'order' query variable and cast it to ASC or DESC as necessary.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param string $order The 'order' query variable.
 	 * @return string The sanitized 'order' query variable.

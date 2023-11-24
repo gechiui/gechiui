@@ -4,13 +4,12 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customize control to represent the name field for a given menu.
  *
- *
+ * @since 4.3.0
  *
  * @see GC_Customize_Control
  */
@@ -19,6 +18,7 @@ class GC_Customize_Nav_Menu_Name_Control extends GC_Customize_Control {
 	/**
 	 * Type of control, used by JS.
 	 *
+	 * @since 4.3.0
 	 * @var string
 	 */
 	public $type = 'nav_menu_name';
@@ -26,12 +26,14 @@ class GC_Customize_Nav_Menu_Name_Control extends GC_Customize_Control {
 	/**
 	 * No-op since we're using JS template.
 	 *
+	 * @since 4.3.0
 	 */
 	protected function render_content() {}
 
 	/**
 	 * Render the Underscore template for this control.
 	 *
+	 * @since 4.3.0
 	 */
 	protected function content_template() {
 		?>

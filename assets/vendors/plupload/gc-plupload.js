@@ -113,6 +113,7 @@ window.gc = window.gc || {};
 		 * Attempt to create image sub-sizes when an image was uploaded successfully
 		 * but the server responded with HTTP 5xx error.
 		 *
+		 * @since 5.3.0
 		 *
 		 * @param {string}        message Error message.
 		 * @param {object}        data    Error data from Plupload.

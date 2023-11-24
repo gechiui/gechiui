@@ -6,23 +6,22 @@
  */
 
 /**
- * Return the HTTP protocol sent by the server.
- *
- *
+ * Returns the HTTP protocol sent by the server.
  *
  * @return string The HTTP protocol. Default: HTTP/1.0.
  */
 function gc_get_server_protocol() {
 	$protocol = isset( $_SERVER['SERVER_PROTOCOL'] ) ? $_SERVER['SERVER_PROTOCOL'] : '';
+
 	if ( ! in_array( $protocol, array( 'HTTP/1.1', 'HTTP/2', 'HTTP/2.0', 'HTTP/3' ), true ) ) {
 		$protocol = 'HTTP/1.0';
 	}
+
 	return $protocol;
 }
 
 /**
- * Fix `$_SERVER` variables for various setups.
- *
+ * Fixes `$_SERVER` variables for various setups.
  *
  * @access private
  *
@@ -40,7 +39,9 @@ function gc_fix_server_vars() {
 	$_SERVER = array_merge( $default_server_values, $_SERVER );
 
 	// Fix for IIS when running with PHP ISAPI.
-	if ( empty( $_SERVER['REQUEST_URI'] ) || ( 'cgi-fcgi' !== PHP_SAPI && preg_match( '/^Microsoft-IIS\//', $_SERVER['SERVER_SOFTWARE'] ) ) ) {
+	if ( empty( $_SERVER['REQUEST_URI'] )
+		|| ( 'cgi-fcgi' !== PHP_SAPI && preg_match( '/^Microsoft-IIS\//', $_SERVER['SERVER_SOFTWARE'] ) )
+	) {
 
 		if ( isset( $_SERVER['HTTP_X_ORIGINAL_URL'] ) ) {
 			// IIS Mod-Rewrite.
@@ -56,7 +57,7 @@ function gc_fix_server_vars() {
 
 			// Some IIS + PHP configurations put the script-name in the path-info (no need to append it twice).
 			if ( isset( $_SERVER['PATH_INFO'] ) ) {
-				if ( $_SERVER['PATH_INFO'] == $_SERVER['SCRIPT_NAME'] ) {
+				if ( $_SERVER['PATH_INFO'] === $_SERVER['SCRIPT_NAME'] ) {
 					$_SERVER['REQUEST_URI'] = $_SERVER['PATH_INFO'];
 				} else {
 					$_SERVER['REQUEST_URI'] = $_SERVER['SCRIPT_NAME'] . $_SERVER['PATH_INFO'];
@@ -71,12 +72,12 @@ function gc_fix_server_vars() {
 	}
 
 	// Fix for PHP as CGI hosts that set SCRIPT_FILENAME to something ending in php.cgi for all requests.
-	if ( isset( $_SERVER['SCRIPT_FILENAME'] ) && ( strpos( $_SERVER['SCRIPT_FILENAME'], 'php.cgi' ) == strlen( $_SERVER['SCRIPT_FILENAME'] ) - 7 ) ) {
+	if ( isset( $_SERVER['SCRIPT_FILENAME'] ) && str_ends_with( $_SERVER['SCRIPT_FILENAME'], 'php.cgi' ) ) {
 		$_SERVER['SCRIPT_FILENAME'] = $_SERVER['PATH_TRANSLATED'];
 	}
 
 	// Fix for Dreamhost and other PHP as CGI hosts.
-	if ( isset( $_SERVER['SCRIPT_NAME'] ) && ( strpos( $_SERVER['SCRIPT_NAME'], 'php.cgi' ) !== false ) ) {
+	if ( isset( $_SERVER['SCRIPT_NAME'] ) && str_contains( $_SERVER['SCRIPT_NAME'], 'php.cgi' ) ) {
 		unset( $_SERVER['PATH_INFO'] );
 	}
 
@@ -96,7 +97,6 @@ function gc_fix_server_vars() {
  * Some servers running in CGI or FastCGI mode don't pass the Authorization
  * header on to GeChiUI.  If it's been rewritten to the `HTTP_AUTHORIZATION` header,
  * fill in the proper $_SERVER variables instead.
- *
  *
  */
 function gc_populate_basic_auth_from_authorization_header() {
@@ -130,11 +130,10 @@ function gc_populate_basic_auth_from_authorization_header() {
 }
 
 /**
- * Check for the required PHP version, and the MySQL extension or
+ * Checks for the required PHP version, and the MySQL extension or
  * a database drop-in.
  *
  * Dies if requirements are not met.
- *
  *
  * @access private
  *
@@ -143,29 +142,51 @@ function gc_populate_basic_auth_from_authorization_header() {
  */
 function gc_check_php_mysql_versions() {
 	global $required_php_version, $gc_version;
-	$php_version = phpversion();
+
+	$php_version = PHP_VERSION;
 
 	if ( version_compare( $required_php_version, $php_version, '>' ) ) {
 		$protocol = gc_get_server_protocol();
 		header( sprintf( '%s 500 Internal Server Error', $protocol ), true, 500 );
 		header( 'Content-Type: text/html; charset=utf-8' );
-		printf( 'Your server is running PHP version %1$s but GeChiUI %2$s requires at least %3$s.', $php_version, $gc_version, $required_php_version );
+		printf(
+			'Your server is running PHP version %1$s but GeChiUI %2$s requires at least %3$s.',
+			$php_version,
+			$gc_version,
+			$required_php_version
+		);
 		exit( 1 );
 	}
 
-	if ( ! extension_loaded( 'mysql' ) && ! extension_loaded( 'mysqli' ) && ! extension_loaded( 'mysqlnd' )
-		// This runs before default constants are defined, so we can't assume GC_CONTENT_DIR is set yet.
-		&& ( defined( 'GC_CONTENT_DIR' ) && ! file_exists( GC_CONTENT_DIR . '/db.php' )
-			|| ! file_exists( ABSPATH . 'gc-content/db.php' ) )
+	// This runs before default constants are defined, so we can't assume GC_CONTENT_DIR is set yet.
+	$gc_content_dir = defined( 'GC_CONTENT_DIR' ) ? GC_CONTENT_DIR : ABSPATH . 'gc-content';
+
+	if ( ! function_exists( 'mysqli_connect' ) && ! function_exists( 'mysql_connect' )
+		&& ! file_exists( $gc_content_dir . '/db.php' )
 	) {
 		require_once ABSPATH . GCINC . '/functions.php';
 		gc_load_translations_early();
+
+		$message = '<p>' . __( '您的PHP似乎没有安装运行GeChiUI所必需的MySQL扩展。' ) . "</p>\n";
+
+		$message .= '<p>' . sprintf(
+			/* translators: %s: mysqli. */
+			__( '请检查 PHP 扩展 %s 已安装并启用。' ),
+			'<code>mysqli</code>'
+		) . "</p>\n";
+
+		$message .= '<p>' . sprintf(
+			/* translators: %s: Support forums URL. */
+			__( '若您不明白这些术语的含义，则应联系您的主机商。若仍需要帮助，可随时访问 <a href="%s">GeChiUI 支持论坛</a>。' ),
+			__( 'https://www.gechiui.com/support/forums/' )
+		) . "</p>\n";
+
 		$args = array(
 			'exit' => false,
 			'code' => 'mysql_not_found',
 		);
 		gc_die(
-			__( '您的PHP似乎没有安装运行GeChiUI所必需的MySQL扩展。' ),
+			$message,
 			__( '未满足要求' ),
 			$args
 		);
@@ -182,9 +203,9 @@ function gc_check_php_mysql_versions() {
  * Possible values are 'local', 'development', 'staging', and 'production'.
  * If not set, the type defaults to 'production'.
  *
- *
- *
- *
+ * @since 5.5.0
+ * @since 5.5.1 Added the 'local' type.
+ * @since 5.5.1 Removed the ability to alter the list of types.
  *
  * @return string The current environment type.
  */
@@ -227,7 +248,7 @@ function gc_get_environment_type() {
 	}
 
 	// Fetch the environment from a constant, this overrides the global system variable.
-	if ( defined( 'GC_ENVIRONMENT_TYPE' ) ) {
+	if ( defined( 'GC_ENVIRONMENT_TYPE' ) && GC_ENVIRONMENT_TYPE ) {
 		$current_env = GC_ENVIRONMENT_TYPE;
 	}
 
@@ -240,10 +261,84 @@ function gc_get_environment_type() {
 }
 
 /**
- * Don't load all of GeChiUI when handling a favicon.ico request.
+ * Retrieves the current development mode.
+ *
+ * The development mode affects how certain parts of the GeChiUI application behave,
+ * which is relevant when developing for GeChiUI.
+ *
+ * Development mode can be set via the `GC_DEVELOPMENT_MODE` constant in `gc-config.php`.
+ * Possible values are 'core', 'plugin', 'theme', 'all', or an empty string to disable
+ * development mode. 'all' is a special value to signify that all three development modes
+ * ('core', 'plugin', and 'theme') are enabled.
+ *
+ * Development mode is considered separately from `GC_DEBUG` and gc_get_environment_type().
+ * It does not affect debugging output, but rather functional nuances in GeChiUI.
+ *
+ * This function retrieves the currently set development mode value. To check whether
+ * a specific development mode is enabled, use gc_is_development_mode().
+ *
+ * @since 6.3.0
+ *
+ * @return string The current development mode.
+ */
+function gc_get_development_mode() {
+	static $current_mode = null;
+
+	if ( ! defined( 'GC_RUN_CORE_TESTS' ) && null !== $current_mode ) {
+		return $current_mode;
+	}
+
+	$development_mode = GC_DEVELOPMENT_MODE;
+
+	// Exclusively for core tests, rely on the `$_gc_tests_development_mode` global.
+	if ( defined( 'GC_RUN_CORE_TESTS' ) && isset( $GLOBALS['_gc_tests_development_mode'] ) ) {
+		$development_mode = $GLOBALS['_gc_tests_development_mode'];
+	}
+
+	$valid_modes = array(
+		'core',
+		'plugin',
+		'theme',
+		'all',
+		'',
+	);
+
+	if ( ! in_array( $development_mode, $valid_modes, true ) ) {
+		$development_mode = '';
+	}
+
+	$current_mode = $development_mode;
+
+	return $current_mode;
+}
+
+/**
+ * Checks whether the site is in the given development mode.
+ *
+ * @since 6.3.0
+ *
+ * @param string $mode Development mode to check for. Either 'core', 'plugin', 'theme', or 'all'.
+ * @return bool True if the given mode is covered by the current development mode, false otherwise.
+ */
+function gc_is_development_mode( $mode ) {
+	$current_mode = gc_get_development_mode();
+	if ( empty( $current_mode ) ) {
+		return false;
+	}
+
+	// Return true if the current mode encompasses all modes.
+	if ( 'all' === $current_mode ) {
+		return true;
+	}
+
+	// Return true if the current mode is the given mode.
+	return $mode === $current_mode;
+}
+
+/**
+ * Ensures all of GeChiUI is not loaded when handling a favicon.ico request.
  *
  * Instead, send the headers for a zero-length favicon and bail.
- *
  *
  * @deprecated 5.4.0 Deprecated in favor of do_favicon().
  */
@@ -255,11 +350,10 @@ function gc_favicon_request() {
 }
 
 /**
- * Die with a maintenance message when conditions are met.
+ * Dies with a maintenance message when conditions are met.
  *
  * The default message can be replaced by using a drop-in (maintenance.php in
  * the gc-content directory).
- *
  *
  * @access private
  */
@@ -287,14 +381,14 @@ function gc_maintenance() {
 }
 
 /**
- * Check if maintenance mode is enabled.
+ * Checks if maintenance mode is enabled.
  *
  * Checks for a file in the GeChiUI root directory named ".maintenance".
  * This file will contain the variable $upgrading, set to the time the file
  * was created. If the file was created less than 10 minutes ago, GeChiUI
  * is in maintenance mode.
  *
- *
+ * @since 5.5.0
  *
  * @global int $upgrading The Unix timestamp marking when upgrading GeChiUI began.
  *
@@ -308,6 +402,7 @@ function gc_is_maintenance_mode() {
 	}
 
 	require ABSPATH . '.maintenance';
+
 	// If the $upgrading timestamp is older than 10 minutes, consider maintenance over.
 	if ( ( time() - $upgrading ) >= 10 * MINUTE_IN_SECONDS ) {
 		return false;
@@ -321,6 +416,7 @@ function gc_is_maintenance_mode() {
 	 * active and the request will end. If false, the request will be allowed to
 	 * continue processing even if maintenance mode should be active.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param bool $enable_checks Whether to enable maintenance mode. Default true.
 	 * @param int  $upgrading     The timestamp set in the .maintenance file.
@@ -333,11 +429,11 @@ function gc_is_maintenance_mode() {
 }
 
 /**
- * Get the time elapsed so far during this PHP script.
+ * Gets the time elapsed so far during this PHP script.
  *
  * Uses REQUEST_TIME_FLOAT that appeared in PHP 5.4.0.
  *
- *
+ * @since 5.8.0
  *
  * @return float Seconds since the PHP script started.
  */
@@ -346,8 +442,7 @@ function timer_float() {
 }
 
 /**
- * Start the GeChiUI micro-timer.
- *
+ * Starts the GeChiUI micro-timer.
  *
  * @access private
  *
@@ -358,14 +453,14 @@ function timer_float() {
  */
 function timer_start() {
 	global $timestart;
+
 	$timestart = microtime( true );
+
 	return true;
 }
 
 /**
- * Retrieve or display the time from the page start to when function is called.
- *
- *
+ * Retrieves or displays the time from the page start to when function is called.
  *
  * @global float   $timestart Seconds from when timer_start() is called.
  * @global float   $timeend   Seconds from when function is called.
@@ -379,17 +474,25 @@ function timer_start() {
  */
 function timer_stop( $display = 0, $precision = 3 ) {
 	global $timestart, $timeend;
+
 	$timeend   = microtime( true );
 	$timetotal = $timeend - $timestart;
-	$r         = ( function_exists( 'number_format_i18n' ) ) ? number_format_i18n( $timetotal, $precision ) : number_format( $timetotal, $precision );
+
+	if ( function_exists( 'number_format_i18n' ) ) {
+		$r = number_format_i18n( $timetotal, $precision );
+	} else {
+		$r = number_format( $timetotal, $precision );
+	}
+
 	if ( $display ) {
 		echo $r;
 	}
+
 	return $r;
 }
 
 /**
- * Set PHP error reporting based on GeChiUI debug settings.
+ * Sets PHP error reporting based on GeChiUI debug settings.
  *
  * Uses three constants: `GC_DEBUG`, `GC_DEBUG_DISPLAY`, and `GC_DEBUG_LOG`.
  * All three can be defined in gc-config.php. By default, `GC_DEBUG` and
@@ -416,8 +519,7 @@ function timer_stop( $display = 0, $precision = 3 ) {
  *
  * Errors are never displayed for XML-RPC, REST, `ms-files.php`, and Ajax requests.
  *
- *
- *
+ * @since 5.1.0 `GC_DEBUG_LOG` can be a file path.
  * @access private
  */
 function gc_debug_mode() {
@@ -447,6 +549,7 @@ function gc_debug_mode() {
 	 *         ),
 	 *     );
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param bool $enable_debug_mode Whether to enable debug mode checks to occur. Default true.
 	 */
@@ -479,16 +582,16 @@ function gc_debug_mode() {
 		error_reporting( E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_ERROR | E_WARNING | E_PARSE | E_USER_ERROR | E_USER_WARNING | E_RECOVERABLE_ERROR );
 	}
 
-	if (
-		defined( 'XMLRPC_REQUEST' ) || defined( 'REST_REQUEST' ) || defined( 'MS_FILES_REQUEST' ) ||
-		( defined( 'GC_INSTALLING' ) && GC_INSTALLING ) ||
-		gc_doing_ajax() || gc_is_json_request() ) {
+	if ( defined( 'XMLRPC_REQUEST' ) || defined( 'REST_REQUEST' ) || defined( 'MS_FILES_REQUEST' )
+		|| ( defined( 'GC_INSTALLING' ) && GC_INSTALLING )
+		|| gc_doing_ajax() || gc_is_json_request()
+	) {
 		ini_set( 'display_errors', 0 );
 	}
 }
 
 /**
- * Set the location of the language directory.
+ * Sets the location of the language directory.
  *
  * To set directory manually, define the `GC_LANG_DIR` constant
  * in gc-config.php.
@@ -497,20 +600,22 @@ function gc_debug_mode() {
  * is used. Otherwise the language directory is assumed to live
  * in `GCINC`.
  *
- *
  * @access private
  */
 function gc_set_lang_dir() {
 	if ( ! defined( 'GC_LANG_DIR' ) ) {
-		if ( file_exists( GC_CONTENT_DIR . '/languages' ) && @is_dir( GC_CONTENT_DIR . '/languages' ) || ! @is_dir( ABSPATH . GCINC . '/languages' ) ) {
+		if ( file_exists( GC_CONTENT_DIR . '/languages' ) && @is_dir( GC_CONTENT_DIR . '/languages' )
+			|| ! @is_dir( ABSPATH . GCINC . '/languages' )
+		) {
 			/**
 			 * Server path of the language directory.
 			 *
 			 * No leading slash, no trailing slash, full path, not relative to ABSPATH
 			 *
-		
+			 * @since 2.1.0
 			 */
 			define( 'GC_LANG_DIR', GC_CONTENT_DIR . '/languages' );
+
 			if ( ! defined( 'LANGDIR' ) ) {
 				// Old static relative path maintained for limited backward compatibility - won't work in some cases.
 				define( 'LANGDIR', 'gc-content/languages' );
@@ -521,9 +626,10 @@ function gc_set_lang_dir() {
 			 *
 			 * No leading slash, no trailing slash, full path, not relative to `ABSPATH`.
 			 *
-		
+			 * @since 2.1.0
 			 */
 			define( 'GC_LANG_DIR', ABSPATH . GCINC . '/languages' );
+
 			if ( ! defined( 'LANGDIR' ) ) {
 				// Old relative path maintained for backward compatibility.
 				define( 'LANGDIR', GCINC . '/languages' );
@@ -533,16 +639,15 @@ function gc_set_lang_dir() {
 }
 
 /**
- * Load the database class file and instantiate the `$gcdb` global.
- *
- *
+ * Loads the database class file and instantiates the `$gcdb` global.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  */
 function require_gc_db() {
 	global $gcdb;
 
-	require_once ABSPATH . GCINC . '/gc-db.php';
+	require_once ABSPATH . GCINC . '/class-gcdb.php';
+
 	if ( file_exists( GC_CONTENT_DIR . '/db.php' ) ) {
 		require_once GC_CONTENT_DIR . '/db.php';
 	}
@@ -560,11 +665,10 @@ function require_gc_db() {
 }
 
 /**
- * Set the database table prefix and the format specifiers for database
+ * Sets the database table prefix and the format specifiers for database
  * table columns.
  *
  * Columns not listed here default to `%s`.
- *
  *
  * @access private
  *
@@ -573,6 +677,7 @@ function require_gc_db() {
  */
 function gc_set_gcdb_vars() {
 	global $gcdb, $table_prefix;
+
 	if ( ! empty( $gcdb->error ) ) {
 		dead_db();
 	}
@@ -622,7 +727,7 @@ function gc_set_gcdb_vars() {
 		gc_die(
 			sprintf(
 				/* translators: 1: $table_prefix, 2: gc-config.php */
-				__( '<strong>错误</strong>：%2$s中的%1$s只能包含数字、字母和下划线。' ),
+				__( '<strong>错误：</strong>%2$s 中的 %1$s 只能包含数字、字母和下划线。' ),
 				'<code>$table_prefix</code>',
 				'<code>gc-config.php</code>'
 			)
@@ -631,10 +736,8 @@ function gc_set_gcdb_vars() {
 }
 
 /**
- * Toggle `$_gc_using_ext_object_cache` on and off without directly
+ * Toggles `$_gc_using_ext_object_cache` on and off without directly
  * touching global.
- *
- *
  *
  * @global bool $_gc_using_ext_object_cache
  *
@@ -643,19 +746,21 @@ function gc_set_gcdb_vars() {
  */
 function gc_using_ext_object_cache( $using = null ) {
 	global $_gc_using_ext_object_cache;
+
 	$current_using = $_gc_using_ext_object_cache;
+
 	if ( null !== $using ) {
 		$_gc_using_ext_object_cache = $using;
 	}
+
 	return $current_using;
 }
 
 /**
- * Start the GeChiUI object cache.
+ * Starts the GeChiUI object cache.
  *
  * If an object-cache.php file exists in the gc-content directory,
  * it uses that drop-in as an external object cache.
- *
  *
  * @access private
  *
@@ -673,6 +778,7 @@ function gc_start_object_cache() {
 	 * This filter runs before it can be used by plugins. It is designed for non-web
 	 * runtimes. If false is returned, object-cache.php will never be loaded.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param bool $enable_object_cache Whether to enable loading object-cache.php (if present).
 	 *                                  Default true.
@@ -689,6 +795,7 @@ function gc_start_object_cache() {
 			 */
 			if ( file_exists( GC_CONTENT_DIR . '/object-cache.php' ) ) {
 				require_once GC_CONTENT_DIR . '/object-cache.php';
+
 				if ( function_exists( 'gc_cache_init' ) ) {
 					gc_using_ext_object_cache( true );
 				}
@@ -727,48 +834,69 @@ function gc_start_object_cache() {
 	}
 
 	if ( function_exists( 'gc_cache_add_global_groups' ) ) {
-		gc_cache_add_global_groups( array( 'users', 'userlogins', 'usermeta', 'user_meta', 'useremail', 'userslugs', 'site-transient', 'site-options', 'blog-lookup', 'blog-details', 'site-details', 'rss', 'global-posts', 'blog-id-cache', 'networks', 'sites', 'blog_meta' ) );
-		gc_cache_add_non_persistent_groups( array( 'counts', 'plugins' ) );
+		gc_cache_add_global_groups(
+			array(
+				'blog-details',
+				'blog-id-cache',
+				'blog-lookup',
+				'blog_meta',
+				'global-posts',
+				'networks',
+				'network-queries',
+				'sites',
+				'site-details',
+				'site-options',
+				'site-queries',
+				'site-transient',
+				'rss',
+				'users',
+				'user-queries',
+				'user_meta',
+				'useremail',
+				'userlogins',
+				'userslugs',
+			)
+		);
+
+		gc_cache_add_non_persistent_groups( array( 'counts', 'plugins', 'theme_json' ) );
 	}
 
 	$first_init = false;
 }
 
 /**
- * Redirect to the installer if GeChiUI is not installed.
+ * Redirects to the installer if GeChiUI is not installed.
  *
  * Dies with an error message when Multisite is enabled.
- *
  *
  * @access private
  */
 function gc_not_installed() {
-	if ( is_multisite() ) {
-		if ( ! is_blog_installed() && ! gc_installing() ) {
-			nocache_headers();
-
-			gc_die( __( '您请求的站点未被正确安装。请联系系统管理员。' ) );
-		}
-	} elseif ( ! is_blog_installed() && ! gc_installing() ) {
-		nocache_headers();
-
-		require ABSPATH . GCINC . '/kses.php';
-		require ABSPATH . GCINC . '/pluggable.php';
-
-		$link = gc_guess_url() . '/gc-admin/install.php';
-
-		gc_redirect( $link );
-		die();
+	if ( is_blog_installed() || gc_installing() ) {
+		return;
 	}
+
+	nocache_headers();
+
+	if ( is_multisite() ) {
+		gc_die( __( '您请求的系统未被正确安装。请联系系统管理员。' ) );
+	}
+
+	require ABSPATH . GCINC . '/kses.php';
+	require ABSPATH . GCINC . '/pluggable.php';
+
+	$link = gc_guess_url() . '/gc-admin/install.php';
+
+	gc_redirect( $link );
+	die();
 }
 
 /**
- * Retrieve an array of must-use plugin files.
+ * Retrieves an array of must-use plugin files.
  *
  * The default directory is gc-content/mu-plugins. To change the default
  * directory manually, define `GCMU_PLUGIN_DIR` and `GCMU_PLUGIN_URL`
  * in gc-config.php.
- *
  *
  * @access private
  *
@@ -776,33 +904,37 @@ function gc_not_installed() {
  */
 function gc_get_mu_plugins() {
 	$mu_plugins = array();
+
 	if ( ! is_dir( GCMU_PLUGIN_DIR ) ) {
 		return $mu_plugins;
 	}
+
 	$dh = opendir( GCMU_PLUGIN_DIR );
 	if ( ! $dh ) {
 		return $mu_plugins;
 	}
+
 	while ( ( $plugin = readdir( $dh ) ) !== false ) {
-		if ( '.php' === substr( $plugin, -4 ) ) {
+		if ( str_ends_with( $plugin, '.php' ) ) {
 			$mu_plugins[] = GCMU_PLUGIN_DIR . '/' . $plugin;
 		}
 	}
+
 	closedir( $dh );
+
 	sort( $mu_plugins );
 
 	return $mu_plugins;
 }
 
 /**
- * Retrieve an array of active and valid plugin files.
+ * Retrieves an array of active and valid plugin files.
  *
  * While upgrading or installing GeChiUI, no plugins are returned.
  *
  * The default directory is `gc-content/plugins`. To change the default
  * directory manually, define `GC_PLUGIN_DIR` and `GC_PLUGIN_URL`
  * in `gc-config.php`.
- *
  *
  * @access private
  *
@@ -826,11 +958,11 @@ function gc_get_active_and_valid_plugins() {
 
 	foreach ( $active_plugins as $plugin ) {
 		if ( ! validate_file( $plugin )                     // $plugin must validate as file.
-			&& '.php' === substr( $plugin, -4 )             // $plugin must end with '.php'.
+			&& str_ends_with( $plugin, '.php' )             // $plugin must end with '.php'.
 			&& file_exists( GC_PLUGIN_DIR . '/' . $plugin ) // $plugin must exist.
 			// Not already included as a network plugin.
 			&& ( ! $network_plugins || ! in_array( GC_PLUGIN_DIR . '/' . $plugin, $network_plugins, true ) )
-			) {
+		) {
 			$plugins[] = GC_PLUGIN_DIR . '/' . $plugin;
 		}
 	}
@@ -849,7 +981,7 @@ function gc_get_active_and_valid_plugins() {
 /**
  * Filters a given list of plugins, removing any paused plugins from it.
  *
- *
+ * @since 5.2.0
  *
  * @param string[] $plugins Array of absolute plugin main file paths.
  * @return string[] Filtered array of plugins, without any paused plugins.
@@ -880,8 +1012,10 @@ function gc_skip_paused_plugins( array $plugins ) {
  *
  * While upgrading or installing GeChiUI, no themes are returned.
  *
- *
+ * @since 5.1.0
  * @access private
+ *
+ * @global string $pagenow The filename of the current screen.
  *
  * @return string[] Array of absolute paths to theme directories.
  */
@@ -919,7 +1053,7 @@ function gc_get_active_and_valid_themes() {
 /**
  * Filters a given list of themes, removing any paused themes from it.
  *
- *
+ * @since 5.2.0
  *
  * @param string[] $themes Array of absolute theme directory paths.
  * @return string[] Filtered array of absolute paths to themes, without any paused themes.
@@ -946,11 +1080,11 @@ function gc_skip_paused_themes( array $themes ) {
 }
 
 /**
- * Is GeChiUI in Recovery Mode.
+ * Determines whether GeChiUI is in Recovery Mode.
  *
  * In this mode, plugins or themes that cause WSODs will be paused.
  *
- *
+ * @since 5.2.0
  *
  * @return bool
  */
@@ -961,9 +1095,9 @@ function gc_is_recovery_mode() {
 /**
  * Determines whether we are currently on an endpoint that should be protected against WSODs.
  *
+ * @since 5.2.0
  *
- *
- * @global string $pagenow
+ * @global string $pagenow The filename of the current screen.
  *
  * @return bool True if the current endpoint should be protected.
  */
@@ -990,6 +1124,7 @@ function is_protected_endpoint() {
 	 * GeChiUI core. As such, it exclusively allows providing further protected endpoints in
 	 * addition to the admin backend, login pages and protected Ajax actions.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param bool $is_protected_endpoint Whether the currently requested endpoint is protected.
 	 *                                    Default false.
@@ -1000,7 +1135,7 @@ function is_protected_endpoint() {
 /**
  * Determines whether we are currently handling an Ajax action that should be protected against WSODs.
  *
- *
+ * @since 5.2.0
  *
  * @return bool True if the current Ajax action should be protected.
  */
@@ -1029,6 +1164,7 @@ function is_protected_ajax_action() {
 	 *
 	 * This filter is only fired when doing Ajax and the Ajax request has an 'action' property.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param string[] $actions_to_protect Array of strings with Ajax actions to protect.
 	 */
@@ -1042,11 +1178,10 @@ function is_protected_ajax_action() {
 }
 
 /**
- * Set internal encoding.
+ * Sets internal encoding.
  *
  * In most cases the default internal encoding is latin1, which is
  * of no use, since we want to use the `mb_` functions for `utf-8` strings.
- *
  *
  * @access private
  */
@@ -1061,11 +1196,10 @@ function gc_set_internal_encoding() {
 }
 
 /**
- * Add magic quotes to `$_GET`, `$_POST`, `$_COOKIE`, and `$_SERVER`.
+ * Adds magic quotes to `$_GET`, `$_POST`, `$_COOKIE`, and `$_SERVER`.
  *
  * Also forces `$_REQUEST` to be `$_GET + $_POST`. If `$_SERVER`,
  * `$_COOKIE`, or `$_ENV` are needed, use those superglobals directly.
- *
  *
  * @access private
  */
@@ -1083,13 +1217,13 @@ function gc_magic_quotes() {
 /**
  * Runs just before PHP shuts down execution.
  *
- *
  * @access private
  */
 function shutdown_action_hook() {
 	/**
 	 * Fires just before PHP shuts down execution.
 	 *
+	 * @since 1.2.0
 	 */
 	do_action( 'shutdown' );
 
@@ -1097,17 +1231,30 @@ function shutdown_action_hook() {
 }
 
 /**
- * Copy an object.
+ * Clones an object.
  *
- *
+ * @since 2.7.0
  * @deprecated 3.2.0
  *
- * @param object $object The object to clone.
+ * @param object $input_object The object to clone.
  * @return object The cloned object.
  */
-function gc_clone( $object ) {
+function gc_clone( $input_object ) {
 	// Use parens for clone to accommodate PHP 4. See #17880.
-	return clone( $object );
+	return clone( $input_object );
+}
+
+/**
+ * Determines whether the current request is for the login screen.
+ *
+ * @since 6.1.0
+ *
+ * @see gc_login_url()
+ *
+ * @return bool True if inside GeChiUI login screen, false otherwise.
+ */
+function is_login() {
+	return false !== stripos( gc_login_url(), $_SERVER['SCRIPT_NAME'] );
 }
 
 /**
@@ -1120,7 +1267,7 @@ function gc_clone( $object ) {
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
+ * @since 1.5.1
  *
  * @global GC_Screen $current_screen GeChiUI current screen object.
  *
@@ -1137,18 +1284,16 @@ function is_admin() {
 }
 
 /**
- * Whether the current request is for a site's administrative interface.
+ * Determines whether the current request is for a site's administrative interface.
  *
  * e.g. `/gc-admin/`
  *
  * Does not check if the user is an administrator; use current_user_can()
  * for checking roles and capabilities.
  *
- *
- *
  * @global GC_Screen $current_screen GeChiUI current screen object.
  *
- * @return bool True if inside GeChiUI blog administration pages.
+ * @return bool True if inside GeChiUI site administration pages.
  */
 function is_blog_admin() {
 	if ( isset( $GLOBALS['current_screen'] ) ) {
@@ -1161,7 +1306,7 @@ function is_blog_admin() {
 }
 
 /**
- * Whether the current request is for the network administrative interface.
+ * Determines whether the current request is for the network administrative interface.
  *
  * e.g. `/gc-admin/network/`
  *
@@ -1170,8 +1315,6 @@ function is_blog_admin() {
  *
  * Does not check if the site is a Multisite network; use is_multisite()
  * for checking if Multisite is enabled.
- *
- *
  *
  * @global GC_Screen $current_screen GeChiUI current screen object.
  *
@@ -1188,14 +1331,12 @@ function is_network_admin() {
 }
 
 /**
- * Whether the current request is for a user admin screen.
+ * Determines whether the current request is for a user admin screen.
  *
  * e.g. `/gc-admin/user/`
  *
  * Does not check if the user is an administrator; use current_user_can()
  * for checking roles and capabilities.
- *
- *
  *
  * @global GC_Screen $current_screen GeChiUI current screen object.
  *
@@ -1212,9 +1353,7 @@ function is_user_admin() {
 }
 
 /**
- * If Multisite is enabled.
- *
- *
+ * Determines whether Multisite is enabled.
  *
  * @return bool True if Multisite is enabled, false otherwise.
  */
@@ -1231,9 +1370,7 @@ function is_multisite() {
 }
 
 /**
- * Retrieve the current site ID.
- *
- *
+ * Retrieves the current site ID.
  *
  * @global int $blog_id
  *
@@ -1241,13 +1378,12 @@ function is_multisite() {
  */
 function get_current_blog_id() {
 	global $blog_id;
+
 	return absint( $blog_id );
 }
 
 /**
  * Retrieves the current network ID.
- *
- *
  *
  * @return int The ID of the current network.
  */
@@ -1266,7 +1402,7 @@ function get_current_network_id() {
 }
 
 /**
- * Attempt an early load of translations.
+ * Attempts an early load of translations.
  *
  * Used for errors encountered during the initial loading process, before
  * the locale has been properly detected and loaded.
@@ -1275,18 +1411,19 @@ function get_current_network_id() {
  * the script will then terminate with an error, otherwise there is a risk
  * that a file can be double-included.
  *
- *
  * @access private
  *
- * @global GC_Locale $gc_locale GeChiUI date and time locale object.
+ * @global GC_Textdomain_Registry $gc_textdomain_registry GeChiUI Textdomain Registry.
+ * @global GC_Locale              $gc_locale              GeChiUI date and time locale object.
  */
 function gc_load_translations_early() {
-	global $gc_locale;
-
+	global $gc_textdomain_registry, $gc_locale;
 	static $loaded = false;
+
 	if ( $loaded ) {
 		return;
 	}
+
 	$loaded = true;
 
 	if ( function_exists( 'did_action' ) && did_action( 'init' ) ) {
@@ -1299,6 +1436,7 @@ function gc_load_translations_early() {
 	// Translation and localization.
 	require_once ABSPATH . GCINC . '/pomo/mo.php';
 	require_once ABSPATH . GCINC . '/l10n.php';
+	require_once ABSPATH . GCINC . '/class-gc-textdomain-registry.php';
 	require_once ABSPATH . GCINC . '/class-gc-locale.php';
 	require_once ABSPATH . GCINC . '/class-gc-locale-switcher.php';
 
@@ -1307,6 +1445,10 @@ function gc_load_translations_early() {
 
 	$locales   = array();
 	$locations = array();
+
+	if ( ! $gc_textdomain_registry instanceof GC_Textdomain_Registry ) {
+		$gc_textdomain_registry = new GC_Textdomain_Registry();
+	}
 
 	while ( true ) {
 		if ( defined( 'GCLANG' ) ) {
@@ -1349,10 +1491,12 @@ function gc_load_translations_early() {
 		foreach ( $locales as $locale ) {
 			foreach ( $locations as $location ) {
 				if ( file_exists( $location . '/' . $locale . '.mo' ) ) {
-					load_textdomain( 'default', $location . '/' . $locale . '.mo' );
+					load_textdomain( 'default', $location . '/' . $locale . '.mo', $locale );
+
 					if ( defined( 'GC_SETUP_CONFIG' ) && file_exists( $location . '/admin-' . $locale . '.mo' ) ) {
-						load_textdomain( 'default', $location . '/admin-' . $locale . '.mo' );
+						load_textdomain( 'default', $location . '/admin-' . $locale . '.mo', $locale );
 					}
+
 					break 2;
 				}
 			}
@@ -1365,11 +1509,9 @@ function gc_load_translations_early() {
 }
 
 /**
- * Check or set whether GeChiUI is in "installation" mode.
+ * Checks or sets whether GeChiUI is in "installation" mode.
  *
  * If the `GC_INSTALLING` constant is defined during the bootstrap, `gc_installing()` will default to `true`.
- *
- *
  *
  * @param bool $is_installing Optional. True to set GC into Installing mode, false to turn Installing mode off.
  *                            Omit this parameter if you only want to fetch the current status.
@@ -1387,6 +1529,7 @@ function gc_installing( $is_installing = null ) {
 	if ( ! is_null( $is_installing ) ) {
 		$old_installing = $installing;
 		$installing     = $is_installing;
+
 		return (bool) $old_installing;
 	}
 
@@ -1395,9 +1538,7 @@ function gc_installing( $is_installing = null ) {
 
 /**
  * Determines if SSL is used.
- *
- *
- *
+ * Moved from functions.php to load.php.
  *
  * @return bool True if SSL, otherwise false.
  */
@@ -1407,20 +1548,19 @@ function is_ssl() {
 			return true;
 		}
 
-		if ( '1' == $_SERVER['HTTPS'] ) {
+		if ( '1' === (string) $_SERVER['HTTPS'] ) {
 			return true;
 		}
-	} elseif ( isset( $_SERVER['SERVER_PORT'] ) && ( '443' == $_SERVER['SERVER_PORT'] ) ) {
+	} elseif ( isset( $_SERVER['SERVER_PORT'] ) && ( '443' === (string) $_SERVER['SERVER_PORT'] ) ) {
 		return true;
 	}
+
 	return false;
 }
 
 /**
  * Converts a shorthand byte value to an integer byte value.
- *
- *
- *
+ * Moved from media.php to load.php.
  *
  * @link https://www.php.net/manual/en/function.ini-get.php
  * @link https://www.php.net/manual/en/faq.using.php#faq.using.shorthandbytes
@@ -1432,11 +1572,11 @@ function gc_convert_hr_to_bytes( $value ) {
 	$value = strtolower( trim( $value ) );
 	$bytes = (int) $value;
 
-	if ( false !== strpos( $value, 'g' ) ) {
+	if ( str_contains( $value, 'g' ) ) {
 		$bytes *= GB_IN_BYTES;
-	} elseif ( false !== strpos( $value, 'm' ) ) {
+	} elseif ( str_contains( $value, 'm' ) ) {
 		$bytes *= MB_IN_BYTES;
-	} elseif ( false !== strpos( $value, 'k' ) ) {
+	} elseif ( str_contains( $value, 'k' ) ) {
 		$bytes *= KB_IN_BYTES;
 	}
 
@@ -1446,8 +1586,6 @@ function gc_convert_hr_to_bytes( $value ) {
 
 /**
  * Determines whether a PHP ini value is changeable at runtime.
- *
- *
  *
  * @link https://www.php.net/manual/en/function.ini-get-all.php
  *
@@ -1466,7 +1604,9 @@ function gc_is_ini_value_changeable( $setting ) {
 	}
 
 	// Bit operator to workaround https://bugs.php.net/bug.php?id=44936 which changes access level to 63 in PHP 5.2.6 - 5.2.17.
-	if ( isset( $ini_all[ $setting ]['access'] ) && ( INI_ALL === ( $ini_all[ $setting ]['access'] & 7 ) || INI_USER === ( $ini_all[ $setting ]['access'] & 7 ) ) ) {
+	if ( isset( $ini_all[ $setting ]['access'] )
+		&& ( INI_ALL === ( $ini_all[ $setting ]['access'] & 7 ) || INI_USER === ( $ini_all[ $setting ]['access'] & 7 ) )
+	) {
 		return true;
 	}
 
@@ -1481,14 +1621,13 @@ function gc_is_ini_value_changeable( $setting ) {
 /**
  * Determines whether the current request is a GeChiUI Ajax request.
  *
- *
- *
  * @return bool True if it's a GeChiUI Ajax request, false otherwise.
  */
 function gc_doing_ajax() {
 	/**
 	 * Filters whether the current request is a GeChiUI Ajax request.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param bool $gc_doing_ajax Whether the current request is a GeChiUI Ajax request.
 	 */
@@ -1498,7 +1637,7 @@ function gc_doing_ajax() {
 /**
  * Determines whether the current request should use themes.
  *
- *
+ * @since 5.1.0
  *
  * @return bool True if themes should be used, false otherwise.
  */
@@ -1506,6 +1645,7 @@ function gc_using_themes() {
 	/**
 	 * Filters whether the current request should use themes.
 	 *
+	 * @since 5.1.0
 	 *
 	 * @param bool $gc_using_themes Whether the current request should use themes.
 	 */
@@ -1515,14 +1655,13 @@ function gc_using_themes() {
 /**
  * Determines whether the current request is a GeChiUI cron request.
  *
- *
- *
  * @return bool True if it's a GeChiUI cron request, false otherwise.
  */
 function gc_doing_cron() {
 	/**
 	 * Filters whether the current request is a GeChiUI cron request.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param bool $gc_doing_cron Whether the current request is a GeChiUI cron request.
 	 */
@@ -1534,8 +1673,6 @@ function gc_doing_cron() {
  *
  * Returns whether `$thing` is an instance of the `GC_Error` class.
  *
- *
- *
  * @param mixed $thing The variable to check.
  * @return bool Whether the variable is an instance of GC_Error.
  */
@@ -1546,6 +1683,7 @@ function is_gc_error( $thing ) {
 		/**
 		 * Fires when `is_gc_error()` is called and its parameter is an instance of `GC_Error`.
 		 *
+		 * @since 5.6.0
 		 *
 		 * @param GC_Error $thing The error object passed to `is_gc_error()`.
 		 */
@@ -1558,8 +1696,6 @@ function is_gc_error( $thing ) {
 /**
  * Determines whether file modifications are allowed.
  *
- *
- *
  * @param string $context The usage context.
  * @return bool True if file modification is allowed, false otherwise.
  */
@@ -1567,6 +1703,7 @@ function gc_is_file_mod_allowed( $context ) {
 	/**
 	 * Filters whether file modifications are allowed.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param bool   $file_mod_allowed Whether file modifications are allowed.
 	 * @param string $context          The usage context.
@@ -1575,14 +1712,14 @@ function gc_is_file_mod_allowed( $context ) {
 }
 
 /**
- * Start scraping edited file errors.
- *
+ * Starts scraping edited file errors.
  *
  */
 function gc_start_scraping_edited_file_errors() {
 	if ( ! isset( $_REQUEST['gc_scrape_key'] ) || ! isset( $_REQUEST['gc_scrape_nonce'] ) ) {
 		return;
 	}
+
 	$key   = substr( sanitize_key( gc_unslash( $_REQUEST['gc_scrape_key'] ) ), 0, 32 );
 	$nonce = gc_unslash( $_REQUEST['gc_scrape_nonce'] );
 
@@ -1597,41 +1734,45 @@ function gc_start_scraping_edited_file_errors() {
 		echo "###### gc_scraping_result_end:$key ######";
 		die();
 	}
+
 	if ( ! defined( 'GC_SANDBOX_SCRAPING' ) ) {
 		define( 'GC_SANDBOX_SCRAPING', true );
 	}
+
 	register_shutdown_function( 'gc_finalize_scraping_edited_file_errors', $key );
 }
 
 /**
- * Finalize scraping for edited file errors.
- *
- *
+ * Finalizes scraping for edited file errors.
  *
  * @param string $scrape_key Scrape key.
  */
 function gc_finalize_scraping_edited_file_errors( $scrape_key ) {
 	$error = error_get_last();
+
 	echo "\n###### gc_scraping_result_start:$scrape_key ######\n";
-	if ( ! empty( $error ) && in_array( $error['type'], array( E_CORE_ERROR, E_COMPILE_ERROR, E_ERROR, E_PARSE, E_USER_ERROR, E_RECOVERABLE_ERROR ), true ) ) {
+
+	if ( ! empty( $error )
+		&& in_array( $error['type'], array( E_CORE_ERROR, E_COMPILE_ERROR, E_ERROR, E_PARSE, E_USER_ERROR, E_RECOVERABLE_ERROR ), true )
+	) {
 		$error = str_replace( ABSPATH, '', $error );
 		echo gc_json_encode( $error );
 	} else {
 		echo gc_json_encode( true );
 	}
+
 	echo "\n###### gc_scraping_result_end:$scrape_key ######\n";
 }
 
 /**
  * Checks whether current request is a JSON request, or is expecting a JSON response.
  *
- *
+ * @since 5.0.0
  *
  * @return bool True if `Accepts` or `Content-Type` headers contain `application/json`.
  *              False otherwise.
  */
 function gc_is_json_request() {
-
 	if ( isset( $_SERVER['HTTP_ACCEPT'] ) && gc_is_json_media_type( $_SERVER['HTTP_ACCEPT'] ) ) {
 		return true;
 	}
@@ -1641,13 +1782,12 @@ function gc_is_json_request() {
 	}
 
 	return false;
-
 }
 
 /**
  * Checks whether current request is a JSONP request, or is expecting a JSONP response.
  *
- *
+ * @since 5.2.0
  *
  * @return bool True if JSONP request, false otherwise.
  */
@@ -1675,8 +1815,6 @@ function gc_is_jsonp_request() {
 /**
  * Checks whether a string is a valid JSON Media Type.
  *
- *
- *
  * @param string $media_type A Media Type string to check.
  * @return bool True if string is a valid JSON Media Type.
  */
@@ -1693,7 +1831,7 @@ function gc_is_json_media_type( $media_type ) {
 /**
  * Checks whether current request is an XML request, or is expecting an XML response.
  *
- *
+ * @since 5.2.0
  *
  * @return bool True if `Accepts` or `Content-Type` headers contain `text/xml`
  *              or one of the related MIME types. False otherwise.
@@ -1710,7 +1848,7 @@ function gc_is_xml_request() {
 
 	if ( isset( $_SERVER['HTTP_ACCEPT'] ) ) {
 		foreach ( $accepted as $type ) {
-			if ( false !== strpos( $_SERVER['HTTP_ACCEPT'], $type ) ) {
+			if ( str_contains( $_SERVER['HTTP_ACCEPT'], $type ) ) {
 				return true;
 			}
 		}
@@ -1730,12 +1868,12 @@ function gc_is_xml_request() {
  * this function with a context different from the current context may give inaccurate results.
  * In a future release, this evaluation may be made more robust.
  *
- * Currently, this is only used by AppKeys to prevent a conflict since it also utilizes
+ * Currently, this is only used by Application Passwords to prevent a conflict since it also utilizes
  * Basic Auth.
  *
+ * @since 5.6.1
  *
- *
- * @global string $pagenow The current page.
+ * @global string $pagenow The filename of the current screen.
  *
  * @param string $context The context to check for protection. Accepts 'login', 'admin', and 'front'.
  *                        Defaults to the current context.
@@ -1759,6 +1897,7 @@ function gc_is_site_protected_by_basic_auth( $context = '' ) {
 	/**
 	 * Filters whether a site is protected by HTTP Basic Auth.
 	 *
+	 * @since 5.6.1
 	 *
 	 * @param bool $is_protected Whether the site is protected by Basic Auth.
 	 * @param string $context    The context to check for protection. One of 'login', 'admin', or 'front'.

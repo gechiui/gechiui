@@ -10,7 +10,7 @@
  */
 function register_block_core_query() {
 	register_block_type_from_metadata(
-		ABSPATH . 'assets/blocks/query'
+		__DIR__ . '/query'
 	);
 }
 add_action( 'init', 'register_block_core_query' );

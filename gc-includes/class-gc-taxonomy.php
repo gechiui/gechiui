@@ -4,18 +4,18 @@
  *
  * @package GeChiUI
  * @subpackage Taxonomy
- *
  */
 
 /**
  * Core class used for interacting with taxonomies.
  *
- *
  */
+#[AllowDynamicProperties]
 final class GC_Taxonomy {
 	/**
 	 * Taxonomy key.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	public $name;
@@ -23,6 +23,7 @@ final class GC_Taxonomy {
 	/**
 	 * Name of the taxonomy shown in the menu. Usually plural.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	public $label;
@@ -35,27 +36,39 @@ final class GC_Taxonomy {
 	 *
 	 * @see get_taxonomy_labels()
 	 *
+	 * @since 4.7.0
 	 * @var stdClass
 	 */
 	public $labels;
 
 	/**
+	 * Default labels.
+	 *
+	 * @since 6.0.0
+	 * @var (string|null)[][] $default_labels
+	 */
+	protected static $default_labels = array();
+
+	/**
 	 * A short descriptive summary of what the taxonomy is for.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	public $description = '';
 
 	/**
-	 * 此分类法是否可供公开使用，或是通过管理界面，或是由前端用户。
+	 * Whether a taxonomy is intended for use publicly either via the admin interface or by front-end users.
 	 *
+	 * @since 4.7.0
 	 * @var bool
 	 */
 	public $public = true;
 
 	/**
-	 * 此分类法是否可公开查询。
+	 * Whether the taxonomy is publicly queryable.
 	 *
+	 * @since 4.7.0
 	 * @var bool
 	 */
 	public $publicly_queryable = true;
@@ -63,6 +76,7 @@ final class GC_Taxonomy {
 	/**
 	 * Whether the taxonomy is hierarchical.
 	 *
+	 * @since 4.7.0
 	 * @var bool
 	 */
 	public $hierarchical = false;
@@ -70,6 +84,7 @@ final class GC_Taxonomy {
 	/**
 	 * Whether to generate and allow a UI for managing terms in this taxonomy in the admin.
 	 *
+	 * @since 4.7.0
 	 * @var bool
 	 */
 	public $show_ui = true;
@@ -79,6 +94,7 @@ final class GC_Taxonomy {
 	 *
 	 * If true, the taxonomy is shown as a submenu of the object type menu. If false, no menu is shown.
 	 *
+	 * @since 4.7.0
 	 * @var bool
 	 */
 	public $show_in_menu = true;
@@ -86,6 +102,7 @@ final class GC_Taxonomy {
 	/**
 	 * Whether the taxonomy is available for selection in navigation menus.
 	 *
+	 * @since 4.7.0
 	 * @var bool
 	 */
 	public $show_in_nav_menus = true;
@@ -93,13 +110,15 @@ final class GC_Taxonomy {
 	/**
 	 * Whether to list the taxonomy in the tag cloud widget controls.
 	 *
+	 * @since 4.7.0
 	 * @var bool
 	 */
 	public $show_tagcloud = true;
 
 	/**
-	 * 是否在快速/批量编辑面板显示分类法。
+	 * Whether to show the taxonomy in the quick/bulk edit panel.
 	 *
+	 * @since 4.7.0
 	 * @var bool
 	 */
 	public $show_in_quick_edit = true;
@@ -107,6 +126,7 @@ final class GC_Taxonomy {
 	/**
 	 * Whether to display a column for the taxonomy on its post type listing screens.
 	 *
+	 * @since 4.7.0
 	 * @var bool
 	 */
 	public $show_admin_column = false;
@@ -114,6 +134,7 @@ final class GC_Taxonomy {
 	/**
 	 * The callback function for the meta box display.
 	 *
+	 * @since 4.7.0
 	 * @var bool|callable
 	 */
 	public $meta_box_cb = null;
@@ -121,6 +142,7 @@ final class GC_Taxonomy {
 	/**
 	 * The callback function for sanitizing taxonomy data saved from a meta box.
 	 *
+	 * @since 5.1.0
 	 * @var callable
 	 */
 	public $meta_box_sanitize_cb = null;
@@ -128,6 +150,7 @@ final class GC_Taxonomy {
 	/**
 	 * An array of object types this taxonomy is registered for.
 	 *
+	 * @since 4.7.0
 	 * @var string[]
 	 */
 	public $object_type = null;
@@ -135,6 +158,7 @@ final class GC_Taxonomy {
 	/**
 	 * Capabilities for this taxonomy.
 	 *
+	 * @since 4.7.0
 	 * @var stdClass
 	 */
 	public $cap;
@@ -142,6 +166,7 @@ final class GC_Taxonomy {
 	/**
 	 * Rewrites information for this taxonomy.
 	 *
+	 * @since 4.7.0
 	 * @var array|false
 	 */
 	public $rewrite;
@@ -149,6 +174,7 @@ final class GC_Taxonomy {
 	/**
 	 * Query var string for this taxonomy.
 	 *
+	 * @since 4.7.0
 	 * @var string|false
 	 */
 	public $query_var;
@@ -156,6 +182,7 @@ final class GC_Taxonomy {
 	/**
 	 * Function that will be called when the count is updated.
 	 *
+	 * @since 4.7.0
 	 * @var callable
 	 */
 	public $update_count_callback;
@@ -166,6 +193,7 @@ final class GC_Taxonomy {
 	 * Default false. If true, standard endpoints will be registered with
 	 * respect to $rest_base and $rest_controller_class.
 	 *
+	 * @since 4.7.4
 	 * @var bool $show_in_rest
 	 */
 	public $show_in_rest;
@@ -173,6 +201,7 @@ final class GC_Taxonomy {
 	/**
 	 * The base path for this taxonomy's REST API endpoints.
 	 *
+	 * @since 4.7.4
 	 * @var string|bool $rest_base
 	 */
 	public $rest_base;
@@ -180,6 +209,7 @@ final class GC_Taxonomy {
 	/**
 	 * The namespace for this taxonomy's REST API endpoints.
 	 *
+	 * @since 5.9.0
 	 * @var string|bool $rest_namespace
 	 */
 	public $rest_namespace;
@@ -189,6 +219,7 @@ final class GC_Taxonomy {
 	 *
 	 * Custom controllers must extend GC_REST_Controller.
 	 *
+	 * @since 4.7.4
 	 * @var string|bool $rest_controller_class
 	 */
 	public $rest_controller_class;
@@ -198,6 +229,7 @@ final class GC_Taxonomy {
 	 *
 	 * Lazily computed. Should be accessed using {@see GC_Taxonomy::get_rest_controller()}.
 	 *
+	 * @since 5.5.0
 	 * @var GC_REST_Controller $rest_controller
 	 */
 	public $rest_controller;
@@ -206,6 +238,7 @@ final class GC_Taxonomy {
 	 * The default term name for this taxonomy. If you pass an array you have
 	 * to set 'name' and optionally 'slug' and 'description'.
 	 *
+	 * @since 5.5.0
 	 * @var array|string
 	 */
 	public $default_term;
@@ -222,6 +255,7 @@ final class GC_Taxonomy {
 	/**
 	 * Array of arguments to automatically use inside `gc_get_object_terms()` for this taxonomy.
 	 *
+	 * @since 2.6.0
 	 * @var array|null
 	 */
 	public $args = null;
@@ -229,6 +263,7 @@ final class GC_Taxonomy {
 	/**
 	 * Whether it is a built-in taxonomy.
 	 *
+	 * @since 4.7.0
 	 * @var bool
 	 */
 	public $_builtin;
@@ -238,12 +273,12 @@ final class GC_Taxonomy {
 	 *
 	 * See the register_taxonomy() function for accepted arguments for `$args`.
 	 *
-	 *
-	 * @global GC $gc Current GeChiUI environment instance.
+	 * @since 4.7.0
 	 *
 	 * @param string       $taxonomy    Taxonomy key, must not exceed 32 characters.
 	 * @param array|string $object_type Name of the object type for the taxonomy object.
 	 * @param array|string $args        Optional. Array or query string of arguments for registering a taxonomy.
+	 *                                  See register_taxonomy() for information on accepted arguments.
 	 *                                  Default empty array.
 	 */
 	public function __construct( $taxonomy, $object_type, $args = array() ) {
@@ -257,6 +292,7 @@ final class GC_Taxonomy {
 	 *
 	 * See the register_taxonomy() function for accepted arguments for `$args`.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string|string[] $object_type Name or array of names of the object types for the taxonomy.
 	 * @param array|string    $args        Array or query string of arguments for registering a taxonomy.
@@ -267,6 +303,7 @@ final class GC_Taxonomy {
 		/**
 		 * Filters the arguments for registering a taxonomy.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param array    $args        Array of arguments for registering a taxonomy.
 		 *                              See the register_taxonomy() function for accepted arguments.
@@ -274,6 +311,27 @@ final class GC_Taxonomy {
 		 * @param string[] $object_type Array of names of object types for the taxonomy.
 		 */
 		$args = apply_filters( 'register_taxonomy_args', $args, $this->name, (array) $object_type );
+
+		$taxonomy = $this->name;
+
+		/**
+		 * Filters the arguments for registering a specific taxonomy.
+		 *
+		 * The dynamic portion of the filter name, `$taxonomy`, refers to the taxonomy key.
+		 *
+		 * Possible hook names include:
+		 *
+		 *  - `register_category_taxonomy_args`
+		 *  - `register_post_tag_taxonomy_args`
+		 *
+		 * @since 6.0.0
+		 *
+		 * @param array    $args        Array of arguments for registering a taxonomy.
+		 *                              See the register_taxonomy() function for accepted arguments.
+		 * @param string   $taxonomy    Taxonomy key.
+		 * @param string[] $object_type Array of names of object types for the taxonomy.
+		 */
+		$args = apply_filters( "register_{$taxonomy}_taxonomy_args", $args, $this->name, (array) $object_type );
 
 		$defaults = array(
 			'labels'                => array(),
@@ -429,6 +487,7 @@ final class GC_Taxonomy {
 	/**
 	 * Adds the necessary rewrite rules for the taxonomy.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @global GC $gc Current GeChiUI environment instance.
 	 */
@@ -456,6 +515,7 @@ final class GC_Taxonomy {
 	/**
 	 * Removes any rewrite rules, permastructs, and rules for the taxonomy.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @global GC $gc Current GeChiUI environment instance.
 	 */
@@ -478,6 +538,7 @@ final class GC_Taxonomy {
 	/**
 	 * Registers the ajax callback for the meta box.
 	 *
+	 * @since 4.7.0
 	 */
 	public function add_hooks() {
 		add_filter( 'gc_ajax_add-' . $this->name, '_gc_ajax_add_hierarchical_term' );
@@ -486,6 +547,7 @@ final class GC_Taxonomy {
 	/**
 	 * Removes the ajax callback for the meta box.
 	 *
+	 * @since 4.7.0
 	 */
 	public function remove_hooks() {
 		remove_filter( 'gc_ajax_add-' . $this->name, '_gc_ajax_add_hierarchical_term' );
@@ -496,6 +558,7 @@ final class GC_Taxonomy {
 	 *
 	 * Will only instantiate the controller class once per request.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return GC_REST_Controller|null The controller instance, or null if the taxonomy
 	 *                                 is set not to show in rest.
@@ -524,5 +587,72 @@ final class GC_Taxonomy {
 		}
 
 		return $this->rest_controller;
+	}
+
+	/**
+	 * Returns the default labels for taxonomies.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @return (string|null)[][] The default labels for taxonomies.
+	 */
+	public static function get_default_labels() {
+		if ( ! empty( self::$default_labels ) ) {
+			return self::$default_labels;
+		}
+
+		$name_field_description   = __( '名称是它在您系统上的显示方式。' );
+		$slug_field_description   = __( '别名“slug”是名称的 URL 友好版本。它通常都是小写的，并且只包含字母、数字和连字符。' );
+		$parent_field_description = __( '分配父术语以创建层次结构。例如，爵士乐一词将是 Bebop 和 Big Band 的父级。' );
+		$desc_field_description   = __( '描述默认不显示，但某些主题可能会显示。' );
+
+		self::$default_labels = array(
+			'name'                       => array( _x( '标签', 'taxonomy general name' ), _x( '分类目录', 'taxonomy general name' ) ),
+			'singular_name'              => array( _x( '标签', 'taxonomy singular name' ), _x( '分类目录', 'taxonomy singular name' ) ),
+			'search_items'               => array( __( '搜索标签' ), __( '搜索分类' ) ),
+			'popular_items'              => array( __( '热门标签' ), null ),
+			'all_items'                  => array( __( '所有标签' ), __( '所有分类' ) ),
+			'parent_item'                => array( null, __( '父级分类' ) ),
+			'parent_item_colon'          => array( null, __( '父级分类：' ) ),
+			'name_field_description'     => array( $name_field_description, $name_field_description ),
+			'slug_field_description'     => array( $slug_field_description, $slug_field_description ),
+			'parent_field_description'   => array( null, $parent_field_description ),
+			'desc_field_description'     => array( $desc_field_description, $desc_field_description ),
+			'edit_item'                  => array( __( '编辑标签' ), __( '编辑分类' ) ),
+			'view_item'                  => array( __( '查看标签' ), __( '查看分类' ) ),
+			'update_item'                => array( __( '更新标签' ), __( '更新分类' ) ),
+			'add_new_item'               => array( __( '添加新标签' ), __( '添加新分类' ) ),
+			'new_item_name'              => array( __( '新标签名' ), __( '新分类名' ) ),
+			'separate_items_with_commas' => array( __( '多个标签请用英文逗号（,）分开' ), null ),
+			'add_or_remove_items'        => array( __( '添加或移除标签' ), null ),
+			'choose_from_most_used'      => array( __( '从常用标签中选择' ), null ),
+			'not_found'                  => array( __( '未找到标签。' ), __( '未找到分类。' ) ),
+			'no_terms'                   => array( __( '没有标签' ), __( '没有分类' ) ),
+			'filter_by_item'             => array( null, __( '按分类筛选' ) ),
+			'items_list_navigation'      => array( __( '标签列表导航' ), __( '分类列表导航' ) ),
+			'items_list'                 => array( __( '标签列表' ), __( '分类列表' ) ),
+			/* translators: Tab heading when selecting from the most used terms. */
+			'most_used'                  => array( _x( '最多使用', 'tags' ), _x( '最多使用', 'categories' ) ),
+			'back_to_items'              => array( __( '&larr; 转到“标签”页面' ), __( '&larr; 转到“分类”页面' ) ),
+			'item_link'                  => array(
+				_x( '标签链接', 'navigation link block title' ),
+				_x( '分类链接', 'navigation link block title' ),
+			),
+			'item_link_description'      => array(
+				_x( '目标标签的链接。', 'navigation link block description' ),
+				_x( '目标分类的链接。', 'navigation link block description' ),
+			),
+		);
+
+		return self::$default_labels;
+	}
+
+	/**
+	 * Resets the cache for the default labels.
+	 *
+	 * @since 6.0.0
+	 */
+	public static function reset_default_labels() {
+		self::$default_labels = array();
 	}
 }

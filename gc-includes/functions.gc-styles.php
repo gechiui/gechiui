@@ -2,18 +2,14 @@
 /**
  * Dependencies API: Styles functions
  *
- *
- *
  * @package GeChiUI
  * @subpackage Dependencies
  */
 
 /**
- * Initialize $gc_styles if it has not been set.
+ * Initializes $gc_styles if it has not been set.
  *
  * @global GC_Styles $gc_styles
- *
- *
  *
  * @return GC_Styles GC_Styles instance.
  */
@@ -28,15 +24,13 @@ function gc_styles() {
 }
 
 /**
- * Display styles that are in the $handles queue.
+ * Displays styles that are in the $handles queue.
  *
  * Passing an empty array to $handles prints the queue,
  * passing an array with one string prints that style,
  * and passing an array of strings prints those styles.
  *
  * @global GC_Styles $gc_styles The GC_Styles object for printing styles.
- *
- *
  *
  * @param string|bool|array $handles Styles to be printed. Default 'false'.
  * @return string[] On success, an array of handles of processed GC_Dependencies items; otherwise, an empty array.
@@ -52,6 +46,7 @@ function gc_print_styles( $handles = false ) {
 		/**
 		 * Fires before styles in the $handles queue are printed.
 		 *
+		 * @since 2.6.0
 		 */
 		do_action( 'gc_print_styles' );
 	}
@@ -68,7 +63,7 @@ function gc_print_styles( $handles = false ) {
 }
 
 /**
- * Add extra CSS styles to a registered stylesheet.
+ * Adds extra CSS styles to a registered stylesheet.
  *
  * Styles will only be added if the stylesheet is already in the queue.
  * Accepts a string $data containing the CSS. If two or more CSS code blocks
@@ -76,8 +71,6 @@ function gc_print_styles( $handles = false ) {
  * they were added, i.e. the latter added styles can redeclare the previous.
  *
  * @see GC_Styles::add_inline_style()
- *
- *
  *
  * @param string $handle Name of the stylesheet to add the extra styles to.
  * @param string $data   String containing the CSS styles to be added.
@@ -104,16 +97,15 @@ function gc_add_inline_style( $handle, $data ) {
 }
 
 /**
- * Register a CSS stylesheet.
+ * Registers a CSS stylesheet.
  *
  * @see GC_Dependencies::add()
  * @link https://www.w3.org/TR/CSS2/media.html#media-types List of CSS media types.
  *
- *
- *
+ * @since 4.3.0 A return value was added.
  *
  * @param string           $handle Name of the stylesheet. Should be unique.
- * @param string|bool      $src    Full URL of the stylesheet, or path of the stylesheet relative to the GeChiUI root directory.
+ * @param string|false     $src    Full URL of the stylesheet, or path of the stylesheet relative to the GeChiUI root directory.
  *                                 If source is set to false, stylesheet is an alias of other stylesheets it depends on.
  * @param string[]         $deps   Optional. An array of registered stylesheet handles this stylesheet depends on. Default empty array.
  * @param string|bool|null $ver    Optional. String specifying stylesheet version number, if it has one, which is added to the URL
@@ -132,11 +124,9 @@ function gc_register_style( $handle, $src, $deps = array(), $ver = false, $media
 }
 
 /**
- * Remove a registered stylesheet.
+ * Removes a registered stylesheet.
  *
  * @see GC_Dependencies::remove()
- *
- *
  *
  * @param string $handle Name of the stylesheet to be removed.
  */
@@ -147,15 +137,13 @@ function gc_deregister_style( $handle ) {
 }
 
 /**
- * Enqueue a CSS stylesheet.
+ * Enqueues a CSS stylesheet.
  *
  * Registers the style if source provided (does NOT overwrite) and enqueues.
  *
  * @see GC_Dependencies::add()
  * @see GC_Dependencies::enqueue()
  * @link https://www.w3.org/TR/CSS2/media.html#media-types List of CSS media types.
- *
- *
  *
  * @param string           $handle Name of the stylesheet. Should be unique.
  * @param string           $src    Full URL of the stylesheet, or path of the stylesheet relative to the GeChiUI root directory.
@@ -183,11 +171,9 @@ function gc_enqueue_style( $handle, $src = '', $deps = array(), $ver = false, $m
 }
 
 /**
- * Remove a previously enqueued CSS stylesheet.
+ * Removes a previously enqueued CSS stylesheet.
  *
  * @see GC_Dependencies::dequeue()
- *
- *
  *
  * @param string $handle Name of the stylesheet to be removed.
  */
@@ -198,23 +184,21 @@ function gc_dequeue_style( $handle ) {
 }
 
 /**
- * Check whether a CSS stylesheet has been added to the queue.
- *
- *
+ * Checks whether a CSS stylesheet has been added to the queue.
  *
  * @param string $handle Name of the stylesheet.
- * @param string $list   Optional. Status of the stylesheet to check. Default 'enqueued'.
+ * @param string $status Optional. Status of the stylesheet to check. Default 'enqueued'.
  *                       Accepts 'enqueued', 'registered', 'queue', 'to_do', and 'done'.
  * @return bool Whether style is queued.
  */
-function gc_style_is( $handle, $list = 'enqueued' ) {
+function gc_style_is( $handle, $status = 'enqueued' ) {
 	_gc_scripts_maybe_doing_it_wrong( __FUNCTION__, $handle );
 
-	return (bool) gc_styles()->query( $handle, $list );
+	return (bool) gc_styles()->query( $handle, $status );
 }
 
 /**
- * Add metadata to a CSS stylesheet.
+ * Adds metadata to a CSS stylesheet.
  *
  * Works only if the stylesheet has already been registered.
  *
@@ -225,12 +209,11 @@ function gc_style_is( $handle, $list = 'enqueued' ) {
  * 'alt'         bool        For rel="alternate stylesheet".
  * 'title'       string      For preferred/alternate stylesheets.
  * 'path'        string      The absolute path to a stylesheet. Stylesheet will
- *                           load inline when 'path'' is set.
+ *                           load inline when 'path' is set.
  *
  * @see GC_Dependencies::add_data()
  *
- *
- *
+ * @since 5.8.0 Added 'path' as an official value for $key.
  *              See {@see gc_maybe_inline_styles()}.
  *
  * @param string $handle Name of the stylesheet.

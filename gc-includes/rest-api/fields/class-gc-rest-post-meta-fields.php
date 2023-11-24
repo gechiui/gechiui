@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core class used to manage meta values for posts via the REST API.
- *
- *
  *
  * @see GC_REST_Meta_Fields
  */
@@ -19,6 +16,7 @@ class GC_REST_Post_Meta_Fields extends GC_REST_Meta_Fields {
 	/**
 	 * Post type to register fields for.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	protected $post_type;
@@ -26,6 +24,7 @@ class GC_REST_Post_Meta_Fields extends GC_REST_Meta_Fields {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string $post_type Post type to register fields for.
 	 */
@@ -36,6 +35,7 @@ class GC_REST_Post_Meta_Fields extends GC_REST_Meta_Fields {
 	/**
 	 * Retrieves the post meta type.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return string The meta type.
 	 */
@@ -46,6 +46,7 @@ class GC_REST_Post_Meta_Fields extends GC_REST_Meta_Fields {
 	/**
 	 * Retrieves the post meta subtype.
 	 *
+	 * @since 4.9.8
 	 *
 	 * @return string Subtype for the meta type, or empty string if no specific subtype.
 	 */
@@ -56,6 +57,7 @@ class GC_REST_Post_Meta_Fields extends GC_REST_Meta_Fields {
 	/**
 	 * Retrieves the type for register_rest_field().
 	 *
+	 * @since 4.7.0
 	 *
 	 * @see register_rest_field()
 	 *

@@ -4,14 +4,11 @@
  *
  * @package GeChiUI
  * @subpackage Upgrader
- *
  */
 
 /**
  * Generic Bulk Upgrader Skin for GeChiUI Upgrades.
- *
- *
- *
+ * Moved to its own file from gc-admin/includes/class-gc-upgrader-skins.php.
  *
  * @see GC_Upgrader_Skin
  */
@@ -49,6 +46,7 @@ class Bulk_Upgrader_Skin extends GC_Upgrader_Skin {
 	}
 
 	/**
+	 * @since 5.9.0 Renamed `$string` (a PHP reserved keyword) to `$feedback` for PHP 8 named parameter support.
 	 *
 	 * @param string $feedback Message data.
 	 * @param mixed  ...$args  Optional text replacements.
@@ -58,7 +56,7 @@ class Bulk_Upgrader_Skin extends GC_Upgrader_Skin {
 			$feedback = $this->upgrader->strings[ $feedback ];
 		}
 
-		if ( strpos( $feedback, '%' ) !== false ) {
+		if ( str_contains( $feedback, '%' ) ) {
 			if ( $args ) {
 				$args     = array_map( 'strip_tags', $args );
 				$args     = array_map( 'esc_html', $args );
@@ -78,16 +76,17 @@ class Bulk_Upgrader_Skin extends GC_Upgrader_Skin {
 	/**
 	 */
 	public function header() {
-		// Nothing, This will be displayed within a iframe.
+		// Nothing. This will be displayed within an iframe.
 	}
 
 	/**
 	 */
 	public function footer() {
-		// Nothing, This will be displayed within a iframe.
+		// Nothing. This will be displayed within an iframe.
 	}
 
 	/**
+	 * @since 5.9.0 Renamed `$error` to `$errors` for PHP 8 named parameter support.
 	 *
 	 * @param string|GC_Error $errors Errors.
 	 */
@@ -129,7 +128,7 @@ class Bulk_Upgrader_Skin extends GC_Upgrader_Skin {
 		$this->in_loop = true;
 		printf( '<h2>' . $this->upgrader->strings['skin_before_update_header'] . ' <span class="spinner waiting-' . $this->upgrader->update_current . '"></span></h2>', $title, $this->upgrader->update_current, $this->upgrader->update_count );
 		echo '<script type="text/javascript">jQuery(\'.waiting-' . esc_js( $this->upgrader->update_current ) . '\').css("display", "inline-block");</script>';
-		// This progress messages div gets moved via JavaScript when clicking on "显示详情。".
+		// This progress messages div gets moved via JavaScript when clicking on "更多详情。".
 		echo '<div class="update-messages hide-if-js" id="progress-' . esc_attr( $this->upgrader->update_current ) . '"><p>';
 		$this->flush_output();
 	}
@@ -152,7 +151,7 @@ class Bulk_Upgrader_Skin extends GC_Upgrader_Skin {
 			if ( ! $this->error ) {
 				echo '<div class="updated js-update-details" data-update-details="progress-' . esc_attr( $this->upgrader->update_current ) . '">' .
 					'<p>' . sprintf( $this->upgrader->strings['skin_update_successful'], $title ) .
-					' <button type="button" class="hide-if-no-js button-link js-update-details-toggle" aria-expanded="false">' . __( '显示详情。' ) . '</button>' .
+					' <button type="button" class="hide-if-no-js button-link js-update-details-toggle" aria-expanded="false">' . __( '更多详情。' ) . '<span class="dashicons dashicons-arrow-down" aria-hidden="true"></span></button>' .
 					'</p></div>';
 			}
 

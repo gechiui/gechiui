@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/customize-widgets.js
+ * @output assets/js/customize-widgets.js
  */
 
 /* global _gcCustomizeWidgetsSettings */
@@ -487,6 +487,7 @@
 		 * Customizer control for widgets.
 		 * Note that 'widget_form' must match the GC_Widget_Form_Customize_Control::$type
 		 *
+		 * @since 4.1.0
 		 *
 		 * @constructs gc.customize.Widgets.WidgetControl
 		 * @augments   gc.customize.Control
@@ -511,6 +512,7 @@
 		/**
 		 * Set up the control.
 		 *
+		 * @since 3.9.0
 		 */
 		ready: function() {
 			var control = this;
@@ -542,6 +544,7 @@
 		/**
 		 * Embed the .widget element inside the li container.
 		 *
+		 * @since 4.4.0
 		 */
 		embedWidgetControl: function() {
 			var control = this, widgetControl;
@@ -568,6 +571,7 @@
 		/**
 		 * Embed the actual widget form inside of .widget-content and finally trigger the widget-added event.
 		 *
+		 * @since 4.4.0
 		 */
 		embedWidgetContent: function() {
 			var control = this, widgetContent;
@@ -962,6 +966,7 @@
 		 *
 		 * Overrides api.Control.toggle()
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param {boolean}   active
 		 * @param {Object}    args
@@ -1334,6 +1339,7 @@
 		},
 
 		/**
+		 * @since 4.1.0
 		 *
 		 * @param {Boolean} expanded
 		 * @param {Object} [params]
@@ -1342,6 +1348,7 @@
 		_toggleExpanded: api.Section.prototype._toggleExpanded,
 
 		/**
+		 * @since 4.1.0
 		 *
 		 * @param {Object} [params]
 		 * @return {Boolean} False if already expanded.
@@ -1358,6 +1365,7 @@
 		},
 
 		/**
+		 * @since 4.1.0
 		 *
 		 * @param {Object} [params]
 		 * @return {Boolean} False if already collapsed.
@@ -1449,7 +1457,7 @@
 				self.container.addClass( 'expanding' );
 			};
 
-			if ( expanded ) {
+			if ( $toggleBtn.attr( 'aria-expanded' ) === 'false' ) {
 				if ( api.section.has( self.section() ) ) {
 					api.section( self.section() ).expand( {
 						completeCallback: expandControl
@@ -1592,6 +1600,7 @@
 	 *
 	 * Customizer panel containing the widget area sections.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @class    gc.customize.Widgets.WidgetsPanel
 	 * @augments gc.customize.Panel
@@ -1601,6 +1610,7 @@
 		/**
 		 * Add and manage the display of the no-rendered-areas notice.
 		 *
+		 * @since 4.4.0
 		 */
 		ready: function () {
 			var panel = this;
@@ -1699,6 +1709,7 @@
 		 * This ensures that the widgets panel appears even when there are no
 		 * sidebars displayed on the URL currently being previewed.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @return {boolean}
 		 */
@@ -1713,6 +1724,7 @@
 	 *
 	 * Customizer section representing a widget area widget
 	 *
+	 * @since 4.1.0
 	 *
 	 * @class    gc.customize.Widgets.SidebarSection
 	 * @augments gc.customize.Section
@@ -1722,6 +1734,7 @@
 		/**
 		 * Sync the section's active state back to the Backbone model's is_rendered attribute
 		 *
+		 * @since 4.1.0
 		 */
 		ready: function () {
 			var section = this, registeredSidebar;
@@ -1740,6 +1753,7 @@
 	 * Customizer control for widgets.
 	 * Note that 'sidebar_widgets' must match the GC_Widget_Area_Customize_Control::$type
 	 *
+	 * @since 3.9.0
 	 *
 	 * @class    gc.customize.Widgets.SidebarControl
 	 * @augments gc.customize.Control
@@ -2032,6 +2046,7 @@
 		/**
 		 * Get the widget_form Customize controls associated with the current sidebar.
 		 *
+		 * @since 3.9.0
 		 * @return {gc.customize.controlConstructor.widget_form[]}
 		 */
 		getWidgetFormControls: function() {

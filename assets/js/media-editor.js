@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/media-editor.js
+ * @output assets/js/media-editor.js
  */
 
 /* global getUserSetting, tinymce, QTags */
@@ -627,7 +627,7 @@
 				_gcnonce:     settings.post.nonce
 			}).done( function( html ) {
 				if ( '0' === html ) {
-					window.alert( gc.i18n.__( '无法设置为缩略图。请尝试其他附件。' ) );
+					window.alert( gc.i18n.__( '无法将其设置为缩略图。请尝试其他附件。' ) );
 					return;
 				}
 				$( '.inside', '#postimagediv' ).html( html );
@@ -697,7 +697,7 @@
 			gc.media.featuredImage.set( selection ? selection.id : -1 );
 		},
 		/**
-		 * Open the content media manager to the '特色图片' tab when
+		 * Open the content media manager to the 'featured image' tab when
 		 * the post thumbnail is clicked.
 		 *
 		 * Update the featured image id when the 'remove' link is clicked.
@@ -988,7 +988,7 @@
 				});
 			},
 			/**
-			 * Called when 'Insert From URL' source is not an image. Example: YouTube url.
+			 * Called when 'Insert From URL' source is not an image. Example: YouKu url.
 			 *
 			 * @param {Object} embed
 			 * @return {Promise}

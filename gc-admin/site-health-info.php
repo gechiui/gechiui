@@ -18,11 +18,8 @@ if ( ! class_exists( 'GC_Site_Health' ) ) {
 }
 
 $health_check_site_status = GC_Site_Health::get_instance();
+echo setting_error( __( '系统健康检查需要JavaScript支持。' ), 'danger hide-if-js' );
 ?>
-
-<div class="notice notice-error hide-if-js">
-	<p><?php _e( '站点健康检查需要JavaScript支持。' ); ?></p>
-</div>
 
 <div class="health-check-body health-check-debug-tab hide-if-no-js">
 	<?php
@@ -34,13 +31,13 @@ $health_check_site_status = GC_Site_Health::get_instance();
 	?>
 
 	<h2>
-		<?php _e( '站点健康信息' ); ?>
+		<?php _e( '系统健康信息' ); ?>
 	</h2>
 
 	<p>
 		<?php
 			/* translators: %s: URL to Site Health Status page. */
-			printf( __( '此页面能向您显示您的GeChiUI网站的每一个配置详情。想知道可被改善之处，请查阅<a href="%s">站点健康状态</a>页面。' ), esc_url( admin_url( 'site-health.php' ) ) );
+			printf( __( '此页面能向您显示您的GeChiUI系统的每一个配置详情。想知道可被改善之处，请查阅<a href="%s">系统健康状态</a>页面。' ), esc_url( admin_url( 'site-health.php' ) ) );
 		?>
 	</p>
 	<p>
@@ -50,7 +47,7 @@ $health_check_site_status = GC_Site_Health::get_instance();
 	<div class="site-health-copy-buttons">
 		<div class="copy-button-wrapper">
 			<button type="button" class="button copy-button" data-clipboard-text="<?php echo esc_attr( GC_Debug_Data::format( $info, 'debug' ) ); ?>">
-				<?php _e( '复制站点信息到剪贴板' ); ?>
+				<?php _e( '复制系统信息到剪贴板' ); ?>
 			</button>
 			<span class="success hidden" aria-hidden="true"><?php _e( '已复制！' ); ?></span>
 		</div>

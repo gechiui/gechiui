@@ -4,8 +4,8 @@
  *
  * @namespace gc.utils
  *
- *
- * @output gc-admin/js/word-count.js
+ * @since 2.6.0
+ * @output assets/js/word-count.js
  */
 
 ( function() {
@@ -28,7 +28,7 @@
 	 *                                                            split words.
 	 * @param {RegExp} settings.removeRegExp                      Optional. Regular expression to find remove unwanted
 	 *                                                            characters to reduce false-positives.
-	 * @param {RegExp} settings.astralRegExp                      Optional. Regular expression to find unwanted
+	 * @param {RegExp} settings.adaptivelRegExp                      Optional. Regular expression to find unwanted
 	 *                                                            characters when searching for non-words.
 	 * @param {RegExp} settings.wordsRegExp                       Optional. Regular expression to find words by spaces.
 	 * @param {RegExp} settings.characters_excluding_spacesRegExp Optional. Regular expression to find characters which
@@ -122,7 +122,7 @@
 		].join( '' ), 'g' ),
 
 		// Remove UTF-16 surrogate points, see https://en.wikipedia.org/wiki/UTF-16#U.2BD800_to_U.2BDFFF
-		astralRegExp: /[\uD800-\uDBFF][\uDC00-\uDFFF]/g,
+		adaptivelRegExp: /[\uD800-\uDBFF][\uDC00-\uDFFF]/g,
 		wordsRegExp: /\S\s+/g,
 		characters_excluding_spacesRegExp: /\S/g,
 
@@ -144,6 +144,7 @@
 	/**
 	 * Counts the number of words (or other specified type) in the specified text.
 	 *
+	 * @since 2.6.0
 	 *
 	 * @memberof gc.utils.wordcounter
 	 *
@@ -197,7 +198,7 @@
 				text = text.replace( this.settings.HTMLEntityRegExp, 'a' );
 
 				// Remove surrogate points.
-				text = text.replace( this.settings.astralRegExp, 'a' );
+				text = text.replace( this.settings.adaptivelRegExp, 'a' );
 			}
 
 			// Match with the selected type regular expression to count the items.

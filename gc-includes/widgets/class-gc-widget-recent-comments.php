@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class used to implement a Recent Comments widget.
- *
- *
  *
  * @see GC_Widget
  */
@@ -23,7 +20,7 @@ class GC_Widget_Recent_Comments extends GC_Widget {
 	public function __construct() {
 		$widget_ops = array(
 			'classname'                   => 'widget_recent_comments',
-			'description'                 => __( '显示您站点上最近发表的几条评论。' ),
+			'description'                 => __( '显示您系统上最近发表的几条评论。' ),
 			'customize_selective_refresh' => true,
 			'show_instance_in_rest'       => true,
 		);
@@ -43,6 +40,7 @@ class GC_Widget_Recent_Comments extends GC_Widget {
 		/**
 		 * Filters the Recent Comments default widget styles.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param bool   $active  Whether the widget is active. Default true.
 		 * @param string $id_base The widget ID.
@@ -63,6 +61,7 @@ class GC_Widget_Recent_Comments extends GC_Widget {
 	/**
 	 * Outputs the content for the current Recent Comments widget instance.
 	 *
+	 * @since 5.4.0 Creates a unique HTML ID for the `<ul>` element
 	 *              if more than one instance is displayed on the page.
 	 *
 	 * @param array $args     Display arguments including 'before_title', 'after_title',
@@ -93,8 +92,8 @@ class GC_Widget_Recent_Comments extends GC_Widget {
 			/**
 			 * Filters the arguments for the Recent Comments widget.
 			 *
-		
-		
+			 * @since 3.4.0
+			 * @since 4.9.0 Added the `$instance` parameter.
 			 *
 			 * @see GC_Comment_Query::query() for information on accepted arguments.
 			 *

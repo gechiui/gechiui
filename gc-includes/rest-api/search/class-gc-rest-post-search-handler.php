@@ -4,13 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
+ * @since 5.0.0
  */
 
 /**
  * Core class representing a search handler for posts in the REST API.
  *
- *
+ * @since 5.0.0
  *
  * @see GC_REST_Search_Handler
  */
@@ -19,6 +19,7 @@ class GC_REST_Post_Search_Handler extends GC_REST_Search_Handler {
 	/**
 	 * Constructor.
 	 *
+	 * @since 5.0.0
 	 */
 	public function __construct() {
 		$this->type = 'post';
@@ -41,6 +42,7 @@ class GC_REST_Post_Search_Handler extends GC_REST_Search_Handler {
 	/**
 	 * Searches the object type content for a given search request.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param GC_REST_Request $request Full REST request.
 	 * @return array Associative array containing an `GC_REST_Search_Handler::RESULT_IDS` containing
@@ -61,11 +63,18 @@ class GC_REST_Post_Search_Handler extends GC_REST_Search_Handler {
 			'paged'               => (int) $request['page'],
 			'posts_per_page'      => (int) $request['per_page'],
 			'ignore_sticky_posts' => true,
-			'fields'              => 'ids',
 		);
 
 		if ( ! empty( $request['search'] ) ) {
 			$query_args['s'] = $request['search'];
+		}
+
+		if ( ! empty( $request['exclude'] ) ) {
+			$query_args['post__not_in'] = $request['exclude'];
+		}
+
+		if ( ! empty( $request['include'] ) ) {
+			$query_args['post__in'] = $request['include'];
 		}
 
 		/**
@@ -73,14 +82,17 @@ class GC_REST_Post_Search_Handler extends GC_REST_Search_Handler {
 		 *
 		 * Enables adding extra arguments or setting defaults for a post search request.
 		 *
+		 * @since 5.1.0
 		 *
 		 * @param array           $query_args Key value array of query var to query value.
 		 * @param GC_REST_Request $request    The request used.
 		 */
 		$query_args = apply_filters( 'rest_post_search_query', $query_args, $request );
 
-		$query     = new GC_Query();
-		$found_ids = $query->query( $query_args );
+		$query = new GC_Query();
+		$posts = $query->query( $query_args );
+		// Querying the whole post object will warm the object cache, avoiding an extra query per result.
+		$found_ids = gc_list_pluck( $posts, 'ID' );
 		$total     = $query->found_posts;
 
 		return array(
@@ -92,6 +104,7 @@ class GC_REST_Post_Search_Handler extends GC_REST_Search_Handler {
 	/**
 	 * Prepares the search result for a given ID.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param int   $id     Item ID.
 	 * @param array $fields Fields to include for the item.
@@ -134,6 +147,7 @@ class GC_REST_Post_Search_Handler extends GC_REST_Search_Handler {
 	/**
 	 * Prepares links for the search result of a given ID.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param int $id Item ID.
 	 * @return array Links for the given item.
@@ -165,6 +179,7 @@ class GC_REST_Post_Search_Handler extends GC_REST_Search_Handler {
 	 * "密码保护：%s". As the REST API communicates the protected status of a post
 	 * in a machine readable format, we remove the "Protected: " prefix.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @return string Protected title format.
 	 */
@@ -175,6 +190,7 @@ class GC_REST_Post_Search_Handler extends GC_REST_Search_Handler {
 	/**
 	 * Attempts to detect the route to access a single item.
 	 *
+	 * @since 5.0.0
 	 * @deprecated 5.5.0 Use rest_get_route_for_post()
 	 * @see rest_get_route_for_post()
 	 *

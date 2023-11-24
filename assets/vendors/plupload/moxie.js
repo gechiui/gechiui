@@ -7792,7 +7792,7 @@ define("moxie/runtime/html5/image/ExifParser", [
 				0xA403: 'WhiteBalance',
 				0xA406: 'SceneCaptureType',
 				0xA404: 'DigitalZoomRatio',
-				0xA408: 'Contrast',
+				0xA408: '对比度',
 				0xA409: 'Saturation',
 				0xA40A: 'Sharpness'
 			},
@@ -7893,7 +7893,7 @@ define("moxie/runtime/html5/image/ExifParser", [
 				3: 'Night scene'
 			},
 
-			'Contrast': {
+			'对比度': {
 				0: 'Normal',
 				1: 'Soft',
 				2: 'Hard'

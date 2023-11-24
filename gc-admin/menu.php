@@ -26,7 +26,7 @@ $menu[2] = array( __( '仪表盘' ), 'read', 'index.php', '', 'menu-top menu-top
 $submenu['index.php'][0] = array( __( '首页' ), 'read', 'index.php' );
 
 if ( is_multisite() ) {
-	$submenu['index.php'][5] = array( __( '我的站点' ), 'read', 'my-sites.php' );
+	$submenu['index.php'][5] = array( __( '我的系统' ), 'read', 'my-sites.php' );
 }
 
 if ( ! is_multisite() || current_user_can( 'update_core' ) ) {
@@ -66,7 +66,7 @@ $menu[4] = array( '', 'read', 'separator1', '', 'gc-menu-separator' );
 $menu[10]                     = array( __( '媒体' ), 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'anticon anticon-folder' );
 	$submenu['upload.php'][5] = array( __( '媒体库' ), 'upload_files', 'upload.php' );
 	/* translators: Add new file. */
-	$submenu['upload.php'][10] = array( _x( '添加新文件', 'file' ), 'upload_files', 'media-new.php' );
+	$submenu['upload.php'][10] = array( _x( '新增文件', 'file' ), 'upload_files', 'media-new.php' );
 	$i                         = 15;
 foreach ( get_taxonomies_for_attachments( 'objects' ) as $tax ) {
 	if ( ! $tax->show_ui || ! $tax->show_in_menu ) {
@@ -128,7 +128,7 @@ foreach ( array_merge( $builtin, $types ) as $ptype ) {
 	$ptype_menu_position = is_int( $ptype_obj->menu_position ) ? $ptype_obj->menu_position : ++$_gc_last_object_menu; // If we're to use $_gc_last_object_menu, increment it first.
 	$ptype_for_id        = sanitize_html_class( $ptype );
 
-	$menu_icon = 'anticon anticon-page'; //这里发放一个默认值
+	$menu_icon = 'anticon anticon-file'; //这里发放一个默认值
 	if ( is_string( $ptype_obj->menu_icon ) ) {
 		// Special handling for data:image/svg+xml and Dashicons.
 		if ( 0 === strpos( $ptype_obj->menu_icon, 'data:image/svg+xml;base64,' ) || 0 === strpos( $ptype_obj->menu_icon, 'anticon' ) || 0 === strpos( $ptype_obj->menu_icon, 'dashicons-' ) ) {
@@ -204,23 +204,14 @@ if ( ! is_multisite() && current_user_can( 'update_themes' ) ) {
 	$submenu['themes.php'][5] = array( sprintf( __( '主题%s' ), $count ), $appearance_cap, 'themes.php' );
 
 if ( gc_is_block_theme() ) {
-	$submenu['themes.php'][6] = array(
-		sprintf(
-			/* translators: %s: "beta" label */
-			__( '编辑器（%s）' ),
-			'<span class="awaiting-mod">' . __( 'beta 版' ) . '</span>'
-		),
-		'edit_theme_options',
-		'site-editor.php',
-	);
+	$submenu['themes.php'][6] = array( _x( '编辑器', '系统编辑器菜单项' ), 'edit_theme_options', 'site-editor.php' ); 
 }
 
+// 自定义
 $customize_url = add_query_arg( 'return', urlencode( remove_query_arg( gc_removable_query_args(), gc_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' );
 
-// Hide Customize link on block themes unless a plugin or theme
-// is using 'customize_register' to add a setting.
 if ( ! gc_is_block_theme() || has_action( 'customize_register' ) ) {
-	$position = gc_is_block_theme() ? 7 : 6;
+	$position = ( gc_is_block_theme() || current_theme_supports( 'block-template-parts' ) ) ? 7 : 6;
 
 	$submenu['themes.php'][ $position ] = array( __( '自定义' ), 'customize', esc_url( $customize_url ), '', 'hide-if-no-customize' );
 }
@@ -253,7 +244,6 @@ if ( ! is_multisite() ) {
  * or Tools (block themes) menu.
  *
  * @access private
- *
  *
  *              Relocates to Tools for block themes.
  */
@@ -347,14 +337,14 @@ $menu[75]                     = array( __( '工具' ), 'edit_posts', 'tools.php'
 	$submenu['tools.php'][5]  = array( __( '可用工具' ), 'edit_posts', 'tools.php' );
 	$submenu['tools.php'][10] = array( __( '导入' ), 'import', 'import.php' );
 	$submenu['tools.php'][15] = array( __( '导出' ), 'export', 'export.php' );
-	$submenu['tools.php'][20] = array( __( '站点健康' ), 'view_site_health_checks', 'site-health.php' );
+	$submenu['tools.php'][20] = array( __( '系统健康' ), 'view_site_health_checks', 'site-health.php' );
 	$submenu['tools.php'][25] = array( __( '导出个人数据' ), 'export_others_personal_data', 'export-personal-data.php' );
 	$submenu['tools.php'][30] = array( __( '抹除个人数据' ), 'erase_others_personal_data', 'erase-personal-data.php' );
 if ( is_multisite() && ! is_main_site() ) {
-	$submenu['tools.php'][35] = array( __( '删除站点' ), 'delete_site', 'ms-delete-site.php' );
+	$submenu['tools.php'][35] = array( __( '删除系统' ), 'delete_site', 'ms-delete-site.php' );
 }
 if ( ! is_multisite() && defined( 'GC_ALLOW_MULTISITE' ) && GC_ALLOW_MULTISITE ) {
-	$submenu['tools.php'][50] = array( __( '站点网络配置' ), 'setup_network', 'network.php' );
+	$submenu['tools.php'][50] = array( __( 'SaaS平台配置' ), 'setup_network', 'network.php' );
 }
 
 $menu[80]                               = array( __( '设置' ), 'manage_options', 'options-general.php', '', 'menu-top menu-icon-settings', 'menu-settings', 'anticon anticon-setting' );

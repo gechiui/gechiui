@@ -6068,13 +6068,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    // https://tc39.github.io/ecma262/#sec-literals-regular-expression-literals
 	    Scanner.prototype.testRegExp = function (pattern, flags) {
-	        // The BMP character to use as a replacement for astral symbols when
+	        // The BMP character to use as a replacement for adaptivel symbols when
 	        // translating an ES6 "u"-flagged pattern to an ES5-compatible
 	        // approximation.
 	        // Note: replacing with '\uFFFF' enables false positives in unlikely
 	        // scenarios. For example, `[\u{1044f}-\u{10440}]` is an invalid
 	        // pattern that would not be detected by this substitution.
-	        var astralSubstitute = '\uFFFF';
+	        var adaptivelSubstitute = '\uFFFF';
 	        var tmp = pattern;
 	        var self = this;
 	        if (flags.indexOf('u') >= 0) {
@@ -6087,9 +6087,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                if (codePoint <= 0xFFFF) {
 	                    return String.fromCharCode(codePoint);
 	                }
-	                return astralSubstitute;
+	                return adaptivelSubstitute;
 	            })
-	                .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, astralSubstitute);
+	                .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, adaptivelSubstitute);
 	        }
 	        // First, detect invalid regular expressions.
 	        try {

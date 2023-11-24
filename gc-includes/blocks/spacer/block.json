@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/spacer",
+	"title": "空格",
+	"category": "design",
+	"description": "在区块间添加空白并自定义其高度。",
+	"textdomain": "default",
+	"attributes": {
+		"height": {
+			"type": "string",
+			"default": "100px"
+		},
+		"width": {
+			"type": "string"
+		}
+	},
+	"usesContext": [ "orientation" ],
+	"supports": {
+		"anchor": true,
+		"spacing": {
+			"margin": [ "top", "bottom" ],
+			"__experimentalDefaultControls": {
+				"margin": true
+			}
+		}
+	},
+	"editorStyle": "gc-block-spacer-editor",
+	"style": "gc-block-spacer"
+}

@@ -4,13 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
+ * @since 5.5.0
  */
 
 /**
  * Core class to access plugins via the REST API.
  *
- *
+ * @since 5.5.0
  *
  * @see GC_REST_Controller
  */
@@ -21,6 +21,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Plugins controller constructor.
 	 *
+	 * @since 5.5.0
 	 */
 	public function __construct() {
 		$this->namespace = 'gc/v2';
@@ -30,6 +31,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the routes for the plugins controller.
 	 *
+	 * @since 5.5.0
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -102,6 +104,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to get plugins.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -110,7 +113,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 		if ( ! current_user_can( 'activate_plugins' ) ) {
 			return new GC_Error(
 				'rest_cannot_view_plugins',
-				__( '抱歉，您不能在此站点上管理插件。' ),
+				__( '抱歉，您不能在此系统上管理插件。' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -121,6 +124,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves a collection of plugins.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -150,6 +154,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to get a specific plugin.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access for the item, GC_Error object otherwise.
@@ -158,7 +163,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 		if ( ! current_user_can( 'activate_plugins' ) ) {
 			return new GC_Error(
 				'rest_cannot_view_plugin',
-				__( '抱歉，您不能在此站点上管理插件。' ),
+				__( '抱歉，您不能在此系统上管理插件。' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -175,6 +180,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves one plugin from the site.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -197,6 +203,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	 * On multisite, this hides non-active network only plugins if the user does not have permission
 	 * to manage network plugins.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $plugin The plugin file to check.
 	 * @return true|GC_Error True if can read, a GC_Error instance otherwise.
@@ -226,6 +233,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to upload plugins.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to create items, GC_Error object otherwise.
@@ -234,7 +242,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 		if ( ! current_user_can( 'install_plugins' ) ) {
 			return new GC_Error(
 				'rest_cannot_install_plugin',
-				__( '抱歉，您不能在此站点上安装插件。' ),
+				__( '抱歉，您不能在此系统上安装插件。' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -255,6 +263,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Uploads a plugin and optionally activates it.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
 	 *
@@ -289,7 +298,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 		);
 
 		if ( is_gc_error( $api ) ) {
-			if ( false !== strpos( $api->get_error_message(), '找不到插件。' ) ) {
+			if ( str_contains( $api->get_error_message(), '找不到插件。' ) ) {
 				$api->add_data( array( 'status' => 404 ) );
 			} else {
 				$api->add_data( array( 'status' => 500 ) );
@@ -406,6 +415,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to update a specific plugin.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to update the item, GC_Error object otherwise.
@@ -416,7 +426,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 		if ( ! current_user_can( 'activate_plugins' ) ) {
 			return new GC_Error(
 				'rest_cannot_manage_plugins',
-				__( '抱歉，您不能在此站点上管理插件。' ),
+				__( '抱歉，您不能在此系统上管理插件。' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -443,6 +453,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Updates one plugin.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -476,6 +487,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to delete a specific plugin.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to delete the item, GC_Error object otherwise.
@@ -484,7 +496,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 		if ( ! current_user_can( 'activate_plugins' ) ) {
 			return new GC_Error(
 				'rest_cannot_manage_plugins',
-				__( '抱歉，您不能在此站点上管理插件。' ),
+				__( '抱歉，您不能在此系统上管理插件。' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -492,7 +504,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 		if ( ! current_user_can( 'delete_plugins' ) ) {
 			return new GC_Error(
 				'rest_cannot_manage_plugins',
-				__( '抱歉，您不能在此站点上删除插件。' ),
+				__( '抱歉，您不能在此系统上删除插件。' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -509,6 +521,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Deletes one plugin from the site.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -556,12 +569,15 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares the plugin for the REST response.
 	 *
+	 * @since 5.5.0
 	 *
-	 * @param mixed           $item    Unmarked up and untranslated plugin data from {@see get_plugin_data()}.
+	 * @param array           $item    Unmarked up and untranslated plugin data from {@see get_plugin_data()}.
 	 * @param GC_REST_Request $request Request object.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
 	 */
 	public function prepare_item_for_response( $item, $request ) {
+		$fields = $this->get_fields_for_response( $request );
+
 		$item   = _get_plugin_data_markup_translate( $item['_file'], $item, false );
 		$marked = _get_plugin_data_markup_translate( $item['_file'], $item, true );
 
@@ -573,8 +589,8 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 			'author'       => $item['Author'],
 			'author_uri'   => $item['AuthorURI'],
 			'description'  => array(
-				'raw'      => $item['description'],
-				'rendered' => $marked['description'],
+				'raw'      => $item['Description'],
+				'rendered' => $marked['Description'],
 			),
 			'version'      => $item['Version'],
 			'network_only' => $item['Network'],
@@ -586,11 +602,15 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 		$data = $this->add_additional_fields_to_object( $data, $request );
 
 		$response = new GC_REST_Response( $data );
-		$response->add_links( $this->prepare_links( $item ) );
+
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$response->add_links( $this->prepare_links( $item ) );
+		}
 
 		/**
 		 * Filters plugin data for a REST API response.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param GC_REST_Response $response The response object.
 		 * @param array            $item     The plugin item from {@see get_plugin_data()}.
@@ -602,6 +622,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares links for the request.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param array $item The plugin item.
 	 * @return array[]
@@ -609,7 +630,14 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	protected function prepare_links( $item ) {
 		return array(
 			'self' => array(
-				'href' => rest_url( sprintf( '%s/%s/%s', $this->namespace, $this->rest_base, substr( $item['_file'], 0, - 4 ) ) ),
+				'href' => rest_url(
+					sprintf(
+						'%s/%s/%s',
+						$this->namespace,
+						$this->rest_base,
+						substr( $item['_file'], 0, - 4 )
+					)
+				),
 			),
 		);
 	}
@@ -617,6 +645,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Gets the plugin header data for a plugin.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $plugin The plugin file to get data for.
 	 * @return array|GC_Error The plugin data, or a GC_Error if the plugin is not installed.
@@ -637,6 +666,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Get's the activation status for a plugin.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $plugin The plugin file to check.
 	 * @return string Either 'network-active', 'active' or 'inactive'.
@@ -656,6 +686,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Handle updating a plugin's status.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $plugin         The plugin file to update.
 	 * @param string $new_status     The plugin's new status.
@@ -666,7 +697,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 		if ( is_multisite() && ( 'network-active' === $current_status || 'network-active' === $new_status ) && ! current_user_can( 'manage_network_plugins' ) ) {
 			return new GC_Error(
 				'rest_cannot_manage_network_plugins',
-				__( '抱歉，您不能管理站点网络插件。' ),
+				__( '抱歉，您不能管理系统网络插件。' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -693,6 +724,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Handle updating a plugin's status.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $plugin         The plugin file to update.
 	 * @param string $new_status     The plugin's new status.
@@ -715,7 +747,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 		if ( is_multisite() && ! $network_activate && is_network_only_plugin( $plugin ) ) {
 			return new GC_Error(
 				'rest_network_only_plugin',
-				__( '仅供站点网络使用的插件，必须于站点网络启用。' ),
+				__( '仅供系统网络使用的插件，必须于系统网络启用。' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -734,6 +766,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Checks that the "plugin" parameter is a valid path.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $file The plugin file parameter.
 	 * @return bool
@@ -751,6 +784,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Sanitizes the "plugin" parameter to be a proper plugin file with ".php" appended.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $file The plugin file parameter.
 	 * @return string
@@ -762,6 +796,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if the plugin matches the requested parameters.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request The request to require the plugin matches against.
 	 * @param array           $item    The plugin item.
@@ -774,7 +809,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 			$matched_search = false;
 
 			foreach ( $item as $field ) {
-				if ( is_string( $field ) && false !== strpos( strip_tags( $field ), $search ) ) {
+				if ( is_string( $field ) && str_contains( strip_tags( $field ), $search ) ) {
 					$matched_search = true;
 					break;
 				}
@@ -797,6 +832,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if the plugin is installed.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $plugin The plugin file.
 	 * @return bool
@@ -810,6 +846,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	 *
 	 * Only the 'Direct' filesystem transport, and SSH/FTP when credentials are stored are supported at present.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return true|GC_Error True if filesystem is available, GC_Error otherwise.
 	 */
@@ -834,6 +871,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the plugin's schema, conforming to JSON Schema.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return array Item schema data.
 	 */
@@ -909,7 +947,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 					'context'     => array( 'view', 'edit' ),
 				),
 				'network_only' => array(
-					'description' => __( '插件是否只能在站点网络中启用。' ),
+					'description' => __( '插件是否只能在系统网络中启用。' ),
 					'type'        => 'boolean',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit', 'embed' ),
@@ -941,6 +979,7 @@ class GC_REST_Plugins_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the query params for the collections.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return array Query parameters for the collection.
 	 */

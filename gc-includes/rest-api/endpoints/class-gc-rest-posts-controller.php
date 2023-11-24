@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core class to access posts via the REST API.
- *
- *
  *
  * @see GC_REST_Controller
  */
@@ -18,6 +15,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Post type.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	protected $post_type;
@@ -25,6 +23,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Instance of a post meta fields object.
 	 *
+	 * @since 4.7.0
 	 * @var GC_REST_Post_Meta_Fields
 	 */
 	protected $meta;
@@ -32,6 +31,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Passwordless post access permitted.
 	 *
+	 * @since 5.7.1
 	 * @var int[]
 	 */
 	protected $password_check_passed = array();
@@ -39,6 +39,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Whether the controller supports batching.
 	 *
+	 * @since 5.9.0
 	 * @var array
 	 */
 	protected $allow_batch = array( 'v1' => true );
@@ -46,6 +47,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string $post_type Post type.
 	 */
@@ -61,6 +63,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the routes for posts.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @see register_rest_route()
 	 */
@@ -140,6 +143,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to read posts.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -160,12 +164,13 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Override the result of the post password check for REST requested posts.
+	 * Overrides the result of the post password check for REST requested posts.
 	 *
 	 * Allow users to read the content of password protected posts if they have
 	 * previously passed a permission check or if they have the `edit_post` capability
 	 * for the post being checked.
 	 *
+	 * @since 5.7.1
 	 *
 	 * @param bool    $required Whether the post requires a password check.
 	 * @param GC_Post $post     The post been password checked.
@@ -193,6 +198,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves a collection of posts.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -240,6 +246,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 			'parent'         => 'post_parent__in',
 			'parent_exclude' => 'post_parent__not_in',
 			'search'         => 's',
+			'search_columns' => 'search_columns',
 			'slug'           => 'post_name__in',
 			'status'         => 'post_status',
 		);
@@ -339,6 +346,8 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 		 *
 		 * Enables adding extra arguments or setting defaults for a post collection request.
 		 *
+		 * @since 4.7.0
+		 * @since 5.7.0 Moved after the `tax_query` query arg is generated.
 		 *
 		 * @link https://developer.gechiui.com/reference/classes/gc_query/
 		 *
@@ -358,6 +367,13 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 
 		$posts = array();
 
+		update_post_author_caches( $query_result );
+		update_post_parent_caches( $query_result );
+
+		if ( post_type_supports( $this->post_type, 'thumbnail' ) ) {
+			update_post_thumbnail_cache( $posts_query );
+		}
+
 		foreach ( $query_result as $post ) {
 			if ( ! $this->check_read_permission( $post ) ) {
 				continue;
@@ -375,7 +391,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 		$page        = (int) $query_args['paged'];
 		$total_posts = $posts_query->found_posts;
 
-		if ( $total_posts < 1 ) {
+		if ( $total_posts < 1 && $page > 1 ) {
 			// Out-of-bounds, run the query again without LIMIT for total count.
 			unset( $query_args['paged'] );
 
@@ -400,7 +416,8 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 		$response->header( 'X-GC-TotalPages', (int) $max_pages );
 
 		$request_params = $request->get_query_params();
-		$base           = add_query_arg( urlencode_deep( $request_params ), rest_url( sprintf( '%s/%s', $this->namespace, $this->rest_base ) ) );
+		$collection_url = rest_url( rest_get_route_for_post_type_items( $this->post_type ) );
+		$base           = add_query_arg( urlencode_deep( $request_params ), $collection_url );
 
 		if ( $page > 1 ) {
 			$prev_page = $page - 1;
@@ -423,8 +440,9 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Get the post, if the ID is valid.
+	 * Gets the post, if the ID is valid.
 	 *
+	 * @since 4.7.2
 	 *
 	 * @param int $id Supplied ID.
 	 * @return GC_Post|GC_Error Post object if ID is valid, GC_Error otherwise.
@@ -451,6 +469,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to read a post.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access for the item, GC_Error object otherwise.
@@ -498,6 +517,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	 * This method determines whether we need to override the regular password
 	 * check in core with a filter.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_Post         $post    Post to check against.
 	 * @param GC_REST_Request $request Request data to check.
@@ -532,6 +552,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves a single post.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -555,6 +576,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to create a post.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to create items, GC_Error object otherwise.
@@ -608,6 +630,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Creates a single post.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -628,6 +651,24 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 		}
 
 		$prepared_post->post_type = $this->post_type;
+
+		if ( ! empty( $prepared_post->post_name )
+			&& ! empty( $prepared_post->post_status )
+			&& in_array( $prepared_post->post_status, array( 'draft', 'pending' ), true )
+		) {
+			/*
+			 * `gc_unique_post_slug()` returns the same slug for 'draft' or 'pending' posts.
+			 *
+			 * To ensure that a unique slug is generated, pass the post data with the 'publish' status.
+			 */
+			$prepared_post->post_name = gc_unique_post_slug(
+				$prepared_post->post_name,
+				$prepared_post->id,
+				'publish',
+				$prepared_post->post_type,
+				$prepared_post->post_parent
+			);
+		}
 
 		$post_id = gc_insert_post( gc_slash( (array) $prepared_post ), true, false );
 
@@ -655,6 +696,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 		 *  - `rest_insert_page`
 		 *  - `rest_insert_attachment`
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_Post         $post     Inserted or updated post object.
 		 * @param GC_REST_Request $request  Request object.
@@ -718,6 +760,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 		 *  - `rest_after_insert_page`
 		 *  - `rest_after_insert_attachment`
 		 *
+		 * @since 5.0.0
 		 *
 		 * @param GC_Post         $post     Inserted or updated post object.
 		 * @param GC_REST_Request $request  Request object.
@@ -731,7 +774,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 		$response = rest_ensure_response( $response );
 
 		$response->set_status( 201 );
-		$response->header( 'Location', rest_url( sprintf( '%s/%s/%d', $this->namespace, $this->rest_base, $post_id ) ) );
+		$response->header( 'Location', rest_url( rest_get_route_for_post( $post ) ) );
 
 		return $response;
 	}
@@ -739,6 +782,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to update a post.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to update the item, GC_Error object otherwise.
@@ -789,6 +833,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Updates a single post.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -804,6 +849,28 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 
 		if ( is_gc_error( $post ) ) {
 			return $post;
+		}
+
+		if ( ! empty( $post->post_status ) ) {
+			$post_status = $post->post_status;
+		} else {
+			$post_status = $post_before->post_status;
+		}
+
+		/*
+		 * `gc_unique_post_slug()` returns the same slug for 'draft' or 'pending' posts.
+		 *
+		 * To ensure that a unique slug is generated, pass the post data with the 'publish' status.
+		 */
+		if ( ! empty( $post->post_name ) && in_array( $post_status, array( 'draft', 'pending' ), true ) ) {
+			$post_parent     = ! empty( $post->post_parent ) ? $post->post_parent : 0;
+			$post->post_name = gc_unique_post_slug(
+				$post->post_name,
+				$post->ID,
+				'publish',
+				$post->post_type,
+				$post_parent
+			);
 		}
 
 		// Convert the post object to an array, otherwise gc_update_post() will expect non-escaped input.
@@ -887,6 +954,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to delete a post.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to delete the item, GC_Error object otherwise.
@@ -911,6 +979,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Deletes a single post.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -943,6 +1012,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 		 *
 		 * Pass false to disable Trash support for the post.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param bool    $supports_trash Whether the post type support trashing.
 		 * @param GC_Post $post           The Post object being considered for trashing support.
@@ -990,8 +1060,10 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 				);
 			}
 
-			// (Note that internally this falls through to `gc_delete_post()`
-			// if the Trash is disabled.)
+			/*
+			 * (Note that internally this falls through to `gc_delete_post()`
+			 * if the Trash is disabled.)
+			 */
 			$result   = gc_trash_post( $id );
 			$post     = get_post( $id );
 			$response = $this->prepare_item_for_response( $post, $request );
@@ -1016,6 +1088,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 		 *  - `rest_delete_page`
 		 *  - `rest_delete_attachment`
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_Post          $post     The deleted or trashed post.
 		 * @param GC_REST_Response $response The response data.
@@ -1030,6 +1103,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	 * Determines the allowed query_vars for a get_items() response and prepares
 	 * them for GC_Query.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array           $prepared_args Optional. Prepared GC_Query arguments. Default empty array.
 	 * @param GC_REST_Request $request       Optional. Full details about the request.
@@ -1044,7 +1118,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 			 *
 			 * The dynamic portion of the hook name, `$key`, refers to the query_var key.
 			 *
-		
+			 * @since 4.7.0
 			 *
 			 * @param string $value The query_var value.
 			 */
@@ -1076,6 +1150,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	 * Checks the post_date_gmt or modified_gmt and prepare any post or
 	 * modified date for single post output.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string      $date_gmt GMT publication time.
 	 * @param string|null $date     Optional. Local publication time. Default null.
@@ -1099,6 +1174,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a single post for create or update.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Request object.
 	 * @return stdClass|GC_Error Post object or GC_Error.
@@ -1192,8 +1268,10 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 			}
 		}
 
-		// Sending a null date or date_gmt value resets date and date_gmt to their
-		// default values (`0000-00-00 00:00:00`).
+		/*
+		 * Sending a null date or date_gmt value resets date and date_gmt to their
+		 * default values (`0000-00-00 00:00:00`).
+		 */
 		if (
 			( ! empty( $schema['properties']['date_gmt'] ) && $request->has_param( 'date_gmt' ) && null === $request['date_gmt'] ) ||
 			( ! empty( $schema['properties']['date'] ) && $request->has_param( 'date' ) && null === $request['date'] )
@@ -1309,6 +1387,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 		 *  - `rest_pre_insert_page`
 		 *  - `rest_pre_insert_attachment`
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param stdClass        $prepared_post An object representing a single post prepared
 		 *                                       for inserting or updating the database.
@@ -1323,6 +1402,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	 *
 	 * Allows for sending an update request with the current status, even if that status would not be acceptable.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param string          $status  The provided status.
 	 * @param GC_REST_Request $request The request object.
@@ -1346,6 +1426,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Determines validity and normalizes the given status parameter.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string       $post_status Post status.
 	 * @param GC_Post_Type $post_type   Post type.
@@ -1389,6 +1470,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Determines the featured media based on a request param.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param int $featured_media Featured Media ID.
 	 * @param int $post_id        Post ID.
@@ -1415,8 +1497,9 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Check whether the template is valid for the given post.
+	 * Checks whether the template is valid for the given post.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param string          $template Page template filename.
 	 * @param GC_REST_Request $request  Request.
@@ -1458,6 +1541,8 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Sets the template for a post.
 	 *
+	 * @since 4.7.0
+	 * @since 4.9.0 Added the `$validate` parameter.
 	 *
 	 * @param string $template Page template filename.
 	 * @param int    $post_id  Post ID.
@@ -1475,6 +1560,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Updates the post's terms from a REST request.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param int             $post_id The post ID to update the terms form.
 	 * @param GC_REST_Request $request The request object with post and terms data.
@@ -1501,6 +1587,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Checks whether current user can assign all terms sent with the current request.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request The request object with post and terms data.
 	 * @return bool Whether the current user can assign the provided terms.
@@ -1532,6 +1619,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given post type can be viewed or managed.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_Post_Type|string $post_type Post type name or object.
 	 * @return bool Whether the post type is allowed in REST.
@@ -1553,6 +1641,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	 *
 	 * Correctly handles posts with the inherit status.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_Post $post Post object.
 	 * @return bool Whether the post can be read.
@@ -1595,6 +1684,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a post can be edited.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_Post $post Post object.
 	 * @return bool Whether the post can be edited.
@@ -1612,6 +1702,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a post can be created.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_Post $post Post object.
 	 * @return bool Whether the post can be created.
@@ -1629,6 +1720,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a post can be deleted.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_Post $post Post object.
 	 * @return bool Whether the post can be deleted.
@@ -1646,6 +1738,8 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a single post output for response.
 	 *
+	 * @since 4.7.0
+	 * @since 5.9.0 Renamed `$post` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Post         $item    Post object.
 	 * @param GC_REST_Request $request Request object.
@@ -1705,7 +1799,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 			 * with the site's timezone offset applied.
 			 */
 			if ( '0000-00-00 00:00:00' === $post->post_modified_gmt ) {
-				$post_modified_gmt = gmdate( 'Y-m-d H:i:s', strtotime( $post->post_modified ) - ( get_option( 'gmt_offset' ) * 3600 ) );
+				$post_modified_gmt = gmdate( 'Y-m-d H:i:s', strtotime( $post->post_modified ) - ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );
 			} else {
 				$post_modified_gmt = $post->post_modified_gmt;
 			}
@@ -1882,16 +1976,18 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 		// Wrap the data in a response object.
 		$response = rest_ensure_response( $data );
 
-		$links = $this->prepare_links( $post );
-		$response->add_links( $links );
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$links = $this->prepare_links( $post );
+			$response->add_links( $links );
 
-		if ( ! empty( $links['self']['href'] ) ) {
-			$actions = $this->get_available_actions( $post, $request );
+			if ( ! empty( $links['self']['href'] ) ) {
+				$actions = $this->get_available_actions( $post, $request );
 
-			$self = $links['self']['href'];
+				$self = $links['self']['href'];
 
-			foreach ( $actions as $rel ) {
-				$response->add_link( $rel, $self );
+				foreach ( $actions as $rel ) {
+					$response->add_link( $rel, $self );
+				}
 			}
 		}
 
@@ -1906,6 +2002,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 		 *  - `rest_prepare_page`
 		 *  - `rest_prepare_attachment`
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_REST_Response $response The response object.
 		 * @param GC_Post          $post     Post object.
@@ -1921,6 +2018,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	 * "密码保护：%s", as the REST API communicates the protected status of a post
 	 * in a machine readable format, we remove the "Protected: " prefix.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return string Protected title format.
 	 */
@@ -1931,20 +2029,19 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares links for the request.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_Post $post Post object.
 	 * @return array Links for the given post.
 	 */
 	protected function prepare_links( $post ) {
-		$base = sprintf( '%s/%s', $this->namespace, $this->rest_base );
-
 		// Entity meta.
 		$links = array(
 			'self'       => array(
-				'href' => rest_url( trailingslashit( $base ) . $post->ID ),
+				'href' => rest_url( rest_get_route_for_post( $post->ID ) ),
 			),
 			'collection' => array(
-				'href' => rest_url( $base ),
+				'href' => rest_url( rest_get_route_for_post_type_items( $this->post_type ) ),
 			),
 			'about'      => array(
 				'href' => rest_url( 'gc/v2/types/' . $this->post_type ),
@@ -1970,20 +2067,19 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 		}
 
 		if ( in_array( $post->post_type, array( 'post', 'page' ), true ) || post_type_supports( $post->post_type, 'revisions' ) ) {
-			$revisions       = gc_get_post_revisions( $post->ID, array( 'fields' => 'ids' ) );
-			$revisions_count = count( $revisions );
+			$revisions       = gc_get_latest_revision_id_and_total_count( $post->ID );
+			$revisions_count = ! is_gc_error( $revisions ) ? $revisions['count'] : 0;
+			$revisions_base  = sprintf( '/%s/%s/%d/revisions', $this->namespace, $this->rest_base, $post->ID );
 
 			$links['version-history'] = array(
-				'href'  => rest_url( trailingslashit( $base ) . $post->ID . '/revisions' ),
+				'href'  => rest_url( $revisions_base ),
 				'count' => $revisions_count,
 			);
 
 			if ( $revisions_count > 0 ) {
-				$last_revision = array_shift( $revisions );
-
 				$links['predecessor-version'] = array(
-					'href' => rest_url( trailingslashit( $base ) . $post->ID . '/revisions/' . $last_revision ),
-					'id'   => $last_revision,
+					'href' => rest_url( $revisions_base . '/' . $revisions['latest_id'] ),
+					'id'   => $revisions['latest_id'],
 				);
 			}
 		}
@@ -2047,8 +2143,9 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Get the link relations available for the post and current user.
+	 * Gets the link relations available for the post and current user.
 	 *
+	 * @since 4.9.8
 	 *
 	 * @param GC_Post         $post    Post object.
 	 * @param GC_REST_Request $request Request object.
@@ -2105,6 +2202,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the post's schema, conforming to JSON Schema.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Item schema data.
 	 */
@@ -2120,7 +2218,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 			// Base properties for every Post.
 			'properties' => array(
 				'date'         => array(
-					'description' => __( "文章发布的日期（站点时区）。" ),
+					'description' => __( "文章发布的日期（系统时区）。" ),
 					'type'        => array( 'string', 'null' ),
 					'format'      => 'date-time',
 					'context'     => array( 'view', 'edit', 'embed' ),
@@ -2165,7 +2263,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 					'readonly'    => true,
 				),
 				'modified'     => array(
-					'description' => __( "文章最后修改的日期（站点时区）。" ),
+					'description' => __( "文章最后修改的日期（系统时区）。" ),
 					'type'        => 'string',
 					'format'      => 'date-time',
 					'context'     => array( 'view', 'edit' ),
@@ -2507,6 +2605,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 		 *  - `rest_page_item_schema`
 		 *  - `rest_attachment_item_schema`
 		 *
+		 * @since 5.4.0
 		 *
 		 * @param array $schema Item schema data.
 		 */
@@ -2532,8 +2631,9 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Retrieve Link Description Objects that should be added to the Schema for the posts collection.
+	 * Retrieves Link Description Objects that should be added to the Schema for the posts collection.
 	 *
+	 * @since 4.9.8
 	 *
 	 * @return array
 	 */
@@ -2659,6 +2759,9 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the query params for the posts collection.
 	 *
+	 * @since 4.7.0
+	 * @since 5.4.0 The `tax_relation` query parameter was added.
+	 * @since 5.7.0 The `modified_after` and `modified_before` query parameters were added.
 	 *
 	 * @return array Collection parameters.
 	 */
@@ -2790,13 +2893,22 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 			);
 		}
 
-		$query_params['slug'] = array(
-			'description'       => __( '将结果集限制为有一个或多个特定别名的文章。' ),
-			'type'              => 'array',
-			'items'             => array(
+		$query_params['search_columns'] = array(
+			'default'     => array(),
+			'description' => __( '需要搜索的栏位名称组。' ),
+			'type'        => 'array',
+			'items'       => array(
+				'enum' => array( 'post_title', 'post_content', 'post_excerpt' ),
 				'type' => 'string',
 			),
-			'sanitize_callback' => 'gc_parse_slug_list',
+		);
+
+		$query_params['slug'] = array(
+			'description' => __( '将结果集限制为有一个或多个特定别名的文章。' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'string',
+			),
 		);
 
 		$query_params['status'] = array(
@@ -2829,6 +2941,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 		 * collection parameter to an internal GC_Query parameter. Use the
 		 * `rest_{$this->post_type}_query` filter to set GC_Query parameters.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param array        $query_params JSON Schema-formatted collection parameters.
 		 * @param GC_Post_Type $post_type    Post type object.
@@ -2840,6 +2953,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	 * Sanitizes and validates the list of post statuses, including whether the
 	 * user can query private statuses.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string|array    $statuses  One or more post statuses.
 	 * @param GC_REST_Request $request   Full details about the request.
@@ -2880,6 +2994,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares the 'tax_query' for a collection of posts.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param array           $args    GC_Query arguments.
 	 * @param GC_REST_Request $request Full details about the request.
@@ -2959,6 +3074,7 @@ class GC_REST_Posts_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares the collection schema for including and excluding items by terms.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param array $query_params Collection schema.
 	 * @return array Updated schema.

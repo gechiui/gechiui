@@ -4,21 +4,20 @@
  *
  * @package GeChiUI
  * @subpackage Multisite
- *
  */
 
 /**
  * Core class used for querying networks.
  *
- *
- *
  * @see GC_Network_Query::__construct() for accepted arguments.
  */
+#[AllowDynamicProperties]
 class GC_Network_Query {
 
 	/**
 	 * SQL for database query.
 	 *
+	 * @since 4.6.0
 	 * @var string
 	 */
 	public $request;
@@ -26,6 +25,7 @@ class GC_Network_Query {
 	/**
 	 * SQL query clauses.
 	 *
+	 * @since 4.6.0
 	 * @var array
 	 */
 	protected $sql_clauses = array(
@@ -40,6 +40,7 @@ class GC_Network_Query {
 	/**
 	 * Query vars set by the user.
 	 *
+	 * @since 4.6.0
 	 * @var array
 	 */
 	public $query_vars;
@@ -47,6 +48,7 @@ class GC_Network_Query {
 	/**
 	 * Default values for query vars.
 	 *
+	 * @since 4.6.0
 	 * @var array
 	 */
 	public $query_var_defaults;
@@ -54,6 +56,7 @@ class GC_Network_Query {
 	/**
 	 * List of networks located by the query.
 	 *
+	 * @since 4.6.0
 	 * @var array
 	 */
 	public $networks;
@@ -61,6 +64,7 @@ class GC_Network_Query {
 	/**
 	 * The amount of found networks for the current query.
 	 *
+	 * @since 4.6.0
 	 * @var int
 	 */
 	public $found_networks = 0;
@@ -68,6 +72,7 @@ class GC_Network_Query {
 	/**
 	 * The number of pages.
 	 *
+	 * @since 4.6.0
 	 * @var int
 	 */
 	public $max_num_pages = 0;
@@ -77,6 +82,7 @@ class GC_Network_Query {
 	 *
 	 * Sets up the network query, based on the query vars passed.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string|array $query {
 	 *     Optional. Array or query string of network query parameters. Default empty.
@@ -134,6 +140,7 @@ class GC_Network_Query {
 	/**
 	 * Parses arguments passed to the network query with default query parameters.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string|array $query GC_Network_Query arguments. See GC_Network_Query::__construct()
 	 */
@@ -147,6 +154,7 @@ class GC_Network_Query {
 		/**
 		 * Fires after the network query vars have been parsed.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param GC_Network_Query $query The GC_Network_Query instance (passed by reference).
 		 */
@@ -156,6 +164,7 @@ class GC_Network_Query {
 	/**
 	 * Sets up the GeChiUI query for retrieving networks.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string|array $query Array or URL query string of parameters.
 	 * @return array|int List of GC_Network objects, a list of network IDs when 'fields' is set to 'ids',
@@ -169,6 +178,7 @@ class GC_Network_Query {
 	/**
 	 * Gets a list of networks matching the query vars.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @return array|int List of GC_Network objects, a list of network IDs when 'fields' is set to 'ids',
 	 *                   or the number of networks when 'count' is passed as a query var.
@@ -179,6 +189,7 @@ class GC_Network_Query {
 		/**
 		 * Fires before networks are retrieved.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param GC_Network_Query $query Current instance of GC_Network_Query (passed by reference).
 		 */
@@ -207,6 +218,8 @@ class GC_Network_Query {
 		 * passed to the filter by reference. If GC_Network_Query does not perform a database
 		 * query, it will not have enough information to generate these values itself.
 		 *
+		 * @since 5.2.0
+		 * @since 5.6.0 The returned array of network data is assigned to the `networks` property
 		 *              of the current GC_Network_Query instance.
 		 *
 		 * @param array|int|null   $network_data Return an array of network data to short-circuit GC's network query,
@@ -227,14 +240,14 @@ class GC_Network_Query {
 		// $args can include anything. Only use the args defined in the query_var_defaults to compute the key.
 		$_args = gc_array_slice_assoc( $this->query_vars, array_keys( $this->query_var_defaults ) );
 
-		// Ignore the $fields argument as the queried result will be the same regardless.
-		unset( $_args['fields'] );
+		// Ignore the $fields, $update_network_cache arguments as the queried result will be the same regardless.
+		unset( $_args['fields'], $_args['update_network_cache'] );
 
 		$key          = md5( serialize( $_args ) );
 		$last_changed = gc_cache_get_last_changed( 'networks' );
 
 		$cache_key   = "get_network_ids:$key:$last_changed";
-		$cache_value = gc_cache_get( $cache_key, 'networks' );
+		$cache_value = gc_cache_get( $cache_key, 'network-queries' );
 
 		if ( false === $cache_value ) {
 			$network_ids = $this->get_network_ids();
@@ -246,7 +259,7 @@ class GC_Network_Query {
 				'network_ids'    => $network_ids,
 				'found_networks' => $this->found_networks,
 			);
-			gc_cache_add( $cache_key, $cache_value, 'networks' );
+			gc_cache_add( $cache_key, $cache_value, 'network-queries' );
 		} else {
 			$network_ids          = $cache_value['network_ids'];
 			$this->found_networks = $cache_value['found_networks'];
@@ -285,6 +298,7 @@ class GC_Network_Query {
 		/**
 		 * Filters the network query results.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param GC_Network[]     $_networks An array of GC_Network objects.
 		 * @param GC_Network_Query $query     Current instance of GC_Network_Query (passed by reference).
@@ -300,6 +314,7 @@ class GC_Network_Query {
 	/**
 	 * Used internally to get a list of network IDs matching the query vars.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -426,9 +441,10 @@ class GC_Network_Query {
 		/**
 		 * Filters the network query clauses.
 		 *
+		 * @since 4.6.0
 		 *
-		 * @param string[]         $pieces An associative array of network query clauses.
-		 * @param GC_Network_Query $query  Current instance of GC_Network_Query (passed by reference).
+		 * @param string[]         $clauses An associative array of network query clauses.
+		 * @param GC_Network_Query $query   Current instance of GC_Network_Query (passed by reference).
 		 */
 		$clauses = apply_filters_ref_array( 'networks_clauses', array( compact( $pieces ), &$this ) );
 
@@ -462,7 +478,14 @@ class GC_Network_Query {
 		$this->sql_clauses['orderby'] = $orderby;
 		$this->sql_clauses['limits']  = $limits;
 
-		$this->request = "{$this->sql_clauses['select']} {$this->sql_clauses['from']} {$where} {$this->sql_clauses['groupby']} {$this->sql_clauses['orderby']} {$this->sql_clauses['limits']}";
+		$this->request = "
+			{$this->sql_clauses['select']}
+			{$this->sql_clauses['from']}
+			{$where}
+			{$this->sql_clauses['groupby']}
+			{$this->sql_clauses['orderby']}
+			{$this->sql_clauses['limits']}
+		";
 
 		if ( $this->query_vars['count'] ) {
 			return (int) $gcdb->get_var( $this->request );
@@ -477,6 +500,7 @@ class GC_Network_Query {
 	 * Populates found_networks and max_num_pages properties for the current query
 	 * if the limit clause was used.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 */
@@ -487,7 +511,7 @@ class GC_Network_Query {
 			/**
 			 * Filters the query used to retrieve found network count.
 			 *
-		
+			 * @since 4.6.0
 			 *
 			 * @param string           $found_networks_query SQL query. Default 'SELECT FOUND_ROWS()'.
 			 * @param GC_Network_Query $network_query        The `GC_Network_Query` instance.
@@ -501,17 +525,18 @@ class GC_Network_Query {
 	/**
 	 * Used internally to generate an SQL string for searching across multiple columns.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
-	 * @param string   $string  Search string.
+	 * @param string   $search  Search string.
 	 * @param string[] $columns Array of columns to search.
 	 * @return string Search SQL.
 	 */
-	protected function get_search_sql( $string, $columns ) {
+	protected function get_search_sql( $search, $columns ) {
 		global $gcdb;
 
-		$like = '%' . $gcdb->esc_like( $string ) . '%';
+		$like = '%' . $gcdb->esc_like( $search ) . '%';
 
 		$searches = array();
 		foreach ( $columns as $column ) {
@@ -524,6 +549,7 @@ class GC_Network_Query {
 	/**
 	 * Parses and sanitizes 'orderby' keys passed to the network query.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -556,6 +582,7 @@ class GC_Network_Query {
 	/**
 	 * Parses an 'order' query variable and cast it to 'ASC' or 'DESC' as necessary.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string $order The 'order' query variable.
 	 * @return string The sanitized 'order' query variable.

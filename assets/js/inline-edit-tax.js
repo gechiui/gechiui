@@ -1,7 +1,7 @@
 /**
  * This file is used on the term overview page to power quick-editing terms.
  *
- * @output gc-admin/js/inline-edit-tax.js
+ * @output assets/js/inline-edit-tax.js
  */
 
 /* global ajaxurl, inlineEditTax */
@@ -25,6 +25,7 @@ window.inlineEditTax = {
 	 * Initializes the inline taxonomy editor by adding event handlers to be able to
 	 * quick edit.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @this inlineEditTax
 	 * @memberof inlineEditTax
@@ -88,6 +89,7 @@ window.inlineEditTax = {
 	/**
 	 * Toggles the quick edit based on if it is currently shown or hidden.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @this inlineEditTax
 	 * @memberof inlineEditTax
@@ -105,6 +107,7 @@ window.inlineEditTax = {
 	/**
 	 * Shows the quick editor
 	 *
+	 * @since 2.7.0
 	 *
 	 * @this inlineEditTax
 	 * @memberof inlineEditTax
@@ -151,6 +154,7 @@ window.inlineEditTax = {
 	 * Saves the quick edit data to the server and replaces the table row with the
 	 * HTML retrieved from the server.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @this inlineEditTax
 	 * @memberof inlineEditTax
@@ -234,8 +238,8 @@ window.inlineEditTax = {
 					}
 				} else {
 					$errorNotice.removeClass( 'hidden' );
-					$error.text( gc.i18n.__( '保存更改时发生错误。' ) );
-					gc.a11y.speak( gc.i18n.__( '保存更改时发生错误。' ) );
+					$error.text( gc.i18n.__( '保存更改时出错。' ) );
+					gc.a11y.speak( gc.i18n.__( '保存更改时出错。' ) );
 				}
 			}
 		);
@@ -247,6 +251,7 @@ window.inlineEditTax = {
 	/**
 	 * Closes the quick edit form.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @this inlineEditTax
 	 * @memberof inlineEditTax
@@ -270,6 +275,7 @@ window.inlineEditTax = {
 	/**
 	 * Retrieves the ID of the term of the element inside the table row.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @memberof inlineEditTax
 	 *

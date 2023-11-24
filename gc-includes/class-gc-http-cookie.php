@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage HTTP
- *
  */
 
 /**
@@ -16,8 +15,8 @@
  * @todo The GeChiUI convention is to use underscores instead of camelCase for function and method
  * names. Need to switch to use underscores instead for the methods.
  *
- *
  */
+#[AllowDynamicProperties]
 class GC_Http_Cookie {
 
 	/**
@@ -71,6 +70,7 @@ class GC_Http_Cookie {
 	/**
 	 * host-only flag.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @var bool
 	 */
@@ -82,6 +82,7 @@ class GC_Http_Cookie {
 	 * The parameter $data should be either an associative array containing the indices names below
 	 * or a header string detailing it.
 	 *
+	 * @since 5.2.0 Added `host_only` to the `$data` parameter.
 	 *
 	 * @param string|array $data {
 	 *     Raw cookie data as header string or data array.
@@ -105,7 +106,7 @@ class GC_Http_Cookie {
 			$this->domain = $parsed_url['host'];
 		}
 		$this->path = isset( $parsed_url['path'] ) ? $parsed_url['path'] : '/';
-		if ( '/' !== substr( $this->path, -1 ) ) {
+		if ( ! str_ends_with( $this->path, '/' ) ) {
 			$this->path = dirname( $this->path ) . '/';
 		}
 
@@ -126,7 +127,7 @@ class GC_Http_Cookie {
 			foreach ( $pairs as $pair ) {
 				$pair = rtrim( $pair );
 
-				// Handle the cookie ending in ; which results in a empty final pair.
+				// Handle the cookie ending in ; which results in an empty final pair.
 				if ( empty( $pair ) ) {
 					continue;
 				}
@@ -191,8 +192,8 @@ class GC_Http_Cookie {
 		}
 
 		// Host - very basic check that the request URL ends with the domain restriction (minus leading dot).
-		$domain = ( '.' === substr( $domain, 0, 1 ) ) ? substr( $domain, 1 ) : $domain;
-		if ( substr( $url['host'], -strlen( $domain ) ) !== $domain ) {
+		$domain = ( str_starts_with( $domain, '.' ) ) ? substr( $domain, 1 ) : $domain;
+		if ( ! str_ends_with( $url['host'], $domain ) ) {
 			return false;
 		}
 
@@ -202,7 +203,7 @@ class GC_Http_Cookie {
 		}
 
 		// Path - request path must start with path restriction.
-		if ( substr( $url['path'], 0, strlen( $path ) ) !== $path ) {
+		if ( ! str_starts_with( $url['path'], $path ) ) {
 			return false;
 		}
 
@@ -223,6 +224,7 @@ class GC_Http_Cookie {
 		/**
 		 * Filters the header-encoded cookie value.
 		 *
+		 * @since 3.4.0
 		 *
 		 * @param string $value The cookie value.
 		 * @param string $name  The cookie name.
@@ -243,6 +245,7 @@ class GC_Http_Cookie {
 	/**
 	 * Retrieves cookie attributes.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @return array {
 	 *     List of attributes.

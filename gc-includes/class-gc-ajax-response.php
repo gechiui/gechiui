@@ -3,8 +3,8 @@
  * Send XML response back to Ajax request.
  *
  * @package GeChiUI
- *
  */
+#[AllowDynamicProperties]
 class GC_Ajax_Response {
 	/**
 	 * Store XML responses to send.

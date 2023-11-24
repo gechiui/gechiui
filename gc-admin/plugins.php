@@ -10,7 +10,7 @@
 require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'activate_plugins' ) ) {
-	gc_die( __( '抱歉，您不能在此站点上管理插件。' ) );
+	gc_die( __( '抱歉，您不能在此系统上管理插件。' ) );
 }
 
 $gc_list_table = _get_list_table( 'GC_Plugins_List_Table' );
@@ -89,7 +89,7 @@ if ( $action ) {
 
 		case 'activate-selected':
 			if ( ! current_user_can( 'activate_plugins' ) ) {
-				gc_die( __( '抱歉，您不能在在此站点上启用插件。' ) );
+				gc_die( __( '抱歉，您不能在在此系统上启用插件。' ) );
 			}
 
 			check_admin_referer( 'bulk-plugins' );
@@ -161,7 +161,7 @@ if ( $action ) {
 			require_once ABSPATH . 'gc-admin/admin-header.php';
 
 			echo '<div class="wrap">';
-			echo '<h1>' . esc_html( $title ) . '</h1>';
+			echo '<div class="page-header"><h2 class="header-title">' . esc_html( $title ) . '</h2></div>';
 
 			$url = self_admin_url( 'update.php?action=update-selected&amp;plugins=' . urlencode( implode( ',', $plugins ) ) );
 			$url = gc_nonce_url( $url, 'bulk-update-plugins' );
@@ -223,7 +223,7 @@ if ( $action ) {
 
 		case 'deactivate-selected':
 			if ( ! current_user_can( 'deactivate_plugins' ) ) {
-				gc_die( __( '抱歉，您不能在此站点上禁用插件。' ) );
+				gc_die( __( '抱歉，您不能在此系统上禁用插件。' ) );
 			}
 
 			check_admin_referer( 'bulk-plugins' );
@@ -266,7 +266,7 @@ if ( $action ) {
 
 		case 'delete-selected':
 			if ( ! current_user_can( 'delete_plugins' ) ) {
-				gc_die( __( '抱歉，您不能在此站点上删除插件。' ) );
+				gc_die( __( '抱歉，您不能在此系统上删除插件。' ) );
 			}
 
 			check_admin_referer( 'bulk-plugins' );
@@ -338,15 +338,15 @@ if ( $action ) {
 
 				?>
 				<?php if ( 1 === $plugins_to_delete ) : ?>
-					<h1><?php _e( '删除插件' ); ?></h1>
+					<div class="page-header"><h2 class="header-title"><?php _e( '删除插件' ); ?></h2></div>
 					<?php if ( $have_non_network_plugins && is_network_admin() ) : ?>
-						<div class="error"><p><strong><?php _e( '注意：' ); ?></strong> <?php _e( '此插件可能已经在站点网络中的其他站点上启用。' ); ?></p></div>
+						<div class="error"><p><strong><?php _e( '注意：' ); ?></strong> <?php _e( '此插件可能已经在SaaS平台中的其他系统上启用。' ); ?></p></div>
 					<?php endif; ?>
 					<p><?php _e( '您将要移除以下插件：' ); ?></p>
 				<?php else : ?>
-					<h1><?php _e( '删除插件' ); ?></h1>
+					<div class="page-header"><h2 class="header-title"><?php _e( '删除插件' ); ?></h2></div>
 					<?php if ( $have_non_network_plugins && is_network_admin() ) : ?>
-						<div class="error"><p><strong><?php _e( '注意：' ); ?></strong> <?php _e( '这些插件可能已经在站点网络中的其他站点上启用。' ); ?></p></div>
+						<div class="error"><p><strong><?php _e( '注意：' ); ?></strong> <?php _e( '这些插件可能已经在SaaS平台中的其他系统上启用。' ); ?></p></div>
 					<?php endif; ?>
 					<p><?php _e( '您将要移除以下插件：' ); ?></p>
 				<?php endif; ?>
@@ -451,7 +451,7 @@ if ( $action ) {
 			}
 
 			if ( is_multisite() && ! is_network_admin() ) {
-				gc_die( __( '请联系网络管理员以管理插件的自动更新。' ) );
+				gc_die( __( '请联系平台管理员以管理插件的自动更新。' ) );
 			}
 
 			$redirect = self_admin_url( "plugins.php?plugin_status={$status}&paged={$page}&s={$s}" );
@@ -557,7 +557,7 @@ get_current_screen()->add_help_tab(
 		'id'      => 'compatibility-problems',
 		'title'   => __( '故障排除' ),
 		'content' =>
-				'<p>' . __( '大部分情况下，每个插件都能和其他插件及GeChiUI核心程序正常配合。但是，有时某些插件会和其他插件产生冲突，进而产生兼容性问题，如果您的站点工作异常，则可能是这个原因导致的。您可尝试禁用所有插件，再逐个启用，以排除问题。' ) . '</p>' .
+				'<p>' . __( '大部分情况下，每个插件都能和其他插件及GeChiUI核心程序正常配合。但是，有时某些插件会和其他插件产生冲突，进而产生兼容性问题，如果您的系统工作异常，则可能是这个原因导致的。您可尝试禁用所有插件，再逐个启用，以排除问题。' ) . '</p>' .
 				'<p>' . sprintf(
 					/* translators: %s: GC_PLUGIN_DIR constant value. */
 					__( '如果因为插件出现问题而让您无法使用GeChiUI，您可以删除或重命名%s目录中的相应文件，该插件就会被自动禁用。' ),
@@ -602,28 +602,25 @@ get_current_screen()->set_screen_reader_content(
 $title       = __( '插件' );
 $parent_file = 'plugins.php';
 
-require_once ABSPATH . 'gc-admin/admin-header.php';
-
 $invalid = validate_active_plugins();
 if ( ! empty( $invalid ) ) {
 	foreach ( $invalid as $plugin_file => $error ) {
-		echo '<div id="message" class="error"><p>';
-		printf(
+		$message = sprintf(
 			/* translators: 1: Plugin file, 2: Error message. */
 			__( '插件%1$s已被禁用，因为以下错误：%2$s' ),
 			'<code>' . esc_html( $plugin_file ) . '</code>',
 			$error->get_error_message()
 		);
-		echo '</p></div>';
+		add_settings_error( 'general', 'settings_updated', $message, 'danger' );
 	}
 }
 
-if ( isset( $_GET['error'] ) ) :
+if ( isset( $_GET['error'] ) ) {
 
 	if ( isset( $_GET['main'] ) ) {
-		$errmsg = __( '您不能删除主站点正在使用的插件。' );
+		$message = __( '您不能删除主系统正在使用的插件。' );
 	} elseif ( isset( $_GET['charsout'] ) ) {
-		$errmsg = sprintf(
+		$message = sprintf(
 			/* translators: %d: Number of characters. */
 			_n(
 				'这个插件在启用的过程中产生了%d个字符的<strong>异常输出</strong>。',
@@ -632,20 +629,14 @@ if ( isset( $_GET['error'] ) ) :
 			),
 			$_GET['charsout']
 		);
-		$errmsg .= ' ' . __( '如果您遇到了“headers already sent”错误、联合feed（如RSS）出错等问题，请尝试禁用或移除本插件。' );
+		$message .= ' ' . __( '如果您遇到了“headers already sent”错误、联合feed（如RSS）出错等问题，请尝试禁用或移除本插件。' );
 	} elseif ( 'resuming' === $_GET['error'] ) {
-		$errmsg = __( '此插件不能被恢复，因其触发了一个<strong>致命错误</strong>。' );
+		$message = __( '此插件不能被恢复，因其触发了一个<strong>致命错误</strong>。' );
 	} else {
-		$errmsg = __( '无法启用插件，因为它引起了一个<strong>致命错误</strong>（fatal error）。' );
+		$message = __( '无法启用插件，因为它引起了一个<strong>致命错误</strong>（fatal error）。' );
 	}
 
-	?>
-	<div id="message" class="error"><p><?php echo $errmsg; ?></p>
-	<?php
-
-	if ( ! isset( $_GET['main'] ) && ! isset( $_GET['charsout'] )
-		&& isset( $_GET['_error_nonce'] ) && gc_verify_nonce( $_GET['_error_nonce'], 'plugin-activation-error_' . $plugin )
-	) {
+	if ( ! isset( $_GET['main'] ) && ! isset( $_GET['charsout'] ) && isset( $_GET['_error_nonce'] ) && gc_verify_nonce( $_GET['_error_nonce'], 'plugin-activation-error_' . $plugin ) ) {
 		$iframe_url = add_query_arg(
 			array(
 				'action'   => 'error_scrape',
@@ -654,95 +645,77 @@ if ( isset( $_GET['error'] ) ) :
 			),
 			admin_url( 'plugins.php' )
 		);
-
-		?>
-		<iframe style="border:0" width="100%" height="70px" src="<?php echo esc_url( $iframe_url ); ?>"></iframe>
-		<?php
+		$message .= '<iframe style="border:0" width="100%" height="70px" src="'. esc_url( $iframe_url ) .'"></iframe>';
 	}
+	add_settings_error( 'general', 'settings_updated', $message, 'danger' );
 
-	?>
-	</div>
-	<?php
-elseif ( isset( $_GET['deleted'] ) ) :
+} elseif ( isset( $_GET['deleted'] ) ) {
 	$delete_result = get_transient( 'plugins_delete_result_' . $user_ID );
 	// Delete it once we're done.
 	delete_transient( 'plugins_delete_result_' . $user_ID );
 
-	if ( is_gc_error( $delete_result ) ) :
-		?>
-		<div id="message" class="error notice is-dismissible">
-			<p>
-				<?php
-				printf(
-					/* translators: %s: Error message. */
-					__( '无法删除插件，因为发生了错误：%s' ),
-					$delete_result->get_error_message()
-				);
-				?>
-			</p>
-		</div>
-		<?php else : ?>
-		<div id="message" class="updated notice is-dismissible">
-			<p>
-				<?php
-				if ( 1 === (int) $_GET['deleted'] ) {
-					_e( '选择的插件已被删除。' );
-				} else {
-					_e( '选择的插件已被删除。' );
-				}
-				?>
-			</p>
-		</div>
-	<?php endif; ?>
-<?php elseif ( isset( $_GET['activate'] ) ) : ?>
-	<div id="message" class="updated notice is-dismissible"><p><?php _e( '插件已启用。' ); ?></p></div>
-<?php elseif ( isset( $_GET['activate-multi'] ) ) : ?>
-	<div id="message" class="updated notice is-dismissible"><p><?php _e( '选择的插件已启用。' ); ?></p></div>
-<?php elseif ( isset( $_GET['deactivate'] ) ) : ?>
-	<div id="message" class="updated notice is-dismissible"><p><?php _e( '插件已禁用。' ); ?></p></div>
-<?php elseif ( isset( $_GET['deactivate-multi'] ) ) : ?>
-	<div id="message" class="updated notice is-dismissible"><p><?php _e( '选择的插件已禁用。' ); ?></p></div>
-<?php elseif ( 'update-selected' === $action ) : ?>
-	<div id="message" class="updated notice is-dismissible"><p><?php _e( '所有选择的插件都是最新的。' ); ?></p></div>
-<?php elseif ( isset( $_GET['resume'] ) ) : ?>
-	<div id="message" class="updated notice is-dismissible"><p><?php _e( '插件已恢复。' ); ?></p></div>
-<?php elseif ( isset( $_GET['enabled-auto-update'] ) ) : ?>
-	<div id="message" class="updated notice is-dismissible"><p><?php _e( '插件将自动更新。' ); ?></p></div>
-<?php elseif ( isset( $_GET['disabled-auto-update'] ) ) : ?>
-	<div id="message" class="updated notice is-dismissible"><p><?php _e( '插件将不再自动更新。' ); ?></p></div>
-<?php elseif ( isset( $_GET['enabled-auto-update-multi'] ) ) : ?>
-	<div id="message" class="updated notice is-dismissible"><p><?php _e( '选中的插件将会自动升级。' ); ?></p></div>
-<?php elseif ( isset( $_GET['disabled-auto-update-multi'] ) ) : ?>
-	<div id="message" class="updated notice is-dismissible"><p><?php _e( '所选插件将不再自动更新。' ); ?></p></div>
-<?php endif; ?>
+	if ( is_gc_error( $delete_result ) ) {
+		$message = sprintf(
+			/* translators: %s: Error message. */
+			__( '无法删除插件，因为发生了错误：%s' ),
+			$delete_result->get_error_message()
+		);
+		add_settings_error( 'general', 'settings_updated', $message, 'danger' );
+	} else {
+		if ( 1 === (int) $_GET['deleted'] ) {
+			$message = __( '选择的插件已被删除。' );
+		} else {
+			$message = __( '选择的插件已被删除。' );
+		}
+		add_settings_error( 'general', 'settings_updated', $message, 'success' );
+	}
+} elseif ( isset( $_GET['activate'] ) ) {
+	add_settings_error( 'general', 'settings_updated', __( '插件已启用。' ), 'success' );
+} elseif ( isset( $_GET['activate-multi'] ) ) {
+	add_settings_error( 'general', 'settings_updated', __( '选择的插件已启用。' ), 'success' );
+} elseif ( isset( $_GET['deactivate'] ) ) {
+	add_settings_error( 'general', 'settings_updated', __( '插件已禁用。' ), 'success' );
+} elseif ( isset( $_GET['deactivate-multi'] ) ) {
+	add_settings_error( 'general', 'settings_updated', __( '选择的插件已禁用。' ), 'success' );
+} elseif ( 'update-selected' === $action ) {
+	add_settings_error( 'general', 'settings_updated', __( '所有选择的插件都是最新的。' ), 'primary' );
+} elseif ( isset( $_GET['resume'] ) ) {
+	add_settings_error( 'general', 'settings_updated', __( '插件已恢复。' ), 'success' );
+} elseif ( isset( $_GET['enabled-auto-update'] ) ) {
+	add_settings_error( 'general', 'settings_updated', __( '插件将自动更新。' ), 'success' );
+} elseif ( isset( $_GET['disabled-auto-update'] ) ) {
+	add_settings_error( 'general', 'settings_updated', __( '插件将不再自动更新。' ), 'warning' );
+} elseif ( isset( $_GET['enabled-auto-update-multi'] ) ) {
+	add_settings_error( 'general', 'settings_updated', __( '选中的插件将会自动升级。' ), 'success' );
+} elseif ( isset( $_GET['disabled-auto-update-multi'] ) ) {
+	add_settings_error( 'general', 'settings_updated', __( '所选插件将不再自动更新。' ), 'success' );
+}
+
+require_once ABSPATH . 'gc-admin/admin-header.php';
+
+?>
 
 <div class="wrap">
-<h1 class="gc-heading-inline">
-<?php
-echo esc_html( $title );
-?>
-</h1>
+	<div class="page-header">
+		<h2 class="header-title"><?php echo esc_html( $title ); ?></h2>
+		<?php
+		if ( ( ! is_multisite() || is_network_admin() ) && current_user_can( 'install_plugins' ) ) {
+			?>
+			<a href="<?php echo self_admin_url( 'plugin-install.php' ); ?>" class="btn btn-primary btn-tone btn-sm"><?php echo esc_html_x( '安装插件', 'plugin' ); ?></a>
+			<?php
+		}
 
-<?php
-if ( ( ! is_multisite() || is_network_admin() ) && current_user_can( 'install_plugins' ) ) {
-	?>
-	<a href="<?php echo self_admin_url( 'plugin-install.php' ); ?>" class="page-title-action"><?php echo esc_html_x( '安装插件', 'plugin' ); ?></a>
-	<?php
-}
-
-if ( strlen( $s ) ) {
-	echo '<span class="subtitle">';
-	printf(
-		/* translators: %s: Search query. */
-		__( '搜索结果：%s' ),
-		'<strong>' . esc_html( urldecode( $s ) ) . '</strong>'
-	);
-	echo '</span>';
-}
-?>
-
-<hr class="gc-header-end">
-
+		if ( strlen( $s ) ) {
+			echo '<span class="subtitle">';
+			printf(
+				/* translators: %s: Search query. */
+				__( '搜索词：%s' ),
+				'<strong>' . esc_html( urldecode( $s ) ) . '</strong>'
+			);
+			echo '</span>';
+		}
+		?>
+	</div>
 <?php
 /**
  * Fires before the plugins list table is rendered.
@@ -751,7 +724,6 @@ if ( strlen( $s ) ) {
  *
  * Please note: The 'active' portion of the hook name does not refer to whether the current
  * view is for active plugins, but rather all plugins actively-installed.
- *
  *
  *
  * @param array[] $plugins_all An array of arrays containing information on all installed plugins.

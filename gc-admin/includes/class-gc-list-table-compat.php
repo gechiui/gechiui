@@ -4,12 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage List_Table
- *
  */
 
 /**
  * Helper class to be used only by back compat functions.
- *
  *
  */
 class _GC_List_Table_Compat extends GC_List_Table {

@@ -7,9 +7,7 @@
  */
 
 /**
- * Retrieve list of importers.
- *
- *
+ * Retrieves the list of importers.
  *
  * @global array $gc_importers
  * @return array
@@ -23,10 +21,9 @@ function get_importers() {
 }
 
 /**
- * Sorts a multidimensional array by first member of each top level member
+ * Sorts a multidimensional array by first member of each top level member.
  *
  * Used by uasort() as a callback, should not be used directly.
- *
  *
  * @access private
  *
@@ -39,9 +36,7 @@ function _usort_by_first_member( $a, $b ) {
 }
 
 /**
- * Register importer for GeChiUI.
- *
- *
+ * Registers importer for GeChiUI.
  *
  * @global array $gc_importers
  *
@@ -64,8 +59,6 @@ function register_importer( $id, $name, $description, $callback ) {
  *
  * Removes attachment based on ID.
  *
- *
- *
  * @param string $id Importer ID.
  */
 function gc_import_cleanup( $id ) {
@@ -73,11 +66,9 @@ function gc_import_cleanup( $id ) {
 }
 
 /**
- * Handle importer uploading and add attachment.
+ * Handles importer uploading and adds attachment.
  *
- *
- *
- * @return array Uploaded file's details on success, error message on failure
+ * @return array Uploaded file's details on success, error message on failure.
  */
 function gc_import_handle_upload() {
 	if ( ! isset( $_FILES['import'] ) ) {
@@ -103,8 +94,8 @@ function gc_import_handle_upload() {
 		return $upload;
 	}
 
-	// Construct the object array.
-	$object = array(
+	// Construct the attachment array.
+	$attachment = array(
 		'post_title'     => gc_basename( $upload['file'] ),
 		'post_content'   => $upload['url'],
 		'post_mime_type' => $upload['type'],
@@ -114,7 +105,7 @@ function gc_import_handle_upload() {
 	);
 
 	// Save the data.
-	$id = gc_insert_attachment( $object, $upload['file'] );
+	$id = gc_insert_attachment( $attachment, $upload['file'] );
 
 	/*
 	 * Schedule a cleanup for one day from now in case of failed
@@ -130,8 +121,6 @@ function gc_import_handle_upload() {
 
 /**
  * Returns a list from www.GeChiUI.com of popular importer plugins.
- *
- *
  *
  * @return array Importers with metadata for each.
  */
@@ -192,7 +181,6 @@ function gc_get_popular_importers() {
 			'plugin-slug' => 'gccat2tag-importer',
 			'importer-id' => 'gc-cat2tag',
 		),
-
 		'rss'         => array(
 			'name'        => __( 'RSS' ),
 			'description' => __( '从RSS feed导入文章。' ),

@@ -26,7 +26,7 @@ _deprecated_file(
 			</li>
 
 			<!-- Author information is disabled per default. Uncomment and fill in your details if you want to use it.
-			<li><h2><?php _e( '作者' ); ?></h2>
+			<li><h4><?php _e( '作者' ); ?></h4>
 			<p>A little something about you, the author. Nothing lengthy, just an overview.</p>
 			</li>
 			-->
@@ -54,7 +54,7 @@ _deprecated_file(
 				<?php
 					printf(
 						/* translators: 1: Site link, 2: Archive date. */
-						__( '您正在浏览%1$s博客在%2$s的归档。' ),
+						__( '您正在浏览%1$s在%2$s的归档。' ),
 						sprintf( '<a href="%1$s/">%2$s</a>', get_bloginfo( 'url' ), get_bloginfo( 'name' ) ),
 						get_the_time( __( 'Y年n月j日' ) )
 					);
@@ -66,7 +66,7 @@ _deprecated_file(
 				<?php
 					printf(
 						/* translators: 1: Site link, 2: Archive month. */
-						__( '您正在浏览%1$s博客的%2$s归档。' ),
+						__( '您正在浏览%1$s的%2$s归档。' ),
 						sprintf( '<a href="%1$s/">%2$s</a>', get_bloginfo( 'url' ), get_bloginfo( 'name' ) ),
 						get_the_time( __( 'Y年n月' ) )
 					);
@@ -78,7 +78,7 @@ _deprecated_file(
 				<?php
 					printf(
 						/* translators: 1: Site link, 2: Archive year. */
-						__( '您正在浏览%1$s博客的%2$s年归档。' ),
+						__( '您正在浏览%1$s的%2$s年归档。' ),
 						sprintf( '<a href="%1$s/">%2$s</a>', get_bloginfo( 'url' ), get_bloginfo( 'name' ) ),
 						get_the_time( 'Y' )
 					);
@@ -90,7 +90,7 @@ _deprecated_file(
 				<?php
 					printf(
 						/* translators: 1: Site link, 2: Search query. */
-						__( '您在%1$s博客归档中搜索了<strong>“%2$s”</strong>。如果您没有在搜索结果中找到有用的内容，请试试这些链接。' ),
+						__( '您在%1$s归档中搜索了<strong>“%2$s”</strong>。如果您没有在搜索结果中找到有用的内容，请试试这些链接。' ),
 						sprintf( '<a href="%1$s/">%2$s</a>', get_bloginfo( 'url' ), get_bloginfo( 'name' ) ),
 						esc_html( get_search_query() )
 					);
@@ -102,7 +102,7 @@ _deprecated_file(
 				<?php
 					printf(
 						/* translators: %s: Site link. */
-						__( '您正在浏览%s博客归档。' ),
+						__( '您正在浏览%s归档。' ),
 						sprintf( '<a href="%1$s/">%2$s</a>', get_bloginfo( 'url' ), get_bloginfo( 'name' ) )
 					);
 				?>
@@ -116,7 +116,7 @@ _deprecated_file(
 		<ul role="navigation">
 				<?php gc_list_pages( 'title_li=<h2>' . __( '页面' ) . '</h2>' ); ?>
 
-			<li><h2><?php _e( '归档' ); ?></h2>
+			<li><h4><?php _e( '归档' ); ?></h4>
 				<ul>
 				<?php gc_get_archives( array( 'type' => 'monthly' ) ); ?>
 				</ul>
@@ -126,7 +126,7 @@ _deprecated_file(
 				gc_list_categories(
 					array(
 						'show_count' => 1,
-						'title_li'   => '<h2>' . __( '分类' ) . '</h2>',
+						'title_li'   => '<h2>' . __( '分类目录' ) . '</h2>',
 					)
 				);
 				?>
@@ -135,7 +135,7 @@ _deprecated_file(
 				<?php if ( is_home() || is_page() ) { /* If this is the frontpage */ ?>
 					<?php gc_list_bookmarks(); ?>
 
-				<li><h2><?php _e( '功能' ); ?></h2>
+				<li><h4><?php _e( '其他' ); ?></h4>
 				<ul>
 					<?php gc_register(); ?>
 					<li><?php gc_loginout(); ?></li>

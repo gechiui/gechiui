@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/gc-lists.js
+ * @output assets/js/gc-lists.js
  */
 
 /* global ajaxurl, gcAjax */
@@ -747,7 +747,7 @@ gcList = {
 			return list.gcList.add( this );
 		} );
 
-		$element.on( 'click', 'a[data-gc-lists^="add:' + list.id + ':"], input[data-gc-lists^="add:' + list.id + ':"]', function() {
+		$element.on( 'click', '[data-gc-lists^="add:' + list.id + ':"], input[data-gc-lists^="add:' + list.id + ':"]', function() {
 			return list.gcList.add( this );
 		} );
 

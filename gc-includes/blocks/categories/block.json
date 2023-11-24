@@ -1,0 +1,58 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/categories",
+	"title": "分类列表",
+	"category": "widgets",
+	"description": "显示所有分类的列表。",
+	"textdomain": "default",
+	"attributes": {
+		"displayAsDropdown": {
+			"type": "boolean",
+			"default": false
+		},
+		"showHierarchy": {
+			"type": "boolean",
+			"default": false
+		},
+		"showPostCounts": {
+			"type": "boolean",
+			"default": false
+		},
+		"showOnlyTopLevel": {
+			"type": "boolean",
+			"default": false
+		},
+		"showEmpty": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"supports": {
+		"align": true,
+		"html": false,
+		"spacing": {
+			"margin": true,
+			"padding": true,
+			"__experimentalDefaultControls": {
+				"margin": false,
+				"padding": false
+			}
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalTextTransform": true,
+			"__experimentalTextDecoration": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		}
+	},
+	"editorStyle": "gc-block-categories-editor",
+	"style": "gc-block-categories"
+}

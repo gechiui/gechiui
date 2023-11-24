@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
@@ -12,10 +11,9 @@
  *
  * A UI container for controls, managed by the GC_Customize_Manager class.
  *
- *
- *
  * @see GC_Customize_Manager
  */
+#[AllowDynamicProperties]
 class GC_Customize_Section {
 
 	/**
@@ -23,6 +21,7 @@ class GC_Customize_Section {
 	 *
 	 * Used when sorting two instances whose priorities are equal.
 	 *
+	 * @since 4.1.0
 	 * @var int
 	 */
 	protected static $instance_count = 0;
@@ -30,6 +29,7 @@ class GC_Customize_Section {
 	/**
 	 * Order in which this instance was created in relation to other instances.
 	 *
+	 * @since 4.1.0
 	 * @var int
 	 */
 	public $instance_number;
@@ -37,6 +37,7 @@ class GC_Customize_Section {
 	/**
 	 * GC_Customize_Manager instance.
 	 *
+	 * @since 3.4.0
 	 * @var GC_Customize_Manager
 	 */
 	public $manager;
@@ -44,6 +45,7 @@ class GC_Customize_Section {
 	/**
 	 * Unique identifier.
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	public $id;
@@ -51,6 +53,7 @@ class GC_Customize_Section {
 	/**
 	 * Priority of the section which informs load order of sections.
 	 *
+	 * @since 3.4.0
 	 * @var int
 	 */
 	public $priority = 160;
@@ -58,6 +61,7 @@ class GC_Customize_Section {
 	/**
 	 * Panel in which to show the section, making it a sub-section.
 	 *
+	 * @since 4.0.0
 	 * @var string
 	 */
 	public $panel = '';
@@ -65,6 +69,7 @@ class GC_Customize_Section {
 	/**
 	 * Capability required for the section.
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	public $capability = 'edit_theme_options';
@@ -72,6 +77,7 @@ class GC_Customize_Section {
 	/**
 	 * Theme features required to support the section.
 	 *
+	 * @since 3.4.0
 	 * @var string|string[]
 	 */
 	public $theme_supports = '';
@@ -79,6 +85,7 @@ class GC_Customize_Section {
 	/**
 	 * Title of the section to show in UI.
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	public $title = '';
@@ -86,6 +93,7 @@ class GC_Customize_Section {
 	/**
 	 * Description to show in the UI.
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	public $description = '';
@@ -93,6 +101,7 @@ class GC_Customize_Section {
 	/**
 	 * Customizer controls for this section.
 	 *
+	 * @since 3.4.0
 	 * @var array
 	 */
 	public $controls;
@@ -100,6 +109,7 @@ class GC_Customize_Section {
 	/**
 	 * Type of this section.
 	 *
+	 * @since 4.1.0
 	 * @var string
 	 */
 	public $type = 'default';
@@ -107,6 +117,7 @@ class GC_Customize_Section {
 	/**
 	 * Active callback.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @see GC_Customize_Section::active()
 	 *
@@ -120,6 +131,7 @@ class GC_Customize_Section {
 	/**
 	 * Show the description or hide it behind the help icon.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @var bool Indicates whether the Section's description should be
 	 *           hidden behind a help icon ("?") in the Section header,
@@ -132,6 +144,7 @@ class GC_Customize_Section {
 	 *
 	 * Any supplied $args override class property defaults.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param GC_Customize_Manager $manager Customizer bootstrap instance.
 	 * @param string               $id      A specific ID of the section.
@@ -176,6 +189,7 @@ class GC_Customize_Section {
 	/**
 	 * Check whether section is active to current Customizer preview.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return bool Whether the section is active to the current preview.
 	 */
@@ -186,6 +200,7 @@ class GC_Customize_Section {
 		/**
 		 * Filters response of GC_Customize_Section::active().
 		 *
+		 * @since 4.1.0
 		 *
 		 * @param bool                 $active  Whether the Customizer section is active.
 		 * @param GC_Customize_Section $section GC_Customize_Section instance.
@@ -201,6 +216,7 @@ class GC_Customize_Section {
 	 * Subclasses can override this with their specific logic, or they may provide
 	 * an 'active_callback' argument to the constructor.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return true Always true.
 	 */
@@ -211,6 +227,7 @@ class GC_Customize_Section {
 	/**
 	 * Gather the parameters passed to client JavaScript via JSON.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return array The array to be exported to the client as JSON.
 	 */
@@ -235,6 +252,7 @@ class GC_Customize_Section {
 	 * Checks required user capabilities and whether the theme has the
 	 * feature support required by the section.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @return bool False if theme doesn't support the section or user doesn't have the capability.
 	 */
@@ -253,6 +271,7 @@ class GC_Customize_Section {
 	/**
 	 * Get the section's content for insertion into the Customizer pane.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return string Contents of the section.
 	 */
@@ -265,6 +284,7 @@ class GC_Customize_Section {
 	/**
 	 * Check capabilities and render the section.
 	 *
+	 * @since 3.4.0
 	 */
 	final public function maybe_render() {
 		if ( ! $this->check_capabilities() ) {
@@ -274,6 +294,7 @@ class GC_Customize_Section {
 		/**
 		 * Fires before rendering a Customizer section.
 		 *
+		 * @since 3.4.0
 		 *
 		 * @param GC_Customize_Section $section GC_Customize_Section instance.
 		 */
@@ -284,6 +305,7 @@ class GC_Customize_Section {
 		 * The dynamic portion of the hook name, `$this->id`, refers to the ID
 		 * of the specific Customizer section to be rendered.
 		 *
+		 * @since 3.4.0
 		 */
 		do_action( "customize_render_section_{$this->id}" );
 
@@ -295,6 +317,7 @@ class GC_Customize_Section {
 	 *
 	 * Sections are now rendered in JS by default, see GC_Customize_Section::print_template().
 	 *
+	 * @since 3.4.0
 	 */
 	protected function render() {}
 
@@ -304,6 +327,7 @@ class GC_Customize_Section {
 	 * This function is only run for section types that have been registered with
 	 * GC_Customize_Manager::register_section_type().
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see GC_Customize_Manager::render_template()
 	 */
@@ -321,6 +345,7 @@ class GC_Customize_Section {
 	 * Class variables for this section class are available in the `data` JS object;
 	 * export custom variables by overriding GC_Customize_Section::json().
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see GC_Customize_Section::print_template()
 	 */
@@ -329,13 +354,23 @@ class GC_Customize_Section {
 		<li id="accordion-section-{{ data.id }}" class="accordion-section control-section control-section-{{ data.type }}">
 			<h3 class="accordion-section-title" tabindex="0">
 				{{ data.title }}
-				<span class="screen-reader-text"><?php _e( '按回车来打开此小节' ); ?></span>
+				<span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '按回车来打开此小节' );
+					?>
+				</span>
 			</h3>
 			<ul class="accordion-section-content">
 				<li class="customize-section-description-container section-meta <# if ( data.description_hidden ) { #>customize-info<# } #>">
 					<div class="customize-section-title">
 						<button class="customize-section-back" tabindex="-1">
-							<span class="screen-reader-text"><?php _e( '返回' ); ?></span>
+							<span class="screen-reader-text">
+								<?php
+								/* translators: Hidden accessibility text. */
+								_e( '返回' );
+								?>
+							</span>
 						</button>
 						<h3>
 							<span class="customize-action">
@@ -344,7 +379,12 @@ class GC_Customize_Section {
 							{{ data.title }}
 						</h3>
 						<# if ( data.description && data.description_hidden ) { #>
-							<button type="button" class="customize-help-toggle dashicons dashicons-editor-help" aria-expanded="false"><span class="screen-reader-text"><?php _e( '帮助' ); ?></span></button>
+							<button type="button" class="customize-help-toggle dashicons dashicons-editor-help" aria-expanded="false"><span class="screen-reader-text">
+								<?php
+								/* translators: Hidden accessibility text. */
+								_e( '帮助' );
+								?>
+							</span></button>
 							<div class="description customize-section-description">
 								{{{ data.description }}}
 							</div>

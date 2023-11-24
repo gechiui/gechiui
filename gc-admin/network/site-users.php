@@ -11,7 +11,7 @@
 require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'manage_sites' ) ) {
-	gc_die( __( '抱歉，您不能编辑此站点。' ), 403 );
+	gc_die( __( '抱歉，您不能编辑此系统。' ), 403 );
 }
 
 $gc_list_table = _get_list_table( 'GC_Users_List_Table' );
@@ -22,9 +22,9 @@ get_current_screen()->set_help_sidebar( get_site_screen_help_sidebar_content() )
 
 get_current_screen()->set_screen_reader_content(
 	array(
-		'heading_views'      => __( '过滤站点用户列表' ),
-		'heading_pagination' => __( '站点用户列表导航' ),
-		'heading_list'       => __( '站点用户列表' ),
+		'heading_views'      => __( '过滤系统用户列表' ),
+		'heading_pagination' => __( '系统用户列表导航' ),
+		'heading_list'       => __( '系统用户列表' ),
 	)
 );
 
@@ -38,12 +38,12 @@ if ( ! empty( $_REQUEST['paged'] ) ) {
 $id = isset( $_REQUEST['id'] ) ? (int) $_REQUEST['id'] : 0;
 
 if ( ! $id ) {
-	gc_die( __( '站点ID无效。' ) );
+	gc_die( __( '系统ID无效。' ) );
 }
 
 $details = get_site( $id );
 if ( ! $details ) {
-	gc_die( __( '请求的站点不存在。' ) );
+	gc_die( __( '请求的系统不存在。' ) );
 }
 
 if ( ! can_edit_network( $details->site_id ) ) {
@@ -156,7 +156,7 @@ if ( $action ) {
 					if ( ! is_user_member_of_blog( $user_id ) ) {
 						gc_die(
 							'<h1>' . __( '出现了问题。' ) . '</h1>' .
-							'<p>' . __( '选择的用户之一不是该站点的成员。' ) . '</p>',
+							'<p>' . __( '选择的用户之一不是该系统的成员。' ) . '</p>',
 							403
 						);
 					}
@@ -197,7 +197,7 @@ add_screen_option( 'per_page' );
 
 // Used in the HTML title tag.
 /* translators: %s: Site title. */
-$title = sprintf( __( '编辑站点：%s' ), esc_html( $details->blogname ) );
+$title = sprintf( __( '编辑系统：%s' ), esc_html( $details->blogname ) );
 
 $parent_file  = 'sites.php';
 $submenu_file = 'sites.php';
@@ -206,11 +206,55 @@ $submenu_file = 'sites.php';
  * Filters whether to show the Add Existing User form on the Multisite Users screen.
  *
  *
- *
  * @param bool $bool Whether to show the Add Existing User form. Default true.
  */
 if ( ! gc_is_large_network( 'users' ) && apply_filters( 'show_network_site_users_add_existing_form', true ) ) {
 	gc_enqueue_script( 'user-suggest' );
+}
+
+network_edit_site_nav(
+	array(
+		'blog_id'  => $id,
+		'selected' => 'site-users',
+	)
+);
+
+if ( isset( $_GET['update'] ) ) {
+	switch ( $_GET['update'] ) {
+		case 'adduser':
+			add_settings_error( 'general', 'settings_updated', __( '用户已添加。' ), 'success' );
+			break;
+		case 'err_add_member':
+			add_settings_error( 'general', 'settings_updated', __( '用户已是此系统成员。' ), 'warning' );
+			break;
+		case 'err_add_fail':
+			add_settings_error( 'general', 'settings_updated', __( '未能添加用户到此系统。' ), 'danger' );
+			break;
+		case 'err_add_notfound':
+			add_settings_error( 'general', 'settings_updated', __( '输入现有用户的用户名。' ), 'danger' );
+			break;
+		case 'promote':
+			add_settings_error( 'general', 'settings_updated', __( '角色已改变。' ), 'success' );
+			break;
+		case 'err_promote':
+			add_settings_error( 'general', 'settings_updated', __( '选择要更改哪位用户的权限？' ), 'warning' );
+			break;
+		case 'remove':
+			add_settings_error( 'general', 'settings_updated', __( '用户已从本系统移除。' ), 'success' );
+			break;
+		case 'err_remove':
+			add_settings_error( 'general', 'settings_updated', __( '选择要移除的用户。' ), 'danger' );
+			break;
+		case 'newuser':
+			add_settings_error( 'general', 'settings_updated', __( '用户已创建。' ), 'success' );
+			break;
+		case 'err_new':
+			add_settings_error( 'general', 'settings_updated', __( '输入用户名和邮箱地址。' ), 'danger' );
+			break;
+		case 'err_new_dup':
+			add_settings_error( 'general', 'settings_updated', __( '用户名或邮箱地址重复。' ), 'danger' );
+			break;
+	}
 }
 
 require_once ABSPATH . 'gc-admin/admin-header.php'; ?>
@@ -221,55 +265,8 @@ var current_site_id = <?php echo absint( $id ); ?>;
 
 
 <div class="wrap">
-<h1 id="edit-site"><?php echo $title; ?></h1>
+<div class="page-header"><h2 id="edit-site" class="header-title"><?php echo esc_html( $title ); ?></h2></div>
 <p class="edit-site-actions"><a href="<?php echo esc_url( get_home_url( $id, '/' ) ); ?>"><?php _e( '访问' ); ?></a> | <a href="<?php echo esc_url( get_admin_url( $id ) ); ?>"><?php _e( '仪表盘' ); ?></a></p>
-<?php
-
-network_edit_site_nav(
-	array(
-		'blog_id'  => $id,
-		'selected' => 'site-users',
-	)
-);
-
-if ( isset( $_GET['update'] ) ) :
-	switch ( $_GET['update'] ) {
-		case 'adduser':
-			echo '<div id="message" class="updated notice is-dismissible"><p>' . __( '用户已添加。' ) . '</p></div>';
-			break;
-		case 'err_add_member':
-			echo '<div id="message" class="error notice is-dismissible"><p>' . __( '用户已是此站点成员。' ) . '</p></div>';
-			break;
-		case 'err_add_fail':
-			echo '<div id="message" class="error notice is-dismissible"><p>' . __( '未能添加用户到此站点。' ) . '</p></div>';
-			break;
-		case 'err_add_notfound':
-			echo '<div id="message" class="error notice is-dismissible"><p>' . __( '输入现有用户的用户名。' ) . '</p></div>';
-			break;
-		case 'promote':
-			echo '<div id="message" class="updated notice is-dismissible"><p>' . __( '角色已改变。' ) . '</p></div>';
-			break;
-		case 'err_promote':
-			echo '<div id="message" class="error notice is-dismissible"><p>' . __( '选择要更改哪位用户的权限。' ) . '</p></div>';
-			break;
-		case 'remove':
-			echo '<div id="message" class="updated notice is-dismissible"><p>' . __( '用户已从本站点移除。' ) . '</p></div>';
-			break;
-		case 'err_remove':
-			echo '<div id="message" class="error notice is-dismissible"><p>' . __( '选择要移除的用户。' ) . '</p></div>';
-			break;
-		case 'newuser':
-			echo '<div id="message" class="updated notice is-dismissible"><p>' . __( '用户已创建。' ) . '</p></div>';
-			break;
-		case 'err_new':
-			echo '<div id="message" class="error notice is-dismissible"><p>' . __( '输入用户名和邮箱地址。' ) . '</p></div>';
-			break;
-		case 'err_new_dup':
-			echo '<div id="message" class="error notice is-dismissible"><p>' . __( '用户名或邮箱地址重复。' ) . '</p></div>';
-			break;
-	}
-endif;
-?>
 
 <form class="search-form" method="get">
 <?php $gc_list_table->search_box( __( '搜索用户' ), 'user' ); ?>
@@ -288,7 +285,6 @@ endif;
 <?php
 /**
  * Fires after the list table on the Users screen in the Multisite Network Admin.
- *
  *
  */
 do_action( 'network_site_users_after_list_table' );
@@ -323,7 +319,6 @@ if ( current_user_can( 'promote_users' ) && apply_filters( 'show_network_site_us
 <?php
 /**
  * Filters whether to show the Add New User form on the Multisite Users screen.
- *
  *
  *
  * @param bool $bool Whether to show the Add New User form. Default true.

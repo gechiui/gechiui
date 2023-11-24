@@ -4,14 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customize Control class.
  *
- *
  */
+#[AllowDynamicProperties]
 class GC_Customize_Control {
 
 	/**
@@ -19,6 +18,7 @@ class GC_Customize_Control {
 	 *
 	 * Used when sorting two instances whose priorities are equal.
 	 *
+	 * @since 4.1.0
 	 * @var int
 	 */
 	protected static $instance_count = 0;
@@ -26,6 +26,7 @@ class GC_Customize_Control {
 	/**
 	 * Order in which this instance was created in relation to other instances.
 	 *
+	 * @since 4.1.0
 	 * @var int
 	 */
 	public $instance_number;
@@ -33,6 +34,7 @@ class GC_Customize_Control {
 	/**
 	 * Customizer manager.
 	 *
+	 * @since 3.4.0
 	 * @var GC_Customize_Manager
 	 */
 	public $manager;
@@ -40,6 +42,7 @@ class GC_Customize_Control {
 	/**
 	 * Control ID.
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	public $id;
@@ -47,6 +50,7 @@ class GC_Customize_Control {
 	/**
 	 * All settings tied to the control.
 	 *
+	 * @since 3.4.0
 	 * @var array
 	 */
 	public $settings;
@@ -54,6 +58,7 @@ class GC_Customize_Control {
 	/**
 	 * The primary setting for the control (if there is one).
 	 *
+	 * @since 3.4.0
 	 * @var string|GC_Customize_Setting|null
 	 */
 	public $setting = 'default';
@@ -64,6 +69,7 @@ class GC_Customize_Control {
 	 * Normally this is empty and the capability is derived from the capabilities
 	 * of the associated `$settings`.
 	 *
+	 * @since 4.5.0
 	 * @var string
 	 */
 	public $capability;
@@ -71,6 +77,7 @@ class GC_Customize_Control {
 	/**
 	 * Order priority to load the control in Customizer.
 	 *
+	 * @since 3.4.0
 	 * @var int
 	 */
 	public $priority = 10;
@@ -78,6 +85,7 @@ class GC_Customize_Control {
 	/**
 	 * Section the control belongs to.
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	public $section = '';
@@ -85,6 +93,7 @@ class GC_Customize_Control {
 	/**
 	 * Label for the control.
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	public $label = '';
@@ -92,6 +101,7 @@ class GC_Customize_Control {
 	/**
 	 * Description for the control.
 	 *
+	 * @since 4.0.0
 	 * @var string
 	 */
 	public $description = '';
@@ -99,6 +109,7 @@ class GC_Customize_Control {
 	/**
 	 * List of choices for 'radio' or 'select' type controls, where values are the keys, and labels are the values.
 	 *
+	 * @since 3.4.0
 	 * @var array
 	 */
 	public $choices = array();
@@ -108,6 +119,7 @@ class GC_Customize_Control {
 	 *
 	 * Not used for 'checkbox', 'radio', 'select', 'textarea', or 'dropdown-pages' control types.
 	 *
+	 * @since 4.0.0
 	 * @var array
 	 */
 	public $input_attrs = array();
@@ -115,12 +127,14 @@ class GC_Customize_Control {
 	/**
 	 * Show UI for adding new content, currently only used for the dropdown-pages control.
 	 *
+	 * @since 4.7.0
 	 * @var bool
 	 */
 	public $allow_addition = false;
 
 	/**
 	 * @deprecated It is better to just call the json() method
+	 * @since 3.4.0
 	 * @var array
 	 */
 	public $json = array();
@@ -128,6 +142,7 @@ class GC_Customize_Control {
 	/**
 	 * Control's Type.
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	public $type = 'text';
@@ -135,6 +150,7 @@ class GC_Customize_Control {
 	/**
 	 * Callback.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @see GC_Customize_Control::active()
 	 *
@@ -150,8 +166,9 @@ class GC_Customize_Control {
 	 *
 	 * Supplied `$args` override class property defaults.
 	 *
-	 * If `$args['settings']` is not defined, use the $id as the setting ID.
+	 * If `$args['settings']` is not defined, use the `$id` as the setting ID.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param GC_Customize_Manager $manager Customizer bootstrap instance.
 	 * @param string               $id      Control ID.
@@ -225,12 +242,14 @@ class GC_Customize_Control {
 	/**
 	 * Enqueue control related scripts/styles.
 	 *
+	 * @since 3.4.0
 	 */
 	public function enqueue() {}
 
 	/**
 	 * Check whether control is active to current Customizer preview.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @return bool Whether the control is active to the current preview.
 	 */
@@ -241,6 +260,7 @@ class GC_Customize_Control {
 		/**
 		 * Filters response of GC_Customize_Control::active().
 		 *
+		 * @since 4.0.0
 		 *
 		 * @param bool                 $active  Whether the Customizer control is active.
 		 * @param GC_Customize_Control $control GC_Customize_Control instance.
@@ -256,6 +276,7 @@ class GC_Customize_Control {
 	 * Subclasses can override this with their specific logic, or they may
 	 * provide an 'active_callback' argument to the constructor.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @return true Always true.
 	 */
@@ -267,6 +288,7 @@ class GC_Customize_Control {
 	 * Fetch a setting's value.
 	 * Grabs the main setting by default.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param string $setting_key
 	 * @return mixed The requested setting's value, if the setting exists.
@@ -280,6 +302,7 @@ class GC_Customize_Control {
 	/**
 	 * Refresh the parameters passed to the JavaScript via JSON.
 	 *
+	 * @since 3.4.0
 	 */
 	public function to_json() {
 		$this->json['settings'] = array();
@@ -304,6 +327,7 @@ class GC_Customize_Control {
 	/**
 	 * Get the data to export to the client via JSON.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return array Array of parameters passed to the JavaScript.
 	 */
@@ -320,6 +344,7 @@ class GC_Customize_Control {
 	 * the associated section does not exist or if its capability check returns
 	 * false.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @return bool False if theme doesn't support the control or user doesn't have the required permissions, otherwise true.
 	 */
@@ -345,6 +370,7 @@ class GC_Customize_Control {
 	/**
 	 * Get the control's content for insertion into the Customizer pane.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @return string Contents of the control.
 	 */
@@ -357,6 +383,7 @@ class GC_Customize_Control {
 	/**
 	 * Check capabilities and render the control.
 	 *
+	 * @since 3.4.0
 	 * @uses GC_Customize_Control::render()
 	 */
 	final public function maybe_render() {
@@ -367,6 +394,7 @@ class GC_Customize_Control {
 		/**
 		 * Fires just before the current Customizer control is rendered.
 		 *
+		 * @since 3.4.0
 		 *
 		 * @param GC_Customize_Control $control GC_Customize_Control instance.
 		 */
@@ -378,6 +406,7 @@ class GC_Customize_Control {
 		 * The dynamic portion of the hook name, `$this->id`, refers to
 		 * the control ID.
 		 *
+		 * @since 3.4.0
 		 *
 		 * @param GC_Customize_Control $control GC_Customize_Control instance.
 		 */
@@ -389,6 +418,7 @@ class GC_Customize_Control {
 	/**
 	 * Renders the control wrapper and calls $this->render_content() for the internals.
 	 *
+	 * @since 3.4.0
 	 */
 	protected function render() {
 		$id    = 'customize-control-' . str_replace( array( '[', ']' ), array( '-', '' ), $this->id );
@@ -402,6 +432,8 @@ class GC_Customize_Control {
 	/**
 	 * Get the data link attribute for a setting.
 	 *
+	 * @since 3.4.0
+	 * @since 4.9.0 Return a `data-customize-setting-key-link` attribute if a setting is not registered for the supplied setting key.
 	 *
 	 * @param string $setting_key
 	 * @return string Data link parameter, a `data-customize-setting-link` attribute if the `$setting_key` refers to a pre-registered setting,
@@ -418,6 +450,7 @@ class GC_Customize_Control {
 	/**
 	 * Render the data link attribute for the control's input element.
 	 *
+	 * @since 3.4.0
 	 * @uses GC_Customize_Control::get_link()
 	 *
 	 * @param string $setting_key
@@ -429,6 +462,7 @@ class GC_Customize_Control {
 	/**
 	 * Render the custom attributes for the control's input element.
 	 *
+	 * @since 4.0.0
 	 */
 	public function input_attrs() {
 		foreach ( $this->input_attrs as $attr => $value ) {
@@ -446,6 +480,7 @@ class GC_Customize_Control {
 	 *
 	 * Control content can alternately be rendered in JS. See GC_Customize_Control::print_template().
 	 *
+	 * @since 3.4.0
 	 */
 	protected function render_content() {
 		$input_id         = '_customize-input-' . $this->id;
@@ -570,8 +605,11 @@ class GC_Customize_Control {
 				// Hackily add in the data link parameter.
 				$dropdown = str_replace( '<select', '<select ' . $this->get_link() . ' id="' . esc_attr( $input_id ) . '" ' . $describedby_attr, $dropdown );
 
-				// Even more hacikly add auto-draft page stubs.
-				// @todo Eventually this should be removed in favor of the pages being injected into the underlying get_pages() call. See <https://github.com/xgc/gc-customize-posts/pull/250>.
+				/*
+				 * Even more hacikly add auto-draft page stubs.
+				 * @todo Eventually this should be removed in favor of the pages being injected into the underlying get_pages() call.
+				 * See <https://github.com/xgc/gc-customize-posts/pull/250>.
+				 */
 				$nav_menus_created_posts_setting = $this->manager->get_setting( 'nav_menus_created_posts' );
 				if ( $nav_menus_created_posts_setting && current_user_can( 'publish_pages' ) ) {
 					$auto_draft_page_options = '';
@@ -596,8 +634,13 @@ class GC_Customize_Control {
 						?>
 					</button>
 					<div class="new-content-item">
-						<label for="create-input-<?php echo esc_attr( $this->id ); ?>"><span class="screen-reader-text"><?php _e( '新页面标题' ); ?></span></label>
-						<input type="text" id="create-input-<?php echo esc_attr( $this->id ); ?>" class="create-item-input" placeholder="<?php esc_attr_e( '新页面标题…' ); ?>">
+						<label for="create-input-<?php echo esc_attr( $this->id ); ?>"><span class="screen-reader-text">
+							<?php
+							/* translators: Hidden accessibility text. */
+							_e( '新页面标题' );
+							?>
+						</span></label>
+						<input type="text" id="create-input-<?php echo esc_attr( $this->id ); ?>" class="create-item-input" placeholder="<?php esc_attr_e( '新页面标题...'  ); ?>">
 						<button type="button" class="button add-content"><?php _e( '添加' ); ?></button>
 					</div>
 				<?php endif; ?>
@@ -635,6 +678,7 @@ class GC_Customize_Control {
 	 * In the future, this will also print the template for the control's container
 	 * element and be override-able.
 	 *
+	 * @since 4.1.0
 	 */
 	final public function print_template() {
 		?>
@@ -652,6 +696,7 @@ class GC_Customize_Control {
 	 *
 	 * @see GC_Customize_Control::print_template()
 	 *
+	 * @since 4.1.0
 	 */
 	protected function content_template() {}
 

@@ -11,7 +11,6 @@
  *
  * Bump this when something changes that might affect compatibility.
  *
- *
  */
 define( 'WXR_VERSION', '1.2' );
 
@@ -22,8 +21,7 @@ define( 'WXR_VERSION', '1.2' );
  * be exported for post types with the `can_export` argument enabled. Any posts with the
  * 'auto-draft' status will be skipped.
  *
- *
- *
+ * @since 5.7.0 Added the `post_modified` and `post_modified_gmt` fields to the export file.
  *
  * @global gcdb    $gcdb GeChiUI database abstraction object.
  * @global GC_Post $post Global post object.
@@ -31,27 +29,27 @@ define( 'WXR_VERSION', '1.2' );
  * @param array $args {
  *     Optional. Arguments for generating the WXR export file for download. Default empty array.
  *
- *     @type string $content        Type of content to export. If set, only the post content of this post type
- *                                  will be exported. Accepts 'all', 'post', 'page', 'attachment', or a defined
- *                                  custom post. If an invalid custom post type is supplied, every post type for
- *                                  which `can_export` is enabled will be exported instead. If a valid custom post
- *                                  type is supplied but `can_export` is disabled, then 'posts' will be exported
- *                                  instead. When 'all' is supplied, only post types with `can_export` enabled will
- *                                  be exported. Default 'all'.
- *     @type string $author         Author to export content for. Only used when `$content` is 'post', 'page', or
- *                                  'attachment'. Accepts false (all) or a specific author ID. Default false (all).
- *     @type string $category       Category (slug) to export content for. Used only when `$content` is 'post'. If
- *                                  set, only post content assigned to `$category` will be exported. Accepts false
- *                                  or a specific category slug. Default is false (all categories).
- *     @type string $start_date     Start date to export content from. Expected date format is 'Y-m-d'. Used only
- *                                  when `$content` is 'post', 'page' or 'attachment'. Default false (since the
- *                                  beginning of time).
- *     @type string $end_date       End date to export content to. Expected date format is 'Y-m-d'. Used only when
- *                                  `$content` is 'post', 'page' or 'attachment'. Default false (latest publish date).
- *     @type string $status         Post status to export posts for. Used only when `$content` is 'post' or 'page'.
- *                                  Accepts false (all statuses except 'auto-draft'), or a specific status, i.e.
- *                                  'publish', 'pending', 'draft', 'auto-draft', 'future', 'private', 'inherit', or
- *                                  'trash'. Default false (all statuses except 'auto-draft').
+ *     @type string $content    Type of content to export. If set, only the post content of this post type
+ *                              will be exported. Accepts 'all', 'post', 'page', 'attachment', or a defined
+ *                              custom post. If an invalid custom post type is supplied, every post type for
+ *                              which `can_export` is enabled will be exported instead. If a valid custom post
+ *                              type is supplied but `can_export` is disabled, then 'posts' will be exported
+ *                              instead. When 'all' is supplied, only post types with `can_export` enabled will
+ *                              be exported. Default 'all'.
+ *     @type string $author     Author to export content for. Only used when `$content` is 'post', 'page', or
+ *                              'attachment'. Accepts false (all) or a specific author ID. Default false (all).
+ *     @type string $category   Category (slug) to export content for. Used only when `$content` is 'post'. If
+ *                              set, only post content assigned to `$category` will be exported. Accepts false
+ *                              or a specific category slug. Default is false (all categories).
+ *     @type string $start_date Start date to export content from. Expected date format is 'Y-m-d'. Used only
+ *                              when `$content` is 'post', 'page' or 'attachment'. Default false (since the
+ *                              beginning of time).
+ *     @type string $end_date   End date to export content to. Expected date format is 'Y-m-d'. Used only when
+ *                              `$content` is 'post', 'page' or 'attachment'. Default false (latest publish date).
+ *     @type string $status     Post status to export posts for. Used only when `$content` is 'post' or 'page'.
+ *                              Accepts false (all statuses except 'auto-draft'), or a specific status, i.e.
+ *                              'publish', 'pending', 'draft', 'auto-draft', 'future', 'private', 'inherit', or
+ *                              'trash'. Default false (all statuses except 'auto-draft').
  * }
  */
 function export_gc( $args = array() ) {
@@ -70,6 +68,7 @@ function export_gc( $args = array() ) {
 	/**
 	 * Fires at the beginning of an export, before any headers are sent.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param array $args An array of export arguments.
 	 */
@@ -84,6 +83,7 @@ function export_gc( $args = array() ) {
 	/**
 	 * Filters the export filename.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $gc_filename The name of the file for download.
 	 * @param string $sitename    The site name.
@@ -187,7 +187,7 @@ function export_gc( $args = array() ) {
 	}
 
 	/**
-	 * Wrap given string in XML CDATA tag.
+	 * Wraps given string in XML CDATA tag.
 	 *
 	 *
 	 * @param string $str String to wrap in XML CDATA tag.
@@ -204,7 +204,7 @@ function export_gc( $args = array() ) {
 	}
 
 	/**
-	 * Return the URL of the site
+	 * Returns the URL of the site.
 	 *
 	 *
 	 * @return string Site URL.
@@ -214,16 +214,16 @@ function export_gc( $args = array() ) {
 			// Multisite: the base URL.
 			return network_home_url();
 		} else {
-			// GeChiUI (single site): the blog URL.
+			// GeChiUI (single site): the site URL.
 			return get_bloginfo_rss( 'url' );
 		}
 	}
 
 	/**
-	 * Output a cat_name XML tag from a given category object
+	 * Outputs a cat_name XML tag from a given category object.
 	 *
 	 *
-	 * @param GC_Term $category Category Object
+	 * @param GC_Term $category Category Object.
 	 */
 	function wxr_cat_name( $category ) {
 		if ( empty( $category->name ) ) {
@@ -234,10 +234,10 @@ function export_gc( $args = array() ) {
 	}
 
 	/**
-	 * Output a category_description XML tag from a given category object
+	 * Outputs a category_description XML tag from a given category object.
 	 *
 	 *
-	 * @param GC_Term $category Category Object
+	 * @param GC_Term $category Category Object.
 	 */
 	function wxr_category_description( $category ) {
 		if ( empty( $category->description ) ) {
@@ -248,10 +248,11 @@ function export_gc( $args = array() ) {
 	}
 
 	/**
-	 * Output a tag_name XML tag from a given tag object
+	 * Outputs a tag_name XML tag from a given tag object.
 	 *
+	 * @since 2.3.0
 	 *
-	 * @param GC_Term $tag Tag Object
+	 * @param GC_Term $tag Tag Object.
 	 */
 	function wxr_tag_name( $tag ) {
 		if ( empty( $tag->name ) ) {
@@ -262,10 +263,11 @@ function export_gc( $args = array() ) {
 	}
 
 	/**
-	 * Output a tag_description XML tag from a given tag object
+	 * Outputs a tag_description XML tag from a given tag object.
 	 *
+	 * @since 2.3.0
 	 *
-	 * @param GC_Term $tag Tag Object
+	 * @param GC_Term $tag Tag Object.
 	 */
 	function wxr_tag_description( $tag ) {
 		if ( empty( $tag->description ) ) {
@@ -276,10 +278,11 @@ function export_gc( $args = array() ) {
 	}
 
 	/**
-	 * Output a term_name XML tag from a given term object
+	 * Outputs a term_name XML tag from a given term object.
 	 *
+	 * @since 2.9.0
 	 *
-	 * @param GC_Term $term Term Object
+	 * @param GC_Term $term Term Object.
 	 */
 	function wxr_term_name( $term ) {
 		if ( empty( $term->name ) ) {
@@ -290,10 +293,11 @@ function export_gc( $args = array() ) {
 	}
 
 	/**
-	 * Output a term_description XML tag from a given term object
+	 * Outputs a term_description XML tag from a given term object.
 	 *
+	 * @since 2.9.0
 	 *
-	 * @param GC_Term $term Term Object
+	 * @param GC_Term $term Term Object.
 	 */
 	function wxr_term_description( $term ) {
 		if ( empty( $term->description ) ) {
@@ -304,8 +308,11 @@ function export_gc( $args = array() ) {
 	}
 
 	/**
-	 * Output term meta XML tags for a given term object.
+	 * Outputs term meta XML tags for a given term object.
 	 *
+	 * @since 4.6.0
+	 *
+	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
 	 * @param GC_Term $term Term object.
 	 */
@@ -321,7 +328,7 @@ function export_gc( $args = array() ) {
 			 * Returning a truthy value from the filter will skip the current meta
 			 * object from being exported.
 			 *
-		
+			 * @since 4.6.0
 			 *
 			 * @param bool   $skip     Whether to skip the current piece of term meta. Default false.
 			 * @param string $meta_key Current meta key.
@@ -334,7 +341,7 @@ function export_gc( $args = array() ) {
 	}
 
 	/**
-	 * Output list of authors with posts
+	 * Outputs list of authors with posts.
 	 *
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -372,7 +379,7 @@ function export_gc( $args = array() ) {
 	}
 
 	/**
-	 * Output all navigation menu terms
+	 * Outputs all navigation menu terms.
 	 *
 	 */
 	function wxr_nav_menu_terms() {
@@ -392,8 +399,9 @@ function export_gc( $args = array() ) {
 	}
 
 	/**
-	 * Output list of taxonomy terms, in XML tag format, associated with a post
+	 * Outputs list of taxonomy terms, in XML tag format, associated with a post.
 	 *
+	 * @since 2.3.0
 	 */
 	function wxr_post_taxonomy() {
 		$post = get_post();
@@ -410,8 +418,11 @@ function export_gc( $args = array() ) {
 	}
 
 	/**
-	 * @param bool   $return_me
-	 * @param string $meta_key
+	 * Determines whether to selectively skip post meta used for WXR exports.
+	 *
+	 *
+	 * @param bool   $return_me Whether to skip the current post meta. Default false.
+	 * @param string $meta_key  Meta key.
 	 * @return bool
 	 */
 	function wxr_filter_postmeta( $return_me, $meta_key ) {
@@ -501,7 +512,8 @@ function export_gc( $args = array() ) {
 	<?php endforeach; ?>
 	<?php
 	if ( 'all' === $args['content'] ) {
-		wxr_nav_menu_terms();}
+		wxr_nav_menu_terms();
+	}
 	?>
 
 	<?php
@@ -531,7 +543,7 @@ function export_gc( $args = array() ) {
 				/**
 				 * Filters the post title used for WXR exports.
 				 *
-			
+				 * @since 5.7.0
 				 *
 				 * @param string $post_title Title of the current post.
 				 */
@@ -540,7 +552,7 @@ function export_gc( $args = array() ) {
 				/**
 				 * Filters the post content used for WXR exports.
 				 *
-			
+				 * @since 2.5.0
 				 *
 				 * @param string $post_content Content of the current post.
 				 */
@@ -549,7 +561,7 @@ function export_gc( $args = array() ) {
 				/**
 				 * Filters the post excerpt used for WXR exports.
 				 *
-			
+				 * @since 2.6.0
 				 *
 				 * @param string $post_excerpt Excerpt for the current post.
 				 */
@@ -593,7 +605,7 @@ function export_gc( $args = array() ) {
 					 * Returning a truthy value from the filter will skip the current meta
 					 * object from being exported.
 					 *
-				
+					 * @since 3.3.0
 					 *
 					 * @param bool   $skip     Whether to skip the current post meta. Default false.
 					 * @param string $meta_key Current meta key.
@@ -618,7 +630,7 @@ function export_gc( $args = array() ) {
 			<gc:comment_id><?php echo (int) $c->comment_ID; ?></gc:comment_id>
 			<gc:comment_author><?php echo wxr_cdata( $c->comment_author ); ?></gc:comment_author>
 			<gc:comment_author_email><?php echo wxr_cdata( $c->comment_author_email ); ?></gc:comment_author_email>
-			<gc:comment_author_url><?php echo esc_url_raw( $c->comment_author_url ); ?></gc:comment_author_url>
+			<gc:comment_author_url><?php echo sanitize_url( $c->comment_author_url ); ?></gc:comment_author_url>
 			<gc:comment_author_IP><?php echo wxr_cdata( $c->comment_author_IP ); ?></gc:comment_author_IP>
 			<gc:comment_date><?php echo wxr_cdata( $c->comment_date ); ?></gc:comment_date>
 			<gc:comment_date_gmt><?php echo wxr_cdata( $c->comment_date_gmt ); ?></gc:comment_date_gmt>
@@ -636,7 +648,7 @@ function export_gc( $args = array() ) {
 						 * Returning a truthy value from the filter will skip the current meta
 						 * object from being exported.
 						 *
-					
+						 * @since 4.0.0
 						 *
 						 * @param bool   $skip     Whether to skip the current comment meta. Default false.
 						 * @param string $meta_key Current meta key.

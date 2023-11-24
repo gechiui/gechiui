@@ -4,13 +4,12 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customize control to represent the name field for a given menu.
  *
- *
+ * @since 4.3.0
  *
  * @see GC_Customize_Control
  */
@@ -19,6 +18,7 @@ class GC_Customize_Nav_Menu_Item_Control extends GC_Customize_Control {
 	/**
 	 * Control type.
 	 *
+	 * @since 4.3.0
 	 * @var string
 	 */
 	public $type = 'nav_menu_item';
@@ -26,6 +26,7 @@ class GC_Customize_Nav_Menu_Item_Control extends GC_Customize_Control {
 	/**
 	 * The nav menu item setting.
 	 *
+	 * @since 4.3.0
 	 * @var GC_Customize_Nav_Menu_Item_Setting
 	 */
 	public $setting;
@@ -33,6 +34,7 @@ class GC_Customize_Nav_Menu_Item_Control extends GC_Customize_Control {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see GC_Customize_Control::__construct()
 	 *
@@ -49,12 +51,14 @@ class GC_Customize_Nav_Menu_Item_Control extends GC_Customize_Control {
 	/**
 	 * Don't render the control's content - it's rendered with a JS template.
 	 *
+	 * @since 4.3.0
 	 */
 	public function render_content() {}
 
 	/**
 	 * JS/Underscore template for the control UI.
 	 *
+	 * @since 4.3.0
 	 */
 	public function content_template() {
 		?>
@@ -115,11 +119,17 @@ class GC_Customize_Nav_Menu_Item_Control extends GC_Customize_Control {
 					<input type="text" id="edit-menu-item-classes-{{ data.menu_item_id }}" class="widefat code edit-menu-item-classes" name="menu-item-classes" />
 				</label>
 			</p>
+			<p class="field-xfn description description-thin">
+				<label for="edit-menu-item-xfn-{{ data.menu_item_id }}">
+					<?php _e( '链接关系（XFN）' ); ?><br />
+					<input type="text" id="edit-menu-item-xfn-{{ data.menu_item_id }}" class="widefat code edit-menu-item-xfn" name="menu-item-xfn" />
+				</label>
+			</p>
 			<p class="field-description description description-thin">
 				<label for="edit-menu-item-description-{{ data.menu_item_id }}">
 					<?php _e( '描述' ); ?><br />
 					<textarea id="edit-menu-item-description-{{ data.menu_item_id }}" class="widefat edit-menu-item-description" rows="3" cols="20" name="menu-item-description">{{ data.description }}</textarea>
-					<span class="description"><?php _e( '如果活动主题支持，说明将显示在菜单中。' ); ?></span>
+					<span class="description"><?php _e( '如果使用中的主题支持，此描述将在菜单中显示。' ); ?></span>
 				</label>
 			</p>
 
@@ -129,7 +139,7 @@ class GC_Customize_Nav_Menu_Item_Control extends GC_Customize_Control {
 			 *
 			 * Additional fields can be rendered here and managed in JavaScript.
 			 *
-		
+			 * @since 5.4.0
 			 */
 			do_action( 'gc_nav_menu_item_custom_fields_customize_template' );
 			?>
@@ -157,6 +167,7 @@ class GC_Customize_Nav_Menu_Item_Control extends GC_Customize_Control {
 	/**
 	 * Return parameters for this control.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @return array Exported parameters.
 	 */

@@ -4,22 +4,21 @@
  *
  * @package GeChiUI
  * @subpackage i18n
- *
  */
 
 /**
  * Core class used to store translated data for a locale.
- *
- *
- *
+ * Moved to its own file from gc-includes/locale.php.
  */
+#[AllowDynamicProperties]
 class GC_Locale {
 	/**
 	 * Stores the translated strings for the full weekday names.
 	 *
+	 * @since 6.2.0 Initialized to an empty array.
 	 * @var string[]
 	 */
-	public $weekday;
+	public $weekday = array();
 
 	/**
 	 * Stores the translated strings for the one character weekday names.
@@ -29,46 +28,53 @@ class GC_Locale {
 	 *
 	 * @see GC_Locale::init() for how to handle the hack.
 	 *
+	 * @since 6.2.0 Initialized to an empty array.
 	 * @var string[]
 	 */
-	public $weekday_initial;
+	public $weekday_initial = array();
 
 	/**
 	 * Stores the translated strings for the abbreviated weekday names.
 	 *
+	 * @since 6.2.0 Initialized to an empty array.
 	 * @var string[]
 	 */
-	public $weekday_abbrev;
+	public $weekday_abbrev = array();
 
 	/**
 	 * Stores the translated strings for the full month names.
 	 *
+	 * @since 6.2.0 Initialized to an empty array.
 	 * @var string[]
 	 */
-	public $month;
+	public $month = array();
 
 	/**
 	 * Stores the translated strings for the month names in genitive case, if the locale specifies.
 	 *
+	 * @since 4.4.0
+	 * @since 6.2.0 Initialized to an empty array.
 	 * @var string[]
 	 */
-	public $month_genitive;
+	public $month_genitive = array();
 
 	/**
 	 * Stores the translated strings for the abbreviated month names.
 	 *
+	 * @since 6.2.0 Initialized to an empty array.
 	 * @var string[]
 	 */
-	public $month_abbrev;
+	public $month_abbrev = array();
 
 	/**
 	 * Stores the translated strings for 'am' and 'pm'.
 	 *
 	 * Also the capitalized versions.
 	 *
+	 * @since 6.2.0 Initialized to an empty array.
 	 * @var string[]
 	 */
-	public $meridiem;
+	public $meridiem = array();
 
 	/**
 	 * The text direction of the locale language.
@@ -82,9 +88,29 @@ class GC_Locale {
 	/**
 	 * The thousands separator and decimal point values used for localizing numbers.
 	 *
+	 * @since 2.3.0
+	 * @since 6.2.0 Initialized to an empty array.
 	 * @var array
 	 */
-	public $number_format;
+	public $number_format = array();
+
+	/**
+	 * The separator string used for localizing list item separator.
+	 *
+	 * @since 6.0.0
+	 * @var string
+	 */
+	public $list_item_separator;
+
+	/**
+	 * The word count type of the locale language.
+	 *
+	 * Default is 'words'.
+	 *
+	 * @since 6.2.0
+	 * @var string
+	 */
+	public $word_count_type;
 
 	/**
 	 * Constructor which calls helper methods to set up object variables.
@@ -104,7 +130,6 @@ class GC_Locale {
 	 *
 	 *
 	 * @global string $text_direction
-	 * @global string $gc_version     The GeChiUI version string.
 	 */
 	public function init() {
 		// The weekdays.
@@ -117,22 +142,22 @@ class GC_Locale {
 		$this->weekday[6] = /* translators: Weekday. */ __( '星期六' );
 
 		// The first letter of each day.
-		$this->weekday_initial[ __( '星期日' ) ]    = /* translators: One-letter abbreviation of the weekday. */ _x( '日', 'Sunday initial' );
-		$this->weekday_initial[ __( '星期一' ) ]    = /* translators: One-letter abbreviation of the weekday. */ _x( '一', 'Monday initial' );
-		$this->weekday_initial[ __( '星期二' ) ]   = /* translators: One-letter abbreviation of the weekday. */ _x( '二', 'Tuesday initial' );
-		$this->weekday_initial[ __( '星期三' ) ] = /* translators: One-letter abbreviation of the weekday. */ _x( '三', 'Wednesday initial' );
-		$this->weekday_initial[ __( '星期四' ) ]  = /* translators: One-letter abbreviation of the weekday. */ _x( '四', 'Thursday initial' );
-		$this->weekday_initial[ __( '星期五' ) ]    = /* translators: One-letter abbreviation of the weekday. */ _x( '五', 'Friday initial' );
-		$this->weekday_initial[ __( '星期六' ) ]  = /* translators: One-letter abbreviation of the weekday. */ _x( '六', 'Saturday initial' );
+		$this->weekday_initial[ $this->weekday[0] ] = /* translators: One-letter abbreviation of the weekday. */ _x( '日', 'Sunday initial' );
+		$this->weekday_initial[ $this->weekday[1] ] = /* translators: One-letter abbreviation of the weekday. */ _x( '一', 'Monday initial' );
+		$this->weekday_initial[ $this->weekday[2] ] = /* translators: One-letter abbreviation of the weekday. */ _x( '二', 'Tuesday initial' );
+		$this->weekday_initial[ $this->weekday[3] ] = /* translators: One-letter abbreviation of the weekday. */ _x( '三', 'Wednesday initial' );
+		$this->weekday_initial[ $this->weekday[4] ] = /* translators: One-letter abbreviation of the weekday. */ _x( '四', 'Thursday initial' );
+		$this->weekday_initial[ $this->weekday[5] ] = /* translators: One-letter abbreviation of the weekday. */ _x( '五', 'Friday initial' );
+		$this->weekday_initial[ $this->weekday[6] ] = /* translators: One-letter abbreviation of the weekday. */ _x( '六', 'Saturday initial' );
 
 		// Abbreviations for each day.
-		$this->weekday_abbrev[ __( '星期日' ) ]    = /* translators: Three-letter abbreviation of the weekday. */ __( '周日' );
-		$this->weekday_abbrev[ __( '星期一' ) ]    = /* translators: Three-letter abbreviation of the weekday. */ __( '周一' );
-		$this->weekday_abbrev[ __( '星期二' ) ]   = /* translators: Three-letter abbreviation of the weekday. */ __( '周二' );
-		$this->weekday_abbrev[ __( '星期三' ) ] = /* translators: Three-letter abbreviation of the weekday. */ __( '周三' );
-		$this->weekday_abbrev[ __( '星期四' ) ]  = /* translators: Three-letter abbreviation of the weekday. */ __( '周四' );
-		$this->weekday_abbrev[ __( '星期五' ) ]    = /* translators: Three-letter abbreviation of the weekday. */ __( '周五' );
-		$this->weekday_abbrev[ __( '星期六' ) ]  = /* translators: Three-letter abbreviation of the weekday. */ __( '周六' );
+		$this->weekday_abbrev[ $this->weekday[0] ] = /* translators: Three-letter abbreviation of the weekday. */ __( '周日' );
+		$this->weekday_abbrev[ $this->weekday[1] ] = /* translators: Three-letter abbreviation of the weekday. */ __( '周一' );
+		$this->weekday_abbrev[ $this->weekday[2] ] = /* translators: Three-letter abbreviation of the weekday. */ __( '周二' );
+		$this->weekday_abbrev[ $this->weekday[3] ] = /* translators: Three-letter abbreviation of the weekday. */ __( '周三' );
+		$this->weekday_abbrev[ $this->weekday[4] ] = /* translators: Three-letter abbreviation of the weekday. */ __( '周四' );
+		$this->weekday_abbrev[ $this->weekday[5] ] = /* translators: Three-letter abbreviation of the weekday. */ __( '周五' );
+		$this->weekday_abbrev[ $this->weekday[6] ] = /* translators: Three-letter abbreviation of the weekday. */ __( '周六' );
 
 		// The months.
 		$this->month['01'] = /* translators: Month name. */ __( '1月' );
@@ -163,18 +188,18 @@ class GC_Locale {
 		$this->month_genitive['12'] = /* translators: Month name, genitive. */ _x( '12月', 'genitive' );
 
 		// Abbreviations for each month.
-		$this->month_abbrev[ __( '1月' ) ]   = /* translators: Three-letter abbreviation of the month. */ _x( '1月', 'January abbreviation' );
-		$this->month_abbrev[ __( '2月' ) ]  = /* translators: Three-letter abbreviation of the month. */ _x( '2月', 'February abbreviation' );
-		$this->month_abbrev[ __( '3月' ) ]     = /* translators: Three-letter abbreviation of the month. */ _x( '3月', 'March abbreviation' );
-		$this->month_abbrev[ __( '4月' ) ]     = /* translators: Three-letter abbreviation of the month. */ _x( '4月', 'April abbreviation' );
-		$this->month_abbrev[ __( '5月' ) ]       = /* translators: Three-letter abbreviation of the month. */ _x( '5月', 'May abbreviation' );
-		$this->month_abbrev[ __( '6月' ) ]      = /* translators: Three-letter abbreviation of the month. */ _x( '6月', 'June abbreviation' );
-		$this->month_abbrev[ __( '7月' ) ]      = /* translators: Three-letter abbreviation of the month. */ _x( '7月', 'July abbreviation' );
-		$this->month_abbrev[ __( '8月' ) ]    = /* translators: Three-letter abbreviation of the month. */ _x( '8月', 'August abbreviation' );
-		$this->month_abbrev[ __( '9月' ) ] = /* translators: Three-letter abbreviation of the month. */ _x( '9月', 'September abbreviation' );
-		$this->month_abbrev[ __( '10月' ) ]   = /* translators: Three-letter abbreviation of the month. */ _x( '10月', 'October abbreviation' );
-		$this->month_abbrev[ __( '11月' ) ]  = /* translators: Three-letter abbreviation of the month. */ _x( '11月', 'November abbreviation' );
-		$this->month_abbrev[ __( '12月' ) ]  = /* translators: Three-letter abbreviation of the month. */ _x( '12月', 'December abbreviation' );
+		$this->month_abbrev[ $this->month['01'] ] = /* translators: Three-letter abbreviation of the month. */ _x( '1月', 'January abbreviation' );
+		$this->month_abbrev[ $this->month['02'] ] = /* translators: Three-letter abbreviation of the month. */ _x( '2月', 'February abbreviation' );
+		$this->month_abbrev[ $this->month['03'] ] = /* translators: Three-letter abbreviation of the month. */ _x( '3月', 'March abbreviation' );
+		$this->month_abbrev[ $this->month['04'] ] = /* translators: Three-letter abbreviation of the month. */ _x( '4月', 'April abbreviation' );
+		$this->month_abbrev[ $this->month['05'] ] = /* translators: Three-letter abbreviation of the month. */ _x( '5月', 'May abbreviation' );
+		$this->month_abbrev[ $this->month['06'] ] = /* translators: Three-letter abbreviation of the month. */ _x( '6月', 'June abbreviation' );
+		$this->month_abbrev[ $this->month['07'] ] = /* translators: Three-letter abbreviation of the month. */ _x( '7月', 'July abbreviation' );
+		$this->month_abbrev[ $this->month['08'] ] = /* translators: Three-letter abbreviation of the month. */ _x( '8月', 'August abbreviation' );
+		$this->month_abbrev[ $this->month['09'] ] = /* translators: Three-letter abbreviation of the month. */ _x( '9月', 'September abbreviation' );
+		$this->month_abbrev[ $this->month['10'] ] = /* translators: Three-letter abbreviation of the month. */ _x( '10月', 'October abbreviation' );
+		$this->month_abbrev[ $this->month['11'] ] = /* translators: Three-letter abbreviation of the month. */ _x( '11月', 'November abbreviation' );
+		$this->month_abbrev[ $this->month['12'] ] = /* translators: Three-letter abbreviation of the month. */ _x( '12月', 'December abbreviation' );
 
 		// The meridiems.
 		$this->meridiem['am'] = __( '上午' );
@@ -182,21 +207,26 @@ class GC_Locale {
 		$this->meridiem['AM'] = __( '上午' );
 		$this->meridiem['PM'] = __( '下午' );
 
-		// Numbers formatting.
-		// See https://www.php.net/number_format
+		/*
+		 * Numbers formatting.
+		 * See https://www.php.net/number_format
+		 */
 
 		/* translators: $thousands_sep argument for https://www.php.net/number_format, default is ',' */
-		$thousands_sep = __( ',' );
+		$thousands_sep = __( 'number_format_thousands_sep' );
 
 		// Replace space with a non-breaking space to avoid wrapping.
 		$thousands_sep = str_replace( ' ', '&nbsp;', $thousands_sep );
 
-		$this->number_format['thousands_sep'] = ( ',' === $thousands_sep ) ? ',' : $thousands_sep;
+		$this->number_format['thousands_sep'] = ( 'number_format_thousands_sep' === $thousands_sep ) ? ',' : $thousands_sep;
 
 		/* translators: $dec_point argument for https://www.php.net/number_format, default is '.' */
-		$decimal_point = __( '.' );
+		$decimal_point = __( 'number_format_decimal_point' );
 
-		$this->number_format['decimal_point'] = ( '.' === $decimal_point ) ? '.' : $decimal_point;
+		$this->number_format['decimal_point'] = ( 'number_format_decimal_point' === $decimal_point ) ? '.' : $decimal_point;
+
+		/* translators: Used between list items, there is a space after the comma. */
+		$this->list_item_separator = __( ', ' );
 
 		// Set text direction.
 		if ( isset( $GLOBALS['text_direction'] ) ) {
@@ -206,10 +236,13 @@ class GC_Locale {
 		} elseif ( 'rtl' === _x( 'ltr', '文本方向' ) ) {
 			$this->text_direction = 'rtl';
 		}
+
+		// Set the word count type.
+		$this->word_count_type = $this->get_word_count_type();
 	}
 
 	/**
-	 * Retrieve the full translated weekday word.
+	 * Retrieves the full translated weekday word.
 	 *
 	 * Week starts on translated Sunday and can be fetched
 	 * by using 0 (zero). So the week starts with 0 (zero)
@@ -224,7 +257,7 @@ class GC_Locale {
 	}
 
 	/**
-	 * Retrieve the translated weekday initial.
+	 * Retrieves the translated weekday initial.
 	 *
 	 * The weekday initial is retrieved by the translated
 	 * full weekday word. When translating the weekday initial
@@ -240,7 +273,7 @@ class GC_Locale {
 	}
 
 	/**
-	 * Retrieve the translated weekday abbreviation.
+	 * Retrieves the translated weekday abbreviation.
 	 *
 	 * The weekday abbreviation is retrieved by the translated
 	 * full weekday word.
@@ -254,7 +287,7 @@ class GC_Locale {
 	}
 
 	/**
-	 * Retrieve the full translated month by month number.
+	 * Retrieves the full translated month by month number.
 	 *
 	 * The $month_number parameter has to be a string
 	 * because it must have the '0' in front of any number
@@ -273,7 +306,7 @@ class GC_Locale {
 	}
 
 	/**
-	 * Retrieve translated version of month abbreviation string.
+	 * Retrieves translated version of month abbreviation string.
 	 *
 	 * The $month_name parameter is expected to be the translated or
 	 * translatable version of the month.
@@ -287,7 +320,7 @@ class GC_Locale {
 	}
 
 	/**
-	 * Retrieve translated version of meridiem string.
+	 * Retrieves translated version of meridiem string.
 	 *
 	 * The $meridiem parameter is expected to not be translated.
 	 *
@@ -331,12 +364,13 @@ class GC_Locale {
 	}
 
 	/**
-	 * Register date/time format strings for general POT.
+	 * Registers date/time format strings for general POT.
 	 *
 	 * Private, unused method to add some date/time formats translated
 	 * on gc-admin/options-general.php to the general POT that would
 	 * otherwise be added to the admin POT.
 	 *
+	 * @since 3.6.0
 	 */
 	public function _strings_for_pot() {
 		/* translators: Localized date format, see https://www.php.net/manual/datetime.format.php */
@@ -344,6 +378,45 @@ class GC_Locale {
 		/* translators: Localized time format, see https://www.php.net/manual/datetime.format.php */
 		__( 'ag:i' );
 		/* translators: Localized date and time format, see https://www.php.net/manual/datetime.format.php */
-		__( 'Y年n月j日ag:i' );
+		__( 'Y年n月j日a g:i' );
+	}
+
+	/**
+	 * Retrieves the localized list item separator.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @return string Localized list item separator.
+	 */
+	public function get_list_item_separator() {
+		return $this->list_item_separator;
+	}
+
+	/**
+	 * Retrieves the localized word count type.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @return string Localized word count type. Possible values are `characters_excluding_spaces`,
+	 *                `characters_including_spaces`, or `words`. Defaults to `words`.
+	 */
+	public function get_word_count_type() {
+
+		/*
+		 * translators: If your word count is based on single characters (e.g. East Asian characters),
+		 * enter 'characters_excluding_spaces' or 'characters_including_spaces'. Otherwise, enter 'words'.
+		 * Do not translate into your own language.
+		 * gongenlin
+		 * 6.3.3
+		 */
+		$word_count_type = is_null( $this->word_count_type ) ? _x( 'characters_excluding_spaces', 'Word count type. Do not translate!' ) : $this->word_count_type;
+
+		// Check for valid types.
+		if ( 'characters_excluding_spaces' !== $word_count_type && 'characters_including_spaces' !== $word_count_type ) {
+			// Defaults to 'words'.
+			$word_count_type = 'words';
+		}
+
+		return $word_count_type;
 	}
 }

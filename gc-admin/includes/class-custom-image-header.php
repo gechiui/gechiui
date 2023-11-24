@@ -9,8 +9,8 @@
 /**
  * The custom header image class.
  *
- *
  */
+#[AllowDynamicProperties]
 class Custom_Image_Header {
 
 	/**
@@ -60,11 +60,17 @@ class Custom_Image_Header {
 	}
 
 	/**
-	 * Set up the hooks for the Custom Header admin page.
+	 * Sets up the hooks for the Custom Header admin page.
 	 *
 	 */
 	public function init() {
-		$page = add_theme_page( __( '页眉' ), __( '页眉' ), 'edit_theme_options', 'custom-header', array( $this, 'admin_page' ) );
+		$page = add_theme_page(
+			_x( '页眉', 'custom image header' ),
+			_x( '页眉', 'custom image header' ),
+			'edit_theme_options',
+			'custom-header',
+			array( $this, 'admin_page' )
+		);
 
 		if ( ! $page ) {
 			return;
@@ -92,7 +98,7 @@ class Custom_Image_Header {
 				'title'   => __( '概述' ),
 				'content' =>
 					'<p>' . __( '在本页面调整主题顶部的样式。' ) . '</p>' .
-					'<p>' . __( '您可以从主题默认的页眉图片中选择，或使用您自己准备的页眉图片。您还可以定义“站点标题”和“副标题”的显示方式。' ) . '<p>',
+					'<p>' . __( '您可以从主题默认的页眉图片中选择，或使用您自己准备的页眉图片。您还可以定义“系统标题”和“副标题”的显示方式。' ) . '<p>',
 			)
 		);
 
@@ -101,10 +107,10 @@ class Custom_Image_Header {
 				'id'      => 'set-header-image',
 				'title'   => __( '页眉图片' ),
 				'content' =>
-					'<p>' . __( '您可为站点选择一个自定义页眉图片。只需上传需要的图片并进行剪裁，新顶页眉图片将会立即生效。或者您也可以点击“选择图片”，使用“媒体库”中原来上传过的图片。' ) . '</p>' .
-					'<p>' . __( '一些主题附带了更多的页眉图片供您选择。若显示了多幅图片，请选择您喜爱的图片并点击“保存更改”。' ) . '</p>' .
+					'<p>' . __( '您可为系统选择一个自定义页眉图片。只需上传需要的图片并进行剪裁，新的页眉图片将会立即生效。或者您也可以点击“选择图片”，使用“媒体库”中原来上传过的图片。' ) . '</p>' .
+					'<p>' . __( '一些主题附带了更多的页眉图片供您选择。若显示了多幅图片，请选择您喜爱的图片并点击“保存更改”按钮。' ) . '</p>' .
 					'<p>' . __( '如果您有多张页眉图片，您可以选择让 GeChiUI 每次随机展示其中一张图片。如需实现这种效果，勾选“已上传的图片”旁边的“随机”单选框。' ) . '</p>' .
-					'<p>' . __( '如果您不想要页眉图片，点击本页下方“页眉图片”一节的“移除页眉图片”按钮。移除之后如需再次启用页眉图片功能，您只须选择一个选项，然后点击“保存更改”。' ) . '</p>',
+					'<p>' . __( '如果您不想要页眉图片，点击本页下方“页眉图片”一节的“移除页眉图片”按钮。移除之后如需再次启用页眉图片功能，您只须选择一张图片，然后点击“保存更改”。' ) . '</p>',
 			)
 		);
 
@@ -115,25 +121,26 @@ class Custom_Image_Header {
 				'content' =>
 					'<p>' . sprintf(
 						/* translators: %s: URL to General Settings screen. */
-						__( '大多数主题的顶部文字显示的是“站点标题”和“副标题”。您可以在<a href="%s">常规选项</a>进行修改。' ),
+						__( '大多数主题的顶部文字显示的是“系统标题”和“副标题”。您可以在<a href="%s">常规选项</a>进行修改。' ),
 						admin_url( 'options-general.php' )
 					) .
 					'</p>' .
 					'<p>' . __( '在“顶部文本”一节，您可以选择是否显示这些文字。颜色可以通过点击“选择颜色”来使用选色器选择，或者手工输入HTML十六进制颜色代码（如红色“#ff0000”）。' ) . '</p>' .
-					'<p>' . __( '完成后请不要忘记点击“保存更改”按钮！' ) . '</p>',
+					'<p>' . __( '完成时不要忘记点击“保存更改”！' ) . '</p>',
 			)
 		);
 
 		get_current_screen()->set_help_sidebar(
 			'<p><strong>' . __( '更多信息：' ) . '</strong></p>' .
 			'<p>' . __( '<a href="https://codex.gechiui.com/Appearance_Header_Screen">自定义页眉文档</a>' ) . '</p>' .
-			'<p>' . __( '<a href="https://www.gechiui.com/support/">支持</a>' ) . '</p>'
+			'<p>' . __( '<a href="https://www.gechiui.com/support/forums/">支持论坛</a>' ) . '</p>'
 		);
 	}
 
 	/**
-	 * Get the current step.
+	 * Gets the current step.
 	 *
+	 * @since 2.6.0
 	 *
 	 * @return int Current step.
 	 */
@@ -154,7 +161,7 @@ class Custom_Image_Header {
 	}
 
 	/**
-	 * Set up the enqueue for the JavaScript files.
+	 * Sets up the enqueue for the JavaScript files.
 	 *
 	 */
 	public function js_includes() {
@@ -172,8 +179,9 @@ class Custom_Image_Header {
 	}
 
 	/**
-	 * Set up the enqueue for the CSS files
+	 * Sets up the enqueue for the CSS files.
 	 *
+	 * @since 2.7.0
 	 */
 	public function css_includes() {
 		$step = $this->step();
@@ -186,8 +194,9 @@ class Custom_Image_Header {
 	}
 
 	/**
-	 * Execute custom header modification.
+	 * Executes custom header modification.
 	 *
+	 * @since 2.6.0
 	 */
 	public function take_action() {
 		if ( ! current_user_can( 'edit_theme_options' ) ) {
@@ -244,7 +253,7 @@ class Custom_Image_Header {
 	}
 
 	/**
-	 * Process the default headers
+	 * Processes the default headers.
 	 *
 	 *
 	 * @global array $_gc_default_headers
@@ -280,9 +289,9 @@ class Custom_Image_Header {
 	}
 
 	/**
-	 * Display UI for selecting one of several default headers.
+	 * Displays UI for selecting one of several default headers.
 	 *
-	 * Show the random image option if this theme has multiple header images.
+	 * Shows the random image option if this theme has multiple header images.
 	 * Random image option is on by default if no header has been set.
 	 *
 	 *
@@ -318,7 +327,7 @@ class Custom_Image_Header {
 			if ( ! empty( $header['attachment_id'] ) ) {
 				$width = ' width="230"';
 			}
-			echo '<img src="' . set_url_scheme( $header_thumbnail ) . '" alt="' . esc_attr( $header_alt_text ) . '"' . $width . ' /></label>';
+			echo '<img src="' . esc_url( set_url_scheme( $header_thumbnail ) ) . '" alt="' . esc_attr( $header_alt_text ) . '"' . $width . ' /></label>';
 			echo '</div>';
 		}
 
@@ -326,7 +335,7 @@ class Custom_Image_Header {
 	}
 
 	/**
-	 * Execute JavaScript depending on step.
+	 * Executes JavaScript depending on step.
 	 *
 	 */
 	public function js() {
@@ -340,14 +349,15 @@ class Custom_Image_Header {
 	}
 
 	/**
-	 * Display JavaScript based on Step 1 and 3.
+	 * Displays JavaScript based on Step 1 and 3.
 	 *
+	 * @since 2.6.0
 	 */
 	public function js_1() {
 		$default_color = '';
 		if ( current_theme_supports( 'custom-header', 'default-text-color' ) ) {
 			$default_color = get_theme_support( 'custom-header', 'default-text-color' );
-			if ( $default_color && false === strpos( $default_color, '#' ) ) {
+			if ( $default_color && ! str_contains( $default_color, '#' ) ) {
 				$default_color = '#' . $default_color;
 			}
 		}
@@ -400,8 +410,9 @@ class Custom_Image_Header {
 	}
 
 	/**
-	 * Display JavaScript based on Step 2.
+	 * Displays JavaScript based on Step 2.
 	 *
+	 * @since 2.6.0
 	 */
 	public function js_2() {
 
@@ -475,7 +486,7 @@ class Custom_Image_Header {
 	}
 
 	/**
-	 * Display first step of custom header image page.
+	 * Displays first step of custom header image page.
 	 *
 	 */
 	public function step_1() {
@@ -483,15 +494,15 @@ class Custom_Image_Header {
 		?>
 
 <div class="wrap">
-<h1><?php _e( '自定义顶部' ); ?></h1>
+<h1><?php _e( '自定义页眉' ); ?></h1>
 
 		<?php if ( current_user_can( 'customize' ) ) { ?>
-<div class="notice notice-info hide-if-no-customize">
+<div class="alert alert-primary hide-if-no-customize">
 	<p>
 			<?php
 			printf(
 				/* translators: %s: URL to header image configuration in Customizer. */
-				__( '您现在可在<a href="%s">定制器</a>中管理并实时预览您的自定义顶部。' ),
+				__( '您现在可在<a href="%s">定制器</a>中管理并实时预览您的自定义页眉。' ),
 				admin_url( 'customize.php?autofocus[control]=header_image' )
 			);
 			?>
@@ -504,13 +515,13 @@ class Custom_Image_Header {
 	<p>
 			<?php
 			/* translators: %s: Home URL. */
-			printf( __( '顶部已更新。<a href="%s">访问您的站点</a>来看看效果。' ), home_url( '/' ) );
+			printf( __( '顶部已更新。<a href="%s">访问您的系统</a>来看看效果。' ), esc_url( home_url( '/' ) ) );
 			?>
 	</p>
 </div>
 		<?php } ?>
 
-<h2><?php _e( '页眉图片' ); ?></h2>
+<h4><?php _e( '页眉图片' ); ?></h4>
 
 <table class="form-table" role="presentation">
 <tbody>
@@ -634,22 +645,20 @@ class Custom_Image_Header {
 			<?php submit_button( __( '上传' ), '', 'submit', false ); ?>
 	</p>
 			<?php
-				$modal_update_href = esc_url(
-					add_query_arg(
-						array(
-							'page' => 'custom-header',
-							'step' => 2,
-							'_gcnonce-custom-header-upload' => gc_create_nonce( 'custom-header-upload' ),
-						),
-						admin_url( 'themes.php' )
-					)
-				);
+			$modal_update_href = add_query_arg(
+				array(
+					'page'                          => 'custom-header',
+					'step'                          => 2,
+					'_gcnonce-custom-header-upload' => gc_create_nonce( 'custom-header-upload' ),
+				),
+				admin_url( 'themes.php' )
+			);
 			?>
 	<p>
 		<label for="choose-from-library-link"><?php _e( '或从您的媒体库中选择图片：' ); ?></label><br />
-		<button id="choose-from-library-link" class="button"
-			data-update-link="<?php echo esc_attr( $modal_update_href ); ?>"
-			data-choose="<?php esc_attr_e( '选择自定义顶部' ); ?>"
+		<button id="choose-from-library-link" class="btn btn-primary btn-tone btn-sm"
+			data-update-link="<?php echo esc_url( $modal_update_href ); ?>"
+			data-choose="<?php esc_attr_e( '选择自定义页眉' ); ?>"
 			data-update="<?php esc_attr_e( '设为顶部' ); ?>"><?php _e( '选择图片' ); ?></button>
 	</p>
 	</form>
@@ -725,7 +734,7 @@ class Custom_Image_Header {
 
 		<?php if ( current_theme_supports( 'custom-header', 'header-text' ) ) : ?>
 
-<h2><?php _e( '顶部文本' ); ?></h2>
+<h4><?php _e( '顶部文本' ); ?></h4>
 
 <table class="form-table" role="presentation">
 <tbody>
@@ -746,7 +755,7 @@ class Custom_Image_Header {
 			$default_color = '';
 			if ( current_theme_supports( 'custom-header', 'default-text-color' ) ) {
 				$default_color = get_theme_support( 'custom-header', 'default-text-color' );
-				if ( $default_color && false === strpos( $default_color, '#' ) ) {
+				if ( $default_color && ! str_contains( $default_color, '#' ) ) {
 					$default_color = '#' . $default_color;
 				}
 			}
@@ -754,7 +763,7 @@ class Custom_Image_Header {
 			$default_color_attr = $default_color ? ' data-default-color="' . esc_attr( $default_color ) . '"' : '';
 
 			$header_textcolor = display_header_text() ? get_header_textcolor() : get_theme_support( 'custom-header', 'default-text-color' );
-			if ( $header_textcolor && false === strpos( $header_textcolor, '#' ) ) {
+			if ( $header_textcolor && ! str_contains( $header_textcolor, '#' ) ) {
 				$header_textcolor = '#' . $header_textcolor;
 			}
 
@@ -775,6 +784,7 @@ endif;
 		/**
 		 * Fires just before the submit button in the custom header options form.
 		 *
+		 * @since 3.1.0
 		 */
 		do_action( 'custom_header_options' );
 
@@ -789,7 +799,7 @@ endif;
 	}
 
 	/**
-	 * Display second step of custom header image page.
+	 * Displays second step of custom header image page.
 	 *
 	 */
 	public function step_2() {
@@ -798,7 +808,7 @@ endif;
 		if ( ! current_theme_supports( 'custom-header', 'uploads' ) ) {
 			gc_die(
 				'<h1>' . __( '出现了问题。' ) . '</h1>' .
-				'<p>' . __( '活动主题不支持上传自定义页眉图片。' ) . '</p>',
+				'<p>' . __( '当前主题不支持上传自定义的页眉图片。' ) . '</p>',
 				403
 			);
 		}
@@ -853,7 +863,7 @@ endif;
 			/**
 			 * Fires after the header image is set or an error is returned.
 			 *
-		
+			 * @since 2.1.0
 			 *
 			 * @param string $file          Path to the file.
 			 * @param int    $attachment_id Attachment ID.
@@ -931,8 +941,9 @@ endif;
 
 
 	/**
-	 * Upload the file to be cropped in the second step.
+	 * Uploads the file to be cropped in the second step.
 	 *
+	 * @since 3.4.0
 	 */
 	public function step_2_manage_upload() {
 		$overrides = array( 'test_form' => false );
@@ -955,8 +966,8 @@ endif;
 		$file     = $file['file'];
 		$filename = gc_basename( $file );
 
-		// Construct the object array.
-		$object = array(
+		// Construct the attachment array.
+		$attachment = array(
 			'post_title'     => $filename,
 			'post_content'   => $url,
 			'post_mime_type' => $type,
@@ -965,14 +976,15 @@ endif;
 		);
 
 		// Save the data.
-		$attachment_id = gc_insert_attachment( $object, $file );
+		$attachment_id = gc_insert_attachment( $attachment, $file );
 
 		return compact( 'attachment_id', 'file', 'filename', 'url', 'type' );
 	}
 
 	/**
-	 * Display third step of custom header image page.
+	 * Displays third step of custom header image page.
 	 *
+	 * @since 4.4.0 Switched to using gc_get_attachment_url() instead of the guid
 	 *              for retrieving the header image URL.
 	 */
 	public function step_3() {
@@ -981,7 +993,7 @@ endif;
 		if ( ! current_theme_supports( 'custom-header', 'uploads' ) ) {
 			gc_die(
 				'<h1>' . __( '出现了问题。' ) . '</h1>' .
-				'<p>' . __( '活动主题不支持上传自定义页眉图片。' ) . '</p>',
+				'<p>' . __( '当前主题不支持上传自定义的页眉图片。' ) . '</p>',
 				403
 			);
 		}
@@ -992,7 +1004,7 @@ endif;
 		) {
 			gc_die(
 				'<h1>' . __( '出现了问题。' ) . '</h1>' .
-				'<p>' . __( '活动主题不支持大小灵活的页眉图片。' ) . '</p>',
+				'<p>' . __( '当前主题不支持自适应大小的页眉图片。' ) . '</p>',
 				403
 			);
 		}
@@ -1039,14 +1051,14 @@ endif;
 		/** This filter is documented in gc-admin/includes/class-custom-image-header.php */
 		$cropped = apply_filters( 'gc_create_file_in_uploads', $cropped, $attachment_id ); // For replication.
 
-		$object = $this->create_attachment_object( $cropped, $attachment_id );
+		$attachment = $this->create_attachment_object( $cropped, $attachment_id );
 
 		if ( ! empty( $_POST['create-new-attachment'] ) ) {
-			unset( $object['ID'] );
+			unset( $attachment['ID'] );
 		}
 
 		// Update the attachment.
-		$attachment_id = $this->insert_attachment( $object, $cropped );
+		$attachment_id = $this->insert_attachment( $attachment, $cropped );
 
 		$url = gc_get_attachment_url( $attachment_id );
 		$this->set_header_image( compact( 'url', 'attachment_id', 'width', 'height' ) );
@@ -1065,7 +1077,7 @@ endif;
 	}
 
 	/**
-	 * Display last step of custom header image page.
+	 * Displays last step of custom header image page.
 	 *
 	 */
 	public function finished() {
@@ -1074,7 +1086,7 @@ endif;
 	}
 
 	/**
-	 * Display the page based on the current step.
+	 * Displays the page based on the current step.
 	 *
 	 */
 	public function admin_page() {
@@ -1096,6 +1108,7 @@ endif;
 	/**
 	 * Unused since 3.5.0.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param array $form_fields
 	 * @return array $form_fields
@@ -1107,6 +1120,7 @@ endif;
 	/**
 	 * Unused since 3.5.0.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param array $tabs
 	 * @return array $tabs
@@ -1116,15 +1130,17 @@ endif;
 	}
 
 	/**
-	 * Choose a header image, selected from existing uploaded and default headers,
-	 * or provide an array of uploaded header data (either new, or from media library).
+	 * Chooses a header image, selected from existing uploaded and default headers,
+	 * or provides an array of uploaded header data (either new, or from media library).
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param mixed $choice Which header image to select. Allows for values of 'random-default-image',
-	 *  for randomly cycling among the default images; 'random-uploaded-image', for randomly cycling
-	 *  among the uploaded images; the key of a default image registered for that theme; and
-	 *  the key of an image uploaded for that theme (the attachment ID of the image).
-	 *  Or an array of arguments: attachment_id, url, width, height. All are required.
+	 *                      for randomly cycling among the default images; 'random-uploaded-image',
+	 *                      for randomly cycling among the uploaded images; the key of a default image
+	 *                      registered for that theme; and the key of an image uploaded for that theme
+	 *                      (the attachment ID of the image). Or an array of arguments: attachment_id,
+	 *                      url, width, height. All are required.
 	 */
 	final public function set_header_image( $choice ) {
 		if ( is_array( $choice ) || is_object( $choice ) ) {
@@ -1134,7 +1150,7 @@ endif;
 				return;
 			}
 
-			$choice['url'] = esc_url_raw( $choice['url'] );
+			$choice['url'] = sanitize_url( $choice['url'] );
 
 			$header_image_data = (object) array(
 				'attachment_id' => $choice['attachment_id'],
@@ -1172,23 +1188,25 @@ endif;
 			}
 		}
 
-		set_theme_mod( 'header_image', esc_url_raw( $header_image_data['url'] ) );
+		set_theme_mod( 'header_image', sanitize_url( $header_image_data['url'] ) );
 		set_theme_mod( 'header_image_data', $header_image_data );
 	}
 
 	/**
-	 * Remove a header image.
+	 * Removes a header image.
 	 *
+	 * @since 3.4.0
 	 */
 	final public function remove_header_image() {
 		$this->set_header_image( 'remove-header' );
 	}
 
 	/**
-	 * Reset a header image to the default image for the theme.
+	 * Resets a header image to the default image for the theme.
 	 *
 	 * This method does not do anything if the theme does not have a default header image.
 	 *
+	 * @since 3.4.0
 	 */
 	final public function reset_header_image() {
 		$this->process_default_headers();
@@ -1214,7 +1232,7 @@ endif;
 	}
 
 	/**
-	 * Calculate width and height based on what the currently selected theme supports.
+	 * Calculates width and height based on what the currently selected theme supports.
 	 *
 	 *
 	 * @param array $dimensions
@@ -1264,12 +1282,12 @@ endif;
 	}
 
 	/**
-	 * Create an attachment 'object'.
+	 * Creates an attachment 'object'.
 	 *
 	 *
 	 * @param string $cropped              Cropped image URL.
 	 * @param int    $parent_attachment_id Attachment ID of parent image.
-	 * @return array Attachment object.
+	 * @return array An array with attachment object data.
 	 */
 	final public function create_attachment_object( $cropped, $parent_attachment_id ) {
 		$parent     = get_post( $parent_attachment_id );
@@ -1279,7 +1297,7 @@ endif;
 		$size       = gc_getimagesize( $cropped );
 		$image_type = ( $size ) ? $size['mime'] : 'image/jpeg';
 
-		$object = array(
+		$attachment = array(
 			'ID'             => $parent_attachment_id,
 			'post_title'     => gc_basename( $cropped ),
 			'post_mime_type' => $image_type,
@@ -1288,22 +1306,22 @@ endif;
 			'post_parent'    => $parent_attachment_id,
 		);
 
-		return $object;
+		return $attachment;
 	}
 
 	/**
-	 * Insert an attachment and its metadata.
+	 * Inserts an attachment and its metadata.
 	 *
 	 *
-	 * @param array  $object  Attachment object.
-	 * @param string $cropped File path to cropped image.
+	 * @param array  $attachment An array with attachment object data.
+	 * @param string $cropped    File path to cropped image.
 	 * @return int Attachment ID.
 	 */
-	final public function insert_attachment( $object, $cropped ) {
-		$parent_id = isset( $object['post_parent'] ) ? $object['post_parent'] : null;
-		unset( $object['post_parent'] );
+	final public function insert_attachment( $attachment, $cropped ) {
+		$parent_id = isset( $attachment['post_parent'] ) ? $attachment['post_parent'] : null;
+		unset( $attachment['post_parent'] );
 
-		$attachment_id = gc_insert_attachment( $object, $cropped );
+		$attachment_id = gc_insert_attachment( $attachment, $cropped );
 		$metadata      = gc_generate_attachment_metadata( $attachment_id, $cropped );
 
 		// If this is a crop, save the original attachment ID as metadata.
@@ -1314,6 +1332,7 @@ endif;
 		/**
 		 * Filters the header image attachment metadata.
 		 *
+		 * @since 3.9.0
 		 *
 		 * @see gc_generate_attachment_metadata()
 		 *
@@ -1370,25 +1389,25 @@ endif;
 		/** This filter is documented in gc-admin/includes/class-custom-image-header.php */
 		$cropped = apply_filters( 'gc_create_file_in_uploads', $cropped, $attachment_id ); // For replication.
 
-		$object = $this->create_attachment_object( $cropped, $attachment_id );
+		$attachment = $this->create_attachment_object( $cropped, $attachment_id );
 
-		$previous = $this->get_previous_crop( $object );
+		$previous = $this->get_previous_crop( $attachment );
 
 		if ( $previous ) {
-			$object['ID'] = $previous;
+			$attachment['ID'] = $previous;
 		} else {
-			unset( $object['ID'] );
+			unset( $attachment['ID'] );
 		}
 
-		$new_attachment_id = $this->insert_attachment( $object, $cropped );
+		$new_attachment_id = $this->insert_attachment( $attachment, $cropped );
 
-		$object['attachment_id'] = $new_attachment_id;
-		$object['url']           = gc_get_attachment_url( $new_attachment_id );
+		$attachment['attachment_id'] = $new_attachment_id;
+		$attachment['url']           = gc_get_attachment_url( $new_attachment_id );
 
-		$object['width']  = $dimensions['dst_width'];
-		$object['height'] = $dimensions['dst_height'];
+		$attachment['width']  = $dimensions['dst_width'];
+		$attachment['height'] = $dimensions['dst_height'];
 
-		gc_send_json_success( $object );
+		gc_send_json_success( $attachment );
 	}
 
 	/**
@@ -1534,13 +1553,14 @@ endif;
 	}
 
 	/**
-	 * Get the ID of a previous crop from the same base image.
+	 * Gets the ID of a previous crop from the same base image.
 	 *
+	 * @since 4.9.0
 	 *
-	 * @param array $object A crop attachment object.
+	 * @param array $attachment An array with a cropped attachment object data.
 	 * @return int|false An attachment ID if one exists. False if none.
 	 */
-	public function get_previous_crop( $object ) {
+	public function get_previous_crop( $attachment ) {
 		$header_images = $this->get_uploaded_header_images();
 
 		// Bail early if there are no header images.
@@ -1551,7 +1571,7 @@ endif;
 		$previous = false;
 
 		foreach ( $header_images as $image ) {
-			if ( $image['attachment_parent'] === $object['post_parent'] ) {
+			if ( $image['attachment_parent'] === $attachment['post_parent'] ) {
 				$previous = $image['attachment_id'];
 				break;
 			}

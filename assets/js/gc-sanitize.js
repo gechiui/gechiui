@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/gc-sanitize.js
+ * @output assets/js/gc-sanitize.js
  */
 
 ( function () {

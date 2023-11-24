@@ -1,0 +1,33 @@
+.gc-block-calendar{
+  text-align:center;
+}
+.gc-block-calendar td,.gc-block-calendar th{
+  border:1px solid;
+  padding:.25em;
+}
+.gc-block-calendar th{
+  font-weight:400;
+}
+.gc-block-calendar caption{
+  background-color:inherit;
+}
+.gc-block-calendar table{
+  border-collapse:collapse;
+  width:100%;
+}
+.gc-block-calendar table:where(:not(.has-text-color)){
+  color:#40464d;
+}
+.gc-block-calendar table:where(:not(.has-text-color)) td,.gc-block-calendar table:where(:not(.has-text-color)) th{
+  border-color:#ddd;
+}
+.gc-block-calendar table.has-background th{
+  background-color:inherit;
+}
+.gc-block-calendar table.has-text-color th{
+  color:inherit;
+}
+
+:where(.gc-block-calendar table:not(.has-background) th){
+  background:#ddd;
+}

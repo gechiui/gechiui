@@ -4,19 +4,26 @@
  *
  * @package GeChiUI
  * @subpackage Upgrader
- *
  */
 
 /**
  * Bulk Theme Upgrader Skin for GeChiUI Theme Upgrades.
- *
- *
- *
+ * Moved to its own file from gc-admin/includes/class-gc-upgrader-skins.php.
  *
  * @see Bulk_Upgrader_Skin
  */
 class Bulk_Theme_Upgrader_Skin extends Bulk_Upgrader_Skin {
-	public $theme_info = array(); // Theme_Upgrader::bulk_upgrade() will fill this in.
+
+	/**
+	 * Theme info.
+	 *
+	 * The Theme_Upgrader::bulk_upgrade() method will fill this in
+	 * with info retrieved from the Theme_Upgrader::theme_info() method,
+	 * which in turn calls the gc_get_theme() function.
+	 *
+	 * @var GC_Theme|false The theme's info object, or false.
+	 */
+	public $theme_info = false;
 
 	public function add_strings() {
 		parent::add_strings();
@@ -64,6 +71,7 @@ class Bulk_Theme_Upgrader_Skin extends Bulk_Upgrader_Skin {
 		/**
 		 * Filters the list of action links available following bulk theme updates.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param string[] $update_actions Array of theme action links.
 		 * @param GC_Theme $theme_info     Theme object for the last-updated theme.

@@ -4,14 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Core class used to implement displaying themes in a list table for the network admin.
- *
- *
- * @access private
  *
  * @see GC_List_Table
  */
@@ -25,6 +21,7 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 	/**
 	 * Whether to show the auto-updates UI.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @var bool True if auto-updates UI is to be shown, false otherwise.
 	 */
@@ -105,7 +102,7 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 			 * Filters the full array of GC_Theme objects to list in the Multisite
 			 * themes list table.
 			 *
-		
+			 * @since 3.1.0
 			 *
 			 * @param GC_Theme[] $all Array of GC_Theme objects to display in the list table.
 			 */
@@ -267,7 +264,7 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 			$term = gc_unslash( $_REQUEST['s'] );
 		}
 
-		foreach ( array( 'Name', 'description', 'Author', 'Author', 'AuthorURI' ) as $field ) {
+		foreach ( array( 'Name', 'Description', 'Author', 'Author', 'AuthorURI' ) as $field ) {
 			// Don't mark up; Do translate.
 			if ( false !== stripos( $theme->display( $field, false, true ), $term ) ) {
 				return true;
@@ -321,7 +318,7 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * @return array
+	 * @return string[] Array of column titles keyed by their column name.
 	 */
 	public function get_columns() {
 		$columns = array(
@@ -342,13 +339,14 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 	 */
 	protected function get_sortable_columns() {
 		return array(
-			'name' => 'name',
+			'name' => array( 'name', false, __( '主题' ), __( '表按主题名称排序。' ), 'asc' ),
 		);
 	}
 
 	/**
 	 * Gets the name of the primary column.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @return string Unalterable name of the primary column name, in this case, 'name'.
 	 */
@@ -441,16 +439,15 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 			}
 
 			if ( 'search' !== $type ) {
-				$status_links[ $type ] = sprintf(
-					"<a href='%s'%s>%s</a>",
-					esc_url( add_query_arg( 'theme_status', $type, $url ) ),
-					( $type === $status ) ? ' class="current" aria-current="page"' : '',
-					sprintf( $text, number_format_i18n( $count ) )
+				$status_links[ $type ] = array(
+					'url'     => esc_url( add_query_arg( 'theme_status', $type, $url ) ),
+					'label'   => sprintf( $text, number_format_i18n( $count ) ),
+					'current' => $type === $status,
 				);
 			}
 		}
 
-		return $status_links;
+		return $this->get_views_links( $status_links );
 	}
 
 	/**
@@ -463,10 +460,10 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 
 		$actions = array();
 		if ( 'enabled' !== $status ) {
-			$actions['enable-selected'] = $this->is_site_themes ? __( '启用' ) : __( '在站点网络中启用' );
+			$actions['enable-selected'] = $this->is_site_themes ? __( '启用' ) : __( '在SaaS平台中启用' );
 		}
 		if ( 'disabled' !== $status ) {
-			$actions['disable-selected'] = $this->is_site_themes ? __( '禁用' ) : __( '在站点网络中禁用' );
+			$actions['disable-selected'] = $this->is_site_themes ? __( '禁用' ) : __( '在SaaS平台中禁用' );
 		}
 		if ( ! $this->is_site_themes ) {
 			if ( current_user_can( 'update_themes' ) ) {
@@ -501,6 +498,8 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 	/**
 	 * Handles the checkbox column output.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$theme` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Theme $item The current GC_Theme object.
 	 */
@@ -509,14 +508,25 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 		$theme       = $item;
 		$checkbox_id = 'checkbox_' . md5( $theme->get( 'Name' ) );
 		?>
+		<label class="label-covers-full-cell" for="<?php echo $checkbox_id; ?>" >
+			<span class="screen-reader-text">
+			<?php
+			printf(
+				/* translators: Hidden accessibility text. %s: Theme name */
+				__( '选择%s' ),
+				$theme->display( 'Name' )
+			);
+			?>
+			</span>
+		</label>
 		<input type="checkbox" name="checked[]" value="<?php echo esc_attr( $theme->get_stylesheet() ); ?>" id="<?php echo $checkbox_id; ?>" />
-		<label class="screen-reader-text" for="<?php echo $checkbox_id; ?>" ><?php _e( '选择' ); ?>  <?php echo $theme->display( 'Name' ); ?></label>
 		<?php
 	}
 
 	/**
 	 * Handles the name column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @global string $status
 	 * @global int    $page
@@ -564,14 +574,14 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 					$aria_label = sprintf( __( '启用%s' ), $theme->display( 'Name' ) );
 				} else {
 					/* translators: %s: Theme name. */
-					$aria_label = sprintf( __( '在站点网络中启用%s' ), $theme->display( 'Name' ) );
+					$aria_label = sprintf( __( '在SaaS平台中启用%s' ), $theme->display( 'Name' ) );
 				}
 
 				$actions['enable'] = sprintf(
 					'<a href="%s" class="edit" aria-label="%s">%s</a>',
 					esc_url( gc_nonce_url( $url, 'enable-theme_' . $stylesheet ) ),
 					esc_attr( $aria_label ),
-					( $this->is_site_themes ? __( '启用' ) : __( '在站点网络中启用' ) )
+					( $this->is_site_themes ? __( '启用' ) : __( '在SaaS平台中启用' ) )
 				);
 			}
 		} else {
@@ -590,14 +600,14 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 				$aria_label = sprintf( __( '禁用%s' ), $theme->display( 'Name' ) );
 			} else {
 				/* translators: %s: Theme name. */
-				$aria_label = sprintf( __( '在站点网络中禁用%s' ), $theme->display( 'Name' ) );
+				$aria_label = sprintf( __( '在SaaS平台中禁用%s' ), $theme->display( 'Name' ) );
 			}
 
 			$actions['disable'] = sprintf(
 				'<a href="%s" aria-label="%s">%s</a>',
 				esc_url( gc_nonce_url( $url, 'disable-theme_' . $stylesheet ) ),
 				esc_attr( $aria_label ),
-				( $this->is_site_themes ? __( '禁用' ) : __( '在站点网络中禁用' ) )
+				( $this->is_site_themes ? __( '禁用' ) : __( '在SaaS平台中禁用' ) )
 			);
 		}
 
@@ -638,11 +648,12 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 		 * non-network enabled themes when editing a site in the Network admin.
 		 *
 		 * The default action links for the Network themes list table include
-		 * '在站点网络中启用', '在站点网络中禁用', and 'Delete'.
+		 * '在SaaS平台中启用', '在SaaS平台中禁用', and 'Delete'.
 		 *
 		 * The default action links for the Site themes list table include
 		 * 'Enable', and 'Disable'.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param string[] $actions An array of action links.
 		 * @param GC_Theme $theme   The current GC_Theme object.
@@ -658,6 +669,7 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 		 * directory name of the theme, which in most cases is synonymous
 		 * with the template name.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param string[] $actions An array of action links.
 		 * @param GC_Theme $theme   The current GC_Theme object.
@@ -671,6 +683,7 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 	/**
 	 * Handles the description column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @global string $status
 	 * @global array  $totals
@@ -696,7 +709,7 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 			$class .= ' update';
 		}
 
-		echo "<div class='theme-description'><p>" . $theme->display( 'description' ) . "</p></div>
+		echo "<div class='theme-description'><p>" . $theme->display( 'Description' ) . "</p></div>
 			<div class='$class second theme-version-author-uri'>";
 
 		$stylesheet = $theme->get_stylesheet();
@@ -712,13 +725,13 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 
 		if ( $theme->get( 'ThemeURI' ) ) {
 			/* translators: %s: Theme name. */
-			$aria_label = sprintf( __( '访问 %s 的主题站点' ), $theme->display( 'Name' ) );
+			$aria_label = sprintf( __( '访问 %s 的主题系统' ), $theme->display( 'Name' ) );
 
 			$theme_meta[] = sprintf(
 				'<a href="%s" aria-label="%s">%s</a>',
 				$theme->display( 'ThemeURI' ),
 				esc_attr( $aria_label ),
-				__( '访问主题站点' )
+				__( '查看主题详情' )
 			);
 		}
 
@@ -734,6 +747,7 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 		 * Filters the array of row meta for each theme in the Multisite themes
 		 * list table.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param string[] $theme_meta An array of the theme's metadata, including
 		 *                             the version, author, and theme URI.
@@ -751,6 +765,7 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 	/**
 	 * Handles the auto-updates column output.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @global string $status
 	 * @global int  $page
@@ -831,6 +846,7 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 		/**
 		 * Filters the HTML of the auto-updates setting for each theme in the Themes list table.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param string   $html       The HTML for theme's auto-update setting, including
 		 *                             toggle auto-update action link and time to next update.
@@ -839,12 +855,14 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 		 */
 		echo apply_filters( 'theme_auto_update_setting_html', $html, $stylesheet, $theme );
 
-		echo '<div class="notice notice-error notice-alt inline hidden"><p></p></div>';
+		echo '<div class="alert alert-danger notice-alt inline hidden"><p></p></div>';
 	}
 
 	/**
 	 * Handles default column output.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$theme` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Theme $item        The current GC_Theme object.
 	 * @param string   $column_name The current column name.
@@ -853,6 +871,7 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 		/**
 		 * Fires inside each custom column of the Multisite themes list table.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param string   $column_name Name of the column.
 		 * @param string   $stylesheet  Directory name of the theme.
@@ -869,6 +888,7 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 	/**
 	 * Handles the output for a single table row.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param GC_Theme $item The current GC_Theme object.
 	 */
@@ -981,6 +1001,7 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 		/**
 		 * Fires after each row in the Multisite themes list table.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param string   $stylesheet Directory name of the theme.
 		 * @param GC_Theme $theme      Current GC_Theme object.
@@ -995,6 +1016,7 @@ class GC_MS_Themes_List_Table extends GC_List_Table {
 		 * directory name of the theme, most often synonymous with the template
 		 * name of the theme.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @param string   $stylesheet Directory name of the theme.
 		 * @param GC_Theme $theme      Current GC_Theme object.

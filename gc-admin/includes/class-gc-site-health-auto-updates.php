@@ -4,13 +4,15 @@
  *
  * @package GeChiUI
  * @subpackage Site_Health
- *
+ * @since 5.2.0
  */
 
+#[AllowDynamicProperties]
 class GC_Site_Health_Auto_Updates {
 	/**
 	 * GC_Site_Health_Auto_Updates constructor.
 	 *
+	 * @since 5.2.0
 	 */
 	public function __construct() {
 		require_once ABSPATH . 'gc-admin/includes/class-gc-upgrader.php';
@@ -18,8 +20,9 @@ class GC_Site_Health_Auto_Updates {
 
 
 	/**
-	 * Run tests to determine if auto-updates can run.
+	 * Runs tests to determine if auto-updates can run.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return array The test results.
 	 */
@@ -55,8 +58,10 @@ class GC_Site_Health_Auto_Updates {
 	}
 
 	/**
-	 * Test if auto-updates related constants are set correctly.
+	 * Tests if auto-updates related constants are set correctly.
 	 *
+	 * @since 5.2.0
+	 * @since 5.5.1 The `$value` parameter can accept an array.
 	 *
 	 * @param string $constant         The name of the constant to check.
 	 * @param bool|string|array $value The value that the constant should be, if set,
@@ -69,9 +74,10 @@ class GC_Site_Health_Auto_Updates {
 		if ( defined( $constant ) && ! in_array( constant( $constant ), $acceptable_values, true ) ) {
 			return array(
 				'description' => sprintf(
-					/* translators: %s: Name of the constant used. */
-					__( '%s常量已被定义及启用。' ),
-					"<code>$constant</code>"
+					/* translators: 1: Name of the constant used. 2: Value of the constant used. */
+					__( '%1$s 常量被定义为 %2$s' ),
+					"<code>$constant</code>",
+					'<code>' . esc_html( var_export( constant( $constant ), true ) ) . '</code>'
 				),
 				'severity'    => 'fail',
 			);
@@ -79,8 +85,9 @@ class GC_Site_Health_Auto_Updates {
 	}
 
 	/**
-	 * Check if updates are intercepted by a filter.
+	 * Checks if updates are intercepted by a filter.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return array The test results.
 	 */
@@ -100,8 +107,9 @@ class GC_Site_Health_Auto_Updates {
 	}
 
 	/**
-	 * Check if automatic updates are disabled by a filter.
+	 * Checks if automatic updates are disabled by a filter.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return array The test results.
 	 */
@@ -120,8 +128,9 @@ class GC_Site_Health_Auto_Updates {
 	}
 
 	/**
-	 * Check if automatic updates are disabled.
+	 * Checks if automatic updates are disabled.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @return array|false The test results. False if auto-updates are enabled.
 	 */
@@ -143,8 +152,9 @@ class GC_Site_Health_Auto_Updates {
 	}
 
 	/**
-	 * Check if automatic updates have tried to run, but failed, previously.
+	 * Checks if automatic updates have tried to run, but failed, previously.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return array|false The test results. False if the auto-updates failed.
 	 */
@@ -158,7 +168,7 @@ class GC_Site_Health_Auto_Updates {
 		if ( ! empty( $failed['critical'] ) ) {
 			$description  = __( '较早前的后台更新遇到了致命错误，更新现已被禁用。' );
 			$description .= ' ' . __( '因此，您会收到一封邮件。' );
-			$description .= ' ' . __( "当您能在仪表盘→更新中点击“立即更新”按钮来更新时，我们将清除此错误，以便将来尝试更新。" );
+			$description .= ' ' . __( "当您已经能在仪表盘→更新中点击“立即更新”按钮来更新时，此错误将被清除以便将来的更新尝试。" );
 			$description .= ' ' . sprintf(
 				/* translators: %s: Code of error shown. */
 				__( '错误代码为%s。' ),
@@ -175,7 +185,7 @@ class GC_Site_Health_Auto_Updates {
 			$description .= ' ' . __( '因此，您会收到一封邮件。' );
 		}
 
-		$description .= ' ' . __( "我们将在下一次发布后重试。" );
+		$description .= ' ' . __( '下一个版本发布的时候将进行新一次的尝试。' );
 		$description .= ' ' . sprintf(
 			/* translators: %s: Code of error shown. */
 			__( '错误代码为%s。' ),
@@ -188,8 +198,9 @@ class GC_Site_Health_Auto_Updates {
 	}
 
 	/**
-	 * Check if GeChiUI is controlled by a VCS (Git, Subversion etc).
+	 * Checks if GeChiUI is controlled by a VCS (Git, Subversion etc).
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return array The test results.
 	 */
@@ -257,23 +268,24 @@ class GC_Site_Health_Auto_Updates {
 	}
 
 	/**
-	 * Check if we can access files without providing credentials.
+	 * Checks if we can access files without providing credentials.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return array The test results.
 	 */
 	public function test_check_gc_filesystem_method() {
 		// Make sure the `request_filesystem_credentials()` function is available during our REST API call.
 		if ( ! function_exists( 'request_filesystem_credentials' ) ) {
-			require_once ABSPATH . '/gc-admin/includes/file.php';
+			require_once ABSPATH . 'gc-admin/includes/file.php';
 		}
 
-		$skin    = new Automatic_Upgrader_Skin;
+		$skin    = new Automatic_Upgrader_Skin();
 		$success = $skin->request_filesystem_credentials( false, ABSPATH );
 
 		if ( ! $success ) {
 			$description  = __( '您的GeChiUI安装需要FTP凭据来进行更新。' );
-			$description .= ' ' . __( '（由于文件所有权，您的站点现在通过FTP进行更新。请与您的主机提供商联系。）' );
+			$description .= ' ' . __( '（由于文件所有权，您的系统现在通过FTP进行更新。请与您的主机提供商联系。）' );
 
 			return array(
 				'description' => $description,
@@ -282,14 +294,15 @@ class GC_Site_Health_Auto_Updates {
 		}
 
 		return array(
-			'description' => __( "您的GeChiUI更新时不需要进行FTP认证。" ),
+			'description' => __( '您安装的 GeChiUI 不需要 FTP 凭据来执行更新。' ),
 			'severity'    => 'pass',
 		);
 	}
 
 	/**
-	 * Check if core files are writable by the web user/group.
+	 * Checks if core files are writable by the web user/group.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
 	 *
@@ -300,7 +313,7 @@ class GC_Site_Health_Auto_Updates {
 
 		require ABSPATH . GCINC . '/version.php'; // $gc_version; // x.y.z
 
-		$skin    = new Automatic_Upgrader_Skin;
+		$skin    = new Automatic_Upgrader_Skin();
 		$success = $skin->request_filesystem_credentials( false, ABSPATH );
 
 		if ( ! $success ) {
@@ -315,11 +328,11 @@ class GC_Site_Health_Auto_Updates {
 
 		// Make sure the `get_core_checksums()` function is available during our REST API call.
 		if ( ! function_exists( 'get_core_checksums' ) ) {
-			require_once ABSPATH . '/gc-admin/includes/update.php';
+			require_once ABSPATH . 'gc-admin/includes/update.php';
 		}
 
 		$checksums = get_core_checksums( $gc_version, 'zh_CN' );
-		$dev       = ( false !== strpos( $gc_version, '-' ) );
+		$dev       = ( str_contains( $gc_version, '-' ) );
 		// Get the last stable version's files and test against that.
 		if ( ! $checksums && $dev ) {
 			$checksums = get_core_checksums( (float) $gc_version - 0.1, 'zh_CN' );
@@ -345,7 +358,7 @@ class GC_Site_Health_Auto_Updates {
 
 		$unwritable_files = array();
 		foreach ( array_keys( $checksums ) as $file ) {
-			if ( 'gc-content' === substr( $file, 0, 10 ) ) {
+			if ( str_starts_with( $file, 'gc-content' ) ) {
 				continue;
 			}
 			if ( ! file_exists( ABSPATH . $file ) ) {
@@ -374,15 +387,16 @@ class GC_Site_Health_Auto_Updates {
 	}
 
 	/**
-	 * Check if the install is using a development branch and can use nightly packages.
+	 * Checks if the install is using a development branch and can use nightly packages.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return array|false The test results. False if it isn't a development version.
 	 */
 	public function test_accepts_dev_updates() {
 		require ABSPATH . GCINC . '/version.php'; // $gc_version; // x.y.z
 		// Only for dev versions.
-		if ( false === strpos( $gc_version, '-' ) ) {
+		if ( ! str_contains( $gc_version, '-' ) ) {
 			return false;
 		}
 
@@ -411,8 +425,9 @@ class GC_Site_Health_Auto_Updates {
 	}
 
 	/**
-	 * Check if the site supports automatic minor updates.
+	 * Checks if the site supports automatic minor updates.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return array The test results.
 	 */

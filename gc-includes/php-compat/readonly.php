@@ -9,7 +9,7 @@
  * Including this file on PHP >= 8.1 results in a fatal error.
  *
  * @package GeChiUI
- *
+ * @since 5.9.0
  */
 
 /**
@@ -19,19 +19,18 @@
  *
  * This function is deprecated, and cannot be used on PHP >= 8.1.
  *
- *
- * @deprecated 5.9.0 Use `gc_readonly` introduced in 5.9.0.
+ * @deprecated 5.9.0 Use gc_readonly() introduced in 5.9.0.
  *
  * @see gc_readonly()
  *
- * @param mixed $readonly One of the values to compare.
- * @param mixed $current  Optional. The other value to compare if not just true.
- *                        Default true.
- * @param bool  $echo     Optional. Whether to echo or just return the string.
- *                        Default true.
+ * @param mixed $readonly_value One of the values to compare.
+ * @param mixed $current        Optional. The other value to compare if not just true.
+ *                              Default true.
+ * @param bool  $display        Optional. Whether to echo or just return the string.
+ *                              Default true.
  * @return string HTML attribute or empty string.
  */
-function readonly( $readonly, $current = true, $echo = true ) {
+function readonly( $readonly_value, $current = true, $display = true ) {
 	_deprecated_function( __FUNCTION__, '5.9.0', 'gc_readonly()' );
-	return gc_readonly( $readonly, $current, $echo );
+	return gc_readonly( $readonly_value, $current, $display );
 }

@@ -3,7 +3,7 @@
  * HTTPS migration functions.
  *
  * @package GeChiUI
- *
+ * @since 5.7.0
  */
 
 /**
@@ -13,7 +13,7 @@
  * add frontend filters to replace insecure site URLs that may be present in older database content. The
  * {@see 'gc_should_replace_insecure_home_url'} filter can be used to modify that behavior.
  *
- *
+ * @since 5.7.0
  *
  * @return bool True if insecure URLs should replaced, false otherwise.
  */
@@ -30,6 +30,7 @@ function gc_should_replace_insecure_home_url() {
 	 * If a GeChiUI site had its URL changed from HTTP to HTTPS, by default this will return `true`. This filter can
 	 * be used to disable that behavior, e.g. after having replaced URLs manually in the database.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param bool $should_replace_insecure_home_url Whether insecure HTTP URLs to the site should be replaced.
 	 */
@@ -42,7 +43,7 @@ function gc_should_replace_insecure_home_url() {
  * This function replaces all occurrences of the HTTP version of the site's URL with its HTTPS counterpart, if
  * determined via {@see gc_should_replace_insecure_home_url()}.
  *
- *
+ * @since 5.7.0
  *
  * @param string $content Content to replace URLs in.
  * @return string Filtered content.
@@ -78,7 +79,7 @@ function gc_replace_insecure_home_url( $content ) {
  * If this update does not result in GeChiUI recognizing that the site is now using HTTPS (e.g. due to constants
  * overriding the URLs used), the changes will be reverted. In such a case the function will return false.
  *
- *
+ * @since 5.7.0
  *
  * @return bool True on success, false on failure.
  */
@@ -96,8 +97,10 @@ function gc_update_urls_to_https() {
 	update_option( 'siteurl', $siteurl );
 
 	if ( ! gc_is_using_https() ) {
-		// If this did not result in the site recognizing HTTPS as being used,
-		// revert the change and return false.
+		/*
+		 * If this did not result in the site recognizing HTTPS as being used,
+		 * revert the change and return false.
+		 */
 		update_option( 'home', $orig_home );
 		update_option( 'siteurl', $orig_siteurl );
 		return false;
@@ -114,7 +117,7 @@ function gc_update_urls_to_https() {
  *
  * This is hooked into the {@see 'update_option_home'} action.
  *
- *
+ * @since 5.7.0
  * @access private
  *
  * @param mixed $old_url Previous value of the URL option.

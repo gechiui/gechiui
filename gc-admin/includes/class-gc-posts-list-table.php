@@ -4,14 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Core class used to implement displaying posts in a list table.
- *
- *
- * @access private
  *
  * @see GC_List_Table
  */
@@ -50,6 +46,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 	/**
 	 * Current level for output.
 	 *
+	 * @since 4.3.0
 	 * @var int
 	 */
 	protected $current_level = 0;
@@ -125,6 +122,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 	/**
 	 * Sets whether the table layout should be hierarchical or not.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param bool $display Whether the table layout should be hierarchical.
 	 */
@@ -220,8 +218,9 @@ class GC_Posts_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Determine if the current view is the "All" view.
+	 * Determines if the current view is the "All" view.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @return bool Whether the current view is the "All" view.
 	 */
@@ -239,27 +238,28 @@ class GC_Posts_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Helper to create links to edit.php with params.
+	 * Creates a link to edit.php with params.
 	 *
+	 * @since 4.4.0
 	 *
-	 * @param string[] $args  Associative array of URL parameters for the link.
-	 * @param string   $label Link text.
-	 * @param string   $class Optional. Class attribute. Default empty string.
+	 * @param string[] $args      Associative array of URL parameters for the link.
+	 * @param string   $link_text Link text.
+	 * @param string   $css_class Optional. Class attribute. Default empty string.
 	 * @return string The formatted link string.
 	 */
-	protected function get_edit_link( $args, $label, $class = '' ) {
+	protected function get_edit_link( $args, $link_text, $css_class = '' ) {
 		$url = add_query_arg( $args, 'edit.php' );
 
 		$class_html   = '';
 		$aria_current = '';
 
-		if ( ! empty( $class ) ) {
+		if ( ! empty( $css_class ) ) {
 			$class_html = sprintf(
 				' class="%s"',
-				esc_attr( $class )
+				esc_attr( $css_class )
 			);
 
-			if ( 'current' === $class ) {
+			if ( 'current' === $css_class ) {
 				$aria_current = ' aria-current="page"';
 			}
 		}
@@ -269,7 +269,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 			esc_url( $url ),
 			$class_html,
 			$aria_current,
-			$label
+			$link_text
 		);
 	}
 
@@ -322,14 +322,14 @@ class GC_Posts_List_Table extends GC_List_Table {
 				number_format_i18n( $this->user_posts_count )
 			);
 
-			$mine = $this->get_edit_link( $mine_args, $mine_inner_html, $class );
+			$mine = array(
+				'url'     => esc_url( add_query_arg( $mine_args, 'edit.php' ) ),
+				'label'   => $mine_inner_html,
+				'current' => isset( $_GET['author'] ) && ( $current_user_id === (int) $_GET['author'] ),
+			);
 
 			$all_args['all_posts'] = 1;
 			$class                 = '';
-		}
-
-		if ( empty( $class ) && ( $this->is_base_request() || isset( $_REQUEST['all_posts'] ) ) ) {
-			$class = 'current';
 		}
 
 		$all_inner_html = sprintf(
@@ -343,7 +343,11 @@ class GC_Posts_List_Table extends GC_List_Table {
 			number_format_i18n( $total_posts )
 		);
 
-		$status_links['all'] = $this->get_edit_link( $all_args, $all_inner_html, $class );
+		$status_links['all'] = array(
+			'url'     => esc_url( add_query_arg( $all_args, 'edit.php' ) ),
+			'label'   => $all_inner_html,
+			'current' => empty( $class ) && ( $this->is_base_request() || isset( $_REQUEST['all_posts'] ) ),
+		);
 
 		if ( $mine ) {
 			$status_links['mine'] = $mine;
@@ -372,7 +376,11 @@ class GC_Posts_List_Table extends GC_List_Table {
 				number_format_i18n( $num_posts->$status_name )
 			);
 
-			$status_links[ $status_name ] = $this->get_edit_link( $status_args, $status_label, $class );
+			$status_links[ $status_name ] = array(
+				'url'     => esc_url( add_query_arg( $status_args, 'edit.php' ) ),
+				'label'   => $status_label,
+				'current' => isset( $_REQUEST['post_status'] ) && $status_name === $_REQUEST['post_status'],
+			);
 		}
 
 		if ( ! empty( $this->sticky_posts_count ) ) {
@@ -395,7 +403,11 @@ class GC_Posts_List_Table extends GC_List_Table {
 			);
 
 			$sticky_link = array(
-				'sticky' => $this->get_edit_link( $sticky_args, $sticky_inner_html, $class ),
+				'sticky' => array(
+					'url'     => esc_url( add_query_arg( $sticky_args, 'edit.php' ) ),
+					'label'   => $sticky_inner_html,
+					'current' => ! empty( $_REQUEST['show_sticky'] ),
+				),
 			);
 
 			// Sticky comes after Publish, or if not listed, after All.
@@ -403,7 +415,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 			$status_links = array_merge( array_slice( $status_links, 0, $split ), $sticky_link, array_slice( $status_links, $split ) );
 		}
 
-		return $status_links;
+		return $this->get_views_links( $status_links );
 	}
 
 	/**
@@ -435,6 +447,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 	/**
 	 * Displays a categories drop-down for filtering on the Posts list table.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @global int $cat Currently selected category.
 	 *
@@ -444,8 +457,9 @@ class GC_Posts_List_Table extends GC_List_Table {
 		global $cat;
 
 		/**
-		 * Filters whether to remove the '分类' drop-down from the post list table.
+		 * Filters whether to remove the 'Categories' drop-down from the post list table.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param bool   $disable   Whether to disable the categories drop-down. Default false.
 		 * @param string $post_type Post type slug.
@@ -473,6 +487,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 	/**
 	 * Displays a formats drop-down for filtering items.
 	 *
+	 * @since 5.2.0
 	 * @access protected
 	 *
 	 * @param string $post_type Post type slug.
@@ -481,6 +496,8 @@ class GC_Posts_List_Table extends GC_List_Table {
 		/**
 		 * Filters whether to remove the 'Formats' drop-down from the post list table.
 		 *
+		 * @since 5.2.0
+		 * @since 5.5.0 The `$post_type` parameter was added.
 		 *
 		 * @param bool   $disable   Whether to disable the drop-down. Default false.
 		 * @param string $post_type Post type slug.
@@ -509,7 +526,12 @@ class GC_Posts_List_Table extends GC_List_Table {
 
 		$displayed_post_format = isset( $_GET['post_format'] ) ? $_GET['post_format'] : '';
 		?>
-		<label for="filter-by-format" class="screen-reader-text"><?php _e( '按文章形式筛选' ); ?></label>
+		<label for="filter-by-format" class="screen-reader-text">
+			<?php
+			/* translators: Hidden accessibility text. */
+			_e( '按文章形式筛选' );
+			?>
+		</label>
 		<select name="post_format" id="filter-by-format">
 			<option<?php selected( $displayed_post_format, '' ); ?> value=""><?php _e( '所有形式' ); ?></option>
 			<?php
@@ -552,9 +574,9 @@ class GC_Posts_List_Table extends GC_List_Table {
 			 * The Filter button allows sorting by date and/or category on the
 			 * Posts list table, and sorting by date on the Pages list table.
 			 *
-		
-		
-		
+			 * @since 2.1.0
+			 * @since 4.4.0 The `$post_type` parameter was added.
+			 * @since 4.6.0 The `$which` parameter was added.
 			 *
 			 * @param string $post_type The post type slug.
 			 * @param string $which     The location of the extra table nav markup:
@@ -574,7 +596,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 		if ( $this->is_trash && $this->has_items()
 			&& current_user_can( get_post_type_object( $this->screen->post_type )->cap->edit_others_posts )
 		) {
-			submit_button( __( '清空回收站' ), 'apply', 'delete_all', false );
+			submit_button( __( '清空回收站' ), '', 'delete_all', false );
 		}
 		?>
 		</div>
@@ -583,6 +605,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 		 * Fires immediately following the closing "actions" div in the tablenav for the posts
 		 * list table.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param string $which The location of the extra table nav markup: 'top' or 'bottom'.
 		 */
@@ -620,7 +643,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * @return array
+	 * @return string[] Array of column titles keyed by their column name.
 	 */
 	public function get_columns() {
 		$post_type = $this->screen->post_type;
@@ -650,6 +673,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 		 *  - `manage_taxonomies_for_post_columns`
 		 *  - `manage_taxonomies_for_page_columns`
 		 *
+		 * @since 3.5.0
 		 *
 		 * @param string[] $taxonomies Array of taxonomy names to show columns for.
 		 * @param string   $post_type  The post type.
@@ -675,8 +699,9 @@ class GC_Posts_List_Table extends GC_List_Table {
 			&& ! in_array( $post_status, array( 'pending', 'draft', 'future' ), true )
 		) {
 			$posts_columns['comments'] = sprintf(
-				'<span class="vers comment-grey-bubble" title="%1$s"><span class="screen-reader-text">%2$s</span></span>',
+				'<span class="vers comment-grey-bubble" title="%1$s" aria-hidden="true"></span><span class="screen-reader-text">%2$s</span>',
 				esc_attr__( '评论' ),
+				/* translators: Hidden accessibility text. */
 				__( '评论' )
 			);
 		}
@@ -688,7 +713,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 			/**
 			 * Filters the columns displayed in the Pages list table.
 			 *
-		
+			 * @since 2.5.0
 			 *
 			 * @param string[] $post_columns An associative array of column headings.
 			 */
@@ -698,7 +723,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 			/**
 			 * Filters the columns displayed in the Posts list table.
 			 *
-		
+			 * @since 1.5.0
 			 *
 			 * @param string[] $post_columns An associative array of column headings.
 			 * @param string   $post_type    The post type slug.
@@ -716,6 +741,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 		 *  - `manage_post_posts_columns`
 		 *  - `manage_page_posts_columns`
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param string[] $post_columns An associative array of column headings.
 		 */
@@ -726,12 +752,28 @@ class GC_Posts_List_Table extends GC_List_Table {
 	 * @return array
 	 */
 	protected function get_sortable_columns() {
-		return array(
-			'title'    => 'title',
-			'parent'   => 'parent',
-			'comments' => 'comment_count',
-			'date'     => array( 'date', true ),
-		);
+
+		$post_type = $this->screen->post_type;
+
+		if ( 'page' === $post_type ) {
+			$title_orderby_text = isset( $_GET['orderby'] ) ? __( '表格按标题排序。' ) : __( '表格按分层菜单顺序和标题排序。' );
+			$sortables = array(
+				'title'    => array( 'title', false, __( '标题' ), $title_orderby_text, 'asc' ),
+				'parent'   => array( 'parent', false ),
+				'comments' => array( 'comment_count', false, __( '评论' ), __( '表格按评论排序。' ) ),
+				'date'     => array( 'date', true, __( '日期' ), __( '表格按日期排序。' ) ),
+			);
+		} else {
+			$sortables = array(
+				'title'    => array( 'title', false, __( '标题' ), __( '表格按标题排序。' ) ),
+				'parent'   => array( 'parent', false ),
+				'comments' => array( 'comment_count', false, __( '评论' ), __( '表格按评论排序。' ) ),
+				'date'     => array( 'date', true, __( '日期' ), __( '表格按日期排序。' ), 'desc' ),
+			);
+		}
+		// Custom Post Types: there's a filter for that, see get_column_info().
+
+		return $sortables;
 	}
 
 	/**
@@ -773,6 +815,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 		if ( post_type_supports( $post_type, 'comments' ) ) {
 			$this->comment_pending_count = get_pending_comments_num( $post_ids );
 		}
+		update_post_author_caches( $posts );
 
 		foreach ( $posts as $post ) {
 			$this->single_row( $post, $level );
@@ -868,6 +911,8 @@ class GC_Posts_List_Table extends GC_List_Table {
 
 		$ids = array_keys( $to_display );
 		_prime_post_caches( $ids );
+		$_posts = array_map( 'get_post', $ids );
+		update_post_author_caches( $_posts );
 
 		if ( ! isset( $GLOBALS['post'] ) ) {
 			$GLOBALS['post'] = reset( $ids );
@@ -880,27 +925,28 @@ class GC_Posts_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * Given a top level page ID, display the nested hierarchy of sub-pages
-	 * together with paging support
-	 *
+	 * Displays the nested hierarchy of sub-pages together with paging
+	 * support, based on a top level page ID.
+	 * (Standalone function exists since 2.6.0)
+	 * @since 4.2.0 Added the `$to_display` parameter.
 	 *
 	 * @param array $children_pages
 	 * @param int   $count
-	 * @param int   $parent
+	 * @param int   $parent_page
 	 * @param int   $level
 	 * @param int   $pagenum
 	 * @param int   $per_page
 	 * @param array $to_display List of pages to be displayed. Passed by reference.
 	 */
-	private function _page_rows( &$children_pages, &$count, $parent, $level, $pagenum, $per_page, &$to_display ) {
-		if ( ! isset( $children_pages[ $parent ] ) ) {
+	private function _page_rows( &$children_pages, &$count, $parent_page, $level, $pagenum, $per_page, &$to_display ) {
+		if ( ! isset( $children_pages[ $parent_page ] ) ) {
 			return;
 		}
 
 		$start = ( $pagenum - 1 ) * $per_page;
 		$end   = $start + $per_page;
 
-		foreach ( $children_pages[ $parent ] as $page ) {
+		foreach ( $children_pages[ $parent_page ] as $page ) {
 			if ( $count >= $end ) {
 				break;
 			}
@@ -945,12 +991,14 @@ class GC_Posts_List_Table extends GC_List_Table {
 			$this->_page_rows( $children_pages, $count, $page->ID, $level + 1, $pagenum, $per_page, $to_display );
 		}
 
-		unset( $children_pages[ $parent ] ); // Required in order to keep track of orphans.
+		unset( $children_pages[ $parent_page ] ); // Required in order to keep track of orphans.
 	}
 
 	/**
 	 * Handles the checkbox column output.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$post` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Post $item The current GC_Post object.
 	 */
@@ -964,17 +1012,20 @@ class GC_Posts_List_Table extends GC_List_Table {
 		 *
 		 * By default the checkbox is only shown if the current user can edit the post.
 		 *
+		 * @since 5.7.0
 		 *
 		 * @param bool    $show Whether to show the checkbox.
 		 * @param GC_Post $post The current GC_Post object.
 		 */
 		if ( apply_filters( 'gc_list_table_show_post_checkbox', $show, $post ) ) :
 			?>
-			<label class="screen-reader-text" for="cb-select-<?php the_ID(); ?>">
+			<label class="label-covers-full-cell" for="cb-select-<?php the_ID(); ?>">
+				<span class="screen-reader-text">
 				<?php
 					/* translators: %s: Post title. */
 					printf( __( '选择%s' ), _draft_or_post_title() );
 				?>
+				</span>
 			</label>
 			<input id="cb-select-<?php the_ID(); ?>" type="checkbox" name="post[]" value="<?php the_ID(); ?>" />
 			<div class="locked-indicator">
@@ -982,7 +1033,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 				<span class="screen-reader-text">
 				<?php
 				printf(
-					/* translators: %s: Post title. */
+					/* translators: Hidden accessibility text. %s: Post title. */
 					__( '“%s”已被锁定' ),
 					_draft_or_post_title()
 				);
@@ -994,6 +1045,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 	}
 
 	/**
+	 * @since 4.3.0
 	 *
 	 * @param GC_Post $post
 	 * @param string  $classes
@@ -1010,6 +1062,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 	/**
 	 * Handles the title column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @global string $mode List table view mode.
 	 *
@@ -1106,6 +1159,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 	/**
 	 * Handles the post date column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @global string $mode List table view mode.
 	 *
@@ -1124,7 +1178,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 				/* translators: Post date format. See https://www.php.net/manual/datetime.format.php */
 				get_the_time( __( 'Y-m-d' ), $post ),
 				/* translators: Post time format. See https://www.php.net/manual/datetime.format.php */
-				get_the_time( __( 'ag:i' ), $post )
+				get_the_time( __( 'H:i' ), $post )
 			);
 
 			$time      = get_post_timestamp( $post );
@@ -1137,7 +1191,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 			if ( $time_diff > 0 ) {
 				$status = '<strong class="error-message">' . __( '定时发布失败' ) . '</strong>';
 			} else {
-				$status = __( '定时发布' );
+				$status = __( '已计划' );
 			}
 		} else {
 			$status = __( '最后修改' );
@@ -1146,6 +1200,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 		/**
 		 * Filters the status text of the post.
 		 *
+		 * @since 4.8.0
 		 *
 		 * @param string  $status      The status text.
 		 * @param GC_Post $post        Post object.
@@ -1161,6 +1216,8 @@ class GC_Posts_List_Table extends GC_List_Table {
 		/**
 		 * Filters the published time of the post.
 		 *
+		 * @since 2.5.1
+		 * @since 5.5.0 Removed the difference between 'excerpt' and 'list' modes.
 		 *              The published time and date are both displayed now,
 		 *              which is equivalent to the previous 'excerpt' mode.
 		 *
@@ -1175,6 +1232,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 	/**
 	 * Handles the comments column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param GC_Post $post The current GC_Post object.
 	 */
@@ -1193,6 +1251,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 	/**
 	 * Handles the post author column output.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param GC_Post $post The current GC_Post object.
 	 */
@@ -1207,6 +1266,8 @@ class GC_Posts_List_Table extends GC_List_Table {
 	/**
 	 * Handles the default column output.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$post` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Post $item        The current GC_Post object.
 	 * @param string  $column_name The current column name.
@@ -1219,7 +1280,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 			$taxonomy = 'category';
 		} elseif ( 'tags' === $column_name ) {
 			$taxonomy = 'post_tag';
-		} elseif ( 0 === strpos( $column_name, 'taxonomy-' ) ) {
+		} elseif ( str_starts_with( $column_name, 'taxonomy-' ) ) {
 			$taxonomy = substr( $column_name, 9 );
 		} else {
 			$taxonomy = false;
@@ -1254,7 +1315,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 				/**
 				 * Filters the links in `$taxonomy` column of edit.php.
 				 *
-			
+				 * @since 5.2.0
 				 *
 				 * @param string[]  $term_links Array of term editing links.
 				 * @param string    $taxonomy   Taxonomy name.
@@ -1262,8 +1323,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 				 */
 				$term_links = apply_filters( 'post_column_taxonomy_links', $term_links, $taxonomy, $terms );
 
-				/* translators: Used between list items, there is a space after the comma. */
-				echo implode( __( '、' ), $term_links );
+				echo implode( gc_get_list_item_separator(), $term_links );
 			} else {
 				echo '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . $taxonomy_object->labels->no_terms . '</span>';
 			}
@@ -1278,7 +1338,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 			 * This hook only fires if the current post type is hierarchical,
 			 * such as pages.
 			 *
-		
+			 * @since 2.5.0
 			 *
 			 * @param string $column_name The name of the column to display.
 			 * @param int    $post_id     The current post ID.
@@ -1292,7 +1352,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 			 * This hook only fires if the current post type is non-hierarchical,
 			 * such as posts.
 			 *
-		
+			 * @since 1.5.0
 			 *
 			 * @param string $column_name The name of the column to display.
 			 * @param int    $post_id     The current post ID.
@@ -1310,6 +1370,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 		 *  - `manage_post_posts_custom_column`
 		 *  - `manage_page_posts_custom_column`
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param string $column_name The name of the column to display.
 		 * @param int    $post_id     The current post ID.
@@ -1357,6 +1418,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 	/**
 	 * Gets the name of the default primary column.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @return string Name of the default primary column, in this case, 'title'.
 	 */
@@ -1367,6 +1429,8 @@ class GC_Posts_List_Table extends GC_List_Table {
 	/**
 	 * Generates and displays row action links.
 	 *
+	 * @since 4.3.0
+	 * @since 5.9.0 Renamed `$post` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Post $item        Post being acted upon.
 	 * @param string  $column_name Current column name.
@@ -1391,7 +1455,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 				'<a href="%s" aria-label="%s">%s</a>',
 				get_edit_post_link( $post->ID ),
 				/* translators: %s: Post title. */
-				esc_attr( sprintf( __( '编辑“%s”' ), $title ) ),
+				esc_attr( sprintf( __( '编辑『%s』' ), $title ) ),
 				__( '编辑' )
 			);
 
@@ -1420,7 +1484,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 					get_delete_post_link( $post->ID ),
 					/* translators: %s: Post title. */
 					esc_attr( sprintf( __( '移动“%s”到回收站' ), $title ) ),
-					_x( '移至回收站', 'verb' )
+					_x( '回收站', 'verb' )
 				);
 			}
 
@@ -1443,7 +1507,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 						'<a href="%s" rel="bookmark" aria-label="%s">%s</a>',
 						esc_url( $preview_link ),
 						/* translators: %s: Post title. */
-						esc_attr( sprintf( __( '预览“%s”' ), $title ) ),
+						esc_attr( sprintf( __( '预览『%s』' ), $title ) ),
 						__( '预览' )
 					);
 				}
@@ -1452,7 +1516,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 					'<a href="%s" rel="bookmark" aria-label="%s">%s</a>',
 					get_permalink( $post->ID ),
 					/* translators: %s: Post title. */
-					esc_attr( sprintf( __( '查看“%s”' ), $title ) ),
+					esc_attr( sprintf( __( '查看『%s』' ), $title ) ),
 					__( '查看' )
 				);
 			}
@@ -1475,7 +1539,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 			 *
 			 * The filter is evaluated only for hierarchical post types.
 			 *
-		
+			 * @since 2.8.0
 			 *
 			 * @param string[] $actions An array of row action links. Defaults are
 			 *                          'Edit', '快速编辑', 'Restore', 'Trash',
@@ -1490,7 +1554,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 			 *
 			 * The filter is evaluated only for non-hierarchical post types.
 			 *
-		
+			 * @since 2.8.0
 			 *
 			 * @param string[] $actions An array of row action links. Defaults are
 			 *                          'Edit', '快速编辑', 'Restore', 'Trash',
@@ -1529,7 +1593,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 			/**
 			 * Filters whether the current taxonomy should be shown in the Quick Edit panel.
 			 *
-		
+			 * @since 4.2.0
 			 *
 			 * @param bool   $show_in_quick_edit Whether to show the current taxonomy in Quick Edit.
 			 * @param string $taxonomy_name      Taxonomy name.
@@ -1575,9 +1639,9 @@ class GC_Posts_List_Table extends GC_List_Table {
 			?>
 			<tr id="<?php echo $bulk ? 'bulk-edit' : 'inline-edit'; ?>" class="<?php echo $classes; ?>" style="display: none">
 			<td colspan="<?php echo $this->get_column_count(); ?>" class="colspanchange">
-
+			<div class="inline-edit-wrapper" role="region" aria-labelledby="<?php echo $bulk ? 'bulk' : 'quick'; ?>-edit-legend">
 			<fieldset class="inline-edit-col-left">
-				<legend class="inline-edit-legend"><?php echo $bulk ? __( '批量编辑' ) : __( '快速编辑' ); ?></legend>
+				<legend class="inline-edit-legend" id="<?php echo $bulk ? 'bulk' : 'quick'; ?>-edit-legend"><?php echo $bulk ? __( '批量编辑' ) : __( '快速编辑' ); ?></legend>
 				<div class="inline-edit-col">
 
 				<?php if ( post_type_supports( $screen->post_type, 'title' ) ) : ?>
@@ -1621,39 +1685,45 @@ class GC_Posts_List_Table extends GC_List_Table {
 					$authors_dropdown = '';
 
 					if ( current_user_can( $post_type_object->cap->edit_others_posts ) ) {
-						$users_opt = array(
-							'hide_if_only_one_author' => false,
-							'capability'              => array( $post_type_object->cap->edit_posts ),
-							'name'                    => 'post_author',
-							'class'                   => 'authors',
-							'multi'                   => 1,
-							'echo'                    => 0,
-							'show'                    => 'display_name_with_login',
-						);
+						$dropdown_name  = 'post_author';
+						$dropdown_class = 'authors';
+						if ( gc_is_large_user_count() ) {
+							$authors_dropdown = sprintf( '<select name="%s" class="%s hidden"></select>', esc_attr( $dropdown_name ), esc_attr( $dropdown_class ) );
+						} else {
+							$users_opt = array(
+								'hide_if_only_one_author' => false,
+								'capability'              => array( $post_type_object->cap->edit_posts ),
+								'name'                    => $dropdown_name,
+								'class'                   => $dropdown_class,
+								'multi'                   => 1,
+								'echo'                    => 0,
+								'show'                    => 'display_name_with_login',
+							);
 
-						if ( $bulk ) {
-							$users_opt['show_option_none'] = __( '—无更改—' );
-						}
+							if ( $bulk ) {
+								$users_opt['show_option_none'] = __( '—无更改—' );
+							}
 
-						/**
-						 * Filters the arguments used to generate the Quick Edit authors drop-down.
-						 *
-					
-						 *
-						 * @see gc_dropdown_users()
-						 *
-						 * @param array $users_opt An array of arguments passed to gc_dropdown_users().
-						 * @param bool  $bulk      A flag to denote if it's a bulk action.
-						 */
-						$users_opt = apply_filters( 'quick_edit_dropdown_authors_args', $users_opt, $bulk );
+							/**
+							 * Filters the arguments used to generate the Quick Edit authors drop-down.
+							 *
+							 * @since 5.6.0
+							 *
+							 * @see gc_dropdown_users()
+							 *
+							 * @param array $users_opt An array of arguments passed to gc_dropdown_users().
+							 * @param bool $bulk A flag to denote if it's a bulk action.
+							 */
+							$users_opt = apply_filters( 'quick_edit_dropdown_authors_args', $users_opt, $bulk );
 
-						$authors = gc_dropdown_users( $users_opt );
+							$authors = gc_dropdown_users( $users_opt );
 
-						if ( $authors ) {
-							$authors_dropdown  = '<label class="inline-edit-author">';
-							$authors_dropdown .= '<span class="title">' . __( '作者' ) . '</span>';
-							$authors_dropdown .= $authors;
-							$authors_dropdown .= '</label>';
+							if ( $authors ) {
+								$authors_dropdown  = '<label class="inline-edit-author">';
+								$authors_dropdown .= '<span class="title">' . __( '作者' ) . '</span>';
+								$authors_dropdown .= $authors;
+								$authors_dropdown .= '</label>';
+							}
 						}
 					} // current_user_can( 'edit_others_posts' )
 
@@ -1740,8 +1810,8 @@ class GC_Posts_List_Table extends GC_List_Table {
 							/**
 							 * Filters the arguments used to generate the Quick Edit page-parent drop-down.
 							 *
-						
-						
+							 * @since 2.7.0
+							 * @since 5.6.0 The `$bulk` parameter was added.
 							 *
 							 * @see gc_dropdown_pages()
 							 *
@@ -1792,12 +1862,13 @@ class GC_Posts_List_Table extends GC_List_Table {
 
 						<?php if ( current_user_can( $taxonomy->cap->assign_terms ) ) : ?>
 							<?php $taxonomy_name = esc_attr( $taxonomy->name ); ?>
-
+							<div class="inline-edit-tags-wrap">
 							<label class="inline-edit-tags">
 								<span class="title"><?php echo esc_html( $taxonomy->labels->name ); ?></span>
-								<textarea data-gc-taxonomy="<?php echo $taxonomy_name; ?>" cols="22" rows="1" name="tax_input[<?php echo $taxonomy_name; ?>]" class="tax_input_<?php echo $taxonomy_name; ?>"></textarea>
+								<textarea data-gc-taxonomy="<?php echo $taxonomy_name; ?>" cols="22" rows="1" name="tax_input[<?php echo esc_attr( $taxonomy->name ); ?>]" class="tax_input_<?php echo esc_attr( $taxonomy->name ); ?>" aria-describedby="inline-edit-<?php echo esc_attr( $taxonomy->name ); ?>-desc"></textarea>
 							</label>
-
+							<p class="howto" id="inline-edit-<?php echo esc_attr( $taxonomy->name ); ?>-desc"><?php echo esc_html( $taxonomy->labels->separate_items_with_commas ); ?></p>
+							</div>
 						<?php endif; // current_user_can( 'assign_terms' ) ?>
 
 					<?php endforeach; // $flat_taxonomies as $taxonomy ?>
@@ -1826,7 +1897,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 						<?php if ( post_type_supports( $screen->post_type, 'trackbacks' ) ) : ?>
 
 							<label class="alignright">
-								<span class="title"><?php _e( 'Ping通告' ); ?></span>
+								<span class="title"><?php _e( 'Ping 通告' ); ?></span>
 								<select name="ping_status">
 									<option value=""><?php _e( '—无更改—' ); ?></option>
 									<option value="open"><?php _e( '允许' ); ?></option>
@@ -1855,7 +1926,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 
 							<label class="alignleft">
 								<input type="checkbox" name="ping_status" value="open" />
-								<span class="checkbox-title"><?php _e( '允许ping' ); ?></span>
+								<span class="checkbox-title"><?php _e( '允许引用通告' ); ?></span>
 							</label>
 
 						<?php endif; ?>
@@ -1875,9 +1946,9 @@ class GC_Posts_List_Table extends GC_List_Table {
 									<option value="-1"><?php _e( '—无更改—' ); ?></option>
 								<?php endif; // $bulk ?>
 
-								<?php if ( $can_publish ) : // Contributors only get "未发布" and "等待复审". ?>
+								<?php if ( $can_publish ) : // Contributors only get "Unpublished" and "等待复审". ?>
 									<option value="publish"><?php _e( '已发布' ); ?></option>
-									<option value="future"><?php _e( '定时发布' ); ?></option>
+									<option value="future"><?php _e( '已计划' ); ?></option>
 									<?php if ( $bulk ) : ?>
 										<option value="private"><?php _e( '私密' ); ?></option>
 									<?php endif; // $bulk ?>
@@ -1918,7 +1989,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 					<?php $post_formats = get_theme_support( 'post-formats' ); ?>
 
 					<label class="alignleft">
-						<span class="title"><?php _ex( '形式', 'post format' ); ?></span>
+						<span class="title"><?php _ex( 'Format', 'post format' ); ?></span>
 						<select name="post_format">
 							<option value="-1"><?php _e( '—无更改—' ); ?></option>
 							<option value="0"><?php echo get_post_format_string( 'standard' ); ?></option>
@@ -1948,7 +2019,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 					/**
 					 * Fires once for each column in Bulk Edit mode.
 					 *
-				
+					 * @since 2.7.0
 					 *
 					 * @param string $column_name Name of the column to edit.
 					 * @param string $post_type   The post type slug.
@@ -1959,7 +2030,7 @@ class GC_Posts_List_Table extends GC_List_Table {
 					/**
 					 * Fires once for each column in Quick Edit mode.
 					 *
-				
+					 * @since 2.7.0
 					 *
 					 * @param string $column_name Name of the column to edit.
 					 * @param string $post_type   The post type slug, or current screen name if this is a taxonomy list table.
@@ -1971,14 +2042,17 @@ class GC_Posts_List_Table extends GC_List_Table {
 			?>
 
 			<div class="submit inline-edit-save">
-				<button type="button" class="button cancel alignleft"><?php _e( '取消' ); ?></button>
-
 				<?php if ( ! $bulk ) : ?>
 					<?php gc_nonce_field( 'inlineeditnonce', '_inline_edit', false ); ?>
-					<button type="button" class="button button-primary save alignright"><?php _e( '更新' ); ?></button>
-					<span class="spinner"></span>
+					<button type="button" class="btn btn-primary save"><?php _e( '更新' ); ?></button>
 				<?php else : ?>
-					<?php submit_button( __( '更新' ), 'primary alignright', 'bulk_edit', false ); ?>
+					<?php submit_button( __( '更新' ), 'primary', 'bulk_edit', false ); ?>
+				<?php endif; ?>
+
+				<button type="button" class="btn btn-primary btn-tone btn-sm cancel"><?php _e( '取消' ); ?></button>
+
+				<?php if ( ! $bulk ) : ?>
+					<span class="spinner"></span>
 				<?php endif; ?>
 
 				<input type="hidden" name="post_view" value="<?php echo esc_attr( $m ); ?>" />
@@ -1986,12 +2060,12 @@ class GC_Posts_List_Table extends GC_List_Table {
 				<?php if ( ! $bulk && ! post_type_supports( $screen->post_type, 'author' ) ) : ?>
 					<input type="hidden" name="post_author" value="<?php echo esc_attr( $post->post_author ); ?>" />
 				<?php endif; ?>
-				<br class="clear" />
 
-				<div class="notice notice-error notice-alt inline hidden">
+				<div class="alert alert-danger notice-alt inline hidden">
 					<p class="error"></p>
 				</div>
 			</div>
+		</div> <!-- end of .inline-edit-wrapper -->
 
 			</td></tr>
 

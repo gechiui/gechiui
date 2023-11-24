@@ -11,14 +11,14 @@
  */
 
 /**
- * Retrieve the author of the current post.
+ * Retrieves the author of the current post.
  *
- *
+ * @since 6.3.0 Returns an empty string if the author's display name is unknown.
  *
  * @global GC_User $authordata The current author's data.
  *
  * @param string $deprecated Deprecated.
- * @return string|null The author's display name.
+ * @return string The author's display name, empty string if unknown.
  */
 function get_the_author( $deprecated = '' ) {
 	global $authordata;
@@ -30,14 +30,15 @@ function get_the_author( $deprecated = '' ) {
 	/**
 	 * Filters the display name of the current post's author.
 	 *
+	 * @since 2.9.0
 	 *
-	 * @param string|null $display_name The author's display name.
+	 * @param string $display_name The author's display name.
 	 */
-	return apply_filters( 'the_author', is_object( $authordata ) ? $authordata->display_name : null );
+	return apply_filters( 'the_author', is_object( $authordata ) ? $authordata->display_name : '' );
 }
 
 /**
- * Display the name of the author of the current post.
+ * Displays the name of the author of the current post.
  *
  * The behavior of this function is based off of old functionality predating
  * get_the_author(). This function is not deprecated, but is designed to echo
@@ -47,14 +48,12 @@ function get_the_author( $deprecated = '' ) {
  * The normal, expected behavior of this function is to echo the author and not
  * return it. However, backward compatibility has to be maintained.
  *
- *
- *
  * @see get_the_author()
  * @link https://developer.gechiui.com/reference/functions/the_author/
  *
  * @param string $deprecated      Deprecated.
  * @param bool   $deprecated_echo Deprecated. Use get_the_author(). Echo the string or return it.
- * @return string|null The author's display name, from get_the_author().
+ * @return string The author's display name, from get_the_author().
  */
 function the_author( $deprecated = '', $deprecated_echo = true ) {
 	if ( ! empty( $deprecated ) ) {
@@ -81,11 +80,9 @@ function the_author( $deprecated = '', $deprecated_echo = true ) {
 }
 
 /**
- * Retrieve the author who last edited the current post.
+ * Retrieves the author who last edited the current post.
  *
- *
- *
- * @return string|void The author's display name.
+ * @return string|void The author's display name, empty string if unknown.
  */
 function get_the_modified_author() {
 	$last_id = get_post_meta( get_post()->ID, '_edit_last', true );
@@ -96,18 +93,17 @@ function get_the_modified_author() {
 		/**
 		 * Filters the display name of the author who last edited the current post.
 		 *
+		 * @since 2.8.0
 		 *
-		 * @param string $display_name The author's display name.
+		 * @param string $display_name The author's display name, empty string if unknown.
 		 */
-		return apply_filters( 'the_modified_author', $last_user->display_name );
+		return apply_filters( 'the_modified_author', $last_user ? $last_user->display_name : '' );
 	}
 }
 
 /**
- * Display the name of the author who last edited the current post,
+ * Displays the name of the author who last edited the current post,
  * if the author's ID is available.
- *
- *
  *
  * @see get_the_author()
  */
@@ -148,12 +144,10 @@ function the_modified_author() {
  * - user_url
  * - yim
  *
- *
- *
  * @global GC_User $authordata The current author's data.
  *
  * @param string    $field   Optional. The user field to retrieve. Default empty.
- * @param int|false $user_id Optional. User ID.
+ * @param int|false $user_id Optional. User ID. Defaults to the current post author.
  * @return string The author's field from the current author's DB object, otherwise an empty string.
  */
 function get_the_author_meta( $field = '', $user_id = false ) {
@@ -177,6 +171,7 @@ function get_the_author_meta( $field = '', $user_id = false ) {
 	 *
 	 * The filter name is dynamic and depends on the $field parameter of the function.
 	 *
+	 * @since 4.3.0 The `$original_user_id` parameter was added.
 	 *
 	 * @param string    $value            The value of the metadata.
 	 * @param int       $user_id          The user ID for the value.
@@ -188,11 +183,9 @@ function get_the_author_meta( $field = '', $user_id = false ) {
 /**
  * Outputs the field from the user's DB object. Defaults to current post's author.
  *
- *
- *
  * @param string    $field   Selects the field of the users record. See get_the_author_meta()
  *                           for the list of possible fields.
- * @param int|false $user_id Optional. User ID.
+ * @param int|false $user_id Optional. User ID. Defaults to the current post author.
  *
  * @see get_the_author_meta()
  */
@@ -200,7 +193,7 @@ function the_author_meta( $field = '', $user_id = false ) {
 	$author_meta = get_the_author_meta( $field, $user_id );
 
 	/**
-	 * The value of the requested user metadata.
+	 * Filters the value of the requested user metadata.
 	 *
 	 * The filter name is dynamic and depends on the $field parameter of the function.
 	 *
@@ -212,38 +205,53 @@ function the_author_meta( $field = '', $user_id = false ) {
 }
 
 /**
- * Retrieve either author's link or author's name.
+ * Retrieves either author's link or author's name.
  *
- * If the author has a home page set, return an HTML link, otherwise just return the
- * author's name.
+ * If the author has a home page set, return an HTML link, otherwise just return
+ * the author's name.
  *
+ * @global GC_User $authordata The current author's data.
  *
- *
- * @return string|null An HTML link if the author's url exist in user meta,
- *                     else the result of get_the_author().
+ * @return string An HTML link if the author's URL exists in user meta,
+ *                otherwise the result of get_the_author().
  */
 function get_the_author_link() {
 	if ( get_the_author_meta( 'url' ) ) {
-		return sprintf(
+		global $authordata;
+
+		$author_url          = get_the_author_meta( 'url' );
+		$author_display_name = get_the_author();
+
+		$link = sprintf(
 			'<a href="%1$s" title="%2$s" rel="author external">%3$s</a>',
-			esc_url( get_the_author_meta( 'url' ) ),
+			esc_url( $author_url ),
 			/* translators: %s: Author's display name. */
-			esc_attr( sprintf( __( '访问%s的站点' ), get_the_author() ) ),
-			get_the_author()
+			esc_attr( sprintf( __( '访问%s的系统' ), $author_display_name ) ),
+			$author_display_name
 		);
+
+		/**
+		 * Filters the author URL link HTML.
+		 *
+		 * @since 6.0.0
+		 *
+		 * @param string  $link       The default rendered author HTML link.
+		 * @param string  $author_url Author's URL.
+		 * @param GC_User $authordata Author user data.
+		 */
+		return apply_filters( 'the_author_link', $link, $author_url, $authordata );
 	} else {
 		return get_the_author();
 	}
 }
 
 /**
- * Display either author's link or author's name.
+ * Displays either author's link or author's name.
  *
  * If the author has a home page set, echo an HTML link, otherwise just echo the
  * author's name.
  *
  * @link https://developer.gechiui.com/reference/functions/the_author_link/
- *
  *
  */
 function the_author_link() {
@@ -251,9 +259,7 @@ function the_author_link() {
 }
 
 /**
- * Retrieve the number of posts by the author of the current post.
- *
- *
+ * Retrieves the number of posts by the author of the current post.
  *
  * @return int The number of posts by the author.
  */
@@ -266,10 +272,9 @@ function get_the_author_posts() {
 }
 
 /**
- * Display the number of posts by the author of the current post.
+ * Displays the number of posts by the author of the current post.
  *
  * @link https://developer.gechiui.com/reference/functions/the_author_posts/
- *
  */
 function the_author_posts() {
 	echo get_the_author_posts();
@@ -280,14 +285,13 @@ function the_author_posts() {
  *
  * Returns an HTML-formatted link using get_author_posts_url().
  *
- *
- *
  * @global GC_User $authordata The current author's data.
  *
- * @return string An HTML link to the author page, or an empty string if $authordata isn't defined.
+ * @return string An HTML link to the author page, or an empty string if $authordata is not set.
  */
 function get_the_author_posts_link() {
 	global $authordata;
+
 	if ( ! is_object( $authordata ) ) {
 		return '';
 	}
@@ -303,6 +307,7 @@ function get_the_author_posts_link() {
 	/**
 	 * Filters the link to the author page of the author of the current post.
 	 *
+	 * @since 2.9.0
 	 *
 	 * @param string $link HTML link.
 	 */
@@ -311,9 +316,7 @@ function get_the_author_posts_link() {
 
 /**
  * Displays an HTML link to the author page of the current post's author.
- *
- *
- *
+ * Converted into a wrapper for get_the_author_posts_link()
  *
  * @param string $deprecated Unused.
  */
@@ -325,9 +328,7 @@ function the_author_posts_link( $deprecated = '' ) {
 }
 
 /**
- * Retrieve the URL to the author page for the user with the ID provided.
- *
- *
+ * Retrieves the URL to the author page for the user with the ID provided.
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
  *
@@ -369,11 +370,9 @@ function get_author_posts_url( $author_id, $author_nicename = '' ) {
 }
 
 /**
- * List all the authors of the site, with several options available.
+ * Lists all the authors of the site, with several options available.
  *
  * @link https://developer.gechiui.com/reference/functions/gc_list_authors/
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -425,44 +424,81 @@ function gc_list_authors( $args = '' ) {
 		'include'       => '',
 	);
 
-	$args = gc_parse_args( $args, $defaults );
+	$parsed_args = gc_parse_args( $args, $defaults );
 
 	$return = '';
 
-	$query_args           = gc_array_slice_assoc( $args, array( 'orderby', 'order', 'number', 'exclude', 'include' ) );
+	$query_args           = gc_array_slice_assoc( $parsed_args, array( 'orderby', 'order', 'number', 'exclude', 'include' ) );
 	$query_args['fields'] = 'ids';
-	$authors              = get_users( $query_args );
 
-	$author_count = array();
-	foreach ( (array) $gcdb->get_results( "SELECT DISTINCT post_author, COUNT(ID) AS count FROM $gcdb->posts WHERE " . get_private_posts_cap_sql( 'post' ) . ' GROUP BY post_author' ) as $row ) {
-		$author_count[ $row->post_author ] = $row->count;
+	/**
+	 * Filters the query arguments for the list of all authors of the site.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param array $query_args  The query arguments for get_users().
+	 * @param array $parsed_args The arguments passed to gc_list_authors() combined with the defaults.
+	 */
+	$query_args = apply_filters( 'gc_list_authors_args', $query_args, $parsed_args );
+
+	$authors     = get_users( $query_args );
+	$post_counts = array();
+
+	/**
+	 * Filters whether to short-circuit performing the query for author post counts.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param int[]|false $post_counts Array of post counts, keyed by author ID.
+	 * @param array       $parsed_args The arguments passed to gc_list_authors() combined with the defaults.
+	 */
+	$post_counts = apply_filters( 'pre_gc_list_authors_post_counts_query', false, $parsed_args );
+
+	if ( ! is_array( $post_counts ) ) {
+		$post_counts       = array();
+		$post_counts_query = $gcdb->get_results(
+			"SELECT DISTINCT post_author, COUNT(ID) AS count
+			FROM $gcdb->posts
+			WHERE " . get_private_posts_cap_sql( 'post' ) . '
+			GROUP BY post_author'
+		);
+
+		foreach ( (array) $post_counts_query as $row ) {
+			$post_counts[ $row->post_author ] = $row->count;
+		}
 	}
-	foreach ( $authors as $author_id ) {
-		$posts = isset( $author_count[ $author_id ] ) ? $author_count[ $author_id ] : 0;
 
-		if ( ! $posts && $args['hide_empty'] ) {
+	foreach ( $authors as $author_id ) {
+		$posts = isset( $post_counts[ $author_id ] ) ? $post_counts[ $author_id ] : 0;
+
+		if ( ! $posts && $parsed_args['hide_empty'] ) {
 			continue;
 		}
 
 		$author = get_userdata( $author_id );
 
-		if ( $args['exclude_admin'] && 'admin' === $author->display_name ) {
+		if ( $parsed_args['exclude_admin'] && 'admin' === $author->display_name ) {
 			continue;
 		}
 
-		if ( $args['show_fullname'] && $author->first_name && $author->last_name ) {
-			$name = "$author->first_name $author->last_name";
+		if ( $parsed_args['show_fullname'] && $author->first_name && $author->last_name ) {
+			$name = sprintf(
+				/* translators: 1: User's first name, 2: Last name. */
+				_x( '%2$s, %1$s', 'Display name based on first name and last name' ),
+				$author->first_name,
+				$author->last_name
+			);
 		} else {
 			$name = $author->display_name;
 		}
 
-		if ( ! $args['html'] ) {
+		if ( ! $parsed_args['html'] ) {
 			$return .= $name . ', ';
 
 			continue; // No need to go further to process HTML.
 		}
 
-		if ( 'list' === $args['style'] ) {
+		if ( 'list' === $parsed_args['style'] ) {
 			$return .= '<li>';
 		}
 
@@ -474,46 +510,46 @@ function gc_list_authors( $args = '' ) {
 			$name
 		);
 
-		if ( ! empty( $args['feed_image'] ) || ! empty( $args['feed'] ) ) {
+		if ( ! empty( $parsed_args['feed_image'] ) || ! empty( $parsed_args['feed'] ) ) {
 			$link .= ' ';
-			if ( empty( $args['feed_image'] ) ) {
+			if ( empty( $parsed_args['feed_image'] ) ) {
 				$link .= '(';
 			}
 
-			$link .= '<a href="' . get_author_feed_link( $author->ID, $args['feed_type'] ) . '"';
+			$link .= '<a href="' . get_author_feed_link( $author->ID, $parsed_args['feed_type'] ) . '"';
 
 			$alt = '';
-			if ( ! empty( $args['feed'] ) ) {
-				$alt  = ' alt="' . esc_attr( $args['feed'] ) . '"';
-				$name = $args['feed'];
+			if ( ! empty( $parsed_args['feed'] ) ) {
+				$alt  = ' alt="' . esc_attr( $parsed_args['feed'] ) . '"';
+				$name = $parsed_args['feed'];
 			}
 
 			$link .= '>';
 
-			if ( ! empty( $args['feed_image'] ) ) {
-				$link .= '<img src="' . esc_url( $args['feed_image'] ) . '" style="border: none;"' . $alt . ' />';
+			if ( ! empty( $parsed_args['feed_image'] ) ) {
+				$link .= '<img src="' . esc_url( $parsed_args['feed_image'] ) . '" style="border: none;"' . $alt . ' />';
 			} else {
 				$link .= $name;
 			}
 
 			$link .= '</a>';
 
-			if ( empty( $args['feed_image'] ) ) {
+			if ( empty( $parsed_args['feed_image'] ) ) {
 				$link .= ')';
 			}
 		}
 
-		if ( $args['optioncount'] ) {
+		if ( $parsed_args['optioncount'] ) {
 			$link .= ' (' . $posts . ')';
 		}
 
 		$return .= $link;
-		$return .= ( 'list' === $args['style'] ) ? '</li>' : ', ';
+		$return .= ( 'list' === $parsed_args['style'] ) ? '</li>' : ', ';
 	}
 
 	$return = rtrim( $return, ', ' );
 
-	if ( $args['echo'] ) {
+	if ( $parsed_args['echo'] ) {
 		echo $return;
 	} else {
 		return $return;
@@ -528,8 +564,6 @@ function gc_list_authors( $args = '' ) {
  * For more information on this and similar theme functions, check out
  * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -548,6 +582,7 @@ function is_multi_author() {
 	/**
 	 * Filters whether the site has more than one author with published posts.
 	 *
+	 * @since 3.2.0
 	 *
 	 * @param bool $is_multi_author Whether $is_multi_author should evaluate as true.
 	 */
@@ -556,7 +591,6 @@ function is_multi_author() {
 
 /**
  * Helper function to clear the cache for number of authors.
- *
  *
  * @access private
  */

@@ -4,27 +4,27 @@
  *
  * @package GeChiUI
  * @subpackage Blocks
- *
+ * @since 5.0.0
  */
 
 /**
  * Removes the block asset's path prefix if provided.
  *
- *
+ * @since 5.5.0
  *
  * @param string $asset_handle_or_path Asset handle or prefixed path.
  * @return string Path without the prefix or the original value.
  */
 function remove_block_asset_path_prefix( $asset_handle_or_path ) {
 	$path_prefix = 'file:';
-	if ( 0 !== strpos( $asset_handle_or_path, $path_prefix ) ) {
+	if ( ! str_starts_with( $asset_handle_or_path, $path_prefix ) ) {
 		return $asset_handle_or_path;
 	}
 	$path = substr(
 		$asset_handle_or_path,
 		strlen( $path_prefix )
 	);
-	if ( strpos( $path, './' ) === 0 ) {
+	if ( str_starts_with( $path, './' ) ) {
 		$path = substr( $path, 2 );
 	}
 	return $path;
@@ -34,20 +34,26 @@ function remove_block_asset_path_prefix( $asset_handle_or_path ) {
  * Generates the name for an asset based on the name of the block
  * and the field name provided.
  *
- *
+ * @since 5.5.0
+ * @since 6.1.0 Added `$index` parameter.
  *
  * @param string $block_name Name of the block.
  * @param string $field_name Name of the metadata field.
+ * @param int    $index      Optional. Index of the asset when multiple items passed.
+ *                           Default 0.
  * @return string Generated asset name for the block's field.
  */
-function generate_block_asset_handle( $block_name, $field_name ) {
-	if ( 0 === strpos( $block_name, 'core/' ) ) {
+function generate_block_asset_handle( $block_name, $field_name, $index = 0 ) {
+	if ( str_starts_with( $block_name, 'core/' ) ) {
 		$asset_handle = str_replace( 'core/', 'gc-block-', $block_name );
-		if ( 0 === strpos( $field_name, 'editor' ) ) {
+		if ( str_starts_with( $field_name, 'editor' ) ) {
 			$asset_handle .= '-editor';
 		}
-		if ( 0 === strpos( $field_name, 'view' ) ) {
+		if ( str_starts_with( $field_name, 'view' ) ) {
 			$asset_handle .= '-view';
+		}
+		if ( $index > 0 ) {
+			$asset_handle .= '-' . ( $index + 1 );
 		}
 		return $asset_handle;
 	}
@@ -59,8 +65,12 @@ function generate_block_asset_handle( $block_name, $field_name ) {
 		'editorStyle'  => 'editor-style',
 		'style'        => 'style',
 	);
-	return str_replace( '/', '-', $block_name ) .
+	$asset_handle   = str_replace( '/', '-', $block_name ) .
 		'-' . $field_mappings[ $field_name ];
+	if ( $index > 0 ) {
+		$asset_handle .= '-' . ( $index + 1 );
+	}
+	return $asset_handle;
 }
 
 /**
@@ -69,36 +79,47 @@ function generate_block_asset_handle( $block_name, $field_name ) {
  * with details necessary to register the script under automatically
  * generated handle name. It returns unprocessed script handle otherwise.
  *
- *
+ * @since 5.5.0
+ * @since 6.1.0 Added `$index` parameter.
  *
  * @param array  $metadata   Block metadata.
  * @param string $field_name Field name to pick from metadata.
+ * @param int    $index      Optional. Index of the script to register when multiple items passed.
+ *                           Default 0.
  * @return string|false Script handle provided directly or created through
  *                      script's registration, or false on failure.
  */
-function register_block_script_handle( $metadata, $field_name ) {
+function register_block_script_handle( $metadata, $field_name, $index = 0 ) {
 	if ( empty( $metadata[ $field_name ] ) ) {
 		return false;
 	}
+
 	$script_handle = $metadata[ $field_name ];
-	$script_path   = remove_block_asset_path_prefix( $metadata[ $field_name ] );
+	if ( is_array( $script_handle ) ) {
+		if ( empty( $script_handle[ $index ] ) ) {
+			return false;
+		}
+		$script_handle = $script_handle[ $index ];
+	}
+
+	$script_path = remove_block_asset_path_prefix( $script_handle );
 	if ( $script_handle === $script_path ) {
 		return $script_handle;
 	}
 
-	$script_handle     = generate_block_asset_handle( $metadata['name'], $field_name );
-	$script_asset_path = gc_normalize_path(
-		realpath(
-			dirname( $metadata['file'] ) . '/' .
-			substr_replace( $script_path, '.asset.php', - strlen( '.js' ) )
-		)
+	$script_asset_raw_path = dirname( $metadata['file'] ) . '/' . substr_replace( $script_path, '.asset.php', - strlen( '.js' ) );
+	$script_handle         = generate_block_asset_handle( $metadata['name'], $field_name, $index );
+	$script_asset_path     = gc_normalize_path(
+		realpath( $script_asset_raw_path )
 	);
-	if ( ! file_exists( $script_asset_path ) ) {
+
+	if ( empty( $script_asset_path ) ) {
 		_doing_it_wrong(
 			__FUNCTION__,
 			sprintf(
-				/* translators: 1: Field name, 2: Block name. */
+				/* translators: 1: Asset file location, 2: Field name, 3: Block name.  */
 				__( '缺少在“%2$s”区块定义中所定义的“%1$s”的资产文件。' ),
+				$script_asset_raw_path,
 				$field_name,
 				$metadata['name']
 			),
@@ -106,14 +127,42 @@ function register_block_script_handle( $metadata, $field_name ) {
 		);
 		return false;
 	}
-	// Path needs to be normalized to work in Windows env.
-	$gcinc_path_norm  = gc_normalize_path( realpath( ABSPATH . 'assets' ) );
-	$script_path_norm = gc_normalize_path( realpath( dirname( $metadata['file'] ) . '/' . $script_path ) );
-	$is_core_block    = isset( $metadata['file'] ) && 0 === strpos( $metadata['file'], $gcinc_path_norm );
 
-	$script_uri          = $is_core_block ?
-		assets_url( str_replace( $gcinc_path_norm, '', $script_path_norm ) ) :
-		plugins_url( $script_path, $metadata['file'] );
+	// Path needs to be normalized to work in Windows env.
+	static $gcinc_path_norm = '';
+	if ( ! $gcinc_path_norm ) {
+		$gcinc_path_norm = gc_normalize_path( realpath( ABSPATH . GCINC ) );
+	}
+
+	// Cache $template_path_norm and $stylesheet_path_norm to avoid unnecessary additional calls.
+	static $template_path_norm   = '';
+	static $stylesheet_path_norm = '';
+	if ( ! $template_path_norm || ! $stylesheet_path_norm ) {
+		$template_path_norm   = gc_normalize_path( get_template_directory() );
+		$stylesheet_path_norm = gc_normalize_path( get_stylesheet_directory() );
+	}
+
+	$script_path_norm = gc_normalize_path( realpath( dirname( $metadata['file'] ) . '/' . $script_path ) );
+
+	$is_core_block = isset( $metadata['file'] ) && str_starts_with( $metadata['file'], $gcinc_path_norm );
+
+	/*
+	 * Determine if the block script was registered in a theme, by checking if the script path starts with either
+	 * the parent (template) or child (stylesheet) directory path.
+	 */
+	$is_parent_theme_block = str_starts_with( $script_path_norm, $template_path_norm );
+	$is_child_theme_block  = str_starts_with( $script_path_norm, $stylesheet_path_norm );
+	$is_theme_block        = ( $is_parent_theme_block || $is_child_theme_block );
+
+	$script_uri = plugins_url( $script_path, $metadata['file'] );
+	if ( $is_core_block ) {
+		$script_uri = includes_url( str_replace( $gcinc_path_norm, '', $script_path_norm ) );
+	} elseif ( $is_theme_block ) {
+		// Get the script path deterministically based on whether or not it was registered in a parent or child theme.
+		$script_uri = $is_parent_theme_block
+			? get_theme_file_uri( str_replace( $template_path_norm, '', $script_path_norm ) )
+			: get_theme_file_uri( str_replace( $stylesheet_path_norm, '', $script_path_norm ) );
+	}
 
 	$script_asset        = require $script_asset_path;
 	$script_dependencies = isset( $script_asset['dependencies'] ) ? $script_asset['dependencies'] : array();
@@ -139,70 +188,130 @@ function register_block_script_handle( $metadata, $field_name ) {
  * to file was provided and registers the style under automatically
  * generated handle name. It returns unprocessed style handle otherwise.
  *
- *
+ * @since 5.5.0
+ * @since 6.1.0 Added `$index` parameter.
  *
  * @param array  $metadata   Block metadata.
  * @param string $field_name Field name to pick from metadata.
+ * @param int    $index      Optional. Index of the style to register when multiple items passed.
+ *                           Default 0.
  * @return string|false Style handle provided directly or created through
  *                      style's registration, or false on failure.
  */
-function register_block_style_handle( $metadata, $field_name ) {
+function register_block_style_handle( $metadata, $field_name, $index = 0 ) {
 	if ( empty( $metadata[ $field_name ] ) ) {
 		return false;
 	}
-	$gcinc_path_norm = gc_normalize_path( realpath( ABSPATH . 'assets' ) );
-	$is_core_block   = isset( $metadata['file'] ) && 0 === strpos( $metadata['file'], $gcinc_path_norm );
+
+	$style_handle = $metadata[ $field_name ];
+	if ( is_array( $style_handle ) ) {
+		if ( empty( $style_handle[ $index ] ) ) {
+			return false;
+		}
+		$style_handle = $style_handle[ $index ];
+	}
+
+	$style_handle_name = generate_block_asset_handle( $metadata['name'], $field_name, $index );
+	// If the style handle is already registered, skip re-registering.
+	if ( gc_style_is( $style_handle_name, 'registered' ) ) {
+		return $style_handle_name;
+	}
+
+	static $gcinc_path_norm = '';
+	if ( ! $gcinc_path_norm ) {
+		$gcinc_path_norm = gc_normalize_path( realpath( ABSPATH . GCINC ) );
+	}
+
+	$is_core_block = isset( $metadata['file'] ) && str_starts_with( $metadata['file'], $gcinc_path_norm );
+	// Skip registering individual styles for each core block when a bundled version provided.
 	if ( $is_core_block && ! gc_should_load_separate_core_block_assets() ) {
 		return false;
 	}
 
-	// Check whether styles should have a ".min" suffix or not.
-	$suffix = SCRIPT_DEBUG ? '' : '.min';
-
-	$style_handle = $metadata[ $field_name ];
-	$style_path   = remove_block_asset_path_prefix( $metadata[ $field_name ] );
-
-	if ( $style_handle === $style_path && ! $is_core_block ) {
+	$style_path      = remove_block_asset_path_prefix( $style_handle );
+	$is_style_handle = $style_handle === $style_path;
+	// Allow only passing style handles for core blocks.
+	if ( $is_core_block && ! $is_style_handle ) {
+		return false;
+	}
+	// Return the style handle unless it's the first item for every core block that requires special treatment.
+	if ( $is_style_handle && ! ( $is_core_block && 0 === $index ) ) {
 		return $style_handle;
 	}
 
-	$style_uri = plugins_url( $style_path, $metadata['file'] );
+	// Check whether styles should have a ".min" suffix or not.
+	$suffix = SCRIPT_DEBUG ? '' : '.min';
 	if ( $is_core_block ) {
-		$style_path = "style$suffix.css";
-		$style_uri  = assets_url( '/blocks/' . str_replace( 'core/', '', $metadata['name'] ) . "/style$suffix.css" );
+		$style_path = ( 'editorStyle' === $field_name ) ? "editor{$suffix}.css" : "style{$suffix}.css";
 	}
 
-	$style_handle   = generate_block_asset_handle( $metadata['name'], $field_name );
-	$block_dir      = dirname( $metadata['file'] );
-	$style_file     = realpath( "$block_dir/$style_path" );
-	$has_style_file = false !== $style_file;
-	$version        = ! $is_core_block && isset( $metadata['version'] ) ? $metadata['version'] : false;
-	$style_uri      = $has_style_file ? $style_uri : false;
-	$result         = gc_register_style(
-		$style_handle,
+	$style_path_norm = gc_normalize_path( realpath( dirname( $metadata['file'] ) . '/' . $style_path ) );
+	$has_style_file  = '' !== $style_path_norm;
+
+	if ( $has_style_file ) {
+		$style_uri = plugins_url( $style_path, $metadata['file'] );
+
+		// Cache $template_path_norm and $stylesheet_path_norm to avoid unnecessary additional calls.
+		static $template_path_norm   = '';
+		static $stylesheet_path_norm = '';
+		if ( ! $template_path_norm || ! $stylesheet_path_norm ) {
+			$template_path_norm   = gc_normalize_path( get_template_directory() );
+			$stylesheet_path_norm = gc_normalize_path( get_stylesheet_directory() );
+		}
+
+		// Determine if the block style was registered in a theme, by checking if the script path starts with either
+		// the parent (template) or child (stylesheet) directory path.
+		$is_parent_theme_block = str_starts_with( $style_path_norm, $template_path_norm );
+		$is_child_theme_block  = str_starts_with( $style_path_norm, $stylesheet_path_norm );
+		$is_theme_block        = ( $is_parent_theme_block || $is_child_theme_block );
+
+		if ( $is_core_block ) {
+			// All possible $style_path variants for core blocks are hard-coded above.
+			$style_uri = includes_url( 'blocks/' . str_replace( 'core/', '', $metadata['name'] ) . '/' . $style_path );
+		} elseif ( $is_theme_block ) {
+			// Get the script path deterministically based on whether or not it was registered in a parent or child theme.
+			$style_uri = $is_parent_theme_block
+				? get_theme_file_uri( str_replace( $template_path_norm, '', $style_path_norm ) )
+				: get_theme_file_uri( str_replace( $stylesheet_path_norm, '', $style_path_norm ) );
+		}
+	} else {
+		$style_uri = false;
+	}
+
+	$version = ! $is_core_block && isset( $metadata['version'] ) ? $metadata['version'] : false;
+	$result  = gc_register_style(
+		$style_handle_name,
 		$style_uri,
 		array(),
 		$version
 	);
-	if ( file_exists( str_replace( '.css', '-rtl.css', $style_file ) ) ) {
-		gc_style_add_data( $style_handle, 'rtl', 'replace' );
+	if ( ! $result ) {
+		return false;
 	}
+
 	if ( $has_style_file ) {
-		gc_style_add_data( $style_handle, 'path', $style_file );
+		gc_style_add_data( $style_handle_name, 'path', $style_path_norm );
+
+		if ( $is_core_block ) {
+			$rtl_file = str_replace( "{$suffix}.css", "-rtl{$suffix}.css", $style_path_norm );
+		} else {
+			$rtl_file = str_replace( '.css', '-rtl.css', $style_path_norm );
+		}
+
+		if ( is_rtl() && file_exists( $rtl_file ) ) {
+			gc_style_add_data( $style_handle_name, 'rtl', 'replace' );
+			gc_style_add_data( $style_handle_name, 'suffix', $suffix );
+			gc_style_add_data( $style_handle_name, 'path', $rtl_file );
+		}
 	}
 
-	$rtl_file = str_replace( "$suffix.css", "-rtl$suffix.css", $style_file );
-	if ( is_rtl() && file_exists( $rtl_file ) ) {
-		gc_style_add_data( $style_handle, 'path', $rtl_file );
-	}
-
-	return $result ? $style_handle : false;
+	return $style_handle_name;
 }
 
 /**
  * Gets i18n schema for block's metadata read from `block.json` file.
  *
- *
+ * @since 5.9.0
  *
  * @return object The schema for block's metadata.
  */
@@ -219,9 +328,11 @@ function get_block_metadata_i18n_schema() {
 /**
  * Registers a block type from the metadata stored in the `block.json` file.
  *
- *
- *
- *
+ * @since 5.5.0
+ * @since 5.7.0 Added support for `textdomain` field and i18n handling for all translatable fields.
+ * @since 5.9.0 Added support for `variations` and `viewScript` fields.
+ * @since 6.1.0 Added support for `render` field.
+ * @since 6.3.0 Added `selectors` field.
  *
  * @param string $file_or_folder Path to the JSON file with metadata definition for
  *                               the block or path to the folder where the `block.json` file is located.
@@ -232,15 +343,41 @@ function get_block_metadata_i18n_schema() {
  * @return GC_Block_Type|false The registered block type on success, or false on failure.
  */
 function register_block_type_from_metadata( $file_or_folder, $args = array() ) {
-	$filename      = 'block.json';
-	$metadata_file = ( substr( $file_or_folder, -strlen( $filename ) ) !== $filename ) ?
-		trailingslashit( $file_or_folder ) . $filename :
+	/*
+	 * Get an array of metadata from a PHP file.
+	 * This improves performance for core blocks as it's only necessary to read a single PHP file
+	 * instead of reading a JSON file per-block, and then decoding from JSON to PHP.
+	 * Using a static variable ensures that the metadata is only read once per request.
+	 */
+	static $core_blocks_meta;
+	if ( ! $core_blocks_meta ) {
+		$core_blocks_meta = require ABSPATH . GCINC . '/blocks/blocks-json.php';
+	}
+
+	$metadata_file = ( ! str_ends_with( $file_or_folder, 'block.json' ) ) ?
+		trailingslashit( $file_or_folder ) . 'block.json' :
 		$file_or_folder;
-	if ( ! file_exists( $metadata_file ) ) {
+
+	$is_core_block = str_starts_with( $file_or_folder, ABSPATH . GCINC );
+
+	if ( ! $is_core_block && ! file_exists( $metadata_file ) ) {
 		return false;
 	}
 
-	$metadata = gc_json_file_decode( $metadata_file, array( 'associative' => true ) );
+	// Try to get metadata from the static cache for core blocks.
+	$metadata = false;
+	if ( $is_core_block ) {
+		$core_block_name = str_replace( ABSPATH . GCINC . '/blocks/', '', $file_or_folder );
+		if ( ! empty( $core_blocks_meta[ $core_block_name ] ) ) {
+			$metadata = $core_blocks_meta[ $core_block_name ];
+		}
+	}
+
+	// If metadata is not found in the static cache, read it from the file.
+	if ( ! $metadata ) {
+		$metadata = gc_json_file_decode( $metadata_file, array( 'associative' => true ) );
+	}
+
 	if ( ! is_array( $metadata ) || empty( $metadata['name'] ) ) {
 		return false;
 	}
@@ -249,17 +386,22 @@ function register_block_type_from_metadata( $file_or_folder, $args = array() ) {
 	/**
 	 * Filters the metadata provided for registering a block type.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param array $metadata Metadata for registering a block type.
 	 */
 	$metadata = apply_filters( 'block_type_metadata', $metadata );
 
 	// Add `style` and `editor_style` for core blocks if missing.
-	if ( ! empty( $metadata['name'] ) && 0 === strpos( $metadata['name'], 'core/' ) ) {
+	if ( ! empty( $metadata['name'] ) && str_starts_with( $metadata['name'], 'core/' ) ) {
 		$block_name = str_replace( 'core/', '', $metadata['name'] );
 
 		if ( ! isset( $metadata['style'] ) ) {
 			$metadata['style'] = "gc-block-$block_name";
+		}
+		if ( current_theme_supports( 'gc-block-styles' ) && gc_should_load_separate_core_block_assets() ) {
+			$metadata['style']   = (array) $metadata['style'];
+			$metadata['style'][] = "gc-block-{$block_name}-theme";
 		}
 		if ( ! isset( $metadata['editorStyle'] ) ) {
 			$metadata['editorStyle'] = "gc-block-{$block_name}-editor";
@@ -272,12 +414,14 @@ function register_block_type_from_metadata( $file_or_folder, $args = array() ) {
 		'title'           => 'title',
 		'category'        => 'category',
 		'parent'          => 'parent',
+		'ancestor'        => 'ancestor',
 		'icon'            => 'icon',
 		'description'     => 'description',
 		'keywords'        => 'keywords',
 		'attributes'      => 'attributes',
 		'providesContext' => 'provides_context',
 		'usesContext'     => 'uses_context',
+		'selectors'       => 'selectors',
 		'supports'        => 'supports',
 		'styles'          => 'styles',
 		'variations'      => 'variations',
@@ -295,44 +439,102 @@ function register_block_type_from_metadata( $file_or_folder, $args = array() ) {
 		}
 	}
 
-	if ( ! empty( $metadata['editorScript'] ) ) {
-		$settings['editor_script'] = register_block_script_handle(
-			$metadata,
-			'editorScript'
-		);
+	$script_fields = array(
+		'editorScript' => 'editor_script_handles',
+		'script'       => 'script_handles',
+		'viewScript'   => 'view_script_handles',
+	);
+	foreach ( $script_fields as $metadata_field_name => $settings_field_name ) {
+		if ( ! empty( $metadata[ $metadata_field_name ] ) ) {
+			$scripts           = $metadata[ $metadata_field_name ];
+			$processed_scripts = array();
+			if ( is_array( $scripts ) ) {
+				for ( $index = 0; $index < count( $scripts ); $index++ ) {
+					$result = register_block_script_handle(
+						$metadata,
+						$metadata_field_name,
+						$index
+					);
+					if ( $result ) {
+						$processed_scripts[] = $result;
+					}
+				}
+			} else {
+				$result = register_block_script_handle(
+					$metadata,
+					$metadata_field_name
+				);
+				if ( $result ) {
+					$processed_scripts[] = $result;
+				}
+			}
+			$settings[ $settings_field_name ] = $processed_scripts;
+		}
 	}
 
-	if ( ! empty( $metadata['script'] ) ) {
-		$settings['script'] = register_block_script_handle(
-			$metadata,
-			'script'
-		);
+	$style_fields = array(
+		'editorStyle' => 'editor_style_handles',
+		'style'       => 'style_handles',
+	);
+	foreach ( $style_fields as $metadata_field_name => $settings_field_name ) {
+		if ( ! empty( $metadata[ $metadata_field_name ] ) ) {
+			$styles           = $metadata[ $metadata_field_name ];
+			$processed_styles = array();
+			if ( is_array( $styles ) ) {
+				for ( $index = 0; $index < count( $styles ); $index++ ) {
+					$result = register_block_style_handle(
+						$metadata,
+						$metadata_field_name,
+						$index
+					);
+					if ( $result ) {
+						$processed_styles[] = $result;
+					}
+				}
+			} else {
+				$result = register_block_style_handle(
+					$metadata,
+					$metadata_field_name
+				);
+				if ( $result ) {
+					$processed_styles[] = $result;
+				}
+			}
+			$settings[ $settings_field_name ] = $processed_styles;
+		}
 	}
 
-	if ( ! empty( $metadata['viewScript'] ) ) {
-		$settings['view_script'] = register_block_script_handle(
-			$metadata,
-			'viewScript'
+	if ( ! empty( $metadata['render'] ) ) {
+		$template_path = gc_normalize_path(
+			realpath(
+				dirname( $metadata['file'] ) . '/' .
+				remove_block_asset_path_prefix( $metadata['render'] )
+			)
 		);
-	}
-
-	if ( ! empty( $metadata['editorStyle'] ) ) {
-		$settings['editor_style'] = register_block_style_handle(
-			$metadata,
-			'editorStyle'
-		);
-	}
-
-	if ( ! empty( $metadata['style'] ) ) {
-		$settings['style'] = register_block_style_handle(
-			$metadata,
-			'style'
-		);
+		if ( $template_path ) {
+			/**
+			 * Renders the block on the server.
+			 *
+			 * @since 6.1.0
+			 *
+			 * @param array    $attributes Block attributes.
+			 * @param string   $content    Block default content.
+			 * @param GC_Block $block      Block instance.
+			 *
+			 * @return string Returns the block content.
+			 */
+			$settings['render_callback'] = static function( $attributes, $content, $block ) use ( $template_path ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				ob_start();
+				require $template_path;
+				return ob_get_clean();
+			};
+		}
 	}
 
 	/**
 	 * Filters the settings determined from the block type metadata.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param array $settings Array of determined settings for registering a block type.
 	 * @param array $metadata Metadata provided for registering a block type.
@@ -356,8 +558,8 @@ function register_block_type_from_metadata( $file_or_folder, $args = array() ) {
  * Registers a block type. The recommended way is to register a block type using
  * the metadata stored in the `block.json` file.
  *
- *
- *
+ * @since 5.0.0
+ * @since 5.8.0 First parameter now accepts a path to the `block.json` file.
  *
  * @param string|GC_Block_Type $block_type Block type name including namespace, or alternatively
  *                                         a path to the JSON file with metadata definition for the block,
@@ -381,7 +583,7 @@ function register_block_type( $block_type, $args = array() ) {
 /**
  * Unregisters a block type.
  *
- *
+ * @since 5.0.0
  *
  * @param string|GC_Block_Type $name Block type name including namespace, or alternatively
  *                                   a complete GC_Block_Type instance.
@@ -392,13 +594,13 @@ function unregister_block_type( $name ) {
 }
 
 /**
- * Determine whether a post or content string has blocks.
+ * Determines whether a post or content string has blocks.
  *
  * This test optimizes for performance rather than strict accuracy, detecting
  * the pattern of a block but not validating its structure. For strict accuracy,
  * you should use the block parser on post content.
  *
- *
+ * @since 5.0.0
  *
  * @see parse_blocks()
  *
@@ -409,22 +611,25 @@ function unregister_block_type( $name ) {
 function has_blocks( $post = null ) {
 	if ( ! is_string( $post ) ) {
 		$gc_post = get_post( $post );
-		if ( $gc_post instanceof GC_Post ) {
-			$post = $gc_post->post_content;
+
+		if ( ! $gc_post instanceof GC_Post ) {
+			return false;
 		}
+
+		$post = $gc_post->post_content;
 	}
 
-	return false !== strpos( (string) $post, '<!-- gc:' );
+	return str_contains( (string) $post, '<!-- gc:' );
 }
 
 /**
- * Determine whether a $post or a string contains a specific block type.
+ * Determines whether a $post or a string contains a specific block type.
  *
  * This test optimizes for performance rather than strict accuracy, detecting
  * whether the block type exists but not validating its structure and not checking
  * reusable blocks. For strict accuracy, you should use the block parser on post content.
  *
- *
+ * @since 5.0.0
  *
  * @see parse_blocks()
  *
@@ -450,12 +655,12 @@ function has_block( $block_name, $post = null ) {
 	 * This matches behavior for GeChiUI 5.0.0 - 5.3.0 in matching blocks by
 	 * their serialized names.
 	 */
-	if ( false === strpos( $block_name, '/' ) ) {
+	if ( ! str_contains( $block_name, '/' ) ) {
 		$block_name = 'core/' . $block_name;
 	}
 
 	// Test for existence of block by its fully qualified name.
-	$has_block = false !== strpos( $post, '<!-- gc:' . $block_name . ' ' );
+	$has_block = str_contains( $post, '<!-- gc:' . $block_name . ' ' );
 
 	if ( ! $has_block ) {
 		/*
@@ -464,7 +669,7 @@ function has_block( $block_name, $post = null ) {
 		 */
 		$serialized_block_name = strip_core_block_namespace( $block_name );
 		if ( $serialized_block_name !== $block_name ) {
-			$has_block = false !== strpos( $post, '<!-- gc:' . $serialized_block_name . ' ' );
+			$has_block = str_contains( $post, '<!-- gc:' . $serialized_block_name . ' ' );
 		}
 	}
 
@@ -474,7 +679,7 @@ function has_block( $block_name, $post = null ) {
 /**
  * Returns an array of the names of all registered dynamic block types.
  *
- *
+ * @since 5.0.0
  *
  * @return string[] Array of dynamic block names.
  */
@@ -503,7 +708,7 @@ function get_dynamic_block_names() {
  * the serializeAttributes JavaScript function in the block editor in order
  * to ensure consistent operation between PHP and JavaScript.
  *
- *
+ * @since 5.3.1
  *
  * @param array $block_attributes Attributes object.
  * @return string Serialized attributes.
@@ -524,13 +729,14 @@ function serialize_block_attributes( $block_attributes ) {
  * Returns the block name to use for serialization. This will remove the default
  * "core/" namespace from a block name.
  *
+ * @since 5.3.1
  *
- *
- * @param string $block_name Original block name.
+ * @param string|null $block_name Optional. Original block name. Null if the block name is unknown,
+ *                                e.g. Classic blocks have their name set to null. Default null.
  * @return string Block name to use for serialization.
  */
 function strip_core_block_namespace( $block_name = null ) {
-	if ( is_string( $block_name ) && 0 === strpos( $block_name, 'core/' ) ) {
+	if ( is_string( $block_name ) && str_starts_with( $block_name, 'core/' ) ) {
 		return substr( $block_name, 5 );
 	}
 
@@ -540,7 +746,7 @@ function strip_core_block_namespace( $block_name = null ) {
 /**
  * Returns the content of a block, including comment delimiters.
  *
- *
+ * @since 5.3.1
  *
  * @param string|null $block_name       Block name. Null if the block name is unknown,
  *                                      e.g. Classic blocks have their name set to null.
@@ -578,9 +784,9 @@ function get_comment_delimited_block_content( $block_name, $block_attributes, $b
  * `render_block`, this does not evaluate a block's `render_callback`, and will
  * instead preserve the markup as parsed.
  *
+ * @since 5.3.1
  *
- *
- * @param GC_Block_Parser_Block $block A single parsed block object.
+ * @param array $block A representative array of a single parsed block object. See GC_Block_Parser_Block.
  * @return string String of rendered HTML.
  */
 function serialize_block( $block ) {
@@ -603,12 +809,12 @@ function serialize_block( $block ) {
 }
 
 /**
- * Returns a joined string of the aggregate serialization of the given parsed
- * blocks.
+ * Returns a joined string of the aggregate serialization of the given
+ * parsed blocks.
  *
+ * @since 5.3.1
  *
- *
- * @param GC_Block_Parser_Block[] $blocks Parsed block objects.
+ * @param array[] $blocks An array of representative arrays of parsed block objects. See serialize_block().
  * @return string String of rendered HTML.
  */
 function serialize_blocks( $blocks ) {
@@ -616,20 +822,25 @@ function serialize_blocks( $blocks ) {
 }
 
 /**
- * Filters and sanitizes block content to remove non-allowable HTML from
- * parsed block attribute values.
+ * Filters and sanitizes block content to remove non-allowable HTML
+ * from parsed block attribute values.
  *
- *
+ * @since 5.3.1
  *
  * @param string         $text              Text that may contain block content.
- * @param array[]|string $allowed_html      An array of allowed HTML elements
- *                                          and attributes, or a context name
- *                                          such as 'post'.
- * @param string[]       $allowed_protocols Array of allowed URL protocols.
+ * @param array[]|string $allowed_html      Optional. An array of allowed HTML elements and attributes,
+ *                                          or a context name such as 'post'. See gc_kses_allowed_html()
+ *                                          for the list of accepted context names. Default 'post'.
+ * @param string[]       $allowed_protocols Optional. Array of allowed URL protocols.
+ *                                          Defaults to the result of gc_allowed_protocols().
  * @return string The filtered and sanitized content result.
  */
 function filter_block_content( $text, $allowed_html = 'post', $allowed_protocols = array() ) {
 	$result = '';
+
+	if ( str_contains( $text, '<!--' ) && str_contains( $text, '--->' ) ) {
+		$text = preg_replace_callback( '%<!--(.*?)--->%', '_filter_block_content_callback', $text );
+	}
 
 	$blocks = parse_blocks( $text );
 	foreach ( $blocks as $block ) {
@@ -641,16 +852,30 @@ function filter_block_content( $text, $allowed_html = 'post', $allowed_protocols
 }
 
 /**
- * Filters and sanitizes a parsed block to remove non-allowable HTML from block
- * attribute values.
+ * Callback used for regular expression replacement in filter_block_content().
  *
+ * @private
+ * @since 6.2.1
  *
+ * @param array $matches Array of preg_replace_callback matches.
+ * @return string Replacement string.
+ */
+function _filter_block_content_callback( $matches ) {
+	return '<!--' . rtrim( $matches[1], '-' ) . '-->';
+}
+
+/**
+ * Filters and sanitizes a parsed block to remove non-allowable HTML
+ * from block attribute values.
+ *
+ * @since 5.3.1
  *
  * @param GC_Block_Parser_Block $block             The parsed block object.
- * @param array[]|string        $allowed_html      An array of allowed HTML
- *                                                 elements and attributes, or a
- *                                                 context name such as 'post'.
- * @param string[]              $allowed_protocols Allowed URL protocols.
+ * @param array[]|string        $allowed_html      An array of allowed HTML elements and attributes,
+ *                                                 or a context name such as 'post'. See gc_kses_allowed_html()
+ *                                                 for the list of accepted context names.
+ * @param string[]              $allowed_protocols Optional. Array of allowed URL protocols.
+ *                                                 Defaults to the result of gc_allowed_protocols().
  * @return array The filtered and sanitized block object result.
  */
 function filter_block_kses( $block, $allowed_html, $allowed_protocols = array() ) {
@@ -666,16 +891,17 @@ function filter_block_kses( $block, $allowed_html, $allowed_protocols = array() 
 }
 
 /**
- * Filters and sanitizes a parsed block attribute value to remove non-allowable
- * HTML.
+ * Filters and sanitizes a parsed block attribute value to remove
+ * non-allowable HTML.
  *
- *
+ * @since 5.3.1
  *
  * @param string[]|string $value             The attribute value to filter.
- * @param array[]|string  $allowed_html      An array of allowed HTML elements
- *                                           and attributes, or a context name
- *                                           such as 'post'.
- * @param string[]        $allowed_protocols Array of allowed URL protocols.
+ * @param array[]|string  $allowed_html      An array of allowed HTML elements and attributes,
+ *                                           or a context name such as 'post'. See gc_kses_allowed_html()
+ *                                           for the list of accepted context names.
+ * @param string[]        $allowed_protocols Optional. Array of allowed URL protocols.
+ *                                           Defaults to the result of gc_allowed_protocols().
  * @return string[]|string The filtered and sanitized result.
  */
 function filter_block_kses_value( $value, $allowed_html, $allowed_protocols = array() ) {
@@ -703,7 +929,7 @@ function filter_block_kses_value( $value, $allowed_html, $allowed_protocols = ar
  * As the excerpt should be a small string of text relevant to the full post content,
  * this function renders the blocks that are most likely to contain such text.
  *
- *
+ * @since 5.0.0
  *
  * @param string $content The content to parse.
  * @return string The parsed and filtered content.
@@ -735,6 +961,7 @@ function excerpt_remove_blocks( $content ) {
 	 * Filters the list of blocks that can be used as wrapper blocks, allowing
 	 * excerpts to be generated from the `innerBlocks` of these wrappers.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param string[] $allowed_wrapper_blocks The list of names of allowed wrapper blocks.
 	 */
@@ -748,6 +975,7 @@ function excerpt_remove_blocks( $content ) {
 	 * If a dynamic block is added to this list, it must not generate another
 	 * excerpt, as this will cause an infinite loop to occur.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param string[] $allowed_blocks The list of names of allowed blocks.
 	 */
@@ -782,10 +1010,31 @@ function excerpt_remove_blocks( $content ) {
 }
 
 /**
- * Render inner blocks from the allowed wrapper blocks
+ * Parses footnotes markup out of a content string,
+ * and renders those appropriate for the excerpt.
+ *
+ * @since 6.3.0
+ *
+ * @param string $content The content to parse.
+ * @return string The parsed and filtered content.
+ */
+function excerpt_remove_footnotes( $content ) {
+	if ( ! str_contains( $content, 'data-fn=' ) ) {
+		return $content;
+	}
+
+	return preg_replace(
+		'_<sup data-fn="[^"]+" class="[^"]+">\s*<a href="[^"]+" id="[^"]+">\d+</a>\s*</sup>_',
+		'',
+		$content
+	);
+}
+
+/**
+ * Renders inner blocks from the allowed wrapper blocks
  * for generating an excerpt.
  *
- *
+ * @since 5.8.0
  * @access private
  *
  * @param array $parsed_block   The parsed block.
@@ -813,9 +1062,9 @@ function _excerpt_render_inner_blocks( $parsed_block, $allowed_blocks ) {
 /**
  * Renders a single block into a HTML string.
  *
+ * @since 5.0.0
  *
- *
- * @global GC_Post  $post     The post to edit.
+ * @global GC_Post $post The post to edit.
  *
  * @param array $parsed_block A single parsed block object.
  * @return string String of rendered HTML.
@@ -827,6 +1076,8 @@ function render_block( $parsed_block ) {
 	/**
 	 * Allows render_block() to be short-circuited, by returning a non-null value.
 	 *
+	 * @since 5.1.0
+	 * @since 5.9.0 The `$parent_block` parameter was added.
 	 *
 	 * @param string|null   $pre_render   The pre-rendered content. Default null.
 	 * @param array         $parsed_block The block being rendered.
@@ -842,6 +1093,8 @@ function render_block( $parsed_block ) {
 	/**
 	 * Filters the block being rendered in render_block(), before it's processed.
 	 *
+	 * @since 5.1.0
+	 * @since 5.9.0 The `$parent_block` parameter was added.
 	 *
 	 * @param array         $parsed_block The block being rendered.
 	 * @param array         $source_block An un-modified copy of $parsed_block, as it appeared in the source content.
@@ -866,6 +1119,8 @@ function render_block( $parsed_block ) {
 	/**
 	 * Filters the default context provided to a rendered block.
 	 *
+	 * @since 5.5.0
+	 * @since 5.9.0 The `$parent_block` parameter was added.
 	 *
 	 * @param array         $context      Default context.
 	 * @param array         $parsed_block Block being rendered, filtered by `render_block_data`.
@@ -881,15 +1136,16 @@ function render_block( $parsed_block ) {
 /**
  * Parses blocks out of a content string.
  *
- *
+ * @since 5.0.0
  *
  * @param string $content Post content.
  * @return array[] Array of parsed block objects.
  */
 function parse_blocks( $content ) {
 	/**
-	 * Filter to allow plugins to replace the server-side block parser
+	 * Filter to allow plugins to replace the server-side block parser.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param string $parser_class Name of block parser class.
 	 */
@@ -902,7 +1158,7 @@ function parse_blocks( $content ) {
 /**
  * Parses dynamic blocks out of `post_content` and re-renders them.
  *
- *
+ * @since 5.0.0
  *
  * @param string $content Post content.
  * @return string Updated post content.
@@ -929,9 +1185,8 @@ function do_blocks( $content ) {
  * If do_blocks() needs to remove gcautop() from the `the_content` filter, this re-adds it afterwards,
  * for subsequent `the_content` usage.
  *
+ * @since 5.0.0
  * @access private
- *
- *
  *
  * @param string $content The post content running through this filter.
  * @return string The unmodified content.
@@ -950,7 +1205,7 @@ function _restore_gcautop_hook( $content ) {
  *
  * If the string doesn't contain blocks, it returns 0.
  *
- *
+ * @since 5.0.0
  *
  * @param string $content Content to test.
  * @return int The block format version is 1 if the content contains one or more blocks, 0 otherwise.
@@ -962,11 +1217,13 @@ function block_version( $content ) {
 /**
  * Registers a new block style.
  *
+ * @since 5.3.0
  *
+ * @link https://developer.gechiui.com/block-editor/reference-guides/block-api/block-styles/
  *
  * @param string $block_name       Block type name including namespace.
- * @param array  $style_properties Array containing the properties of the style name,
- *                                 label, style (name of the stylesheet to be enqueued),
+ * @param array  $style_properties Array containing the properties of the style name, label,
+ *                                 style_handle (name of the stylesheet to be enqueued),
  *                                 inline_style (string containing the CSS to be added).
  * @return bool True if the block style was registered with success and false otherwise.
  */
@@ -977,7 +1234,7 @@ function register_block_style( $block_name, $style_properties ) {
 /**
  * Unregisters a block style.
  *
- *
+ * @since 5.3.0
  *
  * @param string $block_name       Block type name including namespace.
  * @param string $block_style_name Block style name.
@@ -990,17 +1247,17 @@ function unregister_block_style( $block_name, $block_style_name ) {
 /**
  * Checks whether the current block type supports the feature requested.
  *
+ * @since 5.8.0
  *
- *
- * @param GC_Block_Type $block_type Block type to check for support.
- * @param string        $feature    Name of the feature to check support for.
- * @param mixed         $default    Optional. Fallback value for feature support. Default false.
+ * @param GC_Block_Type $block_type    Block type to check for support.
+ * @param array         $feature       Path to a specific feature to check support for.
+ * @param mixed         $default_value Optional. Fallback value for feature support. Default false.
  * @return bool Whether the feature is supported.
  */
-function block_has_support( $block_type, $feature, $default = false ) {
-	$block_support = $default;
+function block_has_support( $block_type, $feature, $default_value = false ) {
+	$block_support = $default_value;
 	if ( $block_type && property_exists( $block_type, 'supports' ) ) {
-		$block_support = _gc_array_get( $block_type->supports, $feature, $default );
+		$block_support = _gc_array_get( $block_type->supports, $feature, $default_value );
 	}
 
 	return true === $block_support || is_array( $block_support );
@@ -1011,7 +1268,7 @@ function block_has_support( $block_type, $feature, $default = false ) {
  *
  * Displays a `_doing_it_wrong()` notice when a block using the older format is detected.
  *
- *
+ * @since 5.8.0
  *
  * @param array $metadata Metadata for registering a block type.
  * @return array Filtered metadata for registering a block type.
@@ -1064,7 +1321,8 @@ function gc_migrate_old_typography_shape( $metadata ) {
  *
  * It's used in Query Loop, Query Pagination Numbers and Query Pagination Next blocks.
  *
- *
+ * @since 5.8.0
+ * @since 6.1.0 Added `query_loop_block_query_vars` filter and `parents` support in query.
  *
  * @param GC_Block $block Block instance.
  * @param int      $page  Current query's page.
@@ -1089,7 +1347,15 @@ function build_query_vars_from_query_block( $block, $page ) {
 		if ( isset( $block->context['query']['sticky'] ) && ! empty( $block->context['query']['sticky'] ) ) {
 			$sticky = get_option( 'sticky_posts' );
 			if ( 'only' === $block->context['query']['sticky'] ) {
-				$query['post__in'] = $sticky;
+				/*
+				 * Passing an empty array to post__in will return have_posts() as true (and all posts will be returned).
+				 * Logic should be used before hand to determine if GC_Query should be used in the event that the array
+				 * being passed to post__in is empty.
+				 *
+				 * @see https://core.trac.gechiui.com/ticket/28099
+				 */
+				$query['post__in']            = ! empty( $sticky ) ? $sticky : array( 0 );
+				$query['ignore_sticky_posts'] = 1;
 			} else {
 				$query['post__not_in'] = array_merge( $query['post__not_in'], $sticky );
 			}
@@ -1116,15 +1382,36 @@ function build_query_vars_from_query_block( $block, $page ) {
 			$query['offset']         = ( $per_page * ( $page - 1 ) ) + $offset;
 			$query['posts_per_page'] = $per_page;
 		}
-		if ( ! empty( $block->context['query']['categoryIds'] ) ) {
-			$term_ids              = array_map( 'intval', $block->context['query']['categoryIds'] );
-			$term_ids              = array_filter( $term_ids );
-			$query['category__in'] = $term_ids;
+		// Migrate `categoryIds` and `tagIds` to `tax_query` for backwards compatibility.
+		if ( ! empty( $block->context['query']['categoryIds'] ) || ! empty( $block->context['query']['tagIds'] ) ) {
+			$tax_query = array();
+			if ( ! empty( $block->context['query']['categoryIds'] ) ) {
+				$tax_query[] = array(
+					'taxonomy'         => 'category',
+					'terms'            => array_filter( array_map( 'intval', $block->context['query']['categoryIds'] ) ),
+					'include_children' => false,
+				);
+			}
+			if ( ! empty( $block->context['query']['tagIds'] ) ) {
+				$tax_query[] = array(
+					'taxonomy'         => 'post_tag',
+					'terms'            => array_filter( array_map( 'intval', $block->context['query']['tagIds'] ) ),
+					'include_children' => false,
+				);
+			}
+			$query['tax_query'] = $tax_query;
 		}
-		if ( ! empty( $block->context['query']['tagIds'] ) ) {
-			$term_ids         = array_map( 'intval', $block->context['query']['tagIds'] );
-			$term_ids         = array_filter( $term_ids );
-			$query['tag__in'] = $term_ids;
+		if ( ! empty( $block->context['query']['taxQuery'] ) ) {
+			$query['tax_query'] = array();
+			foreach ( $block->context['query']['taxQuery'] as $taxonomy => $terms ) {
+				if ( is_taxonomy_viewable( $taxonomy ) && ! empty( $terms ) ) {
+					$query['tax_query'][] = array(
+						'taxonomy'         => $taxonomy,
+						'terms'            => array_filter( array_map( 'intval', $terms ) ),
+						'include_children' => false,
+					);
+				}
+			}
 		}
 		if (
 			isset( $block->context['query']['order'] ) &&
@@ -1136,31 +1423,59 @@ function build_query_vars_from_query_block( $block, $page ) {
 			$query['orderby'] = $block->context['query']['orderBy'];
 		}
 		if (
-			isset( $block->context['query']['author'] ) &&
-			(int) $block->context['query']['author'] > 0
+			isset( $block->context['query']['author'] )
 		) {
-			$query['author'] = (int) $block->context['query']['author'];
+			if ( is_array( $block->context['query']['author'] ) ) {
+				$query['author__in'] = array_filter( array_map( 'intval', $block->context['query']['author'] ) );
+			} elseif ( is_string( $block->context['query']['author'] ) ) {
+				$query['author__in'] = array_filter( array_map( 'intval', explode( ',', $block->context['query']['author'] ) ) );
+			} elseif ( is_int( $block->context['query']['author'] ) && $block->context['query']['author'] > 0 ) {
+				$query['author'] = $block->context['query']['author'];
+			}
 		}
 		if ( ! empty( $block->context['query']['search'] ) ) {
 			$query['s'] = $block->context['query']['search'];
 		}
+		if ( ! empty( $block->context['query']['parents'] ) && is_post_type_hierarchical( $query['post_type'] ) ) {
+			$query['post_parent__in'] = array_filter( array_map( 'intval', $block->context['query']['parents'] ) );
+		}
 	}
-	return $query;
+
+	/**
+	 * Filters the arguments which will be passed to `GC_Query` for the Query Loop Block.
+	 *
+	 * Anything to this filter should be compatible with the `GC_Query` API to form
+	 * the query context which will be passed down to the Query Loop Block's children.
+	 * This can help, for example, to include additional settings or meta queries not
+	 * directly supported by the core Query Loop Block, and extend its capabilities.
+	 *
+	 * Please note that this will only influence the query that will be rendered on the
+	 * front-end. The editor preview is not affected by this filter. Also, worth noting
+	 * that the editor preview uses the REST API, so, ideally, one should aim to provide
+	 * attributes which are also compatible with the REST API, in order to be able to
+	 * implement identical queries on both sides.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param array    $query Array containing parameters for `GC_Query` as parsed by the block context.
+	 * @param GC_Block $block Block instance.
+	 * @param int      $page  Current query's page.
+	 */
+	return apply_filters( 'query_loop_block_query_vars', $query, $block, $page );
 }
 
 /**
- * Helper function that returns the proper pagination arrow html for
+ * Helper function that returns the proper pagination arrow HTML for
  * `QueryPaginationNext` and `QueryPaginationPrevious` blocks based
  * on the provided `paginationArrow` from `QueryPagination` context.
  *
  * It's used in QueryPaginationNext and QueryPaginationPrevious blocks.
  *
- *
+ * @since 5.9.0
  *
  * @param GC_Block $block   Block instance.
- * @param boolean  $is_next Flag for handling `next/previous` blocks.
- *
- * @return string|null Returns the constructed GC_Query arguments.
+ * @param bool     $is_next Flag for handling `next/previous` blocks.
+ * @return string|null The pagination arrow HTML or null if there is none.
  */
 function get_query_pagination_arrow( $block, $is_next ) {
 	$arrow_map = array(
@@ -1179,146 +1494,111 @@ function get_query_pagination_arrow( $block, $is_next ) {
 		$arrow_attribute = $block->context['paginationArrow'];
 		$arrow           = $arrow_map[ $block->context['paginationArrow'] ][ $pagination_type ];
 		$arrow_classes   = "gc-block-query-pagination-$pagination_type-arrow is-arrow-$arrow_attribute";
-		return "<span class='$arrow_classes'>$arrow</span>";
+		return "<span class='$arrow_classes' aria-hidden='true'>$arrow</span>";
 	}
 	return null;
 }
 
 /**
- * Enqueues a stylesheet for a specific block.
+ * Helper function that constructs a comment query vars array from the passed
+ * block properties.
  *
- * If the theme has opted-in to separate-styles loading,
- * then the stylesheet will be enqueued on-render,
- * otherwise when the block inits.
+ * It's used with the Comment Query Loop inner blocks.
  *
+ * @since 6.0.0
  *
- *
- * @param string $block_name The block-name, including namespace.
- * @param array  $args       An array of arguments [handle,src,deps,ver,media].
- * @return void
+ * @param GC_Block $block Block instance.
+ * @return array Returns the comment query parameters to use with the
+ *               GC_Comment_Query constructor.
  */
-function gc_enqueue_block_style( $block_name, $args ) {
-	$args = gc_parse_args(
-		$args,
-		array(
-			'handle' => '',
-			'src'    => '',
-			'deps'   => array(),
-			'ver'    => false,
-			'media'  => 'all',
-		)
+function build_comment_query_vars_from_block( $block ) {
+
+	$comment_args = array(
+		'orderby'       => 'comment_date_gmt',
+		'order'         => 'ASC',
+		'status'        => 'approve',
+		'no_found_rows' => false,
 	);
 
-	/**
-	 * Callback function to register and enqueue styles.
-	 *
-	 * @param string $content When the callback is used for the render_block filter,
-	 *                        the content needs to be returned so the function parameter
-	 *                        is to ensure the content exists.
-	 * @return string Block content.
-	 */
-	$callback = static function( $content ) use ( $args ) {
-		// Register the stylesheet.
-		if ( ! empty( $args['src'] ) ) {
-			gc_register_style( $args['handle'], $args['src'], $args['deps'], $args['ver'], $args['media'] );
+	if ( is_user_logged_in() ) {
+		$comment_args['include_unapproved'] = array( get_current_user_id() );
+	} else {
+		$unapproved_email = gc_get_unapproved_comment_author_email();
+
+		if ( $unapproved_email ) {
+			$comment_args['include_unapproved'] = array( $unapproved_email );
 		}
-
-		// Add `path` data if provided.
-		if ( isset( $args['path'] ) ) {
-			gc_style_add_data( $args['handle'], 'path', $args['path'] );
-
-			// Get the RTL file path.
-			$rtl_file_path = str_replace( '.css', '-rtl.css', $args['path'] );
-
-			// Add RTL stylesheet.
-			if ( file_exists( $rtl_file_path ) ) {
-				gc_style_add_data( $args['handle'], 'rtl', 'replace' );
-
-				if ( is_rtl() ) {
-					gc_style_add_data( $args['handle'], 'path', $rtl_file_path );
-				}
-			}
-		}
-
-		// Enqueue the stylesheet.
-		gc_enqueue_style( $args['handle'] );
-
-		return $content;
-	};
-
-	$hook = did_action( 'gc_enqueue_scripts' ) ? 'gc_footer' : 'gc_enqueue_scripts';
-	if ( gc_should_load_separate_core_block_assets() ) {
-		/**
-		 * Callback function to register and enqueue styles.
-		 *
-		 * @param string $content The block content.
-		 * @param array  $block   The full block, including name and attributes.
-		 * @return string Block content.
-		 */
-		$callback_separate = static function( $content, $block ) use ( $block_name, $callback ) {
-			if ( ! empty( $block['blockName'] ) && $block_name === $block['blockName'] ) {
-				return $callback( $content );
-			}
-			return $content;
-		};
-
-		/*
-		 * The filter's callback here is an anonymous function because
-		 * using a named function in this case is not possible.
-		 *
-		 * The function cannot be unhooked, however, users are still able
-		 * to dequeue the stylesheets registered/enqueued by the callback
-		 * which is why in this case, using an anonymous function
-		 * was deemed acceptable.
-		 */
-		add_filter( 'render_block', $callback_separate, 10, 2 );
-		return;
 	}
 
-	/*
-	 * The filter's callback here is an anonymous function because
-	 * using a named function in this case is not possible.
-	 *
-	 * The function cannot be unhooked, however, users are still able
-	 * to dequeue the stylesheets registered/enqueued by the callback
-	 * which is why in this case, using an anonymous function
-	 * was deemed acceptable.
-	 */
-	add_filter( $hook, $callback );
+	if ( ! empty( $block->context['postId'] ) ) {
+		$comment_args['post_id'] = (int) $block->context['postId'];
+	}
 
-	// Enqueue assets in the editor.
-	add_action( 'enqueue_block_assets', $callback );
+	if ( get_option( 'thread_comments' ) ) {
+		$comment_args['hierarchical'] = 'threaded';
+	} else {
+		$comment_args['hierarchical'] = false;
+	}
+
+	if ( get_option( 'page_comments' ) === '1' || get_option( 'page_comments' ) === true ) {
+		$per_page     = get_option( 'comments_per_page' );
+		$default_page = get_option( 'default_comments_page' );
+		if ( $per_page > 0 ) {
+			$comment_args['number'] = $per_page;
+
+			$page = (int) get_query_var( 'cpage' );
+			if ( $page ) {
+				$comment_args['paged'] = $page;
+			} elseif ( 'oldest' === $default_page ) {
+				$comment_args['paged'] = 1;
+			} elseif ( 'newest' === $default_page ) {
+				$max_num_pages = (int) ( new GC_Comment_Query( $comment_args ) )->max_num_pages;
+				if ( 0 !== $max_num_pages ) {
+					$comment_args['paged'] = $max_num_pages;
+				}
+			}
+			// Set the `cpage` query var to ensure the previous and next pagination links are correct
+			// when inheriting the Discussion Settings.
+			if ( 0 === $page && isset( $comment_args['paged'] ) && $comment_args['paged'] > 0 ) {
+				set_query_var( 'cpage', $comment_args['paged'] );
+			}
+		}
+	}
+
+	return $comment_args;
 }
 
 /**
- * Allow multiple block styles.
+ * Helper function that returns the proper pagination arrow HTML for
+ * `CommentsPaginationNext` and `CommentsPaginationPrevious` blocks based on the
+ * provided `paginationArrow` from `CommentsPagination` context.
  *
+ * It's used in CommentsPaginationNext and CommentsPaginationPrevious blocks.
  *
+ * @since 6.0.0
  *
- * @param array $metadata Metadata for registering a block type.
- * @return array Metadata for registering a block type.
+ * @param GC_Block $block           Block instance.
+ * @param string   $pagination_type Optional. Type of the arrow we will be rendering.
+ *                                  Accepts 'next' or 'previous'. Default 'next'.
+ * @return string|null The pagination arrow HTML or null if there is none.
  */
-function _gc_multiple_block_styles( $metadata ) {
-	foreach ( array( 'style', 'editorStyle' ) as $key ) {
-		if ( ! empty( $metadata[ $key ] ) && is_array( $metadata[ $key ] ) ) {
-			$default_style = array_shift( $metadata[ $key ] );
-			foreach ( $metadata[ $key ] as $handle ) {
-				$args = array( 'handle' => $handle );
-				if ( 0 === strpos( $handle, 'file:' ) && isset( $metadata['file'] ) ) {
-					$style_path = remove_block_asset_path_prefix( $handle );
-					$args       = array(
-						'handle' => sanitize_key( "{$metadata['name']}-{$style_path}" ),
-						'src'    => plugins_url( $style_path, $metadata['file'] ),
-					);
-				}
-
-				gc_enqueue_block_style( $metadata['name'], $args );
-			}
-
-			// Only return the 1st item in the array.
-			$metadata[ $key ] = $default_style;
-		}
+function get_comments_pagination_arrow( $block, $pagination_type = 'next' ) {
+	$arrow_map = array(
+		'none'    => '',
+		'arrow'   => array(
+			'next'     => '→',
+			'previous' => '←',
+		),
+		'chevron' => array(
+			'next'     => '»',
+			'previous' => '«',
+		),
+	);
+	if ( ! empty( $block->context['comments/paginationArrow'] ) && ! empty( $arrow_map[ $block->context['comments/paginationArrow'] ][ $pagination_type ] ) ) {
+		$arrow_attribute = $block->context['comments/paginationArrow'];
+		$arrow           = $arrow_map[ $block->context['comments/paginationArrow'] ][ $pagination_type ];
+		$arrow_classes   = "gc-block-comments-pagination-$pagination_type-arrow is-arrow-$arrow_attribute";
+		return "<span class='$arrow_classes' aria-hidden='true'>$arrow</span>";
 	}
-	return $metadata;
+	return null;
 }
-add_filter( 'block_type_metadata', '_gc_multiple_block_styles' );

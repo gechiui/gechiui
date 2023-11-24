@@ -1,0 +1,59 @@
+.gc-block-post-comments-form{
+  box-sizing:border-box;
+}
+.gc-block-post-comments-form[style*=font-weight] :where(.comment-reply-title){
+  font-weight:inherit;
+}
+.gc-block-post-comments-form[style*=font-family] :where(.comment-reply-title){
+  font-family:inherit;
+}
+.gc-block-post-comments-form[class*=-font-size] :where(.comment-reply-title),.gc-block-post-comments-form[style*=font-size] :where(.comment-reply-title){
+  font-size:inherit;
+}
+.gc-block-post-comments-form[style*=line-height] :where(.comment-reply-title){
+  line-height:inherit;
+}
+.gc-block-post-comments-form[style*=font-style] :where(.comment-reply-title){
+  font-style:inherit;
+}
+.gc-block-post-comments-form[style*=letter-spacing] :where(.comment-reply-title){
+  letter-spacing:inherit;
+}
+.gc-block-post-comments-form input[type=submit]{
+  box-shadow:none;
+  cursor:pointer;
+  display:inline-block;
+  overflow-wrap:break-word;
+  text-align:center;
+}
+.gc-block-post-comments-form input:not([type=submit]),.gc-block-post-comments-form textarea{
+  border:1px solid #949494;
+  font-family:inherit;
+  font-size:1em;
+}
+.gc-block-post-comments-form input:not([type=submit]):not([type=checkbox]),.gc-block-post-comments-form textarea{
+  padding:calc(.667em + 2px);
+}
+.gc-block-post-comments-form .comment-form input:not([type=submit]):not([type=checkbox]):not([type=hidden]),.gc-block-post-comments-form .comment-form textarea{
+  box-sizing:border-box;
+  display:block;
+  width:100%;
+}
+.gc-block-post-comments-form .comment-form-author label,.gc-block-post-comments-form .comment-form-email label,.gc-block-post-comments-form .comment-form-url label{
+  display:block;
+  margin-bottom:.25em;
+}
+.gc-block-post-comments-form .comment-form-cookies-consent{
+  display:flex;
+  gap:.25em;
+}
+.gc-block-post-comments-form .comment-form-cookies-consent #gc-comment-cookies-consent{
+  margin-top:.35em;
+}
+.gc-block-post-comments-form .comment-reply-title{
+  margin-bottom:0;
+}
+.gc-block-post-comments-form .comment-reply-title :where(small){
+  font-size:var(--gc--preset--font-size--medium, smaller);
+  margin-left:.5em;
+}

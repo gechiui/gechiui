@@ -7,7 +7,7 @@
  */
 
 /**
- * Instantiate the admin bar object and set it up as a global for access elsewhere.
+ * Instantiates the admin bar object and set it up as a global for access elsewhere.
  *
  * UNHOOKING THIS FUNCTION WILL NOT PROPERLY REMOVE THE ADMIN BAR.
  * For that, use show_admin_bar(false) or the {@see 'show_admin_bar'} filter.
@@ -32,13 +32,13 @@ function _gc_admin_bar_init() {
 
 	/**
 	 * Filters the admin bar class to instantiate.
-	 * 
+	 *
 	 *
 	 * @param string $gc_admin_bar_class Admin bar class to use. Default 'GC_Admin_Bar'.
 	 */
 	$admin_bar_class = apply_filters( 'gc_admin_bar_class', 'GC_Admin_Bar' );
 	if ( class_exists( $admin_bar_class ) ) {
-		$gc_admin_bar = new $admin_bar_class;
+		$gc_admin_bar = new $admin_bar_class();
 	} else {
 		return false;
 	}
@@ -63,6 +63,7 @@ function _gc_admin_bar_init() {
  * optimal point, right before the admin bar is rendered. This also gives you access to
  * the `$post` global, among others.
  *
+ * @since 5.4.0 Called on 'gc_body_open' action first, with 'gc_footer' as a fallback.
  *
  * @global GC_Admin_Bar $gc_admin_bar
  */
@@ -79,18 +80,18 @@ function gc_admin_bar_render() {
 	}
 
 	/**
-	 * Load all necessary admin bar items.
+	 * Loads all necessary admin bar items.
 	 *
 	 * This is the hook used to add, remove, or manipulate admin bar items.
-	 * 
 	 *
-	 * @param GC_Admin_Bar $gc_admin_bar GC_Admin_Bar instance, passed by reference
+	 *
+	 * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance, passed by reference.
 	 */
 	do_action_ref_array( 'admin_bar_menu', array( &$gc_admin_bar ) );
 
 	/**
 	 * Fires before the admin bar is rendered.
-	 * 
+	 *
 	 */
 	do_action( 'gc_before_admin_bar_render' );
 
@@ -98,7 +99,7 @@ function gc_admin_bar_render() {
 
 	/**
 	 * Fires after the admin bar is rendered.
-	 * 
+	 *
 	 */
 	do_action( 'gc_after_admin_bar_render' );
 
@@ -106,10 +107,9 @@ function gc_admin_bar_render() {
 }
 
 /**
- * Add the GeChiUI logo menu.
+ * Adds the GeChiUI logo menu.
  *
- *
- * @param GC_Admin_Bar $gc_admin_bar
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
  */
 function gc_admin_bar_gc_menu( $gc_admin_bar ) {
 	if ( current_user_can( 'read' ) ) {
@@ -169,17 +169,21 @@ function gc_admin_bar_gc_menu( $gc_admin_bar ) {
 }
 
 /**
- * Add the sidebar toggle button.
+ * Adds the sidebar toggle button.
  *
+ * @since 3.8.0
  *
- * @param GC_Admin_Bar $gc_admin_bar
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
  */
 function gc_admin_bar_sidebar_toggle( $gc_admin_bar ) {
 	if ( is_admin() ) {
 		$gc_admin_bar->add_node(
 			array(
 				'id'    => 'menu-toggle',
-				'title' => '<span class="ab-icon" aria-hidden="true"></span><span class="screen-reader-text">' . __( '菜单' ) . '</span>',
+				'title' => '<span class="ab-icon" aria-hidden="true"></span><span class="screen-reader-text">' .
+						/* translators: Hidden accessibility text. */
+						__( '菜单' ) .
+					'</span>',
 				'href'  => '#',
 			)
 		);
@@ -187,10 +191,9 @@ function gc_admin_bar_sidebar_toggle( $gc_admin_bar ) {
 }
 
 /**
- * Add the "My Account" item.
+ * Adds the "My Account" item.
  *
- *
- * @param GC_Admin_Bar $gc_admin_bar
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
  */
 function gc_admin_bar_my_account_item( $gc_admin_bar ) {
 	$user_id      = get_current_user_id();
@@ -227,10 +230,9 @@ function gc_admin_bar_my_account_item( $gc_admin_bar ) {
 }
 
 /**
- * Add the "My Account" submenu items.
+ * Adds the "My Account" submenu items.
  *
- *
- * @param GC_Admin_Bar $gc_admin_bar
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
  */
 function gc_admin_bar_my_account_menu( $gc_admin_bar ) {
 	$user_id      = get_current_user_id();
@@ -296,10 +298,9 @@ function gc_admin_bar_my_account_menu( $gc_admin_bar ) {
 }
 
 /**
- * Add the "Site Name" menu.
+ * Adds the "Site Name" menu.
  *
- *
- * @param GC_Admin_Bar $gc_admin_bar
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
  */
 function gc_admin_bar_site_menu( $gc_admin_bar ) {
 	// Don't show for logged out users.
@@ -320,7 +321,7 @@ function gc_admin_bar_site_menu( $gc_admin_bar ) {
 
 	if ( is_network_admin() ) {
 		/* translators: %s: Site title. */
-		$blogname = sprintf( __( '管理网络：%s' ), esc_html( get_network()->site_name ) );
+		$blogname = sprintf( __( 'SaaS后台：%s' ), esc_html( get_network()->site_name ) );
 	} elseif ( is_user_admin() ) {
 		/* translators: %s: Site title. */
 		$blogname = sprintf( __( '用户仪表盘：%s' ), esc_html( get_network()->site_name ) );
@@ -344,7 +345,7 @@ function gc_admin_bar_site_menu( $gc_admin_bar ) {
 			array(
 				'parent' => 'site-name',
 				'id'     => 'view-site',
-				'title'  => __( '查看站点' ),
+				'title'  => __( '查看系统' ),
 				'href'   => home_url( '/' ),
 			)
 		);
@@ -354,7 +355,7 @@ function gc_admin_bar_site_menu( $gc_admin_bar ) {
 				array(
 					'parent' => 'site-name',
 					'id'     => 'edit-site',
-					'title'  => __( '编辑站点' ),
+					'title'  => __( '编辑系统' ),
 					'href'   => network_admin_url( 'site-info.php?id=' . get_current_blog_id() ),
 				)
 			);
@@ -376,14 +377,58 @@ function gc_admin_bar_site_menu( $gc_admin_bar ) {
 }
 
 /**
+ * Adds the "编辑系统" link to the Toolbar.
+ *
+ * @since 5.9.0
+ *
+ * @global string $_gc_current_template_id
+ * @since 6.3.0 Added `$_gc_current_template_id` global for editing of current template directly from the admin bar.
+ *
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
+ */
+function gc_admin_bar_edit_site_menu( $gc_admin_bar ) {
+	global $_gc_current_template_id;
+
+	// Don't show if a block theme is not activated.
+	if ( ! gc_is_block_theme() ) {
+		return;
+	}
+
+	// Don't show for users who can't edit theme options or when in the admin.
+	if ( ! current_user_can( 'edit_theme_options' ) || is_admin() ) {
+		return;
+	}
+
+	$gc_admin_bar->add_node(
+		array(
+			'id'    => 'site-editor',
+			'title' => __( '编辑系统' ),
+			'href'  => add_query_arg(
+				array(
+					'postType' => 'gc_template',
+					'postId'   => $_gc_current_template_id,
+				),
+				admin_url( 'site-editor.php' )
+			),
+		)
+	);
+}
+
+/**
  * Adds the "Customize" link to the Toolbar.
  *
+ * @since 4.3.0
  *
- * @param GC_Admin_Bar $gc_admin_bar GC_Admin_Bar instance.
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
  * @global GC_Customize_Manager $gc_customize
  */
 function gc_admin_bar_customize_menu( $gc_admin_bar ) {
 	global $gc_customize;
+
+	// Don't show if a block theme is activated and no plugins use the customizer.
+	if ( gc_is_block_theme() && ! has_action( 'customize_register' ) ) {
+		return;
+	}
 
 	// Don't show for users who can't access the customizer or when in the admin.
 	if ( ! current_user_can( 'customize' ) || is_admin() ) {
@@ -442,7 +487,7 @@ function gc_admin_bar_network_menu( $gc_admin_bar ) {
 		$gc_admin_bar->add_node(
 			array(
 				'id'     => 'network-admin',
-				'title'  => __( '管理网络' ),
+				'title'  => __( 'SaaS后台' ),
 				'href'   => network_admin_url(),
 			)
 		);
@@ -477,7 +522,7 @@ function gc_admin_bar_network_menu( $gc_admin_bar ) {
 				array(
 					'parent' => 'network-admin',
 					'id'     => 'network-admin-s',
-					'title'  => __( '站点' ),
+					'title'  => __( '多系统' ),
 					'href'   => network_admin_url( 'sites.php' ),
 				)
 			);
@@ -530,10 +575,9 @@ function gc_admin_bar_network_menu( $gc_admin_bar ) {
 }
 
 /**
- * Add the "My Sites/[Site Name]" menu and all submenus.
+ * Adds the "My Sites/[Site Name]" menu and all submenus.
  *
- *
- * @param GC_Admin_Bar $gc_admin_bar
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
  */
 function gc_admin_bar_my_sites_menu( $gc_admin_bar ) {
 	// Don't show for logged out users or single site mode.
@@ -556,7 +600,7 @@ function gc_admin_bar_my_sites_menu( $gc_admin_bar ) {
     $gc_admin_bar->add_node(
 		array(
 			'id'    => 'my-sites',
-			'title' => __( '我的站点' ),
+			'title' => __( '我的系统' ),
 			'href'  => $my_sites_url,
 		)
 	);
@@ -607,10 +651,9 @@ function gc_admin_bar_my_sites_menu( $gc_admin_bar ) {
 }
 
 /**
- * Provide a shortlink.
+ * Provides a shortlink.
  *
- *
- * @param GC_Admin_Bar $gc_admin_bar
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
  */
 function gc_admin_bar_shortlink_menu( $gc_admin_bar ) {
 	$short = gc_get_shortlink( 0, 'query' );
@@ -620,7 +663,7 @@ function gc_admin_bar_shortlink_menu( $gc_admin_bar ) {
 		return;
 	}
 
-	$html = '<input class="shortlink-input" type="text" readonly="readonly" value="' . esc_attr( $short ) . '" />';
+	$html = '<input class="shortlink-input" type="text" readonly="readonly" value="' . esc_attr( $short ) . '" aria-label="' . __( '短链接' ) . '" />';
 
 	$gc_admin_bar->add_node(
 		array(
@@ -633,8 +676,9 @@ function gc_admin_bar_shortlink_menu( $gc_admin_bar ) {
 }
 
 /**
- * Provide an edit link for posts and terms.
+ * Provides an edit link for posts and terms.
  *
+ * @since 5.5.0 Added a "查看文章" link on Comments screen for a single post.
  *
  * @global GC_Term  $tag
  * @global GC_Query $gc_the_query GeChiUI Query object.
@@ -642,7 +686,7 @@ function gc_admin_bar_shortlink_menu( $gc_admin_bar ) {
  *                                global $user_ID, which contains the ID of the current user.
  * @global int      $post_id      The ID of the post when editing comments for a single post.
  *
- * @param GC_Admin_Bar $gc_admin_bar
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
  */
 function gc_admin_bar_edit_menu( $gc_admin_bar ) {
 	global $tag, $gc_the_query, $user_id, $post_id;
@@ -703,7 +747,7 @@ function gc_admin_bar_edit_menu( $gc_admin_bar ) {
 			);
 		} elseif ( 'term' === $current_screen->base && isset( $tag ) && is_object( $tag ) && ! is_gc_error( $tag ) ) {
 			$tax = get_taxonomy( $tag->taxonomy );
-			if ( is_taxonomy_viewable( $tax ) ) {
+			if ( is_term_publicly_viewable( $tag ) ) {
 				$gc_admin_bar->add_node(
 					array(
 						'id'    => 'view',
@@ -777,8 +821,7 @@ function gc_admin_bar_edit_menu( $gc_admin_bar ) {
 /**
  * Add "Add New" menu.
  *
- *
- * @param GC_Admin_Bar $gc_admin_bar
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
  */
 function gc_admin_bar_new_content_menu( $gc_admin_bar ) {
 	$actions = array();
@@ -850,10 +893,9 @@ function gc_admin_bar_new_content_menu( $gc_admin_bar ) {
 }
 
 /**
- * Add edit comments link with awaiting moderation count bubble.
+ * Adds edit comments link with awaiting moderation count bubble.
  *
- *
- * @param GC_Admin_Bar $gc_admin_bar
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
  */
 function gc_admin_bar_comments_menu( $gc_admin_bar ) {
 	if ( ! current_user_can( 'edit_posts' ) ) {
@@ -863,7 +905,7 @@ function gc_admin_bar_comments_menu( $gc_admin_bar ) {
 	$awaiting_mod  = gc_count_comments();
 	$awaiting_mod  = $awaiting_mod->moderated;
 	$awaiting_text = sprintf(
-		/* translators: %s: Number of comments. */
+		/* translators: Hidden accessibility text. %s: Number of comments. */
 		_n( '%s条评论待审', '%s条评论待审', $awaiting_mod ),
 		number_format_i18n( $awaiting_mod )
 	);
@@ -882,10 +924,9 @@ function gc_admin_bar_comments_menu( $gc_admin_bar ) {
 }
 
 /**
- * Add appearance submenu items to the "Site Name" menu.
+ * Adds appearance submenu items to the "Site Name" menu.
  *
- *
- * @param GC_Admin_Bar $gc_admin_bar
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
  */
 function gc_admin_bar_appearance_menu( $gc_admin_bar ) {
 	$gc_admin_bar->add_group(
@@ -937,7 +978,7 @@ function gc_admin_bar_appearance_menu( $gc_admin_bar ) {
 			array(
 				'parent' => 'appearance',
 				'id'     => 'background',
-				'title'  => __( '背景' ),
+				'title'  => _x( '背景', 'custom background' ),
 				'href'   => admin_url( 'themes.php?page=custom-background' ),
 				'meta'   => array(
 					'class' => 'hide-if-customize',
@@ -951,7 +992,7 @@ function gc_admin_bar_appearance_menu( $gc_admin_bar ) {
 			array(
 				'parent' => 'appearance',
 				'id'     => 'header',
-				'title'  => __( '页眉' ),
+				'title'  => _x( '页眉', 'custom image header' ),
 				'href'   => admin_url( 'themes.php?page=custom-header' ),
 				'meta'   => array(
 					'class' => 'hide-if-customize',
@@ -963,10 +1004,9 @@ function gc_admin_bar_appearance_menu( $gc_admin_bar ) {
 }
 
 /**
- * Provide an update link if theme/plugin/core updates are available.
+ * Provides an update link if theme/plugin/core updates are available.
  *
- *
- * @param GC_Admin_Bar $gc_admin_bar
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
  */
 function gc_admin_bar_updates_menu( $gc_admin_bar ) {
 
@@ -977,12 +1017,14 @@ function gc_admin_bar_updates_menu( $gc_admin_bar ) {
 	}
 
 	$updates_text = sprintf(
-		/* translators: %s: Total number of updates available. */
+		/* translators: Hidden accessibility text. %s: Total number of updates available. */
 		_n( '有 %s 个更新可用', '有 %s 个更新可用', $update_data['counts']['total'] ),
 		number_format_i18n( $update_data['counts']['total'] )
 	);
 
-	$title = '<span>' . $updates_text . '</span>';
+	$icon   = '<span class="ab-icon" aria-hidden="true"></span>';
+	$title  = '<span class="ab-label" aria-hidden="true">' . number_format_i18n( $update_data['counts']['total'] ) . '</span>';
+	$title .= '<span class="screen-reader-text updates-available-text">' . $updates_text . '</span>';
 
 	$gc_admin_bar->add_node(
 		array(
@@ -994,10 +1036,9 @@ function gc_admin_bar_updates_menu( $gc_admin_bar ) {
 }
 
 /**
- * Add search form.
+ * Adds search form.
  *
- *
- * @param GC_Admin_Bar $gc_admin_bar
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
  */
 function gc_admin_bar_search_menu( $gc_admin_bar ) {
 	if ( is_admin() ) {
@@ -1006,7 +1047,10 @@ function gc_admin_bar_search_menu( $gc_admin_bar ) {
 
 	$form  = '<form action="' . esc_url( home_url( '/' ) ) . '" method="get" id="adminbarsearch">';
 	$form .= '<input class="adminbar-input" name="s" id="adminbar-search" type="text" value="" maxlength="150" />';
-	$form .= '<label for="adminbar-search" class="screen-reader-text">' . __( '搜索' ) . '</label>';
+	$form .= '<label for="adminbar-search" class="screen-reader-text">' .
+			/* translators: Hidden accessibility text. */
+			__( '搜索' ) .
+		'</label>';
 	$form .= '<input type="submit" class="adminbar-button" value="' . __( '搜索' ) . '" />';
 	$form .= '</form>';
 
@@ -1024,10 +1068,11 @@ function gc_admin_bar_search_menu( $gc_admin_bar ) {
 }
 
 /**
- * Add a link to exit recovery mode when Recovery Mode is active.
+ * Adds a link to exit recovery mode when Recovery Mode is active.
  *
+ * @since 5.2.0
  *
- * @param GC_Admin_Bar $gc_admin_bar
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
  */
 function gc_admin_bar_recovery_mode_menu( $gc_admin_bar ) {
 	if ( ! gc_is_recovery_mode() ) {
@@ -1049,10 +1094,9 @@ function gc_admin_bar_recovery_mode_menu( $gc_admin_bar ) {
 }
 
 /**
- * Add secondary menus.
+ * Adds secondary menus.
  *
- *
- * @param GC_Admin_Bar $gc_admin_bar
+ * @param GC_Admin_Bar $gc_admin_bar The GC_Admin_Bar instance.
  */
 function gc_admin_bar_add_secondary_groups( $gc_admin_bar ) {
 	$gc_admin_bar->add_group(
@@ -1076,7 +1120,7 @@ function gc_admin_bar_add_secondary_groups( $gc_admin_bar ) {
 }
 
 /**
- * Style and scripts for the admin bar.
+ * Prints style and scripts for the admin bar.
  *
  */
 function gc_admin_bar_header() {
@@ -1087,7 +1131,7 @@ function gc_admin_bar_header() {
 }
 
 /**
- * Default admin bar callback.
+ * Prints default admin bar callback.
  *
  */
 function _admin_bar_bump_cb() {
@@ -1095,10 +1139,8 @@ function _admin_bar_bump_cb() {
 	?>
 <style<?php echo $type_attr; ?> media="screen">
 	html { margin-top: 32px !important; }
-	* html body { margin-top: 32px !important; }
 	@media screen and ( max-width: 782px ) {
 		html { margin-top: 46px !important; }
-		* html body { margin-top: 46px !important; }
 	}
 </style>
 	<?php
@@ -1109,7 +1151,6 @@ function _admin_bar_bump_cb() {
  *
  * This can be called immediately upon plugin load. It does not need to be called
  * from a function hooked to the {@see 'init'} action.
- *
  *
  * @global bool $show_admin_bar
  *
@@ -1124,12 +1165,11 @@ function show_admin_bar( $show ) {
  * Determines whether the admin bar should be showing.
  *
  * For more information on this and similar theme functions, check out
- * the {@link https://docs.gechiui.com/themes/basics/conditional-tags/
+ * the {@link https://developer.gechiui.com/themes/basics/conditional-tags/
  * Conditional Tags} article in the Theme Developer Handbook.
  *
- *
  * @global bool   $show_admin_bar
- * @global string $pagenow
+ * @global string $pagenow        The filename of the current screen.
  *
  * @return bool Whether the admin bar should be showing.
  */
@@ -1163,7 +1203,7 @@ function is_admin_bar_showing() {
 	 *
 	 * Returning false to this hook is the recommended way to hide the admin bar.
 	 * The user's display preference is used for logged in users.
-	 * 
+	 *
 	 *
 	 * @param bool $show_admin_bar Whether the admin bar should be shown. Default false.
 	 */
@@ -1173,7 +1213,7 @@ function is_admin_bar_showing() {
 }
 
 /**
- * Retrieve the admin bar display preference of a user.
+ * Retrieves the admin bar display preference of a user.
  *
  * @access private
  *

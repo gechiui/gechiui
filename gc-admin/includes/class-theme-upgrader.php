@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Upgrader
- *
  */
 
 /**
@@ -12,9 +11,7 @@
  *
  * It is designed to upgrade/install themes from a local zip, remote zip URL,
  * or uploaded zip file.
- *
- *
- *
+ * Moved to its own file from gc-admin/includes/class-gc-upgrader.php.
  *
  * @see GC_Upgrader
  */
@@ -31,6 +28,7 @@ class Theme_Upgrader extends GC_Upgrader {
 	/**
 	 * Whether multiple themes are being upgraded/installed in bulk.
 	 *
+	 * @since 2.9.0
 	 * @var bool $bulk
 	 */
 	public $bulk = false;
@@ -38,6 +36,7 @@ class Theme_Upgrader extends GC_Upgrader {
 	/**
 	 * New theme info.
 	 *
+	 * @since 5.5.0
 	 * @var array $new_theme_data
 	 *
 	 * @see check_package()
@@ -45,14 +44,14 @@ class Theme_Upgrader extends GC_Upgrader {
 	public $new_theme_data = array();
 
 	/**
-	 * Initialize the upgrade strings.
+	 * Initializes the upgrade strings.
 	 *
 	 */
 	public function upgrade_strings() {
 		$this->strings['up_to_date'] = __( '主题已是最新版。' );
 		$this->strings['no_package'] = __( '升级包不可用。' );
 		/* translators: %s: Package URL. */
-		$this->strings['downloading_package'] = sprintf( __( '正在从 %s 下载更新…' ), '<span class="code">%s</span>' );
+		$this->strings['downloading_package'] = sprintf( __( '正在从 %s 下载更新...'  ), '<span class="code pre">%s</span>' );
 		$this->strings['unpack_package']      = __( '正在解压缩升级文件&#8230;' );
 		$this->strings['remove_old']          = __( '正在移除主题的旧版本&#8230;' );
 		$this->strings['remove_old_failed']   = __( '无法移除旧版本主题。' );
@@ -61,13 +60,13 @@ class Theme_Upgrader extends GC_Upgrader {
 	}
 
 	/**
-	 * Initialize the installation strings.
+	 * Initializes the installation strings.
 	 *
 	 */
 	public function install_strings() {
 		$this->strings['no_package'] = __( '安装包不可用。' );
 		/* translators: %s: Package URL. */
-		$this->strings['downloading_package'] = sprintf( __( '正在从 %s 下载安装包…' ), '<span class="code">%s</span>' );
+		$this->strings['downloading_package'] = sprintf( __( '正在从 %s 下载安装包...'  ), '<span class="code pre">%s</span>' );
 		$this->strings['unpack_package']      = __( '正在解压缩安装包&#8230;' );
 		$this->strings['installing_package']  = __( '正在安装主题&#8230;' );
 		$this->strings['remove_old']          = __( '正在移除主题的旧版本&#8230;' );
@@ -76,7 +75,7 @@ class Theme_Upgrader extends GC_Upgrader {
 		$this->strings['process_failed']      = __( '主题安装失败。' );
 		$this->strings['process_success']     = __( '主题安装成功。' );
 		/* translators: 1: Theme name, 2: Theme version. */
-		$this->strings['process_success_specific'] = __( '安装主题<strong>%1$s %2$s</strong>成功。' );
+		$this->strings['process_success_specific'] = __( '安装主题 <strong>%1$s %2$s</strong> 成功。' );
 		$this->strings['parent_theme_search']      = __( '该主题需要父主题的支持。正在检查是否安装了正确的父主题&#8230;' );
 		/* translators: 1: Theme name, 2: Theme version. */
 		$this->strings['parent_theme_prepare_install'] = __( '正准备安装<strong>%1$s %2$s</strong>&#8230;' );
@@ -87,11 +86,11 @@ class Theme_Upgrader extends GC_Upgrader {
 		/* translators: %s: Theme name. */
 		$this->strings['parent_theme_not_found'] = sprintf( __( '<strong>未能找到父主题。</strong>您需要安装父主题%s后才能使用这个子主题。' ), '<strong>%s</strong>' );
 		/* translators: %s: Theme error. */
-		$this->strings['current_theme_has_errors'] = __( '活动主题有以下错误：“%s”。' );
+		$this->strings['current_theme_has_errors'] = __( '当前主题有以下错误：“%s”。' );
 
 		if ( ! empty( $this->skin->overwrite ) ) {
 			if ( 'update-theme' === $this->skin->overwrite ) {
-				$this->strings['installing_package'] = __( '正在升级主题…' );
+				$this->strings['installing_package'] = __( '正在升级主题...'  );
 				$this->strings['process_failed']     = __( '主题升级失败。' );
 				$this->strings['process_success']    = __( '主题升级成功。' );
 			}
@@ -105,10 +104,11 @@ class Theme_Upgrader extends GC_Upgrader {
 	}
 
 	/**
-	 * Check if a child theme is being installed and we need to install its parent.
+	 * Checks if a child theme is being installed and its parent also needs to be installed.
 	 *
 	 * Hooked to the {@see 'upgrader_post_install'} filter by Theme_Upgrader::install().
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param bool  $install_result
 	 * @param array $hook_extra
@@ -195,6 +195,7 @@ class Theme_Upgrader extends GC_Upgrader {
 	 * Theme_Upgrader::check_parent_theme_filter() when installing
 	 * a child theme and installing the parent theme fails.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param array $actions Preview actions.
 	 * @return array
@@ -207,6 +208,7 @@ class Theme_Upgrader extends GC_Upgrader {
 	/**
 	 * Install a theme package.
 	 *
+	 * @since 3.7.0 The `$args` parameter was added, making clearing the update cache optional.
 	 *
 	 * @param string $package The full local path or URI of the package.
 	 * @param array  $args {
@@ -269,8 +271,9 @@ class Theme_Upgrader extends GC_Upgrader {
 	}
 
 	/**
-	 * Upgrade a theme.
+	 * Upgrades a theme.
 	 *
+	 * @since 3.7.0 The `$args` parameter was added, making clearing the update cache optional.
 	 *
 	 * @param string $theme The theme slug.
 	 * @param array  $args {
@@ -317,9 +320,14 @@ class Theme_Upgrader extends GC_Upgrader {
 				'clear_destination' => true,
 				'clear_working'     => true,
 				'hook_extra'        => array(
-					'theme'  => $theme,
-					'type'   => 'theme',
-					'action' => 'update',
+					'theme'       => $theme,
+					'type'        => 'theme',
+					'action'      => 'update',
+					'temp_backup' => array(
+						'slug' => $theme,
+						'src'  => get_theme_root( $theme ),
+						'dir'  => 'themes',
+					),
 				),
 			)
 		);
@@ -335,8 +343,10 @@ class Theme_Upgrader extends GC_Upgrader {
 
 		gc_clean_themes_cache( $parsed_args['clear_update_cache'] );
 
-		// Ensure any future auto-update failures trigger a failure email by removing
-		// the last failure notification from the list when themes update successfully.
+		/*
+		 * Ensure any future auto-update failures trigger a failure email by removing
+		 * the last failure notification from the list when themes update successfully.
+		 */
 		$past_failure_emails = get_option( 'auto_plugin_theme_update_emails', array() );
 
 		if ( isset( $past_failure_emails[ $theme ] ) ) {
@@ -348,8 +358,9 @@ class Theme_Upgrader extends GC_Upgrader {
 	}
 
 	/**
-	 * Upgrade several themes at once.
+	 * Upgrades several themes at once.
 	 *
+	 * @since 3.7.0 The `$args` parameter was added, making clearing the update cache optional.
 	 *
 	 * @param string[] $themes Array of the theme slugs.
 	 * @param array    $args {
@@ -430,7 +441,12 @@ class Theme_Upgrader extends GC_Upgrader {
 					'clear_working'     => true,
 					'is_multi'          => true,
 					'hook_extra'        => array(
-						'theme' => $theme,
+						'theme'       => $theme,
+						'temp_backup' => array(
+							'slug' => $theme,
+							'src'  => get_theme_root( $theme ),
+							'dir'  => 'themes',
+						),
 					),
 				)
 			);
@@ -464,13 +480,15 @@ class Theme_Upgrader extends GC_Upgrader {
 
 		$this->skin->footer();
 
-		// Cleanup our hooks, in case something else does a upgrade on this connection.
+		// Cleanup our hooks, in case something else does an upgrade on this connection.
 		remove_filter( 'upgrader_pre_install', array( $this, 'current_before' ) );
 		remove_filter( 'upgrader_post_install', array( $this, 'current_after' ) );
 		remove_filter( 'upgrader_clear_destination', array( $this, 'delete_old_theme' ) );
 
-		// Ensure any future auto-update failures trigger a failure email by removing
-		// the last failure notification from the list when themes update successfully.
+		/*
+		 * Ensure any future auto-update failures trigger a failure email by removing
+		 * the last failure notification from the list when themes update successfully.
+		 */
 		$past_failure_emails = get_option( 'auto_plugin_theme_update_emails', array() );
 
 		foreach ( $results as $theme => $result ) {
@@ -546,21 +564,34 @@ class Theme_Upgrader extends GC_Upgrader {
 				$this->strings['incompatible_archive'],
 				sprintf(
 					/* translators: %s: style.css */
-					__( '%s样式表未包含合法的主题头部。' ),
+					__( '%s 样式表未包含有效的主题标头。' ),
 					'<code>style.css</code>'
 				)
 			);
 		}
 
-		// If it's not a child theme, it must have at least an index.php to be legit.
-		if ( empty( $info['Template'] ) && ! file_exists( $working_directory . 'index.php' ) ) {
+		/*
+		 * Parent themes must contain an index file:
+		 * - classic themes require /index.php
+		 * - block themes require /templates/index.html or block-templates/index.html (deprecated 5.9.0).
+		 */
+		if (
+			empty( $info['Template'] ) &&
+			! file_exists( $working_directory . 'index.php' ) &&
+			! file_exists( $working_directory . 'templates/index.html' ) &&
+			! file_exists( $working_directory . 'block-templates/index.html' )
+		) {
 			return new GC_Error(
 				'incompatible_archive_theme_no_index',
 				$this->strings['incompatible_archive'],
 				sprintf(
-					/* translators: %s: index.php */
-					__( '主题缺少%s文件。' ),
-					'<code>index.php</code>'
+					/* translators: 1: templates/index.html, 2: index.php, 3: Documentation URL, 4: Template, 5: style.css */
+					__( '模板丢失。独立主题需要包含 %1$s 或 %2$s 模板文件。<a href="%3$s">子主题</a>需要在 %5$s 的样式表中包含 %4$s 标头。' ),
+					'<code>templates/index.html</code>',
+					'<code>index.php</code>',
+					__( 'https://developer.gechiui.com/themes/advanced-topics/child-themes/' ),
+					'<code>Template</code>',
+					'<code>style.css</code>'
 				)
 			);
 		}
@@ -572,7 +603,7 @@ class Theme_Upgrader extends GC_Upgrader {
 			$error = sprintf(
 				/* translators: 1: Current PHP version, 2: Version required by the uploaded theme. */
 				__( '您的服务器PHP版本为%1$s，然而上传的主题要求版本为%2$s。' ),
-				phpversion(),
+				PHP_VERSION,
 				$requires_php
 			);
 
@@ -595,26 +626,26 @@ class Theme_Upgrader extends GC_Upgrader {
 	}
 
 	/**
-	 * Turn on maintenance mode before attempting to upgrade the active theme.
+	 * Turns on maintenance mode before attempting to upgrade the active theme.
 	 *
 	 * Hooked to the {@see 'upgrader_pre_install'} filter by Theme_Upgrader::upgrade() and
 	 * Theme_Upgrader::bulk_upgrade().
 	 *
 	 *
-	 * @param bool|GC_Error $return Upgrade offer return.
-	 * @param array         $theme  Theme arguments.
-	 * @return bool|GC_Error The passed in $return param or GC_Error.
+	 * @param bool|GC_Error $response The installation response before the installation has started.
+	 * @param array         $theme    Theme arguments.
+	 * @return bool|GC_Error The original `$response` parameter or GC_Error.
 	 */
-	public function current_before( $return, $theme ) {
-		if ( is_gc_error( $return ) ) {
-			return $return;
+	public function current_before( $response, $theme ) {
+		if ( is_gc_error( $response ) ) {
+			return $response;
 		}
 
 		$theme = isset( $theme['theme'] ) ? $theme['theme'] : '';
 
-		// Only run if active theme
+		// Only run if active theme.
 		if ( get_stylesheet() !== $theme ) {
-			return $return;
+			return $response;
 		}
 
 		// Change to maintenance mode. Bulk edit handles this separately.
@@ -622,30 +653,30 @@ class Theme_Upgrader extends GC_Upgrader {
 			$this->maintenance_mode( true );
 		}
 
-		return $return;
+		return $response;
 	}
 
 	/**
-	 * Turn off maintenance mode after upgrading the active theme.
+	 * Turns off maintenance mode after upgrading the active theme.
 	 *
 	 * Hooked to the {@see 'upgrader_post_install'} filter by Theme_Upgrader::upgrade()
 	 * and Theme_Upgrader::bulk_upgrade().
 	 *
 	 *
-	 * @param bool|GC_Error $return Upgrade offer return.
-	 * @param array         $theme  Theme arguments.
-	 * @return bool|GC_Error The passed in $return param or GC_Error.
+	 * @param bool|GC_Error $response The installation response after the installation has finished.
+	 * @param array         $theme    Theme arguments.
+	 * @return bool|GC_Error The original `$response` parameter or GC_Error.
 	 */
-	public function current_after( $return, $theme ) {
-		if ( is_gc_error( $return ) ) {
-			return $return;
+	public function current_after( $response, $theme ) {
+		if ( is_gc_error( $response ) ) {
+			return $response;
 		}
 
 		$theme = isset( $theme['theme'] ) ? $theme['theme'] : '';
 
 		// Only run if active theme.
 		if ( get_stylesheet() !== $theme ) {
-			return $return;
+			return $response;
 		}
 
 		// Ensure stylesheet name hasn't changed after the upgrade:
@@ -659,11 +690,11 @@ class Theme_Upgrader extends GC_Upgrader {
 		if ( ! $this->bulk ) {
 			$this->maintenance_mode( false );
 		}
-		return $return;
+		return $response;
 	}
 
 	/**
-	 * Delete the old theme during an upgrade.
+	 * Deletes the old theme during an upgrade.
 	 *
 	 * Hooked to the {@see 'upgrader_clear_destination'} filter by Theme_Upgrader::upgrade()
 	 * and Theme_Upgrader::bulk_upgrade().
@@ -700,8 +731,8 @@ class Theme_Upgrader extends GC_Upgrader {
 	}
 
 	/**
-	 * Get the GC_Theme object for a theme.
-	 *
+	 * Gets the GC_Theme object for a theme.
+	 * The `$theme` argument was added.
 	 *
 	 * @param string $theme The directory name of the theme. This is optional, and if not supplied,
 	 *                      the directory name from the last result will be used.

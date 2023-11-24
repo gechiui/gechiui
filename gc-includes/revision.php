@@ -8,16 +8,13 @@
 
 /**
  * Determines which fields of posts are to be saved in revisions.
- *
- *
- *
- *
+ * A `GC_Post` object can now be passed to the `$post` parameter. The optional `$autosave` parameter was deprecated and renamed to `$deprecated`.
  * @access private
  *
  * @param array|GC_Post $post       Optional. A post array or a GC_Post object being processed
  *                                  for insertion as a post revision. Default empty array.
  * @param bool          $deprecated Not used.
- * @return array Array of fields that can be versioned.
+ * @return string[] Array of fields that can be versioned.
  */
 function _gc_post_revision_fields( $post = array(), $deprecated = false ) {
 	static $fields = null;
@@ -44,10 +41,12 @@ function _gc_post_revision_fields( $post = array(), $deprecated = false ) {
 	 * 'post_date_gmt', 'post_status', 'post_type', 'comment_count',
 	 * and 'post_author'.
 	 *
+	 * @since 2.6.0
+	 * @since 4.5.0 The `$post` parameter was added.
 	 *
-	 * @param array $fields List of fields to revision. Contains 'post_title',
-	 *                      'post_content', and 'post_excerpt' by default.
-	 * @param array $post   A post array being processed for insertion as a post revision.
+	 * @param string[] $fields List of fields to revision. Contains 'post_title',
+	 *                         'post_content', and 'post_excerpt' by default.
+	 * @param array    $post   A post array being processed for insertion as a post revision.
 	 */
 	$fields = apply_filters( '_gc_post_revision_fields', $fields, $post );
 
@@ -61,7 +60,6 @@ function _gc_post_revision_fields( $post = array(), $deprecated = false ) {
 
 /**
  * Returns a post array ready to be inserted into the posts table as a post revision.
- *
  *
  * @access private
  *
@@ -99,8 +97,6 @@ function _gc_post_revision_data( $post = array(), $autosave = false ) {
  * Typically used immediately after a post update, as every update is a revision,
  * and the most recent revision always matches the current post.
  *
- *
- *
  * @param int $post_id The ID of the post to save as a revision.
  * @return int|GC_Error|void Void or 0 if error, new revision ID, if success.
  */
@@ -110,6 +106,7 @@ function gc_save_post_revision( $post_id ) {
 	}
 
 	$post = get_post( $post_id );
+
 	if ( ! $post ) {
 		return;
 	}
@@ -133,31 +130,32 @@ function gc_save_post_revision( $post_id ) {
 	 */
 	$revisions = gc_get_post_revisions( $post_id );
 	if ( $revisions ) {
-		// Grab the last revision, but not an autosave.
+		// Grab the latest revision, but not an autosave.
 		foreach ( $revisions as $revision ) {
-			if ( false !== strpos( $revision->post_name, "{$revision->post_parent}-revision" ) ) {
-				$last_revision = $revision;
+			if ( str_contains( $revision->post_name, "{$revision->post_parent}-revision" ) ) {
+				$latest_revision = $revision;
 				break;
 			}
 		}
 
 		/**
-		 * Filters whether the post has changed since the last revision.
+		 * Filters whether the post has changed since the latest revision.
 		 *
 		 * By default a revision is saved only if one of the revisioned fields has changed.
 		 * This filter can override that so a revision is saved even if nothing has changed.
 		 *
+		 * @since 3.6.0
 		 *
 		 * @param bool    $check_for_changes Whether to check for changes before saving a new revision.
 		 *                                   Default true.
-		 * @param GC_Post $last_revision     The last revision post object.
+		 * @param GC_Post $latest_revision   The latest revision post object.
 		 * @param GC_Post $post              The post object.
 		 */
-		if ( isset( $last_revision ) && apply_filters( 'gc_save_post_revision_check_for_changes', true, $last_revision, $post ) ) {
+		if ( isset( $latest_revision ) && apply_filters( 'gc_save_post_revision_check_for_changes', true, $latest_revision, $post ) ) {
 			$post_has_changed = false;
 
 			foreach ( array_keys( _gc_post_revision_fields( $post ) ) as $field ) {
-				if ( normalize_whitespace( $post->$field ) !== normalize_whitespace( $last_revision->$field ) ) {
+				if ( normalize_whitespace( $post->$field ) !== normalize_whitespace( $latest_revision->$field ) ) {
 					$post_has_changed = true;
 					break;
 				}
@@ -169,13 +167,13 @@ function gc_save_post_revision( $post_id ) {
 			 * By default a revision is saved only if one of the revisioned fields has changed.
 			 * This filter allows for additional checks to determine if there were changes.
 			 *
-		
+			 * @since 4.1.0
 			 *
 			 * @param bool    $post_has_changed Whether the post has changed.
-			 * @param GC_Post $last_revision    The last revision post object.
+			 * @param GC_Post $latest_revision  The latest revision post object.
 			 * @param GC_Post $post             The post object.
 			 */
-			$post_has_changed = (bool) apply_filters( 'gc_save_post_revision_post_has_changed', $post_has_changed, $last_revision, $post );
+			$post_has_changed = (bool) apply_filters( 'gc_save_post_revision_post_has_changed', $post_has_changed, $latest_revision, $post );
 
 			// Don't save revision if post unchanged.
 			if ( ! $post_has_changed ) {
@@ -186,8 +184,10 @@ function gc_save_post_revision( $post_id ) {
 
 	$return = _gc_put_post_revision( $post );
 
-	// If a limit for the number of revisions to keep has been set,
-	// delete the oldest ones.
+	/*
+	 * If a limit for the number of revisions to keep has been set,
+	 * delete the oldest ones.
+	 */
 	$revisions_to_keep = gc_revisions_to_keep( $post );
 
 	if ( $revisions_to_keep < 0 ) {
@@ -195,6 +195,20 @@ function gc_save_post_revision( $post_id ) {
 	}
 
 	$revisions = gc_get_post_revisions( $post_id, array( 'order' => 'ASC' ) );
+
+	/**
+	 * Filters the revisions to be considered for deletion.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @param GC_Post[] $revisions Array of revisions, or an empty array if none.
+	 * @param int       $post_id   The ID of the post to save as a revision.
+	 */
+	$revisions = apply_filters(
+		'gc_save_post_revision_revisions_before_deletion',
+		$revisions,
+		$post_id
+	);
 
 	$delete = count( $revisions ) - $revisions_to_keep;
 
@@ -205,7 +219,7 @@ function gc_save_post_revision( $post_id ) {
 	$revisions = array_slice( $revisions, 0, $delete );
 
 	for ( $i = 0; isset( $revisions[ $i ] ); $i++ ) {
-		if ( false !== strpos( $revisions[ $i ]->post_name, 'autosave' ) ) {
+		if ( str_contains( $revisions[ $i ]->post_name, 'autosave' ) ) {
 			continue;
 		}
 
@@ -216,18 +230,16 @@ function gc_save_post_revision( $post_id ) {
 }
 
 /**
- * Retrieve the autosaved data of the specified post.
+ * Retrieves the autosaved data of the specified post.
  *
  * Returns a post object with the information that was autosaved for the specified post.
  * If the optional $user_id is passed, returns the autosave for that user, otherwise
  * returns the latest autosave.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param int $post_id The post ID.
- * @param int $user_id Optional The post author ID.
+ * @param int $user_id Optional. The post author ID. Default 0.
  * @return GC_Post|false The autosaved data or false on failure or when no autosave exists.
  */
 function gc_get_post_autosave( $post_id, $user_id = 0 ) {
@@ -265,13 +277,12 @@ function gc_get_post_autosave( $post_id, $user_id = 0 ) {
 /**
  * Determines if the specified post is a revision.
  *
- *
- *
  * @param int|GC_Post $post Post ID or post object.
  * @return int|false ID of revision's parent on success, false if not a revision.
  */
 function gc_is_post_revision( $post ) {
 	$post = gc_get_post_revision( $post );
+
 	if ( ! $post ) {
 		return false;
 	}
@@ -282,18 +293,17 @@ function gc_is_post_revision( $post ) {
 /**
  * Determines if the specified post is an autosave.
  *
- *
- *
  * @param int|GC_Post $post Post ID or post object.
  * @return int|false ID of autosave's parent on success, false if not a revision.
  */
 function gc_is_post_autosave( $post ) {
 	$post = gc_get_post_revision( $post );
+
 	if ( ! $post ) {
 		return false;
 	}
 
-	if ( false !== strpos( $post->post_name, "{$post->post_parent}-autosave" ) ) {
+	if ( str_contains( $post->post_name, "{$post->post_parent}-autosave" ) ) {
 		return (int) $post->post_parent;
 	}
 
@@ -303,11 +313,11 @@ function gc_is_post_autosave( $post ) {
 /**
  * Inserts post data into the posts table as a post revision.
  *
- *
  * @access private
  *
  * @param int|GC_Post|array|null $post     Post ID, post object OR post array.
- * @param bool                   $autosave Optional. Is the revision an autosave?
+ * @param bool                   $autosave Optional. Whether the revision is an autosave or not.
+ *                                         Default false.
  * @return int|GC_Error GC_Error or 0 if error, new revision ID if success.
  */
 function _gc_put_post_revision( $post = null, $autosave = false ) {
@@ -337,6 +347,7 @@ function _gc_put_post_revision( $post = null, $autosave = false ) {
 		/**
 		 * Fires once a revision has been saved.
 		 *
+		 * @since 2.6.0
 		 *
 		 * @param int $revision_id Post revision ID.
 		 */
@@ -349,20 +360,20 @@ function _gc_put_post_revision( $post = null, $autosave = false ) {
 /**
  * Gets a post revision.
  *
- *
- *
- * @param int|GC_Post $post   The post ID or object.
+ * @param int|GC_Post $post   Post ID or post object.
  * @param string      $output Optional. The required return type. One of OBJECT, ARRAY_A, or ARRAY_N, which
  *                            correspond to a GC_Post object, an associative array, or a numeric array,
  *                            respectively. Default OBJECT.
- * @param string      $filter Optional sanitation filter. See sanitize_post().
+ * @param string      $filter Optional sanitization filter. See sanitize_post(). Default 'raw'.
  * @return GC_Post|array|null GC_Post (or array) on success, or null on failure.
  */
 function gc_get_post_revision( &$post, $output = OBJECT, $filter = 'raw' ) {
 	$revision = get_post( $post, OBJECT, $filter );
+
 	if ( ! $revision ) {
 		return $revision;
 	}
+
 	if ( 'revision' !== $revision->post_type ) {
 		return null;
 	}
@@ -385,14 +396,13 @@ function gc_get_post_revision( &$post, $output = OBJECT, $filter = 'raw' ) {
  *
  * Can restore a past revision using all fields of the post revision, or only selected fields.
  *
- *
- *
- * @param int|GC_Post $revision_id Revision ID or revision object.
- * @param array       $fields      Optional. What fields to restore from. Defaults to all.
+ * @param int|GC_Post $revision Revision ID or revision object.
+ * @param array       $fields   Optional. What fields to restore from. Defaults to all.
  * @return int|false|null Null if error, false if no fields to restore, (int) post ID if success.
  */
-function gc_restore_post_revision( $revision_id, $fields = null ) {
-	$revision = gc_get_post_revision( $revision_id, ARRAY_A );
+function gc_restore_post_revision( $revision, $fields = null ) {
+	$revision = gc_get_post_revision( $revision, ARRAY_A );
+
 	if ( ! $revision ) {
 		return $revision;
 	}
@@ -415,6 +425,7 @@ function gc_restore_post_revision( $revision_id, $fields = null ) {
 	$update = gc_slash( $update ); // Since data is from DB.
 
 	$post_id = gc_update_post( $update );
+
 	if ( ! $post_id || is_gc_error( $post_id ) ) {
 		return $post_id;
 	}
@@ -425,6 +436,7 @@ function gc_restore_post_revision( $revision_id, $fields = null ) {
 	/**
 	 * Fires after a post revision has been restored.
 	 *
+	 * @since 2.6.0
 	 *
 	 * @param int $post_id     Post ID.
 	 * @param int $revision_id Post revision ID.
@@ -439,22 +451,23 @@ function gc_restore_post_revision( $revision_id, $fields = null ) {
  *
  * Deletes the row from the posts table corresponding to the specified revision.
  *
- *
- *
- * @param int|GC_Post $revision_id Revision ID or revision object.
- * @return array|false|GC_Post|GC_Error|null Null or GC_Error if error, deleted post if success.
+ * @param int|GC_Post $revision Revision ID or revision object.
+ * @return GC_Post|false|null Null or false if error, deleted post object if success.
  */
-function gc_delete_post_revision( $revision_id ) {
-	$revision = gc_get_post_revision( $revision_id );
+function gc_delete_post_revision( $revision ) {
+	$revision = gc_get_post_revision( $revision );
+
 	if ( ! $revision ) {
 		return $revision;
 	}
 
 	$delete = gc_delete_post( $revision->ID );
+
 	if ( $delete ) {
 		/**
 		 * Fires once a post revision has been deleted.
 		 *
+		 * @since 2.6.0
 		 *
 		 * @param int     $revision_id Post revision ID.
 		 * @param GC_Post $revision    Post revision object.
@@ -468,16 +481,15 @@ function gc_delete_post_revision( $revision_id ) {
 /**
  * Returns all revisions of specified post.
  *
- *
- *
  * @see get_children()
  *
- * @param int|GC_Post $post_id Optional. Post ID or GC_Post object. Default is global `$post`.
- * @param array|null  $args    Optional. Arguments for retrieving post revisions. Default null.
- * @return array An array of revisions, or an empty array if none.
+ * @param int|GC_Post $post Optional. Post ID or GC_Post object. Default is global `$post`.
+ * @param array|null  $args Optional. Arguments for retrieving post revisions. Default null.
+ * @return GC_Post[]|int[] Array of revision objects or IDs, or an empty array if none.
  */
-function gc_get_post_revisions( $post_id = 0, $args = null ) {
-	$post = get_post( $post_id );
+function gc_get_post_revisions( $post = 0, $args = null ) {
+	$post = get_post( $post );
+
 	if ( ! $post || empty( $post->ID ) ) {
 		return array();
 	}
@@ -503,6 +515,7 @@ function gc_get_post_revisions( $post_id = 0, $args = null ) {
 	);
 
 	$revisions = get_children( $args );
+
 	if ( ! $revisions ) {
 		return array();
 	}
@@ -511,15 +524,67 @@ function gc_get_post_revisions( $post_id = 0, $args = null ) {
 }
 
 /**
+ * Returns the latest revision ID and count of revisions for a post.
+ *
+ * @since 6.1.0
+ *
+ * @param int|GC_Post $post Optional. Post ID or GC_Post object. Default is global $post.
+ * @return array|GC_Error {
+ *     Returns associative array with latest revision ID and total count,
+ *     or a GC_Error if the post does not exist or revisions are not enabled.
+ *
+ *     @type int $latest_id The latest revision post ID or 0 if no revisions exist.
+ *     @type int $count     The total count of revisions for the given post.
+ * }
+ */
+function gc_get_latest_revision_id_and_total_count( $post = 0 ) {
+	$post = get_post( $post );
+
+	if ( ! $post ) {
+		return new GC_Error( 'invalid_post', __( '无效文章。' ) );
+	}
+
+	if ( ! gc_revisions_enabled( $post ) ) {
+		return new GC_Error( 'revisions_not_enabled', __( '修订版本未启用。' ) );
+	}
+
+	$args = array(
+		'post_parent'         => $post->ID,
+		'fields'              => 'ids',
+		'post_type'           => 'revision',
+		'post_status'         => 'inherit',
+		'order'               => 'DESC',
+		'orderby'             => 'date ID',
+		'posts_per_page'      => 1,
+		'ignore_sticky_posts' => true,
+	);
+
+	$revision_query = new GC_Query();
+	$revisions      = $revision_query->query( $args );
+
+	if ( ! $revisions ) {
+		return array(
+			'latest_id' => 0,
+			'count'     => 0,
+		);
+	}
+
+	return array(
+		'latest_id' => $revisions[0],
+		'count'     => $revision_query->found_posts,
+	);
+}
+
+/**
  * Returns the url for viewing and potentially restoring revisions of a given post.
  *
+ * @since 5.9.0
  *
- *
- * @param int|GC_Post $post_id Optional. Post ID or GC_Post object. Default is global `$post`.
- * @return null|string The URL for editing revisions on the given post, otherwise null.
+ * @param int|GC_Post $post Optional. Post ID or GC_Post object. Default is global `$post`.
+ * @return string|null The URL for editing revisions on the given post, otherwise null.
  */
-function gc_get_post_revisions_url( $post_id = 0 ) {
-	$post = get_post( $post_id );
+function gc_get_post_revisions_url( $post = 0 ) {
+	$post = get_post( $post );
 
 	if ( ! $post instanceof GC_Post ) {
 		return null;
@@ -534,20 +599,17 @@ function gc_get_post_revisions_url( $post_id = 0 ) {
 		return null;
 	}
 
-	$revisions = gc_get_post_revisions( $post->ID, array( 'posts_per_page' => 1 ) );
+	$revisions = gc_get_latest_revision_id_and_total_count( $post->ID );
 
-	if ( 0 === count( $revisions ) ) {
+	if ( is_gc_error( $revisions ) || 0 === $revisions['count'] ) {
 		return null;
 	}
 
-	$revision = reset( $revisions );
-	return get_edit_post_link( $revision );
+	return get_edit_post_link( $revisions['latest_id'] );
 }
 
 /**
- * Determine if revisions are enabled for a given post.
- *
- *
+ * Determines whether revisions are enabled for a given post.
  *
  * @param GC_Post $post The post object.
  * @return bool True if number of revisions to keep isn't zero, false otherwise.
@@ -557,14 +619,12 @@ function gc_revisions_enabled( $post ) {
 }
 
 /**
- * Determine how many revisions to retain for a given post.
+ * Determines how many revisions to retain for a given post.
  *
  * By default, an infinite number of revisions are kept.
  *
  * The constant GC_POST_REVISIONS can be set in gc-config to specify the limit
  * of revisions to keep.
- *
- *
  *
  * @param GC_Post $post The post object.
  * @return int The number of revisions to keep.
@@ -587,6 +647,7 @@ function gc_revisions_to_keep( $post ) {
 	 *
 	 * Overrides the value of GC_POST_REVISIONS.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param int     $num  Number of revisions to store.
 	 * @param GC_Post $post Post object.
@@ -606,6 +667,7 @@ function gc_revisions_to_keep( $post ) {
 	 *  - `gc_post_revisions_to_keep`
 	 *  - `gc_page_revisions_to_keep`
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param int     $num  Number of revisions to store.
 	 * @param GC_Post $post Post object.
@@ -618,7 +680,7 @@ function gc_revisions_to_keep( $post ) {
 /**
  * Sets up the post object for preview based on the post autosave.
  *
- *
+ * @since 2.7.0
  * @access private
  *
  * @param GC_Post $post
@@ -648,7 +710,7 @@ function _set_preview( $post ) {
 /**
  * Filters the latest content for preview from the post autosave.
  *
- *
+ * @since 2.7.0
  * @access private
  */
 function _show_post_preview() {
@@ -666,7 +728,6 @@ function _show_post_preview() {
 /**
  * Filters terms lookup to set the post format.
  *
- *
  * @access private
  *
  * @param array  $terms
@@ -676,6 +737,7 @@ function _show_post_preview() {
  */
 function _gc_preview_terms_filter( $terms, $post_id, $taxonomy ) {
 	$post = get_post();
+
 	if ( ! $post ) {
 		return $terms;
 	}
@@ -701,7 +763,6 @@ function _gc_preview_terms_filter( $terms, $post_id, $taxonomy ) {
 /**
  * Filters post thumbnail lookup to set the post thumbnail.
  *
- *
  * @access private
  *
  * @param null|array|string $value    The value to return - a single metadata value, or an array of values.
@@ -711,6 +772,7 @@ function _gc_preview_terms_filter( $terms, $post_id, $taxonomy ) {
  */
 function _gc_preview_post_thumbnail_filter( $value, $post_id, $meta_key ) {
 	$post = get_post();
+
 	if ( ! $post ) {
 		return $value;
 	}
@@ -726,6 +788,7 @@ function _gc_preview_post_thumbnail_filter( $value, $post_id, $meta_key ) {
 	}
 
 	$thumbnail_id = (int) $_REQUEST['_thumbnail_id'];
+
 	if ( $thumbnail_id <= 0 ) {
 		return '';
 	}
@@ -735,7 +798,6 @@ function _gc_preview_post_thumbnail_filter( $value, $post_id, $meta_key ) {
 
 /**
  * Gets the post revision version.
- *
  *
  * @access private
  *
@@ -757,16 +819,15 @@ function _gc_get_post_revision_version( $revision ) {
 }
 
 /**
- * Upgrade the revisions author, add the current post as a revision and set the revisions version to 1
- *
+ * Upgrades the revisions author, adds the current post as a revision and sets the revisions version to 1.
  *
  * @access private
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
- * @param GC_Post $post      Post object
- * @param array   $revisions Current revisions of the post
- * @return bool true if the revisions were upgraded, false if problems
+ * @param GC_Post $post      Post object.
+ * @param array   $revisions Current revisions of the post.
+ * @return bool true if the revisions were upgraded, false if problems.
  */
 function _gc_upgrade_revisions_of_post( $post, $revisions ) {
 	global $gcdb;
@@ -775,16 +836,20 @@ function _gc_upgrade_revisions_of_post( $post, $revisions ) {
 	$lock   = "revision-upgrade-{$post->ID}";
 	$now    = time();
 	$result = $gcdb->query( $gcdb->prepare( "INSERT IGNORE INTO `$gcdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, 'no') /* LOCK */", $lock, $now ) );
+
 	if ( ! $result ) {
 		// If we couldn't get a lock, see how old the previous lock is.
 		$locked = get_option( $lock );
+
 		if ( ! $locked ) {
-			// Can't write to the lock, and can't read the lock.
-			// Something broken has happened.
+			/*
+			 * Can't write to the lock, and can't read the lock.
+			 * Something broken has happened.
+			 */
 			return false;
 		}
 
-		if ( $locked > $now - 3600 ) {
+		if ( $locked > $now - HOUR_IN_SECONDS ) {
 			// Lock is not too old: some other process may be upgrading this post. Bail.
 			return false;
 		}
@@ -809,8 +874,10 @@ function _gc_upgrade_revisions_of_post( $post, $revisions ) {
 			continue;
 		}
 
-		// 1 is the latest revision version, so we're already up to date.
-		// No need to add a copy of the post as latest revision.
+		/*
+		 * 1 is the latest revision version, so we're already up to date.
+		 * No need to add a copy of the post as latest revision.
+		 */
 		if ( 0 < $this_revision_version ) {
 			$add_last = false;
 			continue;

@@ -79,7 +79,7 @@ class GCSignup_Site {
             $errors = new GC_Error('blogname', $blog_id->get_error_message());
             return false;
         }
-        //站点创建成功，给出成功提示
+        //系统创建成功，给出成功提示
         //confirm_another_blog_signup( $domain, $path, $blog_title, $current_user->user_login, $current_user->user_email, $meta, $blog_id );
         $this->newsite_ok( $blog_id );
         return true;
@@ -127,14 +127,14 @@ class GCSignup_Site {
         //只考虑二级域名模式的部署方案
         $site_domain = preg_replace( '|^www\.|', '', $current_network->domain );
         $site = __( '您的域名' ) . '.' . $site_domain . $current_network->path;
-        //站点域名的校验提示
+        //系统域名的校验提示
         $errmsg_domain = $errors->get_error_message( 'blogname' );
         if ( $errmsg_domain ) {
             $errmsg_domain = '<p class="text-danger">' . $errmsg_domain . '</p>';
         } else {
             $errmsg_domain = '<p>至少4个字符。只能使用数字和字母。</p>';
         }
-        //站点标题的校验提示
+        //系统标题的校验提示
         $errmsg_title = $errors->get_error_message( 'blog_title' );
         if ( $errmsg_title ) {
             $errmsg_title = '<p class="text-danger">' . $errmsg_title . '</p>';
@@ -150,17 +150,17 @@ class GCSignup_Site {
     ?>
     <div class="card-body">
         <div class="align-items-center justify-content-between m-b-30 text-center">
-            <h2 class="m-b-0">创建新站点</h2>
+            <h2 class="m-b-0">创建新系统</h2>
         </div>
         <div class="form-group">
             <?php if ( is_subdomain_install() ) { ?>
-            <label class="font-weight-semibold" for="blogname">站点域名:</label>
+            <label class="font-weight-semibold" for="blogname">系统域名:</label>
             <div class="input-affix d-flex align-items-center"> <i class="prefix-icon anticon anticon-link"></i>
                 <input type="text" class="form-control" name="blogname"  id="blogname" value="<?php echo esc_attr( $blogname ); ?>" maxlength="60" placeholder="请输入域名">
                 <span class="p-h-10 suffix-icon">.<?php echo esc_html( $site_domain ); ?></span> 
             </div>
             <?php }else{ ?>
-            <label class="font-weight-semibold" for="blogname">站点目录:</label>
+            <label class="font-weight-semibold" for="blogname">系统目录:</label>
             <div class="input-group"> 
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="basic-addon1"><?php echo esc_html( $site_domain ); ?>/</span>
@@ -172,9 +172,9 @@ class GCSignup_Site {
             <?php echo $errmsg_domain; ?> 
         </div>
         <div class="form-group">
-            <label class="font-weight-semibold" for="blog_title">站点标题:</label>
+            <label class="font-weight-semibold" for="blog_title">系统标题:</label>
             <div class="input-affix"> <i class="prefix-icon anticon anticon-compass"></i>
-                <input type="text" class="form-control" name="blog_title"  id="blog_title" value="<?php echo esc_attr( $blog_title ); ?>" maxlength="32" placeholder="请输入站点标题">
+                <input type="text" class="form-control" name="blog_title"  id="blog_title" value="<?php echo esc_attr( $blog_title ); ?>" maxlength="32" placeholder="请输入系统标题">
             </div>
             <?php echo $errmsg_title; ?> 
         </div>
@@ -186,7 +186,7 @@ class GCSignup_Site {
 <?php
 do_action( 'signup_blogform', $errors );
 }
-//站点创建成功
+//系统创建成功
 function newsite_ok( $blog_id ) {
     switch_to_blog( $blog_id );
     $login_url = admin_url();
@@ -195,9 +195,9 @@ function newsite_ok( $blog_id ) {
     ?>
 <div class="card-body">
     <div class="align-items-center justify-content-between m-b-30 text-center">
-        <h2 class="m-b-0">站点创建成功</h2>
+        <h2 class="m-b-0">系统创建成功</h2>
     </div>
-    <div class="form-group"> 您的站点已经创建成功，点击进入站点后台进行站点设置。 </div>
+    <div class="form-group"> 您的系统已经创建成功，点击进入系统后台进行系统设置。 </div>
     <div class="form-group"> <a class="btn btn-primary btn-block" href="<?php echo $login_url ; ?>">进入管理后台</a> </div>
 </div>
 <?php

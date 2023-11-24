@@ -6,11 +6,10 @@
  * do not need to implement all of the abstract methods in the class. The child
  * only needs to implement the methods that are needed.
  *
- *
- *
  * @package GeChiUI
  * @abstract
  */
+#[AllowDynamicProperties]
 class Walker {
 	/**
 	 * What the class handles.
@@ -27,8 +26,9 @@ class Walker {
 	public $db_fields;
 
 	/**
-	 * Max number of pages walked by the paged walker
+	 * Max number of pages walked by the paged walker.
 	 *
+	 * @since 2.7.0
 	 * @var int
 	 */
 	public $max_pages = 1;
@@ -38,6 +38,7 @@ class Walker {
 	 *
 	 * To be used in start_el().
 	 *
+	 * @since 4.0.0
 	 * @var bool
 	 */
 	public $has_children;
@@ -71,11 +72,12 @@ class Walker {
 	public function end_lvl( &$output, $depth = 0, $args = array() ) {}
 
 	/**
-	 * Start the element output.
+	 * Starts the element output.
 	 *
 	 * The $args parameter holds additional values that may be used with the child
-	 * class methods. Includes the element output also.
+	 * class methods. Also includes the element output.
 	 *
+	 * @since 5.9.0 Renamed `$object` (a PHP reserved keyword) to `$data_object` for PHP 8 named parameter support.
 	 * @abstract
 	 *
 	 * @param string $output            Used to append additional content (passed by reference).
@@ -91,6 +93,7 @@ class Walker {
 	 *
 	 * The $args parameter holds additional values that may be used with the child class methods.
 	 *
+	 * @since 5.9.0 Renamed `$object` (a PHP reserved keyword) to `$data_object` for PHP 8 named parameter support.
 	 * @abstract
 	 *
 	 * @param string $output      Used to append additional content (passed by reference).
@@ -101,7 +104,7 @@ class Walker {
 	public function end_el( &$output, $data_object, $depth = 0, $args = array() ) {}
 
 	/**
-	 * Traverse elements to create list from elements.
+	 * Traverses elements to create list from elements.
 	 *
 	 * Display one element if the element doesn't have any children otherwise,
 	 * display the element and its children. Will only traverse up to the max
@@ -159,7 +162,7 @@ class Walker {
 	}
 
 	/**
-	 * Display array of elements hierarchically.
+	 * Displays array of elements hierarchically.
 	 *
 	 * Does not assume any existing order of elements.
 	 *
@@ -167,6 +170,7 @@ class Walker {
 	 * $max_depth = 0 means display all levels.
 	 * $max_depth > 0 specifies the number of display levels.
 	 *
+	 * @since 5.3.0 Formalized the existing `...$args` parameter by adding it
 	 *              to the function signature.
 	 *
 	 * @param array $elements  An array of elements.
@@ -250,7 +254,7 @@ class Walker {
 	}
 
 	/**
-	 * paged_walk() - produce a page of nested elements
+	 * Produces a page of nested elements.
 	 *
 	 * Given an array of hierarchical elements, the maximum depth, a specific page number,
 	 * and number of elements per page, this function first determines all top level root elements
@@ -259,14 +263,16 @@ class Walker {
 	 * $max_depth = 0 means display all levels.
 	 * $max_depth > 0 specifies the number of display levels.
 	 *
+	 * @since 2.7.0
+	 * @since 5.3.0 Formalized the existing `...$args` parameter by adding it
 	 *              to the function signature.
 	 *
-	 * @param array $elements
+	 * @param array $elements  An array of elements.
 	 * @param int   $max_depth The maximum hierarchical depth.
 	 * @param int   $page_num  The specific page number, beginning with 1.
-	 * @param int   $per_page
+	 * @param int   $per_page  Number of elements per page.
 	 * @param mixed ...$args   Optional additional arguments.
-	 * @return string XHTML of the specified page of elements
+	 * @return string XHTML of the specified page of elements.
 	 */
 	public function paged_walk( $elements, $max_depth, $page_num, $per_page, ...$args ) {
 		if ( empty( $elements ) || $max_depth < -1 ) {
@@ -389,6 +395,7 @@ class Walker {
 	/**
 	 * Calculates the total number of root elements.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param array $elements Elements to list.
 	 * @return int Number of root elements.
@@ -406,19 +413,20 @@ class Walker {
 	}
 
 	/**
-	 * Unset all the children for a given top level element.
+	 * Unsets all the children for a given top level element.
 	 *
+	 * @since 2.7.0
 	 *
-	 * @param object $e
-	 * @param array  $children_elements
+	 * @param object $element           The top level element.
+	 * @param array  $children_elements The children elements.
 	 */
-	public function unset_children( $e, &$children_elements ) {
-		if ( ! $e || ! $children_elements ) {
+	public function unset_children( $element, &$children_elements ) {
+		if ( ! $element || ! $children_elements ) {
 			return;
 		}
 
 		$id_field = $this->db_fields['id'];
-		$id       = $e->$id_field;
+		$id       = $element->$id_field;
 
 		if ( ! empty( $children_elements[ $id ] ) && is_array( $children_elements[ $id ] ) ) {
 			foreach ( (array) $children_elements[ $id ] as $child ) {

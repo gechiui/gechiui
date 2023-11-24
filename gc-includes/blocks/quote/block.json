@@ -1,0 +1,67 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/quote",
+	"title": "引用",
+	"category": "text",
+	"description": "给引文提供视觉强调。“在引用其他人时我们也加强了自己的论述。”——胡里奥·科塔萨尔",
+	"keywords": [ "blockquote", "cite" ],
+	"textdomain": "default",
+	"attributes": {
+		"value": {
+			"type": "string",
+			"source": "html",
+			"selector": "blockquote",
+			"multiline": "p",
+			"default": "",
+			"__experimentalRole": "content"
+		},
+		"citation": {
+			"type": "string",
+			"source": "html",
+			"selector": "cite",
+			"default": "",
+			"__experimentalRole": "content"
+		},
+		"align": {
+			"type": "string"
+		}
+	},
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"__experimentalOnEnter": true,
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalTextTransform": true,
+			"__experimentalTextDecoration": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true,
+				"fontAppearance": true
+			}
+		},
+		"color": {
+			"gradients": true,
+			"link": true,
+			"__experimentalDefaultControls": {
+				"background": true,
+				"text": true
+			}
+		}
+	},
+	"styles": [
+		{
+			"name": "default",
+			"label": "Default",
+			"isDefault": true
+		},
+		{ "name": "plain", "label": "Plain" }
+	],
+	"editorStyle": "gc-block-quote-editor",
+	"style": "gc-block-quote"
+}

@@ -6,14 +6,15 @@
  *
  * @package GeChiUI
  * @subpackage Sitemaps
- *
+ * @since 5.5.0
  */
 
 /**
  * Stylesheet provider class.
  *
- *
+ * @since 5.5.0
  */
+#[AllowDynamicProperties]
 class GC_Sitemaps_Stylesheet {
 	/**
 	 * Renders the XSL stylesheet depending on whether it's the sitemap index or not.
@@ -21,7 +22,7 @@ class GC_Sitemaps_Stylesheet {
 	 * @param string $type Stylesheet type. Either 'sitemap' or 'index'.
 	 */
 	public function render_stylesheet( $type ) {
-		header( 'Content-type: application/xml; charset=UTF-8' );
+		header( 'Content-Type: application/xml; charset=UTF-8' );
 
 		if ( 'sitemap' === $type ) {
 			// phpcs:ignore GeChiUI.Security.EscapeOutput.OutputNotEscaped -- All content escaped below.
@@ -39,20 +40,21 @@ class GC_Sitemaps_Stylesheet {
 	/**
 	 * Returns the escaped XSL for all sitemaps, except index.
 	 *
+	 * @since 5.5.0
 	 */
 	public function get_sitemap_stylesheet() {
 		$css         = $this->get_stylesheet_css();
-		$title       = esc_xml( __( 'XML站点地图' ) );
-		$description = esc_xml( __( '此XML站点地图是由GeChiUI生成的，以使您的内容在搜索引擎中更加可见。' ) );
+		$title       = esc_xml( __( 'XML系统地图' ) );
+		$description = esc_xml( __( '此XML系统地图是由GeChiUI生成的，以使您的内容在搜索引擎中更加可见。' ) );
 		$learn_more  = sprintf(
 			'<a href="%s">%s</a>',
 			esc_url( __( 'https://www.sitemaps.org/' ) ),
-			esc_xml( __( '了解有关XML站点地图的更多信息。' ) )
+			esc_xml( __( '了解有关XML系统地图的更多信息。' ) )
 		);
 
 		$text = sprintf(
 			/* translators: %s: Number of URLs. */
-			esc_xml( __( '此XML站点地图中的URL数：%s。' ) ),
+			esc_xml( __( '此XML系统地图中的URL数：%s。' ) ),
 			'<xsl:value-of select="count( sitemap:urlset/sitemap:url )" />'
 		);
 
@@ -142,6 +144,7 @@ XSL;
 		/**
 		 * Filters the content of the sitemap stylesheet.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param string $xsl_content Full content for the XML stylesheet.
 		 */
@@ -151,20 +154,21 @@ XSL;
 	/**
 	 * Returns the escaped XSL for the index sitemaps.
 	 *
+	 * @since 5.5.0
 	 */
 	public function get_sitemap_index_stylesheet() {
 		$css         = $this->get_stylesheet_css();
-		$title       = esc_xml( __( 'XML站点地图' ) );
-		$description = esc_xml( __( '此XML站点地图是由GeChiUI生成的，以使您的内容在搜索引擎中更加可见。' ) );
+		$title       = esc_xml( __( 'XML系统地图' ) );
+		$description = esc_xml( __( '此XML系统地图是由GeChiUI生成的，以使您的内容在搜索引擎中更加可见。' ) );
 		$learn_more  = sprintf(
 			'<a href="%s">%s</a>',
 			esc_url( __( 'https://www.sitemaps.org/' ) ),
-			esc_xml( __( '了解有关XML站点地图的更多信息。' ) )
+			esc_xml( __( '了解有关XML系统地图的更多信息。' ) )
 		);
 
 		$text = sprintf(
 			/* translators: %s: Number of URLs. */
-			esc_xml( __( '此XML站点地图中的URL数：%s。' ) ),
+			esc_xml( __( '此XML系统地图中的URL数：%s。' ) ),
 			'<xsl:value-of select="count( sitemap:sitemapindex/sitemap:sitemap )" />'
 		);
 
@@ -238,6 +242,7 @@ XSL;
 		/**
 		 * Filters the content of the sitemap index stylesheet.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param string $xsl_content Full content for the XML stylesheet.
 		 */
@@ -247,6 +252,7 @@ XSL;
 	/**
 	 * Gets the CSS to be included in sitemap XSL stylesheets.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return string The CSS.
 	 */
@@ -302,6 +308,7 @@ EOF;
 		/**
 		 * Filters the CSS only for the sitemap stylesheet.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param string $css CSS to be applied to default XSL file.
 		 */

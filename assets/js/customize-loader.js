@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/customize-loader.js
+ * @output assets/js/customize-loader.js
  */
 
 /* global _gcCustomizeLoaderSettings */

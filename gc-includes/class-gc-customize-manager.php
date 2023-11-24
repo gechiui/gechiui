@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
@@ -18,12 +17,13 @@
  * Serves as a factory for Customize Controls and Settings, and
  * instantiates default Customize Controls and Settings.
  *
- *
  */
+#[AllowDynamicProperties]
 final class GC_Customize_Manager {
 	/**
 	 * An instance of the theme being previewed.
 	 *
+	 * @since 3.4.0
 	 * @var GC_Theme
 	 */
 	protected $theme;
@@ -31,6 +31,7 @@ final class GC_Customize_Manager {
 	/**
 	 * The directory name of the previously active theme (within the theme_root).
 	 *
+	 * @since 3.4.0
 	 * @var string
 	 */
 	protected $original_stylesheet;
@@ -38,6 +39,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Whether this is a Customizer pageload.
 	 *
+	 * @since 3.4.0
 	 * @var bool
 	 */
 	protected $previewing = false;
@@ -52,6 +54,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Methods and properties dealing with managing nav menus in the Customizer.
 	 *
+	 * @since 4.3.0
 	 * @var GC_Customize_Nav_Menus
 	 */
 	public $nav_menus;
@@ -59,6 +62,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Methods and properties dealing with selective refresh in the Customizer preview.
 	 *
+	 * @since 4.5.0
 	 * @var GC_Customize_Selective_Refresh
 	 */
 	public $selective_refresh;
@@ -66,6 +70,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Registered instances of GC_Customize_Setting.
 	 *
+	 * @since 3.4.0
 	 * @var array
 	 */
 	protected $settings = array();
@@ -73,6 +78,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Sorted top-level instances of GC_Customize_Panel and GC_Customize_Section.
 	 *
+	 * @since 4.0.0
 	 * @var array
 	 */
 	protected $containers = array();
@@ -80,6 +86,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Registered instances of GC_Customize_Panel.
 	 *
+	 * @since 4.0.0
 	 * @var array
 	 */
 	protected $panels = array();
@@ -87,6 +94,7 @@ final class GC_Customize_Manager {
 	/**
 	 * List of core components.
 	 *
+	 * @since 4.5.0
 	 * @var array
 	 */
 	protected $components = array( 'widgets', 'nav_menus' );
@@ -94,6 +102,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Registered instances of GC_Customize_Section.
 	 *
+	 * @since 3.4.0
 	 * @var array
 	 */
 	protected $sections = array();
@@ -101,6 +110,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Registered instances of GC_Customize_Control.
 	 *
+	 * @since 3.4.0
 	 * @var array
 	 */
 	protected $controls = array();
@@ -108,6 +118,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Panel types that may be rendered from JS templates.
 	 *
+	 * @since 4.3.0
 	 * @var array
 	 */
 	protected $registered_panel_types = array();
@@ -115,6 +126,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Section types that may be rendered from JS templates.
 	 *
+	 * @since 4.3.0
 	 * @var array
 	 */
 	protected $registered_section_types = array();
@@ -122,6 +134,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Control types that may be rendered from JS templates.
 	 *
+	 * @since 4.1.0
 	 * @var array
 	 */
 	protected $registered_control_types = array();
@@ -129,6 +142,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Initial URL being previewed.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	protected $preview_url;
@@ -136,6 +150,7 @@ final class GC_Customize_Manager {
 	/**
 	 * URL to link the user to when closing the Customizer.
 	 *
+	 * @since 4.4.0
 	 * @var string
 	 */
 	protected $return_url;
@@ -143,6 +158,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Mapping of 'panel', 'section', 'control' to the ID which should be autofocused.
 	 *
+	 * @since 4.4.0
 	 * @var string[]
 	 */
 	protected $autofocus = array();
@@ -150,6 +166,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Messenger channel.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	protected $messenger_channel;
@@ -157,6 +174,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Whether the autosave revision of the changeset should be loaded.
 	 *
+	 * @since 4.9.0
 	 * @var bool
 	 */
 	protected $autosaved = false;
@@ -164,6 +182,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Whether the changeset branching is allowed.
 	 *
+	 * @since 4.9.0
 	 * @var bool
 	 */
 	protected $branching = true;
@@ -171,6 +190,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Whether settings should be previewed.
 	 *
+	 * @since 4.9.0
 	 * @var bool
 	 */
 	protected $settings_previewed = true;
@@ -178,6 +198,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Whether a starter content changeset was saved.
 	 *
+	 * @since 4.9.0
 	 * @var bool
 	 */
 	protected $saved_starter_content_changeset = false;
@@ -192,6 +213,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Changeset UUID.
 	 *
+	 * @since 4.7.0
 	 * @var string
 	 */
 	private $_changeset_uuid;
@@ -199,6 +221,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Changeset post ID.
 	 *
+	 * @since 4.7.0
 	 * @var int|false
 	 */
 	private $_changeset_post_id;
@@ -206,6 +229,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Changeset data loaded from a customize_changeset post.
 	 *
+	 * @since 4.7.0
 	 * @var array|null
 	 */
 	private $_changeset_data;
@@ -213,6 +237,8 @@ final class GC_Customize_Manager {
 	/**
 	 * Constructor.
 	 *
+	 * @since 3.4.0
+	 * @since 4.7.0 Added `$args` parameter.
 	 *
 	 * @param array $args {
 	 *     Args.
@@ -242,8 +268,10 @@ final class GC_Customize_Manager {
 			$args['changeset_uuid'] = gc_generate_uuid4();
 		}
 
-		// The theme and messenger_channel should be supplied via $args,
-		// but they are also looked at in the $_REQUEST global here for back-compat.
+		/*
+		 * The theme and messenger_channel should be supplied via $args,
+		 * but they are also looked at in the $_REQUEST global here for back-compat.
+		 */
 		if ( ! isset( $args['theme'] ) ) {
 			if ( isset( $_REQUEST['customize_theme'] ) ) {
 				$args['theme'] = gc_unslash( $_REQUEST['customize_theme'] );
@@ -313,6 +341,7 @@ final class GC_Customize_Manager {
 		 * during the {@see 'plugins_loaded'} action, so it cannot be added
 		 * in a theme.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @see GC_Customize_Manager::__construct()
 		 *
@@ -378,8 +407,10 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Return true if it's an Ajax request.
+	 * Returns true if it's an Ajax request.
 	 *
+	 * @since 3.4.0
+	 * @since 4.2.0 Added `$action` param.
 	 *
 	 * @param string|null $action Whether the supplied Ajax action is being run.
 	 * @return bool True if it's an Ajax request, false otherwise.
@@ -404,6 +435,7 @@ final class GC_Customize_Manager {
 	 * Custom gc_die wrapper. Returns either the standard message for UI
 	 * or the Ajax message.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param string|GC_Error $ajax_message Ajax return.
 	 * @param string          $message      Optional. UI message.
@@ -444,8 +476,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Return the Ajax gc_die() handler if it's a customized request.
+	 * Returns the Ajax gc_die() handler if it's a customized request.
 	 *
+	 * @since 3.4.0
 	 * @deprecated 4.7.0
 	 *
 	 * @return callable Die handler.
@@ -461,12 +494,13 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Start preview and customize theme.
+	 * Starts preview and customize theme.
 	 *
 	 * Check if customize query variable exist. Init filters to filter the active theme.
 	 *
+	 * @since 3.4.0
 	 *
-	 * @global string $pagenow
+	 * @global string $pagenow The filename of the current screen.
 	 */
 	public function setup_theme() {
 		global $pagenow;
@@ -478,7 +512,7 @@ final class GC_Customize_Manager {
 			} else {
 				gc_die(
 					'<h1>' . __( '您需要更高级别的权限。' ) . '</h1>' .
-					'<p>' . __( '抱歉，您不能自定义此站点。' ) . '</p>',
+					'<p>' . __( '抱歉，您不能自定义此系统。' ) . '</p>',
 					403
 				);
 			}
@@ -530,10 +564,12 @@ final class GC_Customize_Manager {
 			// Once the theme is loaded, we'll validate it.
 			add_action( 'after_setup_theme', array( $this, 'after_setup_theme' ) );
 		} else {
-			// If the requested theme is not the active theme and the user doesn't have
-			// the switch_themes cap, bail.
+			/*
+			 * If the requested theme is not the active theme and the user doesn't have
+			 * the switch_themes cap, bail.
+			 */
 			if ( ! current_user_can( 'switch_themes' ) ) {
-				$this->gc_die( -1, __( '抱歉，您不能在此站点上编辑主题选项。' ) );
+				$this->gc_die( -1, __( '抱歉，您不能在此系统上编辑主题选项。' ) );
 			}
 
 			// If the theme has errors while loading, bail.
@@ -563,7 +599,7 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Establish the loaded changeset.
+	 * Establishes the loaded changeset.
 	 *
 	 * This method runs right at after_setup_theme and applies the 'customize_changeset_branching' filter to determine
 	 * whether concurrent changesets are allowed. Then if the Customizer is not initialized with a `changeset_uuid` param,
@@ -571,8 +607,9 @@ final class GC_Customize_Manager {
 	 * changeset will be loaded by default. Otherwise, if there are no existing saved changesets or if changeset branching is
 	 * enabled, then a new UUID will be generated.
 	 *
+	 * @since 4.9.0
 	 *
-	 * @global string $pagenow
+	 * @global string $pagenow The filename of the current screen.
 	 */
 	public function establish_loaded_changeset() {
 		global $pagenow;
@@ -613,6 +650,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Callback to validate a theme once it is loaded
 	 *
+	 * @since 3.4.0
 	 */
 	public function after_setup_theme() {
 		$doing_ajax_or_is_customized = ( $this->doing_ajax() || isset( $_POST['customized'] ) );
@@ -626,6 +664,7 @@ final class GC_Customize_Manager {
 	 * If the theme to be previewed isn't the active theme, add filter callbacks
 	 * to swap it out at runtime.
 	 *
+	 * @since 3.4.0
 	 */
 	public function start_previewing_theme() {
 		// Bail if we're already previewing.
@@ -652,6 +691,7 @@ final class GC_Customize_Manager {
 		/**
 		 * Fires once the Customizer theme preview has started.
 		 *
+		 * @since 3.4.0
 		 *
 		 * @param GC_Customize_Manager $manager GC_Customize_Manager instance.
 		 */
@@ -659,10 +699,11 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Stop previewing the selected theme.
+	 * Stops previewing the selected theme.
 	 *
 	 * Removes filters to change the active theme.
 	 *
+	 * @since 3.4.0
 	 */
 	public function stop_previewing_theme() {
 		if ( ! $this->is_preview() ) {
@@ -688,6 +729,7 @@ final class GC_Customize_Manager {
 		/**
 		 * Fires once the Customizer theme preview has stopped.
 		 *
+		 * @since 3.4.0
 		 *
 		 * @param GC_Customize_Manager $manager GC_Customize_Manager instance.
 		 */
@@ -697,6 +739,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Gets whether settings are or will be previewed.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @see GC_Customize_Setting::preview()
 	 *
@@ -709,6 +752,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Gets whether data from a changeset's autosaved revision should be loaded if it exists.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @see GC_Customize_Manager::changeset_data()
 	 *
@@ -721,6 +765,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Whether the changeset branching is allowed.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @see GC_Customize_Manager::establish_loaded_changeset()
 	 *
@@ -747,6 +792,7 @@ final class GC_Customize_Manager {
 		 * they are the default. For GeChiUI sites that have heavy site management in the Customizer
 		 * by multiple users then branching changesets should be enabled by means of this filter.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param bool                 $allow_branching Whether branching is allowed. If `false`, the default,
 		 *                                              then only one saved changeset exists at a time.
@@ -758,8 +804,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get the changeset UUID.
+	 * Gets the changeset UUID.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @see GC_Customize_Manager::establish_loaded_changeset()
 	 *
@@ -773,8 +820,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get the theme being customized.
+	 * Gets the theme being customized.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @return GC_Theme
 	 */
@@ -786,8 +834,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get the registered settings.
+	 * Gets the registered settings.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @return array
 	 */
@@ -796,8 +845,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get the registered controls.
+	 * Gets the registered controls.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @return array
 	 */
@@ -806,8 +856,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get the registered containers.
+	 * Gets the registered containers.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @return array
 	 */
@@ -816,8 +867,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get the registered sections.
+	 * Gets the registered sections.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @return array
 	 */
@@ -826,8 +878,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get the registered panels.
+	 * Gets the registered panels.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @return array Panels.
 	 */
@@ -838,6 +891,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Checks if the current theme is active.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @return bool
 	 */
@@ -846,13 +900,16 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Register styles/scripts and initialize the preview of each setting
+	 * Registers styles/scripts and initialize the preview of each setting
 	 *
+	 * @since 3.4.0
 	 */
 	public function gc_loaded() {
 
-		// Unconditionally register core types for panels, sections, and controls
-		// in case plugin unhooks all customize_register actions.
+		/*
+		 * Unconditionally register core types for panels, sections, and controls
+		 * in case plugin unhooks all customize_register actions.
+		 */
 		$this->register_panel_type( 'GC_Customize_Panel' );
 		$this->register_panel_type( 'GC_Customize_Themes_Panel' );
 		$this->register_section_type( 'GC_Customize_Section' );
@@ -873,6 +930,7 @@ final class GC_Customize_Manager {
 		/**
 		 * Fires once GeChiUI has loaded, allowing scripts and styles to be initialized.
 		 *
+		 * @since 3.4.0
 		 *
 		 * @param GC_Customize_Manager $manager GC_Customize_Manager instance.
 		 */
@@ -895,6 +953,7 @@ final class GC_Customize_Manager {
 	 *
 	 * Instead, the JS will sniff out the location header.
 	 *
+	 * @since 3.4.0
 	 * @deprecated 4.7.0
 	 *
 	 * @param int $status Status.
@@ -911,8 +970,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Find the changeset post ID for a given changeset UUID.
+	 * Finds the changeset post ID for a given changeset UUID.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string $uuid Changeset UUID.
 	 * @return int|null Returns post ID on success and null on failure.
@@ -948,8 +1008,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get changeset posts.
+	 * Gets changeset posts.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param array $args {
 	 *     Args to pass into `get_posts()` to query changesets.
@@ -994,8 +1055,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Dismiss all of the current user's auto-drafts (other than the present one).
+	 * Dismisses all of the current user's auto-drafts (other than the present one).
 	 *
+	 * @since 4.9.0
 	 * @return int The number of auto-drafts that were dismissed.
 	 */
 	protected function dismiss_user_auto_draft_changesets() {
@@ -1019,8 +1081,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get the changeset post ID for the loaded changeset.
+	 * Gets the changeset post ID for the loaded changeset.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return int|null Post ID on success or null if there is no post yet saved.
 	 */
@@ -1039,8 +1102,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get the data stored in a changeset post.
+	 * Gets the data stored in a changeset post.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param int $post_id Changeset post ID.
 	 * @return array|GC_Error Changeset data or GC_Error on error.
@@ -1072,8 +1136,10 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get changeset data.
+	 * Gets changeset data.
 	 *
+	 * @since 4.7.0
+	 * @since 4.9.0 This will return the changeset's data with a user's autosave revision merged on top, if one exists and $autosaved is true.
 	 *
 	 * @return array Changeset data.
 	 */
@@ -1111,13 +1177,15 @@ final class GC_Customize_Manager {
 	/**
 	 * Starter content setting IDs.
 	 *
+	 * @since 4.7.0
 	 * @var array
 	 */
 	protected $pending_starter_content_settings_ids = array();
 
 	/**
-	 * Import theme starter content into the customized state.
+	 * Imports theme starter content into the customized state.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array $starter_content Starter content. Defaults to `get_theme_starter_content()`.
 	 */
@@ -1568,10 +1636,11 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Prepare starter content attachments.
+	 * Prepares starter content attachments.
 	 *
 	 * Ensure that the attachments are valid and that they have slugs and file name/path.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array $attachments Attachments.
 	 * @return array Prepared attachments.
@@ -1629,8 +1698,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Save starter content changeset.
+	 * Saves starter content changeset.
 	 *
+	 * @since 4.7.0
 	 */
 	public function _save_starter_content_changeset() {
 
@@ -1650,7 +1720,7 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get dirty pre-sanitized setting values in the current customized state.
+	 * Gets dirty pre-sanitized setting values in the current customized state.
 	 *
 	 * The returned array consists of a merge of three sources:
 	 * 1. If the theme is not currently active, then the base array is any stashed
@@ -1665,6 +1735,8 @@ final class GC_Customize_Manager {
 	 * the value returned will come from the current changeset post and from the
 	 * incoming post data.
 	 *
+	 * @since 4.1.1
+	 * @since 4.7.0 Added `$args` parameter and merging with changeset values and stashed theme mods.
 	 *
 	 * @param array $args {
 	 *     Args.
@@ -1737,39 +1809,46 @@ final class GC_Customize_Manager {
 	 * sourced from `$_POST['customized']`. Nevertheless, the value returned will come
 	 * from the current changeset post and from the incoming post data.
 	 *
+	 * @since 3.4.0
+	 * @since 4.1.1 Introduced the `$default_value` parameter.
+	 * @since 4.6.0 `$default_value` is now returned early when the setting post value is invalid.
 	 *
 	 * @see GC_REST_Server::dispatch()
 	 * @see GC_REST_Request::sanitize_params()
 	 * @see GC_REST_Request::has_valid_params()
 	 *
-	 * @param GC_Customize_Setting $setting A GC_Customize_Setting derived object.
-	 * @param mixed                $default Value returned $setting has no post value (added in 4.2.0)
-	 *                                      or the post value is invalid (added in 4.6.0).
-	 * @return string|mixed Sanitized value or the $default provided.
+	 * @param GC_Customize_Setting $setting       A GC_Customize_Setting derived object.
+	 * @param mixed                $default_value Value returned if `$setting` has no post value (added in 4.2.0)
+	 *                                            or the post value is invalid (added in 4.6.0).
+	 * @return string|mixed Sanitized value or the `$default_value` provided.
 	 */
-	public function post_value( $setting, $default = null ) {
+	public function post_value( $setting, $default_value = null ) {
 		$post_values = $this->unsanitized_post_values();
 		if ( ! array_key_exists( $setting->id, $post_values ) ) {
-			return $default;
+			return $default_value;
 		}
+
 		$value = $post_values[ $setting->id ];
 		$valid = $setting->validate( $value );
 		if ( is_gc_error( $valid ) ) {
-			return $default;
+			return $default_value;
 		}
+
 		$value = $setting->sanitize( $value );
 		if ( is_null( $value ) || is_gc_error( $value ) ) {
-			return $default;
+			return $default_value;
 		}
+
 		return $value;
 	}
 
 	/**
-	 * Override a setting's value in the current customized state.
+	 * Overrides a setting's value in the current customized state.
 	 *
 	 * The name "post_value" is a carry-over from when the customized state was
 	 * exclusively sourced from `$_POST['customized']`.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param string $setting_id ID for the GC_Customize_Setting instance.
 	 * @param mixed  $value      Post value.
@@ -1779,12 +1858,13 @@ final class GC_Customize_Manager {
 		$this->_post_values[ $setting_id ] = $value;
 
 		/**
-		 * Announce when a specific setting's unsanitized post value has been set.
+		 * Announces when a specific setting's unsanitized post value has been set.
 		 *
 		 * Fires when the GC_Customize_Manager::set_post_value() method is called.
 		 *
 		 * The dynamic portion of the hook name, `$setting_id`, refers to the setting ID.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param mixed                $value   Unsanitized setting post value.
 		 * @param GC_Customize_Manager $manager GC_Customize_Manager instance.
@@ -1792,13 +1872,14 @@ final class GC_Customize_Manager {
 		do_action( "customize_post_value_set_{$setting_id}", $value, $this );
 
 		/**
-		 * Announce when any setting's unsanitized post value has been set.
+		 * Announces when any setting's unsanitized post value has been set.
 		 *
 		 * Fires when the GC_Customize_Manager::set_post_value() method is called.
 		 *
 		 * This is useful for `GC_Customize_Setting` instances to watch
 		 * in order to update a cached previewed value.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param string               $setting_id Setting ID.
 		 * @param mixed                $value      Unsanitized setting post value.
@@ -1808,8 +1889,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Print JavaScript settings.
+	 * Prints JavaScript settings.
 	 *
+	 * @since 3.4.0
 	 */
 	public function customize_preview_init() {
 
@@ -1860,6 +1942,7 @@ final class GC_Customize_Manager {
 		 * Fires once the Customizer preview has initialized and JavaScript
 		 * settings have been printed.
 		 *
+		 * @since 3.4.0
 		 *
 		 * @param GC_Customize_Manager $manager GC_Customize_Manager instance.
 		 */
@@ -1869,6 +1952,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Filters the X-Frame-Options and Content-Security-Policy headers to ensure frontend can load in customizer.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array $headers Headers.
 	 * @return array Headers.
@@ -1880,8 +1964,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Add customize state query params to a given URL if preview is allowed.
+	 * Adds customize state query params to a given URL if preview is allowed.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @see gc_redirect()
 	 * @see GC_Customize_Manager::get_allowed_url()
@@ -1899,7 +1984,7 @@ final class GC_Customize_Manager {
 				&&
 				$parsed_allowed_url['host'] === $parsed_original_url['host']
 				&&
-				0 === strpos( $parsed_original_url['path'], $parsed_allowed_url['path'] )
+				str_starts_with( $parsed_original_url['path'], $parsed_allowed_url['path'] )
 			);
 			if ( $is_allowed ) {
 				break;
@@ -1923,9 +2008,10 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Prevent sending a 404 status when returning the response for the customize
+	 * Prevents sending a 404 status when returning the response for the customize
 	 * preview, since it causes the jQuery Ajax to fail. Send 200 instead.
 	 *
+	 * @since 4.0.0
 	 * @deprecated 4.7.0
 	 */
 	public function customize_preview_override_404_status() {
@@ -1933,8 +2019,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Print base element for preview frame.
+	 * Prints base element for preview frame.
 	 *
+	 * @since 3.4.0
 	 * @deprecated 4.7.0
 	 */
 	public function customize_preview_base() {
@@ -1942,8 +2029,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Print a workaround to handle HTML5 tags in IE < 9.
+	 * Prints a workaround to handle HTML5 tags in IE < 9.
 	 *
+	 * @since 3.4.0
 	 * @deprecated 4.7.0 Customizer no longer supports IE8, so all supported browsers recognize HTML5.
 	 */
 	public function customize_preview_html5() {
@@ -1951,8 +2039,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Print CSS for loading indicators for the Customizer preview.
+	 * Prints CSS for loading indicators for the Customizer preview.
 	 *
+	 * @since 4.2.0
 	 */
 	public function customize_preview_loading_style() {
 		?>
@@ -1979,11 +2068,12 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Remove customize_messenger_channel query parameter from the preview window when it is not in an iframe.
+	 * Removes customize_messenger_channel query parameter from the preview window when it is not in an iframe.
 	 *
 	 * This ensures that the admin bar will be shown. It also ensures that link navigation will
 	 * work as expected since the parent frame is not being sent the URL to navigate to.
 	 *
+	 * @since 4.7.0
 	 */
 	public function remove_frameless_preview_messenger_channel() {
 		if ( ! $this->messenger_channel ) {
@@ -2015,8 +2105,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Print JavaScript settings for preview frame.
+	 * Prints JavaScript settings for preview frame.
 	 *
+	 * @since 3.4.0
 	 */
 	public function customize_preview_settings() {
 		$post_values                 = $this->unsanitized_post_values( array( 'exclude_changeset' => true ) );
@@ -2024,7 +2115,7 @@ final class GC_Customize_Manager {
 		$exported_setting_validities = array_map( array( $this, 'prepare_setting_validity_for_js' ), $setting_validities );
 
 		// Note that the REQUEST_URI is not passed into home_url() since this breaks subdirectory installations.
-		$self_url           = empty( $_SERVER['REQUEST_URI'] ) ? home_url( '/' ) : esc_url_raw( gc_unslash( $_SERVER['REQUEST_URI'] ) );
+		$self_url           = empty( $_SERVER['REQUEST_URI'] ) ? home_url( '/' ) : sanitize_url( gc_unslash( $_SERVER['REQUEST_URI'] ) );
 		$state_query_params = array(
 			'customize_theme',
 			'customize_changeset_uuid',
@@ -2046,7 +2137,7 @@ final class GC_Customize_Manager {
 			$allowed_hosts[] = $host;
 		}
 
-		$switched_locale = switch_to_locale( get_user_locale() );
+		$switched_locale = switch_to_user_locale( get_current_user_id() );
 		$l10n            = array(
 			'shiftClickToEdit'  => __( '按住Shift点击来编辑这个元素。' ),
 			'linkUnpreviewable' => __( '此链接不能实时预览。' ),
@@ -2071,7 +2162,7 @@ final class GC_Customize_Manager {
 			),
 			'url'               => array(
 				'self'          => $self_url,
-				'allowed'       => array_map( 'esc_url_raw', $this->get_allowed_urls() ),
+				'allowed'       => array_map( 'sanitize_url', $this->get_allowed_urls() ),
 				'allowedHosts'  => array_unique( $allowed_hosts ),
 				'isCrossDomain' => $this->is_cross_domain(),
 			),
@@ -2135,6 +2226,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Prints a signature so we can ensure the Customizer was properly executed.
 	 *
+	 * @since 3.4.0
 	 * @deprecated 4.7.0
 	 */
 	public function customize_preview_signature() {
@@ -2144,20 +2236,23 @@ final class GC_Customize_Manager {
 	/**
 	 * Removes the signature in case we experience a case where the Customizer was not properly executed.
 	 *
+	 * @since 3.4.0
 	 * @deprecated 4.7.0
 	 *
-	 * @param mixed $return Value passed through for {@see 'gc_die_handler'} filter.
-	 * @return mixed Value passed through for {@see 'gc_die_handler'} filter.
+	 * @param callable|null $callback Optional. Value passed through for {@see 'gc_die_handler'} filter.
+	 *                                Default null.
+	 * @return callable|null Value passed through for {@see 'gc_die_handler'} filter.
 	 */
-	public function remove_preview_signature( $return = null ) {
+	public function remove_preview_signature( $callback = null ) {
 		_deprecated_function( __METHOD__, '4.7.0' );
 
-		return $return;
+		return $callback;
 	}
 
 	/**
-	 * Is it a theme preview?
+	 * Determines whether it is a theme preview or not.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @return bool True if it's a preview, false if not.
 	 */
@@ -2166,8 +2261,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Retrieve the template name of the previewed theme.
+	 * Retrieves the template name of the previewed theme.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @return string Template name.
 	 */
@@ -2176,8 +2272,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Retrieve the stylesheet name of the previewed theme.
+	 * Retrieves the stylesheet name of the previewed theme.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @return string Stylesheet name.
 	 */
@@ -2186,8 +2283,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Retrieve the template root of the previewed theme.
+	 * Retrieves the template root of the previewed theme.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @return string Theme root.
 	 */
@@ -2196,8 +2294,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Retrieve the stylesheet root of the previewed theme.
+	 * Retrieves the stylesheet root of the previewed theme.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @return string Theme root.
 	 */
@@ -2208,6 +2307,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Filters the active theme and return the name of the previewed theme.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param mixed $current_theme {@internal Parameter is not used}
 	 * @return string Theme name.
@@ -2224,6 +2324,7 @@ final class GC_Customize_Manager {
 	 * to values that pass validation, and values that become null or `GC_Error`
 	 * after sanitizing are marked invalid.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @see GC_REST_Request::has_valid_params()
 	 * @see GC_Customize_Setting::validate()
@@ -2292,6 +2393,7 @@ final class GC_Customize_Manager {
 	 * Converts `GC_Error` instance into array suitable for passing into the
 	 * `gc.customize.Notification` JS model.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param true|GC_Error $validity Setting validity.
 	 * @return true|array If `$validity` was a GC_Error, the error codes will be array-mapped
@@ -2314,8 +2416,10 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Handle customize_save GC Ajax request to save/update a changeset.
+	 * Handles customize_save GC Ajax request to save/update a changeset.
 	 *
+	 * @since 3.4.0
+	 * @since 4.7.0 The semantics of this method have changed to update a changeset, optionally to also change the status and other attributes.
 	 */
 	public function save() {
 		if ( ! is_user_logged_in() ) {
@@ -2492,6 +2596,7 @@ final class GC_Customize_Manager {
 		 *
 		 * This filter does not apply if there was a nonce or authentication failure.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @param array                $response Additional information passed back to the 'saved'
 		 *                                       event on `gc.customize`.
@@ -2507,8 +2612,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Save the post for the loaded changeset.
+	 * Saves the post for the loaded changeset.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array $args {
 	 *     Args for changeset post.
@@ -2660,6 +2766,7 @@ final class GC_Customize_Manager {
 		 * at this point to catch any settings registered after `customize_register`.
 		 * The dynamic portion of the hook name, `$this->ID` refers to the setting ID.
 		 *
+		 * @since 4.6.0
 		 *
 		 * @param GC_Customize_Manager $manager GC_Customize_Manager instance.
 		 */
@@ -2773,6 +2880,7 @@ final class GC_Customize_Manager {
 		 *
 		 * Plugins may amend additional data (such as additional meta for settings) into the changeset with this filter.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param array $data Updated changeset data, mapping setting IDs to arrays containing a $value item and optionally other metadata.
 		 * @param array $context {
@@ -2892,7 +3000,7 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Preserve the initial JSON post_content passed to save into the post.
+	 * Preserves the initial JSON post_content passed to save into the post.
 	 *
 	 * This is needed to prevent KSES and other {@see 'content_save_pre'} filters
 	 * from corrupting JSON data.
@@ -2913,6 +3021,7 @@ final class GC_Customize_Manager {
 	 * intact even when another user updates the changeset to modify another field
 	 * when they do not have unfiltered_html.
 	 *
+	 * @since 5.4.1
 	 *
 	 * @param array $data                An array of slashed and processed post data.
 	 * @param array $postarr             An array of sanitized (and slashed) but otherwise unmodified post data.
@@ -2936,13 +3045,14 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Trash or delete a changeset post.
+	 * Trashes or deletes a changeset post.
 	 *
 	 * The following re-formulates the logic from `gc_trash_post()` as done in
 	 * `gc_publish_post()`. The reason for bypassing `gc_trash_post()` is that it
 	 * will mutate the the `post_content` and the `post_name` when they should be
 	 * untouched.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @see gc_trash_post()
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -3014,8 +3124,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Handle request to trash a changeset.
+	 * Handles request to trash a changeset.
 	 *
+	 * @since 4.9.0
 	 */
 	public function handle_changeset_trash_request() {
 		if ( ! is_user_logged_in() ) {
@@ -3098,7 +3209,7 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Re-map 'edit_post' meta cap for a customize_changeset post to be the same as 'customize' maps.
+	 * Re-maps 'edit_post' meta cap for a customize_changeset post to be the same as 'customize' maps.
 	 *
 	 * There is essentially a "meta meta" cap in play here, where 'edit_post' meta cap maps to
 	 * the 'customize' meta cap which then maps to 'edit_theme_options'. This is currently
@@ -3107,6 +3218,7 @@ final class GC_Customize_Manager {
 	 * the caps for the customize_changeset post type are all mapping to the meta capability.
 	 * This should be able to be removed once #40922 is addressed in core.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @link https://core.trac.gechiui.com/ticket/40922
 	 * @see GC_Customize_Manager::save_changeset_post()
@@ -3129,6 +3241,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Marks the changeset post as being currently edited by the current user.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param int  $changeset_post_id Changeset post ID.
 	 * @param bool $take_over Whether to take over the changeset. Default false.
@@ -3153,6 +3266,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Refreshes changeset lock with the current time if current user edited the changeset before.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param int $changeset_post_id Changeset post ID.
 	 */
@@ -3160,6 +3274,7 @@ final class GC_Customize_Manager {
 		if ( ! $changeset_post_id ) {
 			return;
 		}
+
 		$lock = get_post_meta( $changeset_post_id, '_edit_lock', true );
 		$lock = explode( ':', $lock );
 
@@ -3176,20 +3291,27 @@ final class GC_Customize_Manager {
 	/**
 	 * Filters heartbeat settings for the Customizer.
 	 *
+	 * @since 4.9.0
+	 *
+	 * @global string $pagenow The filename of the current screen.
+	 *
 	 * @param array $settings Current settings to filter.
 	 * @return array Heartbeat settings.
 	 */
 	public function add_customize_screen_to_heartbeat_settings( $settings ) {
 		global $pagenow;
+
 		if ( 'customize.php' === $pagenow ) {
 			$settings['screenId'] = 'customize';
 		}
+
 		return $settings;
 	}
 
 	/**
-	 * Get lock user data.
+	 * Gets lock user data.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param int $user_id User ID.
 	 * @return array|null User data formatted for client.
@@ -3198,10 +3320,13 @@ final class GC_Customize_Manager {
 		if ( ! $user_id ) {
 			return null;
 		}
+
 		$lock_user = get_userdata( $user_id );
+
 		if ( ! $lock_user ) {
 			return null;
 		}
+
 		return array(
 			'id'     => $lock_user->ID,
 			'name'   => $lock_user->display_name,
@@ -3210,8 +3335,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Check locked changeset with heartbeat API.
+	 * Checks locked changeset with heartbeat API.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param array  $response  The Heartbeat response.
 	 * @param array  $data      The $_POST data sent.
@@ -3248,6 +3374,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Removes changeset lock when take over request is sent via Ajax.
 	 *
+	 * @since 4.9.0
 	 */
 	public function handle_override_changeset_lock_request() {
 		if ( ! $this->is_preview() ) {
@@ -3289,8 +3416,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Whether a changeset revision should be made.
+	 * Determines whether a changeset revision should be made.
 	 *
+	 * @since 4.7.0
 	 * @var bool
 	 */
 	protected $store_changeset_revision;
@@ -3300,14 +3428,15 @@ final class GC_Customize_Manager {
 	 *
 	 * Note that this will not be called while a changeset post remains in auto-draft status.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param bool    $post_has_changed Whether the post has changed.
-	 * @param GC_Post $last_revision    The last revision post object.
+	 * @param GC_Post $latest_revision  The latest revision post object.
 	 * @param GC_Post $post             The post object.
 	 * @return bool Whether a revision should be made.
 	 */
-	public function _filter_revision_post_has_changed( $post_has_changed, $last_revision, $post ) {
-		unset( $last_revision );
+	public function _filter_revision_post_has_changed( $post_has_changed, $latest_revision, $post ) {
+		unset( $latest_revision );
 		if ( 'customize_changeset' === $post->post_type ) {
 			$post_has_changed = $this->store_changeset_revision;
 		}
@@ -3315,9 +3444,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Publish changeset values.
+	 * Publishes the values of a changeset.
 	 *
-	 * This will the values contained in a changeset, even changesets that do not
+	 * This will publish the values contained in a changeset, even changesets that do not
 	 * correspond to current manager instance. This is called by
 	 * `_gc_customize_publish_changeset()` when a customize_changeset post is
 	 * transitioned to the `publish` status. As such, this method should not be
@@ -3327,6 +3456,7 @@ final class GC_Customize_Manager {
 	 * theme, the theme must first be switched to (via `switch_theme()`) before
 	 * invoking this method.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @see _gc_customize_publish_changeset()
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
@@ -3404,6 +3534,7 @@ final class GC_Customize_Manager {
 		 * Fires once the theme has switched in the Customizer, but before settings
 		 * have been saved.
 		 *
+		 * @since 3.4.0
 		 *
 		 * @param GC_Customize_Manager $manager GC_Customize_Manager instance.
 		 */
@@ -3456,6 +3587,7 @@ final class GC_Customize_Manager {
 		/**
 		 * Fires after Customize settings have been saved.
 		 *
+		 * @since 3.6.0
 		 *
 		 * @param GC_Customize_Manager $manager GC_Customize_Manager instance.
 		 */
@@ -3481,7 +3613,7 @@ final class GC_Customize_Manager {
 		 */
 		$revisions = gc_get_post_revisions( $changeset_post_id, array( 'check_enabled' => false ) );
 		foreach ( $revisions as $revision ) {
-			if ( false !== strpos( $revision->post_name, "{$changeset_post_id}-autosave" ) ) {
+			if ( str_contains( $revision->post_name, "{$changeset_post_id}-autosave" ) ) {
 				$gcdb->update(
 					$gcdb->posts,
 					array(
@@ -3502,8 +3634,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Update stashed theme mod settings.
+	 * Updates stashed theme mod settings.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array $inactive_theme_mod_settings Mapping of stylesheet to arrays of theme mod settings.
 	 * @return array|false Returns array of updated stashed theme mods or false if the update failed or there were no changes.
@@ -3538,8 +3671,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Refresh nonces for the current preview.
+	 * Refreshes nonces for the current preview.
 	 *
+	 * @since 4.2.0
 	 */
 	public function refresh_nonces() {
 		if ( ! $this->is_preview() ) {
@@ -3550,8 +3684,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Delete a given auto-draft changeset or the autosave revision for a given changeset or delete changeset lock.
+	 * Deletes a given auto-draft changeset or the autosave revision for a given changeset or delete changeset lock.
 	 *
+	 * @since 4.9.0
 	 */
 	public function handle_dismiss_autosave_or_lock_request() {
 		// Calls to dismiss_user_auto_draft_changesets() and gc_get_post_autosave() require non-zero get_current_user_id().
@@ -3617,8 +3752,10 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Add a customize setting.
+	 * Adds a customize setting.
 	 *
+	 * @since 3.4.0
+	 * @since 4.5.0 Return added GC_Customize_Setting instance.
 	 *
 	 * @see GC_Customize_Setting::__construct()
 	 * @link https://developer.gechiui.com/themes/customize-api
@@ -3649,7 +3786,7 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Register any dynamically-created settings, such as those from $_POST['customized']
+	 * Registers any dynamically-created settings, such as those from $_POST['customized']
 	 * that have no corresponding setting created.
 	 *
 	 * This is a mechanism to "wake up" settings that have been dynamically created
@@ -3657,6 +3794,7 @@ final class GC_Customize_Manager {
 	 * loads, the dynamically-created settings then will get created and previewed
 	 * even though they are not directly created statically with code.
 	 *
+	 * @since 4.2.0
 	 *
 	 * @param array $setting_ids The setting IDs to add.
 	 * @return array The GC_Customize_Setting objects added.
@@ -3679,7 +3817,7 @@ final class GC_Customize_Manager {
 			 * to override the default false value with an array of args to pass to
 			 * the GC_Customize_Setting constructor.
 			 *
-		
+			 * @since 4.2.0
 			 *
 			 * @param false|array $setting_args The arguments to the GC_Customize_Setting constructor.
 			 * @param string      $setting_id   ID for dynamic setting, usually coming from `$_POST['customized']`.
@@ -3692,7 +3830,7 @@ final class GC_Customize_Manager {
 			/**
 			 * Allow non-statically created settings to be constructed with custom GC_Customize_Setting subclass.
 			 *
-		
+			 * @since 4.2.0
 			 *
 			 * @param string $setting_class GC_Customize_Setting or a subclass.
 			 * @param string $setting_id    ID for dynamic setting, usually coming from `$_POST['customized']`.
@@ -3709,8 +3847,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Retrieve a customize setting.
+	 * Retrieves a customize setting.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param string $id Customize Setting ID.
 	 * @return GC_Customize_Setting|void The setting, if set.
@@ -3722,10 +3861,11 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Remove a customize setting.
+	 * Removes a customize setting.
 	 *
 	 * Note that removing the setting doesn't destroy the GC_Customize_Setting instance or remove its filters.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param string $id Customize Setting ID.
 	 */
@@ -3734,8 +3874,10 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Add a customize panel.
+	 * Adds a customize panel.
 	 *
+	 * @since 4.0.0
+	 * @since 4.5.0 Return added GC_Customize_Panel instance.
 	 *
 	 * @see GC_Customize_Panel::__construct()
 	 *
@@ -3757,8 +3899,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Retrieve a customize panel.
+	 * Retrieves a customize panel.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $id Panel ID to get.
 	 * @return GC_Customize_Panel|void Requested panel instance, if set.
@@ -3770,10 +3913,11 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Remove a customize panel.
+	 * Removes a customize panel.
 	 *
 	 * Note that removing the panel doesn't destroy the GC_Customize_Panel instance or remove its filters.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string $id Panel ID to remove.
 	 */
@@ -3799,10 +3943,11 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Register a customize panel type.
+	 * Registers a customize panel type.
 	 *
 	 * Registered types are eligible to be rendered via JS and created dynamically.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see GC_Customize_Panel
 	 *
@@ -3813,8 +3958,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Render JS templates for all registered panel types.
+	 * Renders JS templates for all registered panel types.
 	 *
+	 * @since 4.3.0
 	 */
 	public function render_panel_templates() {
 		foreach ( $this->registered_panel_types as $panel_type ) {
@@ -3824,8 +3970,10 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Add a customize section.
+	 * Adds a customize section.
 	 *
+	 * @since 3.4.0
+	 * @since 4.5.0 Return added GC_Customize_Section instance.
 	 *
 	 * @see GC_Customize_Section::__construct()
 	 *
@@ -3847,8 +3995,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Retrieve a customize section.
+	 * Retrieves a customize section.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param string $id Section ID.
 	 * @return GC_Customize_Section|void The section, if set.
@@ -3860,10 +4009,11 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Remove a customize section.
+	 * Removes a customize section.
 	 *
 	 * Note that removing the section doesn't destroy the GC_Customize_Section instance or remove its filters.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param string $id Section ID.
 	 */
@@ -3872,10 +4022,11 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Register a customize section type.
+	 * Registers a customize section type.
 	 *
 	 * Registered types are eligible to be rendered via JS and created dynamically.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @see GC_Customize_Section
 	 *
@@ -3886,8 +4037,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Render JS templates for all registered section types.
+	 * Renders JS templates for all registered section types.
 	 *
+	 * @since 4.3.0
 	 */
 	public function render_section_templates() {
 		foreach ( $this->registered_section_types as $section_type ) {
@@ -3897,8 +4049,10 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Add a customize control.
+	 * Adds a customize control.
 	 *
+	 * @since 3.4.0
+	 * @since 4.5.0 Return added GC_Customize_Control instance.
 	 *
 	 * @see GC_Customize_Control::__construct()
 	 *
@@ -3920,8 +4074,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Retrieve a customize control.
+	 * Retrieves a customize control.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param string $id ID of the control.
 	 * @return GC_Customize_Control|void The control object, if set.
@@ -3933,10 +4088,11 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Remove a customize control.
+	 * Removes a customize control.
 	 *
 	 * Note that removing the control doesn't destroy the GC_Customize_Control instance or remove its filters.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param string $id ID of the control.
 	 */
@@ -3945,10 +4101,11 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Register a customize control type.
+	 * Registers a customize control type.
 	 *
 	 * Registered types are eligible to be rendered via JS and created dynamically.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param string $control Name of a custom control which is a subclass of
 	 *                        GC_Customize_Control.
@@ -3958,8 +4115,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Render JS templates for all registered control types.
+	 * Renders JS templates for all registered control types.
 	 *
+	 * @since 4.1.0
 	 */
 	public function render_control_templates() {
 		if ( $this->branching() ) {
@@ -3972,9 +4130,9 @@ final class GC_Customize_Manager {
 		} else {
 			$l10n = array(
 				/* translators: %s: User who is customizing the changeset in customizer. */
-				'locked'                => __( '%s已经在定制本站点，请等待该用户完成定制。您的最后一个修改已被自动保存。' ),
+				'locked'                => __( '%s已经在定制本系统，请等待该用户完成定制。您的最后一个修改已被自动保存。' ),
 				/* translators: %s: User who is customizing the changeset in customizer. */
-				'locked_allow_override' => __( '%s已经在定制本站点，您希望接管吗？' ),
+				'locked_allow_override' => __( '%s已经在定制本系统，您希望接管吗？' ),
 			);
 		}
 
@@ -4130,7 +4288,12 @@ final class GC_Customize_Manager {
 			<li class="notice notice-{{ data.type || 'info' }} {{ data.alt ? 'notice-alt' : '' }} {{ data.dismissible ? 'is-dismissible' : '' }} {{ data.containerClasses || '' }}" data-code="{{ data.code }}" data-type="{{ data.type }}">
 				<div class="notification-message">{{{ data.message || data.code }}}</div>
 				<# if ( data.dismissible ) { #>
-					<button type="button" class="notice-dismiss"><span class="screen-reader-text"><?php _e( '不再显示' ); ?></span></button>
+					<button type="button" class="notice-dismiss"><span class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( '不再显示' );
+						?>
+					</span></button>
 				<# } #>
 			</li>
 		</script>
@@ -4152,14 +4315,14 @@ final class GC_Customize_Manager {
 							?>
 						<# } #>
 					</p>
-					<p class="notice notice-error notice-alt" hidden></p>
+					<p class="alert alert-danger notice-alt" hidden></p>
 					<p class="action-buttons">
 						<# if ( data.returnUrl !== data.previewUrl ) { #>
 							<a class="button customize-notice-go-back-button" href="{{ data.returnUrl }}"><?php _e( '返回' ); ?></a>
 						<# } #>
 						<a class="button customize-notice-preview-button" href="{{ data.frontendPreviewUrl }}"><?php _e( '预览' ); ?></a>
 						<# if ( data.allowOverride ) { #>
-							<button class="button button-primary gc-tab-last customize-notice-take-over-button"><?php _e( '接管' ); ?></button>
+							<button class="btn btn-primary gc-tab-last customize-notice-take-over-button"><?php _e( '接管' ); ?></button>
 						<# } #>
 					</p>
 				</div>
@@ -4173,7 +4336,7 @@ final class GC_Customize_Manager {
 				<p>
 					<# var elementId = 'el-' + String( Math.random() ); #>
 					<input id="{{ elementId }}" type="checkbox">
-					<label for="{{ elementId }}"><?php _e( '仍然更新，即使这可能损坏您的站点？' ); ?></label>
+					<label for="{{ elementId }}"><?php _e( '仍然更新，即使这可能损坏您的系统？' ); ?></label>
 				</p>
 			</li>
 		</script>
@@ -4194,13 +4357,23 @@ final class GC_Customize_Manager {
 			<p class="customize-control-title">
 				<?php esc_html_e( '分享预览链接' ); ?>
 			</p>
-			<p class="description customize-control-description"><?php esc_html_e( '在您的站点上实时预览这些修改，并将预览分享给无法使用定制器的人。' ); ?></p>
+			<p class="description customize-control-description"><?php esc_html_e( '在您的系统上实时预览这些修改，并将预览分享给无法使用定制器的人。' ); ?></p>
 			<div class="customize-control-notifications-container"></div>
 			<div class="preview-link-wrapper">
-				<label for="{{ elementPrefix }}customize-preview-link-input" class="screen-reader-text"><?php esc_html_e( '预览链接' ); ?></label>
+				<label for="{{ elementPrefix }}customize-preview-link-input" class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					esc_html_e( '预览链接' );
+					?>
+				</label>
 				<a href="" target="">
 					<span class="preview-control-element" data-component="url"></span>
-					<span class="screen-reader-text"><?php _e( '（在新窗口中打开）' ); ?></span>
+					<span class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						_e( '（在新窗口中打开）' );
+						?>
+					</span>
 				</a>
 				<input id="{{ elementPrefix }}customize-preview-link-input" readonly tabindex="-1" class="preview-control-element" data-component="input">
 				<button class="customize-copy-preview-link preview-control-element button button-secondary" data-component="button" data-copy-text="<?php esc_attr_e( '复制' ); ?>" data-copied-text="<?php esc_attr_e( '已复制' ); ?>" ><?php esc_html_e( '复制' ); ?></button>
@@ -4229,6 +4402,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Helper function to compare two objects by priority, ensuring sort stability via instance_number.
 	 *
+	 * @since 3.4.0
 	 * @deprecated 4.7.0 Use gc_list_sort()
 	 *
 	 * @param GC_Customize_Panel|GC_Customize_Section|GC_Customize_Control $a Object A.
@@ -4246,12 +4420,13 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Prepare panels, sections, and controls.
+	 * Prepares panels, sections, and controls.
 	 *
 	 * For each, check if required related components exist,
 	 * whether the user has the necessary capabilities,
 	 * and sort by priority.
 	 *
+	 * @since 3.4.0
 	 */
 	public function prepare_controls() {
 
@@ -4357,8 +4532,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Enqueue scripts for customize controls.
+	 * Enqueues scripts for customize controls.
 	 *
+	 * @since 3.4.0
 	 */
 	public function enqueue_control_scripts() {
 		foreach ( $this->controls as $control ) {
@@ -4378,8 +4554,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Determine whether the user agent is iOS.
+	 * Determines whether the user agent is iOS.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return bool Whether the user agent is iOS.
 	 */
@@ -4388,8 +4565,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get the template string for the Customizer pane document title.
+	 * Gets the template string for the Customizer pane document title.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return string The template string for the document title.
 	 */
@@ -4406,21 +4584,23 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Set the initial URL to be previewed.
+	 * Sets the initial URL to be previewed.
 	 *
 	 * URL is validated.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $preview_url URL to be previewed.
 	 */
 	public function set_preview_url( $preview_url ) {
-		$preview_url       = esc_url_raw( $preview_url );
+		$preview_url       = sanitize_url( $preview_url );
 		$this->preview_url = gc_validate_redirect( $preview_url, home_url( '/' ) );
 	}
 
 	/**
-	 * Get the initial URL to be previewed.
+	 * Gets the initial URL to be previewed.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return string URL being previewed.
 	 */
@@ -4436,6 +4616,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Determines whether the admin and the frontend are on different domains.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return bool Whether cross-domain.
 	 */
@@ -4447,7 +4628,7 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get URLs allowed to be previewed.
+	 * Gets URLs allowed to be previewed.
 	 *
 	 * If the front end and the admin are served from the same domain, load the
 	 * preview over ssl if the Customizer is being loaded over ssl. This avoids
@@ -4456,6 +4637,7 @@ final class GC_Customize_Manager {
 	 * ssl certs. Domain mapping plugins can allow other urls in these conditions
 	 * using the customize_allowed_urls filter.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Allowed URLs.
 	 */
@@ -4469,6 +4651,7 @@ final class GC_Customize_Manager {
 		/**
 		 * Filters the list of URLs allowed to be clicked and followed in the Customizer preview.
 		 *
+		 * @since 3.4.0
 		 *
 		 * @param string[] $allowed_urls An array of allowed URLs.
 		 */
@@ -4478,8 +4661,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get messenger channel.
+	 * Gets messenger channel.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return string Messenger channel.
 	 */
@@ -4488,23 +4672,25 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Set URL to link the user to when closing the Customizer.
+	 * Sets URL to link the user to when closing the Customizer.
 	 *
 	 * URL is validated.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $return_url URL for return link.
 	 */
 	public function set_return_url( $return_url ) {
-		$return_url       = esc_url_raw( $return_url );
+		$return_url       = sanitize_url( $return_url );
 		$return_url       = remove_query_arg( gc_removable_query_args(), $return_url );
 		$return_url       = gc_validate_redirect( $return_url );
 		$this->return_url = $return_url;
 	}
 
 	/**
-	 * Get URL to link the user to when closing the Customizer.
+	 * Gets URL to link the user to when closing the Customizer.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @global array $_registered_pages
 	 *
@@ -4518,6 +4704,21 @@ final class GC_Customize_Manager {
 
 		if ( $this->return_url ) {
 			$return_url = $this->return_url;
+
+			$return_url_basename = gc_basename( parse_url( $this->return_url, PHP_URL_PATH ) );
+			$return_url_query    = parse_url( $this->return_url, PHP_URL_QUERY );
+
+			if ( 'themes.php' === $return_url_basename && $return_url_query ) {
+				parse_str( $return_url_query, $query_vars );
+
+				/*
+				 * If the return URL is a page added by a theme to the Appearance menu via add_submenu_page(),
+				 * verify that it belongs to the active theme, otherwise fall back to the Themes screen.
+				 */
+				if ( isset( $query_vars['page'] ) && ! isset( $_registered_pages[ "appearance_page_{$query_vars['page']}" ] ) ) {
+					$return_url = admin_url( 'themes.php' );
+				}
+			}
 		} elseif ( $referer && ! in_array( gc_basename( parse_url( $referer, PHP_URL_PATH ) ), $excluded_referer_basenames, true ) ) {
 			$return_url = $referer;
 		} elseif ( $this->preview_url ) {
@@ -4526,27 +4727,13 @@ final class GC_Customize_Manager {
 			$return_url = home_url( '/' );
 		}
 
-		$return_url_basename = gc_basename( parse_url( $this->return_url, PHP_URL_PATH ) );
-		$return_url_query    = parse_url( $this->return_url, PHP_URL_QUERY );
-
-		if ( 'themes.php' === $return_url_basename && $return_url_query ) {
-			parse_str( $return_url_query, $query_vars );
-
-			/*
-			 * If the return URL is a page added by a theme to the Appearance menu via add_submenu_page(),
-			 * verify that it belongs to the active theme, otherwise fall back to the Themes screen.
-			 */
-			if ( isset( $query_vars['page'] ) && ! isset( $_registered_pages[ "appearance_page_{$query_vars['page']}" ] ) ) {
-				$return_url = admin_url( 'themes.php' );
-			}
-		}
-
 		return $return_url;
 	}
 
 	/**
-	 * Set the autofocused constructs.
+	 * Sets the autofocused constructs.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $autofocus {
 	 *     Mapping of 'panel', 'section', 'control' to the ID which should be autofocused.
@@ -4561,8 +4748,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get the autofocused constructs.
+	 * Gets the autofocused constructs.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @return string[] {
 	 *     Mapping of 'panel', 'section', 'control' to the ID which should be autofocused.
@@ -4577,8 +4765,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Get nonces for the Customizer.
+	 * Gets nonces for the Customizer.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @return array Nonces.
 	 */
@@ -4595,6 +4784,7 @@ final class GC_Customize_Manager {
 		/**
 		 * Filters nonces for Customizer.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @param string[]             $nonces  Array of refreshed nonces for save and
 		 *                                      preview actions.
@@ -4606,8 +4796,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Print JavaScript settings for parent window.
+	 * Prints JavaScript settings for parent window.
 	 *
+	 * @since 4.4.0
 	 */
 	public function customize_pane_settings() {
 
@@ -4722,15 +4913,15 @@ final class GC_Customize_Manager {
 				'_canInstall' => current_user_can( 'install_themes' ),
 			),
 			'url'                    => array(
-				'preview'       => esc_url_raw( $this->get_preview_url() ),
-				'return'        => esc_url_raw( $this->get_return_url() ),
-				'parent'        => esc_url_raw( admin_url() ),
-				'activated'     => esc_url_raw( home_url( '/' ) ),
-				'ajax'          => esc_url_raw( admin_url( 'admin-ajax.php', 'relative' ) ),
-				'allowed'       => array_map( 'esc_url_raw', $this->get_allowed_urls() ),
+				'preview'       => sanitize_url( $this->get_preview_url() ),
+				'return'        => sanitize_url( $this->get_return_url() ),
+				'parent'        => sanitize_url( admin_url() ),
+				'activated'     => sanitize_url( home_url( '/' ) ),
+				'ajax'          => sanitize_url( admin_url( 'admin-ajax.php', 'relative' ) ),
+				'allowed'       => array_map( 'sanitize_url', $this->get_allowed_urls() ),
 				'isCrossDomain' => $this->is_cross_domain(),
-				'home'          => esc_url_raw( home_url( '/' ) ),
-				'login'         => esc_url_raw( $login_url ),
+				'home'          => sanitize_url( home_url( '/' ) ),
+				'login'         => sanitize_url( $login_url ),
 			),
 			'browser'                => array(
 				'mobile' => gc_is_mobile(),
@@ -4822,6 +5013,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Returns a list of devices to allow previewing.
 	 *
+	 * @since 4.5.0
 	 *
 	 * @return array List of devices with labels and default setting.
 	 */
@@ -4842,6 +5034,7 @@ final class GC_Customize_Manager {
 		/**
 		 * Filters the available devices to allow previewing in the Customizer.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @see GC_Customize_Manager::get_previewable_devices()
 		 *
@@ -4853,8 +5046,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Register some default controls.
+	 * Registers some default controls.
 	 *
+	 * @since 3.4.0
 	 */
 	public function register_controls() {
 
@@ -4923,7 +5117,7 @@ final class GC_Customize_Manager {
 		$this->add_section(
 			'title_tagline',
 			array(
-				'title'    => __( '站点身份' ),
+				'title'    => __( '系统身份' ),
 				'priority' => 20,
 			)
 		);
@@ -4940,7 +5134,7 @@ final class GC_Customize_Manager {
 		$this->add_control(
 			'blogname',
 			array(
-				'label'   => __( '站点标题' ),
+				'label'   => __( '系统标题' ),
 				'section' => 'title_tagline',
 			)
 		);
@@ -4976,7 +5170,7 @@ final class GC_Customize_Manager {
 			$this->add_control(
 				'header_text',
 				array(
-					'label'    => __( '显示站点标题和副标题' ),
+					'label'    => __( '显示系统标题和副标题' ),
 					'section'  => 'title_tagline',
 					'settings' => 'header_text',
 					'type'     => 'checkbox',
@@ -4998,11 +5192,11 @@ final class GC_Customize_Manager {
 				$this,
 				'site_icon',
 				array(
-					'label'       => __( '站点图标' ),
+					'label'       => __( '系统图标' ),
 					'description' => sprintf(
-						'<p>' . __( '站点图标是您会在浏览器标签、收藏夹和GeChiUI移动应用中看到的图标。在这里上传！' ) . '</p>' .
+						'<p>' . __( '系统图标是您会在浏览器标签、收藏夹和GeChiUI移动应用中看到的图标。在这里上传！' ) . '</p>' .
 						/* translators: %s: Site icon size in pixels. */
-						'<p>' . __( '站点图标必须为方形，且宽高至少%s像素。' ) . '</p>',
+						'<p>' . __( '系统图标必须为方形，且宽高至少%s像素。' ) . '</p>',
 						'<strong>512 &times; 512</strong>'
 					),
 					'section'     => 'title_tagline',
@@ -5078,13 +5272,12 @@ final class GC_Customize_Manager {
 			)
 		);
 
-		// Input type: checkbox.
-		// With custom value.
+		// Input type: checkbox, with custom value.
 		$this->add_control(
 			'display_header_text',
 			array(
 				'settings' => 'header_textcolor',
-				'label'    => __( '显示站点标题和副标题' ),
+				'label'    => __( '显示系统标题和副标题' ),
 				'section'  => 'title_tagline',
 				'type'     => 'checkbox',
 				'priority' => 40,
@@ -5102,8 +5295,7 @@ final class GC_Customize_Manager {
 			)
 		);
 
-		// Input type: color.
-		// With sanitize_callback.
+		// Input type: color, with sanitize_callback.
 		$this->add_setting(
 			'background_color',
 			array(
@@ -5243,7 +5435,7 @@ final class GC_Customize_Manager {
 			array(
 				'theme_supports'  => array( 'custom-header', 'video' ),
 				'type'            => 'url',
-				'description'     => __( '或输入YouTube URL：' ),
+				'description'     => __( '或输入YouKu URL：' ),
 				'section'         => 'header_image',
 				'active_callback' => 'is_header_video_active',
 			)
@@ -5411,8 +5603,10 @@ final class GC_Customize_Manager {
 			)
 		);
 
-		// If the theme is using the default background callback, we can update
-		// the background CSS using postMessage.
+		/*
+		 * If the theme is using the default background callback, we can update
+		 * the background CSS using postMessage.
+		 */
 		if ( get_theme_support( 'custom-background', 'gc-head-callback' ) === '_custom_background_cb' ) {
 			foreach ( array( 'color', 'image', 'preset', 'position_x', 'position_y', 'size', 'repeat', 'attachment' ) as $prop ) {
 				$this->get_setting( 'background_' . $prop )->transport = 'postMessage';
@@ -5430,7 +5624,7 @@ final class GC_Customize_Manager {
 			array(
 				'title'           => __( '主页设置' ),
 				'priority'        => 120,
-				'description'     => __( '您可以选择在您站点的主页上显示什么。可以是按时间降序排列的文章（传统博客），也可以是固定/静态页面。要设置静态主页，您需要创建两个页面，其中一个会变成主页，而另一个将会显示您的文章。' ),
+				'description'     => __( '您可以选择在您系统的主页上显示什么。可以是按时间降序排列的文章，也可以是固定/静态页面。要设置静态主页，您需要创建两个页面，其中一个会变成主页，而另一个将会显示您的文章。' ),
 				'active_callback' => array( $this, 'has_published_pages' ),
 			)
 		);
@@ -5495,12 +5689,12 @@ final class GC_Customize_Manager {
 
 		/* Custom CSS */
 		$section_description  = '<p>';
-		$section_description .= __( '在此添加您自己的CSS代码，以自定义站点外观和布局。' );
+		$section_description .= __( '在此添加您自己的CSS代码，以自定义系统外观和布局。' );
 		$section_description .= sprintf(
 			' <a href="%1$s" class="external-link" target="_blank">%2$s<span class="screen-reader-text"> %3$s</span></a>',
-			esc_url( __( 'https://codex.gechiui.com/CSS' ) ),
+			esc_url( __( 'https://www.gechiui.com/support/css/' ) ),
 			__( '了解关于CSS的更多内容' ),
-			/* translators: Accessibility text. */
+			/* translators: Hidden accessibility text. */
 			__( '（在新窗口中打开）' )
 		);
 		$section_description .= '</p>';
@@ -5521,7 +5715,7 @@ final class GC_Customize_Manager {
 				'class="external-link" target="_blank"',
 				sprintf(
 					'<span class="screen-reader-text"> %s</span>',
-					/* translators: Accessibility text. */
+					/* translators: Hidden accessibility text. */
 					__( '（在新窗口中打开）' )
 				)
 			);
@@ -5570,10 +5764,11 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Return whether there are published pages.
+	 * Returns whether there are published pages.
 	 *
 	 * Used as active callback for static front page section and controls.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return bool Whether there are published (or to be published) pages.
 	 */
@@ -5587,12 +5782,21 @@ final class GC_Customize_Manager {
 				}
 			}
 		}
-		return 0 !== count( get_pages() );
+
+		return 0 !== count(
+			get_pages(
+				array(
+					'number'       => 1,
+					'hierarchical' => 0,
+				)
+			)
+		);
 	}
 
 	/**
-	 * Add settings from the POST data that were not added with code, e.g. dynamically-created settings for Widgets
+	 * Adds settings from the POST data that were not added with code, e.g. dynamically-created settings for Widgets
 	 *
+	 * @since 4.2.0
 	 *
 	 * @see add_dynamic_settings()
 	 */
@@ -5602,8 +5806,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Load themes into the theme browsing/installation UI.
+	 * Loads themes into the theme browsing/installation UI.
 	 *
+	 * @since 4.9.0
 	 */
 	public function handle_load_themes_request() {
 		check_ajax_referer( 'switch_themes', 'nonce' );
@@ -5753,6 +5958,7 @@ final class GC_Customize_Manager {
 		 * or modification of data loaded from `gc_prepare_themes_for_js()`
 		 * or www.GeChiUI.com via `themes_api()`.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @see gc_prepare_themes_for_js()
 		 * @see themes_api()
@@ -5774,6 +5980,7 @@ final class GC_Customize_Manager {
 	 * Accepts 'blank', and otherwise uses sanitize_hex_color_no_hash().
 	 * Returns default text color if hex color is empty.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param string $color
 	 * @return mixed
@@ -5794,6 +6001,7 @@ final class GC_Customize_Manager {
 	/**
 	 * Callback for validating a background setting value.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string               $value   Repeat value.
 	 * @param GC_Customize_Setting $setting Setting.
@@ -5825,7 +6033,7 @@ final class GC_Customize_Manager {
 				return new GC_Error( 'invalid_value', __( '背景尺寸的值无效。' ) );
 			}
 		} elseif ( 'background_image' === $setting->id || 'background_image_thumb' === $setting->id ) {
-			$value = empty( $value ) ? '' : esc_url_raw( $value );
+			$value = empty( $value ) ? '' : sanitize_url( $value );
 		} else {
 			return new GC_Error( 'unrecognized_setting', __( '无法识别的背景设置。' ) );
 		}
@@ -5833,8 +6041,9 @@ final class GC_Customize_Manager {
 	}
 
 	/**
-	 * Export header video settings to facilitate selective refresh.
+	 * Exports header video settings to facilitate selective refresh.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array                          $response          Response.
 	 * @param GC_Customize_Selective_Refresh $selective_refresh Selective refresh component.
@@ -5854,6 +6063,7 @@ final class GC_Customize_Manager {
 	 *
 	 * Ensures that the selected video is less than 8MB and provides an error message.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_Error $validity
 	 * @param mixed    $value
@@ -5866,15 +6076,15 @@ final class GC_Customize_Manager {
 			if ( $size > 8 * MB_IN_BYTES ) {
 				$validity->add(
 					'size_too_large',
-					__( '此文件对于页眉视频来说太大，请尝试更短的视频或优化压缩设置并重新上传一个小于8 MB的文件，或将您的文件上传至YouTube并使用下方的选项链接到它。' )
+					__( '此文件对于页眉视频来说太大，请尝试更短的视频或优化压缩设置并重新上传一个小于8 MB的文件，或将您的文件上传至YouKu并使用下方的选项链接到它。' )
 				);
 			}
-			if ( '.mp4' !== substr( $video, -4 ) && '.mov' !== substr( $video, -4 ) ) { // Check for .mp4 or .mov format, which (assuming h.264 encoding) are the only cross-browser-supported formats.
+			if ( ! str_ends_with( $video, '.mp4' ) && ! str_ends_with( $video, '.mov' ) ) { // Check for .mp4 or .mov format, which (assuming h.264 encoding) are the only cross-browser-supported formats.
 				$validity->add(
 					'invalid_file_type',
 					sprintf(
 						/* translators: 1: .mp4, 2: .mov */
-						__( '只有%1$s或%2$s能被用于页眉视频，请转换您的视频文件并重试，或将您的文件上传至YouTube并使用下方的选项链接到它。' ),
+						__( '只有%1$s或%2$s能被用于页眉视频，请转换您的视频文件并重试，或将您的文件上传至YouKu并使用下方的选项链接到它。' ),
 						'<code>.mp4</code>',
 						'<code>.mov</code>'
 					)
@@ -5889,16 +6099,17 @@ final class GC_Customize_Manager {
 	 *
 	 * Ensures that the provided URL is supported.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_Error $validity
 	 * @param mixed    $value
 	 * @return mixed
 	 */
 	public function _validate_external_header_video( $validity, $value ) {
-		$video = esc_url_raw( $value );
+		$video = sanitize_url( $value );
 		if ( $video ) {
-			if ( ! preg_match( '#^https?://(?:www\.)?(?:youtube\.com/watch|youtu\.be/)#', $video ) ) {
-				$validity->add( 'invalid_url', __( '请输入有效的YouTube URL。' ) );
+			if ( ! preg_match( '#^https?://(?:www\.)?(?:youku\.com/watch/)#', $video ) ) {
+				$validity->add( 'invalid_url', __( '请输入有效的YouKu URL。' ) );
 			}
 		}
 		return $validity;
@@ -5907,12 +6118,13 @@ final class GC_Customize_Manager {
 	/**
 	 * Callback for sanitizing the external_header_video value.
 	 *
+	 * @since 4.7.1
 	 *
 	 * @param string $value URL.
 	 * @return string Sanitized URL.
 	 */
 	public function _sanitize_external_header_video( $value ) {
-		return esc_url_raw( trim( $value ) );
+		return sanitize_url( trim( $value ) );
 	}
 
 	/**
@@ -5926,6 +6138,7 @@ final class GC_Customize_Manager {
 	 *
 	 * @see GC_Customize_Manager::register_controls()
 	 *
+	 * @since 4.5.0
 	 *
 	 * @return string Custom logo.
 	 */

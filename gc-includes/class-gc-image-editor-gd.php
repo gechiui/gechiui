@@ -9,8 +9,6 @@
 /**
  * GeChiUI Image Editor Class for Image Manipulation through GD
  *
- *
- *
  * @see GC_Image_Editor
  */
 class GC_Image_Editor_GD extends GC_Image_Editor {
@@ -31,6 +29,7 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 	/**
 	 * Checks to see if current environment supports GD.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param array $args
 	 * @return bool
@@ -54,6 +53,7 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 	/**
 	 * Checks to see if editor supports the mime-type specified.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param string $mime_type
 	 * @return bool
@@ -77,6 +77,7 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 	/**
 	 * Loads image from $this->file into new GD Resource.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @return true|GC_Error True if loaded successfully; GC_Error on failure.
 	 */
@@ -132,6 +133,7 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 	/**
 	 * Sets or updates current image size.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param int $width
 	 * @param int $height
@@ -157,10 +159,11 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 	 * At minimum, either a height or width must be provided. If one of the two is set
 	 * to null, the resize will maintain aspect ratio according to the provided dimension.
 	 *
+	 * @since 3.5.0
 	 *
-	 * @param int|null $max_w Image width.
-	 * @param int|null $max_h Image height.
-	 * @param bool     $crop
+	 * @param int|null   $max_w Image width.
+	 * @param int|null   $max_h Image height.
+	 * @param bool|array $crop
 	 * @return true|GC_Error
 	 */
 	public function resize( $max_w, $max_h, $crop = false ) {
@@ -219,6 +222,7 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 	 * the new images one at a time and allows for the meta data to be saved after
 	 * each new image is created.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param array $sizes {
 	 *     An array of image size data arrays.
@@ -227,12 +231,12 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 	 *     If one of the two is set to null, the resize will
 	 *     maintain aspect ratio according to the source image.
 	 *
-	 *     @type array $size {
+	 *     @type array ...$0 {
 	 *         Array of height, width values, and whether to crop.
 	 *
-	 *         @type int  $width  Image width. Optional if `$height` is specified.
-	 *         @type int  $height Image height. Optional if `$width` is specified.
-	 *         @type bool $crop   Optional. Whether to crop the image. Default false.
+	 *         @type int        $width  Image width. Optional if `$height` is specified.
+	 *         @type int        $height Image height. Optional if `$width` is specified.
+	 *         @type bool|array $crop   Optional. Whether to crop the image. Default false.
 	 *     }
 	 * }
 	 * @return array An array of resized images' metadata by size.
@@ -254,13 +258,14 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 	/**
 	 * Create an image sub-size and return the image meta data value for it.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @param array $size_data {
 	 *     Array of size data.
 	 *
-	 *     @type int  $width  The maximum width in pixels.
-	 *     @type int  $height The maximum height in pixels.
-	 *     @type bool $crop   Whether to crop the image to exact dimensions.
+	 *     @type int        $width  The maximum width in pixels.
+	 *     @type int        $height The maximum height in pixels.
+	 *     @type bool|array $crop   Whether to crop the image to exact dimensions.
 	 * }
 	 * @return array|GC_Error The image data array for inclusion in the `sizes` array in the image meta,
 	 *                        GC_Error object on error.
@@ -305,6 +310,7 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 	/**
 	 * Crops Image.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param int  $src_x   The start x position to crop from.
 	 * @param int  $src_y   The start y position to crop from.
@@ -316,8 +322,10 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 	 * @return true|GC_Error
 	 */
 	public function crop( $src_x, $src_y, $src_w, $src_h, $dst_w = null, $dst_h = null, $src_abs = false ) {
-		// If destination width/height isn't specified,
-		// use same as width/height from source.
+		/*
+		 * If destination width/height isn't specified,
+		 * use same as width/height from source.
+		 */
 		if ( ! $dst_w ) {
 			$dst_w = $src_w;
 		}
@@ -358,6 +366,7 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 	 * Rotates current image counter-clockwise by $angle.
 	 * Ported from image-edit.php
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param float $angle
 	 * @return true|GC_Error
@@ -383,6 +392,7 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 	/**
 	 * Flips current image.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param bool $horz Flip along Horizontal Axis.
 	 * @param bool $vert Flip along Vertical Axis.
@@ -412,11 +422,23 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 	/**
 	 * Saves current in-memory image to file.
 	 *
+	 * @since 3.5.0
+	 * @since 5.9.0 Renamed `$filename` to `$destfilename` to match parent class
 	 *              for PHP 8 named parameter support.
+	 * @since 6.0.0 The `$filesize` value was added to the returned array.
 	 *
 	 * @param string|null $destfilename Optional. Destination filename. Default null.
 	 * @param string|null $mime_type    Optional. The mime-type. Default null.
-	 * @return array|GC_Error {'path'=>string, 'file'=>string, 'width'=>int, 'height'=>int, 'mime-type'=>string}
+	 * @return array|GC_Error {
+	 *     Array on success or GC_Error if the file failed to save.
+	 *
+	 *     @type string $path      Path to the image file.
+	 *     @type string $file      Name of the image file.
+	 *     @type int    $width     Image width.
+	 *     @type int    $height    Image height.
+	 *     @type string $mime-type The mime type of the image.
+	 *     @type int    $filesize  File size of the image.
+	 * }
 	 */
 	public function save( $destfilename = null, $mime_type = null ) {
 		$saved = $this->_save( $this->image, $destfilename, $mime_type );
@@ -430,10 +452,22 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 	}
 
 	/**
+	 * @since 3.5.0
+	 * @since 6.0.0 The `$filesize` value was added to the returned array.
+	 *
 	 * @param resource|GdImage $image
 	 * @param string|null      $filename
 	 * @param string|null      $mime_type
-	 * @return array|GC_Error
+	 * @return array|GC_Error {
+	 *     Array on success or GC_Error if the file failed to save.
+	 *
+	 *     @type string $path      Path to the image file.
+	 *     @type string $file      Name of the image file.
+	 *     @type int    $width     Image width.
+	 *     @type int    $height    Image height.
+	 *     @type string $mime-type The mime type of the image.
+	 *     @type int    $filesize  File size of the image.
+	 * }
 	 */
 	protected function _save( $image, $filename = null, $mime_type = null ) {
 		list( $filename, $extension, $mime_type ) = $this->get_output_format( $filename, $mime_type );
@@ -477,7 +511,7 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 			/**
 			 * Filters the name of the saved image file.
 			 *
-		
+			 * @since 2.6.0
 			 *
 			 * @param string $filename Name of the file.
 			 */
@@ -485,12 +519,14 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 			'width'     => $this->size['width'],
 			'height'    => $this->size['height'],
 			'mime-type' => $mime_type,
+			'filesize'  => gc_filesize( $filename ),
 		);
 	}
 
 	/**
 	 * Returns stream of current image.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param string $mime_type The mime type of the image.
 	 * @return bool True on success, false on failure.
@@ -520,17 +556,18 @@ class GC_Image_Editor_GD extends GC_Image_Editor {
 	/**
 	 * Either calls editor's save function or handles file as a stream.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param string   $filename
-	 * @param callable $function
+	 * @param callable $callback
 	 * @param array    $arguments
 	 * @return bool
 	 */
-	protected function make_image( $filename, $function, $arguments ) {
+	protected function make_image( $filename, $callback, $arguments ) {
 		if ( gc_is_stream( $filename ) ) {
 			$arguments[1] = null;
 		}
 
-		return parent::make_image( $filename, $function, $arguments );
+		return parent::make_image( $filename, $callback, $arguments );
 	}
 }

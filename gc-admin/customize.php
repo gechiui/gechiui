@@ -15,7 +15,7 @@ require_once __DIR__ . '/admin.php';
 if ( ! current_user_can( 'customize' ) ) {
 	gc_die(
 		'<h1>' . __( '您需要更高级别的权限。' ) . '</h1>' .
-		'<p>' . __( '抱歉，您不能自定义此站点。' ) . '</p>',
+		'<p>' . __( '抱歉，您不能自定义此系统。' ) . '</p>',
 		403
 	);
 }
@@ -107,7 +107,6 @@ add_action( 'customize_controls_print_styles', 'print_admin_styles', 20 );
 /**
  * Fires when Customizer controls are initialized, before scripts are enqueued.
  *
- *
  */
 do_action( 'customize_controls_init' );
 
@@ -117,7 +116,6 @@ gc_enqueue_style( 'customize-controls' );
 
 /**
  * Enqueue Customizer control scripts.
- *
  *
  */
 do_action( 'customize_controls_enqueue_scripts' );
@@ -162,20 +160,17 @@ var ajaxurl = <?php echo gc_json_encode( admin_url( 'admin-ajax.php', 'relative'
 /**
  * Fires when Customizer control styles are printed.
  *
- *
  */
 do_action( 'customize_controls_print_styles' );
 
 /**
  * Fires when Customizer control scripts are printed.
  *
- *
  */
 do_action( 'customize_controls_print_scripts' );
 
 /**
  * Fires in head section of Customizer controls.
- *
  *
  */
 do_action( 'customize_controls_head' );
@@ -198,7 +193,7 @@ do_action( 'customize_controls_head' );
 			<?php else : ?>
 				<?php $save_text = _x( '无法启用', 'theme' ); ?>
 				<div id="customize-save-button-wrapper" class="customize-save-button-wrapper disabled" >
-					<button class="button button-primary disabled" aria-label="<?php esc_attr_e( '发布设置' ); ?>" aria-expanded="false" disabled><?php echo $save_text; ?></button>
+					<button class="btn btn-primary disabled" aria-label="<?php esc_attr_e( '发布设置' ); ?>" aria-expanded="false" disabled><?php echo $save_text; ?></button>
 				</div>
 			<?php endif; ?>
 			<span class="spinner"></span>
@@ -235,7 +230,7 @@ do_action( 'customize_controls_head' );
 					<div class="customize-panel-description">
 						<p>
 							<?php
-							_e( '定制器允许您在发布前对站点的更改进行预览。您可以在预览中查看站点的不同页面。对于一些可编辑元素，会显示编辑快捷方式。' );
+							_e( '定制器允许您在发布前对系统的更改进行预览。您可以在预览中查看系统的不同页面。对于一些可编辑元素，会显示编辑快捷方式。' );
 							?>
 						</p>
 						<p>

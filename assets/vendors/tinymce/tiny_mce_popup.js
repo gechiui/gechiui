@@ -355,7 +355,7 @@ var tinyMCEPopup = {
         "insert": "Ok",
         "cancel": "Cancel",
         "not_set": "--",
-        "class_name": "Class name",
+        "class_name": "类名",
         "browse": "Browse"
       };
 

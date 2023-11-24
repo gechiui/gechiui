@@ -43,14 +43,14 @@ if ( $update_data['counts']['total'] ) {
 
 unset( $cap );
 
-$submenu['index.php'][15] = array( __( '升级站点网络' ), 'upgrade_network', 'upgrade.php' );
+$submenu['index.php'][15] = array( __( '升级SaaS平台' ), 'upgrade_network', 'upgrade.php' );
 
 $menu[4] = array( '', 'read', 'separator1', '', 'gc-menu-separator' );
 
 /* translators: Sites menu item. */
-$menu[5]                  = array( __( '站点' ), 'manage_sites', 'sites.php', '', 'menu-top menu-icon-site', 'menu-site', 'dashicons-admin-multisite' );
-$submenu['sites.php'][5]  = array( __( '所有站点' ), 'manage_sites', 'sites.php' );
-$submenu['sites.php'][10] = array( _x( '添加新站点', 'site' ), 'create_sites', 'site-new.php' );
+$menu[5]                  = array( __( '多系统' ), 'manage_sites', 'sites.php', '', 'menu-top menu-icon-site', 'menu-site', 'dashicons-admin-multisite' );
+$submenu['sites.php'][5]  = array( __( '所有系统' ), 'manage_sites', 'sites.php' );
+$submenu['sites.php'][10] = array( _x( '添加新系统', 'site' ), 'create_sites', 'site-new.php' );
 
 $menu[10]                 = array( __( '用户' ), 'manage_network_users', 'users.php', '', 'menu-top menu-icon-users', 'menu-users', 'dashicons-admin-users' );
 $submenu['users.php'][5]  = array( __( '所有用户' ), 'manage_network_users', 'users.php' );
@@ -108,8 +108,8 @@ $submenu['plugins.php'][15] = array( __( '插件文件编辑器' ), 'edit_plugin
 
 $menu[25] = array( __( '设置' ), 'manage_network_options', 'settings.php', '', 'menu-top menu-icon-settings', 'menu-settings', 'dashicons-admin-settings' );
 if ( defined( 'MULTISITE' ) && defined( 'GC_ALLOW_MULTISITE' ) && GC_ALLOW_MULTISITE ) {
-	$submenu['settings.php'][5]  = array( __( '网络设置' ), 'manage_network_options', 'settings.php' );
-	$submenu['settings.php'][10] = array( __( '站点网络配置' ), 'setup_network', 'setup.php' );
+	$submenu['settings.php'][5]  = array( __( '平台设置' ), 'manage_network_options', 'settings.php' );
+	$submenu['settings.php'][10] = array( __( 'SaaS平台配置' ), 'setup_network', 'setup.php' );
 }
 unset( $update_data );
 

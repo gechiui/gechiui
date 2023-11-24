@@ -19,9 +19,9 @@ require_once ABSPATH . 'gc-admin/includes/class-gc-internal-pointers.php';
 //
 
 /**
- * Output an unordered list of checkbox input elements labeled with category names.
+ * Outputs an unordered list of checkbox input elements labeled with category names.
  *
- *
+ * @since 2.5.1
  *
  * @see gc_terms_checklist()
  *
@@ -52,12 +52,10 @@ function gc_category_checklist( $post_id = 0, $descendants_and_self = 0, $select
 }
 
 /**
- * Output an unordered list of checkbox input elements labelled with term names.
+ * Outputs an unordered list of checkbox input elements labelled with term names.
  *
  * Taxonomy-independent version of gc_category_checklist().
- *
- *
- *
+ * Introduced the `$echo` argument.
  *
  * @param int          $post_id Optional. Post ID. Default 0.
  * @param array|string $args {
@@ -68,8 +66,8 @@ function gc_category_checklist( $post_id = 0, $descendants_and_self = 0, $select
  *     @type int[]  $selected_cats        Array of category IDs to mark as checked. Default false.
  *     @type int[]  $popular_cats         Array of category IDs to receive the "popular-category" class.
  *                                        Default false.
- *     @type Walker $walker               Walker object to use to build the output.
- *                                        Default is a Walker_Category_Checklist instance.
+ *     @type Walker $walker               Walker object to use to build the output. Default empty which
+ *                                        results in a Walker_Category_Checklist instance being used.
  *     @type string $taxonomy             Taxonomy to generate the checklist for. Default 'category'.
  *     @type bool   $checked_ontop        Whether to move checked items out of the hierarchy and to
  *                                        the top of the list. Default true.
@@ -92,6 +90,7 @@ function gc_terms_checklist( $post_id = 0, $args = array() ) {
 	/**
 	 * Filters the taxonomy terms checklist arguments.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @see gc_terms_checklist()
 	 *
@@ -103,7 +102,7 @@ function gc_terms_checklist( $post_id = 0, $args = array() ) {
 	$parsed_args = gc_parse_args( $params, $defaults );
 
 	if ( empty( $parsed_args['walker'] ) || ! ( $parsed_args['walker'] instanceof Walker ) ) {
-		$walker = new Walker_Category_Checklist;
+		$walker = new Walker_Category_Checklist();
 	} else {
 		$walker = $parsed_args['walker'];
 	}
@@ -164,8 +163,10 @@ function gc_terms_checklist( $post_id = 0, $args = array() ) {
 	$output = '';
 
 	if ( $parsed_args['checked_ontop'] ) {
-		// Post-process $categories rather than adding an exclude to the get_terms() query
-		// to keep the query the same across all posts (for any query cache).
+		/*
+		 * Post-process $categories rather than adding an exclude to the get_terms() query
+		 * to keep the query the same across all posts (for any query cache).
+		 */
 		$checked_categories = array();
 		$keys               = array_keys( $categories );
 
@@ -190,22 +191,20 @@ function gc_terms_checklist( $post_id = 0, $args = array() ) {
 }
 
 /**
- * Retrieve a list of the most popular terms from the specified taxonomy.
+ * Retrieves a list of the most popular terms from the specified taxonomy.
  *
- * If the $echo argument is true then the elements for a list of checkbox
+ * If the `$display` argument is true then the elements for a list of checkbox
  * `<input>` elements labelled with the names of the selected terms is output.
- * If the $post_ID global isn't empty then the terms associated with that
+ * If the `$post_ID` global is not empty then the terms associated with that
  * post will be marked as checked.
  *
- *
- *
- * @param string $taxonomy Taxonomy to retrieve terms from.
- * @param int    $default  Not used.
- * @param int    $number   Number of terms to retrieve. Defaults to 10.
- * @param bool   $echo     Optionally output the list as well. Defaults to true.
+ * @param string $taxonomy     Taxonomy to retrieve terms from.
+ * @param int    $default_term Optional. Not used.
+ * @param int    $number       Optional. Number of terms to retrieve. Default 10.
+ * @param bool   $display      Optional. Whether to display the list as well. Default true.
  * @return int[] Array of popular term IDs.
  */
-function gc_popular_terms_checklist( $taxonomy, $default = 0, $number = 10, $echo = true ) {
+function gc_popular_terms_checklist( $taxonomy, $default_term = 0, $number = 10, $display = true ) {
 	$post = get_post();
 
 	if ( $post && $post->ID ) {
@@ -230,9 +229,11 @@ function gc_popular_terms_checklist( $taxonomy, $default = 0, $number = 10, $ech
 
 	foreach ( (array) $terms as $term ) {
 		$popular_ids[] = $term->term_id;
-		if ( ! $echo ) { // Hack for Ajax use.
+
+		if ( ! $display ) { // Hack for Ajax use.
 			continue;
 		}
+
 		$id      = "popular-$taxonomy-$term->term_id";
 		$checked = in_array( $term->term_id, $checked_terms, true ) ? 'checked="checked"' : '';
 		?>
@@ -255,9 +256,9 @@ function gc_popular_terms_checklist( $taxonomy, $default = 0, $number = 10, $ech
 /**
  * Outputs a link category checklist element.
  *
+ * @since 2.5.1
  *
- *
- * @param int $link_id
+ * @param int $link_id Optional. The link ID. Default 0.
  */
 function gc_link_category_checklist( $link_id = 0 ) {
 	$default = 1;
@@ -299,7 +300,7 @@ function gc_link_category_checklist( $link_id = 0 ) {
 /**
  * Adds hidden fields with the data for use in the inline editor for posts and pages.
  *
- *
+ * @since 2.7.0
  *
  * @param GC_Post $post Post object.
  */
@@ -343,7 +344,11 @@ function get_inline_data( $post ) {
 	foreach ( $taxonomy_names as $taxonomy_name ) {
 		$taxonomy = get_taxonomy( $taxonomy_name );
 
-		if ( $taxonomy->hierarchical && $taxonomy->show_ui ) {
+		if ( ! $taxonomy->show_in_quick_edit ) {
+			continue;
+		}
+
+		if ( $taxonomy->hierarchical ) {
 
 			$terms = get_object_term_cache( $post->ID, $taxonomy_name );
 			if ( false === $terms ) {
@@ -354,7 +359,7 @@ function get_inline_data( $post ) {
 
 			echo '<div class="post_category" id="' . $taxonomy_name . '_' . $post->ID . '">' . implode( ',', $term_ids ) . '</div>';
 
-		} elseif ( $taxonomy->show_ui ) {
+		} else {
 
 			$terms_to_edit = get_terms_to_edit( $post->ID, $taxonomy_name );
 			if ( ! is_string( $terms_to_edit ) ) {
@@ -378,6 +383,7 @@ function get_inline_data( $post ) {
 	/**
 	 * Fires after outputting the fields for the inline editor for posts and pages.
 	 *
+	 * @since 4.9.8
 	 *
 	 * @param GC_Post      $post             The current post object.
 	 * @param GC_Post_Type $post_type_object The current post's post type object.
@@ -390,14 +396,15 @@ function get_inline_data( $post ) {
 /**
  * Outputs the in-line comment reply-to form in the Comments list table.
  *
- *
+ * @since 2.7.0
  *
  * @global GC_List_Table $gc_list_table
  *
- * @param int    $position
- * @param bool   $checkbox
- * @param string $mode
- * @param bool   $table_row
+ * @param int    $position  Optional. The value of the 'position' input field. Default 1.
+ * @param bool   $checkbox  Optional. The value of the 'checkbox' input field. Default false.
+ * @param string $mode      Optional. If set to 'single', will use GC_Post_Comments_List_Table,
+ *                          otherwise GC_Comments_List_Table. Default 'single'.
+ * @param bool   $table_row Optional. Whether to use a table instead of a div element. Default true.
  */
 function gc_comment_reply( $position = 1, $checkbox = false, $mode = 'single', $table_row = true ) {
 	global $gc_list_table;
@@ -409,6 +416,7 @@ function gc_comment_reply( $position = 1, $checkbox = false, $mode = 'single', $
 	 * of the in-line comment-reply form in the Comments list table,
 	 * echoing the returned value instead.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @see gc_comment_reply()
 	 *
@@ -453,7 +461,12 @@ function gc_comment_reply( $position = 1, $checkbox = false, $mode = 'single', $
 	</legend>
 
 	<div id="replycontainer">
-	<label for="replycontent" class="screen-reader-text"><?php _e( '评论' ); ?></label>
+	<label for="replycontent" class="screen-reader-text">
+		<?php
+		/* translators: Hidden accessibility text. */
+		_e( '评论' );
+		?>
+	</label>
 	<?php
 	$quicktags_settings = array( 'buttons' => 'strong,em,link,block,del,ins,img,ul,ol,li,code,close' );
 	gc_editor(
@@ -470,7 +483,7 @@ function gc_comment_reply( $position = 1, $checkbox = false, $mode = 'single', $
 
 	<div id="edithead" style="display:none;">
 		<div class="inside">
-		<label for="author-name"><?php _e( '显示名称' ); ?></label>
+		<label for="author-name"><?php _e( '名称' ); ?></label>
 		<input type="text" name="newcomment_author" size="50" value="" id="author-name" />
 		</div>
 
@@ -487,7 +500,7 @@ function gc_comment_reply( $position = 1, $checkbox = false, $mode = 'single', $
 
 	<div id="replysubmit" class="submit">
 		<p class="reply-submit-buttons">
-			<button type="button" class="save button button-primary">
+			<button type="button" class="save btn btn-primary">
 				<span id="addbtn" style="display: none;"><?php _e( '添加评论' ); ?></span>
 				<span id="savebtn" style="display: none;"><?php _e( '更新评论' ); ?></span>
 				<span id="replybtn" style="display: none;"><?php _e( '提交回复' ); ?></span>
@@ -495,7 +508,7 @@ function gc_comment_reply( $position = 1, $checkbox = false, $mode = 'single', $
 			<button type="button" class="cancel button"><?php _e( '取消' ); ?></button>
 			<span class="waiting spinner"></span>
 		</p>
-		<div class="notice notice-error notice-alt inline hidden">
+		<div class="alert alert-danger notice-alt inline hidden">
 			<p class="error"></p>
 		</div>
 	</div>
@@ -524,8 +537,7 @@ function gc_comment_reply( $position = 1, $checkbox = false, $mode = 'single', $
 }
 
 /**
- * Output 'undo move to Trash' text for comments
- *
+ * Outputs 'undo move to Trash' text for comments.
  *
  */
 function gc_comment_trashnotice() {
@@ -534,7 +546,7 @@ function gc_comment_trashnotice() {
 	<div class="trash-undo-inside">
 		<?php
 		/* translators: %s: Comment author, filled by Ajax. */
-		printf( __( '%s的评论已被移动到回收站。' ), '<strong></strong>' );
+		printf( __( '%s的评论已移动至回收站。' ), '<strong></strong>' );
 		?>
 		<span class="undo untrash"><a href="#"><?php _e( '撤销' ); ?></a></span>
 	</div>
@@ -543,7 +555,7 @@ function gc_comment_trashnotice() {
 	<div class="spam-undo-inside">
 		<?php
 		/* translators: %s: Comment author, filled by Ajax. */
-		printf( __( '%s的评论已被标记为垃圾评论。' ), '<strong></strong>' );
+		printf( __( '%s 的评论已被标记为垃圾评论。' ), '<strong></strong>' );
 		?>
 		<span class="undo unspam"><a href="#"><?php _e( '撤销' ); ?></a></span>
 	</div>
@@ -554,9 +566,7 @@ function gc_comment_trashnotice() {
 /**
  * Outputs a post's public meta data in the Custom Fields meta box.
  *
- *
- *
- * @param array $meta
+ * @param array[] $meta An array of meta data arrays keyed on 'meta_key' and 'meta_value'.
  */
 function list_meta( $meta ) {
 	// Exit if no meta.
@@ -580,7 +590,7 @@ function list_meta( $meta ) {
 <table id="list-table">
 	<thead>
 	<tr>
-		<th class="left"><?php _ex( '名称', 'meta name' ); ?></th>
+		<th class="left"><?php _ex( 'Name', 'meta name' ); ?></th>
 		<th><?php _e( '字段值' ); ?></th>
 	</tr>
 	</thead>
@@ -598,11 +608,9 @@ function list_meta( $meta ) {
 /**
  * Outputs a single row of public meta data in the Custom Fields meta box.
  *
- *
- *
- * @param array $entry
- * @param int   $count
- * @return string
+ * @param array $entry An array of meta data keyed on 'meta_key' and 'meta_value'.
+ * @param int   $count Reference to the row number.
+ * @return string A single row of public meta data.
  */
 function _list_meta_row( $entry, &$count ) {
 	static $update_nonce = '';
@@ -616,7 +624,7 @@ function _list_meta_row( $entry, &$count ) {
 	}
 
 	$r = '';
-	++ $count;
+	++$count;
 
 	if ( is_serialized( $entry['meta_value'] ) ) {
 		if ( is_serialized_string( $entry['meta_value'] ) ) {
@@ -636,7 +644,10 @@ function _list_meta_row( $entry, &$count ) {
 	$delete_nonce = gc_create_nonce( 'delete-meta_' . $entry['meta_id'] );
 
 	$r .= "\n\t<tr id='meta-{$entry['meta_id']}'>";
-	$r .= "\n\t\t<td class='left'><label class='screen-reader-text' for='meta-{$entry['meta_id']}-key'>" . __( '键' ) . "</label><input name='meta[{$entry['meta_id']}][key]' id='meta-{$entry['meta_id']}-key' type='text' size='20' value='{$entry['meta_key']}' />";
+	$r .= "\n\t\t<td class='left'><label class='screen-reader-text' for='meta-{$entry['meta_id']}-key'>" .
+		/* translators: Hidden accessibility text. */
+		__( '键' ) .
+	"</label><input name='meta[{$entry['meta_id']}][key]' id='meta-{$entry['meta_id']}-key' type='text' size='20' value='{$entry['meta_key']}' />";
 
 	$r .= "\n\t\t<div class='submit'>";
 	$r .= get_submit_button( __( '删除' ), 'deletemeta small', "deletemeta[{$entry['meta_id']}]", false, array( 'data-gc-lists' => "delete:the-list:meta-{$entry['meta_id']}::_ajax_nonce=$delete_nonce" ) );
@@ -646,14 +657,15 @@ function _list_meta_row( $entry, &$count ) {
 	$r .= gc_nonce_field( 'change-meta', '_ajax_nonce', false, false );
 	$r .= '</td>';
 
-	$r .= "\n\t\t<td><label class='screen-reader-text' for='meta-{$entry['meta_id']}-value'>" . __( '字段值' ) . "</label><textarea name='meta[{$entry['meta_id']}][value]' id='meta-{$entry['meta_id']}-value' rows='2' cols='30'>{$entry['meta_value']}</textarea></td>\n\t</tr>";
+	$r .= "\n\t\t<td><label class='screen-reader-text' for='meta-{$entry['meta_id']}-value'>" .
+		/* translators: Hidden accessibility text. */
+		__( '字段值' ) .
+	"</label><textarea name='meta[{$entry['meta_id']}][value]' id='meta-{$entry['meta_id']}-value' rows='2' cols='30'>{$entry['meta_value']}</textarea></td>\n\t</tr>";
 	return $r;
 }
 
 /**
  * Prints the form in the Custom Fields meta box.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -669,6 +681,7 @@ function meta_form( $post = null ) {
 	 * Returning a non-null value will effectively short-circuit and avoid a
 	 * potentially expensive query against postmeta.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array|null $keys Pre-defined meta keys to be used in place of a postmeta query. Default null.
 	 * @param GC_Post    $post The current post object.
@@ -680,6 +693,7 @@ function meta_form( $post = null ) {
 		 * Filters the number of custom fields to retrieve for the drop-down
 		 * in the Custom Fields meta box.
 		 *
+		 * @since 2.1.0
 		 *
 		 * @param int $limit Number of custom fields to retrieve. Default 30.
 		 */
@@ -701,16 +715,13 @@ function meta_form( $post = null ) {
 
 	if ( $keys ) {
 		natcasesort( $keys );
-		$meta_key_input_id = 'metakeyselect';
-	} else {
-		$meta_key_input_id = 'metakeyinput';
 	}
 	?>
 <p><strong><?php _e( '添加自定义字段：' ); ?></strong></p>
 <table id="newmeta">
 <thead>
 <tr>
-<th class="left"><label for="<?php echo $meta_key_input_id; ?>"><?php _ex( '名称', 'meta name' ); ?></label></th>
+<th class="left"><label for="metakeyselect"><?php _ex( 'Name', 'meta name' ); ?></label></th>
 <th><label for="metavalue"><?php _e( '字段值' ); ?></label></th>
 </tr>
 </thead>
@@ -730,19 +741,21 @@ function meta_form( $post = null ) {
 		}
 		?>
 </select>
-<input class="hide-if-js" type="text" id="metakeyinput" name="metakeyinput" value="" />
-<a href="#postcustomstuff" class="hide-if-no-js" onclick="jQuery('#metakeyinput, #metakeyselect, #enternew, #cancelnew').toggle();return false;">
+<input class="hidden" type="text" id="metakeyinput" name="metakeyinput" value="" aria-label="<?php _e( '新的自定义字段名称' ); ?>" />
+<button type="button" id="newmeta-button" class="btn btn-primary btn-tone btn-sm hide-if-no-js" onclick="jQuery('#metakeyinput, #metakeyselect, #enternew, #cancelnew').toggleClass('hidden');jQuery('#metakeyinput, #metakeyselect').filter(':visible').trigger('focus');">
 <span id="enternew"><?php _e( '输入新的字段名称' ); ?></span>
-<span id="cancelnew" class="hidden"><?php _e( '取消' ); ?></span></a>
+<span id="cancelnew" class="hidden"><?php _e( '取消' ); ?></span></button>
 <?php } else { ?>
 <input type="text" id="metakeyinput" name="metakeyinput" value="" />
 <?php } ?>
 </td>
-<td><textarea id="metavalue" name="metavalue" rows="2" cols="25"></textarea></td>
+<td><textarea id="metavalue" name="metavalue" rows="2" cols="25"></textarea>
+	<?php gc_nonce_field( 'add-meta', '_ajax_nonce-add-meta', false ); ?>
+</td>
 </tr>
-
-<tr><td colspan="2">
-<div class="submit">
+</tbody>
+</table>
+<div class="submit add-custom-field">
 	<?php
 	submit_button(
 		__( '添加自定义字段' ),
@@ -756,19 +769,12 @@ function meta_form( $post = null ) {
 	);
 	?>
 </div>
-	<?php gc_nonce_field( 'add-meta', '_ajax_nonce-add-meta', false ); ?>
-</td></tr>
-</tbody>
-</table>
 	<?php
-
 }
 
 /**
- * Print out HTML form date elements for editing post or comment publish date.
- *
- *
- *
+ * Prints out HTML form date elements for editing post or comment publish date.
+ * Converted to use get_comment() instead of the global `$comment`.
  *
  * @global GC_Locale $gc_locale GeChiUI date and time locale object.
  *
@@ -808,7 +814,10 @@ function touch_time( $edit = 1, $for_post = 1, $tab_index = 0, $multi = 0 ) {
 	$cur_hh = current_time( 'H' );
 	$cur_mn = current_time( 'i' );
 
-	$month = '<label><span class="screen-reader-text">' . __( '月' ) . '</span><select class="form-required" ' . ( $multi ? '' : 'id="mm" ' ) . 'name="mm"' . $tab_index_attribute . ">\n";
+	$month = '<label><span class="screen-reader-text">' .
+		/* translators: Hidden accessibility text. */
+		__( '月' ) .
+	'</span><select class="form-required" ' . ( $multi ? '' : 'id="mm" ' ) . 'name="mm"' . $tab_index_attribute . ">\n";
 	for ( $i = 1; $i < 13; $i = $i + 1 ) {
 		$monthnum  = zeroise( $i, 2 );
 		$monthtext = $gc_locale->get_month_abbrev( $gc_locale->get_month( $i ) );
@@ -818,10 +827,22 @@ function touch_time( $edit = 1, $for_post = 1, $tab_index = 0, $multi = 0 ) {
 	}
 	$month .= '</select></label>';
 
-	$day    = '<label><span class="screen-reader-text">' . __( '日' ) . '</span><input type="text" ' . ( $multi ? '' : 'id="jj" ' ) . 'name="jj" value="' . $jj . '" size="2" maxlength="2"' . $tab_index_attribute . ' autocomplete="off" class="form-required" /></label>';
-	$year   = '<label><span class="screen-reader-text">' . __( '年' ) . '</span><input type="text" ' . ( $multi ? '' : 'id="aa" ' ) . 'name="aa" value="' . $aa . '" size="4" maxlength="4"' . $tab_index_attribute . ' autocomplete="off" class="form-required" /></label>';
-	$hour   = '<label><span class="screen-reader-text">' . __( '时' ) . '</span><input type="text" ' . ( $multi ? '' : 'id="hh" ' ) . 'name="hh" value="' . $hh . '" size="2" maxlength="2"' . $tab_index_attribute . ' autocomplete="off" class="form-required" /></label>';
-	$minute = '<label><span class="screen-reader-text">' . __( '分' ) . '</span><input type="text" ' . ( $multi ? '' : 'id="mn" ' ) . 'name="mn" value="' . $mn . '" size="2" maxlength="2"' . $tab_index_attribute . ' autocomplete="off" class="form-required" /></label>';
+	$day = '<label><span class="screen-reader-text">' .
+		/* translators: Hidden accessibility text. */
+		__( '日' ) .
+	'</span><input type="text" ' . ( $multi ? '' : 'id="jj" ' ) . 'name="jj" value="' . $jj . '" size="2" maxlength="2"' . $tab_index_attribute . ' autocomplete="off" class="form-required" /></label>';
+	$year = '<label><span class="screen-reader-text">' .
+		/* translators: Hidden accessibility text. */
+		__( '年' ) .
+	'</span><input type="text" ' . ( $multi ? '' : 'id="aa" ' ) . 'name="aa" value="' . $aa . '" size="4" maxlength="4"' . $tab_index_attribute . ' autocomplete="off" class="form-required" /></label>';
+	$hour = '<label><span class="screen-reader-text">' .
+		/* translators: Hidden accessibility text. */
+		__( '时' ) .
+	'</span><input type="text" ' . ( $multi ? '' : 'id="hh" ' ) . 'name="hh" value="' . $hh . '" size="2" maxlength="2"' . $tab_index_attribute . ' autocomplete="off" class="form-required" /></label>';
+	$minute = '<label><span class="screen-reader-text">' .
+		/* translators: Hidden accessibility text. */
+		__( '分' ) .
+	'</span><input type="text" ' . ( $multi ? '' : 'id="mn" ' ) . 'name="mn" value="' . $mn . '" size="2" maxlength="2"' . $tab_index_attribute . ' autocomplete="off" class="form-required" /></label>';
 
 	echo '<div class="timestamp-wrap">';
 	/* translators: 1: Month, 2: Day, 3: Year, 4: Hour, 5: Minute. */
@@ -860,44 +881,48 @@ function touch_time( $edit = 1, $for_post = 1, $tab_index = 0, $multi = 0 ) {
 }
 
 /**
- * Print out option HTML elements for the page templates drop-down.
+ * Prints out option HTML elements for the page templates drop-down.
+ * Added the `$post_type` parameter.
  *
- *
- *
- *
- * @param string $default   Optional. The template file name. Default empty.
- * @param string $post_type Optional. Post type to get templates for. Default 'post'.
+ * @param string $default_template Optional. The template file name. Default empty.
+ * @param string $post_type        Optional. Post type to get templates for. Default 'post'.
  */
-function page_template_dropdown( $default = '', $post_type = 'page' ) {
+function page_template_dropdown( $default_template = '', $post_type = 'page' ) {
 	$templates = get_page_templates( null, $post_type );
 
 	ksort( $templates );
 
 	foreach ( array_keys( $templates ) as $template ) {
-		$selected = selected( $default, $templates[ $template ], false );
+		$selected = selected( $default_template, $templates[ $template ], false );
 		echo "\n\t<option value='" . esc_attr( $templates[ $template ] ) . "' $selected>" . esc_html( $template ) . '</option>';
 	}
 }
 
 /**
- * Print out option HTML elements for the page parents drop-down.
- *
- *
- *
+ * Prints out option HTML elements for the page parents drop-down.
+ * `$post` argument was added.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
- * @param int         $default Optional. The default page ID to be pre-selected. Default 0.
- * @param int         $parent  Optional. The parent page ID. Default 0.
- * @param int         $level   Optional. Page depth level. Default 0.
- * @param int|GC_Post $post    Post ID or GC_Post object.
+ * @param int         $default_page Optional. The default page ID to be pre-selected. Default 0.
+ * @param int         $parent_page  Optional. The parent page ID. Default 0.
+ * @param int         $level        Optional. Page depth level. Default 0.
+ * @param int|GC_Post $post         Post ID or GC_Post object.
  * @return void|false Void on success, false if the page has no children.
  */
-function parent_dropdown( $default = 0, $parent = 0, $level = 0, $post = null ) {
+function parent_dropdown( $default_page = 0, $parent_page = 0, $level = 0, $post = null ) {
 	global $gcdb;
 
 	$post  = get_post( $post );
-	$items = $gcdb->get_results( $gcdb->prepare( "SELECT ID, post_parent, post_title FROM $gcdb->posts WHERE post_parent = %d AND post_type = 'page' ORDER BY menu_order", $parent ) );
+	$items = $gcdb->get_results(
+		$gcdb->prepare(
+			"SELECT ID, post_parent, post_title
+			FROM $gcdb->posts
+			WHERE post_parent = %d AND post_type = 'page'
+			ORDER BY menu_order",
+			$parent_page
+		)
+	);
 
 	if ( $items ) {
 		foreach ( $items as $item ) {
@@ -907,10 +932,10 @@ function parent_dropdown( $default = 0, $parent = 0, $level = 0, $post = null ) 
 			}
 
 			$pad      = str_repeat( '&nbsp;', $level * 3 );
-			$selected = selected( $default, $item->ID, false );
+			$selected = selected( $default_page, $item->ID, false );
 
 			echo "\n\t<option class='level-$level' value='$item->ID' $selected>$pad " . esc_html( $item->post_title ) . '</option>';
-			parent_dropdown( $default, $item->ID, $level + 1 );
+			parent_dropdown( $default_page, $item->ID, $level + 1 );
 		}
 	} else {
 		return false;
@@ -918,9 +943,7 @@ function parent_dropdown( $default = 0, $parent = 0, $level = 0, $post = null ) 
 }
 
 /**
- * Print out option HTML elements for role selectors.
- *
- *
+ * Prints out option HTML elements for role selectors.
  *
  * @param string $selected Slug for the role that should be already selected.
  */
@@ -943,9 +966,7 @@ function gc_dropdown_roles( $selected = '' ) {
 }
 
 /**
- * Outputs the form used by the importers to accept the data to be imported
- *
- *
+ * Outputs the form used by the importers to accept the data to be imported.
  *
  * @param string $action The action attribute for the form.
  */
@@ -954,6 +975,7 @@ function gc_import_upload_form( $action ) {
 	/**
 	 * Filters the maximum allowed upload size for import files.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @see gc_max_upload_size()
 	 *
@@ -991,9 +1013,7 @@ function gc_import_upload_form( $action ) {
 
 /**
  * Adds a meta box to one or more screens.
- *
- *
- *
+ * The `$screen` parameter now accepts an array of screen IDs.
  *
  * @global array $gc_meta_boxes
  *
@@ -1113,13 +1133,13 @@ function add_meta_box( $id, $title, $callback, $screen = null, $context = 'advan
 
 
 /**
- * Function that renders a "fake" meta box with an information message,
+ * Renders a "fake" meta box with an information message,
  * shown on the block editor, when an incompatible meta box is found.
  *
+ * @since 5.0.0
  *
- *
- * @param mixed $object The data object being rendered on this screen.
- * @param array $box    {
+ * @param mixed $data_object The data object being rendered on this screen.
+ * @param array $box         {
  *     Custom formats meta box arguments.
  *
  *     @type string   $id           Meta box 'id' attribute.
@@ -1128,22 +1148,22 @@ function add_meta_box( $id, $title, $callback, $screen = null, $context = 'advan
  *     @type array    $args         Extra meta box arguments.
  * }
  */
-function do_block_editor_incompatible_meta_box( $object, $box ) {
+function do_block_editor_incompatible_meta_box( $data_object, $box ) {
 	$plugin  = _get_plugin_from_callback( $box['old_callback'] );
 	$plugins = get_plugins();
 	echo '<p>';
 	if ( $plugin ) {
 		/* translators: %s: The name of the plugin that generated this meta box. */
-		printf( __( "这个来自%s插件的Meta模块与区块编辑器不兼容。" ), "<strong>{$plugin['Name']}</strong>" );
+		printf( __( '%s 插件的 Meta 模块不兼容区块编辑器。' ), "<strong>{$plugin['Name']}</strong>" );
 	} else {
-		_e( "这个Meta模块与区块编辑器不兼容。" );
+		_e( '此 Meta 模块不兼容区块编辑器。' );
 	}
 	echo '</p>';
 
 	if ( empty( $plugins['classic-editor/classic-editor.php'] ) ) {
 		if ( current_user_can( 'install_plugins' ) ) {
 			$install_url = gc_nonce_url(
-				self_admin_url( 'plugin-install.php?tab=professionals&user=gechiuidotorg&save=0' ),
+				self_admin_url( 'plugin-install.php?tab=favorites&user=gechiuidotorg&save=0' ),
 				'save_gcorg_username_' . get_current_user_id()
 			);
 
@@ -1164,13 +1184,13 @@ function do_block_editor_incompatible_meta_box( $object, $box ) {
 			printf( __( '请启用<a href="%s">传统编辑器插件</a>以使用此Meta模块。' ), esc_url( $activate_url ) );
 			echo '</p>';
 		}
-	} elseif ( $object instanceof GC_Post ) {
+	} elseif ( $data_object instanceof GC_Post ) {
 		$edit_url = add_query_arg(
 			array(
 				'classic-editor'         => '',
 				'classic-editor__forget' => '',
 			),
-			get_edit_post_link( $object )
+			get_edit_post_link( $data_object )
 		);
 		echo '<p>';
 		/* translators: %s: A link to use the Classic Editor plugin. */
@@ -1182,7 +1202,7 @@ function do_block_editor_incompatible_meta_box( $object, $box ) {
 /**
  * Internal helper function to find the plugin from a meta box callback.
  *
- *
+ * @since 5.0.0
  *
  * @access private
  *
@@ -1193,7 +1213,7 @@ function _get_plugin_from_callback( $callback ) {
 	try {
 		if ( is_array( $callback ) ) {
 			$reflection = new ReflectionMethod( $callback[0], $callback[1] );
-		} elseif ( is_string( $callback ) && false !== strpos( $callback, '::' ) ) {
+		} elseif ( is_string( $callback ) && str_contains( $callback, '::' ) ) {
 			$reflection = new ReflectionMethod( $callback );
 		} else {
 			$reflection = new ReflectionFunction( $callback );
@@ -1210,14 +1230,14 @@ function _get_plugin_from_callback( $callback ) {
 		$filename   = gc_normalize_path( $reflection->getFileName() );
 		$plugin_dir = gc_normalize_path( GC_PLUGIN_DIR );
 
-		if ( strpos( $filename, $plugin_dir ) === 0 ) {
+		if ( str_starts_with( $filename, $plugin_dir ) ) {
 			$filename = str_replace( $plugin_dir, '', $filename );
 			$filename = preg_replace( '|^/([^/]*/).*$|', '\\1', $filename );
 
 			$plugins = get_plugins();
 
 			foreach ( $plugins as $name => $plugin ) {
-				if ( strpos( $name, $filename ) === 0 ) {
+				if ( str_starts_with( $name, $filename ) ) {
 					return $plugin;
 				}
 			}
@@ -1230,21 +1250,19 @@ function _get_plugin_from_callback( $callback ) {
 /**
  * Meta-Box template function.
  *
- *
- *
  * @global array $gc_meta_boxes
  *
- * @param string|GC_Screen $screen  The screen identifier. If you have used add_menu_page() or
- *                                  add_submenu_page() to create a new screen (and hence screen_id)
- *                                  make sure your menu slug conforms to the limits of sanitize_key()
- *                                  otherwise the 'screen' menu may not correctly render on your page.
- * @param string           $context The screen context for which to display meta boxes.
- * @param mixed            $object  Gets passed to the meta box callback function as the first parameter.
- *                                  Often this is the object that's the focus of the current screen, for
- *                                  example a `GC_Post` or `GC_Comment` object.
+ * @param string|GC_Screen $screen      The screen identifier. If you have used add_menu_page() or
+ *                                      add_submenu_page() to create a new screen (and hence screen_id)
+ *                                      make sure your menu slug conforms to the limits of sanitize_key()
+ *                                      otherwise the 'screen' menu may not correctly render on your page.
+ * @param string           $context     The screen context for which to display meta boxes.
+ * @param mixed            $data_object Gets passed to the meta box callback function as the first parameter.
+ *                                      Often this is the object that's the focus of the current screen,
+ *                                      for example a `GC_Post` or `GC_Comment` object.
  * @return int Number of meta_boxes.
  */
-function do_meta_boxes( $screen, $context, $object ) {
+function do_meta_boxes( $screen, $context, $data_object ) {
 	global $gc_meta_boxes;
 	static $already_sorted = false;
 
@@ -1260,8 +1278,10 @@ function do_meta_boxes( $screen, $context, $object ) {
 
 	printf( '<div id="%s-sortables" class="meta-box-sortables">', esc_attr( $context ) );
 
-	// Grab the ones the user has manually sorted.
-	// Pull them out of their previous context/priority and into the one the user chose.
+	/*
+	 * Grab the ones the user has manually sorted.
+	 * Pull them out of their previous context/priority and into the one the user chose.
+	 */
 	$sorted = get_user_option( "meta-box-order_$page" );
 
 	if ( ! $already_sorted && $sorted ) {
@@ -1319,7 +1339,10 @@ function do_meta_boxes( $screen, $context, $object ) {
 					echo '<h2 class="hndle">';
 					if ( 'dashboard_php_nag' === $box['id'] ) {
 						echo '<span aria-hidden="true" class="dashicons dashicons-warning"></span>';
-						echo '<span class="screen-reader-text">' . __( '警告：' ) . ' </span>';
+						echo '<span class="screen-reader-text">' .
+							/* translators: Hidden accessibility text. */
+							__( '警告：' ) .
+						' </span>';
 					}
 					echo $box['title'];
 					echo "</h2>\n";
@@ -1336,7 +1359,10 @@ function do_meta_boxes( $screen, $context, $object ) {
 						echo '<div class="handle-actions hide-if-no-js">';
 
 						echo '<button type="button" class="handle-order-higher" aria-disabled="false" aria-describedby="' . $box['id'] . '-handle-order-higher-description">';
-						echo '<span class="screen-reader-text">' . __( '上移' ) . '</span>';
+						echo '<span class="screen-reader-text">' .
+							/* translators: Hidden accessibility text. */
+							__( '上移' ) .
+						'</span>';
 						echo '<span class="order-higher-indicator" aria-hidden="true"></span>';
 						echo '</button>';
 						echo '<span class="hidden" id="' . $box['id'] . '-handle-order-higher-description">' . sprintf(
@@ -1346,7 +1372,10 @@ function do_meta_boxes( $screen, $context, $object ) {
 						) . '</span>';
 
 						echo '<button type="button" class="handle-order-lower" aria-disabled="false" aria-describedby="' . $box['id'] . '-handle-order-lower-description">';
-						echo '<span class="screen-reader-text">' . __( '下移' ) . '</span>';
+						echo '<span class="screen-reader-text">' .
+							/* translators: Hidden accessibility text. */
+							__( '下移' ) .
+						'</span>';
 						echo '<span class="order-lower-indicator" aria-hidden="true"></span>';
 						echo '</button>';
 						echo '<span class="hidden" id="' . $box['id'] . '-handle-order-lower-description">' . sprintf(
@@ -1357,7 +1386,7 @@ function do_meta_boxes( $screen, $context, $object ) {
 
 						echo '<button type="button" class="handlediv" aria-expanded="true">';
 						echo '<span class="screen-reader-text">' . sprintf(
-							/* translators: %s: Meta box title. */
+							/* translators: %s: Hidden accessibility text. Meta box title. */
 							__( '切换面板：%s' ),
 							$widget_title
 						) . '</span>';
@@ -1378,7 +1407,7 @@ function do_meta_boxes( $screen, $context, $object ) {
 								<p>
 									<?php
 										/* translators: %s: The name of the plugin that generated this meta box. */
-										printf( __( "这个来自%s插件的Meta模块与区块编辑器不兼容。" ), "<strong>{$plugin['Name']}</strong>" );
+										printf( __( '%s 插件的 Meta 模块不兼容区块编辑器。' ), "<strong>{$plugin['Name']}</strong>" );
 									?>
 								</p>
 							</div>
@@ -1386,7 +1415,7 @@ function do_meta_boxes( $screen, $context, $object ) {
 						}
 					}
 
-					call_user_func( $box['callback'], $object, $box );
+					call_user_func( $box['callback'], $data_object, $box );
 					echo "</div>\n";
 					echo "</div>\n";
 				}
@@ -1402,9 +1431,7 @@ function do_meta_boxes( $screen, $context, $object ) {
 
 /**
  * Removes a meta box from one or more screens.
- *
- *
- *
+ * The `$screen` parameter now accepts an array of screen IDs.
  *
  * @global array $gc_meta_boxes
  *
@@ -1459,16 +1486,14 @@ function remove_meta_box( $id, $screen, $context ) {
  * function serves to build meta boxes as list items for display as
  * a collapsible accordion.
  *
- *
- *
  * @uses global $gc_meta_boxes Used to retrieve registered meta boxes.
  *
- * @param string|object $screen  The screen identifier.
- * @param string        $context The screen context for which to display accordion sections.
- * @param mixed         $object  Gets passed to the section callback function as the first parameter.
+ * @param string|object $screen      The screen identifier.
+ * @param string        $context     The screen context for which to display accordion sections.
+ * @param mixed         $data_object Gets passed to the section callback function as the first parameter.
  * @return int Number of meta boxes as accordion sections.
  */
-function do_accordion_sections( $screen, $context, $object ) {
+function do_accordion_sections( $screen, $context, $data_object ) {
 	global $gc_meta_boxes;
 
 	gc_enqueue_script( 'accordion' );
@@ -1509,11 +1534,16 @@ function do_accordion_sections( $screen, $context, $object ) {
 					<li class="control-section accordion-section <?php echo $hidden_class; ?> <?php echo $open_class; ?> <?php echo esc_attr( $box['id'] ); ?>" id="<?php echo esc_attr( $box['id'] ); ?>">
 						<h3 class="accordion-section-title hndle" tabindex="0">
 							<?php echo esc_html( $box['title'] ); ?>
-							<span class="screen-reader-text"><?php _e( '按回车来打开此小节' ); ?></span>
+							<span class="screen-reader-text">
+								<?php
+								/* translators: Hidden accessibility text. */
+								_e( '按回车来打开此小节' );
+								?>
+							</span>
 						</h3>
 						<div class="accordion-section-content <?php postbox_classes( $box['id'], $page ); ?>">
 							<div class="inside">
-								<?php call_user_func( $box['callback'], $object, $box ); ?>
+								<?php call_user_func( $box['callback'], $data_object, $box ); ?>
 							</div><!-- .inside -->
 						</div><!-- .accordion-section-content -->
 					</li><!-- .accordion-section -->
@@ -1530,7 +1560,7 @@ function do_accordion_sections( $screen, $context, $object ) {
 }
 
 /**
- * Add a new section to a settings page.
+ * Adds a new section to a settings page.
  *
  * Part of the Settings API. Use this to define new settings sections for an admin page.
  * Show settings sections in your admin page callback function with do_settings_sections().
@@ -1540,7 +1570,8 @@ function do_accordion_sections( $screen, $context, $object ) {
  * content you want to show at the top of the settings section before the actual
  * fields. It can output nothing if you want.
  *
- *
+ * @since 2.7.0
+ * @since 6.1.0 Added an `$args` parameter for the section's HTML wrapper and class name.
  *
  * @global array $gc_settings_sections Storage array of all settings sections added to admin pages.
  *
@@ -1550,9 +1581,28 @@ function do_accordion_sections( $screen, $context, $object ) {
  * @param string   $page     The slug-name of the settings page on which to show the section. Built-in pages include
  *                           'general', 'reading', 'writing', 'discussion', 'media', etc. Create your own using
  *                           add_options_page();
+ * @param array    $args     {
+ *     Arguments used to create the settings section.
+ *
+ *     @type string $before_section HTML content to prepend to the section's HTML output.
+ *                                  Receives the section's class name as `%s`. Default empty.
+ *     @type string $after_section  HTML content to append to the section's HTML output. Default empty.
+ *     @type string $section_class  The class name to use for the section. Default empty.
+ * }
  */
-function add_settings_section( $id, $title, $callback, $page ) {
+function add_settings_section( $id, $title, $callback, $page, $args = array() ) {
 	global $gc_settings_sections;
+
+	$defaults = array(
+		'id'             => $id,
+		'title'          => $title,
+		'callback'       => $callback,
+		'before_section' => '',
+		'after_section'  => '',
+		'section_class'  => '',
+	);
+
+	$section = gc_parse_args( $args, $defaults );
 
 	if ( 'misc' === $page ) {
 		_deprecated_argument(
@@ -1580,15 +1630,11 @@ function add_settings_section( $id, $title, $callback, $page ) {
 		$page = 'reading';
 	}
 
-	$gc_settings_sections[ $page ][ $id ] = array(
-		'id'       => $id,
-		'title'    => $title,
-		'callback' => $callback,
-	);
+	$gc_settings_sections[ $page ][ $id ] = $section;
 }
 
 /**
- * Add a new field to a section of a settings page.
+ * Adds a new field to a section of a settings page.
  *
  * Part of the Settings API. Use this to define a settings field that will show
  * as part of a settings section inside a settings page. The fields are shown using
@@ -1598,8 +1644,7 @@ function add_settings_section( $id, $title, $callback, $page ) {
  * HTML input tags for this setting field. Use get_option() to retrieve existing
  * values to show.
  *
- *
- *
+ * @since 2.7.0 The `$class` argument was added.
  *
  * @global array $gc_settings_fields Storage array of settings fields and info about their pages/sections.
  *
@@ -1613,7 +1658,7 @@ function add_settings_section( $id, $title, $callback, $page ) {
  * @param string   $section  Optional. The slug-name of the section of the settings page
  *                           in which to show the box. Default 'default'.
  * @param array    $args {
- *     Optional. Extra arguments used when outputting the field.
+ *     Optional. Extra arguments that get passed to the callback function.
  *
  *     @type string $label_for When supplied, the setting title will be wrapped
  *                             in a `<label>` element, its `for` attribute populated
@@ -1660,7 +1705,7 @@ function add_settings_field( $id, $title, $callback, $page, $section = 'default'
 }
 
 /**
- * Prints out all settings sections added to a particular settings page
+ * Prints out all settings sections added to a particular settings page.
  *
  * Part of the Settings API. Use this in a settings page callback function
  * to output all the sections and fields that were added to that $page with
@@ -1668,7 +1713,7 @@ function add_settings_field( $id, $title, $callback, $page, $section = 'default'
  *
  * @global array $gc_settings_sections Storage array of all settings sections added to admin pages.
  * @global array $gc_settings_fields Storage array of settings fields and info about their pages/sections.
- *
+ * @since 2.7.0
  *
  * @param string $page The slug name of the page whose settings sections you want to output.
  */
@@ -1680,6 +1725,14 @@ function do_settings_sections( $page ) {
 	}
 
 	foreach ( (array) $gc_settings_sections[ $page ] as $section ) {
+		if ( '' !== $section['before_section'] ) {
+			if ( '' !== $section['section_class'] ) {
+				echo gc_kses_post( sprintf( $section['before_section'], esc_attr( $section['section_class'] ) ) );
+			} else {
+				echo gc_kses_post( $section['before_section'] );
+			}
+		}
+
 		if ( $section['title'] ) {
 			echo "<h2>{$section['title']}</h2>\n";
 		}
@@ -1694,11 +1747,15 @@ function do_settings_sections( $page ) {
 		echo '<table class="form-table" role="presentation">';
 		do_settings_fields( $page, $section['id'] );
 		echo '</table>';
+
+		if ( '' !== $section['after_section'] ) {
+			echo gc_kses_post( $section['after_section'] );
+		}
 	}
 }
 
 /**
- * Print out the settings fields for a particular settings section.
+ * Prints out the settings fields for a particular settings section.
  *
  * Part of the Settings API. Use this in a settings page to output
  * a specific section. Should normally be called by do_settings_sections()
@@ -1706,7 +1763,7 @@ function do_settings_sections( $page ) {
  *
  * @global array $gc_settings_fields Storage array of settings fields and their pages/sections.
  *
- *
+ * @since 2.7.0
  *
  * @param string $page Slug title of the admin page whose settings fields you want to show.
  * @param string $section Slug title of the settings section whose fields you want to show.
@@ -1741,7 +1798,7 @@ function do_settings_fields( $page, $section ) {
 }
 
 /**
- * Register a settings error to be displayed to the user.
+ * Registers a settings error to be displayed to the user.
  *
  * Part of the Settings API. Use this to show messages to users about settings validation
  * problems, missing settings or anything else.
@@ -1753,10 +1810,9 @@ function do_settings_fields( $page, $section ) {
  * Additional calls to settings_errors() can be used to show errors even when the settings
  * page is first accessed.
  *
+ * @since 5.3.0 Added `warning` and `info` as possible values for `$type`.
  *
- *
- *
- * @global array $gc_settings_errors Storage array of errors registered during this pageload
+ * @global array[] $gc_settings_errors Storage array of errors registered during this pageload
  *
  * @param string $setting Slug title of the setting to which this error applies.
  * @param string $code    Slug-name to identify the error. Used as part of 'id' attribute in HTML output.
@@ -1765,7 +1821,7 @@ function do_settings_fields( $page, $section ) {
  * @param string $type    Optional. Message type, controls HTML class. Possible values include 'error',
  *                        'success', 'warning', 'info'. Default 'error'.
  */
-function add_settings_error( $setting, $code, $message, $type = 'error' ) {
+function add_settings_error( $setting, $code, $message, $type = 'danger' ) {
 	global $gc_settings_errors;
 
 	$gc_settings_errors[] = array(
@@ -1777,7 +1833,7 @@ function add_settings_error( $setting, $code, $message, $type = 'error' ) {
 }
 
 /**
- * Fetch settings errors registered by add_settings_error().
+ * Fetches settings errors registered by add_settings_error().
  *
  * Checks the $gc_settings_errors array for any errors declared during the current
  * pageload and returns them.
@@ -1791,21 +1847,23 @@ function add_settings_error( $setting, $code, $message, $type = 'error' ) {
  * hasn't submitted data (i.e. when they first load an options page, or in the {@see 'admin_notices'}
  * action hook).
  *
- *
- *
- * @global array $gc_settings_errors Storage array of errors registered during this pageload
+ * @global array[] $gc_settings_errors Storage array of errors registered during this pageload
  *
  * @param string $setting  Optional. Slug title of a specific setting whose errors you want.
  * @param bool   $sanitize Optional. Whether to re-sanitize the setting value before returning errors.
- * @return array {
- *     Array of settings errors.
+ * @return array[] {
+ *     Array of settings error arrays.
  *
- *     @type string $setting Slug title of the setting to which this error applies.
- *     @type string $code    Slug-name to identify the error. Used as part of 'id' attribute in HTML output.
- *     @type string $message The formatted message text to display to the user (will be shown inside styled
- *                           `<div>` and `<p>` tags).
- *     @type string $type    Optional. Message type, controls HTML class. Possible values include 'error',
- *                           'success', 'warning', 'info'. Default 'error'.
+ *     @type array ...$0 {
+ *         Associative array of setting error data.
+ *
+ *         @type string $setting Slug title of the setting to which this error applies.
+ *         @type string $code    Slug-name to identify the error. Used as part of 'id' attribute in HTML output.
+ *         @type string $message The formatted message text to display to the user (will be shown inside styled
+ *                               `<div>` and `<p>` tags).
+ *         @type string $type    Optional. Message type, controls HTML class. Possible values include 'error',
+ *                               'success', 'warning', 'info'. Default 'error'.
+ *     }
  * }
  */
 function get_settings_errors( $setting = '', $sanitize = false ) {
@@ -1848,7 +1906,7 @@ function get_settings_errors( $setting = '', $sanitize = false ) {
 }
 
 /**
- * Display settings errors registered by add_settings_error().
+ * Displays settings errors registered by add_settings_error().
  *
  * Part of the Settings API. Outputs a div for each error retrieved by
  * get_settings_errors().
@@ -1867,8 +1925,7 @@ function get_settings_errors( $setting = '', $sanitize = false ) {
  * reporting after submission. This is useful to show general errors like
  * missing settings when the user arrives at the settings page.
  *
- *
- *
+ * @since 5.3.0 Legacy `error` and `updated` CSS classes are mapped to
  *              `notice-error` and `notice-success`.
  *
  * @param string $setting        Optional slug title of a specific setting whose errors you want.
@@ -1894,41 +1951,103 @@ function settings_errors( $setting = '', $sanitize = false, $hide_on_update = fa
 		if ( 'updated' === $details['type'] ) {
 			$details['type'] = 'success';
 		}
-
-		if ( in_array( $details['type'], array( 'error', 'success', 'warning', 'info' ), true ) ) {
-			$details['type'] = 'notice-' . $details['type'];
-		}
-
-		$css_id    = sprintf(
-			'setting-error-%s',
-			esc_attr( $details['code'] )
-		);
-		$css_class = sprintf(
-			'notice %s settings-error is-dismissible',
-			esc_attr( $details['type'] )
-		);
-
-		$output .= "<div id='$css_id' class='$css_class'> \n";
-		$output .= "<p><strong>{$details['message']}</strong></p>";
-		$output .= "</div> \n";
+		$error_id = sprintf( 'setting-error-%s', esc_attr( $details['code'] ) );
+		$output .= setting_error($details['message'] , $details['type'], $error_id );
 	}
 
 	echo $output;
 }
 
 /**
+ * gongenlin
+ * 返回一个Alert提示框
+ * 
+ */
+function setting_error( $message, $type = 'danger', $code = '', $attr = '' ) {
+
+	if ( empty($type) )
+		$type = 'danger';
+
+	if ( ! is_array( $type ) )
+		$type = explode( ' ', $type );
+
+	$alert_shorthand = array( 'success', 'warning', 'danger', 'primary', 'lg' );
+	$classes         = array( 'alert' );
+	$icon = array( 'anticon' );
+	foreach ( $type as $t ) {
+		if ( in_array( $t, $alert_shorthand, true ) ) {
+			switch ( $t ) {
+				case 'success':
+					// 成功
+					$icon[] = 'anticon-check-o';
+					$classes[] = 'alert-success';
+					break;
+
+				case 'warning':
+					// 警告
+					$icon[] = 'anticon-exclamation-o';
+					$classes[] = 'alert-warning';
+					$message = '<strong>' . __( '警告：' ) . '</strong>' . $message;
+					break;
+
+				case 'danger':
+					// 错误
+					$icon[] = 'anticon-close-o';
+					$classes[] = 'alert-danger';
+					break;
+
+				case 'primary':
+					//信息
+					$icon[] = 'anticon-info-o';
+					$classes[] = 'alert-primary';
+					break;
+
+				case 'lg':
+					//信息
+					$icon[] = 'm-r-20';
+					$icon[] = 'font-size-30';
+					break;
+
+				default:
+					break;
+			}
+		} else {
+			$classes[] = $t;
+		}
+	}
+
+	$icon_class = implode( ' ', array_unique( array_filter( $icon ) ) );
+	$css_class = implode( ' ', array_unique( array_filter( $classes ) ) );
+
+	$error_id = '';
+	if ( ! empty($code) ) {
+		$error_id    = 'id="'. $code .'"';
+	}
+
+	$output = "<div $error_id class='$css_class' $attr> \n";
+	$output .= "<div class='d-flex align-items-center justify-content-start'><span class='alert-icon'><i class='$icon_class'></i></span><span>{$message}</span></div>\n";
+	$output .= "</div> \n";
+	return $output;
+}
+
+/**
  * Outputs the modal window used for attaching media to posts or pages in the media-listing screen.
  *
+ * @since 2.7.0
  *
- *
- * @param string $found_action
+ * @param string $found_action Optional. The value of the 'found_action' input field. Default empty string.
  */
 function find_posts_div( $found_action = '' ) {
 	?>
 	<div id="find-posts" class="find-box" style="display: none;">
 		<div id="find-posts-head" class="find-box-head">
 			<?php _e( '附加到已有内容' ); ?>
-			<button type="button" id="find-posts-close"><span class="screen-reader-text"><?php _e( '关闭媒体附件面板' ); ?></span></button>
+			<button type="button" id="find-posts-close"><span class="screen-reader-text">
+				<?php
+				/* translators: Hidden accessibility text. */
+				_e( '关闭媒体附件面板' );
+				?>
+			</span></button>
 		</div>
 		<div class="find-box-inside">
 			<div class="find-box-search">
@@ -1937,10 +2056,15 @@ function find_posts_div( $found_action = '' ) {
 				<?php } ?>
 				<input type="hidden" name="affected" id="affected" value="" />
 				<?php gc_nonce_field( 'find-posts', '_ajax_nonce', false ); ?>
-				<label class="screen-reader-text" for="find-posts-input"><?php _e( '搜索' ); ?></label>
+				<label class="screen-reader-text" for="find-posts-input">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '搜索' );
+					?>
+				</label>
 				<input type="text" id="find-posts-input" name="ps" value="" />
 				<span class="spinner"></span>
-				<input type="button" id="find-posts-search" value="<?php esc_attr_e( '搜索' ); ?>" class="button" />
+				<input type="button" id="find-posts-search" value="<?php esc_attr_e( '搜索' ); ?>" class="btn btn-primary btn-tone btn-sm" />
 				<div class="clear"></div>
 			</div>
 			<div id="find-posts-response"></div>
@@ -1958,7 +2082,7 @@ function find_posts_div( $found_action = '' ) {
  *
  * The password is passed through esc_attr() to ensure that it is safe for placing in an HTML attribute.
  *
- *
+ * @since 2.7.0
  */
 function the_post_password() {
 	$post = get_post();
@@ -1968,12 +2092,12 @@ function the_post_password() {
 }
 
 /**
- * Get the post title.
+ * Gets the post title.
  *
  * The post title is fetched and if it is blank then a default string is
  * returned.
  *
- *
+ * @since 2.7.0
  *
  * @param int|GC_Post $post Optional. Post ID or GC_Post object. Default is global $post.
  * @return string The post title if set.
@@ -1992,16 +2116,16 @@ function _draft_or_post_title( $post = 0 ) {
  * A simple wrapper to display the "s" parameter in a `GET` URI. This function
  * should only be used when the_search_query() cannot.
  *
- *
+ * @since 2.7.0
  */
 function _admin_search_query() {
 	echo isset( $_REQUEST['s'] ) ? esc_attr( gc_unslash( $_REQUEST['s'] ) ) : '';
 }
 
 /**
- * Generic Iframe header for use with Thickbox
+ * Generic Iframe header for use with Thickbox.
  *
- *
+ * @since 2.7.0
  *
  * @global string    $hook_suffix
  * @global string    $admin_body_class
@@ -2075,7 +2199,7 @@ var ajaxurl = '<?php echo esc_js( admin_url( 'admin-ajax.php', 'relative' ) ); ?
 	$admin_body_classes = apply_filters( 'admin_body_class', '' );
 	$admin_body_classes = ltrim( $admin_body_classes . ' ' . $admin_body_class );
 	?>
-<body <?php echo $admin_body_id; ?>class="gc-admin gc-core-ui no-js iframe <?php echo $admin_body_classes; ?>">
+<body <?php echo $admin_body_id; ?>class="gc-admin gc-core-ui no-js iframe <?php echo esc_attr( $admin_body_classes ); ?>">
 <script type="text/javascript">
 (function(){
 var c = document.body.className;
@@ -2087,9 +2211,9 @@ document.body.className = c;
 }
 
 /**
- * Generic Iframe footer for use with Thickbox
+ * Generic Iframe footer for use with Thickbox.
  *
- *
+ * @since 2.7.0
  */
 function iframe_footer() {
 	/*
@@ -2122,18 +2246,19 @@ function iframe_footer() {
 }
 
 /**
- * Function to echo or return the post states as HTML.
+ * Echoes or returns the post states as HTML.
  *
- *
- *
+ * @since 2.7.0
+ * @since 5.3.0 Added the `$display` parameter and a return value.
  *
  * @see get_post_states()
  *
- * @param GC_Post $post The post to retrieve states for.
- * @param bool    $echo Optional. Whether to echo the post states as an HTML string. Default true.
+ * @param GC_Post $post    The post to retrieve states for.
+ * @param bool    $display Optional. Whether to display the post states as an HTML string.
+ *                         Default true.
  * @return string Post states string.
  */
-function _post_states( $post, $echo = true ) {
+function _post_states( $post, $display = true ) {
 	$post_states        = get_post_states( $post );
 	$post_states_string = '';
 
@@ -2147,13 +2272,13 @@ function _post_states( $post, $echo = true ) {
 		foreach ( $post_states as $state ) {
 			++$i;
 
-			$sep = ( $i < $state_count ) ? ', ' : '';
+			$separator = ( $i < $state_count ) ? ', ' : '';
 
-			$post_states_string .= "<span class='post-state'>$state$sep</span>";
+			$post_states_string .= "<span class='post-state'>{$state}{$separator}</span>";
 		}
 	}
 
-	if ( $echo ) {
+	if ( $display ) {
 		echo $post_states_string;
 	}
 
@@ -2163,7 +2288,7 @@ function _post_states( $post, $echo = true ) {
 /**
  * Retrieves an array of post states from a post.
  *
- *
+ * @since 5.3.0
  *
  * @param GC_Post $post The post to retrieve states for.
  * @return string[] Array of post state labels keyed by their state.
@@ -2204,7 +2329,7 @@ function get_post_states( $post ) {
 	}
 
 	if ( 'future' === $post->post_status ) {
-		$post_states['scheduled'] = _x( '定时发布', 'post status' );
+		$post_states['scheduled'] = _x( '已计划', 'post status' );
 	}
 
 	if ( 'page' === get_option( 'show_on_front' ) ) {
@@ -2224,6 +2349,8 @@ function get_post_states( $post ) {
 	/**
 	 * Filters the default post display states used in the posts list table.
 	 *
+	 * @since 3.6.0 Added the `$post` parameter.
+	 * @since 5.5.0 Also applied in the Customizer context. If any admin functions
 	 *              are used within the filter, their existence should be checked
 	 *              with `function_exists()` before being used.
 	 *
@@ -2235,15 +2362,14 @@ function get_post_states( $post ) {
 
 /**
  * Outputs the attachment media states as HTML.
+ * Added the `$display` parameter and a return value.
  *
- *
- *
- *
- * @param GC_Post $post The attachment post to retrieve states for.
- * @param bool    $echo Optional. Whether to echo the post states as an HTML string. Default true.
+ * @param GC_Post $post    The attachment post to retrieve states for.
+ * @param bool    $display Optional. Whether to display the post states as an HTML string.
+ *                         Default true.
  * @return string Media states string.
  */
-function _media_states( $post, $echo = true ) {
+function _media_states( $post, $display = true ) {
 	$media_states        = get_media_states( $post );
 	$media_states_string = '';
 
@@ -2257,13 +2383,13 @@ function _media_states( $post, $echo = true ) {
 		foreach ( $media_states as $state ) {
 			++$i;
 
-			$sep = ( $i < $state_count ) ? ', ' : '';
+			$separator = ( $i < $state_count ) ? ', ' : '';
 
-			$media_states_string .= "<span class='post-state'>$state$sep</span>";
+			$media_states_string .= "<span class='post-state'>{$state}{$separator}</span>";
 		}
 	}
 
-	if ( $echo ) {
+	if ( $display ) {
 		echo $media_states_string;
 	}
 
@@ -2272,8 +2398,6 @@ function _media_states( $post, $echo = true ) {
 
 /**
  * Retrieves an array of media states from an attachment.
- *
- *
  *
  * @param GC_Post $post The attachment to retrieve states for.
  * @return string[] Array of media state labels keyed by their state.
@@ -2331,7 +2455,7 @@ function get_media_states( $post ) {
 	}
 
 	if ( (int) get_option( 'site_icon' ) === $post->ID ) {
-		$media_states[] = __( '站点图标' );
+		$media_states[] = __( '系统图标' );
 	}
 
 	if ( (int) get_theme_mod( 'custom_logo' ) === $post->ID ) {
@@ -2341,22 +2465,23 @@ function get_media_states( $post ) {
 	/**
 	 * Filters the default media display states for items in the Media list table.
 	 *
+	 * @since 3.2.0
+	 * @since 4.8.0 Added the `$post` parameter.
 	 *
 	 * @param string[] $media_states An array of media states. Default '页眉图片',
-	 *                               '背景图片', '站点图标', 'Logo'.
+	 *                               '背景图片', '系统图标', 'Logo'.
 	 * @param GC_Post  $post         The current attachment object.
 	 */
 	return apply_filters( 'display_media_states', $media_states, $post );
 }
 
 /**
- * Test support for compressing JavaScript from PHP
+ * Tests support for compressing JavaScript from PHP.
  *
  * Outputs JavaScript that tests if compression from PHP works as expected
  * and sets an option with the result. Has no effect when the current user
  * is not an administrator. To run the test again the option 'can_compress_scripts'
  * has to be deleted.
- *
  *
  */
 function compression_test() {
@@ -2416,8 +2541,6 @@ function compression_test() {
 /**
  * Echoes a submit button, with provided text and appropriate class(es).
  *
- *
- *
  * @see get_submit_button()
  *
  * @param string       $text             The text of the button (defaults to '保存更改')
@@ -2440,13 +2563,11 @@ function submit_button( $text = null, $type = 'primary', $name = 'submit', $wrap
 }
 
 /**
- * Returns a submit button, with provided text and appropriate class
- *
- *
+ * Returns a submit button, with provided text and appropriate class.
  *
  * @param string       $text             Optional. The text of the button. Default '保存更改'.
  * @param string       $type             Optional. The type and CSS class(es) of the button. Core values
- *                                       include 'primary', 'small', and 'large'. Default 'primary large'.
+ *                                       include 'primary', 'sm', and 'large'. Default 'primary lg'.
  * @param string       $name             Optional. The HTML name of the submit button. Defaults to "submit".
  *                                       If no id attribute is given in $other_attributes below, `$name` will
  *                                       be used as the button's id. Default 'submit'.
@@ -2460,20 +2581,22 @@ function submit_button( $text = null, $type = 'primary', $name = 'submit', $wrap
  *                                       Default empty.
  * @return string Submit button HTML.
  */
-function get_submit_button( $text = '', $type = 'primary large', $name = 'submit', $wrap = true, $other_attributes = '' ) {
+function get_submit_button( $text = '', $type = 'primary sm tone', $name = 'submit', $wrap = true, $other_attributes = '' ) {
+	if ( empty($type) )
+		$type = 'primary sm tone';
 	if ( ! is_array( $type ) ) {
 		$type = explode( ' ', $type );
 	}
 
-	$button_shorthand = array( 'primary', 'small', 'large' );
-	$classes          = array( 'button' );
+	$button_shorthand = array( 'primary', 'sm', 'lg', 'tone' );  //primary small large
+	$classes          = array( 'btn' );
 
 	foreach ( $type as $t ) {
 		if ( 'secondary' === $t || 'button-secondary' === $t ) {
 			continue;
 		}
 
-		$classes[] = in_array( $t, $button_shorthand, true ) ? 'button-' . $t : $t;
+		$classes[] = in_array( $t, $button_shorthand, true ) ? 'btn-' . $t : $t;
 	}
 
 	// Remove empty items, remove duplicate items, and finally build a string.
@@ -2512,6 +2635,8 @@ function get_submit_button( $text = '', $type = 'primary large', $name = 'submit
 }
 
 /**
+ * Prints out the beginning of the admin HTML header.
+ *
  * @global bool $is_IE
  */
 function _gc_admin_html_begin() {
@@ -2530,6 +2655,7 @@ function _gc_admin_html_begin() {
 	/**
 	 * Fires inside the HTML tag in the admin header.
 	 *
+	 * @since 2.2.0
 	 */
 	do_action( 'admin_xml_ns' );
 
@@ -2542,9 +2668,7 @@ function _gc_admin_html_begin() {
 }
 
 /**
- * Convert a screen string to a screen object
- *
- *
+ * Converts a screen string to a screen object.
  *
  * @param string $hook_name The hook name (also known as the hook suffix) used to determine the screen.
  * @return GC_Screen Screen object.
@@ -2572,8 +2696,7 @@ function convert_to_screen( $hook_name ) {
 }
 
 /**
- * Output the HTML for restoring the post data from DOM storage
- *
+ * Outputs the HTML for restoring the post data from DOM storage
  *
  * @access private
  */
@@ -2582,7 +2705,7 @@ function _local_storage_notice() {
 	<div id="local-storage-notice" class="hidden notice is-dismissible">
 	<p class="local-restore">
 		<?php _e( '此文章在您浏览器中的备份与以下版本不同。' ); ?>
-		<button type="button" class="button restore-backup"><?php _e( '恢复此备份' ); ?></button>
+		<button type="button" class="btn btn-primary btn-tone btn-sm restore-backup"><?php _e( '恢复此备份' ); ?></button>
 	</p>
 	<p class="help">
 		<?php _e( '这将用上次备份的版本来替换当前编辑器的内容。您可以通过撤销和重做来取回旧内容或回到恢复的内容。' ); ?>
@@ -2592,14 +2715,13 @@ function _local_storage_notice() {
 }
 
 /**
- * Output a HTML element with a star rating for a given rating.
+ * Outputs a HTML element with a star rating for a given rating.
  *
  * Outputs a HTML element with the star rating exposed on a 0..5 scale in
  * half star increments (ie. 1, 1.5, 2 stars). Optionally, if specified, the
  * number of ratings may also be displayed by passing the $number parameter.
  *
- *
- *
+ * @since 3.8.0 Introduced the `echo` parameter.
  *
  * @param array $args {
  *     Optional. Array of star ratings arguments.
@@ -2637,11 +2759,11 @@ function gc_star_rating( $args = array() ) {
 	$empty_stars = 5 - $full_stars - $half_stars;
 
 	if ( $parsed_args['number'] ) {
-		/* translators: 1: The rating, 2: The number of ratings. */
+		/* translators: Hidden accessibility text. 1: The rating, 2: The number of ratings. */
 		$format = _n( '%1$s星（基于%2$s个评级）', '%1$s星（基于%2$s个评级）', $parsed_args['number'] );
 		$title  = sprintf( $format, number_format_i18n( $rating, 1 ), number_format_i18n( $parsed_args['number'] ) );
 	} else {
-		/* translators: %s: The rating. */
+		/* translators: Hidden accessibility text. %s: The rating. */
 		$title = sprintf( __( '%s个评级' ), number_format_i18n( $rating, 1 ) );
 	}
 
@@ -2663,20 +2785,16 @@ function gc_star_rating( $args = array() ) {
  * Outputs a notice when editing the page for posts (internal use only).
  *
  * @ignore
- *
  */
 function _gc_posts_page_notice() {
-	printf(
-		'<div class="notice notice-warning inline"><p>%s</p></div>',
-		__( '您正在编辑展示最新文章的页面。' )
-	);
+	echo setting_error( __( '您正在编辑展示最新文章的页面。' ), 'warning', 'inline' );
 }
 
 /**
  * Outputs a notice when editing the page for posts in the block editor (internal use only).
  *
  * @ignore
- *
+ * @since 5.8.0
  */
 function _gc_block_editor_posts_page_notice() {
 	gc_add_inline_script(
@@ -2686,5 +2804,23 @@ function _gc_block_editor_posts_page_notice() {
 			__( '您正在编辑展示最新文章的页面。' )
 		),
 		'after'
+	);
+}
+
+/**
+ * gongenlin
+ * 用于给Table表格添加JS脚本
+ * id 用#号开头，如：#data-table
+ * class 用.开头，如：.table
+ */
+function show_dataTable( $table_id_or_class = '#data-table' ){
+	// 添加表格CSS样式
+	gc_enqueue_style( "dataTables");
+	// 添加表格JS
+	gc_enqueue_script( 'dataTables' );
+	// 添加表格动作
+	gc_add_inline_script(
+		'dataTables',
+		"class TablesDataTable { static init() { jQuery('{$table_name}').DataTable(); } } jQuery(() => { TablesDataTable.init(); }); "
 	);
 }

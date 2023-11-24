@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/customize-preview-nav-menus.js
+ * @output assets/js/customize-preview-nav-menus.js
  */
 
 /* global _gcCustomizePreviewNavMenusExports */
@@ -83,13 +83,14 @@ gc.customize.navMenusPreview = gc.customize.MenusCustomizerPreview = ( function(
 		 *
 		 * @class
 		 * @augments gc.customize.selectiveRefresh.Partial
+		 * @since 4.5.0
 		 */
 		self.NavMenuInstancePartial = api.selectiveRefresh.Partial.extend(/** @lends gc.customize.navMenusPreview.NavMenuInstancePartial.prototype */{
 
 			/**
 			 * Constructor.
 			 *
-		
+			 * @since 4.5.0
 			 * @param {string} id - Partial ID.
 			 * @param {Object} options
 			 * @param {Object} options.params
@@ -129,7 +130,7 @@ gc.customize.navMenusPreview = gc.customize.MenusCustomizerPreview = ( function(
 			/**
 			 * Return whether the setting is related to this partial.
 			 *
-		
+			 * @since 4.5.0
 			 * @param {gc.customize.Value|string} setting  - Object or ID.
 			 * @param {number|Object|false|null}  newValue - New value, or null if the setting was just removed.
 			 * @param {number|Object|false|null}  oldValue - Old value, or null if the setting was just added.
@@ -207,7 +208,7 @@ gc.customize.navMenusPreview = gc.customize.MenusCustomizerPreview = ( function(
 			/**
 			 * Make sure that partial fallback behavior is invoked if there is no associated menu.
 			 *
-		
+			 * @since 4.5.0
 			 *
 			 * @return {Promise}
 			 */
@@ -279,6 +280,7 @@ gc.customize.navMenusPreview = gc.customize.MenusCustomizerPreview = ( function(
 		/**
 		 * Add change listener for a nav_menu[], nav_menu_item[], or nav_menu_locations[] setting.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @param {gc.customize.Value} setting
 		 * @param {Object}             [options]
@@ -326,6 +328,7 @@ gc.customize.navMenusPreview = gc.customize.MenusCustomizerPreview = ( function(
 		/**
 		 * Remove change listeners for nav_menu[], nav_menu_item[], or nav_menu_locations[] setting.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @param {gc.customize.Value} setting
 		 */
@@ -338,6 +341,7 @@ gc.customize.navMenusPreview = gc.customize.MenusCustomizerPreview = ( function(
 		/**
 		 * Handle change for nav_menu[] setting for nav menu instances lacking partials.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @this {gc.customize.Value}
 		 */
@@ -364,6 +368,7 @@ gc.customize.navMenusPreview = gc.customize.MenusCustomizerPreview = ( function(
 		/**
 		 * Handle change for nav_menu_item[] setting for nav menu instances lacking partials.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @param {Object} newItem New value for nav_menu_item[] setting.
 		 * @param {Object} oldItem Old value for nav_menu_item[] setting.
@@ -380,6 +385,7 @@ gc.customize.navMenusPreview = gc.customize.MenusCustomizerPreview = ( function(
 		/**
 		 * Handle change for nav_menu_locations[] setting for nav menu instances lacking partials.
 		 *
+		 * @since 4.5.0
 		 *
 		 * @this {gc.customize.Value}
 		 */
@@ -405,6 +411,7 @@ gc.customize.navMenusPreview = gc.customize.MenusCustomizerPreview = ( function(
 	 * Setup shift-click on nav menu items which are more granular than the nav menu partial itself.
 	 * Also this applies even if a nav menu is not partial-refreshable.
 	 *
+	 * @since 4.5.0
 	 */
 	self.highlightControls = function() {
 		var selector = '.menu-item';

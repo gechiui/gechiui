@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class used to implement a Categories widget.
- *
- *
  *
  * @see GC_Widget
  */
@@ -27,12 +24,13 @@ class GC_Widget_Categories extends GC_Widget {
 			'customize_selective_refresh' => true,
 			'show_instance_in_rest'       => true,
 		);
-		parent::__construct( 'categories', __( '分类' ), $widget_ops );
+		parent::__construct( 'categories', __( '分类目录' ), $widget_ops );
 	}
 
 	/**
 	 * Outputs the content for the current Categories widget instance.
 	 *
+	 * @since 4.2.0 Creates a unique HTML ID for the `<select>` element
 	 *              if more than one instance is displayed on the page.
 	 *
 	 * @param array $args     Display arguments including 'before_title', 'after_title',
@@ -42,7 +40,7 @@ class GC_Widget_Categories extends GC_Widget {
 	public function widget( $args, $instance ) {
 		static $first_dropdown = true;
 
-		$default_title = __( '分类' );
+		$default_title = __( '分类目录' );
 		$title         = ! empty( $instance['title'] ) ? $instance['title'] : $default_title;
 
 		/** This filter is documented in gc-includes/widgets/class-gc-widget-pages.php */
@@ -77,8 +75,8 @@ class GC_Widget_Categories extends GC_Widget {
 			/**
 			 * Filters the arguments for the Categories widget drop-down.
 			 *
-		
-		
+			 * @since 2.8.0
+			 * @since 4.9.0 Added the `$instance` parameter.
 			 *
 			 * @see gc_dropdown_categories()
 			 *
@@ -128,8 +126,8 @@ class GC_Widget_Categories extends GC_Widget {
 				/**
 				 * Filters the arguments for the Categories widget.
 				 *
-			
-			
+				 * @since 2.8.0
+				 * @since 4.9.0 Added the `$instance` parameter.
 				 *
 				 * @param array $cat_args An array of Categories widget options.
 				 * @param array $instance Array of settings for the current widget.

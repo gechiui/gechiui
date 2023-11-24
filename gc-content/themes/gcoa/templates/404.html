@@ -1,28 +1,38 @@
-<!-- 404.html -->
+
+<!-- gc:html -->
 <div class="app">
-	<div class="layout">
-		<!-- gc:template-part {"slug":"header","tagName":"div","align":"wide"} /-->
-		<!-- Page Container START -->
-        <div class="page-container">
-        	<div class="main-content">
-        		<div class="container">
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <div class="p-v-30">
-                                <h1 class="font-weight-semibold display-1 text-primary lh-1-2">404</h1>
-                                <h2 class="font-weight-light font-size-30">哎呀！你好像迷路了</h2>
-                                <p class="lead m-b-30">我们没有找到你想要的东西</p>
-                                <a href="/" class="btn btn-primary btn-tone">返回首页</a>
-                            </div>
-                        </div>
-                        <div class="col-md-6 m-l-auto">
-                            <img class="img-fluid" src="<!-- gc:get-template-directory-uri /-->/assets/images/others/error-1.png" alt="">
+    <div class="container-fluid">
+        <div class="d-flex full-height p-v-20 flex-column justify-content-between">
+            <div class="d-none d-md-flex p-h-40">
+                <img src="/gc-content/themes/gcoa/assets/images/logo/logo.png" alt="">
+            </div>
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="p-v-30">
+                            <h1 class="font-weight-semibold display-1 text-primary lh-1-2">404</h1>
+                            <h2 class="font-weight-light font-size-30">哎呀！你好像迷路了</h2>
+                            <p class="lead m-b-30">我们没有找到你想要的东西。</p>
+                            <a href="/" class="btn btn-primary btn-tone">返回首页</a>
                         </div>
                     </div>
+                    <div class="col-md-6 m-l-auto">
+                        <img class="img-fluid" src="/gc-content/themes/gcoa/assets/images/others/error-1.png" alt="">
+                    </div>
                 </div>
-			</div>
-			<!-- gc:template-part {"slug":"footer","tagName":"footer"} /-->
-		</div>
-        <!-- Page Container END -->
-	</div>
+            </div>
+            <div class="d-none d-md-flex  p-h-40 justify-content-between">
+                <span class="">© 2023  <a href="https://www.gechiui.com/"  class="text-dark text-link" href="">格尺科技</a> 提供技术支持</span>
+                <ul class="list-inline">
+                    <li class="list-inline-item">
+                        <a class="text-dark text-link" href="">服务条款</a>
+                    </li>
+                    <li class="list-inline-item">
+                        <a class="text-dark text-link" href="https://www.gechiui.com" rel="nofollow">GeChiUI</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
+<!-- /gc:html -->

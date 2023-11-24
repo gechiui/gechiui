@@ -7,19 +7,18 @@
  */
 
 /**
- * Load header template.
+ * Loads header template.
  *
  * Includes the header template for a theme or if a name is specified then a
- * specialised header will be included.
+ * specialized header will be included.
  *
  * For the parameter, if the file is called "header-special.php" then specify
  * "special".
  *
+ * @since 5.5.0 A return value was added.
+ * @since 5.5.0 The `$args` parameter was added.
  *
- *
- *
- *
- * @param string $name The name of the specialised header.
+ * @param string $name The name of the specialized header.
  * @param array  $args Optional. Additional arguments passed to the header template.
  *                     Default empty array.
  * @return void|false Void on success, false if the template does not exist.
@@ -27,7 +26,8 @@
 function get_header( $name = null, $args = array() ) {
 	/**
 	 * Fires before the header template file is loaded.
-	 *
+	 * The `$name` parameter was added.
+	 * @since 5.5.0 The `$args` parameter was added.
 	 *
 	 * @param string|null $name Name of the specific header file to use. Null for the default header.
 	 * @param array       $args Additional arguments passed to the header template.
@@ -48,19 +48,18 @@ function get_header( $name = null, $args = array() ) {
 }
 
 /**
- * Load footer template.
+ * Loads footer template.
  *
  * Includes the footer template for a theme or if a name is specified then a
- * specialised footer will be included.
+ * specialized footer will be included.
  *
  * For the parameter, if the file is called "footer-special.php" then specify
  * "special".
  *
+ * @since 5.5.0 A return value was added.
+ * @since 5.5.0 The `$args` parameter was added.
  *
- *
- *
- *
- * @param string $name The name of the specialised footer.
+ * @param string $name The name of the specialized footer.
  * @param array  $args Optional. Additional arguments passed to the footer template.
  *                     Default empty array.
  * @return void|false Void on success, false if the template does not exist.
@@ -68,7 +67,8 @@ function get_header( $name = null, $args = array() ) {
 function get_footer( $name = null, $args = array() ) {
 	/**
 	 * Fires before the footer template file is loaded.
-	 *
+	 * The `$name` parameter was added.
+	 * @since 5.5.0 The `$args` parameter was added.
 	 *
 	 * @param string|null $name Name of the specific footer file to use. Null for the default footer.
 	 * @param array       $args Additional arguments passed to the footer template.
@@ -89,19 +89,18 @@ function get_footer( $name = null, $args = array() ) {
 }
 
 /**
- * Load sidebar template.
+ * Loads sidebar template.
  *
  * Includes the sidebar template for a theme or if a name is specified then a
- * specialised sidebar will be included.
+ * specialized sidebar will be included.
  *
  * For the parameter, if the file is called "sidebar-special.php" then specify
  * "special".
  *
+ * @since 5.5.0 A return value was added.
+ * @since 5.5.0 The `$args` parameter was added.
  *
- *
- *
- *
- * @param string $name The name of the specialised sidebar.
+ * @param string $name The name of the specialized sidebar.
  * @param array  $args Optional. Additional arguments passed to the sidebar template.
  *                     Default empty array.
  * @return void|false Void on success, false if the template does not exist.
@@ -110,6 +109,8 @@ function get_sidebar( $name = null, $args = array() ) {
 	/**
 	 * Fires before the sidebar template file is loaded.
 	 *
+	 * @since 2.2.0 The `$name` parameter was added.
+	 * @since 5.5.0 The `$args` parameter was added.
 	 *
 	 * @param string|null $name Name of the specific sidebar file to use. Null for the default sidebar.
 	 * @param array       $args Additional arguments passed to the sidebar template.
@@ -136,7 +137,7 @@ function get_sidebar( $name = null, $args = array() ) {
  * in the theme.
  *
  * Includes the named template part for a theme or if a name is specified then a
- * specialised part will be included. If the theme contains no {slug}.php file
+ * specialized part will be included. If the theme contains no {slug}.php file
  * then no template will be included.
  *
  * The template is included using require, not require_once, so you may include the
@@ -145,14 +146,13 @@ function get_sidebar( $name = null, $args = array() ) {
  * For the $name parameter, if the file is called "{slug}-special.php" then specify
  * "special".
  *
+ * @since 5.5.0 A return value was added.
+ * @since 5.5.0 The `$args` parameter was added.
  *
- *
- *
- *
- * @param string $slug The slug name for the generic template.
- * @param string $name The name of the specialised template.
- * @param array  $args Optional. Additional arguments passed to the template.
- *                     Default empty array.
+ * @param string      $slug The slug name for the generic template.
+ * @param string|null $name Optional. The name of the specialized template.
+ * @param array       $args Optional. Additional arguments passed to the template.
+ *                          Default empty array.
  * @return void|false Void on success, false if the template does not exist.
  */
 function get_template_part( $slug, $name = null, $args = array() ) {
@@ -162,9 +162,11 @@ function get_template_part( $slug, $name = null, $args = array() ) {
 	 * The dynamic portion of the hook name, `$slug`, refers to the slug name
 	 * for the generic template part.
 	 *
+	 * @since 5.5.0 The `$args` parameter was added.
 	 *
 	 * @param string      $slug The slug name for the generic template.
-	 * @param string|null $name The name of the specialized template.
+	 * @param string|null $name The name of the specialized template or null if
+	 *                          there is none.
 	 * @param array       $args Additional arguments passed to the template.
 	 */
 	do_action( "get_template_part_{$slug}", $slug, $name, $args );
@@ -180,9 +182,12 @@ function get_template_part( $slug, $name = null, $args = array() ) {
 	/**
 	 * Fires before an attempt is made to locate and load a template part.
 	 *
+	 * @since 5.2.0
+	 * @since 5.5.0 The `$args` parameter was added.
 	 *
 	 * @param string   $slug      The slug name for the generic template.
-	 * @param string   $name      The name of the specialized template.
+	 * @param string   $name      The name of the specialized template or an empty
+	 *                            string if there is none.
 	 * @param string[] $templates Array of template files to search for, in order.
 	 * @param array    $args      Additional arguments passed to the template.
 	 */
@@ -194,7 +199,7 @@ function get_template_part( $slug, $name = null, $args = array() ) {
 }
 
 /**
- * Display search form.
+ * Displays search form.
  *
  * Will first attempt to locate the searchform.php file in either the child or
  * the parent, then load it. If it doesn't exist, then the default search form
@@ -210,8 +215,8 @@ function get_template_part( $slug, $name = null, $args = array() ) {
  * search relies on or various formatting that applies to the beginning of the
  * search. To give a few examples of what it can be used for.
  *
- *
- *
+ * @since 2.7.0
+ * @since 5.2.0 The `$args` array parameter was added in place of an `$echo` boolean flag.
  *
  * @param array $args {
  *     Optional. Array of display arguments.
@@ -227,6 +232,9 @@ function get_search_form( $args = array() ) {
 	/**
 	 * Fires before the search form is retrieved, at the start of get_search_form().
 	 *
+	 * @since 2.7.0 as 'get_search_form' action.
+	 * @since 3.6.0
+	 * @since 5.5.0 The `$args` parameter was added.
 	 *
 	 * @link https://core.trac.gechiui.com/ticket/19321
 	 *
@@ -260,6 +268,7 @@ function get_search_form( $args = array() ) {
 	/**
 	 * Filters the array of arguments used when generating the search form.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param array $args The array of arguments for building the search form.
 	 *                    See get_search_form() for information on accepted arguments.
@@ -274,6 +283,8 @@ function get_search_form( $args = array() ) {
 	/**
 	 * Filters the HTML format of the search form.
 	 *
+	 * @since 3.6.0
+	 * @since 5.5.0 The `$args` parameter was added.
 	 *
 	 * @param string $format The type of markup to use in the search form.
 	 *                       Accepts 'html5', 'xhtml'.
@@ -303,7 +314,10 @@ function get_search_form( $args = array() ) {
 		if ( 'html5' === $format ) {
 			$form = '<form role="search" ' . $aria_label . 'method="get" class="search-form" action="' . esc_url( home_url( '/' ) ) . '">
 				<label>
-					<span class="screen-reader-text">' . _x( '搜索：', 'label' ) . '</span>
+					<span class="screen-reader-text">' .
+					/* translators: Hidden accessibility text. */
+					_x( '搜索：', 'label' ) .
+					'</span>
 					<input type="search" class="search-field" placeholder="' . esc_attr_x( '搜索&hellip;', 'placeholder' ) . '" value="' . get_search_query() . '" name="s" />
 				</label>
 				<input type="submit" class="search-submit" value="' . esc_attr_x( '搜索', 'submit button' ) . '" />
@@ -311,7 +325,10 @@ function get_search_form( $args = array() ) {
 		} else {
 			$form = '<form role="search" ' . $aria_label . 'method="get" id="searchform" class="searchform" action="' . esc_url( home_url( '/' ) ) . '">
 				<div>
-					<label class="screen-reader-text" for="s">' . _x( '搜索：', 'label' ) . '</label>
+					<label class="screen-reader-text" for="s">' .
+					/* translators: Hidden accessibility text. */
+					_x( '搜索：', 'label' ) .
+					'</label>
 					<input type="text" value="' . get_search_query() . '" name="s" id="s" />
 					<input type="submit" id="searchsubmit" value="' . esc_attr_x( '搜索', 'submit button' ) . '" />
 				</div>
@@ -322,6 +339,8 @@ function get_search_form( $args = array() ) {
 	/**
 	 * Filters the HTML output of the search form.
 	 *
+	 * @since 2.7.0
+	 * @since 5.5.0 The `$args` parameter was added.
 	 *
 	 * @param string $form The search form HTML output.
 	 * @param array  $args The array of arguments for building the search form.
@@ -341,28 +360,27 @@ function get_search_form( $args = array() ) {
 }
 
 /**
- * Display the Log In/Out link.
+ * Displays the Log In/Out link.
  *
  * Displays a link, which allows users to navigate to the Log In page to log in
  * or log out depending on whether they are currently logged in.
  *
- *
- *
  * @param string $redirect Optional path to redirect to on login/logout.
- * @param bool   $echo     Default to echo and not return the link.
- * @return void|string Void if `$echo` argument is true, log in/out link if `$echo` is false.
+ * @param bool   $display  Default to echo and not return the link.
+ * @return void|string Void if `$display` argument is true, log in/out link if `$display` is false.
  */
-function gc_loginout( $redirect = '', $echo = true ) {
+function gc_loginout( $redirect = '', $display = true ) {
 	if ( ! is_user_logged_in() ) {
 		$link = '<a href="' . esc_url( gc_login_url( $redirect ) ) . '">' . __( '登录' ) . '</a>';
 	} else {
 		$link = '<a href="' . esc_url( gc_logout_url( $redirect ) ) . '">' . __( '注销' ) . '</a>';
 	}
 
-	if ( $echo ) {
+	if ( $display ) {
 		/**
 		 * Filters the HTML output for the Log In/Log Out link.
 		 *
+		 * @since 1.5.0
 		 *
 		 * @param string $link The HTML link content.
 		 */
@@ -378,7 +396,7 @@ function gc_loginout( $redirect = '', $echo = true ) {
  *
  * Returns the URL that allows the user to log out of the site.
  *
- *
+ * @since 2.7.0
  *
  * @param string $redirect Path to redirect to on logout.
  * @return string The logout URL. Note: HTML-encoded via esc_html() in gc_nonce_url().
@@ -405,7 +423,7 @@ function gc_logout_url( $redirect = '' ) {
 /**
  * Retrieves the login URL.
  *
- *
+ * @since 2.7.0
  *
  * @param string $redirect     Path to redirect to on log in.
  * @param bool   $force_reauth Whether to force reauthorization, even if a cookie is present.
@@ -426,6 +444,7 @@ function gc_login_url( $redirect = '', $force_reauth = false ) {
 	/**
 	 * Filters the login URL.
 	 *
+	 * @since 4.2.0 The `$force_reauth` parameter was added.
 	 *
 	 * @param string $login_url    The login URL. Not HTML-encoded.
 	 * @param string $redirect     The path to redirect to on login, if supplied.
@@ -437,14 +456,13 @@ function gc_login_url( $redirect = '', $force_reauth = false ) {
 /**
  * Returns the URL that allows the user to register on the site.
  *
- *
- *
  * @return string User registration URL.
  */
 function gc_registration_url() {
 	/**
 	 * Filters the user registration URL.
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param string $register The user registration URL.
 	 */
@@ -455,8 +473,6 @@ function gc_registration_url() {
  * Provides a simple login form for use anywhere within GeChiUI.
  *
  * The login form HTML is echoed by default. Pass a false value for `$echo` to return it instead.
- *
- *
  *
  * @param array $args {
  *     Optional. Array of options to control the form output. Default empty array.
@@ -469,7 +485,7 @@ function gc_registration_url() {
  *     @type string $label_username Label for the username or email address field. Default '用户名或电子邮箱'.
  *     @type string $label_password Label for the password field. Default 'Password'.
  *     @type string $label_remember Label for the remember field. Default '记住我'.
- *     @type string $label_log_in   Label for the submit button. Default 'Log In'.
+ *     @type string $label_log_in   Label for the submit button. Default '登录'.
  *     @type string $id_username    ID attribute value for the username field. Default 'user_login'.
  *     @type string $id_password    ID attribute value for the password field. Default 'user_pass'.
  *     @type string $id_remember    ID attribute value for the remember field. Default 'rememberme'.
@@ -556,7 +572,7 @@ function gc_login_form( $args = array() ) {
 		sprintf(
 			'<p class="login-username">
 				<label for="%1$s">%2$s</label>
-				<input type="text" name="log" id="%1$s" class="input" value="%3$s" size="20" />
+				<input type="text" name="log" id="%1$s" autocomplete="username" class="input" value="%3$s" size="20" />
 			</p>',
 			esc_attr( $args['id_username'] ),
 			esc_html( $args['label_username'] ),
@@ -565,7 +581,7 @@ function gc_login_form( $args = array() ) {
 		sprintf(
 			'<p class="login-password">
 				<label for="%1$s">%2$s</label>
-				<input type="password" name="pwd" id="%1$s" class="input" value="" size="20" />
+				<input type="password" name="pwd" id="%1$s" autocomplete="current-password" spellcheck="false" class="input" value="" size="20" />
 			</p>',
 			esc_attr( $args['id_password'] ),
 			esc_html( $args['label_password'] )
@@ -581,7 +597,7 @@ function gc_login_form( $args = array() ) {
 		) .
 		sprintf(
 			'<p class="login-submit">
-				<input type="submit" name="gc-submit" id="%1$s" class="button button-primary" value="%2$s" />
+				<input type="submit" name="gc-submit" id="%1$s" class="btn btn-primary" value="%2$s" />
 				<input type="hidden" name="redirect_to" value="%3$s" />
 			</p>',
 			esc_attr( $args['id_submit'] ),
@@ -599,9 +615,7 @@ function gc_login_form( $args = array() ) {
 }
 
 /**
- * Returns the URL that allows the user to retrieve the lost password
- *
- *
+ * Returns the URL that allows the user to reset the lost password.
  *
  * @param string $redirect Path to redirect to on login.
  * @return string Lost password URL.
@@ -616,7 +630,7 @@ function gc_lostpassword_url( $redirect = '' ) {
 	}
 
 	if ( is_multisite() ) {
-		$blog_details  = get_blog_details();
+		$blog_details  = get_site();
 		$gc_login_path = $blog_details->path . 'gc-login.php';
 	} else {
 		$gc_login_path = 'gc-login.php';
@@ -635,20 +649,18 @@ function gc_lostpassword_url( $redirect = '' ) {
 }
 
 /**
- * Display the Registration or Admin link.
+ * Displays the Registration or Admin link.
  *
  * Display a link which allows the user to navigate to the registration page if
  * not logged in and registration is enabled or to the dashboard if logged in.
  *
- *
- *
- * @param string $before Text to output before the link. Default `<li>`.
- * @param string $after  Text to output after the link. Default `</li>`.
- * @param bool   $echo   Default to echo and not return the link.
- * @return void|string Void if `$echo` argument is true, registration or admin link
- *                     if `$echo` is false.
+ * @param string $before  Text to output before the link. Default `<li>`.
+ * @param string $after   Text to output after the link. Default `</li>`.
+ * @param bool   $display Default to echo and not return the link.
+ * @return void|string Void if `$display` argument is true, registration or admin link
+ *                     if `$display` is false.
  */
-function gc_register( $before = '<li>', $after = '</li>', $echo = true ) {
+function gc_register( $before = '<li>', $after = '</li>', $display = true ) {
 	if ( ! is_user_logged_in() ) {
 		if ( get_option( 'users_can_register' ) ) {
 			$link = $before . '<a href="' . esc_url( gc_registration_url() ) . '">' . __( '注册' ) . '</a>' . $after;
@@ -656,7 +668,7 @@ function gc_register( $before = '<li>', $after = '</li>', $echo = true ) {
 			$link = '';
 		}
 	} elseif ( current_user_can( 'read' ) ) {
-		$link = $before . '<a href="' . admin_url() . '">' . __( '站点管理员' ) . '</a>' . $after;
+		$link = $before . '<a href="' . admin_url() . '">' . __( '系统管理员' ) . '</a>' . $after;
 	} else {
 		$link = '';
 	}
@@ -667,12 +679,13 @@ function gc_register( $before = '<li>', $after = '</li>', $echo = true ) {
 	 * Users are sent to the admin page if logged-in, or the registration page
 	 * if enabled and logged-out.
 	 *
+	 * @since 1.5.0
 	 *
 	 * @param string $link The HTML code for the link to the Registration or Admin page.
 	 */
 	$link = apply_filters( 'register', $link );
 
-	if ( $echo ) {
+	if ( $display ) {
 		echo $link;
 	} else {
 		return $link;
@@ -685,22 +698,19 @@ function gc_register( $before = '<li>', $after = '</li>', $echo = true ) {
  * The {@see 'gc_meta'} action can have several purposes, depending on how you use it,
  * but one purpose might have been to allow for theme switching.
  *
- *
- *
  * @link https://core.trac.gechiui.com/ticket/1458 Explanation of 'gc_meta' action.
  */
 function gc_meta() {
 	/**
 	 * Fires before displaying echoed content in the sidebar.
 	 *
+	 * @since 1.5.0
 	 */
 	do_action( 'gc_meta' );
 }
 
 /**
  * Displays information about the current site.
- *
- *
  *
  * @see get_bloginfo() For possible `$show` values
  *
@@ -722,7 +732,7 @@ function bloginfo( $show = '' ) {
  * - 'admin_email' - Admin email (set in Settings > General)
  * - 'charset' - The "页面和feed编码"  (set in Settings > Reading)
  * - 'version' - The current GeChiUI version
- * - 'html_type' - The content-type (default: "text/html"). Themes and plugins
+ * - 'html_type' - The Content-Type (default: "text/html"). Themes and plugins
  *   can override the default value using the {@see 'pre_option_html_type'} filter
  * - 'text_direction' - The text direction determined by the site's language. is_rtl()
  *   should be used instead
@@ -748,8 +758,6 @@ function bloginfo( $show = '' ) {
  *
  * - 'siteurl' - Use 'url' instead
  * - 'home' - Use 'url' instead
- *
- *
  *
  * @global string $gc_version The GeChiUI version string.
  *
@@ -835,8 +843,8 @@ function get_bloginfo( $show = '', $filter = 'raw' ) {
 			 * see https://www.w3.org/International/articles/language-tags/ for reference.
 			 * Do not translate into your own language.
 			 */
-			$output = __( 'zh-CN' );
-			if ( 'zh-CN' === $output || preg_match( '/[^a-zA-Z0-9-]/', $output ) ) {
+			$output = __( 'html_lang_attribute' );
+			if ( 'html_lang_attribute' === $output || preg_match( '/[^a-zA-Z0-9-]/', $output ) ) {
 				$output = determine_locale();
 				$output = str_replace( '_', '-', $output );
 			}
@@ -866,9 +874,11 @@ function get_bloginfo( $show = '', $filter = 'raw' ) {
 	}
 
 	$url = true;
-	if ( strpos( $show, 'url' ) === false &&
-		strpos( $show, 'directory' ) === false &&
-		strpos( $show, 'home' ) === false ) {
+
+	if ( ! str_contains( $show, 'url' )
+		&& ! str_contains( $show, 'directory' )
+		&& ! str_contains( $show, 'home' )
+	) {
 		$url = false;
 	}
 
@@ -877,7 +887,7 @@ function get_bloginfo( $show = '', $filter = 'raw' ) {
 			/**
 			 * Filters the URL returned by get_bloginfo().
 			 *
-		
+			 * @since 2.0.5
 			 *
 			 * @param string $output The URL returned by bloginfo().
 			 * @param string $show   Type of information requested.
@@ -887,7 +897,7 @@ function get_bloginfo( $show = '', $filter = 'raw' ) {
 			/**
 			 * Filters the site information returned by get_bloginfo().
 			 *
-		
+			 * @since 0.71
 			 *
 			 * @param mixed  $output The requested non-URL site information.
 			 * @param string $show   Type of information requested.
@@ -902,7 +912,7 @@ function get_bloginfo( $show = '', $filter = 'raw' ) {
 /**
  * Returns the Site Icon URL.
  *
- *
+ * @since 4.3.0
  *
  * @param int    $size    Optional. Size of the site icon. Default 512 (pixels).
  * @param string $url     Optional. Fallback url if no site icon is found. Default empty.
@@ -917,7 +927,7 @@ function get_site_icon_url( $size = 512, $url = '', $blog_id = 0 ) {
 		$switched_blog = true;
 	}
 
-	$site_icon_id = get_option( 'site_icon' );
+	$site_icon_id = (int) get_option( 'site_icon' );
 
 	if ( $site_icon_id ) {
 		if ( $size >= 512 ) {
@@ -935,6 +945,7 @@ function get_site_icon_url( $size = 512, $url = '', $blog_id = 0 ) {
 	/**
 	 * Filters the site icon URL.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $url     Site icon URL.
 	 * @param int    $size    Size of the site icon.
@@ -946,7 +957,7 @@ function get_site_icon_url( $size = 512, $url = '', $blog_id = 0 ) {
 /**
  * Displays the Site Icon URL.
  *
- *
+ * @since 4.3.0
  *
  * @param int    $size    Optional. Size of the site icon. Default 512 (pixels).
  * @param string $url     Optional. Fallback url if no site icon is found. Default empty.
@@ -957,9 +968,9 @@ function site_icon_url( $size = 512, $url = '', $blog_id = 0 ) {
 }
 
 /**
- * Whether the site has a Site Icon.
+ * Determines whether the site has a Site Icon.
  *
- *
+ * @since 4.3.0
  *
  * @param int $blog_id Optional. ID of the blog in question. Default current blog.
  * @return bool Whether the site has a site icon or not.
@@ -970,8 +981,6 @@ function has_site_icon( $blog_id = 0 ) {
 
 /**
  * Determines whether the site has a custom logo.
- *
- *
  *
  * @param int $blog_id Optional. ID of the blog in question. Default is the ID of the current blog.
  * @return bool Whether the site has a custom logo or not.
@@ -996,10 +1005,9 @@ function has_custom_logo( $blog_id = 0 ) {
 /**
  * Returns a custom logo, linked to home unless the theme supports removing the link on the home page.
  *
- *
- *
+ * @since 5.5.0 Added option to remove the link on the home page with `unlink-homepage-logo` theme support
  *              for the `custom-logo` theme feature.
- *
+ * @since 5.5.1 Disabled lazy-loading by default.
  *
  * @param int $blog_id Optional. ID of the blog in question. Default is the ID of the current blog.
  * @return string Custom logo markup.
@@ -1044,6 +1052,7 @@ function get_custom_logo( $blog_id = 0 ) {
 		/**
 		 * Filters the list of custom logo image attributes.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param array $custom_logo_attr Custom logo image attributes.
 		 * @param int   $custom_logo_id   Custom logo attachment ID.
@@ -1088,6 +1097,8 @@ function get_custom_logo( $blog_id = 0 ) {
 	/**
 	 * Filters the custom logo output.
 	 *
+	 * @since 4.5.0
+	 * @since 4.6.0 Added the `$blog_id` parameter.
 	 *
 	 * @param string $html    Custom logo HTML output.
 	 * @param int    $blog_id ID of the blog to get the custom logo for.
@@ -1098,8 +1109,6 @@ function get_custom_logo( $blog_id = 0 ) {
 /**
  * Displays a custom logo, linked to home unless the theme supports removing the link on the home page.
  *
- *
- *
  * @param int $blog_id Optional. ID of the blog in question. Default is the ID of the current blog.
  */
 function the_custom_logo( $blog_id = 0 ) {
@@ -1108,8 +1117,6 @@ function the_custom_logo( $blog_id = 0 ) {
 
 /**
  * Returns document title for the current page.
- *
- *
  *
  * @global int $page  Page number of a single post.
  * @global int $paged Page number of a list of posts.
@@ -1124,6 +1131,7 @@ function gc_get_document_title() {
 	 * Passing a non-empty value will short-circuit gc_get_document_title(),
 	 * returning that value instead.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $title The document title. Default empty string.
 	 */
@@ -1202,6 +1210,7 @@ function gc_get_document_title() {
 	/**
 	 * Filters the separator for the document title.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $sep Document title separator. Default '-'.
 	 */
@@ -1210,6 +1219,7 @@ function gc_get_document_title() {
 	/**
 	 * Filters the parts of the document title.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $title {
 	 *     The document title parts.
@@ -1227,6 +1237,7 @@ function gc_get_document_title() {
 	/**
 	 * Filters the document title.
 	 *
+	 * @since 5.8.0
 	 *
 	 * @param string $title Document title.
 	 */
@@ -1239,8 +1250,7 @@ function gc_get_document_title() {
  * Displays title tag with content.
  *
  * @ignore
- *
- *
+ * @since 4.1.0 Improved title output replaced `gc_title()`.
  * @access private
  */
 function _gc_render_title_tag() {
@@ -1252,7 +1262,7 @@ function _gc_render_title_tag() {
 }
 
 /**
- * Display or retrieve page title for all areas of blog.
+ * Displays or retrieves page title for all areas of blog.
  *
  * By default, the page title will display the separator before the page title,
  * so that the blog title will be before the page title. This is not good for
@@ -1266,15 +1276,13 @@ function _gc_render_title_tag() {
  * was introduced around 2.5.0, in case backward compatibility of themes is
  * important.
  *
- *
- *
  * @global GC_Locale $gc_locale GeChiUI date and time locale object.
  *
  * @param string $sep         Optional. How to separate the various items within the page title.
  *                            Default '&raquo;'.
  * @param bool   $display     Optional. Whether to display or retrieve title. Default true.
  * @param string $seplocation Optional. Location of the separator ('left' or 'right').
- * @return string|void String when `$display` is true, nothing otherwise.
+ * @return string|void String when `$display` is false, nothing otherwise.
  */
 function gc_title( $sep = '&raquo;', $display = true, $seplocation = '' ) {
 	global $gc_locale;
@@ -1372,6 +1380,7 @@ function gc_title( $sep = '&raquo;', $display = true, $seplocation = '' ) {
 	/**
 	 * Filters the parts of the page title.
 	 *
+	 * @since 4.0.0
 	 *
 	 * @param string[] $title_array Array of parts of the page title.
 	 */
@@ -1388,6 +1397,7 @@ function gc_title( $sep = '&raquo;', $display = true, $seplocation = '' ) {
 	/**
 	 * Filters the text of the page title.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $title       Page title.
 	 * @param string $sep         Title separator.
@@ -1404,7 +1414,7 @@ function gc_title( $sep = '&raquo;', $display = true, $seplocation = '' ) {
 }
 
 /**
- * Display or retrieve page title for post.
+ * Displays or retrieves page title for post.
  *
  * This is optimized for single.php template file for displaying the post title.
  *
@@ -1412,8 +1422,6 @@ function gc_title( $sep = '&raquo;', $display = true, $seplocation = '' ) {
  * prefix parameter empty, you can set the title separator manually. The prefix
  * does not automatically place a space between the prefix, so if there should
  * be a space, the parameter value will need to have it at the end.
- *
- *
  *
  * @param string $prefix  Optional. What to display before the title.
  * @param bool   $display Optional. Whether to display or retrieve title. Default true.
@@ -1429,6 +1437,7 @@ function single_post_title( $prefix = '', $display = true ) {
 	/**
 	 * Filters the page title for a single post.
 	 *
+	 * @since 0.71
 	 *
 	 * @param string  $_post_title The single post page title.
 	 * @param GC_Post $_post       The current post.
@@ -1442,12 +1451,10 @@ function single_post_title( $prefix = '', $display = true ) {
 }
 
 /**
- * Display or retrieve title for a post type archive.
+ * Displays or retrieves title for a post type archive.
  *
  * This is optimized for archive.php and archive-{$post_type}.php template files
  * for displaying the title of the post type.
- *
- *
  *
  * @param string $prefix  Optional. What to display before the title.
  * @param bool   $display Optional. Whether to display or retrieve title. Default true.
@@ -1482,13 +1489,11 @@ function post_type_archive_title( $prefix = '', $display = true ) {
 }
 
 /**
- * Display or retrieve page title for category archive.
+ * Displays or retrieves page title for category archive.
  *
  * Useful for category template files for displaying the category page title.
  * The prefix does not automatically place a space between the prefix, so if
  * there should be a space, the parameter value will need to have it at the end.
- *
- *
  *
  * @param string $prefix  Optional. What to display before the title.
  * @param bool   $display Optional. Whether to display or retrieve title. Default true.
@@ -1499,13 +1504,11 @@ function single_cat_title( $prefix = '', $display = true ) {
 }
 
 /**
- * Display or retrieve page title for tag post archive.
+ * Displays or retrieves page title for tag post archive.
  *
  * Useful for tag template files for displaying the tag page title. The prefix
  * does not automatically place a space between the prefix, so if there should
  * be a space, the parameter value will need to have it at the end.
- *
- *
  *
  * @param string $prefix  Optional. What to display before the title.
  * @param bool   $display Optional. Whether to display or retrieve title. Default true.
@@ -1516,13 +1519,11 @@ function single_tag_title( $prefix = '', $display = true ) {
 }
 
 /**
- * Display or retrieve page title for taxonomy term archive.
+ * Displays or retrieves page title for taxonomy term archive.
  *
  * Useful for taxonomy term template files for displaying the taxonomy term page title.
  * The prefix does not automatically place a space between the prefix, so if there should
  * be a space, the parameter value will need to have it at the end.
- *
- *
  *
  * @param string $prefix  Optional. What to display before the title.
  * @param bool   $display Optional. Whether to display or retrieve title. Default true.
@@ -1539,6 +1540,7 @@ function single_term_title( $prefix = '', $display = true ) {
 		/**
 		 * Filters the category archive page title.
 		 *
+		 * @since 2.0.10
 		 *
 		 * @param string $term_name Category name for archive being displayed.
 		 */
@@ -1547,6 +1549,7 @@ function single_term_title( $prefix = '', $display = true ) {
 		/**
 		 * Filters the tag archive page title.
 		 *
+		 * @since 2.3.0
 		 *
 		 * @param string $term_name Tag name for archive being displayed.
 		 */
@@ -1555,6 +1558,7 @@ function single_term_title( $prefix = '', $display = true ) {
 		/**
 		 * Filters the custom taxonomy archive page title.
 		 *
+		 * @since 3.1.0
 		 *
 		 * @param string $term_name Term name for archive being displayed.
 		 */
@@ -1575,20 +1579,18 @@ function single_term_title( $prefix = '', $display = true ) {
 }
 
 /**
- * Display or retrieve page title for post archive based on date.
+ * Displays or retrieves page title for post archive based on date.
  *
  * Useful for when the template only needs to display the month and year,
  * if either are available. The prefix does not automatically place a space
  * between the prefix, so if there should be a space, the parameter value
  * will need to have it at the end.
  *
- *
- *
  * @global GC_Locale $gc_locale GeChiUI date and time locale object.
  *
  * @param string $prefix  Optional. What to display before the title.
  * @param bool   $display Optional. Whether to display or retrieve title. Default true.
- * @return string|void Title when retrieving.
+ * @return string|false|void False if there's no valid title for the month. Title when retrieving.
  */
 function single_month_title( $prefix = '', $display = true ) {
 	global $gc_locale;
@@ -1618,9 +1620,9 @@ function single_month_title( $prefix = '', $display = true ) {
 }
 
 /**
- * Display the archive title based on the queried object.
+ * Displays the archive title based on the queried object.
  *
- *
+ * @since 4.1.0
  *
  * @see get_the_archive_title()
  *
@@ -1636,10 +1638,10 @@ function the_archive_title( $before = '', $after = '' ) {
 }
 
 /**
- * Retrieve the archive title based on the queried object.
+ * Retrieves the archive title based on the queried object.
  *
- *
- *
+ * @since 4.1.0
+ * @since 5.5.0 The title part is wrapped in a `<span>` element.
  *
  * @return string Archive title.
  */
@@ -1706,6 +1708,7 @@ function get_the_archive_title() {
 	/**
 	 * Filters the archive title prefix.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $prefix Archive title prefix.
 	 */
@@ -1713,7 +1716,7 @@ function get_the_archive_title() {
 	if ( $prefix ) {
 		$title = sprintf(
 			/* translators: 1: Title prefix. 2: Title. */
-			_x( '%1$s%2$s', 'archive title' ),
+			_x( '%1$s %2$s', 'archive title' ),
 			$prefix,
 			'<span>' . $title . '</span>'
 		);
@@ -1722,6 +1725,8 @@ function get_the_archive_title() {
 	/**
 	 * Filters the archive title.
 	 *
+	 * @since 4.1.0
+	 * @since 5.5.0 Added the `$prefix` and `$original_title` parameters.
 	 *
 	 * @param string $title          Archive title to be displayed.
 	 * @param string $original_title Archive title without prefix.
@@ -1731,9 +1736,9 @@ function get_the_archive_title() {
 }
 
 /**
- * Display category, tag, term, or author description.
+ * Displays category, tag, term, or author description.
  *
- *
+ * @since 4.1.0
  *
  * @see get_the_archive_description()
  *
@@ -1750,9 +1755,7 @@ function the_archive_description( $before = '', $after = '' ) {
 /**
  * Retrieves the description for an author, post type, or term archive.
  *
- *
- *
- *
+ * @since 4.1.0 Added support for author archives. Added support for post type archives.
  *
  * @see term_description()
  *
@@ -1770,6 +1773,7 @@ function get_the_archive_description() {
 	/**
 	 * Filters the archive description.
 	 *
+	 * @since 4.1.0
 	 *
 	 * @param string $description Archive description to be displayed.
 	 */
@@ -1778,8 +1782,6 @@ function get_the_archive_description() {
 
 /**
  * Retrieves the description for a post type archive.
- *
- *
  *
  * @return string The post type description.
  */
@@ -1802,6 +1804,7 @@ function get_the_post_type_description() {
 	/**
 	 * Filters the description for a post type archive.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param string       $description   The post type description.
 	 * @param GC_Post_Type $post_type_obj The post type object.
@@ -1810,7 +1813,7 @@ function get_the_post_type_description() {
 }
 
 /**
- * Retrieve archive link content based on predefined or custom code.
+ * Retrieves archive link content based on predefined or custom code.
  *
  * The format can be one of four styles. The 'link' for head element, 'option'
  * for use in the select element, 'html' for use in list (either ol or ul HTML
@@ -1833,8 +1836,7 @@ function get_the_post_type_description() {
  * element) and the after parameter after the closing link tag. If the above
  * three values for the format are not used, then custom format is assumed.
  *
- *
- *
+ * @since 5.2.0 Added the `$selected` parameter.
  *
  * @param string $url      URL to archive.
  * @param string $text     Archive text description.
@@ -1863,6 +1865,9 @@ function get_archives_link( $url, $text, $format = 'html', $before = '', $after 
 	/**
 	 * Filters the archive link content.
 	 *
+	 * @since 2.6.0
+	 * @since 4.5.0 Added the `$url`, `$text`, `$format`, `$before`, and `$after` parameters.
+	 * @since 5.2.0 Added the `$selected` parameter.
 	 *
 	 * @param string $link_html The archive HTML link content.
 	 * @param string $url       URL to archive.
@@ -1876,11 +1881,9 @@ function get_archives_link( $url, $text, $format = 'html', $before = '', $after 
 }
 
 /**
- * Display archive links based on type and format.
- *
- *
- *
- *
+ * Displays archive links based on type and format.
+ * The `$post_type` argument was added.
+ * @since 5.2.0 The `$year`, `$monthnum`, `$day`, and `$w` arguments were added.
  *
  * @see get_archives_link()
  *
@@ -1965,6 +1968,7 @@ function gc_get_archives( $args = '' ) {
 	/**
 	 * Filters the SQL WHERE clause for retrieving archives.
 	 *
+	 * @since 2.2.0
 	 *
 	 * @param string $sql_where   Portion of SQL query containing the WHERE clause.
 	 * @param array  $parsed_args An array of default arguments.
@@ -1974,6 +1978,7 @@ function gc_get_archives( $args = '' ) {
 	/**
 	 * Filters the SQL JOIN clause for retrieving archives.
 	 *
+	 * @since 2.2.0
 	 *
 	 * @param string $sql_join    Portion of SQL query containing JOIN clause.
 	 * @param array  $parsed_args An array of default arguments.
@@ -1990,10 +1995,10 @@ function gc_get_archives( $args = '' ) {
 		$query   = "SELECT YEAR(post_date) AS `year`, MONTH(post_date) AS `month`, count(ID) as posts FROM $gcdb->posts $join $where GROUP BY YEAR(post_date), MONTH(post_date) ORDER BY post_date $order $limit";
 		$key     = md5( $query );
 		$key     = "gc_get_archives:$key:$last_changed";
-		$results = gc_cache_get( $key, 'posts' );
+		$results = gc_cache_get( $key, 'post-queries' );
 		if ( ! $results ) {
 			$results = $gcdb->get_results( $query );
-			gc_cache_set( $key, $results, 'posts' );
+			gc_cache_set( $key, $results, 'post-queries' );
 		}
 		if ( $results ) {
 			$after = $parsed_args['after'];
@@ -2015,10 +2020,10 @@ function gc_get_archives( $args = '' ) {
 		$query   = "SELECT YEAR(post_date) AS `year`, count(ID) as posts FROM $gcdb->posts $join $where GROUP BY YEAR(post_date) ORDER BY post_date $order $limit";
 		$key     = md5( $query );
 		$key     = "gc_get_archives:$key:$last_changed";
-		$results = gc_cache_get( $key, 'posts' );
+		$results = gc_cache_get( $key, 'post-queries' );
 		if ( ! $results ) {
 			$results = $gcdb->get_results( $query );
-			gc_cache_set( $key, $results, 'posts' );
+			gc_cache_set( $key, $results, 'post-queries' );
 		}
 		if ( $results ) {
 			$after = $parsed_args['after'];
@@ -2039,10 +2044,10 @@ function gc_get_archives( $args = '' ) {
 		$query   = "SELECT YEAR(post_date) AS `year`, MONTH(post_date) AS `month`, DAYOFMONTH(post_date) AS `dayofmonth`, count(ID) as posts FROM $gcdb->posts $join $where GROUP BY YEAR(post_date), MONTH(post_date), DAYOFMONTH(post_date) ORDER BY post_date $order $limit";
 		$key     = md5( $query );
 		$key     = "gc_get_archives:$key:$last_changed";
-		$results = gc_cache_get( $key, 'posts' );
+		$results = gc_cache_get( $key, 'post-queries' );
 		if ( ! $results ) {
 			$results = $gcdb->get_results( $query );
-			gc_cache_set( $key, $results, 'posts' );
+			gc_cache_set( $key, $results, 'post-queries' );
 		}
 		if ( $results ) {
 			$after = $parsed_args['after'];
@@ -2065,10 +2070,10 @@ function gc_get_archives( $args = '' ) {
 		$query   = "SELECT DISTINCT $week AS `week`, YEAR( `post_date` ) AS `yr`, DATE_FORMAT( `post_date`, '%Y-%m-%d' ) AS `yyyymmdd`, count( `ID` ) AS `posts` FROM `$gcdb->posts` $join $where GROUP BY $week, YEAR( `post_date` ) ORDER BY `post_date` $order $limit";
 		$key     = md5( $query );
 		$key     = "gc_get_archives:$key:$last_changed";
-		$results = gc_cache_get( $key, 'posts' );
+		$results = gc_cache_get( $key, 'post-queries' );
 		if ( ! $results ) {
 			$results = $gcdb->get_results( $query );
-			gc_cache_set( $key, $results, 'posts' );
+			gc_cache_set( $key, $results, 'post-queries' );
 		}
 		$arc_w_last = '';
 		if ( $results ) {
@@ -2104,10 +2109,10 @@ function gc_get_archives( $args = '' ) {
 		$query   = "SELECT * FROM $gcdb->posts $join $where ORDER BY $orderby $limit";
 		$key     = md5( $query );
 		$key     = "gc_get_archives:$key:$last_changed";
-		$results = gc_cache_get( $key, 'posts' );
+		$results = gc_cache_get( $key, 'post-queries' );
 		if ( ! $results ) {
 			$results = $gcdb->get_results( $query );
-			gc_cache_set( $key, $results, 'posts' );
+			gc_cache_set( $key, $results, 'post-queries' );
 		}
 		if ( $results ) {
 			foreach ( (array) $results as $result ) {
@@ -2134,9 +2139,7 @@ function gc_get_archives( $args = '' ) {
 }
 
 /**
- * Get number of days since the start of the week.
- *
- *
+ * Gets number of days since the start of the week.
  *
  * @param int $num Number of day.
  * @return float Days since the start of the week.
@@ -2147,12 +2150,10 @@ function calendar_week_mod( $num ) {
 }
 
 /**
- * Display calendar with days that have posts as links.
+ * Displays calendar with days that have posts as links.
  *
  * The calendar is cached, which will be retrieved, if it exists. If there are
  * no posts for the month, then it will not be displayed.
- *
- *
  *
  * @global gcdb      $gcdb      GeChiUI database abstraction object.
  * @global int       $m
@@ -2162,10 +2163,10 @@ function calendar_week_mod( $num ) {
  * @global array     $posts
  *
  * @param bool $initial Optional. Whether to use initial calendar names. Default true.
- * @param bool $echo    Optional. Whether to display the calendar output. Default true.
- * @return void|string Void if `$echo` argument is true, calendar HTML if `$echo` is false.
+ * @param bool $display Optional. Whether to display the calendar output. Default true.
+ * @return void|string Void if `$display` argument is true, calendar HTML if `$display` is false.
  */
-function get_calendar( $initial = true, $echo = true ) {
+function get_calendar( $initial = true, $display = true ) {
 	global $gcdb, $m, $monthnum, $year, $gc_locale, $posts;
 
 	$key   = md5( $m . $monthnum . $year );
@@ -2175,7 +2176,7 @@ function get_calendar( $initial = true, $echo = true ) {
 		/** This filter is documented in gc-includes/general-template.php */
 		$output = apply_filters( 'get_calendar', $cache[ $key ] );
 
-		if ( $echo ) {
+		if ( $display ) {
 			echo $output;
 			return;
 		}
@@ -2234,20 +2235,20 @@ function get_calendar( $initial = true, $echo = true ) {
 		FROM $gcdb->posts
 		WHERE post_date < '$thisyear-$thismonth-01'
 		AND post_type = 'post' AND post_status = 'publish'
-			ORDER BY post_date DESC
-			LIMIT 1"
+		ORDER BY post_date DESC
+		LIMIT 1"
 	);
 	$next     = $gcdb->get_row(
 		"SELECT MONTH(post_date) AS month, YEAR(post_date) AS year
 		FROM $gcdb->posts
 		WHERE post_date > '$thisyear-$thismonth-{$last_day} 23:59:59'
 		AND post_type = 'post' AND post_status = 'publish'
-			ORDER BY post_date ASC
-			LIMIT 1"
+		ORDER BY post_date ASC
+		LIMIT 1"
 	);
 
 	/* translators: Calendar caption: 1: Month name, 2: 4-digit year. */
-	$calendar_caption = _x( '%1$s%2$s', 'calendar caption' );
+	$calendar_caption = _x( '%2$s, %1$s', 'calendar caption' );
 	$calendar_output  = '<table id="gc-calendar" class="gc-calendar-table">
 	<caption>' . sprintf(
 		$calendar_caption,
@@ -2372,10 +2373,11 @@ function get_calendar( $initial = true, $echo = true ) {
 	$cache[ $key ] = $calendar_output;
 	gc_cache_set( 'get_calendar', $cache, 'calendar' );
 
-	if ( $echo ) {
+	if ( $display ) {
 		/**
 		 * Filters the HTML calendar output.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param string $calendar_output HTML output of the calendar.
 		 */
@@ -2387,22 +2389,20 @@ function get_calendar( $initial = true, $echo = true ) {
 }
 
 /**
- * Purge the cached results of get_calendar.
+ * Purges the cached results of get_calendar.
  *
  * @see get_calendar()
- *
  */
 function delete_get_calendar_cache() {
 	gc_cache_delete( 'get_calendar', 'calendar' );
 }
 
 /**
- * Display all of the allowed tags in HTML format with attributes.
+ * Displays all of the allowed tags in HTML format with attributes.
  *
  * This is useful for displaying in the comment area, which elements and
  * attributes are supported. As well as any plugins which want to display it.
- *
- *
+ * No longer used in core.
  *
  * @global array $allowedtags
  *
@@ -2428,14 +2428,13 @@ function allowed_tags() {
 /**
  * Outputs the date in iso8601 format for xml files.
  *
- *
  */
 function the_date_xml() {
 	echo mysql2date( 'Y-m-d', get_post()->post_date, false );
 }
 
 /**
- * Display or Retrieve the date the current post was written (once per date)
+ * Displays or retrieves the date the current post was written (once per date)
  *
  * Will only output the date if the current post's date is different from the
  * previous one output.
@@ -2446,18 +2445,16 @@ function the_date_xml() {
  * HTML output can be filtered with 'the_date'.
  * Date string output can be filtered with 'get_the_date'.
  *
- *
- *
  * @global string $currentday  The day of the current post in the loop.
  * @global string $previousday The day of the previous post in the loop.
  *
- * @param string $format Optional. PHP date format. Defaults to the 'date_format' option.
- * @param string $before Optional. Output before the date. Default empty.
- * @param string $after  Optional. Output after the date. Default empty.
- * @param bool   $echo   Optional. Whether to echo the date or return it. Default true.
+ * @param string $format  Optional. PHP date format. Defaults to the 'date_format' option.
+ * @param string $before  Optional. Output before the date. Default empty.
+ * @param string $after   Optional. Output after the date. Default empty.
+ * @param bool   $display Optional. Whether to echo the date or return it. Default true.
  * @return string|void String if retrieving.
  */
-function the_date( $format = '', $before = '', $after = '', $echo = true ) {
+function the_date( $format = '', $before = '', $after = '', $display = true ) {
 	global $currentday, $previousday;
 
 	$the_date = '';
@@ -2470,6 +2467,7 @@ function the_date( $format = '', $before = '', $after = '', $echo = true ) {
 	/**
 	 * Filters the date a post was published for display.
 	 *
+	 * @since 0.71
 	 *
 	 * @param string $the_date The formatted date string.
 	 * @param string $format   PHP date format.
@@ -2478,7 +2476,7 @@ function the_date( $format = '', $before = '', $after = '', $echo = true ) {
 	 */
 	$the_date = apply_filters( 'the_date', $the_date, $format, $before, $after );
 
-	if ( $echo ) {
+	if ( $display ) {
 		echo $the_date;
 	} else {
 		return $the_date;
@@ -2486,16 +2484,14 @@ function the_date( $format = '', $before = '', $after = '', $echo = true ) {
 }
 
 /**
- * Retrieve the date on which the post was written.
+ * Retrieves the date on which the post was written.
  *
  * Unlike the_date() this function will always return the date.
  * Modify output with the {@see 'get_the_date'} filter.
  *
- *
- *
  * @param string      $format Optional. PHP date format. Defaults to the 'date_format' option.
  * @param int|GC_Post $post   Optional. Post ID or GC_Post object. Default current post.
- * @return string|false Date the current post was written. False on failure.
+ * @return string|int|false Date the current post was written. False on failure.
  */
 function get_the_date( $format = '', $post = null ) {
 	$post = get_post( $post );
@@ -2512,25 +2508,23 @@ function get_the_date( $format = '', $post = null ) {
 	 * Filters the date a post was published.
 	 *
 	 *
-	 * @param string      $the_date The formatted date.
+	 * @param string|int  $the_date Formatted date string or Unix timestamp if `$format` is 'U' or 'G'.
 	 * @param string      $format   PHP date format.
-	 * @param int|GC_Post $post     The post object or ID.
+	 * @param GC_Post     $post     The post object.
 	 */
 	return apply_filters( 'get_the_date', $the_date, $format, $post );
 }
 
 /**
- * Display the date on which the post was last modified.
+ * Displays the date on which the post was last modified.
  *
- *
- *
- * @param string $format Optional. PHP date format. Defaults to the 'date_format' option.
- * @param string $before Optional. Output before the date. Default empty.
- * @param string $after  Optional. Output after the date. Default empty.
- * @param bool   $echo   Optional. Whether to echo the date or return it. Default true.
+ * @param string $format  Optional. PHP date format. Defaults to the 'date_format' option.
+ * @param string $before  Optional. Output before the date. Default empty.
+ * @param string $after   Optional. Output after the date. Default empty.
+ * @param bool   $display Optional. Whether to echo the date or return it. Default true.
  * @return string|void String if retrieving.
  */
-function the_modified_date( $format = '', $before = '', $after = '', $echo = true ) {
+function the_modified_date( $format = '', $before = '', $after = '', $display = true ) {
 	$the_modified_date = $before . get_the_modified_date( $format ) . $after;
 
 	/**
@@ -2544,7 +2538,7 @@ function the_modified_date( $format = '', $before = '', $after = '', $echo = tru
 	 */
 	$the_modified_date = apply_filters( 'the_modified_date', $the_modified_date, $format, $before, $after );
 
-	if ( $echo ) {
+	if ( $display ) {
 		echo $the_modified_date;
 	} else {
 		return $the_modified_date;
@@ -2553,10 +2547,8 @@ function the_modified_date( $format = '', $before = '', $after = '', $echo = tru
 }
 
 /**
- * Retrieve the date on which the post was last modified.
- *
- *
- *
+ * Retrieves the date on which the post was last modified.
+ * Added the `$post` parameter.
  *
  * @param string      $format Optional. PHP date format. Defaults to the 'date_format' option.
  * @param int|GC_Post $post   Optional. Post ID or GC_Post object. Default current post.
@@ -2577,6 +2569,7 @@ function get_the_modified_date( $format = '', $post = null ) {
 	/**
 	 * Filters the date a post was last modified.
 	 *
+	 * @since 4.6.0 Added the `$post` parameter.
 	 *
 	 * @param string|int|false $the_time The formatted date or false if no post is found.
 	 * @param string           $format   PHP date format.
@@ -2586,9 +2579,7 @@ function get_the_modified_date( $format = '', $post = null ) {
 }
 
 /**
- * Display the time at which the post was written.
- *
- *
+ * Displays the time at which the post was written.
  *
  * @param string $format Optional. Format to use for retrieving the time the post
  *                       was written. Accepts 'G', 'U', or PHP date format.
@@ -2598,6 +2589,7 @@ function the_time( $format = '' ) {
 	/**
 	 * Filters the time a post was written for display.
 	 *
+	 * @since 0.71
 	 *
 	 * @param string $get_the_time The formatted time.
 	 * @param string $format       Format to use for retrieving the time the post
@@ -2607,14 +2599,12 @@ function the_time( $format = '' ) {
 }
 
 /**
- * Retrieve the time at which the post was written.
- *
- *
+ * Retrieves the time at which the post was written.
  *
  * @param string      $format Optional. Format to use for retrieving the time the post
  *                            was written. Accepts 'G', 'U', or PHP date format.
  *                            Defaults to the 'time_format' option.
- * @param int|GC_Post $post   GC_Post object or ID. Default is global `$post` object.
+ * @param int|GC_Post $post   Post ID or post object. Default is global `$post` object.
  * @return string|int|false Formatted date string or Unix timestamp if `$format` is 'U' or 'G'.
  *                          False on failure.
  */
@@ -2632,24 +2622,23 @@ function get_the_time( $format = '', $post = null ) {
 	/**
 	 * Filters the time a post was written.
 	 *
+	 * @since 1.5.0
 	 *
-	 * @param string      $the_time The formatted time.
+	 * @param string|int  $the_time Formatted date string or Unix timestamp if `$format` is 'U' or 'G'.
 	 * @param string      $format   Format to use for retrieving the time the post
 	 *                              was written. Accepts 'G', 'U', or PHP date format.
-	 * @param int|GC_Post $post     GC_Post object or ID.
+	 * @param GC_Post     $post     Post object.
 	 */
 	return apply_filters( 'get_the_time', $the_time, $format, $post );
 }
 
 /**
- * Retrieve the time at which the post was written.
- *
- *
+ * Retrieves the time at which the post was written.
  *
  * @param string      $format    Optional. Format to use for retrieving the time the post
  *                               was written. Accepts 'G', 'U', or PHP date format. Default 'U'.
  * @param bool        $gmt       Optional. Whether to retrieve the GMT time. Default false.
- * @param int|GC_Post $post      GC_Post object or ID. Default is global `$post` object.
+ * @param int|GC_Post $post      Post ID or post object. Default is global `$post` object.
  * @param bool        $translate Whether to translate the time string. Default false.
  * @return string|int|false Formatted date string or Unix timestamp if `$format` is 'U' or 'G'.
  *                          False on failure.
@@ -2688,17 +2677,18 @@ function get_post_time( $format = 'U', $gmt = false, $post = null, $translate = 
 	/**
 	 * Filters the localized time a post was written.
 	 *
+	 * @since 2.6.0
 	 *
-	 * @param string $time   The formatted time.
-	 * @param string $format Format to use for retrieving the time the post was written.
-	 *                       Accepts 'G', 'U', or PHP date format. Default 'U'.
-	 * @param bool   $gmt    Whether to retrieve the GMT time. Default false.
+	 * @param string|int $time   Formatted date string or Unix timestamp if `$format` is 'U' or 'G'.
+	 * @param string     $format Format to use for retrieving the time the post was written.
+	 *                           Accepts 'G', 'U', or PHP date format.
+	 * @param bool       $gmt    Whether to retrieve the GMT time.
 	 */
 	return apply_filters( 'get_post_time', $time, $format, $gmt );
 }
 
 /**
- * Retrieve post published or modified time as a `DateTimeImmutable` object instance.
+ * Retrieves post published or modified time as a `DateTimeImmutable` object instance.
  *
  * The object will be set to the timezone from GeChiUI settings.
  *
@@ -2707,9 +2697,9 @@ function get_post_time( $format = 'U', $gmt = false, $post = null, $translate = 
  * typically because of timezone setting changes. The parameter ensures the ability to reproduce backwards
  * compatible behaviors in such cases.
  *
+ * @since 5.3.0
  *
- *
- * @param int|GC_Post $post   Optional. GC_Post object or ID. Default is global `$post` object.
+ * @param int|GC_Post $post   Optional. Post ID or post object. Default is global `$post` object.
  * @param string      $field  Optional. Published or modified time to use from database. Accepts 'date' or 'modified'.
  *                            Default 'date'.
  * @param string      $source Optional. Local or UTC time to use from database. Accepts 'local' or 'gmt'.
@@ -2747,14 +2737,14 @@ function get_post_datetime( $post = null, $field = 'date', $source = 'local' ) {
 }
 
 /**
- * Retrieve post published or modified time as a Unix timestamp.
+ * Retrieves post published or modified time as a Unix timestamp.
  *
  * Note that this function returns a true Unix timestamp, not summed with timezone offset
  * like older GC functions.
  *
+ * @since 5.3.0
  *
- *
- * @param int|GC_Post $post  Optional. GC_Post object or ID. Default is global `$post` object.
+ * @param int|GC_Post $post  Optional. Post ID or post object. Default is global `$post` object.
  * @param string      $field Optional. Published or modified time to use from database. Accepts 'date' or 'modified'.
  *                           Default 'date'.
  * @return int|false Unix timestamp on success, false on failure.
@@ -2770,9 +2760,7 @@ function get_post_timestamp( $post = null, $field = 'date' ) {
 }
 
 /**
- * Display the time at which the post was last modified.
- *
- *
+ * Displays the time at which the post was last modified.
  *
  * @param string $format Optional. Format to use for retrieving the time the post
  *                       was modified. Accepts 'G', 'U', or PHP date format.
@@ -2782,6 +2770,7 @@ function the_modified_time( $format = '' ) {
 	/**
 	 * Filters the localized time a post was last modified, for display.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string|false $get_the_modified_time The formatted time or false if no post is found.
 	 * @param string       $format                Format to use for retrieving the time the post
@@ -2791,10 +2780,8 @@ function the_modified_time( $format = '' ) {
 }
 
 /**
- * Retrieve the time at which the post was last modified.
- *
- *
- *
+ * Retrieves the time at which the post was last modified.
+ * Added the `$post` parameter.
  *
  * @param string      $format Optional. Format to use for retrieving the time the post
  *                            was modified. Accepts 'G', 'U', or PHP date format.
@@ -2817,6 +2804,8 @@ function get_the_modified_time( $format = '', $post = null ) {
 	/**
 	 * Filters the localized time a post was last modified.
 	 *
+	 * @since 2.0.0
+	 * @since 4.6.0 Added the `$post` parameter.
 	 *
 	 * @param string|int|false $the_time The formatted time or false if no post is found.
 	 * @param string           $format   Format to use for retrieving the time the post
@@ -2827,14 +2816,12 @@ function get_the_modified_time( $format = '', $post = null ) {
 }
 
 /**
- * Retrieve the time at which the post was last modified.
- *
- *
+ * Retrieves the time at which the post was last modified.
  *
  * @param string      $format    Optional. Format to use for retrieving the time the post
  *                               was modified. Accepts 'G', 'U', or PHP date format. Default 'U'.
  * @param bool        $gmt       Optional. Whether to retrieve the GMT time. Default false.
- * @param int|GC_Post $post      GC_Post object or ID. Default is global `$post` object.
+ * @param int|GC_Post $post      Post ID or post object. Default is global `$post` object.
  * @param bool        $translate Whether to translate the time string. Default false.
  * @return string|int|false Formatted date string or Unix timestamp if `$format` is 'U' or 'G'.
  *                          False on failure.
@@ -2883,9 +2870,7 @@ function get_post_modified_time( $format = 'U', $gmt = false, $post = null, $tra
 }
 
 /**
- * Display the weekday on which the post was written.
- *
- *
+ * Displays the weekday on which the post was written.
  *
  * @global GC_Locale $gc_locale GeChiUI date and time locale object.
  */
@@ -2903,6 +2888,7 @@ function the_weekday() {
 	/**
 	 * Filters the weekday on which the post was written, for display.
 	 *
+	 * @since 0.71
 	 *
 	 * @param string $the_weekday
 	 */
@@ -2910,12 +2896,10 @@ function the_weekday() {
 }
 
 /**
- * Display the weekday on which the post was written.
+ * Displays the weekday on which the post was written.
  *
  * Will only output the weekday if the current post's weekday is different from
  * the previous one output.
- *
- *
  *
  * @global GC_Locale $gc_locale       GeChiUI date and time locale object.
  * @global string    $currentday      The day of the current post in the loop.
@@ -2945,6 +2929,7 @@ function the_weekday_date( $before = '', $after = '' ) {
 	/**
 	 * Filters the localized date on which the post was written, for display.
 	 *
+	 * @since 0.71
 	 *
 	 * @param string $the_weekday_date The weekday on which the post was written.
 	 * @param string $before           The HTML to output before the date.
@@ -2954,54 +2939,54 @@ function the_weekday_date( $before = '', $after = '' ) {
 }
 
 /**
- * Fire the gc_head action.
+ * Fires the gc_head action.
  *
  * See {@see 'gc_head'}.
- *
  *
  */
 function gc_head() {
 	/**
 	 * Prints scripts or data in the head tag on the front end.
 	 *
+	 * @since 1.5.0
 	 */
 	do_action( 'gc_head' );
 }
 
 /**
- * Fire the gc_footer action.
+ * Fires the gc_footer action.
  *
  * See {@see 'gc_footer'}.
  *
- *
+ * @since 1.5.1
  */
 function gc_footer() {
 	/**
 	 * Prints scripts or data before the closing body tag on the front end.
 	 *
+	 * @since 1.5.1
 	 */
 	do_action( 'gc_footer' );
 }
 
 /**
- * Fire the gc_body_open action.
+ * Fires the gc_body_open action.
  *
  * See {@see 'gc_body_open'}.
  *
- *
+ * @since 5.2.0
  */
 function gc_body_open() {
 	/**
 	 * Triggered after the opening body tag.
 	 *
+	 * @since 5.2.0
 	 */
 	do_action( 'gc_body_open' );
 }
 
 /**
- * Display the links to the general feeds.
- *
- *
+ * Displays the links to the general feeds.
  *
  * @param array $args Optional arguments.
  */
@@ -3011,11 +2996,11 @@ function feed_links( $args = array() ) {
 	}
 
 	$defaults = array(
-		/* translators: Separator between blog name and feed type in feed links. */
+		/* translators: Separator between site name and feed type in feed links. */
 		'separator' => _x( '&raquo;', 'feed link' ),
-		/* translators: 1: Blog title, 2: Separator (raquo). */
+		/* translators: 1: Site title, 2: Separator (raquo). */
 		'feedtitle' => __( '%1$s %2$s Feed' ),
-		/* translators: 1: Blog title, 2: Separator (raquo). */
+		/* translators: 1: Site title, 2: Separator (raquo). */
 		'comstitle' => __( '%1$s %2$s 评论Feed' ),
 	);
 
@@ -3024,48 +3009,58 @@ function feed_links( $args = array() ) {
 	/**
 	 * Filters whether to display the posts feed link.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param bool $show Whether to display the posts feed link. Default true.
 	 */
 	if ( apply_filters( 'feed_links_show_posts_feed', true ) ) {
-		echo '<link rel="alternate" type="' . feed_content_type() . '" title="' . esc_attr( sprintf( $args['feedtitle'], get_bloginfo( 'name' ), $args['separator'] ) ) . '" href="' . esc_url( get_feed_link() ) . "\" />\n";
+		printf(
+			'<link rel="alternate" type="%s" title="%s" href="%s" />' . "\n",
+			feed_content_type(),
+			esc_attr( sprintf( $args['feedtitle'], get_bloginfo( 'name' ), $args['separator'] ) ),
+			esc_url( get_feed_link() )
+		);
 	}
 
 	/**
 	 * Filters whether to display the comments feed link.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param bool $show Whether to display the comments feed link. Default true.
 	 */
 	if ( apply_filters( 'feed_links_show_comments_feed', true ) ) {
-		echo '<link rel="alternate" type="' . feed_content_type() . '" title="' . esc_attr( sprintf( $args['comstitle'], get_bloginfo( 'name' ), $args['separator'] ) ) . '" href="' . esc_url( get_feed_link( 'comments_' . get_default_feed() ) ) . "\" />\n";
+		printf(
+			'<link rel="alternate" type="%s" title="%s" href="%s" />' . "\n",
+			feed_content_type(),
+			esc_attr( sprintf( $args['comstitle'], get_bloginfo( 'name' ), $args['separator'] ) ),
+			esc_url( get_feed_link( 'comments_' . get_default_feed() ) )
+		);
 	}
 }
 
 /**
- * Display the links to the extra feeds such as category feeds.
- *
- *
+ * Displays the links to the extra feeds such as category feeds.
  *
  * @param array $args Optional arguments.
  */
 function feed_links_extra( $args = array() ) {
 	$defaults = array(
-		/* translators: Separator between blog name and feed type in feed links. */
+		/* translators: Separator between site name and feed type in feed links. */
 		'separator'     => _x( '&raquo;', 'feed link' ),
-		/* translators: 1: Blog name, 2: Separator (raquo), 3: Post title. */
+		/* translators: 1: Site name, 2: Separator (raquo), 3: Post title. */
 		'singletitle'   => __( '%1$s %2$s %3$s评论Feed' ),
-		/* translators: 1: Blog name, 2: Separator (raquo), 3: Category name. */
+		/* translators: 1: Site name, 2: Separator (raquo), 3: Category name. */
 		'cattitle'      => __( '%1$s %2$s %3$s分类Feed' ),
-		/* translators: 1: Blog name, 2: Separator (raquo), 3: Tag name. */
+		/* translators: 1: Site name, 2: Separator (raquo), 3: Tag name. */
 		'tagtitle'      => __( '%1$s %2$s %3$s标签Feed' ),
-		/* translators: 1: Blog name, 2: Separator (raquo), 3: Term name, 4: Taxonomy singular name. */
+		/* translators: 1: Site name, 2: Separator (raquo), 3: Term name, 4: Taxonomy singular name. */
 		'taxtitle'      => __( '%1$s %2$s %3$s %4$s Feed' ),
-		/* translators: 1: Blog name, 2: Separator (raquo), 3: Author name. */
+		/* translators: 1: Site name, 2: Separator (raquo), 3: Author name. */
 		'authortitle'   => __( '%1$s %2$s 由%3$s发表的文章Feed' ),
-		/* translators: 1: Blog name, 2: Separator (raquo), 3: Search query. */
+		/* translators: 1: Site name, 2: Separator (raquo), 3: Search query. */
 		'searchtitle'   => __( '%1$s %2$s “%3$s”的搜索结果Feed' ),
-		/* translators: 1: Blog name, 2: Separator (raquo), 3: Post type name. */
+		/* translators: 1: Site name, 2: Separator (raquo), 3: Post type name. */
 		'posttypetitle' => __( '%1$s %2$s %3$sFeed' ),
 	);
 
@@ -3075,85 +3070,218 @@ function feed_links_extra( $args = array() ) {
 		$id   = 0;
 		$post = get_post( $id );
 
-		if ( comments_open() || pings_open() || $post->comment_count > 0 ) {
-			$title = sprintf( $args['singletitle'], get_bloginfo( 'name' ), $args['separator'], the_title_attribute( array( 'echo' => false ) ) );
-			$href  = get_post_comments_feed_link( $post->ID );
+		/** This filter is documented in gc-includes/general-template.php */
+		$show_comments_feed = apply_filters( 'feed_links_show_comments_feed', true );
+
+		/**
+		 * Filters whether to display the post comments feed link.
+		 *
+		 * This filter allows to enable or disable the feed link for a singular post
+		 * in a way that is independent of {@see 'feed_links_show_comments_feed'}
+		 * (which controls the global comments feed). The result of that filter
+		 * is accepted as a parameter.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param bool $show_comments_feed Whether to display the post comments feed link. Defaults to
+		 *                                 the {@see 'feed_links_show_comments_feed'} filter result.
+		 */
+		$show_post_comments_feed = apply_filters( 'feed_links_extra_show_post_comments_feed', $show_comments_feed );
+
+		if ( $show_post_comments_feed && ( comments_open() || pings_open() || $post->comment_count > 0 ) ) {
+			$title = sprintf(
+				$args['singletitle'],
+				get_bloginfo( 'name' ),
+				$args['separator'],
+				the_title_attribute( array( 'echo' => false ) )
+			);
+
+			$feed_link = get_post_comments_feed_link( $post->ID );
+
+			if ( $feed_link ) {
+				$href = $feed_link;
+			}
 		}
 	} elseif ( is_post_type_archive() ) {
-		$post_type = get_query_var( 'post_type' );
-		if ( is_array( $post_type ) ) {
-			$post_type = reset( $post_type );
+		/**
+		 * Filters whether to display the post type archive feed link.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param bool $show Whether to display the post type archive feed link. Default true.
+		 */
+		$show_post_type_archive_feed = apply_filters( 'feed_links_extra_show_post_type_archive_feed', true );
+
+		if ( $show_post_type_archive_feed ) {
+			$post_type = get_query_var( 'post_type' );
+
+			if ( is_array( $post_type ) ) {
+				$post_type = reset( $post_type );
+			}
+
+			$post_type_obj = get_post_type_object( $post_type );
+
+			$title = sprintf(
+				$args['posttypetitle'],
+				get_bloginfo( 'name' ),
+				$args['separator'],
+				$post_type_obj->labels->name
+			);
+
+			$href = get_post_type_archive_feed_link( $post_type_obj->name );
 		}
-
-		$post_type_obj = get_post_type_object( $post_type );
-		$title         = sprintf( $args['posttypetitle'], get_bloginfo( 'name' ), $args['separator'], $post_type_obj->labels->name );
-		$href          = get_post_type_archive_feed_link( $post_type_obj->name );
 	} elseif ( is_category() ) {
-		$term = get_queried_object();
+		/**
+		 * Filters whether to display the category feed link.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param bool $show Whether to display the category feed link. Default true.
+		 */
+		$show_category_feed = apply_filters( 'feed_links_extra_show_category_feed', true );
 
-		if ( $term ) {
-			$title = sprintf( $args['cattitle'], get_bloginfo( 'name' ), $args['separator'], $term->name );
-			$href  = get_category_feed_link( $term->term_id );
+		if ( $show_category_feed ) {
+			$term = get_queried_object();
+
+			if ( $term ) {
+				$title = sprintf(
+					$args['cattitle'],
+					get_bloginfo( 'name' ),
+					$args['separator'],
+					$term->name
+				);
+
+				$href = get_category_feed_link( $term->term_id );
+			}
 		}
 	} elseif ( is_tag() ) {
-		$term = get_queried_object();
+		/**
+		 * Filters whether to display the tag feed link.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param bool $show Whether to display the tag feed link. Default true.
+		 */
+		$show_tag_feed = apply_filters( 'feed_links_extra_show_tag_feed', true );
 
-		if ( $term ) {
-			$title = sprintf( $args['tagtitle'], get_bloginfo( 'name' ), $args['separator'], $term->name );
-			$href  = get_tag_feed_link( $term->term_id );
+		if ( $show_tag_feed ) {
+			$term = get_queried_object();
+
+			if ( $term ) {
+				$title = sprintf(
+					$args['tagtitle'],
+					get_bloginfo( 'name' ),
+					$args['separator'],
+					$term->name
+				);
+
+				$href = get_tag_feed_link( $term->term_id );
+			}
 		}
 	} elseif ( is_tax() ) {
-		$term = get_queried_object();
+		/**
+		 * Filters whether to display the custom taxonomy feed link.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param bool $show Whether to display the custom taxonomy feed link. Default true.
+		 */
+		$show_tax_feed = apply_filters( 'feed_links_extra_show_tax_feed', true );
 
-		if ( $term ) {
-			$tax   = get_taxonomy( $term->taxonomy );
-			$title = sprintf( $args['taxtitle'], get_bloginfo( 'name' ), $args['separator'], $term->name, $tax->labels->singular_name );
-			$href  = get_term_feed_link( $term->term_id, $term->taxonomy );
+		if ( $show_tax_feed ) {
+			$term = get_queried_object();
+
+			if ( $term ) {
+				$tax = get_taxonomy( $term->taxonomy );
+
+				$title = sprintf(
+					$args['taxtitle'],
+					get_bloginfo( 'name' ),
+					$args['separator'],
+					$term->name,
+					$tax->labels->singular_name
+				);
+
+				$href = get_term_feed_link( $term->term_id, $term->taxonomy );
+			}
 		}
 	} elseif ( is_author() ) {
-		$author_id = (int) get_query_var( 'author' );
+		/**
+		 * Filters whether to display the author feed link.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param bool $show Whether to display the author feed link. Default true.
+		 */
+		$show_author_feed = apply_filters( 'feed_links_extra_show_author_feed', true );
 
-		$title = sprintf( $args['authortitle'], get_bloginfo( 'name' ), $args['separator'], get_the_author_meta( 'display_name', $author_id ) );
-		$href  = get_author_feed_link( $author_id );
+		if ( $show_author_feed ) {
+			$author_id = (int) get_query_var( 'author' );
+
+			$title = sprintf(
+				$args['authortitle'],
+				get_bloginfo( 'name' ),
+				$args['separator'],
+				get_the_author_meta( 'display_name', $author_id )
+			);
+
+			$href = get_author_feed_link( $author_id );
+		}
 	} elseif ( is_search() ) {
-		$title = sprintf( $args['searchtitle'], get_bloginfo( 'name' ), $args['separator'], get_search_query( false ) );
-		$href  = get_search_feed_link();
+		/**
+		 * Filters whether to display the search results feed link.
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param bool $show Whether to display the search results feed link. Default true.
+		 */
+		$show_search_feed = apply_filters( 'feed_links_extra_show_search_feed', true );
+
+		if ( $show_search_feed ) {
+			$title = sprintf(
+				$args['searchtitle'],
+				get_bloginfo( 'name' ),
+				$args['separator'],
+				get_search_query( false )
+			);
+
+			$href = get_search_feed_link();
+		}
 	}
 
 	if ( isset( $title ) && isset( $href ) ) {
-		echo '<link rel="alternate" type="' . feed_content_type() . '" title="' . esc_attr( $title ) . '" href="' . esc_url( $href ) . '" />' . "\n";
+		printf(
+			'<link rel="alternate" type="%s" title="%s" href="%s" />' . "\n",
+			feed_content_type(),
+			esc_attr( $title ),
+			esc_url( $href )
+		);
 	}
 }
 
 /**
- * Display the link to the Really Simple Discovery service endpoint.
+ * Displays the link to the Really Simple Discovery service endpoint.
  *
  * @link http://archipelago.phrasewise.com/rsd
- *
  */
 function rsd_link() {
-	echo '<link rel="EditURI" type="application/rsd+xml" title="RSD" href="' . esc_url( site_url( 'xmlrpc.php?rsd', 'rpc' ) ) . '" />' . "\n";
+	printf(
+		'<link rel="EditURI" type="application/rsd+xml" title="RSD" href="%s" />' . "\n",
+		esc_url( site_url( 'xmlrpc.php?rsd', 'rpc' ) )
+	);
 }
 
 /**
- * Display the link to the Windows Live Writer manifest file.
+ * Displays a referrer `strict-origin-when-cross-origin` meta tag.
  *
- * @link https://msdn.microsoft.com/en-us/library/bb463265.aspx
+ * Outputs a referrer `strict-origin-when-cross-origin` meta tag that tells the browser not to send
+ * the full URL as a referrer to other sites when cross-origin assets are loaded.
  *
- */
-function wlwmanifest_link() {
-	echo '<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="' . includes_url( 'wlwmanifest.xml' ) . '" /> ' . "\n";
-}
-
-/**
- * Displays a referrer strict-origin-when-cross-origin meta tag.
+ * Typical usage is as a {@see 'gc_head'} callback:
  *
- * Outputs a referrer origin-when-cross-origin meta tag that tells the browser not to send the full
- * url as a referrer to other sites when cross-origin assets are loaded.
+ *     add_action( 'gc_head', 'gc_strict_cross_origin_referrer' );
  *
- * Typical usage is as a gc_head callback. add_action( 'gc_head', 'gc_strict_cross_origin_referrer' );
- *
- *
+ * @since 5.7.0
  */
 function gc_strict_cross_origin_referrer() {
 	?>
@@ -3162,9 +3290,9 @@ function gc_strict_cross_origin_referrer() {
 }
 
 /**
- * Display site icon meta tags.
+ * Displays site icon meta tags.
  *
- *
+ * @since 4.3.0
  *
  * @link https://www.whatwg.org/specs/web-apps/current-work/multipage/links.html#rel-icon HTML5 specification link icon.
  */
@@ -3197,6 +3325,7 @@ function gc_site_icon() {
 	/**
 	 * Filters the site icon meta tags, so plugins can add their own.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param string[] $meta_tags Array of Site Icon meta tags.
 	 */
@@ -3218,7 +3347,6 @@ function gc_site_icon() {
  *
  * These performance improving indicators work by using `<link rel"…">`.
  *
- *
  */
 function gc_resource_hints() {
 	$hints = array(
@@ -3228,19 +3356,14 @@ function gc_resource_hints() {
 		'prerender'    => array(),
 	);
 
-	/*
-	 * Add DNS prefetch for the Emoji CDN.
-	 * The path is removed in the foreach loop below.
-	 */
-	/** This filter is documented in gc-includes/formatting.php */
-	$hints['dns-prefetch'][] = apply_filters( 'emoji_svg_url', 'https://s.w.org/images/core/emoji/13.0.0/svg/' );
-
 	foreach ( $hints as $relation_type => $urls ) {
 		$unique_urls = array();
 
 		/**
 		 * Filters domains and URLs for resource hints of relation type.
 		 *
+		 * @since 4.6.0
+		 * @since 4.7.0 The `$urls` parameter accepts arrays of specific HTML attributes
 		 *              as its child elements.
 		 *
 		 * @param array  $urls {
@@ -3333,9 +3456,124 @@ function gc_resource_hints() {
 }
 
 /**
+ * Prints resource preloads directives to browsers.
+ *
+ * Gives directive to browsers to preload specific resources that website will
+ * need very soon, this ensures that they are available earlier and are less
+ * likely to block the page's render. Preload directives should not be used for
+ * non-render-blocking elements, as then they would compete with the
+ * render-blocking ones, slowing down the render.
+ *
+ * These performance improving indicators work by using `<link rel="preload">`.
+ *
+ * @link https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/preload
+ * @link https://web.dev/preload-responsive-images/
+ *
+ * @since 6.1.0
+ */
+function gc_preload_resources() {
+	/**
+	 * Filters domains and URLs for resource preloads.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param array  $preload_resources {
+	 *     Array of resources and their attributes, or URLs to print for resource preloads.
+	 *
+	 *     @type array ...$0 {
+	 *         Array of resource attributes.
+	 *
+	 *         @type string $href        URL to include in resource preloads. Required.
+	 *         @type string $as          How the browser should treat the resource
+	 *                                   (`script`, `style`, `image`, `document`, etc).
+	 *         @type string $crossorigin Indicates the CORS policy of the specified resource.
+	 *         @type string $type        Type of the resource (`text/html`, `text/css`, etc).
+	 *         @type string $media       Accepts media types or media queries. Allows responsive preloading.
+	 *         @type string $imagesizes  Responsive source size to the source Set.
+	 *         @type string $imagesrcset Responsive image sources to the source set.
+	 *     }
+	 * }
+	 */
+	$preload_resources = apply_filters( 'gc_preload_resources', array() );
+
+	if ( ! is_array( $preload_resources ) ) {
+		return;
+	}
+
+	$unique_resources = array();
+
+	// Parse the complete resource list and extract unique resources.
+	foreach ( $preload_resources as $resource ) {
+		if ( ! is_array( $resource ) ) {
+			continue;
+		}
+
+		$attributes = $resource;
+		if ( isset( $resource['href'] ) ) {
+			$href = $resource['href'];
+			if ( isset( $unique_resources[ $href ] ) ) {
+				continue;
+			}
+			$unique_resources[ $href ] = $attributes;
+			// Media can use imagesrcset and not href.
+		} elseif ( ( 'image' === $resource['as'] ) &&
+			( isset( $resource['imagesrcset'] ) || isset( $resource['imagesizes'] ) )
+		) {
+			if ( isset( $unique_resources[ $resource['imagesrcset'] ] ) ) {
+				continue;
+			}
+			$unique_resources[ $resource['imagesrcset'] ] = $attributes;
+		} else {
+			continue;
+		}
+	}
+
+	// Build and output the HTML for each unique resource.
+	foreach ( $unique_resources as $unique_resource ) {
+		$html = '';
+
+		foreach ( $unique_resource as $resource_key => $resource_value ) {
+			if ( ! is_scalar( $resource_value ) ) {
+				continue;
+			}
+
+			// Ignore non-supported attributes.
+			$non_supported_attributes = array( 'as', 'crossorigin', 'href', 'imagesrcset', 'imagesizes', 'type', 'media' );
+			if ( ! in_array( $resource_key, $non_supported_attributes, true ) && ! is_numeric( $resource_key ) ) {
+				continue;
+			}
+
+			// imagesrcset only usable when preloading image, ignore otherwise.
+			if ( ( 'imagesrcset' === $resource_key ) && ( ! isset( $unique_resource['as'] ) || ( 'image' !== $unique_resource['as'] ) ) ) {
+				continue;
+			}
+
+			// imagesizes only usable when preloading image and imagesrcset present, ignore otherwise.
+			if ( ( 'imagesizes' === $resource_key ) &&
+				( ! isset( $unique_resource['as'] ) || ( 'image' !== $unique_resource['as'] ) || ! isset( $unique_resource['imagesrcset'] ) )
+			) {
+				continue;
+			}
+
+			$resource_value = ( 'href' === $resource_key ) ? esc_url( $resource_value, array( 'http', 'https' ) ) : esc_attr( $resource_value );
+
+			if ( ! is_string( $resource_key ) ) {
+				$html .= " $resource_value";
+			} else {
+				$html .= " $resource_key='$resource_value'";
+			}
+		}
+		$html = trim( $html );
+
+		printf( "<link rel='preload' %s />\n", $html );
+	}
+}
+
+/**
  * Retrieves a list of unique hosts of all enqueued scripts and styles.
  *
- *
+ * @global GC_Scripts $gc_scripts The GC_Scripts object for printing scripts.
+ * @global GC_Styles  $gc_styles  The GC_Styles object for printing styles.
  *
  * @return string[] A list of unique hosts of enqueued scripts and styles.
  */
@@ -3368,11 +3606,9 @@ function gc_dependencies_unique_hosts() {
 }
 
 /**
- * Whether the user can access the visual editor.
+ * Determines whether the user can access the visual editor.
  *
  * Checks if the user can access the visual editor and that it's supported by the user's browser.
- *
- *
  *
  * @global bool $gc_rich_edit Whether the user can access the visual editor.
  * @global bool $is_gecko     Whether the browser is Gecko-based.
@@ -3394,7 +3630,7 @@ function user_can_richedit() {
 			if ( $is_safari ) {
 				$gc_rich_edit = ! gc_is_mobile() || ( preg_match( '!AppleWebKit/(\d+)!', $_SERVER['HTTP_USER_AGENT'], $match ) && (int) $match[1] >= 534 );
 			} elseif ( $is_IE ) {
-				$gc_rich_edit = ( strpos( $_SERVER['HTTP_USER_AGENT'], 'Trident/7.0;' ) !== false );
+				$gc_rich_edit = str_contains( $_SERVER['HTTP_USER_AGENT'], 'Trident/7.0;' );
 			} elseif ( $is_gecko || $is_chrome || $is_edge || ( $is_opera && ! gc_is_mobile() ) ) {
 				$gc_rich_edit = true;
 			}
@@ -3411,12 +3647,10 @@ function user_can_richedit() {
 }
 
 /**
- * Find out which editor should be displayed by default.
+ * Finds out which editor should be displayed by default.
  *
  * Works out which of the two editors to display as the current editor for a
  * user. The 'html' setting is for the "Text" editor tab.
- *
- *
  *
  * @return string Either 'tinymce', or 'html', or 'test'
  */
@@ -3451,7 +3685,6 @@ function gc_default_editor() {
  * @see _GC_Editors::editor()
  * @see _GC_Editors::parse_settings()
  *
- *
  * @param string $content   Initial content for the editor.
  * @param string $editor_id HTML ID attribute value for the textarea and TinyMCE.
  *                          Should not contain square brackets.
@@ -3471,7 +3704,6 @@ function gc_editor( $content, $editor_id, $settings = array() ) {
  * See gc.editor.initialize() in gc-admin/js/editor.js for initialization options.
  *
  * @uses _GC_Editors
- *
  */
 function gc_enqueue_editor() {
 	if ( ! class_exists( '_GC_Editors', false ) ) {
@@ -3482,9 +3714,7 @@ function gc_enqueue_editor() {
 }
 
 /**
- * Enqueue assets needed by the code editor for the given settings.
- *
- *
+ * Enqueues assets needed by the code editor for the given settings.
  *
  * @see gc_enqueue_editor()
  * @see gc_get_code_editor_settings();
@@ -3565,6 +3795,7 @@ function gc_enqueue_code_editor( $args ) {
 	/**
 	 * Fires when scripts and styles are enqueued for the code editor.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param array $settings Settings for the enqueued code editor.
 	 */
@@ -3574,9 +3805,9 @@ function gc_enqueue_code_editor( $args ) {
 }
 
 /**
- * Generate and return code editor settings.
+ * Generates and returns code editor settings.
  *
- *
+ * @since 5.0.0
  *
  * @see gc_enqueue_code_editor()
  *
@@ -3674,7 +3905,7 @@ function gc_get_code_editor_settings( $args ) {
 		if ( 'application/x-patch' === $type || 'text/x-patch' === $type ) {
 			$type = 'text/x-diff';
 		}
-	} elseif ( isset( $args['file'] ) && false !== strpos( basename( $args['file'] ), '.' ) ) {
+	} elseif ( isset( $args['file'] ) && str_contains( basename( $args['file'] ), '.' ) ) {
 		$extension = strtolower( pathinfo( $args['file'], PATHINFO_EXTENSION ) );
 		foreach ( gc_get_mime_types() as $exts => $mime ) {
 			if ( preg_match( '!^(' . $exts . ')$!i', $extension ) ) {
@@ -3810,7 +4041,7 @@ function gc_get_code_editor_settings( $args ) {
 				'matchBrackets'     => true,
 			)
 		);
-	} elseif ( false !== strpos( $type, 'json' ) ) {
+	} elseif ( str_contains( $type, 'json' ) ) {
 		$settings['codemirror'] = array_merge(
 			$settings['codemirror'],
 			array(
@@ -3827,7 +4058,7 @@ function gc_get_code_editor_settings( $args ) {
 		} else {
 			$settings['codemirror']['mode']['json'] = true;
 		}
-	} elseif ( false !== strpos( $type, 'jsx' ) ) {
+	} elseif ( str_contains( $type, 'jsx' ) ) {
 		$settings['codemirror'] = array_merge(
 			$settings['codemirror'],
 			array(
@@ -3873,7 +4104,7 @@ function gc_get_code_editor_settings( $args ) {
 				'matchBrackets'     => true,
 			)
 		);
-	} elseif ( false !== strpos( $type, 'xml' ) ) {
+	} elseif ( str_contains( $type, 'xml' ) ) {
 		$settings['codemirror'] = array_merge(
 			$settings['codemirror'],
 			array(
@@ -3913,6 +4144,7 @@ function gc_get_code_editor_settings( $args ) {
 	 *
 	 * Returning a falsey value will disable the syntax-highlighting code editor.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param array $settings The array of settings passed to the code editor.
 	 *                        A falsey value disables the editor.
@@ -3938,8 +4170,6 @@ function gc_get_code_editor_settings( $args ) {
  * The search query string is passed through esc_attr() to ensure that it is safe
  * for placing in an HTML attribute.
  *
- *
- *
  * @param bool $escaped Whether the result is escaped. Default true.
  *                      Only use when you are later escaping it. Do not use unescaped.
  * @return string
@@ -3948,6 +4178,7 @@ function get_search_query( $escaped = true ) {
 	/**
 	 * Filters the contents of the search query variable.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param mixed $search Contents of the search query variable.
 	 */
@@ -3965,12 +4196,12 @@ function get_search_query( $escaped = true ) {
  * The search query string is passed through esc_attr() to ensure that it is safe
  * for placing in an HTML attribute.
  *
- *
  */
 function the_search_query() {
 	/**
 	 * Filters the contents of the search query variable for display.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param mixed $search Contents of the search query variable.
 	 */
@@ -3983,9 +4214,10 @@ function the_search_query() {
  * Builds up a set of HTML attributes containing the text direction and language
  * information for the page.
  *
- *
+ * @since 4.3.0
  *
  * @param string $doctype Optional. The type of HTML document. Accepts 'xhtml' or 'html'. Default 'html'.
+ * @return string A space-separated list of language attributes.
  */
 function get_language_attributes( $doctype = 'html' ) {
 	$attributes = array();
@@ -4010,6 +4242,7 @@ function get_language_attributes( $doctype = 'html' ) {
 	/**
 	 * Filters the language attributes for display in the 'html' tag.
 	 *
+	 * @since 4.3.0 Added the `$doctype` parameter.
 	 *
 	 * @param string $output A space-separated list of language attributes.
 	 * @param string $doctype The type of HTML document (xhtml|html).
@@ -4023,8 +4256,7 @@ function get_language_attributes( $doctype = 'html' ) {
  * Builds up a set of HTML attributes containing the text direction and language
  * information for the page.
  *
- *
- *
+ * @since 4.3.0 Converted into a wrapper for get_language_attributes().
  *
  * @param string $doctype Optional. The type of HTML document. Accepts 'xhtml' or 'html'. Default 'html'.
  */
@@ -4077,9 +4309,7 @@ function language_attributes( $doctype = 'html' ) {
  * numbered links so that screen reader users understand what the links are for.
  * The text strings are added before and after the page number - within the
  * anchor tag.
- *
- *
- *
+ * Added the `aria_current` argument.
  *
  * @global GC_Query   $gc_query   GeChiUI Query object.
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
@@ -4099,8 +4329,8 @@ function language_attributes( $doctype = 'html' ) {
  *                                      Default 1.
  *     @type int    $mid_size           How many numbers to either side of the current pages. Default 2.
  *     @type bool   $prev_next          Whether to include the previous and next links in the list. Default true.
- *     @type bool   $prev_text          The previous page text. Default '&laquo; 上一页'.
- *     @type bool   $next_text          The next page text. Default '下一页 &raquo;'.
+ *     @type string $prev_text          The previous page text. Default '&laquo; 上一页'.
+ *     @type string $next_text          The next page text. Default '下一页 &raquo;'.
  *     @type string $type               Controls format of the returned value. Possible values are 'plain',
  *                                      'array' and 'list'. Default is 'plain'.
  *     @type array  $add_args           An array of query args to add. Default false.
@@ -4108,8 +4338,8 @@ function language_attributes( $doctype = 'html' ) {
  *     @type string $before_page_number A string to appear before the page number. Default empty.
  *     @type string $after_page_number  A string to append after the page number. Default empty.
  * }
- * @return string|array|void String of page links or array of page links, depending on 'type' argument.
- *                           Void if total number of pages is less than 2.
+ * @return string|string[]|void String of page links or array of page links, depending on 'type' argument.
+ *                              Void if total number of pages is less than 2.
  */
 function paginate_links( $args = '' ) {
 	global $gc_query, $gc_rewrite;
@@ -4205,7 +4435,7 @@ function paginate_links( $args = '' ) {
 			/**
 			 * Filters the paginated links for the given archive pages.
 			 *
-		
+			 * @since 3.0.0
 			 *
 			 * @param string $link The paginated link URL.
 			 */
@@ -4282,6 +4512,7 @@ function paginate_links( $args = '' ) {
 	/**
 	 * Filters the HTML output of paginated links for archives.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param string $r    HTML output.
 	 * @param array  $args An array of arguments. See paginate_links()
@@ -4297,11 +4528,9 @@ function paginate_links( $args = '' ) {
  *
  * Allows a plugin to register a new admin color scheme. For example:
  *
- *     gc_admin_css_color( 'classic', __( 'Classic' ), admin_url( "css/colors-classic.css" ), array(
+ *     gc_admin_css_color( 'classic', __( '经典' ), assets_url( "css/colors-classic.css" ), array(
  *         '#07273E', '#14568A', '#D54E21', '#2683AE'
  *     ) );
- *
- *
  *
  * @global array $_gc_admin_css_colors
  *
@@ -4341,7 +4570,6 @@ function gc_admin_css_color( $key, $name, $url, $colors = array(), $icons = arra
  *
  * @see gc_admin_css_color()
  *
- *
  */
 function register_admin_color_schemes() {
 	$suffix  = is_rtl() ? '-rtl' : '';
@@ -4361,8 +4589,8 @@ function register_admin_color_schemes() {
 
 	gc_admin_css_color(
 		'light',
-		_x( '明亮', 'admin color scheme' ),
-		admin_url( "css/colors/light/colors$suffix.css" ),
+		_x( '浅色', 'admin color scheme' ),
+		assets_url( "css/colors/light/colors$suffix.css" ),
 		array( '#e5e5e5', '#999', '#d64e07', '#04a4cc' ),
 		array(
 			'base'    => '#999',
@@ -4374,7 +4602,7 @@ function register_admin_color_schemes() {
 	gc_admin_css_color(
 		'modern',
 		_x( '现代', 'admin color scheme' ),
-		admin_url( "css/colors/modern/colors$suffix.css" ),
+		assets_url( "css/colors/modern/colors$suffix.css" ),
 		array( '#1e1e1e', '#3858e9', '#33f078' ),
 		array(
 			'base'    => '#f3f1f1',
@@ -4386,7 +4614,7 @@ function register_admin_color_schemes() {
 	gc_admin_css_color(
 		'blue',
 		_x( '蓝色', 'admin color scheme' ),
-		admin_url( "css/colors/blue/colors$suffix.css" ),
+		assets_url( "css/colors/blue/colors$suffix.css" ),
 		array( '#096484', '#4796b3', '#52accc', '#74B6CE' ),
 		array(
 			'base'    => '#e5f8ff',
@@ -4398,7 +4626,7 @@ function register_admin_color_schemes() {
 	gc_admin_css_color(
 		'midnight',
 		_x( '午夜', 'admin color scheme' ),
-		admin_url( "css/colors/midnight/colors$suffix.css" ),
+		assets_url( "css/colors/midnight/colors$suffix.css" ),
 		array( '#25282b', '#363b3f', '#69a8bb', '#e14d43' ),
 		array(
 			'base'    => '#f1f2f3',
@@ -4410,7 +4638,7 @@ function register_admin_color_schemes() {
 	gc_admin_css_color(
 		'sunrise',
 		_x( '日出', 'admin color scheme' ),
-		admin_url( "css/colors/sunrise/colors$suffix.css" ),
+		assets_url( "css/colors/sunrise/colors$suffix.css" ),
 		array( '#b43c38', '#cf4944', '#dd823b', '#ccaf0b' ),
 		array(
 			'base'    => '#f3f1f1',
@@ -4422,7 +4650,7 @@ function register_admin_color_schemes() {
 	gc_admin_css_color(
 		'ectoplasm',
 		_x( '星质', 'admin color scheme' ),
-		admin_url( "css/colors/ectoplasm/colors$suffix.css" ),
+		assets_url( "css/colors/ectoplasm/colors$suffix.css" ),
 		array( '#413256', '#523f6d', '#a3b745', '#d46f15' ),
 		array(
 			'base'    => '#ece6f6',
@@ -4434,7 +4662,7 @@ function register_admin_color_schemes() {
 	gc_admin_css_color(
 		'ocean',
 		_x( '海洋', 'admin color scheme' ),
-		admin_url( "css/colors/ocean/colors$suffix.css" ),
+		assets_url( "css/colors/ocean/colors$suffix.css" ),
 		array( '#627c83', '#738e96', '#9ebaa0', '#aa9d88' ),
 		array(
 			'base'    => '#f2fcff',
@@ -4446,7 +4674,7 @@ function register_admin_color_schemes() {
 	gc_admin_css_color(
 		'coffee',
 		_x( '咖啡', 'admin color scheme' ),
-		admin_url( "css/colors/coffee/colors$suffix.css" ),
+		assets_url( "css/colors/coffee/colors$suffix.css" ),
 		array( '#46403c', '#59524c', '#c7a589', '#9ea476' ),
 		array(
 			'base'    => '#f3f2f1',
@@ -4460,9 +4688,7 @@ function register_admin_color_schemes() {
 /**
  * Displays the URL of a GeChiUI admin CSS file.
  *
- * @see GC_Styles::_css_href and its {@see 'style_loader_src'} filter.
- *
- *
+ * @see GC_Styles::_css_href() and its {@see 'style_loader_src'} filter.
  *
  * @param string $file file relative to gc-admin/ without its ".css" extension.
  * @return string
@@ -4478,6 +4704,7 @@ function gc_admin_css_uri( $file = 'gc-admin' ) {
 	/**
 	 * Filters the URI of a GeChiUI admin CSS file.
 	 *
+	 * @since 2.3.0
 	 *
 	 * @param string $_file Relative path to the file with query arguments attached.
 	 * @param string $file  Relative path to the file, minus its ".css" extension.
@@ -4499,15 +4726,13 @@ function gc_admin_css_uri( $file = 'gc-admin' ) {
  * $file is a file relative to gc-admin/ without its ".css" extension. A
  * stylesheet link to that generated URL is printed.
  *
- *
- *
  * @param string $file       Optional. Style handle name or file name (without ".css" extension) relative
  *                           to gc-admin/. Defaults to 'gc-admin'.
  * @param bool   $force_echo Optional. Force the stylesheet link to be printed rather than enqueued.
  */
 function gc_admin_css( $file = 'gc-admin', $force_echo = false ) {
 	// For backward compatibility.
-	$handle = 0 === strpos( $file, 'css/' ) ? substr( $file, 4 ) : $file;
+	$handle = str_starts_with( $file, 'css/' ) ? substr( $file, 4 ) : $file;
 
 	if ( gc_styles()->query( $handle ) ) {
 		if ( $force_echo || did_action( 'gc_print_styles' ) ) {
@@ -4531,6 +4756,7 @@ function gc_admin_css( $file = 'gc-admin', $force_echo = false ) {
 	 * If the site is set to display right-to-left, the RTL stylesheet link
 	 * will be used instead.
 	 *
+	 * @since 2.3.0
 	 * @param string $stylesheet_link HTML link element for the stylesheet.
 	 * @param string $file            Style handle name or filename (without ".css" extension)
 	 *                                relative to gc-admin/. Defaults to 'gc-admin'.
@@ -4555,7 +4781,6 @@ function gc_admin_css( $file = 'gc-admin', $force_echo = false ) {
  * file similar to media-upload.js. That file should
  * require array('thickbox') to ensure it is loaded after.
  *
- *
  */
 function add_thickbox() {
 	gc_enqueue_script( 'thickbox' );
@@ -4571,7 +4796,6 @@ function add_thickbox() {
  *
  * See {@see 'gc_head'}.
  *
- *
  */
 function gc_generator() {
 	/**
@@ -4584,12 +4808,10 @@ function gc_generator() {
 }
 
 /**
- * Display the generator XML or Comment for RSS, ATOM, etc.
+ * Displays the generator XML or Comment for RSS, ATOM, etc.
  *
  * Returns the correct generator type for the requested output format. Allows
  * for a plugin to filter generators overall the {@see 'the_generator'} filter.
- *
- *
  *
  * @param string $type The type of generator to output - (html|xhtml|atom|rss2|rdf|comment|export).
  */
@@ -4611,8 +4833,6 @@ function the_generator( $type ) {
  * Returns the correct generator type for the requested output format. Allows
  * for a plugin to filter generators on an individual basis using the
  * {@see 'get_the_generator_$type'} filter.
- *
- *
  *
  * @param string $type The type of generator to return - (html|xhtml|atom|rss2|rdf|comment|export).
  * @return string|void The HTML content for the generator.
@@ -4656,10 +4876,10 @@ function get_the_generator( $type = '' ) {
 			$gen = '<generator uri="https://www.gechiui.com/" version="' . esc_attr( get_bloginfo_rss( 'version' ) ) . '">GeChiUI</generator>';
 			break;
 		case 'rss2':
-			$gen = '<generator>' . esc_url_raw( 'https://www.gechiui.com/?v=' . get_bloginfo_rss( 'version' ) ) . '</generator>';
+			$gen = '<generator>' . sanitize_url( 'https://www.gechiui.com/?v=' . get_bloginfo_rss( 'version' ) ) . '</generator>';
 			break;
 		case 'rdf':
-			$gen = '<admin:generatorAgent rdf:resource="' . esc_url_raw( 'https://www.gechiui.com/?v=' . get_bloginfo_rss( 'version' ) ) . '" />';
+			$gen = '<admin:generatorAgent rdf:resource="' . sanitize_url( 'https://www.gechiui.com/?v=' . get_bloginfo_rss( 'version' ) ) . '" />';
 			break;
 		case 'comment':
 			$gen = '<!-- generator="GeChiUI/' . esc_attr( get_bloginfo( 'version' ) ) . '" -->';
@@ -4697,17 +4917,15 @@ function get_the_generator( $type = '' ) {
  *
  * Compares the first two arguments and if identical marks as checked.
  *
- *
- *
  * @param mixed $checked One of the values to compare.
  * @param mixed $current Optional. The other value to compare if not just true.
  *                       Default true.
- * @param bool  $echo    Optional. Whether to echo or just return the string.
+ * @param bool  $display Optional. Whether to echo or just return the string.
  *                       Default true.
  * @return string HTML attribute or empty string.
  */
-function checked( $checked, $current = true, $echo = true ) {
-	return __checked_selected_helper( $checked, $current, $echo, 'checked' );
+function checked( $checked, $current = true, $display = true ) {
+	return __checked_selected_helper( $checked, $current, $display, 'checked' );
 }
 
 /**
@@ -4715,17 +4933,15 @@ function checked( $checked, $current = true, $echo = true ) {
  *
  * Compares the first two arguments and if identical marks as selected.
  *
- *
- *
  * @param mixed $selected One of the values to compare.
  * @param mixed $current  Optional. The other value to compare if not just true.
  *                        Default true.
- * @param bool  $echo     Optional. Whether to echo or just return the string.
+ * @param bool  $display  Optional. Whether to echo or just return the string.
  *                        Default true.
  * @return string HTML attribute or empty string.
  */
-function selected( $selected, $current = true, $echo = true ) {
-	return __checked_selected_helper( $selected, $current, $echo, 'selected' );
+function selected( $selected, $current = true, $display = true ) {
+	return __checked_selected_helper( $selected, $current, $display, 'selected' );
 }
 
 /**
@@ -4733,17 +4949,15 @@ function selected( $selected, $current = true, $echo = true ) {
  *
  * Compares the first two arguments and if identical marks as disabled.
  *
- *
- *
  * @param mixed $disabled One of the values to compare.
  * @param mixed $current  Optional. The other value to compare if not just true.
  *                        Default true.
- * @param bool  $echo     Optional. Whether to echo or just return the string.
+ * @param bool  $display  Optional. Whether to echo or just return the string.
  *                        Default true.
  * @return string HTML attribute or empty string.
  */
-function disabled( $disabled, $current = true, $echo = true ) {
-	return __checked_selected_helper( $disabled, $current, $echo, 'disabled' );
+function disabled( $disabled, $current = true, $display = true ) {
+	return __checked_selected_helper( $disabled, $current, $display, 'disabled' );
 }
 
 /**
@@ -4751,17 +4965,17 @@ function disabled( $disabled, $current = true, $echo = true ) {
  *
  * Compares the first two arguments and if identical marks as readonly.
  *
+ * @since 5.9.0
  *
- *
- * @param mixed $readonly One of the values to compare.
- * @param mixed $current  Optional. The other value to compare if not just true.
- *                        Default true.
- * @param bool  $echo     Optional. Whether to echo or just return the string.
- *                        Default true.
+ * @param mixed $readonly_value One of the values to compare.
+ * @param mixed $current        Optional. The other value to compare if not just true.
+ *                              Default true.
+ * @param bool  $display        Optional. Whether to echo or just return the string.
+ *                              Default true.
  * @return string HTML attribute or empty string.
  */
-function gc_readonly( $readonly, $current = true, $echo = true ) {
-	return __checked_selected_helper( $readonly, $current, $echo, 'readonly' );
+function gc_readonly( $readonly_value, $current = true, $display = true ) {
+	return __checked_selected_helper( $readonly_value, $current, $display, 'readonly' );
 }
 
 /*
@@ -4779,23 +4993,22 @@ if ( PHP_VERSION_ID < 80100 ) {
  *
  * Compares the first two arguments and if identical marks as `$type`.
  *
- *
  * @access private
  *
  * @param mixed  $helper  One of the values to compare.
  * @param mixed  $current The other value to compare if not just true.
- * @param bool   $echo    Whether to echo or just return the string.
+ * @param bool   $display Whether to echo or just return the string.
  * @param string $type    The type of checked|selected|disabled|readonly we are doing.
  * @return string HTML attribute or empty string.
  */
-function __checked_selected_helper( $helper, $current, $echo, $type ) { // phpcs:ignore GeChiUI.NamingConventions.ValidFunctionName.FunctionDoubleUnderscore,PHPCompatibility.FunctionNameRestrictions.ReservedFunctionNames.FunctionDoubleUnderscore
+function __checked_selected_helper( $helper, $current, $display, $type ) { // phpcs:ignore GeChiUI.NamingConventions.ValidFunctionName.FunctionDoubleUnderscore,PHPCompatibility.FunctionNameRestrictions.ReservedFunctionNames.FunctionDoubleUnderscore
 	if ( (string) $helper === (string) $current ) {
 		$result = " $type='$type'";
 	} else {
 		$result = '';
 	}
 
-	if ( $echo ) {
+	if ( $display ) {
 		echo $result;
 	}
 
@@ -4803,11 +5016,55 @@ function __checked_selected_helper( $helper, $current, $echo, $type ) { // phpcs
 }
 
 /**
- * Default settings for heartbeat
+ * Assigns a visual indicator for required form fields.
  *
- * Outputs the nonce used in the heartbeat XHR
+ * @since 6.1.0
  *
+ * @return string Indicator glyph wrapped in a `span` tag.
+ */
+function gc_required_field_indicator() {
+	/* translators: Character to identify required form fields. */
+	$glyph     = __( '*' );
+	$indicator = '<span class="required">' . esc_html( $glyph ) . '</span>';
+
+	/**
+	 * Filters the markup for a visual indicator of required form fields.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param string $indicator Markup for the indicator element.
+	 */
+	return apply_filters( 'gc_required_field_indicator', $indicator );
+}
+
+/**
+ * Creates a message to explain required form fields.
  *
+ * @since 6.1.0
+ *
+ * @return string Message text and glyph wrapped in a `span` tag.
+ */
+function gc_required_field_message() {
+	$message = sprintf(
+		'<span class="required-field-message">%s</span>',
+		/* translators: %s: Asterisk symbol (*). */
+		sprintf( __( '必填项已用%s标注' ), gc_required_field_indicator() )
+	);
+
+	/**
+	 * Filters the message to explain required form fields.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param string $message Message text and glyph wrapped in a `span` tag.
+	 */
+	return apply_filters( 'gc_required_field_message', $message );
+}
+
+/**
+ * Default settings for heartbeat.
+ *
+ * Outputs the nonce used in the heartbeat XHR.
  *
  * @param array $settings
  * @return array Heartbeat settings.

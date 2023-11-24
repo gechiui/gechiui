@@ -1,11 +1,11 @@
 /**
- * @output gc-includes/js/gc-custom-header.js
+ * @output assets/js/gc-custom-header.js
  */
 
 /* global YT */
 (function( window, settings ) {
 
-	var NativeHandler, YouTubeHandler;
+	var NativeHandler, YouKuHandler;
 
 	/** @namespace gc */
 	window.gc = window.gc || {};
@@ -44,7 +44,7 @@
 	function CustomHeader() {
 		this.handlers = {
 			nativeVideo: new NativeHandler(),
-			youtube: new YouTubeHandler()
+			youku: new YouKuHandler()
 		};
 	}
 
@@ -336,13 +336,13 @@
 	});
 
 	/**
-	 * YouTube video handler.
+	 * YouKu video handler.
 	 *
 	 * @memberOf gc
 	 *
-	 * @class gc.YouTubeHandler
+	 * @class gc.YouKuHandler
 	 */
-	YouTubeHandler = BaseHandler.extend(/** @lends gc.YouTubeHandler.prototype */{
+	YouKuHandler = BaseHandler.extend(/** @lends gc.YouKuHandler.prototype */{
 		/**
 		 * Whether the handler supports a video.
 		 *
@@ -350,13 +350,13 @@
 		 * @return {boolean}
 		 */
 		test: function( settings ) {
-			return 'video/x-youtube' === settings.mimeType;
+			return 'video/x-youku' === settings.mimeType;
 		},
 
 		/**
-		 * Set up a YouTube iframe.
+		 * Set up a YouKu iframe.
 		 *
-		 * Loads the YouTube IFrame API if the 'YT' global doesn't exist.
+		 * Loads the YouKu IFrame API if the 'YT' global doesn't exist.
 		 */
 		ready: function() {
 			var handler = this;
@@ -365,7 +365,7 @@
 				YT.ready( handler.loadVideo.bind( handler ) );
 			} else {
 				var tag = document.createElement( 'script' );
-				tag.src = 'https://www.youtube.com/iframe_api';
+				tag.src = 'https://www.youku.com/iframe_api';
 				tag.onload = function () {
 					YT.ready( handler.loadVideo.bind( handler ) );
 				};
@@ -375,7 +375,7 @@
 		},
 
 		/**
-		 * Load a YouTube video.
+		 * Load a YouKu video.
 		 */
 		loadVideo: function() {
 			var handler = this,

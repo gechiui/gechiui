@@ -1,6 +1,6 @@
 <?php
 /**
- * 具有共享背景色的社交链接.
+ * Social links with a shared background color.
  *
  * @package GeChiUI
  */

@@ -7,9 +7,7 @@
  */
 
 /**
- * Add a link to using values provided in $_POST.
- *
- *
+ * Adds a link using values provided in $_POST.
  *
  * @return int|GC_Error Value 0 or GC_Error on failure. The link ID on success.
  */
@@ -20,8 +18,6 @@ function add_link() {
 /**
  * Updates or inserts a link using values provided in $_POST.
  *
- *
- *
  * @param int $link_id Optional. ID of the link to edit. Default 0.
  * @return int|GC_Error Value 0 or GC_Error on failure. The link ID on success.
  */
@@ -29,12 +25,11 @@ function edit_link( $link_id = 0 ) {
 	if ( ! current_user_can( 'manage_links' ) ) {
 		gc_die(
 			'<h1>' . __( '您需要更高级别的权限。' ) . '</h1>' .
-			'<p>' . __( '抱歉，您不能在此站点上编辑链接。' ) . '</p>',
+			'<p>' . __( '抱歉，您不能在此系统上编辑链接。' ) . '</p>',
 			403
 		);
 	}
 
-	$_POST['link_url']   = esc_html( $_POST['link_url'] );
 	$_POST['link_url']   = esc_url( $_POST['link_url'] );
 	$_POST['link_name']  = esc_html( $_POST['link_name'] );
 	$_POST['link_image'] = esc_html( $_POST['link_image'] );
@@ -54,12 +49,10 @@ function edit_link( $link_id = 0 ) {
 /**
  * Retrieves the default link for editing.
  *
- *
- *
  * @return stdClass Default link object.
  */
 function get_default_link_to_edit() {
-	$link = new stdClass;
+	$link = new stdClass();
 	if ( isset( $_GET['linkurl'] ) ) {
 		$link->link_url = esc_url( gc_unslash( $_GET['linkurl'] ) );
 	} else {
@@ -80,11 +73,9 @@ function get_default_link_to_edit() {
 /**
  * Deletes a specified link from the database.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
- * @param int $link_id ID of the link to delete
+ * @param int $link_id ID of the link to delete.
  * @return true Always true.
  */
 function gc_delete_link( $link_id ) {
@@ -92,6 +83,7 @@ function gc_delete_link( $link_id ) {
 	/**
 	 * Fires before a link is deleted.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param int $link_id ID of the link to delete.
 	 */
@@ -104,6 +96,7 @@ function gc_delete_link( $link_id ) {
 	/**
 	 * Fires after a link has been deleted.
 	 *
+	 * @since 2.2.0
 	 *
 	 * @param int $link_id ID of the deleted link.
 	 */
@@ -117,8 +110,6 @@ function gc_delete_link( $link_id ) {
 /**
  * Retrieves the link category IDs associated with the link specified.
  *
- *
- *
  * @param int $link_id Link ID to look up.
  * @return int[] The IDs of the requested link's categories.
  */
@@ -129,8 +120,6 @@ function gc_get_link_cats( $link_id = 0 ) {
 
 /**
  * Retrieves link data based on its ID.
- *
- *
  *
  * @param int|stdClass $link Link ID or object to retrieve.
  * @return object Link object for editing.
@@ -144,8 +133,6 @@ function get_link_to_edit( $link ) {
  *
  * Runs all the necessary sanitizing, provides default values if arguments are missing,
  * and finally saves the link.
- *
- *
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
@@ -245,6 +232,7 @@ function gc_insert_link( $linkdata, $gc_error = false ) {
 		/**
 		 * Fires after a link was updated in the database.
 		 *
+		 * @since 2.0.0
 		 *
 		 * @param int $link_id ID of the link that was updated.
 		 */
@@ -253,6 +241,7 @@ function gc_insert_link( $linkdata, $gc_error = false ) {
 		/**
 		 * Fires after a link was added to the database.
 		 *
+		 * @since 2.0.0
 		 *
 		 * @param int $link_id ID of the link that was added.
 		 */
@@ -264,9 +253,7 @@ function gc_insert_link( $linkdata, $gc_error = false ) {
 }
 
 /**
- * Update link with the specified link categories.
- *
- *
+ * Updates link with the specified link categories.
  *
  * @param int   $link_id         ID of the link to update.
  * @param int[] $link_categories Array of link category IDs to add the link to.
@@ -287,8 +274,6 @@ function gc_set_link_cats( $link_id = 0, $link_categories = array() ) {
 
 /**
  * Updates a link in the database.
- *
- *
  *
  * @param array $linkdata Link data to update. See gc_insert_link() for accepted arguments.
  * @return int|GC_Error Value 0 or GC_Error on failure. The updated link ID on success.
@@ -320,10 +305,9 @@ function gc_update_link( $linkdata ) {
 /**
  * Outputs the 'disabled' message for the GeChiUI Link Manager.
  *
- *
  * @access private
  *
- * @global string $pagenow
+ * @global string $pagenow The filename of the current screen.
  */
 function gc_link_manager_disabled_message() {
 	global $pagenow;
@@ -372,5 +356,5 @@ function gc_link_manager_disabled_message() {
 		}
 	}
 
-	gc_die( __( '抱歉，您不能在此站点上编辑链接。' ) );
+	gc_die( __( '抱歉，您不能在此系统上编辑链接。' ) );
 }

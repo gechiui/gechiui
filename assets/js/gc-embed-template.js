@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/gc-embed-template.js
+ * @output assets/js/gc-embed-template.js
  */
 (function ( window, document ) {
 	'use strict';

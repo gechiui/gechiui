@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core class to manage comment meta via the REST API.
- *
- *
  *
  * @see GC_REST_Meta_Fields
  */
@@ -19,6 +16,7 @@ class GC_REST_Comment_Meta_Fields extends GC_REST_Meta_Fields {
 	/**
 	 * Retrieves the comment type for comment meta.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return string The meta type.
 	 */
@@ -29,6 +27,7 @@ class GC_REST_Comment_Meta_Fields extends GC_REST_Meta_Fields {
 	/**
 	 * Retrieves the comment meta subtype.
 	 *
+	 * @since 4.9.8
 	 *
 	 * @return string 'comment' There are no subtypes.
 	 */
@@ -39,6 +38,7 @@ class GC_REST_Comment_Meta_Fields extends GC_REST_Meta_Fields {
 	/**
 	 * Retrieves the type for register_rest_field() in the context of comments.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return string The REST field type.
 	 */

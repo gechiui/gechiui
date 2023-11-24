@@ -1,95 +1,67 @@
-this["gc"] = this["gc"] || {}; this["gc"]["plugins"] =
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "Jumk");
-/******/ })
+/******/ (function() { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	// The require scope
+/******/ 	var __webpack_require__ = {};
+/******/ 	
 /************************************************************************/
-/******/ ({
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	!function() {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = function(module) {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				function() { return module['default']; } :
+/******/ 				function() { return module; };
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	!function() {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = function(exports, definition) {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	!function() {
+/******/ 		__webpack_require__.o = function(obj, prop) { return Object.prototype.hasOwnProperty.call(obj, prop); }
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	!function() {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = function(exports) {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
 
-/***/ "4eJC":
-/***/ (function(module, exports, __webpack_require__) {
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  "PluginArea": function() { return /* reexport */ plugin_area; },
+  "getPlugin": function() { return /* reexport */ getPlugin; },
+  "getPlugins": function() { return /* reexport */ getPlugins; },
+  "registerPlugin": function() { return /* reexport */ registerPlugin; },
+  "unregisterPlugin": function() { return /* reexport */ unregisterPlugin; },
+  "withPluginContext": function() { return /* reexport */ withPluginContext; }
+});
 
+;// CONCATENATED MODULE: external ["gc","element"]
+var external_gc_element_namespaceObject = window["gc"]["element"];
+;// CONCATENATED MODULE: ./node_modules/memize/dist/index.js
 /**
  * Memize options object.
  *
@@ -122,14 +94,14 @@ this["gc"] = this["gc"] || {}; this["gc"]["plugins"] =
  * Accepts a function to be memoized, and returns a new memoized function, with
  * optional options.
  *
- * @template {Function} F
+ * @template {(...args: any[]) => any} F
  *
  * @param {F}             fn        Function to memoize.
  * @param {MemizeOptions} [options] Options object.
  *
- * @return {F & MemizeMemoizedFunction} Memoized function.
+ * @return {((...args: Parameters<F>) => ReturnType<F>) & MemizeMemoizedFunction} Memoized function.
  */
-function memize( fn, options ) {
+function memize(fn, options) {
 	var size = 0;
 
 	/** @type {?MemizeCacheNode|undefined} */
@@ -140,12 +112,13 @@ function memize( fn, options ) {
 
 	options = options || {};
 
-	function memoized( /* ...args */ ) {
+	function memoized(/* ...args */) {
 		var node = head,
 			len = arguments.length,
-			args, i;
+			args,
+			i;
 
-		searchCache: while ( node ) {
+		searchCache: while (node) {
 			// Perform a shallow equality test to confirm that whether the node
 			// under test is a candidate for the arguments passed. Two arrays
 			// are shallowly equal if their length matches and each entry is
@@ -153,14 +126,14 @@ function memize( fn, options ) {
 			// function which could incur an arguments leaking deoptimization.
 
 			// Check whether node arguments match arguments length
-			if ( node.args.length !== arguments.length ) {
+			if (node.args.length !== arguments.length) {
 				node = node.next;
 				continue;
 			}
 
 			// Check whether node arguments match arguments values
-			for ( i = 0; i < len; i++ ) {
-				if ( node.args[ i ] !== arguments[ i ] ) {
+			for (i = 0; i < len; i++) {
+				if (node.args[i] !== arguments[i]) {
 					node = node.next;
 					continue searchCache;
 				}
@@ -169,23 +142,23 @@ function memize( fn, options ) {
 			// At this point we can assume we've found a match
 
 			// Surface matched node to head if not already
-			if ( node !== head ) {
+			if (node !== head) {
 				// As tail, shift to previous. Must only shift if not also
 				// head, since if both head and tail, there is no previous.
-				if ( node === tail ) {
+				if (node === tail) {
 					tail = node.prev;
 				}
 
 				// Adjust siblings to point to each other. If node was tail,
 				// this also handles new tail's empty `next` assignment.
-				/** @type {MemizeCacheNode} */ ( node.prev ).next = node.next;
-				if ( node.next ) {
+				/** @type {MemizeCacheNode} */ (node.prev).next = node.next;
+				if (node.next) {
 					node.next.prev = node.prev;
 				}
 
 				node.next = head;
 				node.prev = null;
-				/** @type {MemizeCacheNode} */ ( head ).prev = node;
+				/** @type {MemizeCacheNode} */ (head).prev = node;
 				head = node;
 			}
 
@@ -196,23 +169,23 @@ function memize( fn, options ) {
 		// No cached value found. Continue to insertion phase:
 
 		// Create a copy of arguments (avoid leaking deoptimization)
-		args = new Array( len );
-		for ( i = 0; i < len; i++ ) {
-			args[ i ] = arguments[ i ];
+		args = new Array(len);
+		for (i = 0; i < len; i++) {
+			args[i] = arguments[i];
 		}
 
 		node = {
 			args: args,
 
 			// Generate the result from original function
-			val: fn.apply( null, args ),
+			val: fn.apply(null, args),
 		};
 
 		// Don't need to check whether node is already head, since it would
 		// have been returned above already if it was
 
 		// Shift existing head down list
-		if ( head ) {
+		if (head) {
 			head.prev = node;
 			node.next = head;
 		} else {
@@ -221,9 +194,9 @@ function memize( fn, options ) {
 		}
 
 		// Trim tail if we're reached max size and are pending cache insertion
-		if ( size === /** @type {MemizeOptions} */ ( options ).maxSize ) {
-			tail = /** @type {MemizeCacheNode} */ ( tail ).prev;
-			/** @type {MemizeCacheNode} */ ( tail ).next = null;
+		if (size === /** @type {MemizeOptions} */ (options).maxSize) {
+			tail = /** @type {MemizeCacheNode} */ (tail).prev;
+			/** @type {MemizeCacheNode} */ (tail).next = null;
 		} else {
 			size++;
 		}
@@ -233,13 +206,11 @@ function memize( fn, options ) {
 		return node.val;
 	}
 
-	memoized.clear = function() {
+	memoized.clear = function () {
 		head = null;
 		tail = null;
 		size = 0;
 	};
-
-	if ( false ) {}
 
 	// Ignore reason: There's not a clear solution to create an intersection of
 	// the function with additional properties, where the goal is to retain the
@@ -250,54 +221,16 @@ function memize( fn, options ) {
 	return memoized;
 }
 
-module.exports = memize;
 
 
-/***/ }),
-
-/***/ "Gz8V":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["primitives"]; }());
-
-/***/ }),
-
-/***/ "Jumk":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-// ESM COMPAT FLAG
-__webpack_require__.r(__webpack_exports__);
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, "PluginArea", function() { return /* reexport */ plugin_area; });
-__webpack_require__.d(__webpack_exports__, "withPluginContext", function() { return /* reexport */ withPluginContext; });
-__webpack_require__.d(__webpack_exports__, "registerPlugin", function() { return /* reexport */ registerPlugin; });
-__webpack_require__.d(__webpack_exports__, "unregisterPlugin", function() { return /* reexport */ unregisterPlugin; });
-__webpack_require__.d(__webpack_exports__, "getPlugin", function() { return /* reexport */ getPlugin; });
-__webpack_require__.d(__webpack_exports__, "getPlugins", function() { return /* reexport */ getPlugins; });
-
-// EXTERNAL MODULE: external ["gc","element"]
-var external_gc_element_ = __webpack_require__("ewfG");
-
-// EXTERNAL MODULE: external "lodash"
-var external_lodash_ = __webpack_require__("YLtl");
-
-// EXTERNAL MODULE: ./node_modules/memize/index.js
-var memize = __webpack_require__("4eJC");
-var memize_default = /*#__PURE__*/__webpack_require__.n(memize);
-
-// EXTERNAL MODULE: external ["gc","hooks"]
-var external_gc_hooks_ = __webpack_require__("kZIl");
-
-// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/extends.js
-var esm_extends = __webpack_require__("wx14");
-
-// EXTERNAL MODULE: external ["gc","compose"]
-var external_gc_compose_ = __webpack_require__("dMTb");
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/plugins/build-module/components/plugin-context/index.js
-
+;// CONCATENATED MODULE: external ["gc","hooks"]
+var external_gc_hooks_namespaceObject = window["gc"]["hooks"];
+;// CONCATENATED MODULE: external ["gc","isShallowEqual"]
+var external_gc_isShallowEqual_namespaceObject = window["gc"]["isShallowEqual"];
+var external_gc_isShallowEqual_default = /*#__PURE__*/__webpack_require__.n(external_gc_isShallowEqual_namespaceObject);
+;// CONCATENATED MODULE: external ["gc","compose"]
+var external_gc_compose_namespaceObject = window["gc"]["compose"];
+;// CONCATENATED MODULE: ./node_modules/@gechiui/plugins/build-module/components/plugin-context/index.js
 
 
 /**
@@ -305,10 +238,14 @@ var external_gc_compose_ = __webpack_require__("dMTb");
  */
 
 
+/**
+ * Internal dependencies
+ */
+
 const {
   Consumer,
   Provider
-} = Object(external_gc_element_["createContext"])({
+} = (0,external_gc_element_namespaceObject.createContext)({
   name: null,
   icon: null
 });
@@ -317,21 +254,84 @@ const {
  * A Higher Order Component used to inject Plugin context to the
  * wrapped component.
  *
- * @param {Function} mapContextToProps Function called on every context change,
- *                                     expected to return object of props to
- *                                     merge with the component's own props.
+ * @param  mapContextToProps Function called on every context change,
+ *                           expected to return object of props to
+ *                           merge with the component's own props.
  *
  * @return {GCComponent} Enhanced component with injected context as props.
  */
 
-const withPluginContext = mapContextToProps => Object(external_gc_compose_["createHigherOrderComponent"])(OriginalComponent => {
-  return props => Object(external_gc_element_["createElement"])(Consumer, null, context => Object(external_gc_element_["createElement"])(OriginalComponent, Object(esm_extends["a" /* default */])({}, props, mapContextToProps(context, props))));
+const withPluginContext = mapContextToProps => (0,external_gc_compose_namespaceObject.createHigherOrderComponent)(OriginalComponent => {
+  return props => (0,external_gc_element_namespaceObject.createElement)(Consumer, null, context => (0,external_gc_element_namespaceObject.createElement)(OriginalComponent, { ...props,
+    ...mapContextToProps(context, props)
+  }));
 }, 'withPluginContext');
 
-// EXTERNAL MODULE: ./node_modules/@gechiui/icons/build-module/library/plugins.js
-var plugins = __webpack_require__("u/G3");
+;// CONCATENATED MODULE: ./node_modules/@gechiui/plugins/build-module/components/plugin-error-boundary/index.js
+/**
+ * GeChiUI dependencies
+ */
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/plugins/build-module/api/index.js
+class PluginErrorBoundary extends external_gc_element_namespaceObject.Component {
+  /**
+   * @param {Object} props
+   */
+  constructor(props) {
+    super(props);
+    this.state = {
+      hasError: false
+    };
+  }
+
+  static getDerivedStateFromError() {
+    return {
+      hasError: true
+    };
+  }
+  /**
+   * @param {Error} error Error object passed by React.
+   */
+
+
+  componentDidCatch(error) {
+    const {
+      name,
+      onError
+    } = this.props;
+
+    if (onError) {
+      onError(name, error);
+    }
+  }
+
+  render() {
+    if (!this.state.hasError) {
+      return this.props.children;
+    }
+
+    return null;
+  }
+
+}
+
+;// CONCATENATED MODULE: external ["gc","primitives"]
+var external_gc_primitives_namespaceObject = window["gc"]["primitives"];
+;// CONCATENATED MODULE: ./node_modules/@gechiui/icons/build-module/library/plugins.js
+
+
+/**
+ * GeChiUI dependencies
+ */
+
+const plugins = (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.SVG, {
+  xmlns: "http://www.w3.org/2000/svg",
+  viewBox: "0 0 24 24"
+}, (0,external_gc_element_namespaceObject.createElement)(external_gc_primitives_namespaceObject.Path, {
+  d: "M10.5 4v4h3V4H15v4h1.5a1 1 0 011 1v4l-3 4v2a1 1 0 01-1 1h-3a1 1 0 01-1-1v-2l-3-4V9a1 1 0 011-1H9V4h1.5zm.5 12.5v2h2v-2l3-4v-3H8v3l3 4z"
+}));
+/* harmony default export */ var library_plugins = (plugins);
+
+;// CONCATENATED MODULE: ./node_modules/@gechiui/plugins/build-module/api/index.js
 /* eslint no-console: [ 'error', { allow: [ 'error' ] } ] */
 
 /**
@@ -339,41 +339,17 @@ var plugins = __webpack_require__("u/G3");
  */
 
 
-/**
- * External dependencies
- */
-
-
-/**
- * Defined behavior of a plugin type.
- *
- * @typedef {Object} GCPlugin
- *
- * @property {string}                    name    A string identifying the plugin. Must be
- *                                               unique across all registered plugins.
- * @property {string|GCElement|Function} [icon]  An icon to be shown in the UI. It can
- *                                               be a slug of the Dashicon, or an element
- *                                               (or function returning an element) if you
- *                                               choose to render your own SVG.
- * @property {Function}                  render  A component containing the UI elements
- *                                               to be rendered.
- * @property {string}                    [scope] The optional scope to be used when rendering inside
- *                                               a plugin area. No scope by default.
- */
 
 /**
  * Plugin definitions keyed by plugin name.
- *
- * @type {Object.<string,GCPlugin>}
  */
-
 const api_plugins = {};
 /**
  * Registers a plugin to the editor.
  *
- * @param {string}   name     A string identifying the plugin.Must be
- *                            unique across all registered plugins.
- * @param {GCPlugin} settings The settings for this plugin.
+ * @param name     A string identifying the plugin. Must be
+ *                 unique across all registered plugins.
+ * @param settings The settings for this plugin.
  *
  * @example
  * ```js
@@ -443,7 +419,7 @@ const api_plugins = {};
  * } );
  * ```
  *
- * @return {GCPlugin} The final plugin settings object.
+ * @return The final plugin settings object.
  */
 
 function registerPlugin(name, settings) {
@@ -466,13 +442,13 @@ function registerPlugin(name, settings) {
     console.error(`Plugin "${name}" is already registered.`);
   }
 
-  settings = Object(external_gc_hooks_["applyFilters"])('plugins.registerPlugin', settings, name);
+  settings = (0,external_gc_hooks_namespaceObject.applyFilters)('plugins.registerPlugin', settings, name);
   const {
     render,
     scope
   } = settings;
 
-  if (!Object(external_lodash_["isFunction"])(render)) {
+  if (typeof render !== 'function') {
     console.error('The "render" property must be specified and must be a valid function.');
     return null;
   }
@@ -491,16 +467,16 @@ function registerPlugin(name, settings) {
 
   api_plugins[name] = {
     name,
-    icon: plugins["a" /* default */],
+    icon: library_plugins,
     ...settings
   };
-  Object(external_gc_hooks_["doAction"])('plugins.pluginRegistered', settings, name);
+  (0,external_gc_hooks_namespaceObject.doAction)('plugins.pluginRegistered', settings, name);
   return settings;
 }
 /**
  * Unregisters a plugin by name.
  *
- * @param {string} name Plugin name.
+ * @param name Plugin name.
  *
  * @example
  * ```js
@@ -518,8 +494,8 @@ function registerPlugin(name, settings) {
  * unregisterPlugin( 'plugin-name' );
  * ```
  *
- * @return {?GCPlugin} The previous plugin settings object, if it has been
- *                     successfully unregistered; otherwise `undefined`.
+ * @return The previous plugin settings object, if it has been
+ *         successfully unregistered; otherwise `undefined`.
  */
 
 function unregisterPlugin(name) {
@@ -530,15 +506,15 @@ function unregisterPlugin(name) {
 
   const oldPlugin = api_plugins[name];
   delete api_plugins[name];
-  Object(external_gc_hooks_["doAction"])('plugins.pluginUnregistered', oldPlugin, name);
+  (0,external_gc_hooks_namespaceObject.doAction)('plugins.pluginUnregistered', oldPlugin, name);
   return oldPlugin;
 }
 /**
  * Returns a registered plugin settings.
  *
- * @param {string} name Plugin name.
+ * @param name Plugin name.
  *
- * @return {?GCPlugin} Plugin setting.
+ * @return Plugin setting.
  */
 
 function getPlugin(name) {
@@ -547,27 +523,27 @@ function getPlugin(name) {
 /**
  * Returns all registered plugins without a scope or for a given scope.
  *
- * @param {string} [scope] The scope to be used when rendering inside
- *                         a plugin area. No scope by default.
+ * @param scope The scope to be used when rendering inside
+ *              a plugin area. No scope by default.
  *
- * @return {GCPlugin[]} The list of plugins without a scope or for a given scope.
+ * @return The list of plugins without a scope or for a given scope.
  */
 
 function getPlugins(scope) {
   return Object.values(api_plugins).filter(plugin => plugin.scope === scope);
 }
 
-// CONCATENATED MODULE: ./node_modules/@gechiui/plugins/build-module/components/plugin-area/index.js
+;// CONCATENATED MODULE: ./node_modules/@gechiui/plugins/build-module/components/plugin-area/index.js
 
 
 /**
  * External dependencies
  */
 
-
 /**
  * GeChiUI dependencies
  */
+
 
 
 
@@ -577,9 +553,17 @@ function getPlugins(scope) {
 
 
 
+
+const getPluginContext = memize((icon, name) => ({
+  icon,
+  name
+}));
 /**
  * A component that renders all plugin fills in a hidden div.
  *
+ * @param  props
+ * @param  props.scope
+ * @param  props.onError
  * @example
  * ```js
  * // Using ES5 syntax
@@ -612,157 +596,62 @@ function getPlugins(scope) {
  * @return {GCComponent} The component to be rendered.
  */
 
-class plugin_area_PluginArea extends external_gc_element_["Component"] {
-  constructor() {
-    super(...arguments);
-    this.setPlugins = this.setPlugins.bind(this);
-    this.memoizedContext = memize_default()((name, icon) => {
-      return {
-        name,
-        icon
-      };
-    });
-    this.state = this.getCurrentPluginsState();
-  }
-
-  getCurrentPluginsState() {
+function PluginArea({
+  scope,
+  onError
+}) {
+  const store = (0,external_gc_element_namespaceObject.useMemo)(() => {
+    let lastValue = [];
     return {
-      plugins: Object(external_lodash_["map"])(getPlugins(this.props.scope), _ref => {
-        let {
-          icon,
-          name,
-          render
-        } = _ref;
-        return {
-          Plugin: render,
-          context: this.memoizedContext(name, icon)
+      subscribe(listener) {
+        (0,external_gc_hooks_namespaceObject.addAction)('plugins.pluginRegistered', 'core/plugins/plugin-area/plugins-registered', listener);
+        (0,external_gc_hooks_namespaceObject.addAction)('plugins.pluginUnregistered', 'core/plugins/plugin-area/plugins-unregistered', listener);
+        return () => {
+          (0,external_gc_hooks_namespaceObject.removeAction)('plugins.pluginRegistered', 'core/plugins/plugin-area/plugins-registered');
+          (0,external_gc_hooks_namespaceObject.removeAction)('plugins.pluginUnregistered', 'core/plugins/plugin-area/plugins-unregistered');
         };
-      })
-    };
-  }
+      },
 
-  componentDidMount() {
-    Object(external_gc_hooks_["addAction"])('plugins.pluginRegistered', 'core/plugins/plugin-area/plugins-registered', this.setPlugins);
-    Object(external_gc_hooks_["addAction"])('plugins.pluginUnregistered', 'core/plugins/plugin-area/plugins-unregistered', this.setPlugins);
-  }
+      getValue() {
+        const nextValue = getPlugins(scope);
 
-  componentWillUnmount() {
-    Object(external_gc_hooks_["removeAction"])('plugins.pluginRegistered', 'core/plugins/plugin-area/plugins-registered');
-    Object(external_gc_hooks_["removeAction"])('plugins.pluginUnregistered', 'core/plugins/plugin-area/plugins-unregistered');
-  }
-
-  setPlugins() {
-    this.setState(this.getCurrentPluginsState);
-  }
-
-  render() {
-    return Object(external_gc_element_["createElement"])("div", {
-      style: {
-        display: 'none'
-      }
-    }, Object(external_lodash_["map"])(this.state.plugins, _ref2 => {
-      let {
-        context,
-        Plugin
-      } = _ref2;
-      return Object(external_gc_element_["createElement"])(Provider, {
-        key: context.name,
-        value: context
-      }, Object(external_gc_element_["createElement"])(Plugin, null));
-    }));
-  }
-
-}
-
-/* harmony default export */ var plugin_area = (plugin_area_PluginArea);
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/plugins/build-module/components/index.js
-
-
-
-// CONCATENATED MODULE: ./node_modules/@gechiui/plugins/build-module/index.js
-
-
-
-
-/***/ }),
-
-/***/ "YLtl":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["lodash"]; }());
-
-/***/ }),
-
-/***/ "dMTb":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["compose"]; }());
-
-/***/ }),
-
-/***/ "ewfG":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["element"]; }());
-
-/***/ }),
-
-/***/ "kZIl":
-/***/ (function(module, exports) {
-
-(function() { module.exports = window["gc"]["hooks"]; }());
-
-/***/ }),
-
-/***/ "u/G3":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("ewfG");
-/* harmony import */ var _gechiui_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("Gz8V");
-/* harmony import */ var _gechiui_primitives__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__);
-
-
-/**
- * GeChiUI dependencies
- */
-
-const plugins = Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["SVG"], {
-  xmlns: "http://www.w3.org/2000/svg",
-  viewBox: "0 0 24 24"
-}, Object(_gechiui_element__WEBPACK_IMPORTED_MODULE_0__["createElement"])(_gechiui_primitives__WEBPACK_IMPORTED_MODULE_1__["Path"], {
-  d: "M10.5 4v4h3V4H15v4h1.5a1 1 0 011 1v4l-3 4v2a1 1 0 01-1 1h-3a1 1 0 01-1-1v-2l-3-4V9a1 1 0 011-1H9V4h1.5zm.5 12.5v2h2v-2l3-4v-3H8v3l3 4z"
-}));
-/* harmony default export */ __webpack_exports__["a"] = (plugins);
-
-
-/***/ }),
-
-/***/ "wx14":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _extends; });
-function _extends() {
-  _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
+        if (!external_gc_isShallowEqual_default()(lastValue, nextValue)) {
+          lastValue = nextValue;
         }
+
+        return lastValue;
       }
+
+    };
+  }, [scope]);
+  const plugins = (0,external_gc_element_namespaceObject.useSyncExternalStore)(store.subscribe, store.getValue);
+  return (0,external_gc_element_namespaceObject.createElement)("div", {
+    style: {
+      display: 'none'
     }
-
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
+  }, plugins.map(({
+    icon,
+    name,
+    render: Plugin
+  }) => (0,external_gc_element_namespaceObject.createElement)(Provider, {
+    key: name,
+    value: getPluginContext(icon, name)
+  }, (0,external_gc_element_namespaceObject.createElement)(PluginErrorBoundary, {
+    name: name,
+    onError: onError
+  }, (0,external_gc_element_namespaceObject.createElement)(Plugin, null)))));
 }
 
-/***/ })
+/* harmony default export */ var plugin_area = (PluginArea);
 
-/******/ });
+;// CONCATENATED MODULE: ./node_modules/@gechiui/plugins/build-module/components/index.js
+
+
+
+;// CONCATENATED MODULE: ./node_modules/@gechiui/plugins/build-module/index.js
+
+
+
+(window.gc = window.gc || {}).plugins = __webpack_exports__;
+/******/ })()
+;

@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/theme-plugin-editor.js
+ * @output assets/js/theme-plugin-editor.js
  */
 
 /* eslint no-magic-numbers: ["error", { "ignore": [-1, 0, 1] }] */
@@ -24,6 +24,7 @@ gc.themePluginEditor = (function( $ ) {
 	/**
 	 * Initialize component.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param {jQuery}         form - Form element.
 	 * @param {Object}         settings - Settings.
@@ -85,6 +86,7 @@ gc.themePluginEditor = (function( $ ) {
 	/**
 	 * Set up and display the warning modal.
 	 *
+	 * @since 4.9.0
 	 * @return {void}
 	 */
 	component.showWarning = function() {
@@ -114,6 +116,7 @@ gc.themePluginEditor = (function( $ ) {
 	/**
 	 * Constrain tabbing within the warning modal.
 	 *
+	 * @since 4.9.0
 	 * @param {Object} event jQuery event object.
 	 * @return {void}
 	 */
@@ -139,6 +142,7 @@ gc.themePluginEditor = (function( $ ) {
 	/**
 	 * Dismiss the warning modal.
 	 *
+	 * @since 4.9.0
 	 * @return {void}
 	 */
 	component.dismissWarning = function() {
@@ -156,6 +160,7 @@ gc.themePluginEditor = (function( $ ) {
 	/**
 	 * Callback for when a change happens.
 	 *
+	 * @since 4.9.0
 	 * @return {void}
 	 */
 	component.onChange = function() {
@@ -166,6 +171,7 @@ gc.themePluginEditor = (function( $ ) {
 	/**
 	 * Submit file via Ajax.
 	 *
+	 * @since 4.9.0
 	 * @param {jQuery.Event} event - Event.
 	 * @return {void}
 	 */
@@ -220,7 +226,7 @@ gc.themePluginEditor = (function( $ ) {
 			var notice = $.extend(
 				{
 					code: 'save_error',
-					message: __( '出现了问题，您的修改可能未被保存，请重试。您也可能需要通过FTP手工修复并上传文件。' )
+					message: __( '出现了问题。您的更改可能尚未保存。请再试一次。您也可能需要手动修复并通过FTP上传文件。' )
 				},
 				response,
 				{
@@ -246,6 +252,7 @@ gc.themePluginEditor = (function( $ ) {
 	/**
 	 * Add notice.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param {Object}   notice - Notice.
 	 * @param {string}   notice.code - Code.
@@ -286,6 +293,7 @@ gc.themePluginEditor = (function( $ ) {
 	/**
 	 * Remove notice.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param {string} code - Notice code.
 	 * @return {boolean} Whether a notice was removed.
@@ -304,6 +312,7 @@ gc.themePluginEditor = (function( $ ) {
 	/**
 	 * Initialize code editor.
 	 *
+	 * @since 4.9.0
 	 * @return {void}
 	 */
 	component.initCodeEditor = function initCodeEditor() {
@@ -314,6 +323,7 @@ gc.themePluginEditor = (function( $ ) {
 		/**
 		 * Handle tabbing to the field before the editor.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @return {void}
 		 */
@@ -324,6 +334,7 @@ gc.themePluginEditor = (function( $ ) {
 		/**
 		 * Handle tabbing to the field after the editor.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @return {void}
 		 */
@@ -334,6 +345,7 @@ gc.themePluginEditor = (function( $ ) {
 		/**
 		 * Handle change to the linting errors.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {Array} errors - List of linting errors.
 		 * @return {void}
@@ -350,6 +362,7 @@ gc.themePluginEditor = (function( $ ) {
 		/**
 		 * Update error notice.
 		 *
+		 * @since 4.9.0
 		 *
 		 * @param {Array} errorAnnotations - Error annotations.
 		 * @return {void}
@@ -366,8 +379,8 @@ gc.themePluginEditor = (function( $ ) {
 					message: sprintf(
 						/* translators: %s: Error count. */
 						_n(
-							'在您更新此文件前必须修正%s个错误。',
-							'在您更新此文件前必须修正%s个错误。',
+							'There is %s error which must be fixed before you can update this file.',
+							'There are %s errors which must be fixed before you can update this file.',
 							errorAnnotations.length
 						),
 						String( errorAnnotations.length )
@@ -406,6 +419,7 @@ gc.themePluginEditor = (function( $ ) {
 	/**
 	 * Initialization of the file browser's folder states.
 	 *
+	 * @since 4.9.0
 	 * @return {void}
 	 */
 	component.initFileBrowser = function initFileBrowser() {
@@ -441,6 +455,7 @@ gc.themePluginEditor = (function( $ ) {
 	/**
 	 * Creates a new TreeitemLink.
 	 *
+	 * @since 4.9.0
 	 * @class
 	 * @private
 	 * @see {@link https://www.w3.org/TR/wai-aria-practices-1.1/examples/treeview/treeview-2/treeview-2b.html|W3C Treeview Example}
@@ -723,6 +738,7 @@ gc.themePluginEditor = (function( $ ) {
 	/**
 	 * Creates a new TreeLinks.
 	 *
+	 * @since 4.9.0
 	 * @class
 	 * @private
 	 * @see {@link https://www.w3.org/TR/wai-aria-practices-1.1/examples/treeview/treeview-2/treeview-2b.html|W3C Treeview Example}
@@ -988,7 +1004,7 @@ gc.themePluginEditor = (function( $ ) {
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 4.9.0
  * @deprecated 5.5.0
  *
  * @type {object}

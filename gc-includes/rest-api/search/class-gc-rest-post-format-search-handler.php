@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core class representing a search handler for post formats in the REST API.
- *
- *
  *
  * @see GC_REST_Search_Handler
  */
@@ -19,6 +16,7 @@ class GC_REST_Post_Format_Search_Handler extends GC_REST_Search_Handler {
 	/**
 	 * Constructor.
 	 *
+	 * @since 5.6.0
 	 */
 	public function __construct() {
 		$this->type = 'post-format';
@@ -27,6 +25,7 @@ class GC_REST_Post_Format_Search_Handler extends GC_REST_Search_Handler {
 	/**
 	 * Searches the object type content for a given search request.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_REST_Request $request Full REST request.
 	 * @return array Associative array containing an `GC_REST_Search_Handler::RESULT_IDS` containing
@@ -48,6 +47,7 @@ class GC_REST_Post_Format_Search_Handler extends GC_REST_Search_Handler {
 		 *
 		 * Enables adding extra arguments or setting defaults for a post format search request.
 		 *
+		 * @since 5.6.0
 		 *
 		 * @param array           $query_args Key value array of query var to query value.
 		 * @param GC_REST_Request $request    The request used.
@@ -83,6 +83,7 @@ class GC_REST_Post_Format_Search_Handler extends GC_REST_Search_Handler {
 	/**
 	 * Prepares the search result for a given ID.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param string $id     Item ID, the post format slug.
 	 * @param array  $fields Fields to include for the item.
@@ -113,6 +114,7 @@ class GC_REST_Post_Format_Search_Handler extends GC_REST_Search_Handler {
 	/**
 	 * Prepares links for the search result.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param string $id Item ID, the post format slug.
 	 * @return array Links for the given item.

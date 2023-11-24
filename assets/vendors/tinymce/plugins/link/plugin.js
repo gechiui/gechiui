@@ -378,7 +378,7 @@ var link = (function (domGlobals) {
           name: 'text',
           type: 'textbox',
           size: 40,
-          label: 'Text to display',
+          label: '显示文本',
           onchange: function () {
             data.text = this.value();
           }
@@ -409,7 +409,7 @@ var link = (function (domGlobals) {
               value: ''
             },
             {
-              text: 'New window',
+              text: '新窗口',
               value: '_blank'
             }
           ]);
@@ -496,7 +496,7 @@ var link = (function (domGlobals) {
             delete resultData.text;
           }
           if (href.indexOf('@') > 0 && href.indexOf('//') === -1 && href.indexOf('mailto:') === -1) {
-            delayedConfirm(editor, '您输入的网址似乎是个电子邮箱，您要自动加上mailto:​前缀吗？', function (state) {
+            delayedConfirm(editor, '您输入的网址似乎是个电子邮箱地址，您要自动加上mailto:​前缀吗？', function (state) {
               if (state) {
                 resultData.href = 'mailto:' + href;
               }
@@ -642,14 +642,14 @@ var link = (function (domGlobals) {
       editor.addButton('link', {
         active: false,
         icon: 'link',
-        tooltip: 'Insert/edit link',
+        tooltip: '插入或编辑链接',
         onclick: Actions.openDialog(editor),
         onpostrender: Actions.toggleActiveState(editor)
       });
       editor.addButton('unlink', {
         active: false,
         icon: 'unlink',
-        tooltip: 'Remove link',
+        tooltip: '移除链接',
         onclick: Utils.unlink(editor),
         onpostrender: Actions.toggleActiveState(editor)
       });
@@ -680,7 +680,7 @@ var link = (function (domGlobals) {
       });
       editor.addMenuItem('unlink', {
         icon: 'unlink',
-        text: 'Remove link',
+        text: '移除链接',
         onclick: Utils.unlink(editor),
         stateSelector: 'a[href]'
       });

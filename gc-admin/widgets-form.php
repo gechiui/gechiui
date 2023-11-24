@@ -33,7 +33,6 @@ if ( 'on' === $widgets_access ) {
  * Fires early before the Widgets administration screen loads,
  * after scripts are enqueued.
  *
- *
  */
 do_action( 'sidebar_admin_setup' );
 
@@ -52,7 +51,7 @@ get_current_screen()->add_help_tab(
 		'title'   => __( '移除后重新使用' ),
 		'content' =>
 				'<p>' . __( '如果您想移除某个小工具但保留其设置以备以后之用，只需将其拖拽到“未启用的小工具”区域中，在需要时，可随时拖回需要的边栏。这一点在您准备改用边栏数目更少的主题时很有用。' ) . '</p>
-	<p>' . __( '大部分小工具可以多次使用。您可以为每个小工具起一个标题，通常这个标题会在站点中显示出来，但这不是必须的。' ) . '</p>
+	<p>' . __( '大部分小工具可以多次使用。您可以为每个小工具起一个标题，通常这个标题会在系统中显示出来，但这不是必须的。' ) . '</p>
 	<p>' . __( '在“显示选项”中启用“无障碍模式“，您就可以使用“添加”和“编辑”按钮，而无须进行拖拽。' ) . '</p>',
 	)
 );
@@ -91,7 +90,7 @@ foreach ( $sidebars_widgets as $sidebar_id => $widgets ) {
 					'name'          => __( '未启用的边栏' ),
 					'id'            => $sidebar_id,
 					'class'         => 'inactive-sidebar orphan-sidebar',
-					'description'   => __( '这个边栏不再可用，当前不在站点的任何位置使用。要移除这个未启用的边栏，请移除其下所有的小工具。' ),
+					'description'   => __( '这个边栏不再可用，当前不在系统的任何位置使用。要移除这个未启用的边栏，请移除其下所有的小工具。' ),
 					'before_widget' => '',
 					'after_widget'  => '',
 					'before_title'  => '',
@@ -159,7 +158,6 @@ if ( isset( $_POST['savewidget'] ) || isset( $_POST['removewidget'] ) ) {
 
 		/**
 		 * Fires immediately after a widget has been marked for deletion.
-		 *
 		 *
 		 * @param string $widget_id  ID of the widget marked for deletion.
 		 * @param string $sidebar_id ID of the sidebar the widget was deleted from.
@@ -273,7 +271,7 @@ if ( isset( $_GET['editwidget'] ) && $_GET['editwidget'] ) {
 
 	require_once ABSPATH . 'gc-admin/admin-header.php'; ?>
 	<div class="wrap">
-	<h1><?php echo esc_html( $title ); ?></h1>
+	<div class="page-header"><h2 class="header-title"><?php echo esc_html( $title ); ?></h2></div>
 	<div class="editwidget"<?php echo $width; ?>>
 	<h2>
 	<?php
@@ -366,52 +364,46 @@ $errors = array(
 	__( '显示小工具设置页时发生错误。' ),
 );
 
+if ( isset( $_GET['message'] ) && isset( $messages[ $_GET['message'] ] ) ) {
+	add_settings_error( 'general', 'settings_updated', $messages[ $_GET['message'] ], 'success' );
+}
+if ( isset( $_GET['error'] ) && isset( $errors[ $_GET['error'] ] ) ) {
+	add_settings_error( 'general', 'settings_updated', $errors[ $_GET['error'] ], 'danger' );
+}
+
 require_once ABSPATH . 'gc-admin/admin-header.php';
 ?>
 
 <div class="wrap">
-<h1 class="gc-heading-inline">
-<?php
-echo esc_html( $title );
-?>
-</h1>
-
-<?php
-if ( current_user_can( 'customize' ) ) {
-	printf(
-		' <a class="page-title-action hide-if-no-customize" href="%1$s">%2$s</a>',
-		esc_url(
-			add_query_arg(
-				array(
-					array( 'autofocus' => array( 'panel' => 'widgets' ) ),
-					'return' => urlencode( remove_query_arg( gc_removable_query_args(), gc_unslash( $_SERVER['REQUEST_URI'] ) ) ),
+	<div class="page-header">
+		<h2 class="header-title"><?php echo esc_html( $title ); ?></h2>
+		<?php
+		if ( current_user_can( 'customize' ) ) {
+			printf(
+				' <a class="btn btn-primary btn-tone btn-sm hide-if-no-customize" href="%1$s">%2$s</a>',
+				esc_url(
+					add_query_arg(
+						array(
+							array( 'autofocus' => array( 'panel' => 'widgets' ) ),
+							'return' => urlencode( remove_query_arg( gc_removable_query_args(), gc_unslash( $_SERVER['REQUEST_URI'] ) ) ),
+						),
+						admin_url( 'customize.php' )
+					)
 				),
-				admin_url( 'customize.php' )
-			)
-		),
-		__( '使用实时预览管理' )
-	);
-}
+				__( '使用实时预览管理' )
+			);
+		}
 
-$nonce = gc_create_nonce( 'widgets-access' );
-?>
+		$nonce = gc_create_nonce( 'widgets-access' );
+		?>
+	</div>
 <div class="widget-access-link">
 	<a id="access-on" href="widgets.php?widgets-access=on&_gcnonce=<?php echo urlencode( $nonce ); ?>"><?php _e( '启用无障碍模式' ); ?></a><a id="access-off" href="widgets.php?widgets-access=off&_gcnonce=<?php echo urlencode( $nonce ); ?>"><?php _e( '停用无障碍模式' ); ?></a>
 </div>
 
-<hr class="gc-header-end">
-
-<?php if ( isset( $_GET['message'] ) && isset( $messages[ $_GET['message'] ] ) ) { ?>
-<div id="message" class="updated notice is-dismissible"><p><?php echo $messages[ $_GET['message'] ]; ?></p></div>
-<?php } ?>
-<?php if ( isset( $_GET['error'] ) && isset( $errors[ $_GET['error'] ] ) ) { ?>
-<div id="message" class="error"><p><?php echo $errors[ $_GET['error'] ]; ?></p></div>
-<?php } ?>
-
 <?php
 /**
  * Fires before the Widgets administration page content loads.
- *
  *
  */
 do_action( 'widgets_admin_page' );
@@ -425,7 +417,7 @@ do_action( 'widgets_admin_page' );
 				<span class="screen-reader-text"><?php _e( '可用小工具' ); ?></span>
 				<span class="toggle-indicator" aria-hidden="true"></span>
 			</button>
-			<h2><?php _e( '可用小工具' ); ?> <span id="removing-widget"><?php _ex( '禁用', 'removing-widget' ); ?> <span></span></span></h2>
+			<h4><?php _e( '可用小工具' ); ?> <span id="removing-widget"><?php _ex( '禁用', 'removing-widget' ); ?> <span></span></span></h4>
 		</div>
 		<div class="widget-holder">
 			<div class="sidebar-description">
@@ -549,8 +541,8 @@ foreach ( $theme_sidebars as $sidebar => $registered_sidebar ) {
 <div class="widgets-chooser">
 	<ul class="widgets-chooser-sidebars"></ul>
 	<div class="widgets-chooser-actions">
-		<button class="button widgets-chooser-cancel"><?php _e( '取消' ); ?></button>
-		<button class="button button-primary widgets-chooser-add"><?php _e( '添加小工具' ); ?></button>
+		<button class="btn btn-primary btn-tone widgets-chooser-cancel"><?php _e( '取消' ); ?></button>
+		<button class="btn btn-primary widgets-chooser-add"><?php _e( '添加小工具' ); ?></button>
 	</div>
 </div>
 
@@ -558,7 +550,6 @@ foreach ( $theme_sidebars as $sidebar => $registered_sidebar ) {
 
 /**
  * Fires after the available widgets and sidebars have loaded, before the admin footer.
- *
  *
  */
 do_action( 'sidebar_admin_page' );

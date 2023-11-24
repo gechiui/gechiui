@@ -4,7 +4,6 @@
  * IXR_Date
  *
  * @package IXR
- *
  */
 class IXR_Date {
     var $year;

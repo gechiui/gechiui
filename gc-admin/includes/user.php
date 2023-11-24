@@ -9,8 +9,6 @@
 /**
  * Creates a new user from the "Users" form using $_POST information.
  *
- *
- *
  * @return int|GC_Error GC_Error or User ID.
  */
 function add_user() {
@@ -22,14 +20,12 @@ function add_user() {
  *
  * Used on user-edit.php and profile.php to manage and process user options, passwords etc.
  *
- *
- *
  * @param int $user_id Optional. User ID.
  * @return int|GC_Error User ID of the updated user or GC_Error on failure.
  */
 function edit_user( $user_id = 0 ) {
 	$gc_roles = gc_roles();
-	$user     = new stdClass;
+	$user     = new stdClass();
 	$user_id  = (int) $user_id;
 	if ( $user_id ) {
 		$update           = true;
@@ -84,7 +80,7 @@ function edit_user( $user_id = 0 ) {
 		if ( empty( $_POST['url'] ) || 'http://' === $_POST['url'] ) {
 			$user->user_url = '';
 		} else {
-			$user->user_url = esc_url_raw( $_POST['url'] );
+			$user->user_url = sanitize_url( $_POST['url'] );
 			$protocols      = implode( '|', array_map( 'preg_quote', gc_allowed_protocols() ) );
 			$user->user_url = preg_match( '/^(' . $protocols . '):/is', $user->user_url ) ? $user->user_url : 'http://' . $user->user_url;
 		}
@@ -119,7 +115,13 @@ function edit_user( $user_id = 0 ) {
 		} elseif ( '' === $locale ) {
 			$locale = 'zh_CN';
 		} elseif ( ! in_array( $locale, get_available_languages(), true ) ) {
-			$locale = '';
+			if ( current_user_can( 'install_languages' ) && gc_can_install_language_pack() ) {
+				if ( ! gc_download_language_pack( $locale ) ) {
+					$locale = '';
+				}
+			} else {
+				$locale = '';
+			}
 		}
 
 		$user->locale = $locale;
@@ -143,17 +145,18 @@ function edit_user( $user_id = 0 ) {
 
 	/* checking that username has been typed */
 	if ( '' === $user->user_login ) {
-		$errors->add( 'user_login', __( '<strong>错误</strong>：请填写用户名。' ) );
+		$errors->add( 'user_login', __( '<strong>错误：</strong>请填写用户名。' ) );
 	}
 
 	/* checking that nickname has been typed */
 	if ( $update && empty( $user->nickname ) ) {
-		$errors->add( 'nickname', __( '<strong>错误</strong>：请输入昵称。' ) );
+		$errors->add( 'nickname', __( '<strong>错误：</strong>请输入昵称。' ) );
 	}
 
 	/**
 	 * Fires before the password and confirm password fields are checked for congruity.
 	 *
+	 * @since 1.5.1
 	 *
 	 * @param string $user_login The username.
 	 * @param string $pass1     The password (passed by reference).
@@ -163,17 +166,17 @@ function edit_user( $user_id = 0 ) {
 
 	// Check for blank password when adding a user.
 	if ( ! $update && empty( $pass1 ) ) {
-		$errors->add( 'pass', __( '<strong>错误</strong>：请输入密码。' ), array( 'form-field' => 'pass1' ) );
+		$errors->add( 'pass', __( '<strong>错误：</strong>请输入密码。' ), array( 'form-field' => 'pass1' ) );
 	}
 
 	// Check for "\" in password.
-	if ( false !== strpos( gc_unslash( $pass1 ), '\\' ) ) {
-		$errors->add( 'pass', __( '<strong>错误</strong>：密码中不能有“\\”字符。' ), array( 'form-field' => 'pass1' ) );
+	if ( str_contains( gc_unslash( $pass1 ), '\\' ) ) {
+		$errors->add( 'pass', __( '<strong>Error:</strong> Passwords may not contain the character "\\".' ), array( 'form-field' => 'pass1' ) );
 	}
 
 	// Checking the password has been typed twice the same.
-	if ( ( $update || ! empty( $pass1 ) ) && $pass1 != $pass2 ) {
-		$errors->add( 'pass', __( '<strong>错误</strong>：两次输入的密码不相符，请在两个密码栏中输入相同密码。' ), array( 'form-field' => 'pass1' ) );
+	if ( ( $update || ! empty( $pass1 ) ) && $pass1 !== $pass2 ) {
+		$errors->add( 'pass', __( '<strong>错误：</strong>密码不匹配。请在两个密码字段中输入相同的密码。' ), array( 'form-field' => 'pass1' ) );
 	}
 
 	if ( ! empty( $pass1 ) ) {
@@ -181,29 +184,29 @@ function edit_user( $user_id = 0 ) {
 	}
 
 	if ( ! $update && isset( $_POST['user_login'] ) && ! validate_username( $_POST['user_login'] ) ) {
-		$errors->add( 'user_login', __( '<strong>错误</strong>：此用户名包含无效字符，请输入有效的用户名。' ) );
+		$errors->add( 'user_login', __( '<strong>错误：</strong>此用户名包含无效字符，请输入有效的用户名。' ) );
 	}
 
 	if ( ! $update && username_exists( $user->user_login ) ) {
-		$errors->add( 'user_login', __( '<strong>错误</strong>：该用户名已被注册，请再选择一个。' ) );
+		$errors->add( 'user_login', __( '<strong>错误：</strong>该用户名已被注册，请再选择一个。' ) );
 	}
 
 	/** This filter is documented in gc-includes/user.php */
 	$illegal_logins = (array) apply_filters( 'illegal_user_logins', array() );
 
 	if ( in_array( strtolower( $user->user_login ), array_map( 'strtolower', $illegal_logins ), true ) ) {
-		$errors->add( 'invalid_username', __( '<strong>错误</strong>：此用户名不被允许。' ) );
+		$errors->add( 'invalid_username', __( '<strong>错误：</strong>此用户名不被允许。' ) );
 	}
 
-	/* checking email address */
+	// Checking email address.
 	if ( empty( $user->user_email ) ) {
-		$errors->add( 'empty_email', __( '<strong>错误</strong>：请输入电子邮箱。' ), array( 'form-field' => 'email' ) );
+		$errors->add( 'empty_email', __( '<strong>错误：</strong>请输入电子邮箱。' ), array( 'form-field' => 'email' ) );
 	} elseif ( ! is_email( $user->user_email ) ) {
-		$errors->add( 'invalid_email', __( '<strong>错误</strong>：电子邮箱不正确。' ), array( 'form-field' => 'email' ) );
+		$errors->add( 'invalid_email', __( '<strong>错误：</strong>电子邮箱不正确。' ), array( 'form-field' => 'email' ) );
 	} else {
 		$owner_id = email_exists( $user->user_email );
-		if ( $owner_id && ( ! $update || ( $owner_id != $user->ID ) ) ) {
-			$errors->add( 'email_exists', __( '<strong>错误</strong>：此电子邮箱已经被注册，请换一个。' ), array( 'form-field' => 'email' ) );
+		if ( $owner_id && ( ! $update || ( $owner_id !== $user->ID ) ) ) {
+			$errors->add( 'email_exists', __( '<strong>错误：</strong>此电子邮箱已经被注册，请换一个。' ), array( 'form-field' => 'email' ) );
 		}
 	}
 
@@ -230,6 +233,7 @@ function edit_user( $user_id = 0 ) {
 		/**
 		 * Fires after a new user has been created.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param int|GC_Error $user_id ID of the newly created user or GC_Error on failure.
 		 * @param string       $notify  Type of notification that should happen. See
@@ -252,8 +256,6 @@ function edit_user( $user_id = 0 ) {
  * only editors or authors. This filter allows admins to delegate
  * user management.
  *
- *
- *
  * @return array[] Array of arrays containing role information.
  */
 function get_editable_roles() {
@@ -273,7 +275,7 @@ function get_editable_roles() {
 /**
  * Retrieve user data and filter it.
  *
- *
+ * @since 2.0.5
  *
  * @param int $user_id User ID.
  * @return GC_User|false GC_User object on success, false on failure.
@@ -291,8 +293,6 @@ function get_user_to_edit( $user_id ) {
 /**
  * Retrieve the user's drafts.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param int $user_id User ID.
@@ -305,6 +305,7 @@ function get_users_drafts( $user_id ) {
 	/**
 	 * Filters the user's drafts query string.
 	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $query The user's drafts query string.
 	 */
@@ -313,18 +314,19 @@ function get_users_drafts( $user_id ) {
 }
 
 /**
- * Remove user and optionally reassign posts and links to another user.
+ * Delete user and optionally reassign posts and links to another user.
  *
- * If the $reassign parameter is not assigned to a User ID, then all posts will
- * be deleted of that user. The action {@see 'delete_user'} that is passed the User ID
+ * Note that on a Multisite installation the user only gets removed from the site
+ * and does not get deleted from the database.
+ *
+ * If the `$reassign` parameter is not assigned to a user ID, then all posts will
+ * be deleted of that user. The action {@see 'delete_user'} that is passed the user ID
  * being deleted will be run after the posts are either reassigned or deleted.
- * The user meta will also be deleted that are for that User ID.
- *
- *
+ * The user meta will also be deleted that are for that user ID.
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
- * @param int $id User ID.
+ * @param int $id       User ID.
  * @param int $reassign Optional. Reassign posts and links to new User ID.
  * @return bool True when finished.
  */
@@ -350,8 +352,13 @@ function gc_delete_user( $id, $reassign = null ) {
 	}
 
 	/**
-	 * Fires immediately before a user is deleted from the database.
+	 * Fires immediately before a user is deleted from the site.
 	 *
+	 * Note that on a Multisite installation the user only gets removed from the site
+	 * and does not get deleted from the database.
+	 *
+	 * @since 2.0.0
+	 * @since 5.5.0 Added the `$user` parameter.
 	 *
 	 * @param int      $id       ID of the user to delete.
 	 * @param int|null $reassign ID of the user to reassign posts and links to.
@@ -373,6 +380,7 @@ function gc_delete_user( $id, $reassign = null ) {
 		/**
 		 * Filters the list of post types to delete with a user.
 		 *
+		 * @since 3.4.0
 		 *
 		 * @param string[] $post_types_to_delete Array of post types to delete.
 		 * @param int      $id                   User ID.
@@ -426,8 +434,14 @@ function gc_delete_user( $id, $reassign = null ) {
 	clean_user_cache( $user );
 
 	/**
-	 * Fires immediately after a user is deleted from the database.
+	 * Fires immediately after a user is deleted from the site.
 	 *
+	 * Note that on a Multisite installation the user may not have been deleted from
+	 * the database depending on whether `gc_delete_user()` or `gcmu_delete_user()`
+	 * was called.
+	 *
+	 * @since 2.9.0
+	 * @since 5.5.0 Added the `$user` parameter.
 	 *
 	 * @param int      $id       ID of the deleted user.
 	 * @param int|null $reassign ID of the user to reassign posts and links to.
@@ -442,8 +456,6 @@ function gc_delete_user( $id, $reassign = null ) {
 /**
  * Remove all capabilities from user.
  *
- *
- *
  * @param int $id User ID.
  */
 function gc_revoke_user( $id ) {
@@ -454,7 +466,6 @@ function gc_revoke_user( $id ) {
 }
 
 /**
- *
  *
  * @global int $user_ID
  *
@@ -469,7 +480,7 @@ function default_password_nag_handler( $errors = false ) {
 
 	// get_user_setting() = JS-saved UI setting. Else no-js-fallback code.
 	if ( 'hide' === get_user_setting( 'default_password_nag' )
-		|| isset( $_GET['default_password_nag'] ) && '0' == $_GET['default_password_nag']
+		|| isset( $_GET['default_password_nag'] ) && '0' === $_GET['default_password_nag']
 	) {
 		delete_user_setting( 'default_password_nag' );
 		update_user_meta( $user_ID, 'default_password_nag', false );
@@ -477,7 +488,6 @@ function default_password_nag_handler( $errors = false ) {
 }
 
 /**
- *
  *
  * @param int     $user_ID
  * @param GC_User $old_data
@@ -491,7 +501,7 @@ function default_password_nag_edit_user( $user_ID, $old_data ) {
 	$new_data = get_userdata( $user_ID );
 
 	// Remove the nag if the password has been changed.
-	if ( $new_data->user_pass != $old_data->user_pass ) {
+	if ( $new_data->user_pass !== $old_data->user_pass ) {
 		delete_user_setting( 'default_password_nag' );
 		update_user_meta( $user_ID, 'default_password_nag', false );
 	}
@@ -499,28 +509,40 @@ function default_password_nag_edit_user( $user_ID, $old_data ) {
 
 /**
  *
- *
- * @global string $pagenow
+ * @global string $pagenow The filename of the current screen.
  */
 function default_password_nag() {
 	global $pagenow;
+
 	// Short-circuit it.
 	if ( 'profile.php' === $pagenow || ! get_user_option( 'default_password_nag' ) ) {
 		return;
 	}
-
-	echo '<div class="error default-password-nag">';
-	echo '<p>';
-	echo '<strong>' . __( '注意：' ) . '</strong> ';
-	_e( '您的账户正在使用自动生成的密码。您希望修改它吗？' );
-	echo '</p><p>';
-	printf( '<a href="%s">' . __( '希望，请带我到个人资料编辑页面' ) . '</a> | ', get_edit_profile_url() . '#password' );
-	printf( '<a href="%s" id="default-password-nag-no">' . __( '不要，不用再提示我了' ) . '</a>', '?default_password_nag=0' );
-	echo '</p></div>';
+	?>
+	<div class="error default-password-nag">
+		<p>
+			<strong><?php _e( '注意：' ); ?></strong>
+			<?php _e( '您的账户正在使用自动生成的密码。您希望修改它吗？' ); ?>
+		</p>
+		<p>
+		<?php
+		printf(
+			'<a href="%1$s">%2$s</a> | ',
+			esc_url( get_edit_profile_url() . '#password' ),
+			__( '希望，请带我到个人资料编辑页面' )
+		);
+		printf(
+			'<a href="%1$s" id="default-password-nag-no">%2$s</a>',
+			'?default_password_nag=0',
+			__( '不要，不用再提示我了' )
+		);
+		?>
+		</p>
+	</div>
+	<?php
 }
 
 /**
- *
  * @access private
  */
 function delete_users_add_js() {
@@ -544,7 +566,7 @@ jQuery( function($) {
  *
  * See the {@see 'personal_options'} action.
  *
- *
+ * @since 2.7.0
  *
  * @param GC_User $user User data object.
  */
@@ -558,7 +580,7 @@ function use_ssl_preference( $user ) {
 }
 
 /**
- * @since MU
+ * @since MU (3.0.0)
  *
  * @param string $text
  * @return string
@@ -567,29 +589,34 @@ function admin_created_user_email( $text ) {
 	$roles = get_editable_roles();
 	$role  = $roles[ $_REQUEST['role'] ];
 
+	if ( '' !== get_bloginfo( 'name' ) ) {
+		$site_title = gc_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+	} else {
+		$site_title = parse_url( home_url(), PHP_URL_HOST );
+	}
+
 	return sprintf(
 		/* translators: 1: Site title, 2: Site URL, 3: User role. */
 		__(
-			'您好，
+			'Hi,
+You\'ve been invited to join \'%1$s\' at
+%2$s with the role of %3$s.
+If you do not want to join this site please ignore
+this email. This invitation will expire in a few days.
 
-我们邀您加入“%1$s”并成为%3$s。站点地址为：
-%2$s
-如果您不想加入，您只需忽略本邮件。
-本邀请函仅在几天内有效。
-
-如果您愿意，请点击以下链接来激活您的用户账户：
+Please click the following link to activate your user account:
 %%s'
 		),
-		gc_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+		$site_title,
 		home_url(),
 		gc_specialchars_decode( translate_user_role( $role['name'] ) )
 	);
 }
 
 /**
- * Checks if the Authorize AppKey request is valid.
+ * Checks if the Authorize Application Password request is valid.
  *
- *
+ * @since 6.2.0 Allow insecure HTTP connections for the local environment.
  *
  * @param array   $request {
  *     The array of request data. All arguments are optional and may be empty.
@@ -603,12 +630,13 @@ function admin_created_user_email( $text ) {
  * @return true|GC_Error True if the request is valid, a GC_Error object contains errors if not.
  */
 function gc_is_authorize_appkey_request_valid( $request, $user ) {
-	$error = new GC_Error();
+	$error    = new GC_Error();
+	$is_local = 'local' === gc_get_environment_type();
 
 	if ( ! empty( $request['success_url'] ) ) {
 		$scheme = gc_parse_url( $request['success_url'], PHP_URL_SCHEME );
 
-		if ( 'http' === $scheme ) {
+		if ( 'http' === $scheme && ! $is_local ) {
 			$error->add(
 				'invalid_redirect_scheme',
 				__( '成功授权网址必须以安全连接提供。' )
@@ -619,7 +647,7 @@ function gc_is_authorize_appkey_request_valid( $request, $user ) {
 	if ( ! empty( $request['reject_url'] ) ) {
 		$scheme = gc_parse_url( $request['reject_url'], PHP_URL_SCHEME );
 
-		if ( 'http' === $scheme ) {
+		if ( 'http' === $scheme && ! $is_local ) {
 			$error->add(
 				'invalid_redirect_scheme',
 				__( '驳回授权网址必须以安全连接提供。' )
@@ -635,8 +663,9 @@ function gc_is_authorize_appkey_request_valid( $request, $user ) {
 	}
 
 	/**
-	 * Fires before appkey errors are returned.
+	 * Fires before application password errors are returned.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param GC_Error $error   The error object.
 	 * @param array    $request The array of request data.

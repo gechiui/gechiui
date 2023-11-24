@@ -1,0 +1,20 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/block",
+	"title": "区块样板",
+	"category": "reusable",
+	"description": "创建并保存内容以在您的系统上重复使用。更新该区块后，这些变更将应用​​至所有使用该区块的位置。",
+ 	"keywords": [ "reusable" ],
+	"textdomain": "default",
+	"attributes": {
+		"ref": {
+			"type": "number"
+		}
+	},
+	"supports": {
+		"customClassName": false,
+		"html": false,
+		"inserter": false
+	}
+}

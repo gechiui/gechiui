@@ -38,6 +38,7 @@ echo '<?xml version="1.0"?' . ">\n";
 		/**
 		 * Fires in the OPML header.
 		 *
+		 * @since 3.0.0
 		 */
 		do_action( 'opml_head' );
 		?>
@@ -73,15 +74,17 @@ foreach ( (array) $cats as $cat ) :
 		/**
 		 * Filters the OPML outline link title text.
 		 *
+		 * @since 2.2.0
 		 *
 		 * @param string $title The OPML outline title text.
 		 */
 		$title = apply_filters( 'link_title', $bookmark->link_name );
 		?>
-<outline text="<?php echo esc_attr( $title ); ?>" type="link" xmlUrl="<?php echo esc_attr( $bookmark->link_rss ); ?>" htmlUrl="<?php echo esc_attr( $bookmark->link_url ); ?>" updated="
+<outline text="<?php echo esc_attr( $title ); ?>" type="link" xmlUrl="<?php echo esc_url( $bookmark->link_rss ); ?>" htmlUrl="<?php echo esc_url( $bookmark->link_url ); ?>" updated="
 							<?php
 							if ( '0000-00-00 00:00:00' !== $bookmark->link_updated ) {
-								echo $bookmark->link_updated;}
+								echo $bookmark->link_updated;
+							}
 							?>
 " />
 		<?php

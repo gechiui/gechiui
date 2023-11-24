@@ -1,0 +1,12 @@
+.gc-block-image figcaption{
+  color:#555;
+  font-size:13px;
+  text-align:center;
+}
+.is-dark-theme .gc-block-image figcaption{
+  color:hsla(0,0%,100%,.65);
+}
+
+.gc-block-image{
+  margin:0 0 1em;
+}

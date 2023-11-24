@@ -4,14 +4,14 @@
  *
  * @package GeChiUI
  * @subpackage HTTP
- *
+ * @since 2.7.0
  */
 
-if ( ! class_exists( 'Requests' ) ) {
-	require ABSPATH . GCINC . '/class-requests.php';
+if ( ! class_exists( 'GcOrg\Requests\Autoload' ) ) {
+	require ABSPATH . GCINC . '/Requests/src/Autoload.php';
 
-	Requests::register_autoloader();
-	Requests::set_certificate_path( ABSPATH . GCINC . '/certificates/ca-bundle.crt' );
+	GcOrg\Requests\Autoload::register();
+	GcOrg\Requests\Requests::set_certificate_path( ABSPATH . GCINC . '/certificates/ca-bundle.crt' );
 }
 
 /**
@@ -23,8 +23,9 @@ if ( ! class_exists( 'Requests' ) ) {
  *
  * Debugging includes several actions, which pass different variables for debugging the HTTP API.
  *
- *
+ * @since 2.7.0
  */
+#[AllowDynamicProperties]
 class GC_Http {
 
 	// Aliases for HTTP response codes.
@@ -99,6 +100,7 @@ class GC_Http {
 	 * Please note: The only URI that are supported in the HTTP Transport implementation
 	 * are the HTTP and HTTPS protocols.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string       $url  The request URL.
 	 * @param string|array $args {
@@ -151,8 +153,8 @@ class GC_Http {
 			/**
 			 * Filters the timeout value for an HTTP request.
 			 *
-		
-		
+			 * @since 2.7.0
+			 * @since 5.1.0 The `$url` parameter was added.
 			 *
 			 * @param float  $timeout_value Time in seconds until a request times out. Default 5.
 			 * @param string $url           The request URL.
@@ -161,8 +163,8 @@ class GC_Http {
 			/**
 			 * Filters the number of redirects allowed during an HTTP request.
 			 *
-		
-		
+			 * @since 2.7.0
+			 * @since 5.1.0 The `$url` parameter was added.
 			 *
 			 * @param int    $redirect_count Number of redirects allowed. Default 5.
 			 * @param string $url            The request URL.
@@ -171,8 +173,8 @@ class GC_Http {
 			/**
 			 * Filters the version of the HTTP protocol used in a request.
 			 *
-		
-		
+			 * @since 2.7.0
+			 * @since 5.1.0 The `$url` parameter was added.
 			 *
 			 * @param string $version Version of HTTP used. Accepts '1.0' and '1.1'. Default '1.0'.
 			 * @param string $url     The request URL.
@@ -181,8 +183,8 @@ class GC_Http {
 			/**
 			 * Filters the user agent value sent with an HTTP request.
 			 *
-		
-		
+			 * @since 2.7.0
+			 * @since 5.1.0 The `$url` parameter was added.
 			 *
 			 * @param string $user_agent GeChiUI user agent string.
 			 * @param string $url        The request URL.
@@ -191,8 +193,8 @@ class GC_Http {
 			/**
 			 * Filters whether to pass URLs through gc_http_validate_url() in an HTTP request.
 			 *
-		
-		
+			 * @since 3.6.0
+			 * @since 5.1.0 The `$url` parameter was added.
 			 *
 			 * @param bool   $pass_url Whether to pass URLs through gc_http_validate_url(). Default false.
 			 * @param string $url      The request URL.
@@ -223,7 +225,6 @@ class GC_Http {
 		/**
 		 * Filters the arguments used in an HTTP request.
 		 *
-		 *
 		 * @param array  $parsed_args An array of HTTP request arguments.
 		 * @param string $url         The request URL.
 		 */
@@ -244,10 +245,9 @@ class GC_Http {
 		 *  - A GC_Error instance
 		 *  - boolean false to avoid short-circuiting the response
 		 *
-		 * Returning any other value may result in unexpected behaviour.
+		 * Returning any other value may result in unexpected behavior.
 		 *
-		 *
-		 * @param false|array|GC_Error $preempt     A preemptive return value of an HTTP request. Default false.
+		 * @param false|array|GC_Error $response    A preemptive return value of an HTTP request. Default false.
 		 * @param array                $parsed_args HTTP request arguments.
 		 * @param string               $url         The request URL.
 		 */
@@ -271,14 +271,14 @@ class GC_Http {
 		if ( empty( $url ) || empty( $parsed_url['scheme'] ) ) {
 			$response = new GC_Error( 'http_request_failed', __( 'URL无效。' ) );
 			/** This action is documented in gc-includes/class-gc-http.php */
-			do_action( 'http_api_debug', $response, 'response', 'Requests', $parsed_args, $url );
+			do_action( 'http_api_debug', $response, 'response', 'GcOrg\Requests\Requests', $parsed_args, $url );
 			return $response;
 		}
 
 		if ( $this->block_request( $url ) ) {
 			$response = new GC_Error( 'http_request_not_executed', __( '用户阻止了HTTP请求。' ) );
 			/** This action is documented in gc-includes/class-gc-http.php */
-			do_action( 'http_api_debug', $response, 'response', 'Requests', $parsed_args, $url );
+			do_action( 'http_api_debug', $response, 'response', 'GcOrg\Requests\Requests', $parsed_args, $url );
 			return $response;
 		}
 
@@ -295,7 +295,7 @@ class GC_Http {
 			if ( ! gc_is_writable( dirname( $parsed_args['filename'] ) ) ) {
 				$response = new GC_Error( 'http_request_failed', __( '文件流的目标目录不存在或不可写。' ) );
 				/** This action is documented in gc-includes/class-gc-http.php */
-				do_action( 'http_api_debug', $response, 'response', 'Requests', $parsed_args, $url );
+				do_action( 'http_api_debug', $response, 'response', 'GcOrg\Requests\Requests', $parsed_args, $url );
 				return $response;
 			}
 		}
@@ -321,7 +321,7 @@ class GC_Http {
 			'hooks'     => new GC_HTTP_Requests_Hooks( $url, $parsed_args ),
 		);
 
-		// Ensure redirects follow browser behaviour.
+		// Ensure redirects follow browser behavior.
 		$options['hooks']->register( 'requests.before_redirect', array( get_class(), 'browser_redirect_compatibility' ) );
 
 		// Validate redirected URLs.
@@ -343,7 +343,7 @@ class GC_Http {
 			$options['max_bytes'] = $parsed_args['limit_response_size'];
 		}
 
-		// If we've got cookies, use and convert them to Requests_Cookie.
+		// If we've got cookies, use and convert them to GcOrg\Requests\Cookie.
 		if ( ! empty( $parsed_args['cookies'] ) ) {
 			$options['cookies'] = GC_Http::normalize_cookies( $parsed_args['cookies'] );
 		}
@@ -364,16 +364,19 @@ class GC_Http {
 		/**
 		 * Filters whether SSL should be verified for non-local requests.
 		 *
+		 * @since 2.8.0
+		 * @since 5.1.0 The `$url` parameter was added.
 		 *
-		 * @param bool   $ssl_verify Whether to verify the SSL connection. Default true.
-		 * @param string $url        The request URL.
+		 * @param bool|string $ssl_verify Boolean to control whether to verify the SSL connection
+		 *                                or path to an SSL certificate.
+		 * @param string      $url        The request URL.
 		 */
 		$options['verify'] = apply_filters( 'https_ssl_verify', $options['verify'], $url );
 
 		// Check for proxies.
 		$proxy = new GC_HTTP_Proxy();
 		if ( $proxy->is_enabled() && $proxy->send_through_proxy( $url ) ) {
-			$options['proxy'] = new Requests_Proxy_HTTP( $proxy->host() . ':' . $proxy->port() );
+			$options['proxy'] = new GcOrg\Requests\Proxy\Http( $proxy->host() . ':' . $proxy->port() );
 
 			if ( $proxy->use_authentication() ) {
 				$options['proxy']->use_authentication = true;
@@ -386,7 +389,7 @@ class GC_Http {
 		mbstring_binary_safe_encoding();
 
 		try {
-			$requests_response = Requests::request( $url, $headers, $data, $type, $options );
+			$requests_response = GcOrg\Requests\Requests::request( $url, $headers, $data, $type, $options );
 
 			// Convert the response into an array.
 			$http_response = new GC_HTTP_Requests_Response( $requests_response, $parsed_args['filename'] );
@@ -394,7 +397,7 @@ class GC_Http {
 
 			// Add the original object to the array.
 			$response['http_response'] = $http_response;
-		} catch ( Requests_Exception $e ) {
+		} catch ( GcOrg\Requests\Exception $e ) {
 			$response = new GC_Error( 'http_request_failed', $e->getMessage() );
 		}
 
@@ -403,6 +406,7 @@ class GC_Http {
 		/**
 		 * Fires after an HTTP API response is received and before the response is returned.
 		 *
+		 * @since 2.8.0
 		 *
 		 * @param array|GC_Error $response    HTTP response or GC_Error object.
 		 * @param string         $context     Context under which the hook is fired.
@@ -410,7 +414,7 @@ class GC_Http {
 		 * @param array          $parsed_args HTTP request arguments.
 		 * @param string         $url         The request URL.
 		 */
-		do_action( 'http_api_debug', $response, 'response', 'Requests', $parsed_args, $url );
+		do_action( 'http_api_debug', $response, 'response', 'GcOrg\Requests\Requests', $parsed_args, $url );
 		if ( is_gc_error( $response ) ) {
 			return $response;
 		}
@@ -431,7 +435,6 @@ class GC_Http {
 		/**
 		 * Filters a successful HTTP API response immediately before the response is returned.
 		 *
-		 *
 		 * @param array  $response    HTTP response.
 		 * @param array  $parsed_args HTTP request arguments.
 		 * @param string $url         The request URL.
@@ -442,12 +445,13 @@ class GC_Http {
 	/**
 	 * Normalizes cookies for using in Requests.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param array $cookies Array of cookies to send with the request.
-	 * @return Requests_Cookie_Jar Cookie holder object.
+	 * @return GcOrg\Requests\Cookie\Jar Cookie holder object.
 	 */
 	public static function normalize_cookies( $cookies ) {
-		$cookie_jar = new Requests_Cookie_Jar();
+		$cookie_jar = new GcOrg\Requests\Cookie\Jar();
 
 		foreach ( $cookies as $name => $value ) {
 			if ( $value instanceof GC_Http_Cookie ) {
@@ -457,9 +461,9 @@ class GC_Http {
 						return null !== $attr;
 					}
 				);
-				$cookie_jar[ $value->name ] = new Requests_Cookie( $value->name, $value->value, $attributes, array( 'host-only' => $value->host_only ) );
+				$cookie_jar[ $value->name ] = new GcOrg\Requests\Cookie( $value->name, $value->value, $attributes, array( 'host-only' => $value->host_only ) );
 			} elseif ( is_scalar( $value ) ) {
-				$cookie_jar[ $name ] = new Requests_Cookie( $name, $value );
+				$cookie_jar[ $name ] = new GcOrg\Requests\Cookie( $name, (string) $value );
 			}
 		}
 
@@ -467,42 +471,45 @@ class GC_Http {
 	}
 
 	/**
-	 * Match redirect behaviour to browser handling.
+	 * Match redirect behavior to browser handling.
 	 *
 	 * Changes 302 redirects from POST to GET to match browser handling. Per
 	 * RFC 7231, user agents can deviate from the strict reading of the
 	 * specification for compatibility purposes.
 	 *
+	 * @since 4.6.0
 	 *
-	 * @param string            $location URL to redirect to.
-	 * @param array             $headers  Headers for the redirect.
-	 * @param string|array      $data     Body to send with the request.
-	 * @param array             $options  Redirect request options.
-	 * @param Requests_Response $original Response object.
+	 * @param string                  $location URL to redirect to.
+	 * @param array                   $headers  Headers for the redirect.
+	 * @param string|array            $data     Body to send with the request.
+	 * @param array                   $options  Redirect request options.
+	 * @param GcOrg\Requests\Response $original Response object.
 	 */
 	public static function browser_redirect_compatibility( $location, $headers, $data, &$options, $original ) {
 		// Browser compatibility.
 		if ( 302 === $original->status_code ) {
-			$options['type'] = Requests::GET;
+			$options['type'] = GcOrg\Requests\Requests::GET;
 		}
 	}
 
 	/**
 	 * Validate redirected URLs.
 	 *
+	 * @since 4.7.5
 	 *
-	 * @throws Requests_Exception On unsuccessful URL validation.
+	 * @throws GcOrg\Requests\Exception On unsuccessful URL validation.
 	 * @param string $location URL to redirect to.
 	 */
 	public static function validate_redirects( $location ) {
 		if ( ! gc_http_validate_url( $location ) ) {
-			throw new Requests_Exception( __( 'URL无效。' ), 'gc_http.redirect_failed_validation' );
+			throw new GcOrg\Requests\Exception( __( 'URL无效。' ), 'gc_http.redirect_failed_validation' );
 		}
 	}
 
 	/**
 	 * Tests which transports are capable of supporting the request.
 	 *
+	 * @since 3.2.0
 	 *
 	 * @param array  $args Request arguments.
 	 * @param string $url  URL to request.
@@ -515,6 +522,7 @@ class GC_Http {
 		/**
 		 * Filters which HTTP transports are available and in what order.
 		 *
+		 * @since 3.7.0
 		 *
 		 * @param string[] $transports Array of HTTP transports to check. Default array contains
 		 *                             'curl' and 'streams', in that order.
@@ -549,6 +557,7 @@ class GC_Http {
 	 *
 	 * The order for requests is cURL, and then PHP Streams.
 	 *
+	 * @since 3.2.0
 	 * @deprecated 5.1.0 Use GC_Http::request()
 	 * @see GC_Http::request()
 	 *
@@ -567,7 +576,7 @@ class GC_Http {
 
 		// Transport claims to support request, instantiate it and give it a whirl.
 		if ( empty( $transports[ $class ] ) ) {
-			$transports[ $class ] = new $class;
+			$transports[ $class ] = new $class();
 		}
 
 		$response = $transports[ $class ]->request( $url, $args );
@@ -588,6 +597,7 @@ class GC_Http {
 	 *
 	 * Used for sending data that is expected to be in the body.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string       $url  The request URL.
 	 * @param string|array $args Optional. Override the defaults.
@@ -605,6 +615,7 @@ class GC_Http {
 	 *
 	 * Used for sending data that is expected to be in the body.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string       $url  The request URL.
 	 * @param string|array $args Optional. Override the defaults.
@@ -622,6 +633,7 @@ class GC_Http {
 	 *
 	 * Used for sending data that is expected to be in the body.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string       $url  The request URL.
 	 * @param string|array $args Optional. Override the defaults.
@@ -637,8 +649,9 @@ class GC_Http {
 	/**
 	 * Parses the responses and splits the parts into headers and body.
 	 *
+	 * @since 2.7.0
 	 *
-	 * @param string $str_response The full response string.
+	 * @param string $response The full response string.
 	 * @return array {
 	 *     Array with response headers and body.
 	 *
@@ -646,8 +659,8 @@ class GC_Http {
 	 *     @type string $body    HTTP response body.
 	 * }
 	 */
-	public static function processResponse( $str_response ) { // phpcs:ignore GeChiUI.NamingConventions.ValidFunctionName.MethodNameInvalid
-		$response = explode( "\r\n\r\n", $str_response, 2 );
+	public static function processResponse( $response ) { // phpcs:ignore GeChiUI.NamingConventions.ValidFunctionName.MethodNameInvalid
+		$response = explode( "\r\n\r\n", $response, 2 );
 
 		return array(
 			'headers' => $response[0],
@@ -658,6 +671,7 @@ class GC_Http {
 	/**
 	 * Transforms header string into an array.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string|array $headers The original headers. If a string is passed, it will be converted
 	 *                              to an array. If an array is passed, then it is assumed to be
@@ -669,8 +683,8 @@ class GC_Http {
 	 *     then a numbered array is returned as the value of that header-key.
 	 *
 	 *     @type array            $response {
-	 *          @type int    $code    The response status code. Default 0.
-	 *          @type string $message The response message. Default empty.
+	 *         @type int    $code    The response status code. Default 0.
+	 *         @type string $message The response message. Default empty.
 	 *     }
 	 *     @type array            $newheaders The processed header data as a multidimensional array.
 	 *     @type GC_Http_Cookie[] $cookies    If the original headers contain the 'Set-Cookie' key,
@@ -701,7 +715,7 @@ class GC_Http {
 		 * In this case, determine the final HTTP header and parse from there.
 		 */
 		for ( $i = count( $headers ) - 1; $i >= 0; $i-- ) {
-			if ( ! empty( $headers[ $i ] ) && false === strpos( $headers[ $i ], ':' ) ) {
+			if ( ! empty( $headers[ $i ] ) && ! str_contains( $headers[ $i ], ':' ) ) {
 				$headers = array_splice( $headers, $i );
 				break;
 			}
@@ -714,7 +728,7 @@ class GC_Http {
 				continue;
 			}
 
-			if ( false === strpos( $tempheader, ':' ) ) {
+			if ( ! str_contains( $tempheader, ':' ) ) {
 				$stack   = explode( ' ', $tempheader, 3 );
 				$stack[] = '';
 				list( , $response['code'], $response['message']) = $stack;
@@ -790,6 +804,7 @@ class GC_Http {
 	 *
 	 * @link https://tools.ietf.org/html/rfc2616#section-19.4.6 Process for chunked decoding.
 	 *
+	 * @since 2.7.0
 	 *
 	 * @param string $body Body content.
 	 * @return string Chunked decoded body on success or raw body on failure.
@@ -866,7 +881,7 @@ class GC_Http {
 			 *
 			 * A local request is one to `localhost` or to the same host as the site itself.
 			 *
-		
+			 * @since 2.8.0
 			 *
 			 * @param bool $block Whether to block local requests. Default false.
 			 */
@@ -882,7 +897,7 @@ class GC_Http {
 		if ( null === $accessible_hosts ) {
 			$accessible_hosts = preg_split( '|,\s*|', GC_ACCESSIBLE_HOSTS );
 
-			if ( false !== strpos( GC_ACCESSIBLE_HOSTS, '*' ) ) {
+			if ( str_contains( GC_ACCESSIBLE_HOSTS, '*' ) ) {
 				$wildcard_regex = array();
 				foreach ( $accessible_hosts as $host ) {
 					$wildcard_regex[] = str_replace( '\*', '.+', preg_quote( $host, '/' ) );
@@ -919,6 +934,7 @@ class GC_Http {
 	 *
 	 * If an Absolute URL is provided, no processing of that URL is done.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param string $maybe_relative_path The URL which might be relative.
 	 * @param string $url                 The URL which $maybe_relative_path is relative to.
@@ -989,12 +1005,18 @@ class GC_Http {
 			$path .= '?' . $relative_url_parts['query'];
 		}
 
+		// Add the fragment.
+		if ( ! empty( $relative_url_parts['fragment'] ) ) {
+			$path .= '#' . $relative_url_parts['fragment'];
+		}
+
 		return $absolute_path . '/' . ltrim( $path, '/' );
 	}
 
 	/**
 	 * Handles an HTTP redirect and follows it if appropriate.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param string $url      The URL which was requested.
 	 * @param array  $args     The arguments which were used to make the request.
@@ -1050,22 +1072,23 @@ class GC_Http {
 	 * Determines if a specified string represents an IP address or not.
 	 *
 	 * This function also detects the type of the IP address, returning either
-	 * '4' or '6' to represent a IPv4 and IPv6 address respectively.
+	 * '4' or '6' to represent an IPv4 and IPv6 address respectively.
 	 * This does not verify if the IP is a valid IP, only that it appears to be
 	 * an IP address.
 	 *
 	 * @link http://home.deds.nl/~aeron/regex/ for IPv6 regex.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param string $maybe_ip A suspected IP address.
-	 * @return int|false Upon success, '4' or '6' to represent a IPv4 or IPv6 address, false upon failure
+	 * @return int|false Upon success, '4' or '6' to represent an IPv4 or IPv6 address, false upon failure.
 	 */
 	public static function is_ip_address( $maybe_ip ) {
 		if ( preg_match( '/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $maybe_ip ) ) {
 			return 4;
 		}
 
-		if ( false !== strpos( $maybe_ip, ':' ) && preg_match( '/^(((?=.*(::))(?!.*\3.+\3))\3?|([\dA-F]{1,4}(\3|:\b|$)|\2))(?4){5}((?4){2}|(((2[0-4]|1\d|[1-9])?\d|25[0-5])\.?\b){4})$/i', trim( $maybe_ip, ' []' ) ) ) {
+		if ( str_contains( $maybe_ip, ':' ) && preg_match( '/^(((?=.*(::))(?!.*\3.+\3))\3?|([\dA-F]{1,4}(\3|:\b|$)|\2))(?4){5}((?4){2}|(((2[0-4]|1\d|[1-9])?\d|25[0-5])\.?\b){4})$/i', trim( $maybe_ip, ' []' ) ) ) {
 			return 6;
 		}
 

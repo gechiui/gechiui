@@ -1,0 +1,6 @@
+.gc-element-button{
+  cursor:revert;
+}
+.gc-element-button[role=textbox]{
+  cursor:text;
+}

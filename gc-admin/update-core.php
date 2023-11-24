@@ -20,12 +20,11 @@ if ( is_multisite() && ! is_network_admin() ) {
 }
 
 if ( ! current_user_can( 'update_core' ) && ! current_user_can( 'update_themes' ) && ! current_user_can( 'update_plugins' ) && ! current_user_can( 'update_languages' ) ) {
-	gc_die( __( '抱歉，您不能更新此站点。' ) );
+	gc_die( __( '抱歉，您不能更新此系统。' ) );
 }
 
 /**
  * Lists available core updates.
- *
  *
  *
  * @global string $gc_local_package Locale code of the package.
@@ -197,7 +196,6 @@ function list_core_update( $update ) {
 /**
  * Display dismissed updates.
  *
- *
  */
 function dismissed_updates() {
 	$dismissed = get_core_updates(
@@ -227,7 +225,7 @@ function dismissed_updates() {
 			});
 		</script>
 		<?php
-		echo '<p class="hide-if-no-js"><button type="button" class="button" id="show-dismissed" aria-expanded="false">' . __( '显示隐藏的更新' ) . '</button></p>';
+		echo '<p class="hide-if-no-js"><button type="button" class="btn btn-primary btn-tone btn-sm" id="show-dismissed" aria-expanded="false">' . __( '显示隐藏的更新' ) . '</button></p>';
 		echo '<ul id="dismissed-updates" class="core-updates dismissed">';
 		foreach ( (array) $dismissed as $update ) {
 			echo '<li>';
@@ -242,7 +240,6 @@ function dismissed_updates() {
  * Display upgrade GeChiUI for downloading latest or upgrading automatically form.
  *
  *
- *
  * @global string $required_php_version   The required PHP version string.
  * @global string $required_mysql_version The required MySQL version string.
  */
@@ -254,26 +251,33 @@ function core_upgrade_preamble() {
 	// Include an unmodified $gc_version.
 	require ABSPATH . GCINC . '/version.php';
 
+	echo '<div class="card">';
+
 	$is_development_version = preg_match( '/alpha|beta|RC/', $gc_version );
 
 	if ( isset( $updates[0]->version ) && version_compare( $updates[0]->version, $gc_version, '>' ) ) {
-		echo '<h2 class="response">';
+		echo '<div class="card-header"><h4 class="card-title">';
 		_e( '有新的GeChiUI版本可供升级。' );
-		echo '</h2>';
+		echo '</h4></div>';
 
-		echo '<div class="notice notice-warning inline"><p>';
-		printf(
+		$message = sprintf(
 			/* translators: 1: Documentation on GeChiUI backups, 2: Documentation on updating GeChiUI. */
-			__( '<strong>重要：</strong>在更新前，请<a href="%1$s">备份您的数据库和文件</a>。要获得关于更新的帮助，请访问<a href="%2$s">更新GeChiUI</a>文档页面。' ),
+			__( '在更新前，请<a href="%1$s">备份您的数据库和文件</a>。要获得关于更新的帮助，请访问<a href="%2$s">更新GeChiUI</a>文档页面。' ),
 			__( 'https://www.gechiui.com/support/gechiui-backups/' ),
 			__( 'https://www.gechiui.com/support/updating-gechiui/' )
 		);
-		echo '</p></div>';
 	} elseif ( $is_development_version ) {
-		echo '<h2 class="response">' . __( '您正在使用GeChiUI的开发版本。' ) . '</h2>';
+		echo '<div class="card-header"><h4 class="card-title">' . __( '您正在使用GeChiUI的开发版本。' ) . '</h4></div>';
 	} else {
-		echo '<h2 class="response">' . __( '您使用的GeChiUI是最新版本。' ) . '</h2>';
+		echo '<div class="card-header"><h4 class="card-title">' . __( '您使用的GeChiUI是最新版本。' ) . '</h4></div>';
 	}
+	echo '<div class="card-body">';
+
+	if( ! empty( $message ) ){
+		echo setting_error($message, 'warning inline');
+	}
+
+	core_auto_updates_settings();
 
 	echo '<ul class="core-updates">';
 	foreach ( (array) $updates as $update ) {
@@ -285,7 +289,7 @@ function core_upgrade_preamble() {
 
 	// Don't show the maintenance mode notice when we are only showing a single re-install option.
 	if ( $updates && ( count( $updates ) > 1 || 'latest' !== $updates[0]->response ) ) {
-		echo '<p>' . __( '当您升级您的站点时，站点将自动进入维护模式。升级完成后会自动退出。' ) . '</p>';
+		echo '<p>' . __( '当您升级您的系统时，系统将自动进入维护模式。升级完成后会自动退出。' ) . '</p>';
 	} elseif ( ! $updates ) {
 		list( $normalized_version ) = explode( '-', $gc_version );
 		echo '<p>' . sprintf(
@@ -297,21 +301,22 @@ function core_upgrade_preamble() {
 	}
 
 	dismissed_updates();
+
+	echo '</div></div>';
 }
 
 /**
  * Display GeChiUI auto-updates settings.
- *
  *
  */
 function core_auto_updates_settings() {
 	if ( isset( $_GET['core-major-auto-updates-saved'] ) ) {
 		if ( 'enabled' === $_GET['core-major-auto-updates-saved'] ) {
 			$notice_text = __( '已启用所有GeChiUI版本的自动更新。 谢谢！' );
-			echo '<div class="notice notice-success is-dismissible"><p>' . $notice_text . '</p></div>';
+			echo setting_error( $notice_text, 'success' );
 		} elseif ( 'disabled' === $_GET['core-major-auto-updates-saved'] ) {
 			$notice_text = __( '从现在起，GeChiUI只会自动接收安全性维护版本。' );
-			echo '<div class="notice notice-success is-dismissible"><p>' . $notice_text . '</p></div>';
+			echo setting_error( $notice_text, 'success' );
 		}
 	}
 
@@ -393,16 +398,16 @@ function core_auto_updates_settings() {
 	$action_url = self_admin_url( 'update-core.php?action=core-major-auto-updates-settings' );
 	?>
 
-	<p class="auto-update-status">
+	<p>
 		<?php
 
 		if ( $updater->is_vcs_checkout( ABSPATH ) ) {
-			_e( '此站点似乎受到版本控制功能管理。自动更新被禁用。' );
+			_e( '此系统似乎受到版本控制功能管理。自动更新被禁用。' );
 		} elseif ( $upgrade_major ) {
-			_e( '该站点会自动更新至GeChiUI的每个最新版本。' );
+			_e( '该系统会自动更新至GeChiUI的每个最新版本。' );
 
 			if ( $can_set_update_option ) {
-				echo '<br>';
+				echo '</p><p>';
 				printf(
 					'<a href="%s" class="core-auto-update-settings-link core-auto-update-settings-link-disable">%s</a>',
 					gc_nonce_url( add_query_arg( 'value', 'disable', $action_url ), 'core-major-auto-updates-nonce' ),
@@ -410,10 +415,10 @@ function core_auto_updates_settings() {
 				);
 			}
 		} elseif ( $upgrade_minor ) {
-			_e( '该站点仅自动更新至最新的GeChiUI维护和安全版本。' );
+			_e( '该系统仅自动更新至最新的GeChiUI维护和安全版本。' );
 
 			if ( $can_set_update_option ) {
-				echo '<br>';
+				echo '</p><p>';
 				printf(
 					'<a href="%s" class="core-auto-update-settings-link core-auto-update-settings-link-enable">%s</a>',
 					gc_nonce_url( add_query_arg( 'value', 'enable', $action_url ), 'core-major-auto-updates-nonce' ),
@@ -421,7 +426,7 @@ function core_auto_updates_settings() {
 				);
 			}
 		} else {
-			_e( '该站点不会接收GeChiUI新版本的自动更新。' );
+			_e( '该系统不会接收GeChiUI新版本的自动更新。' );
 		}
 		?>
 	</p>
@@ -445,7 +450,6 @@ function core_auto_updates_settings() {
 /**
  * Display the upgrade plugins form.
  *
- *
  */
 function list_plugin_updates() {
 	$gc_version     = get_bloginfo( 'version' );
@@ -454,7 +458,7 @@ function list_plugin_updates() {
 	require_once ABSPATH . 'gc-admin/includes/plugin-install.php';
 	$plugins = get_plugin_updates();
 	if ( empty( $plugins ) ) {
-		echo '<h2>' . __( '插件' ) . '</h2>';
+		echo '<h4 class="card-title">' . __( '插件' ) . '</h4>';
 		echo '<p>' . __( '您的所有插件均为最新版本。' ) . '</p>';
 		return;
 	}
@@ -469,161 +473,166 @@ function list_plugin_updates() {
 
 	$plugins_count = count( $plugins );
 	?>
-<h2>
-	<?php
-	printf(
-		'%s <span class="count">(%d)</span>',
-		__( '插件' ),
-		number_format_i18n( $plugins_count )
-	);
-	?>
-</h2>
-<p><?php _e( '以下插件有可用更新，点选需要升级的插件，然后点击“升级插件”。' ); ?></p>
-<form method="post" action="<?php echo esc_url( $form_action ); ?>" name="upgrade-plugins" class="upgrade">
-	<?php gc_nonce_field( 'upgrade-core' ); ?>
-<p><input id="upgrade-plugins" class="button" type="submit" value="<?php esc_attr_e( '升级插件' ); ?>" name="upgrade" /></p>
-<table class="widefat updates-table" id="update-plugins-table">
-	<thead>
-	<tr>
-		<td class="manage-column check-column"><input type="checkbox" id="plugins-select-all" /></td>
-		<td class="manage-column"><label for="plugins-select-all"><?php _e( '全选' ); ?></label></td>
-	</tr>
-	</thead>
-
-	<tbody class="plugins">
-	<?php
-
-	$auto_updates = array();
-	if ( gc_is_auto_update_enabled_for_type( 'plugin' ) ) {
-		$auto_updates       = (array) get_site_option( 'auto_update_plugins', array() );
-		$auto_update_notice = ' | ' . gc_get_auto_update_message();
-	}
-
-	foreach ( (array) $plugins as $plugin_file => $plugin_data ) {
-		$plugin_data = (object) _get_plugin_data_markup_translate( $plugin_file, (array) $plugin_data, false, true );
-
-		$icon            = '<span class="dashicons dashicons-admin-plugins"></span>';
-		$preferred_icons = array( 'svg', '2x', '1x', 'default' );
-		foreach ( $preferred_icons as $preferred_icon ) {
-			if ( ! empty( $plugin_data->update->icons[ $preferred_icon ] ) ) {
-				$icon = '<img src="' . esc_url( $plugin_data->update->icons[ $preferred_icon ] ) . '" alt="" />';
-				break;
-			}
-		}
-
-		// Get plugin compat for running version of GeChiUI.
-		if ( isset( $plugin_data->update->tested ) && version_compare( $plugin_data->update->tested, $cur_gc_version, '>=' ) ) {
-			/* translators: %s: GeChiUI version. */
-			$compat = '<br />' . sprintf( __( '与GeChiUI %s的兼容性：100%%（作者自评）' ), $cur_gc_version );
-		} else {
-			/* translators: %s: GeChiUI version. */
-			$compat = '<br />' . sprintf( __( '与GeChiUI %s的兼容性：未知' ), $cur_gc_version );
-		}
-		// Get plugin compat for updated version of GeChiUI.
-		if ( $core_update_version ) {
-			if ( isset( $plugin_data->update->tested ) && version_compare( $plugin_data->update->tested, $core_update_version, '>=' ) ) {
-				/* translators: %s: GeChiUI version. */
-				$compat .= '<br />' . sprintf( __( '与GeChiUI %s的兼容性：100%%（作者自评）' ), $core_update_version );
-			} else {
-				/* translators: %s: GeChiUI version. */
-				$compat .= '<br />' . sprintf( __( '与GeChiUI %s的兼容性：未知' ), $core_update_version );
-			}
-		}
-
-		$requires_php   = isset( $plugin_data->update->requires_php ) ? $plugin_data->update->requires_php : null;
-		$compatible_php = is_php_version_compatible( $requires_php );
-
-		if ( ! $compatible_php && current_user_can( 'update_php' ) ) {
-			$compat .= '<br>' . __( '此更新不能与您的PHP版本相兼容。' ) . '&nbsp;';
-			$compat .= sprintf(
-				/* translators: %s: URL to Update PHP page. */
-				__( '<a href="%s">查阅如何更新PHP</a>。' ),
-				esc_url( gc_get_update_php_url() )
-			);
-
-			$annotation = gc_get_update_php_annotation();
-
-			if ( $annotation ) {
-				$compat .= '</p><p><em>' . $annotation . '</em>';
-			}
-		}
-
-		// Get the upgrade notice for the new plugin version.
-		if ( isset( $plugin_data->update->upgrade_notice ) ) {
-			$upgrade_notice = '<br />' . strip_tags( $plugin_data->update->upgrade_notice );
-		} else {
-			$upgrade_notice = '';
-		}
-
-		$details_url = self_admin_url( 'plugin-install.php?tab=plugin-information&plugin=' . $plugin_data->update->slug . '&section=changelog&TB_iframe=true&width=640&height=662' );
-		$details     = sprintf(
-			'<a href="%1$s" class="thickbox open-plugin-details-modal" aria-label="%2$s">%3$s</a>',
-			esc_url( $details_url ),
-			/* translators: 1: Plugin name, 2: Version number. */
-			esc_attr( sprintf( __( '查看%1$s版本%2$s详情' ), $plugin_data->Name, $plugin_data->update->new_version ) ),
-			/* translators: %s: Plugin version. */
-			sprintf( __( '查看版本%s详情。' ), $plugin_data->update->new_version )
-		);
-
-		$checkbox_id = 'checkbox_' . md5( $plugin_file );
-		?>
-	<tr>
-		<td class="check-column">
-			<?php if ( $compatible_php ) : ?>
-				<input type="checkbox" name="checked[]" id="<?php echo $checkbox_id; ?>" value="<?php echo esc_attr( $plugin_file ); ?>" />
-				<label for="<?php echo $checkbox_id; ?>" class="screen-reader-text">
-					<?php
-					/* translators: %s: Plugin name. */
-					printf( __( '选择%s' ), $plugin_data->Name );
-					?>
-				</label>
-			<?php endif; ?>
-		</td>
-		<td class="plugin-title"><p>
-			<?php echo $icon; ?>
-			<strong><?php echo $plugin_data->Name; ?></strong>
+<div class="card">
+	<div class="card-header">
+		<h4 class="card-title">
 			<?php
 			printf(
-				/* translators: 1: Plugin version, 2: New version. */
-				__( '您正在使用的是版本%1$s。升级至%2$s。' ),
-				$plugin_data->Version,
-				$plugin_data->update->new_version
+				'%s <span class="count">(%d)</span>',
+				__( '插件' ),
+				number_format_i18n( $plugins_count )
 			);
+			?>
+		</h4>
+	</div>
+	<div class="card-body">
+		<p><?php _e( '以下插件有可用更新，点选需要升级的插件，然后点击“升级插件”。' ); ?></p>
+		<form method="post" action="<?php echo esc_url( $form_action ); ?>" name="upgrade-plugins" class="upgrade">
+			<?php gc_nonce_field( 'upgrade-core' ); ?>
+		<p><input id="upgrade-plugins" class="btn btn-primary btn-tone btn-sm" type="submit" value="<?php esc_attr_e( '升级插件' ); ?>" name="upgrade" /></p>
+		<table class="widefat updates-table" id="update-plugins-table">
+			<thead>
+			<tr>
+				<td class="manage-column check-column"><input type="checkbox" id="plugins-select-all" /></td>
+				<td class="manage-column"><label for="plugins-select-all"><?php _e( '全选' ); ?></label></td>
+			</tr>
+			</thead>
 
-			echo ' ' . $details . $compat . $upgrade_notice;
+			<tbody class="plugins">
+			<?php
 
-			if ( in_array( $plugin_file, $auto_updates, true ) ) {
-				echo $auto_update_notice;
+			$auto_updates = array();
+			if ( gc_is_auto_update_enabled_for_type( 'plugin' ) ) {
+				$auto_updates       = (array) get_site_option( 'auto_update_plugins', array() );
+				$auto_update_notice = ' | ' . gc_get_auto_update_message();
+			}
+
+			foreach ( (array) $plugins as $plugin_file => $plugin_data ) {
+				$plugin_data = (object) _get_plugin_data_markup_translate( $plugin_file, (array) $plugin_data, false, true );
+
+				$icon            = '<span class="dashicons dashicons-admin-plugins m-r-10"></span>';
+				$preferred_icons = array( 'svg', '2x', '1x', 'default' );
+				foreach ( $preferred_icons as $preferred_icon ) {
+					if ( ! empty( $plugin_data->update->icons[ $preferred_icon ] ) ) {
+						$icon = '<img src="' . esc_url( $plugin_data->update->icons[ $preferred_icon ] ) . '" alt="" />';
+						break;
+					}
+				}
+
+				// Get plugin compat for running version of GeChiUI.
+				if ( isset( $plugin_data->update->tested ) && version_compare( $plugin_data->update->tested, $cur_gc_version, '>=' ) ) {
+					/* translators: %s: GeChiUI version. */
+					$compat = '<br />' . sprintf( __( '与GeChiUI %s的兼容性：100%%（作者自评）' ), $cur_gc_version );
+				} else {
+					/* translators: %s: GeChiUI version. */
+					$compat = '<br />' . sprintf( __( '与GeChiUI %s的兼容性：未知' ), $cur_gc_version );
+				}
+				// Get plugin compat for updated version of GeChiUI.
+				if ( $core_update_version ) {
+					if ( isset( $plugin_data->update->tested ) && version_compare( $plugin_data->update->tested, $core_update_version, '>=' ) ) {
+						/* translators: %s: GeChiUI version. */
+						$compat .= '<br />' . sprintf( __( '与GeChiUI %s的兼容性：100%%（作者自评）' ), $core_update_version );
+					} else {
+						/* translators: %s: GeChiUI version. */
+						$compat .= '<br />' . sprintf( __( '与GeChiUI %s的兼容性：未知' ), $core_update_version );
+					}
+				}
+
+				$requires_php   = isset( $plugin_data->update->requires_php ) ? $plugin_data->update->requires_php : null;
+				$compatible_php = is_php_version_compatible( $requires_php );
+
+				if ( ! $compatible_php && current_user_can( 'update_php' ) ) {
+					$compat .= '<br>' . __( '此更新不能与您的PHP版本相兼容。' ) . '&nbsp;';
+					$compat .= sprintf(
+						/* translators: %s: URL to Update PHP page. */
+						__( '<a href="%s">查阅如何更新PHP</a>。' ),
+						esc_url( gc_get_update_php_url() )
+					);
+
+					$annotation = gc_get_update_php_annotation();
+
+					if ( $annotation ) {
+						$compat .= '</p><p><em>' . $annotation . '</em>';
+					}
+				}
+
+				// Get the upgrade notice for the new plugin version.
+				if ( isset( $plugin_data->update->upgrade_notice ) ) {
+					$upgrade_notice = '<br />' . strip_tags( $plugin_data->update->upgrade_notice );
+				} else {
+					$upgrade_notice = '';
+				}
+
+				$details_url = self_admin_url( 'plugin-install.php?tab=plugin-information&plugin=' . $plugin_data->update->slug . '&section=changelog&TB_iframe=true&width=640&height=662' );
+				$details     = sprintf(
+					'<a href="%1$s" class="thickbox open-plugin-details-modal" aria-label="%2$s">%3$s</a>',
+					esc_url( $details_url ),
+					/* translators: 1: Plugin name, 2: Version number. */
+					esc_attr( sprintf( __( '查看%1$s版本%2$s详情' ), $plugin_data->Name, $plugin_data->update->new_version ) ),
+					/* translators: %s: Plugin version. */
+					sprintf( __( '查看版本%s详情。' ), $plugin_data->update->new_version )
+				);
+
+				$checkbox_id = 'checkbox_' . md5( $plugin_file );
+				?>
+			<tr>
+				<td class="check-column">
+					<?php if ( $compatible_php ) : ?>
+						<input type="checkbox" name="checked[]" id="<?php echo $checkbox_id; ?>" value="<?php echo esc_attr( $plugin_file ); ?>" />
+						<label for="<?php echo $checkbox_id; ?>" class="screen-reader-text">
+							<?php
+							/* translators: %s: Plugin name. */
+							printf( __( '选择%s' ), $plugin_data->Name );
+							?>
+						</label>
+					<?php endif; ?>
+				</td>
+				<td class="plugin-title"><p>
+					<?php echo $icon; ?>
+					<strong><?php echo $plugin_data->Name; ?></strong>
+					<?php
+					printf(
+						/* translators: 1: Plugin version, 2: New version. */
+						__( '您正在使用的是版本%1$s。升级至%2$s。' ),
+						$plugin_data->Version,
+						$plugin_data->update->new_version
+					);
+
+					echo ' ' . $details . $compat . $upgrade_notice;
+
+					if ( in_array( $plugin_file, $auto_updates, true ) ) {
+						echo $auto_update_notice;
+					}
+					?>
+				</p></td>
+			</tr>
+					<?php
 			}
 			?>
-		</p></td>
-	</tr>
-			<?php
-	}
-	?>
-	</tbody>
+			</tbody>
 
-	<tfoot>
-	<tr>
-		<td class="manage-column check-column"><input type="checkbox" id="plugins-select-all-2" /></td>
-		<td class="manage-column"><label for="plugins-select-all-2"><?php _e( '全选' ); ?></label></td>
-	</tr>
-	</tfoot>
-</table>
-<p><input id="upgrade-plugins-2" class="button" type="submit" value="<?php esc_attr_e( '升级插件' ); ?>" name="upgrade" /></p>
-</form>
+			<tfoot>
+			<tr>
+				<td class="manage-column check-column"><input type="checkbox" id="plugins-select-all-2" /></td>
+				<td class="manage-column"><label for="plugins-select-all-2"><?php _e( '全选' ); ?></label></td>
+			</tr>
+			</tfoot>
+		</table>
+		<p><input id="upgrade-plugins-2" class="btn btn-primary btn-tone btn-sm m-t-10" type="submit" value="<?php esc_attr_e( '升级插件' ); ?>" name="upgrade" /></p>
+		</form>
+	</div>
+</div>
 	<?php
 }
 
 /**
  * Display the upgrade themes form.
  *
- *
  */
 function list_theme_updates() {
 	$themes = get_theme_updates();
 	if ( empty( $themes ) ) {
-		echo '<h2>' . __( '主题' ) . '</h2>';
+		echo '<h4 class="card-title">' . __( '主题' ) . '</h4>';
 		echo '<p>' . __( '您的所有主题均为最新版本。' ) . '</p>';
 		return;
 	}
@@ -632,173 +641,178 @@ function list_theme_updates() {
 
 	$themes_count = count( $themes );
 	?>
-<h2>
-	<?php
-	printf(
-		'%s <span class="count">(%d)</span>',
-		__( '主题' ),
-		number_format_i18n( $themes_count )
-	);
-	?>
-</h2>
-<p><?php _e( '以下主题有可用更新，点选需要升级的主题，然后点击“升级主题”。' ); ?></p>
-<p>
-	<?php
-	printf(
-		/* translators: %s: Link to documentation on child themes. */
-		__( '<strong>请注意：</strong>所有之前对主题文件的修改都将丢失。请考虑使用<a href="%s">子主题</a>方式来对主题做出修改。' ),
-		__( 'https://developer.gechiui.com/themes/advanced-topics/child-themes/' )
-	);
-	?>
-</p>
-<form method="post" action="<?php echo esc_url( $form_action ); ?>" name="upgrade-themes" class="upgrade">
-	<?php gc_nonce_field( 'upgrade-core' ); ?>
-<p><input id="upgrade-themes" class="button" type="submit" value="<?php esc_attr_e( '升级主题' ); ?>" name="upgrade" /></p>
-<table class="widefat updates-table" id="update-themes-table">
-	<thead>
-	<tr>
-		<td class="manage-column check-column"><input type="checkbox" id="themes-select-all" /></td>
-		<td class="manage-column"><label for="themes-select-all"><?php _e( '全选' ); ?></label></td>
-	</tr>
-	</thead>
-
-	<tbody class="plugins">
-	<?php
-	$auto_updates = array();
-	if ( gc_is_auto_update_enabled_for_type( 'theme' ) ) {
-		$auto_updates       = (array) get_site_option( 'auto_update_themes', array() );
-		$auto_update_notice = ' | ' . gc_get_auto_update_message();
-	}
-
-	foreach ( $themes as $stylesheet => $theme ) {
-		$requires_gc  = isset( $theme->update['requires'] ) ? $theme->update['requires'] : null;
-		$requires_php = isset( $theme->update['requires_php'] ) ? $theme->update['requires_php'] : null;
-
-		$compatible_gc  = is_gc_version_compatible( $requires_gc );
-		$compatible_php = is_php_version_compatible( $requires_php );
-
-		$compat = '';
-
-		if ( ! $compatible_gc && ! $compatible_php ) {
-			$compat .= '<br>' . __( '此更新不能与您的GeChiUI和PHP版本相兼容。' ) . '&nbsp;';
-			if ( current_user_can( 'update_core' ) && current_user_can( 'update_php' ) ) {
-				$compat .= sprintf(
-					/* translators: 1: URL to GeChiUI Updates screen, 2: URL to Update PHP page. */
-					__( '<a href="%1$s">请更新GeChiUI</a>，并<a href="%2$s">查阅如何更新PHP</a>。' ),
-					self_admin_url( 'update-core.php' ),
-					esc_url( gc_get_update_php_url() )
-				);
-
-				$annotation = gc_get_update_php_annotation();
-
-				if ( $annotation ) {
-					$compat .= '</p><p><em>' . $annotation . '</em>';
-				}
-			} elseif ( current_user_can( 'update_core' ) ) {
-				$compat .= sprintf(
-					/* translators: %s: URL to GeChiUI Updates screen. */
-					__( '<a href="%s">请更新GeChiUI</a>。' ),
-					self_admin_url( 'update-core.php' )
-				);
-			} elseif ( current_user_can( 'update_php' ) ) {
-				$compat .= sprintf(
-					/* translators: %s: URL to Update PHP page. */
-					__( '<a href="%s">查阅如何更新PHP</a>。' ),
-					esc_url( gc_get_update_php_url() )
-				);
-
-				$annotation = gc_get_update_php_annotation();
-
-				if ( $annotation ) {
-					$compat .= '</p><p><em>' . $annotation . '</em>';
-				}
-			}
-		} elseif ( ! $compatible_gc ) {
-			$compat .= '<br>' . __( '此更新不能与您的GeChiUI版本相兼容。' ) . '&nbsp;';
-			if ( current_user_can( 'update_core' ) ) {
-				$compat .= sprintf(
-					/* translators: %s: URL to GeChiUI Updates screen. */
-					__( '<a href="%s">请更新GeChiUI</a>。' ),
-					self_admin_url( 'update-core.php' )
-				);
-			}
-		} elseif ( ! $compatible_php ) {
-			$compat .= '<br>' . __( '此更新不能与您的PHP版本相兼容。' ) . '&nbsp;';
-			if ( current_user_can( 'update_php' ) ) {
-				$compat .= sprintf(
-					/* translators: %s: URL to Update PHP page. */
-					__( '<a href="%s">查阅如何更新PHP</a>。' ),
-					esc_url( gc_get_update_php_url() )
-				);
-
-				$annotation = gc_get_update_php_annotation();
-
-				if ( $annotation ) {
-					$compat .= '</p><p><em>' . $annotation . '</em>';
-				}
-			}
-		}
-
-		$checkbox_id = 'checkbox_' . md5( $theme->get( 'Name' ) );
-		?>
-	<tr>
-		<td class="check-column">
-			<?php if ( $compatible_gc && $compatible_php ) : ?>
-				<input type="checkbox" name="checked[]" id="<?php echo $checkbox_id; ?>" value="<?php echo esc_attr( $stylesheet ); ?>" />
-				<label for="<?php echo $checkbox_id; ?>" class="screen-reader-text">
-					<?php
-					/* translators: %s: Theme name. */
-					printf( __( '选择%s' ), $theme->display( 'Name' ) );
-					?>
-				</label>
-			<?php endif; ?>
-		</td>
-		<td class="plugin-title"><p>
-			<img src="<?php echo esc_url( $theme->get_screenshot() . '?ver=' . $theme->version ); ?>" width="85" height="64" class="updates-table-screenshot" alt="" />
-			<strong><?php echo $theme->display( 'Name' ); ?></strong>
+<div class="card">
+    <div class="card-header">
+		<h4 class="card-title">
 			<?php
 			printf(
-				/* translators: 1: Theme version, 2: New version. */
-				__( '您正在使用的是版本%1$s。升级至%2$s。' ),
-				$theme->display( 'Version' ),
-				$theme->update['new_version']
+				'%s <span class="count">(%d)</span>',
+				__( '主题' ),
+				number_format_i18n( $themes_count )
 			);
+			?>
+		</h4>
+    </div>
+    <div class="card-body">
+		<p><?php _e( '以下主题有可用更新，点选需要升级的主题，然后点击“升级主题”。' ); ?></p>
+		<p>
+			<?php
+			printf(
+				/* translators: %s: Link to documentation on child themes. */
+				__( '<strong>请注意：</strong>所有之前对主题文件的修改都将丢失。请考虑使用<a href="%s">子主题</a>方式来对主题做出修改。' ),
+				__( 'https://developer.gechiui.com/themes/advanced-topics/child-themes/' )
+			);
+			?>
+		</p>
+		<form method="post" action="<?php echo esc_url( $form_action ); ?>" name="upgrade-themes" class="upgrade">
+			<?php gc_nonce_field( 'upgrade-core' ); ?>
+		<p><input id="upgrade-themes" class="btn btn-primary btn-tone btn-sm" type="submit" value="<?php esc_attr_e( '升级主题' ); ?>" name="upgrade" /></p>
+		<table class="widefat updates-table" id="update-themes-table">
+			<thead>
+			<tr>
+				<td class="manage-column check-column"><input type="checkbox" id="themes-select-all" /></td>
+				<td class="manage-column"><label for="themes-select-all"><?php _e( '全选' ); ?></label></td>
+			</tr>
+			</thead>
 
-			echo ' ' . $compat;
+			<tbody class="plugins">
+			<?php
+			$auto_updates = array();
+			if ( gc_is_auto_update_enabled_for_type( 'theme' ) ) {
+				$auto_updates       = (array) get_site_option( 'auto_update_themes', array() );
+				$auto_update_notice = ' | ' . gc_get_auto_update_message();
+			}
 
-			if ( in_array( $stylesheet, $auto_updates, true ) ) {
-				echo $auto_update_notice;
+			foreach ( $themes as $stylesheet => $theme ) {
+				$requires_gc  = isset( $theme->update['requires'] ) ? $theme->update['requires'] : null;
+				$requires_php = isset( $theme->update['requires_php'] ) ? $theme->update['requires_php'] : null;
+
+				$compatible_gc  = is_gc_version_compatible( $requires_gc );
+				$compatible_php = is_php_version_compatible( $requires_php );
+
+				$compat = '';
+
+				if ( ! $compatible_gc && ! $compatible_php ) {
+					$compat .= '<br>' . __( '此更新不能与您的GeChiUI和PHP版本相兼容。' ) . '&nbsp;';
+					if ( current_user_can( 'update_core' ) && current_user_can( 'update_php' ) ) {
+						$compat .= sprintf(
+							/* translators: 1: URL to GeChiUI Updates screen, 2: URL to Update PHP page. */
+							__( '<a href="%1$s">请更新GeChiUI</a>，并<a href="%2$s">查阅如何更新PHP</a>。' ),
+							self_admin_url( 'update-core.php' ),
+							esc_url( gc_get_update_php_url() )
+						);
+
+						$annotation = gc_get_update_php_annotation();
+
+						if ( $annotation ) {
+							$compat .= '</p><p><em>' . $annotation . '</em>';
+						}
+					} elseif ( current_user_can( 'update_core' ) ) {
+						$compat .= sprintf(
+							/* translators: %s: URL to GeChiUI Updates screen. */
+							__( '<a href="%s">请更新GeChiUI</a>。' ),
+							self_admin_url( 'update-core.php' )
+						);
+					} elseif ( current_user_can( 'update_php' ) ) {
+						$compat .= sprintf(
+							/* translators: %s: URL to Update PHP page. */
+							__( '<a href="%s">查阅如何更新PHP</a>。' ),
+							esc_url( gc_get_update_php_url() )
+						);
+
+						$annotation = gc_get_update_php_annotation();
+
+						if ( $annotation ) {
+							$compat .= '</p><p><em>' . $annotation . '</em>';
+						}
+					}
+				} elseif ( ! $compatible_gc ) {
+					$compat .= '<br>' . __( '此更新不能与您的GeChiUI版本相兼容。' ) . '&nbsp;';
+					if ( current_user_can( 'update_core' ) ) {
+						$compat .= sprintf(
+							/* translators: %s: URL to GeChiUI Updates screen. */
+							__( '<a href="%s">请更新GeChiUI</a>。' ),
+							self_admin_url( 'update-core.php' )
+						);
+					}
+				} elseif ( ! $compatible_php ) {
+					$compat .= '<br>' . __( '此更新不能与您的PHP版本相兼容。' ) . '&nbsp;';
+					if ( current_user_can( 'update_php' ) ) {
+						$compat .= sprintf(
+							/* translators: %s: URL to Update PHP page. */
+							__( '<a href="%s">查阅如何更新PHP</a>。' ),
+							esc_url( gc_get_update_php_url() )
+						);
+
+						$annotation = gc_get_update_php_annotation();
+
+						if ( $annotation ) {
+							$compat .= '</p><p><em>' . $annotation . '</em>';
+						}
+					}
+				}
+
+				$checkbox_id = 'checkbox_' . md5( $theme->get( 'Name' ) );
+				?>
+			<tr>
+				<td class="check-column">
+					<?php if ( $compatible_gc && $compatible_php ) : ?>
+						<input type="checkbox" name="checked[]" id="<?php echo $checkbox_id; ?>" value="<?php echo esc_attr( $stylesheet ); ?>" />
+						<label for="<?php echo $checkbox_id; ?>" class="screen-reader-text">
+							<?php
+							/* translators: %s: Theme name. */
+							printf( __( '选择%s' ), $theme->display( 'Name' ) );
+							?>
+						</label>
+					<?php endif; ?>
+				</td>
+				<td class="plugin-title"><p>
+					<img src="<?php echo esc_url( $theme->get_screenshot() . '?ver=' . $theme->version ); ?>" width="85" height="64" class="updates-table-screenshot" alt="" />
+					<strong><?php echo $theme->display( 'Name' ); ?></strong>
+					<?php
+					printf(
+						/* translators: 1: Theme version, 2: New version. */
+						__( '您正在使用的是版本%1$s。升级至%2$s。' ),
+						$theme->display( 'Version' ),
+						$theme->update['new_version']
+					);
+
+					echo ' ' . $compat;
+
+					if ( in_array( $stylesheet, $auto_updates, true ) ) {
+						echo $auto_update_notice;
+					}
+					?>
+				</p></td>
+			</tr>
+					<?php
 			}
 			?>
-		</p></td>
-	</tr>
-			<?php
-	}
-	?>
-	</tbody>
+			</tbody>
 
-	<tfoot>
-	<tr>
-		<td class="manage-column check-column"><input type="checkbox" id="themes-select-all-2" /></td>
-		<td class="manage-column"><label for="themes-select-all-2"><?php _e( '全选' ); ?></label></td>
-	</tr>
-	</tfoot>
-</table>
-<p><input id="upgrade-themes-2" class="button" type="submit" value="<?php esc_attr_e( '升级主题' ); ?>" name="upgrade" /></p>
-</form>
+			<tfoot>
+			<tr>
+				<td class="manage-column check-column"><input type="checkbox" id="themes-select-all-2" /></td>
+				<td class="manage-column"><label for="themes-select-all-2"><?php _e( '全选' ); ?></label></td>
+			</tr>
+			</tfoot>
+		</table>
+		<p><input id="upgrade-themes-2" class="btn btn-primary btn-tone btn-sm m-t-10" type="submit" value="<?php esc_attr_e( '升级主题' ); ?>" name="upgrade" /></p>
+		</form>
+	</div>
+</div>
 	<?php
 }
 
 /**
  * Display the update translations form.
  *
- *
  */
 function list_translation_updates() {
 	$updates = gc_get_translation_updates();
 	if ( ! $updates ) {
 		if ( 'zh_CN' !== get_locale() ) {
-			echo '<h2>' . __( '翻译' ) . '</h2>';
+			echo '<h4 class="card-title">' . __( '翻译' ) . '</h4>';
 			echo '<p>' . __( '您的所有翻译均为最新版本。' ) . '</p>';
 		}
 		return;
@@ -806,18 +820,17 @@ function list_translation_updates() {
 
 	$form_action = 'update-core.php?action=do-translation-upgrade';
 	?>
-	<h2><?php _e( '翻译' ); ?></h2>
+	<h4><?php _e( '翻译' ); ?></h4>
 	<form method="post" action="<?php echo esc_url( $form_action ); ?>" name="upgrade-translations" class="upgrade">
 		<p><?php _e( '有新的翻译可用。' ); ?></p>
 		<?php gc_nonce_field( 'upgrade-translations' ); ?>
-		<p><input class="button" type="submit" value="<?php esc_attr_e( '更新翻译' ); ?>" name="upgrade" /></p>
+		<p><input class="btn btn-primary btn-tone btn-sm" type="submit" value="<?php esc_attr_e( '更新翻译' ); ?>" name="upgrade" /></p>
 	</form>
 	<?php
 }
 
 /**
  * Upgrade GeChiUI core display.
- *
  *
  *
  * @global GC_Filesystem_Base $gc_filesystem GeChiUI filesystem subclass.
@@ -849,7 +862,7 @@ function do_core_upgrade( $reinstall = false ) {
 
 	?>
 	<div class="wrap">
-	<h1><?php _e( '升级GeChiUI' ); ?></h1>
+	<div class="page-header"><h2 class="header-title"><?php _e( '升级GeChiUI' ); ?></h2></div>
 	<?php
 
 	$credentials = request_filesystem_credentials( $url, '', false, ABSPATH, array( 'version', 'locale' ), $allow_relaxed_file_ownership );
@@ -924,7 +937,6 @@ function do_core_upgrade( $reinstall = false ) {
 /**
  * Dismiss a core update.
  *
- *
  */
 function do_dismiss_core_update() {
 	$version = isset( $_POST['version'] ) ? $_POST['version'] : false;
@@ -940,7 +952,6 @@ function do_dismiss_core_update() {
 
 /**
  * Undismiss a core update.
- *
  *
  */
 function do_undismiss_core_update() {
@@ -968,7 +979,7 @@ $title       = __( 'GeChiUI更新' );
 $parent_file = 'index.php';
 
 $updates_overview  = '<p>' . __( '在这个界面中，您可以将GeChiUI更新至最新版，也可以从www.GeChiUI.com代码库升级您的主题、插件和翻译。' ) . '</p>';
-$updates_overview .= '<p>' . __( '如果更新可用，您将会在工具栏和导航菜单处看到通知。' ) . ' ' . __( '保持更新站点对确保安全至关重要，这也会让互联网和您的读者更安全。' ) . '</p>';
+$updates_overview .= '<p>' . __( '如果更新可用，您将会在工具栏和导航菜单处看到通知。' ) . ' ' . __( '保持更新系统对确保安全至关重要，这也会让互联网和您的读者更安全。' ) . '</p>';
 
 get_current_screen()->add_help_tab(
 	array(
@@ -1022,97 +1033,95 @@ if ( 'upgrade-core' === $action ) {
 	$force_check = ! empty( $_GET['force-check'] );
 	gc_version_check( array(), $force_check );
 
+	if ( $upgrade_error ) {
+		if ( 'themes' === $upgrade_error ) {
+			add_settings_error( 'general', 'message', __( '请选择需要升级的主题。' ) );
+		} else {
+			add_settings_error( 'general', 'message', __( '请选择需要升级的插件。' ) );
+		}
+	}
+
 	require_once ABSPATH . 'gc-admin/admin-header.php';
 	?>
 	<div class="wrap">
-	<h1><?php _e( 'GeChiUI更新' ); ?></h1>
-	<p><?php _e( '您可在此查找关于更新功能、设置自动更新及插件和主题是否需要更新的相关信息。' ); ?></p>
+	<div class="page-header">
+		<h2 class="header-title"><?php _e( 'GeChiUI更新' ); ?></h2>
+		<p><?php _e( '您可在此查找关于更新功能、设置自动更新及插件和主题是否需要更新的相关信息。' ); ?></p>
+	</div>
 
-	<?php
-	if ( $upgrade_error ) {
-		echo '<div class="error"><p>';
-		if ( 'themes' === $upgrade_error ) {
-			_e( '请选择需要升级的主题。' );
-		} else {
-			_e( '请选择需要升级的插件。' );
-		}
-		echo '</p></div>';
-	}
+	<div class="card">
+       <div class="card-body">
+			<?php
 
-	$last_update_check = false;
-	$current           = get_site_transient( 'update_core' );
+			/**
+			 * 处理专业版许可证
+			 * @since 6.3
+			 * gonenlin
+			 */
+			echo '<h4 class="card-title">专业版许可</h4>';
+			echo get_pro_license_html();
+			?>
+		</div>
+	</div>
+	<div class="card">
+		<div class="card-header">
+	        <h4 class="card-title"><?php printf( __( '当前版本：%s' ), get_bloginfo( 'version' ) ); ?></h4>
+	    </div>
+        <div class="card-body">
+       		<p class="update-last-checked">
+			<?php
+			$last_update_check = false;
+			$current           = get_site_transient( 'update_core' );
 
-	if ( $current && isset( $current->last_checked ) ) {
-		$last_update_check = $current->last_checked + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
-	}
+			if ( $current && isset( $current->last_checked ) ) {
+				$last_update_check = $current->last_checked + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
+			}
 
-	/**
-	 * 处理专业版许可证
-	 */
-	echo '<h2 class="gc-current-version">专业版许可</h2>';
-	if(defined( 'GECHIUI_USERNAME' ) && defined( 'GECHIUI_APPKEY' ) ){
-		echo '<p>许可用户：'. GECHIUI_USERNAME .'</p>';
-		echo '<p>许可秘钥：'. GECHIUI_APPKEY .'</p>';
-		$res = get_pro_license_api();
-		if( isset($res->license) && strtotime( $res->license['next_payment_date'] ) > strtotime('now') ) {
-			update_option( 'pro_license', $res );
-			echo '<p>专业版授权：有效期至'. date("Y/m/d", strtotime($res->license['next_payment_date'])). '</p>';
-		}else{
-			echo '<p>专业版授权获取失败！</p>';
-		}
-	}else{
-		echo '<p>当前为免费版，<a href="https://www.gechiui.com/pro/">立即升级专业版</a></p>';
-	}
+			/* translators: 1: Date, 2: Time. */
+			printf( __( '最后检查时间：%1$s %2$s。' ), date_i18n( __( 'Y年n月j日' ), $last_update_check ), date_i18n( __( 'H:i' ), $last_update_check ) );
+			echo ' <a href="' . esc_url( self_admin_url( 'update-core.php?force-check=1' ) ) . '">' . __( '再次检查。' ) . '</a>';
+			?>
+			</p>
+		</div>
+	</div>
+			<?php
+			if ( current_user_can( 'update_core' ) ) {
+				core_upgrade_preamble();
+			}
+			if ( current_user_can( 'update_plugins' ) ) {
+				list_plugin_updates();
+			}
+			if ( current_user_can( 'update_themes' ) ) {
+				list_theme_updates();
+			}
+			if ( current_user_can( 'update_languages' ) ) {
+				list_translation_updates();
+			}
 
-	/**
-	 * GeChiUi版本升级
-	 */
-	echo '<h2 class="gc-current-version">';
-	/* translators: Current version of GeChiUI. */
-	printf( __( '当前版本：%s' ), get_bloginfo( 'version' ) );
-	echo '</h2>';
+			/**
+			 * Fires after the core, plugin, and theme update tables.
+			 *
+			 */
+			do_action( 'core_upgrade_preamble' );
+			echo '</div>';
 
-	echo '<p class="update-last-checked">';
-	/* translators: 1: Date, 2: Time. */
-	printf( __( '最后检查时间：%1$s %2$s。' ), date_i18n( __( 'Y年n月j日' ), $last_update_check ), date_i18n( __( 'a g:i T' ), $last_update_check ) );
-	echo ' <a href="' . esc_url( self_admin_url( 'update-core.php?force-check=1' ) ) . '">' . __( '再次检查。' ) . '</a>';
-	echo '</p>';
-
-	if ( current_user_can( 'update_core' ) ) {
-		core_auto_updates_settings();
-		core_upgrade_preamble();
-	}
-	if ( current_user_can( 'update_plugins' ) ) {
-		list_plugin_updates();
-	}
-	if ( current_user_can( 'update_themes' ) ) {
-		list_theme_updates();
-	}
-	if ( current_user_can( 'update_languages' ) ) {
-		list_translation_updates();
-	}
-
-	/**
-	 * Fires after the core, plugin, and theme update tables.
-	 *
-	 */
-	do_action( 'core_upgrade_preamble' );
-	echo '</div>';
-
-	gc_localize_script(
-		'updates',
-		'_gcUpdatesItemCounts',
-		array(
-			'totals' => gc_get_update_data(),
-		)
-	);
-
+			gc_localize_script(
+				'updates',
+				'_gcUpdatesItemCounts',
+				array(
+					'totals' => gc_get_update_data(),
+				)
+			);
+			?>
+		</div>
+	</div>
+<?php
 	require_once ABSPATH . 'gc-admin/admin-footer.php';
 
 } elseif ( 'do-core-upgrade' === $action || 'do-core-reinstall' === $action ) {
 
 	if ( ! current_user_can( 'update_core' ) ) {
-		gc_die( __( '抱歉，您不能更新此站点。' ) );
+		gc_die( __( '抱歉，您不能更新此系统。' ) );
 	}
 
 	check_admin_referer( 'upgrade-core' );
@@ -1148,7 +1157,7 @@ if ( 'upgrade-core' === $action ) {
 } elseif ( 'do-plugin-upgrade' === $action ) {
 
 	if ( ! current_user_can( 'update_plugins' ) ) {
-		gc_die( __( '抱歉，您不能更新此站点。' ) );
+		gc_die( __( '抱歉，您不能更新此系统。' ) );
 	}
 
 	check_admin_referer( 'upgrade-core' );
@@ -1171,7 +1180,7 @@ if ( 'upgrade-core' === $action ) {
 	require_once ABSPATH . 'gc-admin/admin-header.php';
 	?>
 	<div class="wrap">
-		<h1><?php _e( '升级插件' ); ?></h1>
+		<div class="page-header"><h2 class="header-title"><?php _e( '升级插件' ); ?></h2></div>
 		<iframe src="<?php echo $url; ?>" style="width: 100%; height: 100%; min-height: 750px;" frameborder="0" title="<?php esc_attr_e( '更新进度' ); ?>"></iframe>
 	</div>
 	<?php
@@ -1189,7 +1198,7 @@ if ( 'upgrade-core' === $action ) {
 } elseif ( 'do-theme-upgrade' === $action ) {
 
 	if ( ! current_user_can( 'update_themes' ) ) {
-		gc_die( __( '抱歉，您不能更新此站点。' ) );
+		gc_die( __( '抱歉，您不能更新此系统。' ) );
 	}
 
 	check_admin_referer( 'upgrade-core' );
@@ -1212,7 +1221,7 @@ if ( 'upgrade-core' === $action ) {
 	require_once ABSPATH . 'gc-admin/admin-header.php';
 	?>
 	<div class="wrap">
-		<h1><?php _e( '升级主题' ); ?></h1>
+		<div class="page-header"><h2 class="header-title"><?php _e( '升级主题' ); ?></h2></div>
 		<iframe src="<?php echo $url; ?>" style="width: 100%; height: 100%; min-height: 750px;" frameborder="0" title="<?php esc_attr_e( '更新进度' ); ?>"></iframe>
 	</div>
 	<?php
@@ -1230,7 +1239,7 @@ if ( 'upgrade-core' === $action ) {
 } elseif ( 'do-translation-upgrade' === $action ) {
 
 	if ( ! current_user_can( 'update_languages' ) ) {
-		gc_die( __( '抱歉，您不能更新此站点。' ) );
+		gc_die( __( '抱歉，您不能更新此系统。' ) );
 	}
 
 	check_admin_referer( 'upgrade-translations' );
@@ -1259,7 +1268,7 @@ if ( 'upgrade-core' === $action ) {
 } elseif ( 'core-major-auto-updates-settings' === $action ) {
 
 	if ( ! current_user_can( 'update_core' ) ) {
-		gc_die( __( '抱歉，您不能更新此站点。' ) );
+		gc_die( __( '抱歉，您不能更新此系统。' ) );
 	}
 
 	$redirect_url = self_admin_url( 'update-core.php' );

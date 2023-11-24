@@ -2,13 +2,14 @@
  * gc-emoji.js is used to replace emoji with images in browsers when the browser
  * doesn't support emoji natively.
  *
- * @output gc-includes/js/gc-emoji.js
+ * @output assets/js/gc-emoji.js
  */
 
 ( function( window, settings ) {
 	/**
 	 * Replaces emoji with images when browsers don't support emoji.
 	 *
+	 * @since 4.2.0
 	 * @access private
 	 *
 	 * @class
@@ -33,6 +34,7 @@
 		/**
 		 * Detect if the browser supports SVG.
 		 *
+		 * @since 4.6.0
 		 * @private
 		 *
 		 * @see Modernizr
@@ -57,6 +59,7 @@
 		 * Listens to all the DOM mutations and checks for added nodes that contain
 		 * emoji characters and replaces those with twitter emoji images.
 		 *
+		 * @since 4.2.0
 		 * @private
 		 */
 		function load() {
@@ -142,17 +145,6 @@
 								node = node.parentNode;
 							}
 
-							/*
-							 * If the class name of a non-element node contains 'gc-exclude-emoji' ignore it.
-							 *
-							 * Node type 1 is an ELEMENT_NODE.
-							 */
-							if ( ! node || node.nodeType !== 1 ||
-								( node.className && typeof node.className === 'string' && node.className.indexOf( 'gc-exclude-emoji' ) !== -1 ) ) {
-
-								continue;
-							}
-
 							if ( test( node.textContent ) ) {
 								parse( node );
 							}
@@ -170,6 +162,7 @@
 		/**
 		 * Tests if a text string contains emoji characters.
 		 *
+		 * @since 4.3.0
 		 *
 		 * @memberOf gc.emoji
 		 *
@@ -197,6 +190,7 @@
 		 * - When passed a string the emoji characters are replaced and the result is
 		 *   returned.
 		 *
+		 * @since 4.2.0
 		 *
 		 * @memberOf gc.emoji
 		 *
@@ -258,6 +252,19 @@
 						this.setAttribute( 'data-error', 'load-failed' );
 						twemoji.parentNode.replaceChild( document.createTextNode( twemoji.alt ), twemoji );
 					}
+				},
+				doNotParse: function( node ) {
+					if (
+						node &&
+						node.className &&
+						typeof node.className === 'string' &&
+						node.className.indexOf( 'gc-exclude-emoji' ) !== -1
+					) {
+						// Do not parse this node. Emojis will not be replaced in this node and all sub-nodes.
+						return true;
+					}
+
+					return false;
 				}
 			};
 

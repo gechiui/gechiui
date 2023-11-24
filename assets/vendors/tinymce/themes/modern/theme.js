@@ -7099,15 +7099,15 @@ var modern = (function (domGlobals) {
       });
       global$2.each({
         alignleft: [
-          'Align left',
+          '左对齐',
           'JustifyLeft'
         ],
         aligncenter: [
-          'Align center',
+          '居中对齐',
           'JustifyCenter'
         ],
         alignright: [
-          'Align right',
+          '右对齐',
           'JustifyRight'
         ],
         alignjustify: [
@@ -7115,7 +7115,7 @@ var modern = (function (domGlobals) {
           'JustifyFull'
         ],
         alignnone: [
-          'No alignment',
+          '无对齐',
           'JustifyNone'
         ]
       }, function (item, name) {
@@ -7185,8 +7185,8 @@ var modern = (function (domGlobals) {
         var items = getFontItems(editor);
         return {
           type: 'listbox',
-          text: 'Font Family',
-          tooltip: 'Font Family',
+          text: '字体',
+          tooltip: '字体',
           values: items,
           fixedWidth: true,
           onPostRender: createFontNameListBoxChangeHandler(editor, items),
@@ -7264,8 +7264,8 @@ var modern = (function (domGlobals) {
         var items = getFontSizeItems(editor);
         return {
           type: 'listbox',
-          text: 'Font Sizes',
-          tooltip: 'Font Sizes',
+          text: '字号',
+          tooltip: '字号',
           values: items,
           fixedWidth: true,
           onPostRender: createFontSizeListBoxChangeHandler(editor, items),
@@ -7391,7 +7391,7 @@ var modern = (function (domGlobals) {
           ]
         },
         {
-          title: '块',
+          title: '区块',
           items: [
             {
               title: '段落',
@@ -7721,11 +7721,11 @@ var modern = (function (domGlobals) {
     var registerCommandButtons = function (editor) {
       global$2.each({
         outdent: [
-          'Decrease indent',
+          '减少缩进量',
           'Outdent'
         ],
         indent: [
-          'Increase indent',
+          '增加缩进量',
           'Indent'
         ],
         cut: [
@@ -7745,19 +7745,19 @@ var modern = (function (domGlobals) {
           'mceHelp'
         ],
         selectall: [
-          'Select all',
+          '全选',
           'SelectAll'
         ],
         visualaid: [
-          'Visual aids',
+          '视觉辅助',
           'mceToggleVisualAid'
         ],
         newdocument: [
-          'New document',
+          '新文档',
           'mceNewDocument'
         ],
         removeformat: [
-          'Clear formatting',
+          '清除格式',
           'RemoveFormat'
         ],
         remove: [
@@ -7829,11 +7829,11 @@ var modern = (function (domGlobals) {
           'Superscript'
         ],
         removeformat: [
-          'Clear formatting',
+          '清除格式',
           'RemoveFormat'
         ],
         newdocument: [
-          'New document',
+          '新文档',
           'mceNewDocument'
         ],
         cut: [
@@ -7852,7 +7852,7 @@ var modern = (function (domGlobals) {
           'Meta+V'
         ],
         selectall: [
-          'Select all',
+          '全选',
           'SelectAll',
           'Meta+A'
         ]
@@ -7934,7 +7934,7 @@ var modern = (function (domGlobals) {
     };
     var registerMenuItems$3 = function (editor) {
       editor.addMenuItem('visualaid', {
-        text: 'Visual aids',
+        text: '视觉辅助',
         selectable: true,
         onPostRender: toggleVisualAidState(editor),
         cmd: 'mceToggleVisualAid'

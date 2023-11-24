@@ -128,10 +128,10 @@
 			replace_desc: "Find/Replace"
 		},
 		advimage: {
-			image_desc: "Insert/edit image"
+			image_desc: "插入或编辑图片"
 		},
 		advlink: {
-			link_desc: "Insert/edit link"
+			link_desc: "插入或编辑链接"
 		},
 		xhtmlxtras: {
 			cite_desc: "Citation",
@@ -147,33 +147,33 @@
 		paste: {
 			paste_text_desc: "Paste as Plain Text",
 			paste_word_desc: "Paste from Word",
-			selectall_desc: "Select All",
+			selectall_desc: "全选",
 			plaintext_mode_sticky: "Paste is now in plain text mode. Click again to toggle back to regular paste mode. After you paste something you will be returned to regular paste mode.",
 			plaintext_mode: "Paste is now in plain text mode. Click again to toggle back to regular paste mode."
 		},
 		paste_dlg: {
-			text_title: "Use CTRL + V on your keyboard to paste the text into the window.",
+			text_title: "Use Ctrl + V on your keyboard to paste the text into the window.",
 			text_linebreaks: "Keep linebreaks",
-			word_title: "Use CTRL + V on your keyboard to paste the text into the window."
+			word_title: "Use Ctrl + V on your keyboard to paste the text into the window."
 		},
 		table: {
 			desc: "Inserts a new table",
-			row_before_desc: "Insert row before",
-			row_after_desc: "Insert row after",
-			delete_row_desc: "Delete row",
-			col_before_desc: "Insert column before",
-			col_after_desc: "Insert column after",
+			row_before_desc: "在上方插入行",
+			row_after_desc: "在下方插入行",
+			delete_row_desc: "删除行",
+			col_before_desc: "在前方插入列",
+			col_after_desc: "在后方插入列",
 			delete_col_desc: "Remove column",
 			split_cells_desc: "Split merged table cells",
-			merge_cells_desc: "Merge table cells",
-			row_desc: "Table row properties",
-			cell_desc: "Table cell properties",
-			props_desc: "Table properties",
-			paste_row_before_desc: "Paste table row before",
-			paste_row_after_desc: "Paste table row after",
-			cut_row_desc: "Cut table row",
-			copy_row_desc: "Copy table row",
-			del: "Delete table",
+			merge_cells_desc: "合并单元格",
+			row_desc: "表格行属性",
+			cell_desc: "单元格属性",
+			props_desc: "表格属性",
+			paste_row_before_desc: "在上方粘贴表格行",
+			paste_row_after_desc: "在下方粘贴表格行",
+			cut_row_desc: "剪切该行",
+			copy_row_desc: "复制该行",
+			del: "删除表格",
 			row: "Row",
 			col: "Column",
 			cell: "Cell"
@@ -189,7 +189,7 @@
 			edit: "Edit embedded media"
 		},
 		fullpage: {
-			desc: "Document properties"
+			desc: "文档属性"
 		},
 		template: {
 			desc: "Insert predefined template content"
@@ -201,7 +201,7 @@
 			desc: "Toggle spellchecker (Alt + Shift + N)",
 			menu: "Spellchecker settings",
 			ignore_word: "Ignore word",
-			ignore_words: "Ignore all",
+			ignore_words: "全部忽略",
 			langs: "Languages",
 			wait: "Please wait...",
 			sug: "Suggestions",
@@ -243,12 +243,12 @@
 		div: "Div",
 		address: "Address",
 		pre: "Preformatted",
-		h1: "Heading 1",
-		h2: "Heading 2",
-		h3: "Heading 3",
-		h4: "Heading 4",
-		h5: "Heading 5",
-		h6: "Heading 6",
+		h1: "一级标题",
+		h2: "二级标题",
+		h3: "三级标题",
+		h4: "四级标题",
+		h5: "五级标题",
+		h6: "六级标题",
 		blockquote: "Blockquote",
 		code: "Code",
 		samp: "Code sample",
@@ -286,12 +286,12 @@
 		copy_desc: "Copy",
 		paste_desc: "Paste",
 		image_props_desc: "Image properties",
-		newdocument_desc: "New document",
+		newdocument_desc: "新文档",
 		help_desc: "Help",
 		blockquote_desc: "Blockquote (Alt + Shift + Q)",
 		clipboard_msg: "Copy/Cut/Paste is not available in Mozilla and Firefox.",
 		path: "Path",
-		newdocument: "Are you sure you want to clear all contents?",
+		newdocument: "是否确实要清除所有内容？",
 		toolbar_focus: "Jump to tool buttons - Alt+Q, Jump to editor - Alt-Z, Jump to element path - Alt-X",
 		more_colors: "More colors",
 		shortcuts_desc: "Accessibility Help",
@@ -325,14 +325,14 @@
 		colorpicker_name: "Name: ",
 		charmap_title: "Select custom character",
 		charmap_usage: "Use left and right arrows to navigate.",
-		image_title: "Insert/edit image",
-		image_src: "Image URL",
-		image_alt: "Image description",
+		image_title: "插入或编辑图片",
+		image_src: "图片URL",
+		image_alt: "图片描述",
 		image_list: "Image list",
 		image_border: "Border",
 		image_dimensions: "Dimensions",
-		image_vspace: "Vertical space",
-		image_hspace: "Horizontal space",
+		image_vspace: "垂直间隔",
+		image_hspace: "水平间隔",
 		image_align: "Alignment",
 		image_align_baseline: "Baseline",
 		image_align_top: "Top",
@@ -342,8 +342,8 @@
 		image_align_textbottom: "Text bottom",
 		image_align_left: "Left",
 		image_align_right: "Right",
-		link_title: "Insert/edit link",
-		link_url: "Link URL",
+		link_title: "插入或编辑链接",
+		link_url: "链接URL",
 		link_target: "Target",
 		link_target_same: "Open link in the same window",
 		link_target_blank: "Open link in a new window",
@@ -363,7 +363,7 @@
 		list: "List",
 		size: "Dimensions",
 		preview: "Preview",
-		constrain_proportions: "Constrain proportions",
+		constrain_proportions: "保持长宽比",
 		type: "Type",
 		id: "Id",
 		name: "Name",
@@ -472,27 +472,27 @@
 		gc_help_desc: "Help (Alt + Shift + H)",
 		gc_more_alt: "More...",
 		gc_page_alt: "Next page...",
-		add_media: "Add Media",
+		add_media: "添加媒体",
 		add_image: "Add an Image",
-		add_video: "Add Video",
-		add_audio: "Add Audio",
-		editgallery: "Edit Gallery",
+		add_video: "添加视频",
+		add_audio: "添加音频",
+		editgallery: "编辑图库",
 		delgallery: "Delete Gallery",
 		gc_fullscreen_desc: "Distraction-free writing mode (Alt + Shift + W)"
 	});
 
 	tinyMCE.addI18n( lang + ".gceditimage", {
-		edit_img: "Edit Image",
+		edit_img: "编辑图片",
 		del_img: "Delete Image",
 		adv_settings: "Advanced Settings",
 		none: "None",
 		size: "Size",
 		thumbnail: "Thumbnail",
 		medium: "Medium",
-		full_size: "Full Size",
+		full_size: "全尺寸",
 		current_link: "Current Link",
 		link_to_img: "Link to Image",
-		link_help: "Enter a link URL or click above for presets.",
+		link_help: "输入链接URL或点选预设值。",
 		adv_img_settings: "Advanced Image Settings",
 		source: "Source",
 		width: "Width",
@@ -500,7 +500,7 @@
 		orig_size: "Original Size",
 		css: "CSS Class",
 		adv_link_settings: "Advanced Link Settings",
-		link_rel: "Link Rel",
+		link_rel: "链接Rel",
 		s60: "60%",
 		s70: "70%",
 		s80: "80%",
@@ -511,6 +511,6 @@
 		s130: "130%",
 		img_title: "标题",
 		caption: "Caption",
-		alt: "Alternative Text"
+		alt: "替代文本"
 	});
 }());

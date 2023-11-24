@@ -4,13 +4,15 @@
  *
  * @package GeChiUI
  * @subpackage Site_Health
- *
+ * @since 5.2.0
  */
 
+#[AllowDynamicProperties]
 class GC_Debug_Data {
 	/**
 	 * Calls all core functions to check for updates.
 	 *
+	 * @since 5.2.0
 	 */
 	public static function check_for_updates() {
 		gc_version_check();
@@ -21,15 +23,19 @@ class GC_Debug_Data {
 	/**
 	 * Static function for generating site debug data when required.
 	 *
+	 * @since 5.2.0
+	 * @since 5.3.0 Added database charset, database collation,
 	 *              and timezone information.
+	 * @since 5.5.0 Added pretty permalinks support information.
 	 *
 	 * @throws ImagickException
-	 * @global gcdb $gcdb GeChiUI database abstraction object.
+	 * @global gcdb  $gcdb               GeChiUI database abstraction object.
+	 * @global array $_gc_theme_features
 	 *
 	 * @return array The debug data for the site.
 	 */
 	public static function debug_data() {
-		global $gcdb;
+		global $gcdb, $_gc_theme_features;
 
 		// Save few function calls.
 		$upload_dir             = gc_upload_dir();
@@ -67,7 +73,7 @@ class GC_Debug_Data {
 					'debug' => $core_version,
 				),
 				'site_language'          => array(
-					'label' => __( '站点语言' ),
+					'label' => __( '系统语言' ),
 					'value' => get_locale(),
 				),
 				'user_language'          => array(
@@ -84,7 +90,7 @@ class GC_Debug_Data {
 					'private' => true,
 				),
 				'site_url'               => array(
-					'label'   => __( '站点URL' ),
+					'label'   => __( '系统URL' ),
 					'value'   => get_bloginfo( 'gcurl' ),
 					'private' => true,
 				),
@@ -94,22 +100,22 @@ class GC_Debug_Data {
 					'debug' => $permalink_structure,
 				),
 				'https_status'           => array(
-					'label' => __( '此站点是否使用HTTPS？' ),
+					'label' => __( '此系统是否使用HTTPS？' ),
 					'value' => $is_ssl ? __( '是' ) : __( '否' ),
 					'debug' => $is_ssl,
 				),
 				'multisite'              => array(
-					'label' => __( '这是多站点吗？' ),
+					'label' => __( '这是多系统吗？' ),
 					'value' => $is_multisite ? __( '是' ) : __( '否' ),
 					'debug' => $is_multisite,
 				),
 				'user_registration'      => array(
-					'label' => __( '此站点是否任何人都能注册？' ),
+					'label' => __( '此系统是否任何人都能注册？' ),
 					'value' => $users_can_register ? __( '是' ) : __( '否' ),
 					'debug' => $users_can_register,
 				),
 				'blog_public'            => array(
-					'label' => __( '此站点是否不建议搜索引擎进行索引？' ),
+					'label' => __( '此系统是否不建议搜索引擎进行索引？' ),
 					'value' => $blog_public ? __( '否' ) : __( '是' ),
 					'debug' => $blog_public,
 				),
@@ -231,7 +237,7 @@ class GC_Debug_Data {
 		}
 
 		// Check GC_ENVIRONMENT_TYPE.
-		if ( defined( 'GC_ENVIRONMENT_TYPE' ) ) {
+		if ( defined( 'GC_ENVIRONMENT_TYPE' ) && GC_ENVIRONMENT_TYPE ) {
 			$gc_environment_type = GC_ENVIRONMENT_TYPE;
 		} else {
 			$gc_environment_type = __( '未定义' );
@@ -317,6 +323,11 @@ class GC_Debug_Data {
 					'value' => $gc_environment_type,
 					'debug' => $gc_environment_type,
 				),
+				'GC_DEVELOPMENT_MODE' => array(
+					'label' => 'GC_DEVELOPMENT_MODE',
+					'value' => GC_DEVELOPMENT_MODE ? GC_DEVELOPMENT_MODE : __( '禁用' ),
+					'debug' => GC_DEVELOPMENT_MODE,
+				),
 				'DB_CHARSET'          => array(
 					'label' => 'DB_CHARSET',
 					'value' => ( defined( 'DB_CHARSET' ) ? DB_CHARSET : __( '未定义' ) ),
@@ -384,28 +395,21 @@ class GC_Debug_Data {
 				$site_count += get_blog_count( $network_id );
 			}
 
-			$info['gc-core']['fields']['user_count'] = array(
-				'label' => __( '用户数量' ),
-				'value' => get_user_count(),
-			);
-
 			$info['gc-core']['fields']['site_count'] = array(
-				'label' => __( '站点数量' ),
+				'label' => __( '系统数量' ),
 				'value' => $site_count,
 			);
 
 			$info['gc-core']['fields']['network_count'] = array(
-				'label' => __( '站点网络数量' ),
+				'label' => __( 'SaaS平台数量' ),
 				'value' => $network_query->found_networks,
 			);
-		} else {
-			$user_count = count_users();
-
-			$info['gc-core']['fields']['user_count'] = array(
-				'label' => __( '用户数量' ),
-				'value' => $user_count['total_users'],
-			);
 		}
+
+		$info['gc-core']['fields']['user_count'] = array(
+			'label' => __( '用户数量' ),
+			'value' => get_user_count(),
+		);
 
 		// GeChiUI features requiring processing.
 		$gc_dotorg = gc_remote_get( 'https://www.gechiui.com', array( 'timeout' => 10 ) );
@@ -582,6 +586,7 @@ class GC_Debug_Data {
 				'map'    => ( defined( 'imagick::RESOURCETYPE_MAP' ) ? size_format( $imagick->getResourceLimit( imagick::RESOURCETYPE_MAP ) ) : $not_available ),
 				'memory' => ( defined( 'imagick::RESOURCETYPE_MEMORY' ) ? size_format( $imagick->getResourceLimit( imagick::RESOURCETYPE_MEMORY ) ) : $not_available ),
 				'thread' => ( defined( 'imagick::RESOURCETYPE_THREAD' ) ? $imagick->getResourceLimit( imagick::RESOURCETYPE_THREAD ) : $not_available ),
+				'time'   => ( defined( 'imagick::RESOURCETYPE_TIME' ) ? $imagick->getResourceLimit( imagick::RESOURCETYPE_TIME ) : $not_available ),
 			);
 
 			$limits_debug = array(
@@ -591,6 +596,7 @@ class GC_Debug_Data {
 				'imagick::RESOURCETYPE_MAP'    => ( defined( 'imagick::RESOURCETYPE_MAP' ) ? size_format( $imagick->getResourceLimit( imagick::RESOURCETYPE_MAP ) ) : 'not available' ),
 				'imagick::RESOURCETYPE_MEMORY' => ( defined( 'imagick::RESOURCETYPE_MEMORY' ) ? size_format( $imagick->getResourceLimit( imagick::RESOURCETYPE_MEMORY ) ) : 'not available' ),
 				'imagick::RESOURCETYPE_THREAD' => ( defined( 'imagick::RESOURCETYPE_THREAD' ) ? $imagick->getResourceLimit( imagick::RESOURCETYPE_THREAD ) : 'not available' ),
+				'imagick::RESOURCETYPE_TIME'   => ( defined( 'imagick::RESOURCETYPE_TIME' ) ? $imagick->getResourceLimit( imagick::RESOURCETYPE_TIME ) : 'not available' ),
 			);
 
 			$info['gc-media']['fields']['imagick_limits'] = array(
@@ -680,23 +686,18 @@ class GC_Debug_Data {
 			$server_architecture = 'unknown';
 		}
 
-		if ( function_exists( 'phpversion' ) ) {
-			$php_version_debug = phpversion();
-			// Whether PHP supports 64-bit.
-			$php64bit = ( PHP_INT_SIZE * 8 === 64 );
+		$php_version_debug = PHP_VERSION;
+		// Whether PHP supports 64-bit.
+		$php64bit = ( PHP_INT_SIZE * 8 === 64 );
 
-			$php_version = sprintf(
-				'%s %s',
-				$php_version_debug,
-				( $php64bit ? __( '（支持64位数值）' ) : __( '（不支持64位数值）' ) )
-			);
+		$php_version = sprintf(
+			'%s %s',
+			$php_version_debug,
+			( $php64bit ? __( '（支持64位数值）' ) : __( '（不支持64位数值）' ) )
+		);
 
-			if ( $php64bit ) {
-				$php_version_debug .= ' 64bit';
-			}
-		} else {
-			$php_version       = __( '无法确认PHP版本' );
-			$php_version_debug = 'unknown';
+		if ( $php64bit ) {
+			$php_version_debug .= ' 64bit';
 		}
 
 		if ( function_exists( 'php_sapi_name' ) ) {
@@ -843,6 +844,21 @@ class GC_Debug_Data {
 			);
 		}
 
+		// Server time.
+		$date = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
+		$info['gc-server']['fields']['current'] = array(
+			'label' => __( '当前时间' ),
+			'value' => $date->format( DateTime::ATOM ),
+		);
+		$info['gc-server']['fields']['utc-time'] = array(
+			'label' => __( '当前 UTC 时间' ),
+			'value' => $date->format( DateTime::RFC850 ),
+		);
+		$info['gc-server']['fields']['server-time'] = array(
+			'label' => __( '当前服务器时间' ),
+			'value' => gc_date( 'c', $_SERVER['REQUEST_TIME'] ),
+		);
+
 		// Populate the database debug fields.
 		if ( is_resource( $gcdb->dbh ) ) {
 			// Old mysql extension.
@@ -879,7 +895,7 @@ class GC_Debug_Data {
 		);
 
 		$info['gc-database']['fields']['client_version'] = array(
-			'label' => __( '客户端版本' ),
+			'label' => __( '用户端版本' ),
 			'value' => $client_version,
 		);
 
@@ -1050,7 +1066,7 @@ class GC_Debug_Data {
 				/**
 				 * Filters the text string of the auto-updates setting for each plugin in the Site Health debug data.
 				 *
-			
+				 * @since 5.5.0
 				 *
 				 * @param string $auto_updates_string The string output for the auto-updates column.
 				 * @param string $plugin_path         The path to the plugin file.
@@ -1071,7 +1087,6 @@ class GC_Debug_Data {
 		}
 
 		// Populate the section for the currently active theme.
-		global $_gc_theme_features;
 		$theme_features = array();
 
 		if ( ! empty( $_gc_theme_features ) ) {
@@ -1122,7 +1137,7 @@ class GC_Debug_Data {
 
 		$info['gc-active-theme']['fields'] = array(
 			'name'           => array(
-				'label' => __( '显示名称' ),
+				'label' => __( '名称' ),
 				'value' => sprintf(
 					/* translators: 1: Theme name. 2: Theme slug. */
 					__( '%1$s（%2$s）' ),
@@ -1217,7 +1232,7 @@ class GC_Debug_Data {
 
 			$info['gc-parent-theme']['fields'] = array(
 				'name'           => array(
-					'label' => __( '显示名称' ),
+					'label' => __( '名称' ),
 					'value' => sprintf(
 						/* translators: 1: Theme name. 2: Theme slug. */
 						__( '%1$s（%2$s）' ),
@@ -1366,7 +1381,7 @@ class GC_Debug_Data {
 				/**
 				 * Filters the text string of the auto-updates setting for each theme in the Site Health debug data.
 				 *
-			
+				 * @since 5.5.0
 				 *
 				 * @param string   $auto_updates_string The string output for the auto-updates column.
 				 * @param GC_Theme $theme               An object of theme data.
@@ -1402,7 +1417,7 @@ class GC_Debug_Data {
 		}
 
 		/**
-		 * Add to or modify the debug information shown on the Tools -> Site Health -> Info screen.
+		 * Filters the debug information shown on the Tools -> Site Health -> Info screen.
 		 *
 		 * Plugin or themes may wish to introduce their own debug information without creating
 		 * additional admin pages. They can utilize this filter to introduce their own sections
@@ -1415,6 +1430,7 @@ class GC_Debug_Data {
 		 * All strings are expected to be plain text except `$description` that can contain
 		 * inline HTML tags (see below).
 		 *
+		 * @since 5.2.0
 		 *
 		 * @param array $args {
 		 *     The debug information to be added to the core information page.
@@ -1466,19 +1482,20 @@ class GC_Debug_Data {
 	}
 
 	/**
-	 * Returns the value of a MySQL variable.
+	 * Returns the value of a MySQL system variable.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
-	 * @param string $var Name of the MySQL variable.
+	 * @param string $mysql_var Name of the MySQL system variable.
 	 * @return string|null The variable value on success. Null if the variable does not exist.
 	 */
-	public static function get_mysql_var( $var ) {
+	public static function get_mysql_var( $mysql_var ) {
 		global $gcdb;
 
 		$result = $gcdb->get_row(
-			$gcdb->prepare( 'SHOW VARIABLES LIKE %s', $var ),
+			$gcdb->prepare( 'SHOW VARIABLES LIKE %s', $mysql_var ),
 			ARRAY_A
 		);
 
@@ -1490,14 +1507,15 @@ class GC_Debug_Data {
 	}
 
 	/**
-	 * Format the information gathered for debugging, in a manner suitable for copying to a forum or support ticket.
+	 * Formats the information gathered for debugging, in a manner suitable for copying to a forum or support ticket.
 	 *
+	 * @since 5.2.0
 	 *
-	 * @param array  $info_array Information gathered from the `GC_Debug_Data::debug_data` function.
-	 * @param string $type       The data type to return, either 'info' or 'debug'.
+	 * @param array  $info_array Information gathered from the `GC_Debug_Data::debug_data()` function.
+	 * @param string $data_type  The data type to return, either 'info' or 'debug'.
 	 * @return string The formatted data.
 	 */
-	public static function format( $info_array, $type ) {
+	public static function format( $info_array, $data_type ) {
 		$return = "`\n";
 
 		foreach ( $info_array as $section => $details ) {
@@ -1506,7 +1524,7 @@ class GC_Debug_Data {
 				continue;
 			}
 
-			$section_label = 'debug' === $type ? $section : $details['label'];
+			$section_label = 'debug' === $data_type ? $section : $details['label'];
 
 			$return .= sprintf(
 				"### %s%s ###\n\n",
@@ -1519,7 +1537,7 @@ class GC_Debug_Data {
 					continue;
 				}
 
-				if ( 'debug' === $type && isset( $field['debug'] ) ) {
+				if ( 'debug' === $data_type && isset( $field['debug'] ) ) {
 					$debug_data = $field['debug'];
 				} else {
 					$debug_data = $field['value'];
@@ -1540,7 +1558,7 @@ class GC_Debug_Data {
 					$value = $debug_data;
 				}
 
-				if ( 'debug' === $type ) {
+				if ( 'debug' === $data_type ) {
 					$label = $field_name;
 				} else {
 					$label = $field['label'];
@@ -1558,8 +1576,11 @@ class GC_Debug_Data {
 	}
 
 	/**
-	 * Fetch the total size of all the database tables for the active database user.
+	 * Fetches the total size of all the database tables for the active database user.
 	 *
+	 * @since 5.2.0
+	 *
+	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
 	 * @return int The size of the database, in bytes.
 	 */
@@ -1578,9 +1599,10 @@ class GC_Debug_Data {
 	}
 
 	/**
-	 * Fetch the sizes of the GeChiUI directories: `gechiui` (ABSPATH), `plugins`, `themes`, and `uploads`.
+	 * Fetches the sizes of the GeChiUI directories: `gechiui` (ABSPATH), `plugins`, `themes`, and `uploads`.
 	 * Intended to supplement the array returned by `GC_Debug_Data::debug_data()`.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return array The sizes of the directories, also the database size and total installation size.
 	 */
@@ -1597,20 +1619,26 @@ class GC_Debug_Data {
 			$max_execution_time = ini_get( 'max_execution_time' );
 		}
 
-		// The max_execution_time defaults to 0 when PHP runs from cli.
-		// We still want to limit it below.
+		/*
+		 * The max_execution_time defaults to 0 when PHP runs from cli.
+		 * We still want to limit it below.
+		 */
 		if ( empty( $max_execution_time ) ) {
-			$max_execution_time = 30;
+			$max_execution_time = 30; // 30 seconds.
 		}
 
 		if ( $max_execution_time > 20 ) {
-			// If the max_execution_time is set to lower than 20 seconds, reduce it a bit to prevent
-			// edge-case timeouts that may happen after the size loop has finished running.
+			/*
+			 * If the max_execution_time is set to lower than 20 seconds, reduce it a bit to prevent
+			 * edge-case timeouts that may happen after the size loop has finished running.
+			 */
 			$max_execution_time -= 2;
 		}
 
-		// Go through the various installation directories and calculate their sizes.
-		// No trailing slashes.
+		/*
+		 * Go through the various installation directories and calculate their sizes.
+		 * No trailing slashes.
+		 */
 		$paths = array(
 			'gechiui_size' => untrailingslashit( ABSPATH ),
 			'themes_size'    => get_theme_root(),

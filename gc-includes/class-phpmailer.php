@@ -8,7 +8,7 @@ if ( function_exists( '_deprecated_file' ) ) {
 		basename( __FILE__ ),
 		'5.5.0',
 		GCINC . '/PHPMailer/PHPMailer.php',
-		__( 'PHPMailer类已移动到gc-includes/PHPMailer子目录，现在使用PHPMailer\PHPMailer名称空间。' )
+		__( 'PHPMailer类已移动到gc-includes/PHPMailer子目录，现在使用PHPMailer\PHPMailer命名空间。' )
 	);
 }
 

@@ -9,8 +9,6 @@
 /**
  * Loads the GC image-editing interface.
  *
- *
- *
  * @param int          $post_id Attachment post ID.
  * @param false|object $msg     Optional. Message to display for image editor updates or errors.
  *                              Default false.
@@ -28,7 +26,7 @@ function gc_image_editor( $post_id, $msg = false ) {
 		die( __( '图片数据不存在，请重新上传图片。' ) );
 	}
 
-	$sizer = $big > 400 ? 400 / $big : 1;
+	$sizer = $big > 600 ? 600 / $big : 1;
 
 	$backup_sizes = get_post_meta( $post_id, '_gc_attachment_backup_sizes', true );
 	$can_restore  = false;
@@ -38,22 +36,33 @@ function gc_image_editor( $post_id, $msg = false ) {
 
 	if ( $msg ) {
 		if ( isset( $msg->error ) ) {
-			$note = "<div class='notice notice-error' tabindex='-1' role='alert'><p>$msg->error</p></div>";
+			$note = setting_error( $msg->error, 'danger', '', 'tabindex="-1" role="alert"');
 		} elseif ( isset( $msg->msg ) ) {
-			$note = "<div class='notice notice-success' tabindex='-1' role='alert'><p>$msg->msg</p></div>";
+			$note = setting_error( $msg->msg, 'success', '', 'tabindex="-1" role="alert"');
 		}
 	}
+
+	/**
+	 * Shows the settings in the Image Editor that allow selecting to edit only the thumbnail of an image.
+	 *
+	 * @since 6.3.0
+	 *
+	 * @param bool $show Whether to show the settings in the Image Editor. Default false.
+	 */
+	$edit_thumbnails_separately = (bool) apply_filters( 'image_edit_thumbnails_separately', false );
 
 	?>
 	<div class="imgedit-wrap gc-clearfix">
 	<div id="imgedit-panel-<?php echo $post_id; ?>">
-
-	<div class="imgedit-panel-content gc-clearfix">
-		<?php echo $note; ?>
+	<?php echo $note; ?>
+	<div class="imgedit-panel-content imgedit-panel-tools gc-clearfix">
 		<div class="imgedit-menu gc-clearfix">
-			<button type="button" onclick="imageEdit.handleCropToolClick( <?php echo "$post_id, '$nonce'"; ?>, this )" class="imgedit-crop button disabled" disabled><?php esc_html_e( '裁剪' ); ?></button>
+			<button type="button" onclick="imageEdit.toggleCropTool( <?php echo "$post_id, '$nonce'"; ?>, this );" aria-expanded="false" aria-controls="imgedit-crop" class="imgedit-crop button disabled" disabled><?php esc_html_e( '裁剪' ); ?></button>
+			<button type="button" class="imgedit-scale button" onclick="imageEdit.toggleControls(this);" aria-expanded="false" aria-controls="imgedit-scale"><?php esc_html_e( '缩放' ); ?></button>
+			<div class="imgedit-rotate-menu-container">
+				<button type="button" aria-controls="imgedit-rotate-menu" class="imgedit-rotate button" aria-expanded="false" onclick="imageEdit.togglePopup(this)"><?php esc_html_e( '图像旋转' ); ?></button>
+				<div id="imgedit-rotate-menu" class="imgedit-popup-menu">
 			<?php
-
 			// On some setups GD library does not provide imagerotate() - Ticket #11536.
 			if ( gc_image_editor_supports(
 				array(
@@ -63,191 +72,256 @@ function gc_image_editor( $post_id, $msg = false ) {
 			) ) {
 				$note_no_rotate = '';
 				?>
-				<button type="button" class="imgedit-rleft button" onclick="imageEdit.rotate( 90, <?php echo "$post_id, '$nonce'"; ?>, this)"><?php esc_html_e( '向左转' ); ?></button>
-				<button type="button" class="imgedit-rright button" onclick="imageEdit.rotate(-90, <?php echo "$post_id, '$nonce'"; ?>, this)"><?php esc_html_e( '向右转' ); ?></button>
+					<button type="button" class="imgedit-rleft button" onkeyup="imageEdit.browsePopup(this)" onclick="imageEdit.rotate( 90, <?php echo "$post_id, '$nonce'"; ?>, this)"><?php esc_html_e( '向左旋转90°' ); ?></button>
+					<button type="button" class="imgedit-rright button" onkeyup="imageEdit.browsePopup(this)" onclick="imageEdit.rotate(-90, <?php echo "$post_id, '$nonce'"; ?>, this)"><?php esc_html_e( '向右旋转90°' ); ?></button>
+					<button type="button" class="imgedit-rfull button" onkeyup="imageEdit.browsePopup(this)" onclick="imageEdit.rotate(180, <?php echo "$post_id, '$nonce'"; ?>, this)"><?php esc_html_e( '旋转180°' ); ?></button>
 				<?php
 			} else {
 				$note_no_rotate = '<p class="note-no-rotate"><em>' . __( '您的服务器不支持图片旋转功能。' ) . '</em></p>';
 				?>
-				<button type="button" class="imgedit-rleft button disabled" disabled></button>
-				<button type="button" class="imgedit-rright button disabled" disabled></button>
-			<?php } ?>
-
-			<button type="button" onclick="imageEdit.flip(1, <?php echo "$post_id, '$nonce'"; ?>, this)" class="imgedit-flipv button"><?php esc_html_e( '垂直翻转' ); ?></button>
-			<button type="button" onclick="imageEdit.flip(2, <?php echo "$post_id, '$nonce'"; ?>, this)" class="imgedit-fliph button"><?php esc_html_e( '水平翻转' ); ?></button>
-
-			<br class="imgedit-undo-redo-separator" />
-			<button type="button" id="image-undo-<?php echo $post_id; ?>" onclick="imageEdit.undo(<?php echo "$post_id, '$nonce'"; ?>, this)" class="imgedit-undo button disabled" disabled><?php esc_html_e( '撤销' ); ?></button>
-			<button type="button" id="image-redo-<?php echo $post_id; ?>" onclick="imageEdit.redo(<?php echo "$post_id, '$nonce'"; ?>, this)" class="imgedit-redo button disabled" disabled><?php esc_html_e( '重做' ); ?></button>
-			<?php echo $note_no_rotate; ?>
-		</div>
-
-		<input type="hidden" id="imgedit-sizer-<?php echo $post_id; ?>" value="<?php echo $sizer; ?>" />
-		<input type="hidden" id="imgedit-history-<?php echo $post_id; ?>" value="" />
-		<input type="hidden" id="imgedit-undone-<?php echo $post_id; ?>" value="0" />
-		<input type="hidden" id="imgedit-selection-<?php echo $post_id; ?>" value="" />
-		<input type="hidden" id="imgedit-x-<?php echo $post_id; ?>" value="<?php echo isset( $meta['width'] ) ? $meta['width'] : 0; ?>" />
-		<input type="hidden" id="imgedit-y-<?php echo $post_id; ?>" value="<?php echo isset( $meta['height'] ) ? $meta['height'] : 0; ?>" />
-
-		<div id="imgedit-crop-<?php echo $post_id; ?>" class="imgedit-crop-wrap">
-		<img id="image-preview-<?php echo $post_id; ?>" onload="imageEdit.imgLoaded('<?php echo $post_id; ?>')"
-			src="<?php echo esc_url( admin_url( 'admin-ajax.php', 'relative' ) ) . '?action=imgedit-preview&amp;_ajax_nonce=' . $nonce . '&amp;postid=' . $post_id . '&amp;rand=' . rand( 1, 99999 ); ?>" alt="" />
-		</div>
-
-		<div class="imgedit-submit">
-			<input type="button" onclick="imageEdit.close(<?php echo $post_id; ?>, 1)" class="button imgedit-cancel-btn" value="<?php esc_attr_e( '取消' ); ?>" />
-			<input type="button" onclick="imageEdit.save(<?php echo "$post_id, '$nonce'"; ?>)" disabled="disabled" class="button button-primary imgedit-submit-btn" value="<?php esc_attr_e( '保存' ); ?>" />
-		</div>
-	</div>
-
-	<div class="imgedit-settings">
-	<div class="imgedit-group">
-	<div class="imgedit-group-top">
-		<h2><?php _e( '拉伸图片' ); ?></h2>
-		<button type="button" class="dashicons dashicons-editor-help imgedit-help-toggle" onclick="imageEdit.toggleHelp(this);" aria-expanded="false"><span class="screen-reader-text"><?php esc_html_e( '图片缩放帮助' ); ?></span></button>
-		<div class="imgedit-help">
-		<p><?php _e( '您可以成比例地拉伸原始图片，在诸如裁切、旋转的编辑操作之前，最好先伸缩调整好您的图片尺寸。图片仅能被缩小，不能被放大。' ); ?></p>
-		</div>
-		<?php if ( isset( $meta['width'], $meta['height'] ) ) : ?>
-		<p>
-			<?php
-			printf(
-				/* translators: %s: Image width and height in pixels. */
-				__( '原始尺寸%s' ),
-				'<span class="imgedit-original-dimensions">' . $meta['width'] . ' &times; ' . $meta['height'] . '</span>'
-			);
-			?>
-		</p>
-		<?php endif; ?>
-		<div class="imgedit-submit">
-
-		<fieldset class="imgedit-scale">
-		<legend><?php _e( '新尺寸：' ); ?></legend>
-		<div class="nowrap">
-		<label for="imgedit-scale-width-<?php echo $post_id; ?>" class="screen-reader-text"><?php _e( '缩放宽度' ); ?></label>
-		<input type="text" id="imgedit-scale-width-<?php echo $post_id; ?>" onkeyup="imageEdit.scaleChanged(<?php echo $post_id; ?>, 1, this)" onblur="imageEdit.scaleChanged(<?php echo $post_id; ?>, 1, this)" value="<?php echo isset( $meta['width'] ) ? $meta['width'] : 0; ?>" />
-		<span class="imgedit-separator" aria-hidden="true">&times;</span>
-		<label for="imgedit-scale-height-<?php echo $post_id; ?>" class="screen-reader-text"><?php _e( '缩放高度' ); ?></label>
-		<input type="text" id="imgedit-scale-height-<?php echo $post_id; ?>" onkeyup="imageEdit.scaleChanged(<?php echo $post_id; ?>, 0, this)" onblur="imageEdit.scaleChanged(<?php echo $post_id; ?>, 0, this)" value="<?php echo isset( $meta['height'] ) ? $meta['height'] : 0; ?>" />
-		<span class="imgedit-scale-warn" id="imgedit-scale-warn-<?php echo $post_id; ?>">!</span>
-		<div class="imgedit-scale-button-wrapper"><input id="imgedit-scale-button" type="button" onclick="imageEdit.action(<?php echo "$post_id, '$nonce'"; ?>, 'scale')" class="button button-primary" value="<?php esc_attr_e( '拉伸' ); ?>" /></div>
-		</div>
-		</fieldset>
-
-		</div>
-	</div>
-	</div>
-
-	<?php if ( $can_restore ) { ?>
-
-	<div class="imgedit-group">
-	<div class="imgedit-group-top">
-		<h2><button type="button" onclick="imageEdit.toggleHelp(this);" class="button-link" aria-expanded="false"><?php _e( '恢复原始图片' ); ?> <span class="dashicons dashicons-arrow-down imgedit-help-toggle"></span></button></h2>
-		<div class="imgedit-help imgedit-restore">
-		<p>
-			<?php
-			_e( '放弃所有变更，并恢复到原始图片。' );
-
-			if ( ! defined( 'IMAGE_EDIT_OVERWRITE' ) || ! IMAGE_EDIT_OVERWRITE ) {
-				echo ' ' . __( '先前编辑过的图片副本不会被删除。' );
+					<button type="button" class="imgedit-rleft button disabled" disabled></button>
+					<button type="button" class="imgedit-rright button disabled" disabled></button>
+				<?php
 			}
 			?>
-		</p>
-		<div class="imgedit-submit">
-		<input type="button" onclick="imageEdit.action(<?php echo "$post_id, '$nonce'"; ?>, 'restore')" class="button button-primary" value="<?php esc_attr_e( '还原图片' ); ?>" <?php echo $can_restore; ?> />
+					<hr />
+					<button type="button" onkeyup="imageEdit.browsePopup(this)" onclick="imageEdit.flip(1, <?php echo "$post_id, '$nonce'"; ?>, this)" class="imgedit-flipv button"><?php esc_html_e( '垂直翻转' ); ?></button>
+					<button type="button" onkeyup="imageEdit.browsePopup(this)" onclick="imageEdit.flip(2, <?php echo "$post_id, '$nonce'"; ?>, this)" class="imgedit-fliph button"><?php esc_html_e( '水平翻转' ); ?></button>
+					<?php echo $note_no_rotate; ?>
+				</div>
+			</div>
 		</div>
-		</div>
-	</div>
-	</div>
-
-	<?php } ?>
-
-	<div class="imgedit-group">
-	<div class="imgedit-group-top">
-		<h2><?php _e( '图片裁切' ); ?></h2>
-		<button type="button" class="dashicons dashicons-editor-help imgedit-help-toggle" onclick="imageEdit.toggleHelp(this);" aria-expanded="false"><span class="screen-reader-text"><?php esc_html_e( '图片裁切帮助' ); ?></span></button>
-
-		<div class="imgedit-help">
-		<p><?php _e( '要裁切此图片，点击并拖动来确认您的选择。' ); ?></p>
-
-		<p><strong><?php _e( '按比例裁切' ); ?></strong><br />
-		<?php _e( '纵横比是宽与高之间的比值。您可以通过在修改选区时按住Shift键来固定纵横比。使用输入框来指定纵横比，如1:1（方形）、4:3、16:9等。' ); ?></p>
-
-		<p><strong><?php _e( '裁切选区' ); ?></strong><br />
-		<?php _e( '您做出选择后，选区大小可以通过输入像素值值来调整。最小值为媒体设置中指定的缩略图大小。' ); ?></p>
+		<div class="imgedit-submit imgedit-menu">
+			<button type="button" id="image-undo-<?php echo $post_id; ?>" onclick="imageEdit.undo(<?php echo "$post_id, '$nonce'"; ?>, this)" class="imgedit-undo button disabled" disabled><?php esc_html_e( '撤销' ); ?></button>
+			<button type="button" id="image-redo-<?php echo $post_id; ?>" onclick="imageEdit.redo(<?php echo "$post_id, '$nonce'"; ?>, this)" class="imgedit-redo button disabled" disabled><?php esc_html_e( '重做' ); ?></button>
+			<button type="button" onclick="imageEdit.close(<?php echo $post_id; ?>, 1)" class="button imgedit-cancel-btn"><?php esc_html_e( '取消编辑' ); ?></button>
+			<button type="button" onclick="imageEdit.save(<?php echo "$post_id, '$nonce'"; ?>)" disabled="disabled" class="btn btn-primary imgedit-submit-btn"><?php esc_html_e( '保存编辑' ); ?></button>
 		</div>
 	</div>
 
-	<fieldset class="imgedit-crop-ratio">
-		<legend><?php _e( '长宽比：' ); ?></legend>
-		<div class="nowrap">
-		<label for="imgedit-crop-width-<?php echo $post_id; ?>" class="screen-reader-text"><?php _e( '裁切比例宽' ); ?></label>
-		<input type="text" id="imgedit-crop-width-<?php echo $post_id; ?>" onkeyup="imageEdit.setRatioSelection(<?php echo $post_id; ?>, 0, this)" onblur="imageEdit.setRatioSelection(<?php echo $post_id; ?>, 0, this)" />
-		<span class="imgedit-separator" aria-hidden="true">:</span>
-		<label for="imgedit-crop-height-<?php echo $post_id; ?>" class="screen-reader-text"><?php _e( '裁切比例高' ); ?></label>
-		<input type="text" id="imgedit-crop-height-<?php echo $post_id; ?>" onkeyup="imageEdit.setRatioSelection(<?php echo $post_id; ?>, 1, this)" onblur="imageEdit.setRatioSelection(<?php echo $post_id; ?>, 1, this)" />
-		</div>
-	</fieldset>
+	<div class="imgedit-panel-content gc-clearfix">
+		<div class="imgedit-tools">
+			<input type="hidden" id="imgedit-nonce-<?php echo $post_id; ?>" value="<?php echo $nonce; ?>" />
+			<input type="hidden" id="imgedit-sizer-<?php echo $post_id; ?>" value="<?php echo $sizer; ?>" />
+			<input type="hidden" id="imgedit-history-<?php echo $post_id; ?>" value="" />
+			<input type="hidden" id="imgedit-undone-<?php echo $post_id; ?>" value="0" />
+			<input type="hidden" id="imgedit-selection-<?php echo $post_id; ?>" value="" />
+			<input type="hidden" id="imgedit-x-<?php echo $post_id; ?>" value="<?php echo isset( $meta['width'] ) ? $meta['width'] : 0; ?>" />
+			<input type="hidden" id="imgedit-y-<?php echo $post_id; ?>" value="<?php echo isset( $meta['height'] ) ? $meta['height'] : 0; ?>" />
 
-	<fieldset id="imgedit-crop-sel-<?php echo $post_id; ?>" class="imgedit-crop-sel">
-		<legend><?php _e( '选区：' ); ?></legend>
-		<div class="nowrap">
-		<label for="imgedit-sel-width-<?php echo $post_id; ?>" class="screen-reader-text"><?php _e( '选区宽度' ); ?></label>
-		<input type="text" id="imgedit-sel-width-<?php echo $post_id; ?>" onkeyup="imageEdit.setNumSelection(<?php echo $post_id; ?>, this)" onblur="imageEdit.setNumSelection(<?php echo $post_id; ?>, this)" />
-		<span class="imgedit-separator" aria-hidden="true">&times;</span>
-		<label for="imgedit-sel-height-<?php echo $post_id; ?>" class="screen-reader-text"><?php _e( '选区高度' ); ?></label>
-		<input type="text" id="imgedit-sel-height-<?php echo $post_id; ?>" onkeyup="imageEdit.setNumSelection(<?php echo $post_id; ?>, this)" onblur="imageEdit.setNumSelection(<?php echo $post_id; ?>, this)" />
+			<div id="imgedit-crop-<?php echo $post_id; ?>" class="imgedit-crop-wrap">
+			<div class="imgedit-crop-grid"></div>
+			<img id="image-preview-<?php echo $post_id; ?>" onload="imageEdit.imgLoaded('<?php echo $post_id; ?>')"
+				src="<?php echo esc_url( admin_url( 'admin-ajax.php', 'relative' ) ) . '?action=imgedit-preview&amp;_ajax_nonce=' . $nonce . '&amp;postid=' . $post_id . '&amp;rand=' . rand( 1, 99999 ); ?>" alt="" />
+			</div>
 		</div>
-	</fieldset>
+		<div class="imgedit-settings">
+			<div class="imgedit-tool-active">
+				<div class="imgedit-group">
+				<div id="imgedit-scale" tabindex="-1" class="imgedit-group-controls">
+					<div class="imgedit-group-top">
+						<h4><?php _e( '拉伸图片' ); ?></h4>
+						<button type="button" class="dashicons dashicons-editor-help imgedit-help-toggle" onclick="imageEdit.toggleHelp(this);" aria-expanded="false"><span class="screen-reader-text">
+						<?php
+						/* translators: Hidden accessibility text. */
+						esc_html_e( '图片缩放帮助' );
+						?>
+						</span></button>
+						<div class="imgedit-help">
+						<p><?php _e( '您可以成比例地拉伸原始图片，在诸如裁切、旋转的编辑操作之前，最好先伸缩调整好您的图片尺寸。图片仅能被缩小，不能被放大。' ); ?></p>
+						</div>
+						<?php if ( isset( $meta['width'], $meta['height'] ) ) : ?>
+						<p>
+							<?php
+							printf(
+								/* translators: %s: Image width and height in pixels. */
+								__( '原始尺寸 %s' ),
+								'<span class="imgedit-original-dimensions">' . $meta['width'] . ' &times; ' . $meta['height'] . '</span>'
+							);
+							?>
+						</p>
+						<?php endif; ?>
+						<div class="imgedit-submit">
+						<fieldset class="imgedit-scale-controls">
+							<legend><?php _e( '新尺寸：' ); ?></legend>
+							<div class="nowrap">
+							<label for="imgedit-scale-width-<?php echo $post_id; ?>" class="screen-reader-text">
+							<?php
+							/* translators: Hidden accessibility text. */
+							_e( '缩放高度' );
+							?>
+							</label>
+							<input type="number" step="1" min="0" max="<?php echo isset( $meta['width'] ) ? $meta['width'] : ''; ?>" aria-describedby="imgedit-scale-warn-<?php echo $post_id; ?>"  id="imgedit-scale-width-<?php echo $post_id; ?>" onkeyup="imageEdit.scaleChanged(<?php echo $post_id; ?>, 1, this)" onblur="imageEdit.scaleChanged(<?php echo $post_id; ?>, 1, this)" value="<?php echo isset( $meta['width'] ) ? $meta['width'] : 0; ?>" />
+							<span class="imgedit-separator" aria-hidden="true">&times;</span>
+							<label for="imgedit-scale-height-<?php echo $post_id; ?>" class="screen-reader-text"><?php _e( '缩放高度' ); ?></label>
+							<input type="number" step="1" min="0" max="<?php echo isset( $meta['height'] ) ? $meta['height'] : ''; ?>" aria-describedby="imgedit-scale-warn-<?php echo $post_id; ?>" id="imgedit-scale-height-<?php echo $post_id; ?>" onkeyup="imageEdit.scaleChanged(<?php echo $post_id; ?>, 0, this)" onblur="imageEdit.scaleChanged(<?php echo $post_id; ?>, 0, this)" value="<?php echo isset( $meta['height'] ) ? $meta['height'] : 0; ?>" />
+							<button id="imgedit-scale-button" type="button" onclick="imageEdit.action(<?php echo "$post_id, '$nonce'"; ?>, 'scale')" class="btn btn-primary"><?php esc_html_e( '缩放' ); ?></button>
+							<span class="imgedit-scale-warn" id="imgedit-scale-warn-<?php echo $post_id; ?>"><span class="dashicons dashicons-warning" aria-hidden="true"></span><?php esc_html_e( '图像无法缩放至大于原始尺寸。' ); ?></span>
+							</div>
+						</fieldset>
+						</div>
+					</div>
+				</div>
+			</div>
 
+		<?php if ( $can_restore ) { ?>
+				<div class="imgedit-group">
+				<div class="imgedit-group-top">
+					<h2><button type="button" onclick="imageEdit.toggleHelp(this);" class="button-link" aria-expanded="false"><?php _e( '恢复原始图片' ); ?> <span class="dashicons dashicons-arrow-down imgedit-help-toggle"></span></button></h2>
+					<div class="imgedit-help imgedit-restore">
+					<p>
+					<?php
+					_e( '放弃所有变更，并恢复到原始图片。' );
+					if ( ! defined( 'IMAGE_EDIT_OVERWRITE' ) || ! IMAGE_EDIT_OVERWRITE ) {
+						echo ' ' . __( '先前编辑过的图片副本不会被删除。' );
+					}
+					?>
+					</p>
+					<div class="imgedit-submit">
+						<input type="button" onclick="imageEdit.action(<?php echo "$post_id, '$nonce'"; ?>, 'restore')" class="btn btn-primary" value="<?php esc_attr_e( '还原图片' ); ?>" <?php echo $can_restore; ?> />
+					</div>
+				</div>
+			</div>
+			</div>
+		<?php } ?>
+			<div class="imgedit-group">
+				<div id="imgedit-crop" tabindex="-1" class="imgedit-group-controls">
+				<div class="imgedit-group-top">
+					<h4><?php _e( '裁剪图像' ); ?></h4>
+					<button type="button" class="dashicons dashicons-editor-help imgedit-help-toggle" onclick="imageEdit.toggleHelp(this);" aria-expanded="false"><span class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '图片裁切帮助' );
+					?>
+					</span></button>
+					<div class="imgedit-help">
+						<p><?php _e( '要裁切此图片，点击并拖动来确认您的选择。' ); ?></p>
+						<p><strong><?php _e( '按比例裁切' ); ?></strong><br />
+						<?php _e( '纵横比是宽与高之间的比值。您可以通过在修改选区时按住Shift键来固定纵横比。使用输入框来指定纵横比，如1:1（方形）、4:3、16:9等。' ); ?></p>
+
+						<p><strong><?php _e( '裁切选区' ); ?></strong><br />
+						<?php _e( '您做出选择后，选区大小可以通过输入像素值值来调整。最小值为媒体设置中指定的缩略图大小。' ); ?></p>
+					</div>
+				</div>
+				<fieldset class="imgedit-crop-ratio">
+					<legend><?php _e( '长宽比：' ); ?></legend>
+					<div class="nowrap">
+					<label for="imgedit-crop-width-<?php echo $post_id; ?>" class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '裁切比例宽' );
+					?>
+					</label>
+					<input type="number" step="1" min="1" id="imgedit-crop-width-<?php echo $post_id; ?>" onkeyup="imageEdit.setRatioSelection(<?php echo $post_id; ?>, 0, this)" onblur="imageEdit.setRatioSelection(<?php echo $post_id; ?>, 0, this)" />
+					<span class="imgedit-separator" aria-hidden="true">:</span>
+					<label for="imgedit-crop-height-<?php echo $post_id; ?>" class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '裁切比例高' );
+					?>
+					</label>
+					<input  type="number" step="1" min="0" id="imgedit-crop-height-<?php echo $post_id; ?>" onkeyup="imageEdit.setRatioSelection(<?php echo $post_id; ?>, 1, this)" onblur="imageEdit.setRatioSelection(<?php echo $post_id; ?>, 1, this)" />
+					</div>
+				</fieldset>
+				<fieldset id="imgedit-crop-sel-<?php echo $post_id; ?>" class="imgedit-crop-sel">
+					<legend><?php _e( '选区：' ); ?></legend>
+					<div class="nowrap">
+					<label for="imgedit-sel-width-<?php echo $post_id; ?>" class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '选区宽度' );
+					?>
+					</label>
+					<input  type="number" step="1" min="0" id="imgedit-sel-width-<?php echo $post_id; ?>" onkeyup="imageEdit.setNumSelection(<?php echo $post_id; ?>, this)" onblur="imageEdit.setNumSelection(<?php echo $post_id; ?>, this)" />
+					<span class="imgedit-separator" aria-hidden="true">&times;</span>
+					<label for="imgedit-sel-height-<?php echo $post_id; ?>" class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '选区高度' );
+					?>
+					</label>
+					<input  type="number" step="1" min="0" id="imgedit-sel-height-<?php echo $post_id; ?>" onkeyup="imageEdit.setNumSelection(<?php echo $post_id; ?>, this)" onblur="imageEdit.setNumSelection(<?php echo $post_id; ?>, this)" />
+					</div>
+				</fieldset>
+				<fieldset id="imgedit-crop-sel-<?php echo $post_id; ?>" class="imgedit-crop-sel">
+					<legend><?php _e( '起始坐标：' ); ?></legend>
+					<div class="nowrap">
+					<label for="imgedit-start-x-<?php echo $post_id; ?>" class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '水平起始位置' );
+					?>
+					</label>
+					<input  type="number" step="1" min="0" id="imgedit-start-x-<?php echo $post_id; ?>" onkeyup="imageEdit.setNumSelection(<?php echo $post_id; ?>, this)" onblur="imageEdit.setNumSelection(<?php echo $post_id; ?>, this)" value="0" />
+					<span class="imgedit-separator" aria-hidden="true">&times;</span>
+					<label for="imgedit-start-y-<?php echo $post_id; ?>" class="screen-reader-text">
+					<?php
+					/* translators: Hidden accessibility text. */
+					_e( '垂直起始位置' );
+					?>
+					</label>
+					<input  type="number" step="1" min="0" id="imgedit-start-y-<?php echo $post_id; ?>" onkeyup="imageEdit.setNumSelection(<?php echo $post_id; ?>, this)" onblur="imageEdit.setNumSelection(<?php echo $post_id; ?>, this)" value="0" />
+					</div>
+				</fieldset>
+				<div class="imgedit-crop-apply imgedit-menu container">
+					<button class="button-primary" type="button" onclick="imageEdit.handleCropToolClick( <?php echo "$post_id, '$nonce'"; ?>, this );" class="imgedit-crop-apply button"><?php esc_html_e( '应用裁剪' ); ?></button> <button type="button" onclick="imageEdit.handleCropToolClick( <?php echo "$post_id, '$nonce'"; ?>, this );" class="imgedit-crop-clear button" disabled="disabled"><?php esc_html_e( '清除裁剪' ); ?></button>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<?php
-	if ( $thumb && $sub_sizes ) {
+	if ( $edit_thumbnails_separately && $thumb && $sub_sizes ) {
 		$thumb_img = gc_constrain_dimensions( $thumb['width'], $thumb['height'], 160, 120 );
 		?>
 
 	<div class="imgedit-group imgedit-applyto">
-	<div class="imgedit-group-top">
-		<h2><?php _e( '缩略图设置' ); ?></h2>
-		<button type="button" class="dashicons dashicons-editor-help imgedit-help-toggle" onclick="imageEdit.toggleHelp(this);" aria-expanded="false"><span class="screen-reader-text"><?php esc_html_e( '缩略图设置帮助' ); ?></span></button>
-		<div class="imgedit-help">
-		<p><?php _e( '您可以编辑图片，并无需影响缩略图。比如，您可能希望有一张只展示图片一部分的方形缩略图。' ); ?></p>
+		<div class="imgedit-group-top">
+			<h4><?php _e( '缩略图设置' ); ?></h4>
+			<button type="button" class="dashicons dashicons-editor-help imgedit-help-toggle" onclick="imageEdit.toggleHelp(this);" aria-expanded="false"><span class="screen-reader-text">
+			<?php
+			/* translators: Hidden accessibility text. */
+			esc_html_e( '缩略图设置帮助' );
+			?>
+			</span></button>
+			<div class="imgedit-help">
+			<p><?php _e( '您可以编辑图片，并无需影响缩略图。比如，您可能希望有一张只展示图片一部分的方形缩略图。' ); ?></p>
+			</div>
+		</div>
+		<div class="imgedit-thumbnail-preview-group">
+			<figure class="imgedit-thumbnail-preview">
+				<img src="<?php echo $thumb['url']; ?>" width="<?php echo $thumb_img[0]; ?>" height="<?php echo $thumb_img[1]; ?>" class="imgedit-size-preview" alt="" draggable="false" />
+				<figcaption class="imgedit-thumbnail-preview-caption"><?php _e( '当前缩略图' ); ?></figcaption>
+			</figure>
+			<div id="imgedit-save-target-<?php echo $post_id; ?>" class="imgedit-save-target">
+			<fieldset>
+				<legend><?php _e( '将更改应用于：' ); ?></legend>
+
+				<span class="imgedit-label">
+					<input type="radio" id="imgedit-target-all" name="imgedit-target-<?php echo $post_id; ?>" value="all" checked="checked" />
+					<label for="imgedit-target-all"><?php _e( '所有图片大小' ); ?></label>
+				</span>
+
+				<span class="imgedit-label">
+					<input type="radio" id="imgedit-target-thumbnail" name="imgedit-target-<?php echo $post_id; ?>" value="thumbnail" />
+					<label for="imgedit-target-thumbnail"><?php _e( '缩略图' ); ?></label>
+				</span>
+
+				<span class="imgedit-label">
+					<input type="radio" id="imgedit-target-nothumb" name="imgedit-target-<?php echo $post_id; ?>" value="nothumb" />
+					<label for="imgedit-target-nothumb"><?php _e( '除缩略图外所有尺寸' ); ?></label>
+				</span>
+
+				</fieldset>
+			</div>
+		</div>
+	</div>
+	<?php } ?>
 		</div>
 	</div>
 
-	<figure class="imgedit-thumbnail-preview">
-		<img src="<?php echo $thumb['url']; ?>" width="<?php echo $thumb_img[0]; ?>" height="<?php echo $thumb_img[1]; ?>" class="imgedit-size-preview" alt="" draggable="false" />
-		<figcaption class="imgedit-thumbnail-preview-caption"><?php _e( '当前缩略图' ); ?></figcaption>
-	</figure>
-
-	<div id="imgedit-save-target-<?php echo $post_id; ?>" class="imgedit-save-target">
-	<fieldset>
-		<legend><?php _e( '将更改应用于：' ); ?></legend>
-
-		<span class="imgedit-label">
-			<input type="radio" id="imgedit-target-all" name="imgedit-target-<?php echo $post_id; ?>" value="all" checked="checked" />
-			<label for="imgedit-target-all"><?php _e( '所有图片大小' ); ?></label>
-		</span>
-
-		<span class="imgedit-label">
-			<input type="radio" id="imgedit-target-thumbnail" name="imgedit-target-<?php echo $post_id; ?>" value="thumbnail" />
-			<label for="imgedit-target-thumbnail"><?php _e( '缩略图' ); ?></label>
-		</span>
-
-		<span class="imgedit-label">
-			<input type="radio" id="imgedit-target-nothumb" name="imgedit-target-<?php echo $post_id; ?>" value="nothumb" />
-			<label for="imgedit-target-nothumb"><?php _e( '除缩略图外所有尺寸' ); ?></label>
-		</span>
-	</fieldset>
-	</div>
 	</div>
 
-	<?php } ?>
-
-	</div>
-
-	</div>
 	<div class="imgedit-wait" id="imgedit-wait-<?php echo $post_id; ?>"></div>
 	<div class="hidden" id="imgedit-leaving-<?php echo $post_id; ?>"><?php _e( "未保存的更改将丢失。按“确定”以继续，按“取消”可返回“图片编辑器”。" ); ?></div>
 	</div>
@@ -256,8 +330,6 @@ function gc_image_editor( $post_id, $msg = false ) {
 
 /**
  * Streams image in GC_Image_Editor to browser.
- *
- *
  *
  * @param GC_Image_Editor $image         The image editor instance.
  * @param string          $mime_type     The mime type of the image.
@@ -270,6 +342,7 @@ function gc_stream_image( $image, $mime_type, $attachment_id ) {
 		/**
 		 * Filters the GC_Image_Editor instance for the image to be streamed to the browser.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @param GC_Image_Editor $image         The image editor instance.
 		 * @param int             $attachment_id The attachment post ID.
@@ -319,14 +392,26 @@ function gc_stream_image( $image, $mime_type, $attachment_id ) {
 
 /**
  * Saves image to file.
- *
- *
+ * The `$image` parameter expects a `GC_Image_Editor` instance.
+ * @since 6.0.0 The `$filesize` value was added to the returned array.
  *
  * @param string          $filename  Name of the file to be saved.
  * @param GC_Image_Editor $image     The image editor instance.
  * @param string          $mime_type The mime type of the image.
  * @param int             $post_id   Attachment post ID.
- * @return bool True on success, false on failure.
+ * @return array|GC_Error|bool {
+ *     Array on success or GC_Error if the file failed to save.
+ *     When called with a deprecated value for the `$image` parameter,
+ *     i.e. a non-`GC_Image_Editor` image resource or `GdImage` instance,
+ *     the function will return true on success, false on failure.
+ *
+ *     @type string $path      Path to the image file.
+ *     @type string $file      Name of the image file.
+ *     @type int    $width     Image width.
+ *     @type int    $height    Image height.
+ *     @type string $mime-type The mime type of the image.
+ *     @type int    $filesize  File size of the image.
+ * }
  */
 function gc_save_image_file( $filename, $image, $mime_type, $post_id ) {
 	if ( $image instanceof GC_Image_Editor ) {
@@ -340,6 +425,7 @@ function gc_save_image_file( $filename, $image, $mime_type, $post_id ) {
 		 * Returning a non-null value will short-circuit the save method,
 		 * returning that value instead.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @param bool|null       $override  Value to return instead of saving. Default null.
 		 * @param string          $filename  Name of the file to be saved.
@@ -408,8 +494,6 @@ function gc_save_image_file( $filename, $image, $mime_type, $post_id ) {
 /**
  * Image preview ratio. Internal use only.
  *
- *
- *
  * @ignore
  * @param int $w Image width in pixels.
  * @param int $h Image height in pixels.
@@ -417,12 +501,11 @@ function gc_save_image_file( $filename, $image, $mime_type, $post_id ) {
  */
 function _image_get_preview_ratio( $w, $h ) {
 	$max = max( $w, $h );
-	return $max > 400 ? ( 400 / $max ) : 1;
+	return $max > 600 ? ( 600 / $max ) : 1;
 }
 
 /**
  * Returns an image resource. Internal use only.
- *
  *
  * @deprecated 3.5.0 Use GC_Image_Editor::rotate()
  * @see GC_Image_Editor::rotate()
@@ -449,7 +532,6 @@ function _rotate_image_resource( $img, $angle ) {
 
 /**
  * Flips an image resource. Internal use only.
- *
  *
  * @deprecated 3.5.0 Use GC_Image_Editor::flip()
  * @see GC_Image_Editor::flip()
@@ -485,8 +567,6 @@ function _flip_image_resource( $img, $horz, $vert ) {
 /**
  * Crops an image resource. Internal use only.
  *
- *
- *
  * @ignore
  * @param resource|GdImage $img Image resource or GdImage instance.
  * @param float            $x   Source point x-coordinate.
@@ -510,8 +590,6 @@ function _crop_image_resource( $img, $x, $y, $w, $h ) {
 
 /**
  * Performs group of changes on Editor specified.
- *
- *
  *
  * @param GC_Image_Editor $image   GC_Image_Editor instance.
  * @param array           $changes Array of change operations.
@@ -576,6 +654,7 @@ function image_edit_apply_changes( $image, $changes ) {
 		/**
 		 * Filters the GC_Image_Editor instance before applying changes to the image.
 		 *
+		 * @since 3.5.0
 		 *
 		 * @param GC_Image_Editor $image   GC_Image_Editor instance.
 		 * @param array           $changes Array of change operations.
@@ -640,8 +719,6 @@ function image_edit_apply_changes( $image, $changes ) {
  * Streams image in post to browser, along with enqueued changes
  * in `$_REQUEST['history']`.
  *
- *
- *
  * @param int $post_id Attachment post ID.
  * @return bool True on success, false on failure.
  */
@@ -680,8 +757,6 @@ function stream_preview_image( $post_id ) {
 /**
  * Restores the metadata for a given attachment.
  *
- *
- *
  * @param int $post_id Attachment post ID.
  * @return stdClass Image restoration message object.
  */
@@ -691,7 +766,7 @@ function gc_restore_image( $post_id ) {
 	$backup_sizes     = get_post_meta( $post_id, '_gc_attachment_backup_sizes', true );
 	$old_backup_sizes = $backup_sizes;
 	$restored         = false;
-	$msg              = new stdClass;
+	$msg              = new stdClass();
 
 	if ( ! is_array( $backup_sizes ) ) {
 		$msg->error = __( '无法载入图片属性。' );
@@ -762,6 +837,9 @@ function gc_restore_image( $post_id ) {
 		$msg->error = __( '图片属性不正确。' );
 	} else {
 		$msg->msg = __( '图片还原成功。' );
+		if ( defined( 'IMAGE_EDIT_OVERWRITE' ) && IMAGE_EDIT_OVERWRITE ) {
+			delete_post_meta( $post_id, '_gc_attachment_backup_sizes' );
+		}
 	}
 
 	return $msg;
@@ -771,15 +849,13 @@ function gc_restore_image( $post_id ) {
  * Saves image to post, along with enqueued changes
  * in `$_REQUEST['history']`.
  *
- *
- *
  * @param int $post_id Attachment post ID.
  * @return stdClass
  */
 function gc_save_image( $post_id ) {
 	$_gc_additional_image_sizes = gc_get_additional_image_sizes();
 
-	$return  = new stdClass;
+	$return  = new stdClass();
 	$success = false;
 	$delete  = false;
 	$scaled  = false;
@@ -797,23 +873,33 @@ function gc_save_image( $post_id ) {
 	$target  = ! empty( $_REQUEST['target'] ) ? preg_replace( '/[^a-z0-9_-]+/i', '', $_REQUEST['target'] ) : '';
 	$scale   = ! empty( $_REQUEST['do'] ) && 'scale' === $_REQUEST['do'];
 
-	if ( $scale && $fwidth > 0 && $fheight > 0 ) {
+	/** This filter is documented in gc-admin/includes/image-edit.php */
+	$edit_thumbnails_separately = (bool) apply_filters( 'image_edit_thumbnails_separately', false );
+
+	if ( $scale ) {
 		$size = $img->get_size();
 		$sX   = $size['width'];
 		$sY   = $size['height'];
 
-		// Check if it has roughly the same w / h ratio.
-		$diff = round( $sX / $sY, 2 ) - round( $fwidth / $fheight, 2 );
-		if ( -0.1 < $diff && $diff < 0.1 ) {
-			// Scale the full size image.
-			if ( $img->resize( $fwidth, $fheight ) ) {
-				$scaled = true;
-			}
+		if ( $sX < $fwidth || $sY < $fheight ) {
+			$return->error = esc_js( __( '图像无法缩放至大于原始尺寸。' ) );
+			return $return;
 		}
 
-		if ( ! $scaled ) {
-			$return->error = esc_js( __( '保存缩放后的图片时发生错误，请刷新后再试。' ) );
-			return $return;
+		if ( $fwidth > 0 && $fheight > 0 ) {
+			// Check if it has roughly the same w / h ratio.
+			$diff = round( $sX / $sY, 2 ) - round( $fwidth / $fheight, 2 );
+			if ( -0.1 < $diff && $diff < 0.1 ) {
+				// Scale the full size image.
+				if ( $img->resize( $fwidth, $fheight ) ) {
+					$scaled = true;
+				}
+			}
+
+			if ( ! $scaled ) {
+				$return->error = esc_js( __( '保存缩放后的图片时发生错误，请刷新后再试。' ) );
+				return $return;
+			}
 		}
 	} elseif ( ! empty( $_REQUEST['history'] ) ) {
 		$changes = json_decode( gc_unslash( $_REQUEST['history'] ) );
@@ -849,7 +935,7 @@ function gc_save_image( $post_id ) {
 	if ( defined( 'IMAGE_EDIT_OVERWRITE' ) && IMAGE_EDIT_OVERWRITE &&
 		isset( $backup_sizes['full-orig'] ) && $backup_sizes['full-orig']['file'] != $basename ) {
 
-		if ( 'thumbnail' === $target ) {
+		if ( $edit_thumbnails_separately && 'thumbnail' === $target ) {
 			$new_path = "{$dirname}/{$filename}-temp.{$ext}";
 		} else {
 			$new_path = $path;
@@ -901,14 +987,15 @@ function gc_save_image( $post_id ) {
 
 		if ( $success && ( 'nothumb' === $target || 'all' === $target ) ) {
 			$sizes = get_intermediate_image_sizes();
-			if ( 'nothumb' === $target ) {
+
+			if ( $edit_thumbnails_separately && 'nothumb' === $target ) {
 				$sizes = array_diff( $sizes, array( 'thumbnail' ) );
 			}
 		}
 
 		$return->fw = $meta['width'];
 		$return->fh = $meta['height'];
-	} elseif ( 'thumbnail' === $target ) {
+	} elseif ( $edit_thumbnails_separately && 'thumbnail' === $target ) {
 		$sizes   = array( 'thumbnail' );
 		$success = true;
 		$delete  = true;

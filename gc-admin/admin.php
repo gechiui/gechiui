@@ -9,7 +9,6 @@
 /**
  * In GeChiUI Administration Screens
  *
- *
  */
 if ( ! defined( 'GC_ADMIN' ) ) {
 	define( 'GC_ADMIN', true );
@@ -169,7 +168,6 @@ if ( current_user_can( 'manage_options' ) ) {
  *
  * This is roughly analogous to the more general {@see 'init'} hook, which fires earlier.
  *
- *
  */
 do_action( 'admin_init' );
 
@@ -298,7 +296,7 @@ if ( isset( $plugin_page ) ) {
 	$importer = $_GET['import'];
 
 	if ( ! current_user_can( 'import' ) ) {
-		gc_die( __( '抱歉，您不能向此站点导入内容。' ) );
+		gc_die( __( '抱歉，您不能向此系统导入内容。' ) );
 	}
 
 	if ( validate_file( $importer ) ) {

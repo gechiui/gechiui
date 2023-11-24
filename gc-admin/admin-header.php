@@ -18,11 +18,11 @@ if ( ! defined( 'GC_ADMIN' ) ) {
  * @global string    $hook_suffix
  * @global GC_Screen $current_screen     GeChiUI current screen object.
  * @global GC_Locale $gc_locale          GeChiUI date and time locale object.
- * @global string    $pagenow
+ * @global string    $pagenow            The filename of the current screen.
  * @global string    $update_title
  * @global int       $total_update_count
  * @global string    $parent_file
- * @global string    $typenow
+ * @global string    $typenow            The post type of the current screen.
  */
 global $title, $hook_suffix, $current_screen, $gc_locale, $pagenow,
 	$update_title, $total_update_count, $parent_file, $typenow;
@@ -37,7 +37,7 @@ $title = strip_tags( $title );
 
 if ( is_network_admin() ) {
 	/* translators: Network admin screen title. %s: Network title. */
-	$admin_title = sprintf( __( '管理网络：%s' ), get_network()->site_name );
+	$admin_title = sprintf( __( 'SaaS后台：%s' ), get_network()->site_name );
 } elseif ( is_user_admin() ) {
 	/* translators: User dashboard screen title. %s: Network title. */
 	$admin_title = sprintf( __( '用户仪表盘：%s' ), get_network()->site_name );
@@ -76,8 +76,6 @@ if ( gc_is_recovery_mode() ) {
 /**
  * Filters the title tag content for an admin page.
  *
- *
- *
  * @param string $admin_title The page title, with extra context added.
  * @param string $title       The original page title.
  */
@@ -109,9 +107,7 @@ var ajaxurl = '<?php echo esc_js( admin_url( 'admin-ajax.php', 'relative' ) ); ?
 <?php
 
 /**
- * Enqueue scripts for all admin pages.
- *
- *
+ * Fires when enqueuing scripts for all admin pages.
  *
  * @param string $hook_suffix The current admin page.
  */
@@ -120,13 +116,11 @@ do_action( 'admin_enqueue_scripts', $hook_suffix );
 /**
  * Fires when styles are printed for a specific admin page based on $hook_suffix.
  *
- *
  */
 do_action( "admin_print_styles-{$hook_suffix}" ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 
 /**
  * Fires when styles are printed for all admin pages.
- *
  *
  */
 do_action( 'admin_print_styles' );
@@ -134,13 +128,11 @@ do_action( 'admin_print_styles' );
 /**
  * Fires when scripts are printed for a specific admin page based on $hook_suffix.
  *
- *
  */
 do_action( "admin_print_scripts-{$hook_suffix}" ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 
 /**
  * Fires when scripts are printed for all admin pages.
- *
  *
  */
 do_action( 'admin_print_scripts' );
@@ -151,13 +143,11 @@ do_action( 'admin_print_scripts' );
  * The dynamic portion of the hook name, `$hook_suffix`, refers to the hook suffix
  * for the admin page.
  *
- *
  */
 do_action( "admin_head-{$hook_suffix}" ); // phpcs:ignore GeChiUI.NamingConventions.ValidHookName.UseUnderscores
 
 /**
  * Fires in head section for all admin pages.
- *
  *
  */
 do_action( 'admin_head' );
@@ -235,14 +225,12 @@ unset( $error_get_last );
  * 2. Not all core admin classes are filterable, notably: gc-admin, gc-core-ui,
  *    and no-js cannot be removed.
  *
- *
- *
  * @param string $classes Space-separated list of CSS classes.
  */
 $admin_body_classes = apply_filters( 'admin_body_class', '' );
 $admin_body_classes = ltrim( $admin_body_classes . ' ' . $admin_body_class );
 ?>
-<body class="gc-admin gc-core-ui no-js <?php echo $admin_body_classes; ?>">
+<body class="gc-admin gc-core-ui no-js <?php echo esc_attr( $admin_body_classes ); ?>">
 <script type="text/javascript">
 	document.body.className = document.body.className.replace('no-js','js');
 </script>
@@ -254,14 +242,13 @@ if ( current_user_can( 'customize' ) ) {
 }
 ?>
 
-<div id="gcwrap" class="app">
+<div id="gcwrap">
 <?php require ABSPATH . 'gc-admin/menu-header.php'; ?>
-<div id="gccontent" class="page-container">
+<div id="gccontent">
 
 <?php
 /**
  * Fires at the beginning of the content section in an admin page.
- *
  *
  */
 do_action( 'in_admin_header' );
@@ -303,10 +290,11 @@ if ( is_network_admin() ) {
 /**
  * Prints generic admin screen notices.
  *
- *
  */
 do_action( 'all_admin_notices' );
 
 if ( 'options-general.php' === $parent_file ) {
 	require ABSPATH . 'gc-admin/options-head.php';
 }
+
+settings_errors();

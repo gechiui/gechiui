@@ -4,14 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Core class used to implement displaying installed themes in a list table.
- *
- *
- * @access private
  *
  * @see GC_List_Table
  */
@@ -98,7 +94,7 @@ class GC_Themes_List_Table extends GC_List_Table {
 			if ( current_user_can( 'install_themes' ) && current_user_can( 'manage_network_themes' ) ) {
 				printf(
 					/* translators: 1: URL to Themes tab on Edit Site screen, 2: URL to Add Themes screen. */
-					__( '您目前只安装了一个主题。您可访问“管理网络”页面来<a href="%1$s">启用</a>或<a href="%2$s">安装</a>更多主题。' ),
+					__( '您目前只安装了一个主题。您可访问“SaaS后台”页面来<a href="%1$s">启用</a>或<a href="%2$s">安装</a>更多主题。' ),
 					network_admin_url( 'site-themes.php?id=' . $blog_id ),
 					network_admin_url( 'theme-install.php' )
 				);
@@ -107,7 +103,7 @@ class GC_Themes_List_Table extends GC_List_Table {
 			} elseif ( current_user_can( 'manage_network_themes' ) ) {
 				printf(
 					/* translators: %s: URL to Themes tab on Edit Site screen. */
-					__( '您目前只安装了一个主题。您可访问“管理网络”页面来<a href="%s">启用</a>更多主题。' ),
+					__( '您目前只安装了一个主题。您可访问“SaaS后台”页面来<a href="%s">启用</a>更多主题。' ),
 					network_admin_url( 'site-themes.php?id=' . $blog_id )
 				);
 
@@ -128,7 +124,7 @@ class GC_Themes_List_Table extends GC_List_Table {
 		// Fallthrough.
 		printf(
 			/* translators: %s: Network title. */
-			__( '只有活动主题对您可用。有关访问其他主题的信息，请与%s管理员联系。' ),
+			__( '您目前只能使用当前主题。请联系 %s 的管理员了解详情。' ),
 			get_site_option( 'site_name' )
 		);
 	}
@@ -169,7 +165,7 @@ class GC_Themes_List_Table extends GC_List_Table {
 	}
 
 	/**
-	 * @return array
+	 * @return string[] Array of column titles keyed by their column name.
 	 */
 	public function get_columns() {
 		return array();
@@ -227,7 +223,7 @@ class GC_Themes_List_Table extends GC_List_Table {
 					'<a class="submitdelete deletion" href="%s" onclick="return confirm( \'%s\' );">%s</a>',
 					gc_nonce_url( 'themes.php?action=delete&amp;stylesheet=' . urlencode( $stylesheet ), 'delete-theme_' . $stylesheet ),
 					/* translators: %s: Theme name. */
-					esc_js( sprintf( __( "Y您将要删除此主题 '%s'\n  “取消”停止，“确定”删除。" ), $title ) ),
+					esc_js( sprintf( __( "将删除“%s”主题\n点击“取消”放弃，点击“确定”删除。" ), $title ) ),
 					__( '删除' )
 				);
 			}
@@ -245,12 +241,12 @@ class GC_Themes_List_Table extends GC_List_Table {
 
 			<span class="screenshot hide-if-customize">
 				<?php if ( $screenshot ) : ?>
-					<img src="<?php echo esc_url( $screenshot ); ?>" alt="" />
+					<img src="<?php echo esc_url( $screenshot . '?ver=' . $theme->version ); ?>" alt="" />
 				<?php endif; ?>
 			</span>
 			<a href="<?php echo gc_customize_url( $stylesheet ); ?>" class="screenshot load-customize hide-if-no-customize">
 				<?php if ( $screenshot ) : ?>
-					<img src="<?php echo esc_url( $screenshot ); ?>" alt="" />
+					<img src="<?php echo esc_url( $screenshot . '?ver=' . $theme->version ); ?>" alt="" />
 				<?php endif; ?>
 			</a>
 
@@ -266,7 +262,7 @@ class GC_Themes_List_Table extends GC_List_Table {
 					<?php foreach ( $actions as $action ) : ?>
 						<li><?php echo $action; ?></li>
 					<?php endforeach; ?>
-					<li class="hide-if-no-js"><a href="#" class="theme-detail"><?php _e( '详情' ); ?></a></li>
+					<li class="hide-if-no-js"><a href="#" class="theme-detail"><?php _e( '详细信息' ); ?></a></li>
 				</ul>
 				<?php echo $delete_action; ?>
 
@@ -275,7 +271,7 @@ class GC_Themes_List_Table extends GC_List_Table {
 
 			<div class="themedetaildiv hide-if-js">
 				<p><strong><?php _e( '版本：' ); ?></strong> <?php echo $version; ?></p>
-				<p><?php echo $theme->display( 'description' ); ?></p>
+				<p><?php echo $theme->display( 'Description' ); ?></p>
 				<?php
 				if ( $theme->parent() ) {
 					printf(
@@ -311,7 +307,7 @@ class GC_Themes_List_Table extends GC_List_Table {
 				continue;
 			}
 
-			foreach ( array( 'Name', 'description', 'Author', 'AuthorURI' ) as $header ) {
+			foreach ( array( 'Name', 'Description', 'Author', 'AuthorURI' ) as $header ) {
 				// Don't mark up; Do translate.
 				if ( false !== stripos( strip_tags( $theme->display( $header, false, true ) ), $word ) ) {
 					continue 2;
@@ -335,6 +331,7 @@ class GC_Themes_List_Table extends GC_List_Table {
 	/**
 	 * Send required variables to JavaScript land
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param array $extra_args
 	 */

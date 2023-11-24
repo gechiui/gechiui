@@ -10,7 +10,7 @@
 require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'export_others_personal_data' ) ) {
-	gc_die( __( '抱歉，您不能从此站点导出个人数据。' ) );
+	gc_die( __( '抱歉，您不能从此系统导出个人数据。' ) );
 }
 
 // Contextual help - choose Help on the top right of admin panel to preview this.
@@ -20,7 +20,7 @@ get_current_screen()->add_help_tab(
 		'title'   => __( '概述' ),
 		'content' =>
 					'<p>' . __( '您可以在此界面管理个人数据导出请求。' ) . '</p>' .
-					'<p>' . __( '世界各地许多地区的隐私法要求企业或网站提供其所收集的有关个人的所有数据，这项规定有时也被称为“数据携带权”。' ) . '</p>' .
+					'<p>' . __( '世界各地许多地区的隐私法要求企业、网站或系统提供其所收集的有关个人的所有数据，这项规定有时也被称为“数据携带权”。' ) . '</p>' .
 					'<p>' . __( '该工具通过所提供的电子邮箱关联存储在GeChiUI中的数据，包括个人资料数据和评论。' ) . '</p>' .
 					'<p><strong>' . __( '注意：由于此工具仅收集来自 GeChiUI 及相关插件的数据，您可能需要做更多的工作来完成抹除请求。 您还应该删除由您的企业或网站使用的任何第三方服务收集或存储的任何数据。' ) . '</strong></p>',
 	)
@@ -101,45 +101,49 @@ require_once ABSPATH . 'gc-admin/admin-header.php';
 ?>
 
 <div class="wrap nosubsub">
-	<h1><?php esc_html_e( '导出个人数据' ); ?></h1>
-	<p><?php _e( '此工具可以导出给定用户的已知数据并打包为.zip文件，有助于网站所有者遵守当地法律法规。' ); ?></p>
-	<hr class="gc-header-end" />
-
-	<?php settings_errors(); ?>
+	<div class="page-header">
+		<h2 class="header-title"><?php esc_html_e( '导出个人数据' ); ?></h2>
+		<p><?php _e( '此工具可以导出给定用户的已知数据并打包为.zip文件，有助于系统所有者遵守当地法律法规。' ); ?></p>
+	</div>
 
 	<form action="<?php echo esc_url( admin_url( 'export-personal-data.php' ) ); ?>" method="post" class="gc-privacy-request-form">
-		<h2><?php esc_html_e( '加入数据导出请求' ); ?></h2>
-		<div class="gc-privacy-request-form-field">
-		<table class="form-table">
-				<tr>
-					<th scope="row">
-						<label for="username_or_email_for_privacy_request"><?php esc_html_e( '用户名或电子邮箱' ); ?></label>
-					</th>
-					<td>
-						<input type="text" required class="regular-text ltr" id="username_or_email_for_privacy_request" name="username_or_email_for_privacy_request" />
-					</td>
-				</tr>
-				<tr>
-					<th scope="row">
-						<?php _e( '确认邮件' ); ?>
-					</th>
-					<td>
-						<label for="send_confirmation_email">
-							<input type="checkbox" name="send_confirmation_email" id="send_confirmation_email" value="1" checked="checked" />
-							<?php _e( '发送个人数据导出确认邮件。' ); ?>
-						</label>
-					</td>
-				</tr>
-			</table>
-			<p class="submit">
-				<?php submit_button( __( '发送请求' ), 'secondary', 'submit', false ); ?>
-			</p>
+	<div class="card">
+	    <div class="card-header">
+	        <h4 class="card-title"><?php esc_html_e( '添加数据导出请求' ); ?></h4>
+	    </div>
+	    <div class="card-body">
+			<div class="gc-privacy-request-form-field">
+			<table class="form-table">
+					<tr>
+						<th scope="row">
+							<label for="username_or_email_for_privacy_request"><?php esc_html_e( '用户名或电子邮箱' ); ?></label>
+						</th>
+						<td>
+							<input type="text" required class="regular-text ltr" id="username_or_email_for_privacy_request" name="username_or_email_for_privacy_request" />
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<?php _e( '确认邮件' ); ?>
+						</th>
+						<td>
+							<label for="send_confirmation_email">
+								<input type="checkbox" name="send_confirmation_email" id="send_confirmation_email" value="1" checked="checked" />
+								<?php _e( '发送个人数据导出确认邮件。' ); ?>
+							</label>
+						</td>
+					</tr>
+				</table>
+				<p class="submit">
+					<?php submit_button( __( '发送请求' ), 'primary', 'submit', false ); ?>
+				</p>
+			</div>
+			<?php gc_nonce_field( 'personal-data-request' ); ?>
+			<input type="hidden" name="action" value="add_export_personal_data_request" />
+			<input type="hidden" name="type_of_action" value="export_personal_data" />
 		</div>
-		<?php gc_nonce_field( 'personal-data-request' ); ?>
-		<input type="hidden" name="action" value="add_export_personal_data_request" />
-		<input type="hidden" name="type_of_action" value="export_personal_data" />
+	</div>
 	</form>
-	<hr />
 
 	<?php $requests_table->views(); ?>
 

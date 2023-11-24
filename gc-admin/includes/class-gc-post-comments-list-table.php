@@ -4,14 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Core class used to implement displaying post comments in a list table.
- *
- *
- * @access private
  *
  * @see GC_Comments_List_Table
  */

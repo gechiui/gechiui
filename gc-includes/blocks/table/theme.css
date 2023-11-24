@@ -1,0 +1,14 @@
+.gc-block-table{
+  margin:0 0 1em;
+}
+.gc-block-table td,.gc-block-table th{
+  word-break:normal;
+}
+.gc-block-table figcaption{
+  color:#555;
+  font-size:13px;
+  text-align:center;
+}
+.is-dark-theme .gc-block-table figcaption{
+  color:hsla(0,0%,100%,.65);
+}

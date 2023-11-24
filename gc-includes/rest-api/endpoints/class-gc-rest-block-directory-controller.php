@@ -4,13 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
+ * @since 5.5.0
  */
 
 /**
  * Controller which provides REST endpoint for the blocks.
  *
- *
+ * @since 5.5.0
  *
  * @see GC_REST_Controller
  */
@@ -46,6 +46,7 @@ class GC_REST_Block_Directory_Controller extends GC_REST_Controller {
 	/**
 	 * Checks whether a given request has permission to install and activate plugins.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has permission, GC_Error object otherwise.
@@ -65,6 +66,7 @@ class GC_REST_Block_Directory_Controller extends GC_REST_Controller {
 	/**
 	 * Search and retrieve blocks metadata
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -106,6 +108,8 @@ class GC_REST_Block_Directory_Controller extends GC_REST_Controller {
 	/**
 	 * Parse block metadata for a block, and prepare it for an API response.
 	 *
+	 * @since 5.5.0
+	 * @since 5.9.0 Renamed `$plugin` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param array           $item    The plugin metadata.
 	 * @param GC_REST_Request $request Request object.
@@ -114,6 +118,8 @@ class GC_REST_Block_Directory_Controller extends GC_REST_Controller {
 	public function prepare_item_for_response( $item, $request ) {
 		// Restores the more descriptive, specific name for use within this method.
 		$plugin = $item;
+
+		$fields = $this->get_fields_for_response( $request );
 
 		// There might be multiple blocks in a plugin. Only the first block is mapped.
 		$block_data = reset( $plugin['blocks'] );
@@ -142,7 +148,10 @@ class GC_REST_Block_Directory_Controller extends GC_REST_Controller {
 		$this->add_additional_fields_to_object( $block, $request );
 
 		$response = new GC_REST_Response( $block );
-		$response->add_links( $this->prepare_links( $plugin ) );
+
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$response->add_links( $this->prepare_links( $plugin ) );
+		}
 
 		return $response;
 	}
@@ -150,6 +159,7 @@ class GC_REST_Block_Directory_Controller extends GC_REST_Controller {
 	/**
 	 * Generates a list of links to include in the response for the plugin.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param array $plugin The plugin data from www.GeChiUI.com.
 	 * @return array
@@ -176,6 +186,7 @@ class GC_REST_Block_Directory_Controller extends GC_REST_Controller {
 	/**
 	 * Finds an installed plugin for the given slug.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $slug The www.GeChiUI.com directory slug for a plugin.
 	 * @return string The plugin file found matching it.
@@ -197,6 +208,7 @@ class GC_REST_Block_Directory_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the theme's schema, conforming to JSON Schema.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return array Item schema data.
 	 */
@@ -232,7 +244,7 @@ class GC_REST_Block_Directory_Controller extends GC_REST_Controller {
 				),
 				'rating'              => array(
 					'description' => __( '区块的星级等级。' ),
-					'type'        => 'integer',
+					'type'        => 'number',
 					'context'     => array( 'view' ),
 				),
 				'rating_count'        => array(
@@ -241,13 +253,13 @@ class GC_REST_Block_Directory_Controller extends GC_REST_Controller {
 					'context'     => array( 'view' ),
 				),
 				'active_installs'     => array(
-					'description' => __( '启用此区块的站点数量。' ),
-					'type'        => 'string',
+					'description' => __( '启用此区块的系统数量。' ),
+					'type'        => 'integer',
 					'context'     => array( 'view' ),
 				),
 				'author_block_rating' => array(
 					'description' => __( '同一作者发布的区块的平均评级。' ),
-					'type'        => 'integer',
+					'type'        => 'number',
 					'context'     => array( 'view' ),
 				),
 				'author_block_count'  => array(
@@ -286,6 +298,7 @@ class GC_REST_Block_Directory_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the search params for the blocks collection.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return array Collection parameters.
 	 */
@@ -306,6 +319,7 @@ class GC_REST_Block_Directory_Controller extends GC_REST_Controller {
 		/**
 		 * Filters REST API collection parameters for the block directory controller.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param array $query_params JSON Schema-formatted collection parameters.
 		 */

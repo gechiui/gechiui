@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/gc-ajax-response.js
+ * @output assets/js/gc-ajax-response.js
  */
 
  /* global gcAjax */
@@ -18,7 +18,7 @@ window.gcAjax = jQuery.extend( {
 		return r;
 	},
 	parseAjaxResponse: function( x, r, e ) { // 1 = good, 0 = strange (bad data?), -1 = you lack permission.
-		var parsed = {}, re = jQuery('#' + r).empty(), err = '', successmsg = '';
+		var parsed = {}, re = jQuery('#' + r).empty(), err = '', noticeMessage = '';
 
 		if ( x && typeof x === 'object' && x.getElementsByTagName('gc_ajax') ) {
 			parsed.responses = [];
@@ -27,11 +27,14 @@ window.gcAjax = jQuery.extend( {
 				var th = jQuery(this), child = jQuery(this.firstChild), response;
 				response = { action: th.attr('action'), what: child.get(0).nodeName, id: child.attr('id'), oldId: child.attr('old_id'), position: child.attr('position') };
 				response.data = jQuery( 'response_data', child ).text();
-				if ( jQuery( 'body' ).hasClass( 'edit-tags-php' ) ) {
-					successmsg += response.data;
-				}
 				response.supplemental = {};
 				if ( !jQuery( 'supplemental', child ).children().each( function() {
+
+					if ( this.nodeName === 'notice' ) {
+						noticeMessage += jQuery(this).text();
+						return;
+					}
+
 					response.supplemental[this.nodeName] = jQuery(this).text();
 				} ).length ) { response.supplemental = false; }
 				response.errors = [];
@@ -50,19 +53,27 @@ window.gcAjax = jQuery.extend( {
 				parsed.responses.push( response );
 			} );
 			if ( err.length ) {
-				re.html( '<div class="error">' + err + '</div>' );
+				re.html( '<div class="alert alert-danger"><div class="d-flex align-items-center justify-content-start"><span class="alert-icon"><i class="anticon anticon-close-o"></i></span><span>' + err + '</span></div></div>' );
 				gc.a11y.speak( err );
-			} else if ( successmsg.length ) {
-				re.html( '<div class="updated notice is-dismissible"><p>' + successmsg + '</p></div>');
+			} else if ( noticeMessage.length ) {
+				re.html( '<div class="alert alert-success"><div class="d-flex align-items-center justify-content-start"><span class="alert-icon"><i class="anticon anticon-check-o"></i></span><span>' + noticeMessage + '</span></div></div>');
 				jQuery(document).trigger( 'gc-updates-notice-added' );
-				gc.a11y.speak( successmsg );
+				gc.a11y.speak( noticeMessage );
 			}
 			return parsed;
 		}
-		if ( isNaN(x) ) { return !re.html('<div class="error"><p>' + x + '</p></div>'); }
-		x = parseInt(x,10);
-		if ( -1 === x ) { return !re.html('<div class="error"><p>' + gcAjax.noPerm + '</p></div>'); }
-		else if ( 0 === x ) { return !re.html('<div class="error"><p>' + gcAjax.broken  + '</p></div>'); }
+		if ( isNaN( x ) ) {
+			gc.a11y.speak( x );
+			return ! re.html( '<div class="alert alert-danger"><div class="d-flex align-items-center justify-content-start"><span class="alert-icon"><i class="anticon anticon-close-o"></i></span><span>' + x + '</span></div></div>' );
+		}
+		x = parseInt( x, 10 );
+		if ( -1 === x ) {
+			gc.a11y.speak( gcAjax.noPerm );
+			return ! re.html( '<div class="alert alert-danger"><div class="d-flex align-items-center justify-content-start"><span class="alert-icon"><i class="anticon anticon-close-o"></i></span><span>' + gcAjax.noPerm + '</span></div></div>' );
+		} else if ( 0 === x ) {
+			gc.a11y.speak( gcAjax.broken );
+			return ! re.html( '<div class="alert alert-danger"><div class="d-flex align-items-center justify-content-start"><span class="alert-icon"><i class="anticon anticon-close-o"></i></span><span>' + gcAjax.broken  + '</span></div></div>' );
+		}
 		return true;
 	},
 	invalidateForm: function ( selector ) {

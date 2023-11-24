@@ -9,7 +9,7 @@
  * @subpackage oEmbed
  */
 
-_deprecated_file( basename( __FILE__ ), '5.3.0', 'gc-includes/class-gc-oembed.php' );
+_deprecated_file( basename( __FILE__ ), '5.3.0', GCINC . '/class-gc-oembed.php' );
 
 /** GC_oEmbed class */
-require_once ABSPATH . 'gc-includes/class-gc-oembed.php';
+require_once ABSPATH . GCINC . '/class-gc-oembed.php';

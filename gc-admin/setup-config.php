@@ -88,7 +88,6 @@ $step = isset( $_GET['step'] ) ? (int) $_GET['step'] : -1;
  *
  * @ignore
  *
- *
  * @param string|string[] $body_classes Class attribute values for the body tag.
  */
 function setup_config_display_header( $body_classes = array() ) {
@@ -192,9 +191,9 @@ switch ( $step ) {
 		);
 		?>
 </p>
-<p><?php _e( '绝大多数时候，您的主机服务提供商会告诉您这些信息。如果您没有这些信息，在继续之前您将需要联系他们。如果您准备好了…' ); ?></p>
+<p><?php _e( '绝大多数时候，您的主机服务提供商会告诉您这些信息。如果您没有这些信息，在继续之前您将需要联系他们。如果您准备好了...'  ); ?></p>
 
-<p class="step"><a href="<?php echo $step_1; ?>" class="button button-large"><?php _e( '现在就开始！' ); ?></a></p>
+<p class="step"><a href="<?php echo $step_1; ?>" class="btn btn-primary"><?php _e( '现在就开始！' ); ?></a></p>
 		<?php
 		break;
 
@@ -246,7 +245,7 @@ switch ( $step ) {
 			?>
 <input name="noapi" type="hidden" value="1" /><?php } ?>
 	<input type="hidden" name="language" value="<?php echo esc_attr( $language ); ?>" />
-	<p class="step"><input name="submit" type="submit" value="<?php echo htmlspecialchars( __( '提交' ), ENT_QUOTES ); ?>" class="button button-large" /></p>
+	<p class="step"><input name="submit" type="submit" value="<?php echo htmlspecialchars( __( '提交' ), ENT_QUOTES ); ?>" class="btn btn-primary" /></p>
 </form>
 		<?php
 		break;
@@ -274,7 +273,7 @@ switch ( $step ) {
 			$install .= '?language=zh_CN';
 		}
 
-		$tryagain_link = '</p><p class="step"><a href="' . $step_1 . '" onclick="javascript:history.go(-1);return false;" class="button button-large">' . __( '重试' ) . '</a>';
+		$tryagain_link = '</p><p class="step"><a href="' . $step_1 . '" onclick="javascript:history.go(-1);return false;" class="btn btn-primary">' . __( '重试' ) . '</a>';
 
 		if ( empty( $prefix ) ) {
 			gc_die( __( '<strong>错误</strong>: "表前缀"不能为空。' ) . $tryagain_link );
@@ -412,7 +411,7 @@ switch ( $step ) {
 </p>
 <textarea id="gc-config" cols="98" rows="15" class="code" readonly="readonly"><?php echo $config_text; ?></textarea>
 <p><?php _e( '完成这些后，请点击“运行安装程序”。' ); ?></p>
-<p class="step"><a href="<?php echo $install; ?>" class="button button-large"><?php _e( '运行安装程序' ); ?></a></p>
+<p class="step"><a href="<?php echo $install; ?>" class="btn btn-primary"><?php _e( '运行安装程序' ); ?></a></p>
 <script>
 (function(){
 if ( ! /iPad|iPod|iPhone/.test( navigator.userAgent ) ) {
@@ -472,7 +471,7 @@ if ( ! /iPad|iPod|iPhone/.test( navigator.userAgent ) ) {
 <h1 class="screen-reader-text"><?php _e( '数据库连接成功' ); ?></h1>
 <p><?php _e( '不错。您完成了安装过程中重要的一步，GeChiUI现在已经可以连接数据库了。如果您准备好了的话，现在就&hellip;' ); ?></p>
 
-<p class="step"><a href="<?php echo $install; ?>" class="button button-large"><?php _e( '运行安装程序' ); ?></a></p>
+<p class="step"><a href="<?php echo $install; ?>" class="btn btn-primary"><?php _e( '运行安装程序' ); ?></a></p>
 				<?php
 			else :
 				printf( '<p>%s</p>', $error_message );

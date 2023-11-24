@@ -6,18 +6,20 @@
  *
  * @package GeChiUI
  * @subpackage Sitemaps
- *
+ * @since 5.5.0
  */
 
 /**
  * Class GC_Sitemaps_Renderer
  *
- *
+ * @since 5.5.0
  */
+#[AllowDynamicProperties]
 class GC_Sitemaps_Renderer {
 	/**
 	 * XSL stylesheet for styling a sitemap for web browsers.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @var string
 	 */
@@ -26,6 +28,7 @@ class GC_Sitemaps_Renderer {
 	/**
 	 * XSL stylesheet for styling a sitemap for web browsers.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @var string
 	 */
@@ -34,6 +37,7 @@ class GC_Sitemaps_Renderer {
 	/**
 	 * GC_Sitemaps_Renderer constructor.
 	 *
+	 * @since 5.5.0
 	 */
 	public function __construct() {
 		$stylesheet_url = $this->get_sitemap_stylesheet_url();
@@ -52,6 +56,7 @@ class GC_Sitemaps_Renderer {
 	/**
 	 * Gets the URL for the sitemap stylesheet.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
 	 *
@@ -72,6 +77,7 @@ class GC_Sitemaps_Renderer {
 		 * If a falsey value is returned, no stylesheet will be used and
 		 * the "raw" XML of the sitemap will be displayed.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param string $sitemap_url Full URL for the sitemaps XSL file.
 		 */
@@ -81,6 +87,7 @@ class GC_Sitemaps_Renderer {
 	/**
 	 * Gets the URL for the sitemap index stylesheet.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
 	 *
@@ -101,6 +108,7 @@ class GC_Sitemaps_Renderer {
 		 * If a falsey value is returned, no stylesheet will be used and
 		 * the "raw" XML of the sitemap index will be displayed.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param string $sitemap_url Full URL for the sitemaps index XSL file.
 		 */
@@ -110,11 +118,12 @@ class GC_Sitemaps_Renderer {
 	/**
 	 * Renders a sitemap index.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param array $sitemaps Array of sitemap URLs.
 	 */
 	public function render_index( $sitemaps ) {
-		header( 'Content-type: application/xml; charset=UTF-8' );
+		header( 'Content-Type: application/xml; charset=UTF-8' );
 
 		$this->check_for_simple_xml_availability();
 
@@ -130,6 +139,7 @@ class GC_Sitemaps_Renderer {
 	/**
 	 * Gets XML for a sitemap index.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param array $sitemaps Array of sitemap URLs.
 	 * @return string|false A well-formed XML string for a sitemap index. False on error.
@@ -158,7 +168,7 @@ class GC_Sitemaps_Renderer {
 						__METHOD__,
 						sprintf(
 							/* translators: %s: List of element names. */
-							__( '站点地图索引当前不支持%s以外的字段。' ),
+							__( '系统地图索引当前不支持%s以外的字段。' ),
 							implode( ',', array( 'loc', 'lastmod' ) )
 						),
 						'5.5.0'
@@ -173,11 +183,12 @@ class GC_Sitemaps_Renderer {
 	/**
 	 * Renders a sitemap.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param array $url_list Array of URLs for a sitemap.
 	 */
 	public function render_sitemap( $url_list ) {
-		header( 'Content-type: application/xml; charset=UTF-8' );
+		header( 'Content-Type: application/xml; charset=UTF-8' );
 
 		$this->check_for_simple_xml_availability();
 
@@ -193,6 +204,7 @@ class GC_Sitemaps_Renderer {
 	/**
 	 * Gets XML for a sitemap.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param array $url_list Array of URLs for a sitemap.
 	 * @return string|false A well-formed XML string for a sitemap index. False on error.
@@ -221,7 +233,7 @@ class GC_Sitemaps_Renderer {
 						__METHOD__,
 						sprintf(
 							/* translators: %s: List of element names. */
-							__( '当前站点地图不支持%s以外的字段。' ),
+							__( '当前系统地图不支持%s以外的字段。' ),
 							implode( ',', array( 'loc', 'lastmod', 'changefreq', 'priority' ) )
 						),
 						'5.5.0'
@@ -236,6 +248,7 @@ class GC_Sitemaps_Renderer {
 	/**
 	 * Checks for the availability of the SimpleXML extension and errors if missing.
 	 *
+	 * @since 5.5.0
 	 */
 	private function check_for_simple_xml_availability() {
 		if ( ! class_exists( 'SimpleXMLElement' ) ) {
@@ -249,7 +262,7 @@ class GC_Sitemaps_Renderer {
 			gc_die(
 				sprintf(
 					/* translators: %s: SimpleXML */
-					esc_xml( __( '由于缺少%s扩展，无法生成XML站点地图' ) ),
+					esc_xml( __( '由于缺少%s扩展，无法生成XML系统地图' ) ),
 					'SimpleXML'
 				),
 				esc_xml( __( 'GeChiUI &rsaquo; 错误' ) ),

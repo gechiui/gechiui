@@ -11,7 +11,6 @@
 /**
  * Stores the location of the GeChiUI directory of functions, classes, and core content.
  *
- * @since 1.0.0
  */
 define( 'GCINC', 'gc-includes' );
 
@@ -19,8 +18,8 @@ define( 'GCINC', 'gc-includes' );
  * Version information for the current GeChiUI release.
  *
  * These can't be directly globalized in version.php. When updating,
- * we're including version.php from another installation and don't want
- * these values to be overridden if already set.
+ * include version.php from another installation and don't override
+ * these values if already set.
  *
  * @global string $gc_version             The GeChiUI version string.
  * @global int    $gc_db_version          GeChiUI database version.
@@ -31,6 +30,7 @@ define( 'GCINC', 'gc-includes' );
  */
 global $gc_version, $gc_db_version, $tinymce_version, $required_php_version, $required_mysql_version, $gc_local_package;
 require ABSPATH . GCINC . '/version.php';
+require ABSPATH . GCINC . '/compat.php';
 require ABSPATH . GCINC . '/load.php';
 
 // Check for the required PHP version and for the MySQL extension or a database drop-in.
@@ -53,14 +53,13 @@ require_once ABSPATH . GCINC . '/plugin.php';
  * configuration. In multisite, it will be overridden by default in ms-settings.php.
  *
  * @global int $blog_id
- * @since 2.0.0
  */
 global $blog_id;
 
 // Set initial default constants including GC_MEMORY_LIMIT, GC_MAX_MEMORY_LIMIT, GC_DEBUG, SCRIPT_DEBUG, GC_CONTENT_DIR and GC_CACHE.
 gc_initial_constants();
 
-// Make sure we register the shutdown handler for fatal errors as soon as possible.
+// Register the shutdown handler for fatal errors as soon as possible.
 gc_register_fatal_error_handler();
 
 // GeChiUI calculates offsets from UTC.
@@ -70,13 +69,13 @@ date_default_timezone_set( 'UTC' );
 // Standardize $_SERVER variables across setups.
 gc_fix_server_vars();
 
-// Check if we're in maintenance mode.
+// Check if the site is in maintenance mode.
 gc_maintenance();
 
 // Start loading timer.
 timer_start();
 
-// Check if we're in GC_DEBUG mode.
+// Check if GC_DEBUG mode is enabled.
 gc_debug_mode();
 
 /**
@@ -84,8 +83,6 @@ gc_debug_mode();
  *
  * This filter runs before it can be used by plugins. It is designed for non-web
  * run-times. If false is returned, advanced-cache.php will never be loaded.
- *
- * @since 4.6.0
  *
  * @param bool $enable_advanced_cache Whether to enable loading advanced-cache.php (if present).
  *                                    Default true.
@@ -104,7 +101,6 @@ if ( GC_CACHE && apply_filters( 'enable_loading_advanced_cache_dropin', true ) &
 gc_set_lang_dir();
 
 // Load early GeChiUI files.
-require ABSPATH . GCINC . '/compat.php';
 require ABSPATH . GCINC . '/class-gc-list-util.php';
 require ABSPATH . GCINC . '/formatting.php';
 require ABSPATH . GCINC . '/meta.php';
@@ -117,7 +113,6 @@ require ABSPATH . GCINC . '/pomo/mo.php';
 
 /**
  * @global gcdb $gcdb GeChiUI database abstraction object.
- * @since 0.71
  */
 global $gcdb;
 // Include the gcdb class and, if present, a db.php database drop-in.
@@ -145,13 +140,14 @@ if ( is_multisite() ) {
 
 register_shutdown_function( 'shutdown_action_hook' );
 
-// Stop most of GeChiUI from being loaded if we just want the basics.
+// Stop most of GeChiUI from being loaded if SHORTINIT is enabled.
 if ( SHORTINIT ) {
 	return false;
 }
 
 // Load the L10n library.
 require_once ABSPATH . GCINC . '/l10n.php';
+require_once ABSPATH . GCINC . '/class-gc-textdomain-registry.php';
 require_once ABSPATH . GCINC . '/class-gc-locale.php';
 require_once ABSPATH . GCINC . '/class-gc-locale-switcher.php';
 
@@ -171,13 +167,16 @@ require ABSPATH . GCINC . '/class-gc-date-query.php';
 require ABSPATH . GCINC . '/theme.php';
 require ABSPATH . GCINC . '/class-gc-theme.php';
 require ABSPATH . GCINC . '/class-gc-theme-json-schema.php';
+require ABSPATH . GCINC . '/class-gc-theme-json-data.php';
 require ABSPATH . GCINC . '/class-gc-theme-json.php';
 require ABSPATH . GCINC . '/class-gc-theme-json-resolver.php';
+require ABSPATH . GCINC . '/class-gc-duotone.php';
 require ABSPATH . GCINC . '/global-styles-and-settings.php';
 require ABSPATH . GCINC . '/class-gc-block-template.php';
 require ABSPATH . GCINC . '/block-template-utils.php';
 require ABSPATH . GCINC . '/block-template.php';
 require ABSPATH . GCINC . '/theme-templates.php';
+require ABSPATH . GCINC . '/theme-previews.php';
 require ABSPATH . GCINC . '/template.php';
 require ABSPATH . GCINC . '/https-detection.php';
 require ABSPATH . GCINC . '/https-migration.php';
@@ -186,7 +185,6 @@ require ABSPATH . GCINC . '/user.php';
 require ABSPATH . GCINC . '/class-gc-user-query.php';
 require ABSPATH . GCINC . '/class-gc-session-tokens.php';
 require ABSPATH . GCINC . '/class-gc-user-meta-session-tokens.php';
-require ABSPATH . GCINC . '/class-gc-metadata-lazyloader.php';
 require ABSPATH . GCINC . '/general-template.php';
 require ABSPATH . GCINC . '/link-template.php';
 require ABSPATH . GCINC . '/author-template.php';
@@ -232,6 +230,10 @@ require ABSPATH . GCINC . '/class-gc-oembed.php';
 require ABSPATH . GCINC . '/class-gc-oembed-controller.php';
 require ABSPATH . GCINC . '/media.php';
 require ABSPATH . GCINC . '/http.php';
+require ABSPATH . GCINC . '/html-api/class-gc-html-attribute-token.php';
+require ABSPATH . GCINC . '/html-api/class-gc-html-span.php';
+require ABSPATH . GCINC . '/html-api/class-gc-html-text-replacement.php';
+require ABSPATH . GCINC . '/html-api/class-gc-html-tag-processor.php';
 require ABSPATH . GCINC . '/class-gc-http.php';
 require ABSPATH . GCINC . '/class-gc-http-streams.php';
 require ABSPATH . GCINC . '/class-gc-http-curl.php';
@@ -256,6 +258,7 @@ require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-controller.php';
 require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-posts-controller.php';
 require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-attachments-controller.php';
 require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-global-styles-controller.php';
+require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-global-styles-revisions-controller.php';
 require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-post-types-controller.php';
 require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-post-statuses-controller.php';
 require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-revisions-controller.php';
@@ -277,6 +280,8 @@ require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-plugins-controller.
 require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-block-directory-controller.php';
 require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-edit-site-export-controller.php';
 require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-pattern-directory-controller.php';
+require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-block-patterns-controller.php';
+require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-block-pattern-categories-controller.php';
 require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-appkeys-controller.php';
 require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-site-health-controller.php';
 require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-sidebars-controller.php';
@@ -284,6 +289,7 @@ require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-widget-types-contro
 require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-widgets-controller.php';
 require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-templates-controller.php';
 require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-url-details-controller.php';
+require ABSPATH . GCINC . '/rest-api/endpoints/class-gc-rest-navigation-fallback-controller.php';
 require ABSPATH . GCINC . '/rest-api/fields/class-gc-rest-meta-fields.php';
 require ABSPATH . GCINC . '/rest-api/fields/class-gc-rest-comment-meta-fields.php';
 require ABSPATH . GCINC . '/rest-api/fields/class-gc-rest-post-meta-fields.php';
@@ -300,7 +306,6 @@ require ABSPATH . GCINC . '/sitemaps/class-gc-sitemaps-provider.php';
 require ABSPATH . GCINC . '/sitemaps/class-gc-sitemaps-registry.php';
 require ABSPATH . GCINC . '/sitemaps/class-gc-sitemaps-renderer.php';
 require ABSPATH . GCINC . '/sitemaps/class-gc-sitemaps-stylesheet.php';
-require ABSPATH . GCINC . '/sitemaps/providers/class-gc-sitemaps-sites.php';
 require ABSPATH . GCINC . '/sitemaps/providers/class-gc-sitemaps-posts.php';
 require ABSPATH . GCINC . '/sitemaps/providers/class-gc-sitemaps-taxonomies.php';
 require ABSPATH . GCINC . '/sitemaps/providers/class-gc-sitemaps-users.php';
@@ -312,7 +317,11 @@ require ABSPATH . GCINC . '/class-gc-block-styles-registry.php';
 require ABSPATH . GCINC . '/class-gc-block-type-registry.php';
 require ABSPATH . GCINC . '/class-gc-block.php';
 require ABSPATH . GCINC . '/class-gc-block-list.php';
+require ABSPATH . GCINC . '/class-gc-block-parser-block.php';
+require ABSPATH . GCINC . '/class-gc-block-parser-frame.php';
 require ABSPATH . GCINC . '/class-gc-block-parser.php';
+require ABSPATH . GCINC . '/class-gc-classic-to-block-menu-converter.php';
+require ABSPATH . GCINC . '/class-gc-navigation-fallback.php';
 require ABSPATH . GCINC . '/blocks.php';
 require ABSPATH . GCINC . '/blocks/index.php';
 require ABSPATH . GCINC . '/block-editor.php';
@@ -325,13 +334,35 @@ require ABSPATH . GCINC . '/block-supports/colors.php';
 require ABSPATH . GCINC . '/block-supports/custom-classname.php';
 require ABSPATH . GCINC . '/block-supports/dimensions.php';
 require ABSPATH . GCINC . '/block-supports/duotone.php';
+require ABSPATH . GCINC . '/block-supports/shadow.php';
 require ABSPATH . GCINC . '/block-supports/elements.php';
 require ABSPATH . GCINC . '/block-supports/generated-classname.php';
 require ABSPATH . GCINC . '/block-supports/layout.php';
+require ABSPATH . GCINC . '/block-supports/position.php';
 require ABSPATH . GCINC . '/block-supports/spacing.php';
 require ABSPATH . GCINC . '/block-supports/typography.php';
+require ABSPATH . GCINC . '/block-supports/settings.php';
+require ABSPATH . GCINC . '/navigation-fallback.php';
+require ABSPATH . GCINC . '/style-engine.php';
+require ABSPATH . GCINC . '/style-engine/class-gc-style-engine.php';
+require ABSPATH . GCINC . '/style-engine/class-gc-style-engine-css-declarations.php';
+require ABSPATH . GCINC . '/style-engine/class-gc-style-engine-css-rule.php';
+require ABSPATH . GCINC . '/style-engine/class-gc-style-engine-css-rules-store.php';
+require ABSPATH . GCINC . '/style-engine/class-gc-style-engine-processor.php';
+require ABSPATH . GCINC . '/simple_local_avatars.php'; // gongenlin 自定义头像
 
 $GLOBALS['gc_embed'] = new GC_Embed();
+
+/**
+ * GeChiUI Textdomain Registry object.
+ *
+ * Used to support just-in-time translations for manually loaded text domains.
+ *
+ * @since 6.1.0
+ *
+ * @global GC_Textdomain_Registry $gc_textdomain_registry GeChiUI Textdomain Registry.
+ */
+$GLOBALS['gc_textdomain_registry'] = new GC_Textdomain_Registry();
 
 // Load multisite-specific files.
 if ( is_multisite() ) {
@@ -387,7 +418,6 @@ if ( is_multisite() ) {
 /**
  * Fires once all must-use and network-activated plugins have loaded.
  *
- * @since 2.8.0
  */
 do_action( 'muplugins_loaded' );
 
@@ -414,7 +444,7 @@ gc_start_scraping_edited_file_errors();
 // Register the default theme directory root.
 register_theme_directory( get_theme_root() );
 
-if ( ! is_multisite() ) {
+if ( ! is_multisite() && gc_is_fatal_error_handler_enabled() ) {
 	// Handle users requesting a recovery mode link and initiating recovery mode.
 	gc_recovery_mode()->initialize();
 }
@@ -455,7 +485,6 @@ if ( GC_CACHE && function_exists( 'gc_cache_postload' ) ) {
  *
  * Pluggable functions are also available at this point in the loading order.
  *
- * @since 1.5.0
  */
 do_action( 'plugins_loaded' );
 
@@ -468,7 +497,6 @@ gc_magic_quotes();
 /**
  * Fires when comment cookies are sanitized.
  *
- * @since 2.0.11
  */
 do_action( 'sanitize_comment_cookies' );
 
@@ -476,7 +504,6 @@ do_action( 'sanitize_comment_cookies' );
  * GeChiUI Query object
  *
  * @global GC_Query $gc_the_query GeChiUI Query object.
- * @since 2.0.0
  */
 $GLOBALS['gc_the_query'] = new GC_Query();
 
@@ -485,7 +512,6 @@ $GLOBALS['gc_the_query'] = new GC_Query();
  * Use this global for GeChiUI queries
  *
  * @global GC_Query $gc_query GeChiUI Query object.
- * @since 1.5.0
  */
 $GLOBALS['gc_query'] = $GLOBALS['gc_the_query'];
 
@@ -493,7 +519,6 @@ $GLOBALS['gc_query'] = $GLOBALS['gc_the_query'];
  * Holds the GeChiUI Rewrite object for creating pretty URLs
  *
  * @global GC_Rewrite $gc_rewrite GeChiUI rewrite component.
- * @since 1.5.0
  */
 $GLOBALS['gc_rewrite'] = new GC_Rewrite();
 
@@ -501,7 +526,6 @@ $GLOBALS['gc_rewrite'] = new GC_Rewrite();
  * GeChiUI Object
  *
  * @global GC $gc Current GeChiUI environment instance.
- * @since 2.0.0
  */
 $GLOBALS['gc'] = new GC();
 
@@ -509,7 +533,6 @@ $GLOBALS['gc'] = new GC();
  * GeChiUI Widget Factory Object
  *
  * @global GC_Widget_Factory $gc_widget_factory
- * @since 2.8.0
  */
 $GLOBALS['gc_widget_factory'] = new GC_Widget_Factory();
 
@@ -517,14 +540,12 @@ $GLOBALS['gc_widget_factory'] = new GC_Widget_Factory();
  * GeChiUI User Roles
  *
  * @global GC_Roles $gc_roles GeChiUI role management object.
- * @since 2.0.0
  */
 $GLOBALS['gc_roles'] = new GC_Roles();
 
 /**
  * Fires before the theme is loaded.
  *
- * @since 2.6.0
  */
 do_action( 'setup_theme' );
 
@@ -545,14 +566,11 @@ unset( $locale_file );
  * GeChiUI Locale object for loading locale domain date and various strings.
  *
  * @global GC_Locale $gc_locale GeChiUI date and time locale object.
- * @since 2.1.0
  */
 $GLOBALS['gc_locale'] = new GC_Locale();
 
 /**
  * GeChiUI Locale Switcher object for switching locales.
- *
- * @since 4.7.0
  *
  * @global GC_Locale_Switcher $gc_locale_switcher GeChiUI locale switcher object.
  */
@@ -570,7 +588,6 @@ unset( $theme );
 /**
  * Fires after the theme is loaded.
  *
- * @since 3.0.0
  */
 do_action( 'after_setup_theme' );
 
@@ -592,7 +609,6 @@ $GLOBALS['gc']->init();
  *
  * If you wish to plug an action once GC is loaded, use the {@see 'gc_loaded'} hook below.
  *
- * @since 1.5.0
  */
 do_action( 'init' );
 
@@ -614,6 +630,5 @@ if ( is_multisite() ) {
  *
  * @link https://codex.gechiui.com/AJAX_in_Plugins
  *
- * @since 3.0.0
  */
 do_action( 'gc_loaded' );

@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/editor.js
+ * @output assets/js/editor.js
  */
 
 window.gc = window.gc || {};
@@ -10,6 +10,7 @@ window.gc = window.gc || {};
 	/**
 	 * Utility functions for the editor.
 	 *
+	 * @since 2.5.0
 	 */
 	function SwitchEditors() {
 		var tinymce, $$,
@@ -23,7 +24,7 @@ window.gc = window.gc || {};
 				/**
 				 * Handles onclick events for the Visual/Text tabs.
 				 *
-			
+				 * @since 4.3.0
 				 *
 				 * @return {void}
 				 */
@@ -43,6 +44,7 @@ window.gc = window.gc || {};
 		/**
 		 * Returns the height of the editor toolbar(s) in px.
 		 *
+		 * @since 3.9.0
 		 *
 		 * @param {Object} editor The TinyMCE editor.
 		 * @return {number} If the height is between 10 and 200 return the height,
@@ -62,6 +64,7 @@ window.gc = window.gc || {};
 		/**
 		 * Switches the editor between Visual and Text mode.
 		 *
+		 * @since 2.5.0
 		 *
 		 * @memberof switchEditors
 		 *
@@ -861,6 +864,7 @@ window.gc = window.gc || {};
 		 * Unifies whitespace.
 		 * Indents <li>, <dt> and <dd> for better readability.
 		 *
+		 * @since 2.5.0
 		 *
 		 * @memberof switchEditors
 		 *
@@ -997,6 +1001,7 @@ window.gc = window.gc || {};
 		 *
 		 * Similar to `gcautop()` in formatting.php.
 		 *
+		 * @since 2.5.0
 		 *
 		 * @memberof switchEditors
 		 *
@@ -1121,8 +1126,9 @@ window.gc = window.gc || {};
 		}
 
 		/**
-		 * Fires custom jQuery events `beforePreWpautop` and `afterPreWpautop` when jQuery is available.
+		 * Fires custom jQuery events `beforePreGcautop` and `afterPreGcautop` when jQuery is available.
 		 *
+		 * @since 2.9.0
 		 *
 		 * @memberof switchEditors
 		 *
@@ -1133,21 +1139,22 @@ window.gc = window.gc || {};
 			var obj = { o: exports, data: html, unfiltered: html };
 
 			if ( $ ) {
-				$( 'body' ).trigger( 'beforePreWpautop', [ obj ] );
+				$( 'body' ).trigger( 'beforePreGcautop', [ obj ] );
 			}
 
 			obj.data = removep( obj.data );
 
 			if ( $ ) {
-				$( 'body' ).trigger( 'afterPreWpautop', [ obj ] );
+				$( 'body' ).trigger( 'afterPreGcautop', [ obj ] );
 			}
 
 			return obj.data;
 		}
 
 		/**
-		 * Fires custom jQuery events `beforeWpautop` and `afterWpautop` when jQuery is available.
+		 * Fires custom jQuery events `beforeGcautop` and `afterGcautop` when jQuery is available.
 		 *
+		 * @since 2.9.0
 		 *
 		 * @memberof switchEditors
 		 *
@@ -1158,13 +1165,13 @@ window.gc = window.gc || {};
 			var obj = { o: exports, data: text, unfiltered: text };
 
 			if ( $ ) {
-				$( 'body' ).trigger( 'beforeWpautop', [ obj ] );
+				$( 'body' ).trigger( 'beforeGcautop', [ obj ] );
 			}
 
 			obj.data = autop( obj.data );
 
 			if ( $ ) {
-				$( 'body' ).trigger( 'afterWpautop', [ obj ] );
+				$( 'body' ).trigger( 'afterGcautop', [ obj ] );
 			}
 
 			return obj.data;
@@ -1214,6 +1221,7 @@ window.gc = window.gc || {};
 	 * Settings for both TinyMCE and Quicktags can be passed on initialization, and are "filtered"
 	 * with custom jQuery events on the document element, gc-before-tinymce-init and gc-before-quicktags-init.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param {string} id The HTML id of the textarea that is used for the editor.
 	 *                    Has to be jQuery compliant. No brackets, special chars, etc.
@@ -1269,7 +1277,7 @@ window.gc = window.gc || {};
 			var $editorTools = $( '<div class="gc-editor-tools">' );
 
 			if ( settings.mediaButtons ) {
-				var buttonText = 'Add Media';
+				var buttonText = '添加媒体';
 
 				if ( window._gcMediaViewsL10n && window._gcMediaViewsL10n.addMedia ) {
 					buttonText = window._gcMediaViewsL10n.addMedia;
@@ -1343,6 +1351,7 @@ window.gc = window.gc || {};
 	 *
 	 * Intended for use with editors that were initialized with gc.editor.initialize().
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param {string} id The HTML id of the editor textarea.
 	 */
@@ -1381,6 +1390,7 @@ window.gc = window.gc || {};
 	 *
 	 * Intended for use with editors that were initialized with gc.editor.initialize().
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param {string} id The HTML id of the editor textarea.
 	 * @return The editor content.

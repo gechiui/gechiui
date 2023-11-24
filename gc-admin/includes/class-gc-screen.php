@@ -4,14 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Core class used to implement an admin screen API.
  *
- *
  */
+#[AllowDynamicProperties]
 final class GC_Screen {
 	/**
 	 * Any action associated with the screen.
@@ -35,6 +34,7 @@ final class GC_Screen {
 	/**
 	 * The number of columns to display. Access with get_columns().
 	 *
+	 * @since 3.4.0
 	 * @var int
 	 */
 	private $columns = 0;
@@ -49,6 +49,7 @@ final class GC_Screen {
 	/**
 	 * Which admin the screen is in. network | user | site | false
 	 *
+	 * @since 3.5.0
 	 * @var string
 	 */
 	protected $in_admin;
@@ -80,7 +81,7 @@ final class GC_Screen {
 	 * `$parent_file` values of 'edit.php?post_type=page' and 'edit.php?post_type=post'
 	 * have a `$parent_base` of 'edit'.
 	 *
-	 * @var string
+	 * @var string|null
 	 */
 	public $parent_base;
 
@@ -89,7 +90,7 @@ final class GC_Screen {
 	 *
 	 * Some `$parent_file` values are 'edit.php?post_type=page', 'edit.php', and 'options-general.php'.
 	 *
-	 * @var string
+	 * @var string|null
 	 */
 	public $parent_file;
 
@@ -129,7 +130,8 @@ final class GC_Screen {
 	/**
 	 * The accessible hidden headings and text associated with the screen, if any.
 	 *
-	 * @var array
+	 * @since 4.4.0
+	 * @var string[]
 	 */
 	private $_screen_reader_content = array();
 
@@ -172,6 +174,7 @@ final class GC_Screen {
 	/**
 	 * Whether the screen is using the block editor.
 	 *
+	 * @since 5.0.0
 	 * @var bool
 	 */
 	public $is_block_editor = false;
@@ -191,6 +194,7 @@ final class GC_Screen {
 			return $hook_name;
 		}
 
+		$id              = '';
 		$post_type       = null;
 		$taxonomy        = null;
 		$in_admin        = false;
@@ -199,7 +203,7 @@ final class GC_Screen {
 
 		if ( $hook_name ) {
 			$id = $hook_name;
-		} else {
+		} elseif ( ! empty( $GLOBALS['hook_suffix'] ) ) {
 			$id = $GLOBALS['hook_suffix'];
 		}
 
@@ -208,7 +212,7 @@ final class GC_Screen {
 			$post_type = $id;
 			$id        = 'post'; // Changes later. Ends up being $base.
 		} else {
-			if ( '.php' === substr( $id, -4 ) ) {
+			if ( str_ends_with( $id, '.php' ) ) {
 				$id = substr( $id, 0, -4 );
 			}
 
@@ -219,16 +223,16 @@ final class GC_Screen {
 		}
 
 		if ( ! $post_type && $hook_name ) {
-			if ( '-network' === substr( $id, -8 ) ) {
+			if ( str_ends_with( $id, '-network' ) ) {
 				$id       = substr( $id, 0, -8 );
 				$in_admin = 'network';
-			} elseif ( '-user' === substr( $id, -5 ) ) {
+			} elseif ( str_ends_with( $id, '-user' ) ) {
 				$id       = substr( $id, 0, -5 );
 				$in_admin = 'user';
 			}
 
 			$id = sanitize_key( $id );
-			if ( 'edit-comments' !== $id && 'edit-tags' !== $id && 'edit-' === substr( $id, 0, 5 ) ) {
+			if ( 'edit-comments' !== $id && 'edit-tags' !== $id && str_starts_with( $id, 'edit-' ) ) {
 				$maybe = substr( $id, 5 );
 				if ( taxonomy_exists( $maybe ) ) {
 					$id       = 'edit-tags';
@@ -381,18 +385,20 @@ final class GC_Screen {
 	 * @see set_current_screen()
 	 *
 	 * @global GC_Screen $current_screen GeChiUI current screen object.
-	 * @global string    $taxnow
-	 * @global string    $typenow
+	 * @global string    $typenow        The post type of the current screen.
+	 * @global string    $taxnow         The taxonomy of the current screen.
 	 */
 	public function set_current_screen() {
 		global $current_screen, $taxnow, $typenow;
+
 		$current_screen = $this;
-		$taxnow         = $this->taxonomy;
 		$typenow        = $this->post_type;
+		$taxnow         = $this->taxonomy;
 
 		/**
 		 * Fires after the current screen has been set.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param GC_Screen $current_screen Current GC_Screen object.
 		 */
@@ -406,8 +412,9 @@ final class GC_Screen {
 	private function __construct() {}
 
 	/**
-	 * Indicates whether the screen is in a particular admin
+	 * Indicates whether the screen is in a particular admin.
 	 *
+	 * @since 3.5.0
 	 *
 	 * @param string $admin The admin to check against (network | user | site).
 	 *                      If empty any of the three admins will result in true.
@@ -424,6 +431,7 @@ final class GC_Screen {
 	/**
 	 * Sets or returns whether the block editor is loading on the current screen.
 	 *
+	 * @since 5.0.0
 	 *
 	 * @param bool $set Optional. Sets whether the block editor is loading on the current screen or not.
 	 * @return bool True if the block editor is being loaded, false otherwise.
@@ -448,7 +456,7 @@ final class GC_Screen {
 	}
 
 	/**
-	 * Set the parent information for the screen.
+	 * Sets the parent information for the screen.
 	 *
 	 * This is called in admin-header.php after the menu parent for the screen has been determined.
 	 *
@@ -476,8 +484,9 @@ final class GC_Screen {
 	}
 
 	/**
-	 * Remove an option from the screen.
+	 * Removes an option from the screen.
 	 *
+	 * @since 3.8.0
 	 *
 	 * @param string $option Option ID.
 	 */
@@ -486,16 +495,18 @@ final class GC_Screen {
 	}
 
 	/**
-	 * Remove all options from the screen.
+	 * Removes all options from the screen.
 	 *
+	 * @since 3.8.0
 	 */
 	public function remove_options() {
 		$this->_options = array();
 	}
 
 	/**
-	 * Get the options registered for the screen.
+	 * Gets the options registered for the screen.
 	 *
+	 * @since 3.8.0
 	 *
 	 * @return array Options with arguments.
 	 */
@@ -528,6 +539,8 @@ final class GC_Screen {
 	/**
 	 * Gets the help tabs registered for the screen.
 	 *
+	 * @since 3.4.0
+	 * @since 4.4.0 Help tabs are ordered by their priority.
 	 *
 	 * @return array Help tabs with arguments.
 	 */
@@ -558,6 +571,7 @@ final class GC_Screen {
 	/**
 	 * Gets the arguments for a help tab.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @param string $id Help Tab ID.
 	 * @return array Help tab arguments.
@@ -570,7 +584,7 @@ final class GC_Screen {
 	}
 
 	/**
-	 * Add a help tab to the contextual help for the screen.
+	 * Adds a help tab to the contextual help for the screen.
 	 *
 	 * Call this on the `load-$pagenow` hook for the relevant screen,
 	 * or fetch the `$current_screen` object, or use get_current_screen()
@@ -579,6 +593,7 @@ final class GC_Screen {
 	 * You may need to filter `$current_screen` using an if or switch statement
 	 * to prevent new help tabs from being added to ALL admin screens.
 	 *
+	 * @since 4.4.0 The `$priority` argument was added.
 	 *
 	 * @param array $args {
 	 *     Array of arguments used to display the help tab.
@@ -633,6 +648,7 @@ final class GC_Screen {
 	/**
 	 * Gets the content from a contextual help sidebar.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @return string Contents of the help sidebar.
 	 */
@@ -641,7 +657,7 @@ final class GC_Screen {
 	}
 
 	/**
-	 * Add a sidebar to the contextual help for the screen.
+	 * Adds a sidebar to the contextual help for the screen.
 	 *
 	 * Call this in template files after admin.php is loaded and before admin-header.php is loaded
 	 * to add a sidebar to the contextual help.
@@ -662,6 +678,7 @@ final class GC_Screen {
 	 * provisioned in layout_columns is returned. If the screen does not support
 	 * selecting the number of layout columns, 0 is returned.
 	 *
+	 * @since 3.4.0
 	 *
 	 * @return int Number of columns to display.
 	 */
@@ -670,20 +687,22 @@ final class GC_Screen {
 	}
 
 	/**
-	 * Get the accessible hidden headings and text used in the screen.
+	 * Gets the accessible hidden headings and text used in the screen.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @see set_screen_reader_content() For more information on the array format.
 	 *
-	 * @return array An associative array of screen reader text strings.
+	 * @return string[] An associative array of screen reader text strings.
 	 */
 	public function get_screen_reader_content() {
 		return $this->_screen_reader_content;
 	}
 
 	/**
-	 * Get a screen reader text string.
+	 * Gets a screen reader text string.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $key Screen reader text array named key.
 	 * @return string Screen reader text string.
@@ -696,8 +715,9 @@ final class GC_Screen {
 	}
 
 	/**
-	 * Add accessible hidden headings and text for the screen.
+	 * Adds accessible hidden headings and text for the screen.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param array $content {
 	 *     An associative array of screen reader text strings.
@@ -722,15 +742,16 @@ final class GC_Screen {
 	}
 
 	/**
-	 * Remove all the accessible hidden headings and text for the screen.
+	 * Removes all the accessible hidden headings and text for the screen.
 	 *
+	 * @since 4.4.0
 	 */
 	public function remove_screen_reader_content() {
 		$this->_screen_reader_content = array();
 	}
 
 	/**
-	 * Render the screen's help section.
+	 * Renders the screen's help section.
 	 *
 	 * This will trigger the deprecated filters for backward compatibility.
 	 *
@@ -780,7 +801,7 @@ final class GC_Screen {
 			/**
 			 * Filters the default legacy contextual help text.
 			 *
-		
+			 * @since 2.8.0
 			 * @deprecated 3.3.0 Use {@see get_current_screen()->add_help_tab()} or
 			 *                   {@see get_current_screen()->remove_help_tab()} instead.
 			 *
@@ -883,7 +904,6 @@ final class GC_Screen {
 		 * This hook provides back-compat for plugins using the back-compat
 		 * Filters instead of add_screen_option().
 		 *
-		 *
 		 * @param array     $empty_columns Empty array.
 		 * @param string    $screen_id     Screen ID.
 		 * @param GC_Screen $screen        Current GC_Screen instance.
@@ -940,6 +960,7 @@ final class GC_Screen {
 		/**
 		 * Filters the screen settings text displayed in the Screen Options tab.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param string    $screen_settings Screen settings.
 		 * @param GC_Screen $screen          GC_Screen object.
@@ -953,6 +974,7 @@ final class GC_Screen {
 		/**
 		 * Filters whether to show the Screen Options tab.
 		 *
+		 * @since 3.2.0
 		 *
 		 * @param bool      $show_screen Whether to show Screen Options tab.
 		 *                               Default true.
@@ -963,7 +985,7 @@ final class GC_Screen {
 	}
 
 	/**
-	 * Render the screen options tab.
+	 * Renders the screen options tab.
 	 *
 	 *
 	 * @param array $options {
@@ -987,7 +1009,7 @@ final class GC_Screen {
 
 		// Output optional wrapper.
 		if ( $options['wrap'] ) {
-            $wrapper_start = '<div id="screen-options-wrap" class="modal modal-right fade" aria-label="' . esc_attr__( '“显示选项”选项卡' ) . '"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h3>'. esc_attr__( '显示选项' ) .'</h3></div><div class="modal-body scrollable ps-container ps-theme-default">';
+			$wrapper_start = '<div id="screen-options-wrap" class="modal modal-right fade" aria-label="' . esc_attr__( '“显示选项”选项卡' ) . '"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h3>'. esc_attr__( '显示选项' ) .'</h3></div><div class="modal-body scrollable ps-container ps-theme-default">';
 			$wrapper_end   = '</div></div></div></div>';
 		}
 
@@ -1009,6 +1031,7 @@ final class GC_Screen {
 		/**
 		 * Filters whether to show the Screen Options submit button.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param bool      $show_button Whether to show Screen Options submit button.
 		 *                               Default false.
@@ -1024,8 +1047,9 @@ final class GC_Screen {
 	}
 
 	/**
-	 * Render the meta boxes preferences.
+	 * Renders the meta boxes preferences.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @global array $gc_meta_boxes
 	 */
@@ -1042,6 +1066,7 @@ final class GC_Screen {
 			<?php _e( '通过使用复选框，可以显示或隐藏某些界面元素。' ); ?>
 			<?php _e( '通过单击其标题可以展开或折叠它们，并可通过拖动其标题或单击向上和向下箭头来进行排列。' ); ?>
 		</p>
+		<div class="metabox-prefs-container">
 		<?php
 
 		meta_box_prefs( $this );
@@ -1061,13 +1086,15 @@ final class GC_Screen {
 			echo _x( '欢迎', 'Welcome panel' ) . "</label>\n";
 		}
 		?>
+		</div>
 		</fieldset>
 		<?php
 	}
 
 	/**
-	 * Render the list table columns preferences.
+	 * Renders the list table columns preferences.
 	 *
+	 * @since 4.4.0
 	 */
 	public function render_list_table_columns_preferences() {
 
@@ -1113,7 +1140,7 @@ final class GC_Screen {
 	}
 
 	/**
-	 * Render the option for number of columns on the page
+	 * Renders the option for number of columns on the page.
 	 *
 	 */
 	public function render_screen_layout() {
@@ -1144,7 +1171,7 @@ final class GC_Screen {
 	}
 
 	/**
-	 * Render the items per page option
+	 * Renders the items per page option.
 	 *
 	 */
 	public function render_per_page_options() {
@@ -1207,8 +1234,9 @@ final class GC_Screen {
 	}
 
 	/**
-	 * Render the list table view mode preferences.
+	 * Renders the list table view mode preferences.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @global string $mode List table view mode.
 	 */
@@ -1227,6 +1255,7 @@ final class GC_Screen {
 		/**
 		 * Filters the post types that have different view mode options.
 		 *
+		 * @since 4.4.0
 		 *
 		 * @param string[] $view_mode_post_types Array of post types that can change view modes.
 		 *                                       Default post types with show_ui on.
@@ -1259,8 +1288,9 @@ final class GC_Screen {
 	}
 
 	/**
-	 * Render screen reader text.
+	 * Renders screen reader text.
 	 *
+	 * @since 4.4.0
 	 *
 	 * @param string $key The screen reader text array named key.
 	 * @param string $tag Optional. The HTML tag to wrap the screen reader text. Default h2.

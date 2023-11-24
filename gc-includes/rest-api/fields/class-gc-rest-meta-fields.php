@@ -4,19 +4,19 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core class to manage meta values for an object via the REST API.
  *
- *
  */
+#[AllowDynamicProperties]
 abstract class GC_REST_Meta_Fields {
 
 	/**
 	 * Retrieves the object meta type.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return string One of 'post', 'comment', 'term', 'user', or anything
 	 *                else supported by `_get_meta_table()`.
@@ -26,6 +26,7 @@ abstract class GC_REST_Meta_Fields {
 	/**
 	 * Retrieves the object meta subtype.
 	 *
+	 * @since 4.9.8
 	 *
 	 * @return string Subtype for the meta type, or empty string if no specific subtype.
 	 */
@@ -36,6 +37,7 @@ abstract class GC_REST_Meta_Fields {
 	/**
 	 * Retrieves the object type for register_rest_field().
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return string The REST field type, such as post type name, taxonomy name, 'comment', or `user`.
 	 */
@@ -44,6 +46,7 @@ abstract class GC_REST_Meta_Fields {
 	/**
 	 * Registers the meta field.
 	 *
+	 * @since 4.7.0
 	 * @deprecated 5.6.0
 	 *
 	 * @see register_rest_field()
@@ -65,6 +68,7 @@ abstract class GC_REST_Meta_Fields {
 	/**
 	 * Retrieves the meta field value.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param int             $object_id Object ID to fetch meta for.
 	 * @param GC_REST_Request $request   Full details about the request.
@@ -109,6 +113,7 @@ abstract class GC_REST_Meta_Fields {
 	 * in the database, such as booleans. We need to cast back to the relevant
 	 * type before passing back to JSON.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param mixed           $value   Meta value to prepare.
 	 * @param GC_REST_Request $request Current request object.
@@ -126,6 +131,7 @@ abstract class GC_REST_Meta_Fields {
 	/**
 	 * Updates meta values.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array $meta      Array of meta parsed from the request.
 	 * @param int   $object_id Object ID to fetch meta for.
@@ -205,6 +211,7 @@ abstract class GC_REST_Meta_Fields {
 	/**
 	 * Deletes a meta value for an object.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param int    $object_id Object ID the field belongs to.
 	 * @param string $meta_key  Key for the field.
@@ -249,6 +256,7 @@ abstract class GC_REST_Meta_Fields {
 	 *
 	 * Alters the list of values in the database to match the list of provided values.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param int    $object_id Object ID to update.
 	 * @param string $meta_key  Key for the custom field.
@@ -347,6 +355,7 @@ abstract class GC_REST_Meta_Fields {
 	/**
 	 * Updates a meta value for an object.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param int    $object_id Object ID to update.
 	 * @param string $meta_key  Key for the custom field.
@@ -356,6 +365,16 @@ abstract class GC_REST_Meta_Fields {
 	 */
 	protected function update_meta_value( $object_id, $meta_key, $name, $value ) {
 		$meta_type = $this->get_meta_type();
+
+		// Do the exact same check for a duplicate value as in update_metadata() to avoid update_metadata() returning false.
+		$old_value = get_metadata( $meta_type, $object_id, $meta_key );
+		$subtype   = get_object_subtype( $meta_type, $object_id );
+
+		if ( is_array( $old_value ) && 1 === count( $old_value )
+			&& $this->is_meta_value_same_as_stored_value( $meta_key, $subtype, $old_value[0], $value )
+		) {
+			return true;
+		}
 
 		if ( ! current_user_can( "edit_{$meta_type}_meta", $object_id, $meta_key ) ) {
 			return new GC_Error(
@@ -367,16 +386,6 @@ abstract class GC_REST_Meta_Fields {
 					'status' => rest_authorization_required_code(),
 				)
 			);
-		}
-
-		// Do the exact same check for a duplicate value as in update_metadata() to avoid update_metadata() returning false.
-		$old_value = get_metadata( $meta_type, $object_id, $meta_key );
-		$subtype   = get_object_subtype( $meta_type, $object_id );
-
-		if ( is_array( $old_value ) && 1 === count( $old_value )
-			&& $this->is_meta_value_same_as_stored_value( $meta_key, $subtype, $old_value[0], $value )
-		) {
-			return true;
 		}
 
 		if ( ! update_metadata( $meta_type, $object_id, gc_slash( $meta_key ), gc_slash( $value ) ) ) {
@@ -397,6 +406,7 @@ abstract class GC_REST_Meta_Fields {
 	/**
 	 * Checks if the user provided value is equivalent to a stored value for the given meta key.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param string $meta_key     The meta key being checked.
 	 * @param string $subtype      The object subtype.
@@ -419,6 +429,7 @@ abstract class GC_REST_Meta_Fields {
 	/**
 	 * Retrieves all the registered meta fields.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Registered fields.
 	 */
@@ -490,6 +501,7 @@ abstract class GC_REST_Meta_Fields {
 	/**
 	 * Retrieves the object's meta schema, conforming to JSON Schema.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Field schema data.
 	 */
@@ -520,6 +532,7 @@ abstract class GC_REST_Meta_Fields {
 	 * Default preparation for meta fields. Override by passing the
 	 * `prepare_callback` in your `show_in_rest` options.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param mixed           $value   Meta value from the database.
 	 * @param GC_REST_Request $request Request object.
@@ -547,6 +560,7 @@ abstract class GC_REST_Meta_Fields {
 	/**
 	 * Check the 'meta' value of a request is an associative array.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param mixed           $value   The meta value submitted in the request.
 	 * @param GC_REST_Request $request Full details about the request.
@@ -569,6 +583,7 @@ abstract class GC_REST_Meta_Fields {
 	 * registered items, as the REST API will allow additional properties by
 	 * default.
 	 *
+	 * @since 5.3.0
 	 * @deprecated 5.6.0 Use rest_default_additional_properties_to_false() instead.
 	 *
 	 * @param array $schema The schema array.
@@ -583,6 +598,7 @@ abstract class GC_REST_Meta_Fields {
 	/**
 	 * Gets the empty value for a schema type.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @param string $type The schema type.
 	 * @return mixed

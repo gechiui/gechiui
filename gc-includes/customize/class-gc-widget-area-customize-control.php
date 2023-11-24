@@ -4,13 +4,12 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Widget Area Customize Control class.
  *
- *
+ * @since 3.9.0
  *
  * @see GC_Customize_Control
  */
@@ -56,7 +55,12 @@ class GC_Widget_Area_Customize_Control extends GC_Customize_Control {
 			<span class="reorder"><?php _e( '重新排序' ); ?></span>
 			<span class="reorder-done"><?php _e( '完成' ); ?></span>
 		</button>
-		<p class="screen-reader-text" id="<?php echo esc_attr( $id ); ?>"><?php _e( '在重排模式中，小工具列表顶部将会出现额外的控件来让您重排小工具。' ); ?></p>
+		<p class="screen-reader-text" id="<?php echo esc_attr( $id ); ?>">
+			<?php
+			/* translators: Hidden accessibility text. */
+			_e( '在重排模式中，小工具列表顶部将会出现额外的控件来让您重排小工具。' );
+			?>
+		</p>
 		<?php
 	}
 }

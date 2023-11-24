@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schemas.gc.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "core/shortcode",
+	"title": "简码",
+	"category": "widgets",
+	"description": "通过 GeChiUI 简码插入额外的自定义元素。",
+	"textdomain": "default",
+	"attributes": {
+		"text": {
+			"type": "string",
+			"source": "raw"
+		}
+	},
+	"supports": {
+		"className": false,
+		"customClassName": false,
+		"html": false
+	},
+	"editorStyle": "gc-block-shortcode-editor"
+}

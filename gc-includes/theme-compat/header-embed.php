@@ -7,7 +7,6 @@
  *
  * @package GeChiUI
  * @subpackage Theme_Compat
- *
  */
 
 if ( ! headers_sent() ) {
@@ -24,6 +23,7 @@ if ( ! headers_sent() ) {
 	/**
 	 * Prints scripts or data in the embed template head tag.
 	 *
+	 * @since 4.4.0
 	 */
 	do_action( 'embed_head' );
 	?>

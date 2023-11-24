@@ -18,9 +18,17 @@ function render_block_core_query_pagination( $attributes, $content ) {
 		return '';
 	}
 
+	$classes            = ( isset( $attributes['style']['elements']['link']['color']['text'] ) ) ? 'has-link-color' : '';
+	$wrapper_attributes = get_block_wrapper_attributes(
+		array(
+			'aria-label' => __( '分页' ),
+			'class'      => $classes,
+		)
+	);
+
 	return sprintf(
-		'<div %1$s>%2$s</div>',
-		get_block_wrapper_attributes(),
+		'<nav %1$s>%2$s</nav>',
+		$wrapper_attributes,
 		$content
 	);
 }
@@ -30,7 +38,7 @@ function render_block_core_query_pagination( $attributes, $content ) {
  */
 function register_block_core_query_pagination() {
 	register_block_type_from_metadata(
-		ABSPATH . 'assets/blocks/query-pagination',
+		__DIR__ . '/query-pagination',
 		array(
 			'render_callback' => 'render_block_core_query_pagination',
 		)

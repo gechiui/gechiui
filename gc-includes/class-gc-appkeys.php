@@ -3,45 +3,50 @@
  * GC_AppKeys class
  *
  * @package GeChiUI
- *
+ * @since   5.6.0
  */
 
 /**
- * Class for displaying, modifying, and sanitizing appkeys.
+ * Class for displaying, modifying, and sanitizing application passwords.
  *
  * @package GeChiUI
  */
+#[AllowDynamicProperties]
 class GC_AppKeys {
 
 	/**
-	 * The appkeys user meta key.
+	 * The application passwords user meta key.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @var string
 	 */
-	const USERMETA_KEY_APPLICATION_PASSWORDS = '_appkeys';
+	const USERMETA_APPKEYS = '_appkeys';
 
 	/**
-	 * The option name used to store whether appkeys is in use.
+	 * The option name used to store whether application passwords are in use.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @var string
 	 */
 	const OPTION_KEY_IN_USE = 'using_appkeys';
 
 	/**
-	 * The generated appkey length.
+	 * The generated application password length.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @var int
 	 */
 	const PW_LENGTH = 24;
 
 	/**
-	 * Checks if AppKeys are being used by the site.
+	 * Checks if application passwords are being used by the site.
 	 *
-	 * This returns true if at least one AppKey has ever been created.
+	 * This returns true if at least one application password has ever been created.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @return bool
 	 */
@@ -51,18 +56,34 @@ class GC_AppKeys {
 	}
 
 	/**
-	 * Creates a new appkey.
+	 * Creates a new application password.
 	 *
+	 * @since 5.6.0
+	 * @since 5.7.0 Returns GC_Error if application name already exists.
 	 *
 	 * @param int   $user_id  User ID.
 	 * @param array $args     {
-	 *     Arguments used to create the appkey.
+	 *     Arguments used to create the application password.
 	 *
-	 *     @type string $name   The name of the appkey.
+	 *     @type string $name   The name of the application password.
 	 *     @type string $app_id A UUID provided by the application to uniquely identify it.
 	 * }
-	 * @return array|GC_Error The first key in the array is the new password, the second is its detailed information.
-	 *                        A GC_Error instance is returned on error.
+	 * @return array|GC_Error {
+	 *     Application password details, or a GC_Error instance if an error occurs.
+	 *
+	 *     @type string $0 The unhashed generated application password.
+	 *     @type array  $1 {
+	 *         The details about the created password.
+	 *
+	 *         @type string $uuid      The unique identifier for the application password.
+	 *         @type string $app_id    A UUID provided by the application to uniquely identify it.
+	 *         @type string $name      The name of the application password.
+	 *         @type string $password  A one-way hash of the password.
+	 *         @type int    $created   Unix timestamp of when the password was created.
+	 *         @type null   $last_used Null.
+	 *         @type null   $last_ip   Null.
+	 *     }
+	 * }
 	 */
 	public static function create_new_appkey( $user_id, $args = array() ) {
 		if ( ! empty( $args['name'] ) ) {
@@ -70,11 +91,11 @@ class GC_AppKeys {
 		}
 
 		if ( empty( $args['name'] ) ) {
-			return new GC_Error( 'appkey_empty_name', __( '创建Appkey需要应用程序名称。' ), array( 'status' => 400 ) );
+			return new GC_Error( 'appkey_empty_name', __( '创建Appkey需要应用名称。' ), array( 'status' => 400 ) );
 		}
 
 		if ( self::application_name_exists_for_user( $user_id, $args['name'] ) ) {
-			return new GC_Error( 'appkey_duplicate_name', __( '每个应用程序名称都应该是唯一的。' ), array( 'status' => 409 ) );
+			return new GC_Error( 'appkey_duplicate_name', __( '每个应用名称都应该是唯一的。' ), array( 'status' => 409 ) );
 		}
 
 		$new_password    = gc_generate_password( static::PW_LENGTH, false );
@@ -104,26 +125,27 @@ class GC_AppKeys {
 		}
 
 		/**
-		 * Fires when an appkey is created.
+		 * Fires when an application password is created.
 		 *
+		 * @since 5.6.0
 		 *
 		 * @param int    $user_id      The user ID.
 		 * @param array  $new_item     {
 		 *     The details about the created password.
 		 *
-		 *     @type string $uuid      该Appkey的唯一标识符。
+		 *     @type string $uuid      The unique identifier for the application password.
 		 *     @type string $app_id    A UUID provided by the application to uniquely identify it.
-		 *     @type string $name      The name of the appkey.
+		 *     @type string $name      The name of the application password.
 		 *     @type string $password  A one-way hash of the password.
 		 *     @type int    $created   Unix timestamp of when the password was created.
 		 *     @type null   $last_used Null.
 		 *     @type null   $last_ip   Null.
 		 * }
-		 * @param string $new_password The unhashed generated appkey.
+		 * @param string $new_password The unhashed generated application password.
 		 * @param array  $args         {
-		 *     Arguments used to create the appkey.
+		 *     Arguments used to create the application password.
 		 *
-		 *     @type string $name   The name of the appkey.
+		 *     @type string $name   The name of the application password.
 		 *     @type string $app_id A UUID provided by the application to uniquely identify it.
 		 * }
 		 */
@@ -133,26 +155,27 @@ class GC_AppKeys {
 	}
 
 	/**
-	 * Gets a user's appkeys.
+	 * Gets a user's application passwords.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param int $user_id User ID.
 	 * @return array {
 	 *     The list of app passwords.
 	 *
 	 *     @type array ...$0 {
-	 *         @type string      $uuid      该Appkey的唯一标识符。
+	 *         @type string      $uuid      The unique identifier for the application password.
 	 *         @type string      $app_id    A UUID provided by the application to uniquely identify it.
-	 *         @type string      $name      The name of the appkey.
+	 *         @type string      $name      The name of the application password.
 	 *         @type string      $password  A one-way hash of the password.
 	 *         @type int         $created   Unix timestamp of when the password was created.
-	 *         @type int|null    $last_used The Unix timestamp of the GMT date the appkey was last used.
-	 *         @type string|null $last_ip   上次使用该Appkey的IP地址。
+	 *         @type int|null    $last_used The Unix timestamp of the GMT date the application password was last used.
+	 *         @type string|null $last_ip   The IP address the application password was last used by.
 	 *     }
 	 * }
 	 */
 	public static function get_user_appkeys( $user_id ) {
-		$passwords = get_user_meta( $user_id, static::USERMETA_KEY_APPLICATION_PASSWORDS, true );
+		$passwords = get_user_meta( $user_id, static::USERMETA_APPKEYS, true );
 
 		if ( ! is_array( $passwords ) ) {
 			return array();
@@ -175,12 +198,13 @@ class GC_AppKeys {
 	}
 
 	/**
-	 * Gets a user's appkey with the given UUID.
+	 * Gets a user's application password with the given UUID.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param int    $user_id User ID.
 	 * @param string $uuid    The password's UUID.
-	 * @return array|null The appkey if found, null otherwise.
+	 * @return array|null The application password if found, null otherwise.
 	 */
 	public static function get_user_appkey( $user_id, $uuid ) {
 		$passwords = static::get_user_appkeys( $user_id );
@@ -195,8 +219,9 @@ class GC_AppKeys {
 	}
 
 	/**
-	 * Checks if an appkey with the given name exists for this user.
+	 * Checks if an application password with the given name exists for this user.
 	 *
+	 * @since 5.7.0
 	 *
 	 * @param int    $user_id User ID.
 	 * @param string $name    Application name.
@@ -215,12 +240,13 @@ class GC_AppKeys {
 	}
 
 	/**
-	 * Updates an appkey.
+	 * Updates an application password.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param int    $user_id User ID.
 	 * @param string $uuid    The password's UUID.
-	 * @param array  $update  Information about the appkey to update.
+	 * @param array  $update  Information about the application password to update.
 	 * @return true|GC_Error True if successful, otherwise a GC_Error instance is returned on error.
 	 */
 	public static function update_appkey( $user_id, $uuid, $update = array() ) {
@@ -251,9 +277,9 @@ class GC_AppKeys {
 			}
 
 			/**
-			 * Fires when an appkey is updated.
+			 * Fires when an application password is updated.
 			 *
-		
+			 * @since 5.6.0
 			 *
 			 * @param int   $user_id The user ID.
 			 * @param array $item    The updated app password details.
@@ -268,8 +294,9 @@ class GC_AppKeys {
 	}
 
 	/**
-	 * Records that an appkey has been used.
+	 * Records that an application password has been used.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param int    $user_id User ID.
 	 * @param string $uuid    The password's UUID.
@@ -300,13 +327,14 @@ class GC_AppKeys {
 			return true;
 		}
 
-		// Specified AppKey not found!
+		// Specified application password not found!
 		return new GC_Error( 'appkey_not_found', __( '找不到具有该ID的Appkey。' ) );
 	}
 
 	/**
-	 * Deletes an appkey.
+	 * Deletes an application password.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param int    $user_id User ID.
 	 * @param string $uuid    The password's UUID.
@@ -325,12 +353,12 @@ class GC_AppKeys {
 				}
 
 				/**
-				 * Fires when an appkey is deleted.
+				 * Fires when an application password is deleted.
 				 *
-			
+				 * @since 5.6.0
 				 *
 				 * @param int   $user_id The user ID.
-				 * @param array $item    The data about the appkey.
+				 * @param array $item    The data about the application password.
 				 */
 				do_action( 'gc_delete_appkey', $user_id, $item );
 
@@ -342,8 +370,9 @@ class GC_AppKeys {
 	}
 
 	/**
-	 * Deletes all appkeys for the given user.
+	 * Deletes all application passwords for the given user.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param int $user_id User ID.
 	 * @return int|GC_Error The number of passwords that were deleted or a GC_Error on failure.
@@ -370,23 +399,25 @@ class GC_AppKeys {
 	}
 
 	/**
-	 * Sets a user's appkeys.
+	 * Sets a user's application passwords.
 	 *
+	 * @since 5.6.0
 	 *
 	 * @param int   $user_id   User ID.
-	 * @param array $passwords Appkeys.
+	 * @param array $passwords Application passwords.
 	 *
 	 * @return bool
 	 */
 	protected static function set_user_appkeys( $user_id, $passwords ) {
-		return update_user_meta( $user_id, static::USERMETA_KEY_APPLICATION_PASSWORDS, $passwords );
+		return update_user_meta( $user_id, static::USERMETA_APPKEYS, $passwords );
 	}
 
 	/**
 	 * Sanitizes and then splits a password into smaller chunks.
 	 *
+	 * @since 5.6.0
 	 *
-	 * @param string $raw_password The raw appkey.
+	 * @param string $raw_password The raw application password.
 	 * @return string The chunked password.
 	 */
 	public static function chunk_password( $raw_password ) {

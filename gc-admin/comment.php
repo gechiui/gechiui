@@ -122,12 +122,6 @@ switch ( $action ) {
 		$nonce_action  = ( 'approve' === $action ) ? 'approve-comment_' : 'delete-comment_';
 		$nonce_action .= $comment_id;
 
-		?>
-	<div class="wrap">
-
-	<h1><?php echo esc_html( $title ); ?></h1>
-
-		<?php
 		switch ( $action ) {
 			case 'spam':
 				$caution_msg = __( '您将标记以下评论为垃圾评论：' );
@@ -146,6 +140,7 @@ switch ( $action ) {
 				$button      = __( '批准评论' );
 				break;
 		}
+		add_settings_error( 'general', 'message', $caution_msg, 'warning' );
 
 		if ( '0' !== $comment->comment_approved ) { // If not unapproved.
 			$message = '';
@@ -161,11 +156,13 @@ switch ( $action ) {
 					break;
 			}
 			if ( $message ) {
-				echo '<div id="message" class="notice notice-info"><p>' . $message . '</p></div>';
+				add_settings_error( 'general', 'message', $message, 'primary' );
 			}
 		}
+
 		?>
-<div id="message" class="notice notice-warning"><p><strong><?php _e( '注意：' ); ?></strong> <?php echo $caution_msg; ?></p></div>
+	<div class="wrap">
+		<div class="page-header"><h2 class="header-title"><?php echo esc_html( $title ); ?></h2></div>
 
 <table class="form-table comment-ays">
 <tr>
@@ -220,7 +217,7 @@ switch ( $action ) {
 			/* translators: Comment date format. See https://www.php.net/manual/datetime.format.php */
 			get_comment_date( __( 'Y-m-d' ), $comment ),
 			/* translators: Comment time format. See https://www.php.net/manual/datetime.format.php */
-			get_comment_date( __( 'ag:i' ), $comment )
+			get_comment_date( __( 'H:i' ), $comment )
 		);
 		if ( 'approved' === gc_get_comment_status( $comment ) && ! empty( $comment->comment_post_ID ) ) {
 			echo '<a href="' . esc_url( get_comment_link( $comment ) ) . '">' . $submitted . '</a>';
@@ -355,7 +352,6 @@ switch ( $action ) {
 
 		/**
 		 * Filters the URI the user is redirected to after editing a comment in the admin.
-		 *
 		 *
 		 * @param string $location The URI the user will be redirected to.
 		 * @param int $comment_id The ID of the comment being edited.

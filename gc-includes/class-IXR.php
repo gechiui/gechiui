@@ -31,7 +31,6 @@
  *
  * @package IXR
  *
- *
  * @copyright  Incutio Ltd 2010 (http://www.incutio.com)
  * @version    1.7.4 7th September 2010
  * @author     Simon Willison

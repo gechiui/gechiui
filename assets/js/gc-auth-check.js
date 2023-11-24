@@ -1,7 +1,7 @@
 /**
  * Interim login dialog.
  *
- * @output gc-includes/js/gc-auth-check.js
+ * @output assets/js/gc-auth-check.js
  */
 
 ( function( $ ) {
@@ -12,6 +12,7 @@
 	/**
 	 * Shows the authentication form popup.
 	 *
+	 * @since 3.6.0
 	 * @private
 	 */
 	function show() {
@@ -23,7 +24,7 @@
 		if ( form.length ) {
 			// Add unload confirmation to counter (frame-busting) JS redirects.
 			$( window ).on( 'beforeunload.gc-auth-check', function( event ) {
-				event.originalEvent.returnValue = window.gc.i18n.__( '您的登录会话已过期，请重新登录。' );
+				event.originalEvent.returnValue = window.gc.i18n.__( '您的session会话已过期。您可以从此页面再次登录或转到登录页面。' );
 			});
 
 			frame = $( '<iframe id="gc-auth-check-frame" frameborder="0">' ).attr( 'title', noframe.text() );
@@ -89,6 +90,7 @@
 	/**
 	 * Hides the authentication form popup.
 	 *
+	 * @since 3.6.0
 	 * @private
 	 */
 	function hide() {
@@ -114,6 +116,7 @@
 	 * Set or reset the tempHidden variable used to pause showing of the modal
 	 * after a user closes it without logging in.
 	 *
+	 * @since 5.5.0
 	 * @private
 	 */
 	function setShowTimeout() {
@@ -136,6 +139,7 @@
 	 *
 	 * @ignore
 	 *
+	 * @since 3.6.0
 	 *
 	 * @param {Object} e The heartbeat-tick event that has been triggered.
 	 * @param {Object} data Response data.
@@ -147,6 +151,7 @@
 		 *
 		 * @ignore
 		 *
+		 * @since 3.6.0
 		 */
 		wrap = $( '#gc-auth-check-wrap' );
 		wrap.find( '.gc-auth-check-close' ).on( 'click', function() {

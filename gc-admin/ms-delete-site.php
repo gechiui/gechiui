@@ -10,11 +10,11 @@
 require_once __DIR__ . '/admin.php';
 
 if ( ! is_multisite() ) {
-	gc_die( __( '未启用多站点支持。' ) );
+	gc_die( __( '未启用多系统支持。' ) );
 }
 
 if ( ! current_user_can( 'delete_site' ) ) {
-	gc_die( __( '抱歉，您不能删除此站点。' ) );
+	gc_die( __( '抱歉，您不能删除此系统。' ) );
 }
 
 if ( isset( $_GET['h'] ) && '' !== $_GET['h'] && false !== get_option( 'delete_blog_hash' ) ) {
@@ -23,7 +23,7 @@ if ( isset( $_GET['h'] ) && '' !== $_GET['h'] && false !== get_option( 'delete_b
 		gc_die(
 			sprintf(
 				/* translators: %s: Network title. */
-				__( '感谢您使用%s，您的站点已被删除。祝您生活愉快，后会有期。' ),
+				__( '感谢您使用%s，您的系统已被删除。祝您生活愉快，后会有期。' ),
 				get_network()->site_name
 			)
 		);
@@ -36,13 +36,13 @@ $blog = get_site();
 $user = gc_get_current_user();
 
 // Used in the HTML title tag.
-$title       = __( '删除站点' );
+$title       = __( '删除系统' );
 $parent_file = 'tools.php';
 
 require_once ABSPATH . 'gc-admin/admin-header.php';
 
 echo '<div class="wrap">';
-echo '<h1>' . esc_html( $title ) . '</h1>';
+echo '<div class="page-header"><h2 class="header-title">' . esc_html( $title ) . '</h2></div>';
 
 if ( isset( $_POST['action'] ) && 'deleteblog' === $_POST['action'] && isset( $_POST['confirmdelete'] ) && '1' === $_POST['confirmdelete'] ) {
 	check_admin_referer( 'delete-blog' );
@@ -58,26 +58,26 @@ if ( isset( $_POST['action'] ) && 'deleteblog' === $_POST['action'] && isset( $_
 	$content = __(
 		"你好，####USERNAME####：
 
-您最近点击了‘删除站点’ 链接并填写
+您最近点击了‘删除系统’ 链接并填写
 
 表格在那一页上。
 
 
-如果你真的想删除你的网站，点击下面的链接。你不会的
+如果你真的想删除你的系统，点击下面的链接。你不会的
 
 再次被要求确认，因此只有在您绝对确定的情况下才单击此链接：
 
 ###URL_DELETE###
 
-如果您删除您的网站，请考虑在这里打开一个新的网站
+如果您删除您的系统，请考虑在这里打开一个新的系统
 
-将来的某个时候！（但请记住您当前的网站和用户名。）
+将来的某个时候！（但请记住您当前的系统和用户名。）
 
 都永远消失了。）
 
 
 
-感谢您使用该网站，
+感谢您使用该系统，
 
 全部在####SITENAME###
 
@@ -100,7 +100,7 @@ if ( isset( $_POST['action'] ) && 'deleteblog' === $_POST['action'] && isset( $_
 		get_option( 'admin_email' ),
 		sprintf(
 			/* translators: %s: Site title. */
-			__( '[%s] 删除我的站点' ),
+			__( '[%s] 删除我的系统' ),
 			gc_specialchars_decode( get_option( 'blogname' ) )
 		),
 		$content
@@ -111,7 +111,7 @@ if ( isset( $_POST['action'] ) && 'deleteblog' === $_POST['action'] && isset( $_
 	}
 	?>
 
-	<p><?php _e( '谢谢。请检查您收到的邮件来获得链接以确认此操作。您的站点在该链接被点击后才会被删除。' ); ?></p>
+	<p><?php _e( '谢谢。请检查您收到的邮件来获得链接以确认此操作。您的系统在该链接被点击后才会被删除。' ); ?></p>
 
 	<?php
 } else {
@@ -120,7 +120,7 @@ if ( isset( $_POST['action'] ) && 'deleteblog' === $_POST['action'] && isset( $_
 	<?php
 		printf(
 			/* translators: %s: Network title. */
-			__( '如果您不想再使用%s站点了，您可以通过下面的表单来删除它。当您点击<strong>“永久删除我的站点”</strong>之后，我们将发送一封确认邮件。请点击确认邮件中的链接来删除您的站点。' ),
+			__( '如果您不想再使用%s系统了，您可以通过下面的表单来删除它。当您点击<strong>“永久删除我的系统”</strong>之后，我们将发送一封确认邮件。请点击确认邮件中的链接来删除您的系统。' ),
 			get_network()->site_name
 		);
 	?>
@@ -134,12 +134,12 @@ if ( isset( $_POST['action'] ) && 'deleteblog' === $_POST['action'] && isset( $_
 		<?php
 			printf(
 				/* translators: %s: Site address. */
-				__( "我确定要永久删除我的站点，并且我了解我不能再将其恢复，同时我知晓我今后也将无法再使用%s了。" ),
+				__( "我确定要永久删除我的系统，并且我了解我不能再将其恢复，同时我知晓我今后也将无法再使用%s了。" ),
 				$blog->domain . $blog->path
 			);
 		?>
 		</strong></label></p>
-		<?php submit_button( __( '永久删除我的站点' ) ); ?>
+		<?php submit_button( __( '永久删除我的系统' ) ); ?>
 	</form>
 	<?php
 }

@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Multisite
- *
  */
 
 /** Load GeChiUI Administration Bootstrap */
@@ -23,7 +22,6 @@ if ( empty( $action ) ) {
  * This hook fires on multiple screens in the Multisite Network Admin,
  * including Users, Network Settings, and Site Settings.
  *
- *
  */
 do_action( 'gcmuadminedit' );
 
@@ -32,7 +30,6 @@ do_action( 'gcmuadminedit' );
  *
  * The dynamic portion of the hook name, `$action`, refers to the name
  * of the requested action derived from the `GET` request.
- *
  *
  */
 do_action( "network_admin_edit_{$action}" );

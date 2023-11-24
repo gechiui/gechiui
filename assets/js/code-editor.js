@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/code-editor.js
+ * @output assets/js/code-editor.js
  */
 
 if ( 'undefined' === typeof window.gc ) {
@@ -21,6 +21,7 @@ if ( 'undefined' === typeof window.gc.codeEditor ) {
 	/**
 	 * Default settings for code editor.
 	 *
+	 * @since 4.9.0
 	 * @type {object}
 	 */
 	gc.codeEditor.defaultSettings = {
@@ -263,6 +264,7 @@ if ( 'undefined' === typeof window.gc.codeEditor ) {
 	/**
 	 * Initialize Code Editor (CodeMirror) for an existing textarea.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @param {string|jQuery|Element} textarea - The HTML id, jQuery object, or DOM Element for the textarea that is used for the editor.
 	 * @param {Object}                [settings] - Settings to override defaults.

@@ -83,17 +83,16 @@ if ( 'grid' === $mode ) {
 	require_once ABSPATH . 'gc-admin/admin-header.php';
 	?>
 	<div class="wrap" id="gc-media-grid" data-search="<?php _admin_search_query(); ?>">
-		<h1 class="gc-heading-inline"><?php echo esc_html( $title ); ?></h1>
-
-		<?php
-		if ( current_user_can( 'upload_files' ) ) {
-			?>
-			<a href="<?php echo esc_url( admin_url( 'media-new.php' ) ); ?>" class="page-title-action aria-button-if-js"><?php echo esc_html_x( '添加新文件', 'file' ); ?></a>
+		<div class="page-header">
+			<h2 class="header-title"><?php echo esc_html( $title ); ?></h2>
 			<?php
-		}
-		?>
-
-		<hr class="gc-header-end">
+			if ( current_user_can( 'upload_files' ) ) {
+				?>
+				<a href="<?php echo esc_url( admin_url( 'media-new.php' ) ); ?>" class="btn btn-primary btn-tone btn-sm aria-button-if-js"><?php echo esc_html_x( '新增文件', 'file' ); ?></a>
+				<?php
+			}
+			?>
+		</div>
 
 		<div class="error hide-if-js">
 			<p>
@@ -265,33 +264,6 @@ get_current_screen()->set_screen_reader_content(
 	)
 );
 
-require_once ABSPATH . 'gc-admin/admin-header.php';
-?>
-
-<div class="wrap">
-<h1 class="gc-heading-inline"><?php echo esc_html( $title ); ?></h1>
-
-<?php
-if ( current_user_can( 'upload_files' ) ) {
-	?>
-	<a href="<?php echo esc_url( admin_url( 'media-new.php' ) ); ?>" class="page-title-action"><?php echo esc_html_x( '添加新文件', 'file' ); ?></a>
-						<?php
-}
-
-if ( isset( $_REQUEST['s'] ) && strlen( $_REQUEST['s'] ) ) {
-	echo '<span class="subtitle">';
-	printf(
-		/* translators: %s: Search query. */
-		__( '搜索结果：%s' ),
-		'<strong>' . get_search_query() . '</strong>'
-	);
-	echo '</span>';
-}
-?>
-
-<hr class="gc-header-end">
-
-<?php
 $message = '';
 if ( ! empty( $_GET['posted'] ) ) {
 	$message                = __( '媒体文件已更新。' );
@@ -371,9 +343,33 @@ if ( ! empty( $_GET['message'] ) && isset( $messages[ $_GET['message'] ] ) ) {
 }
 
 if ( ! empty( $message ) ) {
+	add_settings_error( 'general', 'settings_updated', $message, 'success' );
+}
+
+require_once ABSPATH . 'gc-admin/admin-header.php';
+?>
+
+<div class="wrap">
+<div class="page-header">
+	<h2 class="header-title"><?php echo esc_html( $title ); ?></h2>
+	<?php
+	if ( current_user_can( 'upload_files' ) ) {
+		?>
+		<a href="<?php echo esc_url( admin_url( 'media-new.php' ) ); ?>" class="btn btn-primary btn-tone btn-sm"><?php echo esc_html_x( '新增文件', 'file' ); ?></a>
+							<?php
+	}
+
+	if ( isset( $_REQUEST['s'] ) && strlen( $_REQUEST['s'] ) ) {
+		echo '<span class="subtitle">';
+		printf(
+			/* translators: %s: Search query. */
+			__( '搜索词：%s' ),
+			'<strong>' . get_search_query() . '</strong>'
+		);
+		echo '</span>';
+	}
 	?>
-<div id="message" class="updated notice is-dismissible"><p><?php echo $message; ?></p></div>
-<?php } ?>
+</div>
 
 <form id="posts-filter" method="get">
 

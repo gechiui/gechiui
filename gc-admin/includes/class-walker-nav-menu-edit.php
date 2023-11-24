@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
  */
 
 /**
  * Create HTML list of nav menu input items.
- *
- *
  *
  * @see Walker_Nav_Menu
  */
@@ -43,6 +40,7 @@ class Walker_Nav_Menu_Edit extends Walker_Nav_Menu {
 	 * Start the element output.
 	 *
 	 * @see Walker_Nav_Menu::start_el()
+	 * @since 5.9.0 Renamed `$item` to `$data_object` and `$id` to `$current_object_id`
 	 *              to match parent class for PHP 8 named parameter support.
 	 *
 	 * @global int $_gc_nav_menu_max_depth
@@ -176,8 +174,9 @@ class Walker_Nav_Menu_Edit extends Walker_Nav_Menu {
 						printf(
 							'<a class="item-edit" id="edit-%s" href="%s" aria-label="%s"><span class="screen-reader-text">%s</span></a>',
 							$item_id,
-							$edit_url,
+							esc_url( $edit_url ),
 							esc_attr__( '编辑菜单项' ),
+							/* translators: Hidden accessibility text. */
 							__( '编辑' )
 						);
 						?>
@@ -218,11 +217,17 @@ class Walker_Nav_Menu_Edit extends Walker_Nav_Menu {
 						<input type="text" id="edit-menu-item-classes-<?php echo $item_id; ?>" class="widefat code edit-menu-item-classes" name="menu-item-classes[<?php echo $item_id; ?>]" value="<?php echo esc_attr( implode( ' ', $menu_item->classes ) ); ?>" />
 					</label>
 				</p>
+				<p class="field-xfn description description-thin">
+					<label for="edit-menu-item-xfn-<?php echo $item_id; ?>">
+						<?php _e( '链接关系（XFN）' ); ?><br />
+						<input type="text" id="edit-menu-item-xfn-<?php echo $item_id; ?>" class="widefat code edit-menu-item-xfn" name="menu-item-xfn[<?php echo $item_id; ?>]" value="<?php echo esc_attr( $menu_item->xfn ); ?>" />
+					</label>
+				</p>
 				<p class="field-description description description-wide">
 					<label for="edit-menu-item-description-<?php echo $item_id; ?>">
 						<?php _e( '描述' ); ?><br />
 						<textarea id="edit-menu-item-description-<?php echo $item_id; ?>" class="widefat edit-menu-item-description" rows="3" cols="20" name="menu-item-description[<?php echo $item_id; ?>]"><?php echo esc_html( $menu_item->description ); // textarea_escaped ?></textarea>
-						<span class="description"><?php _e( '如果活动主题支持，说明将显示在菜单中。' ); ?></span>
+						<span class="description"><?php _e( '如果使用中的主题支持，此描述将在菜单中显示。' ); ?></span>
 					</label>
 				</p>
 
@@ -230,7 +235,7 @@ class Walker_Nav_Menu_Edit extends Walker_Nav_Menu {
 				/**
 				 * Fires just before the move buttons of a nav menu item in the menu editor.
 				 *
-			
+				 * @since 5.4.0
 				 *
 				 * @param string        $item_id           Menu item ID as a numeric string.
 				 * @param GC_Post       $menu_item         Menu item data object.
@@ -242,7 +247,7 @@ class Walker_Nav_Menu_Edit extends Walker_Nav_Menu {
 				?>
 
 				<fieldset class="field-move hide-if-no-js description description-wide">
-					<span class="field-move-visual-label" aria-hidden="true"><?php _e( '移动至' ); ?></span>
+					<span class="field-move-visual-label" aria-hidden="true"><?php _e( '移动' ); ?></span>
 					<button type="button" class="button-link menus-move menus-move-up" data-dir="up"><?php _e( '上一位' ); ?></button>
 					<button type="button" class="button-link menus-move menus-move-down" data-dir="down"><?php _e( '下一位' ); ?></button>
 					<button type="button" class="button-link menus-move menus-move-left" data-dir="left"></button>
@@ -255,7 +260,7 @@ class Walker_Nav_Menu_Edit extends Walker_Nav_Menu {
 						<p class="link-to-original">
 							<?php
 							/* translators: %s: Link to menu item's original object. */
-							printf( __( '原始：%s' ), '<a href="' . esc_attr( $menu_item->url ) . '">' . esc_html( $original_title ) . '</a>' );
+							printf( __( '原始：%s' ), '<a href="' . esc_url( $menu_item->url ) . '">' . esc_html( $original_title ) . '</a>' );
 							?>
 						</p>
 					<?php endif; ?>

@@ -7,7 +7,6 @@
  *
  * @author Elias Torres <elias@torrez.us>
  * @version 0.4
- *
  */
 
 /**
@@ -388,10 +387,10 @@ class AtomParser {
         return false;
     }
 
-    function xml_escape($string)
+    function xml_escape($content)
     {
              return str_replace(array('&','"',"'",'<','>'),
                 array('&amp;','&quot;','&apos;','&lt;','&gt;'),
-                $string );
+                $content );
     }
 }

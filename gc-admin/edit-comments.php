@@ -189,8 +189,8 @@ get_current_screen()->add_help_tab(
 					'<p>' . __( '评论左侧的红条提示代表着该条评论正等待您的审核。' ) . '</p>' .
 					'<p>' . __( '在<strong>作者</strong>一栏中，评论者的电子邮箱、博客URL、IP地址连同评论者的名称一并显示。点击链接即可显示发自该IP地址的所有评论。' ) . '</p>' .
 					'<p>' . __( '在<strong>评论</strong>一栏中，悬浮在任何评论上将给您批准、回复（并批准）、快速编辑、编辑、标记为垃圾、或删除该评论的选项。' ) . '</p>' .
-					'<p>' . __( '在<strong>回复至</strong>一栏中，包含三项内容。文章标题代表评论发布于何处，并链接到该文章的编辑器界面。“查看文章”链接则可查看该文章在您的网站上的实时页面。带有数字的小气泡代表该文章收到的已批准评论的数量。如果有待处理的评论，则会显示一个含有待处理评论数量的红色圆圈。单击该圆圈，则将仅显示发表于该文章的待处理评论。' ) . '</p>' .
-					'<p>' . __( '在<strong>提交于</strong>一栏中，显示了此评论被留在您的站点上的日期和时间。点击此日期/时间链接，则可前往站点上该条评论的对应位置。' ) . '</p>' .
+					'<p>' . __( '在<strong>回复至</strong>一栏中，包含三项内容。文章标题代表评论发布于何处，并链接到该文章的编辑器界面。“查看文章”链接则可查看该文章在您的系统上的实时页面。带有数字的小气泡代表该文章收到的已批准评论的数量。如果有待处理的评论，则会显示一个含有待处理评论数量的红色圆圈。单击该圆圈，则将仅显示发表于该文章的待处理评论。' ) . '</p>' .
+					'<p>' . __( '在<strong>提交于</strong>一栏中，显示了此评论被留在您的系统上的日期和时间。点击此日期/时间链接，则可前往系统上该条评论的对应位置。' ) . '</p>' .
 					'<p>' . __( '许多用户使用键盘快捷键来提高审核效率。点击右侧的链接可以了解更多。' ) . '</p>',
 	)
 );
@@ -211,27 +211,115 @@ get_current_screen()->set_screen_reader_content(
 	)
 );
 
+if ( isset( $_REQUEST['error'] ) ) {
+	$error     = (int) $_REQUEST['error'];
+	$error_msg = '';
+	switch ( $error ) {
+		case 1:
+			$message = __( '评论ID无效。' );
+			add_settings_error( 'general', 'settings_updated', $message, 'danger' );
+			break;
+		case 2:
+			$message = __( '抱歉，您不能编辑此文章的评论。' );
+			add_settings_error( 'general', 'settings_updated', $message, 'danger' );
+			break;
+	}
+}
+
+if ( isset( $_REQUEST['approved'] ) || isset( $_REQUEST['deleted'] ) || isset( $_REQUEST['trashed'] ) || isset( $_REQUEST['untrashed'] ) || isset( $_REQUEST['spammed'] ) || isset( $_REQUEST['unspammed'] ) || isset( $_REQUEST['same'] ) ) {
+	$approved  = isset( $_REQUEST['approved'] ) ? (int) $_REQUEST['approved'] : 0;
+	$deleted   = isset( $_REQUEST['deleted'] ) ? (int) $_REQUEST['deleted'] : 0;
+	$trashed   = isset( $_REQUEST['trashed'] ) ? (int) $_REQUEST['trashed'] : 0;
+	$untrashed = isset( $_REQUEST['untrashed'] ) ? (int) $_REQUEST['untrashed'] : 0;
+	$spammed   = isset( $_REQUEST['spammed'] ) ? (int) $_REQUEST['spammed'] : 0;
+	$unspammed = isset( $_REQUEST['unspammed'] ) ? (int) $_REQUEST['unspammed'] : 0;
+	$same      = isset( $_REQUEST['same'] ) ? (int) $_REQUEST['same'] : 0;
+
+	if ( $approved > 0 || $deleted > 0 || $trashed > 0 || $untrashed > 0 || $spammed > 0 || $unspammed > 0 || $same > 0 ) {
+		if ( $approved > 0 ) {
+			/* translators: %s: Number of comments. */
+			$message = sprintf( _n( '已批准%s条评论。', '已批准%s条评论。', $approved ), $approved );
+			add_settings_error( 'general', 'settings_updated', $message, 'success' );
+		}
+
+		if ( $spammed > 0 ) {
+			$ids = isset( $_REQUEST['ids'] ) ? $_REQUEST['ids'] : 0;
+			/* translators: %s: Number of comments. */
+			$message = sprintf( _n( '已标记%s条评论为垃圾评论。', '已标记%s条评论为垃圾评论。', $spammed ), $spammed ) . ' <a href="' . esc_url( gc_nonce_url( "edit-comments.php?doaction=undo&action=unspam&ids=$ids", 'bulk-comments' ) ) . '">' . __( '撤销' ) . '</a><br />';
+			add_settings_error( 'general', 'settings_updated', $message, 'success' );
+		}
+
+		if ( $unspammed > 0 ) {
+			/* translators: %s: Number of comments. */
+			$message = sprintf( _n( '已从垃圾评论中恢复%s条评论。', '已从垃圾评论中恢复%s条评论。', $unspammed ), $unspammed );
+			add_settings_error( 'general', 'settings_updated', $message, 'success' );
+		}
+
+		if ( $trashed > 0 ) {
+			$ids = isset( $_REQUEST['ids'] ) ? $_REQUEST['ids'] : 0;
+			/* translators: %s: Number of comments. */
+			$message = sprintf( _n( '已移动%s条评论到回收站。', '已移动%s条评论到回收站。', $trashed ), $trashed ) . ' <a href="' . esc_url( gc_nonce_url( "edit-comments.php?doaction=undo&action=untrash&ids=$ids", 'bulk-comments' ) ) . '">' . __( '撤销' ) . '</a><br />';
+			add_settings_error( 'general', 'settings_updated', $message, 'success' );
+		}
+
+		if ( $untrashed > 0 ) {
+			/* translators: %s: Number of comments. */
+			$message = sprintf( _n( '%s条评论已从回收站中恢复。', '%s条评论已从回收站中恢复。', $untrashed ), $untrashed );
+			add_settings_error( 'general', 'settings_updated', $message, 'success' );
+		}
+
+		if ( $deleted > 0 ) {
+			/* translators: %s: Number of comments. */
+			$message = sprintf( _n( '已永久删除%s条评论。', '已永久删除%s条评论。', $deleted ), $deleted );
+			add_settings_error( 'general', 'settings_updated', $message, 'success' );
+		}
+
+		if ( $same > 0 ) {
+			$comment = get_comment( $same );
+			if ( $comment ) {
+				switch ( $comment->comment_approved ) {
+					case '1':
+						$message = __( '此条评论已获准过了。' ) . ' <a href="' . esc_url( admin_url( "comment.php?action=editcomment&c=$same" ) ) . '">' . __( '编辑评论' ) . '</a>';
+						add_settings_error( 'general', 'settings_updated', $message, 'success' );
+						break;
+					case 'trash':
+						$message = __( '此条评论已在回收站中。' ) . ' <a href="' . esc_url( admin_url( 'edit-comments.php?comment_status=trash' ) ) . '"> ' . __( '查看回收站' ) . '</a>';
+						add_settings_error( 'general', 'settings_updated', $message, 'success' );
+						break;
+					case 'spam':
+						$message = __( '此条评论已被标记为垃圾评论。' ) . ' <a href="' . esc_url( admin_url( "comment.php?action=editcomment&c=$same" ) ) . '">' . __( '编辑评论' ) . '</a>';
+						add_settings_error( 'general', 'settings_updated', $message, 'success' );
+						break;
+				}
+			}
+		}
+	}
+}
+
 require_once ABSPATH . 'gc-admin/admin-header.php';
+
 ?>
 
 <div class="wrap">
-<h1 class="gc-heading-inline">
-<?php
-if ( $post_id ) {
-	printf(
-		/* translators: %s: Link to post. */
-		__( '《%s》上的评论' ),
-		sprintf(
-			'<a href="%1$s">%2$s</a>',
-			get_edit_post_link( $post_id ),
-			gc_html_excerpt( _draft_or_post_title( $post_id ), 50, '&hellip;' )
-		)
-	);
-} else {
-	_e( '评论' );
-}
-?>
-</h1>
+	<div class="page-header">
+		<h2 class="header-title">
+		<?php
+		if ( $post_id ) {
+			printf(
+				/* translators: %s: Link to post. */
+				__( '《%s》上的评论' ),
+				sprintf(
+					'<a href="%1$s">%2$s</a>',
+					get_edit_post_link( $post_id ),
+					gc_html_excerpt( _draft_or_post_title( $post_id ), 50, '&hellip;' )
+				)
+			);
+		} else {
+			_e( '评论' );
+		}
+		?>
+		</h2>
+	</div>
 
 <?php
 if ( $post_id ) {
@@ -250,93 +338,10 @@ if ( isset( $_REQUEST['s'] ) && strlen( $_REQUEST['s'] ) ) {
 	echo '<span class="subtitle">';
 	printf(
 		/* translators: %s: Search query. */
-		__( '搜索结果：%s' ),
+		__( '搜索词：%s' ),
 		'<strong>' . esc_html( gc_unslash( $_REQUEST['s'] ) ) . '</strong>'
 	);
 	echo '</span>';
-}
-?>
-
-<hr class="gc-header-end">
-
-<?php
-if ( isset( $_REQUEST['error'] ) ) {
-	$error     = (int) $_REQUEST['error'];
-	$error_msg = '';
-	switch ( $error ) {
-		case 1:
-			$error_msg = __( '评论ID无效。' );
-			break;
-		case 2:
-			$error_msg = __( '抱歉，您不能编辑此文章的评论。' );
-			break;
-	}
-	if ( $error_msg ) {
-		echo '<div id="moderated" class="error"><p>' . $error_msg . '</p></div>';
-	}
-}
-
-if ( isset( $_REQUEST['approved'] ) || isset( $_REQUEST['deleted'] ) || isset( $_REQUEST['trashed'] ) || isset( $_REQUEST['untrashed'] ) || isset( $_REQUEST['spammed'] ) || isset( $_REQUEST['unspammed'] ) || isset( $_REQUEST['same'] ) ) {
-	$approved  = isset( $_REQUEST['approved'] ) ? (int) $_REQUEST['approved'] : 0;
-	$deleted   = isset( $_REQUEST['deleted'] ) ? (int) $_REQUEST['deleted'] : 0;
-	$trashed   = isset( $_REQUEST['trashed'] ) ? (int) $_REQUEST['trashed'] : 0;
-	$untrashed = isset( $_REQUEST['untrashed'] ) ? (int) $_REQUEST['untrashed'] : 0;
-	$spammed   = isset( $_REQUEST['spammed'] ) ? (int) $_REQUEST['spammed'] : 0;
-	$unspammed = isset( $_REQUEST['unspammed'] ) ? (int) $_REQUEST['unspammed'] : 0;
-	$same      = isset( $_REQUEST['same'] ) ? (int) $_REQUEST['same'] : 0;
-
-	if ( $approved > 0 || $deleted > 0 || $trashed > 0 || $untrashed > 0 || $spammed > 0 || $unspammed > 0 || $same > 0 ) {
-		if ( $approved > 0 ) {
-			/* translators: %s: Number of comments. */
-			$messages[] = sprintf( _n( '已批准%s条评论。', '已批准%s条评论。', $approved ), $approved );
-		}
-
-		if ( $spammed > 0 ) {
-			$ids = isset( $_REQUEST['ids'] ) ? $_REQUEST['ids'] : 0;
-			/* translators: %s: Number of comments. */
-			$messages[] = sprintf( _n( '已标记%s条评论为垃圾评论。', '已标记%s条评论为垃圾评论。', $spammed ), $spammed ) . ' <a href="' . esc_url( gc_nonce_url( "edit-comments.php?doaction=undo&action=unspam&ids=$ids", 'bulk-comments' ) ) . '">' . __( '撤销' ) . '</a><br />';
-		}
-
-		if ( $unspammed > 0 ) {
-			/* translators: %s: Number of comments. */
-			$messages[] = sprintf( _n( '已从垃圾评论中恢复%s条评论。', '已从垃圾评论中恢复%s条评论。', $unspammed ), $unspammed );
-		}
-
-		if ( $trashed > 0 ) {
-			$ids = isset( $_REQUEST['ids'] ) ? $_REQUEST['ids'] : 0;
-			/* translators: %s: Number of comments. */
-			$messages[] = sprintf( _n( '已移动%s条评论到回收站。', '已移动%s条评论到回收站。', $trashed ), $trashed ) . ' <a href="' . esc_url( gc_nonce_url( "edit-comments.php?doaction=undo&action=untrash&ids=$ids", 'bulk-comments' ) ) . '">' . __( '撤销' ) . '</a><br />';
-		}
-
-		if ( $untrashed > 0 ) {
-			/* translators: %s: Number of comments. */
-			$messages[] = sprintf( _n( '%s条评论已从回收站中恢复。', '%s条评论已从回收站中恢复。', $untrashed ), $untrashed );
-		}
-
-		if ( $deleted > 0 ) {
-			/* translators: %s: Number of comments. */
-			$messages[] = sprintf( _n( '已永久删除%s条评论。', '已永久删除%s条评论。', $deleted ), $deleted );
-		}
-
-		if ( $same > 0 ) {
-			$comment = get_comment( $same );
-			if ( $comment ) {
-				switch ( $comment->comment_approved ) {
-					case '1':
-						$messages[] = __( '此条评论已获准过了。' ) . ' <a href="' . esc_url( admin_url( "comment.php?action=editcomment&c=$same" ) ) . '">' . __( '编辑评论' ) . '</a>';
-						break;
-					case 'trash':
-						$messages[] = __( '此条评论已在回收站中。' ) . ' <a href="' . esc_url( admin_url( 'edit-comments.php?comment_status=trash' ) ) . '"> ' . __( '查看回收站' ) . '</a>';
-						break;
-					case 'spam':
-						$messages[] = __( '此条评论已被标记为垃圾评论。' ) . ' <a href="' . esc_url( admin_url( "comment.php?action=editcomment&c=$same" ) ) . '">' . __( '编辑评论' ) . '</a>';
-						break;
-				}
-			}
-		}
-
-		echo '<div id="moderated" class="updated notice is-dismissible"><p>' . implode( "<br/>\n", $messages ) . '</p></div>';
-	}
 }
 ?>
 

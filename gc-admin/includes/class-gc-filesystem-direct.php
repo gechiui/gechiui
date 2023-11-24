@@ -9,8 +9,6 @@
 /**
  * GeChiUI Filesystem Class for direct PHP file and folder manipulation.
  *
- *
- *
  * @see GC_Filesystem_Base
  */
 class GC_Filesystem_Direct extends GC_Filesystem_Base {
@@ -303,7 +301,14 @@ class GC_Filesystem_Direct extends GC_Filesystem_Base {
 	}
 
 	/**
-	 * Moves a file.
+	 * Moves a file or directory.
+	 *
+	 * After moving files or directories, OPcache will need to be invalidated.
+	 *
+	 * If moving a directory fails, `copy_dir()` can be used for a recursive copy.
+	 *
+	 * Use `move_dir()` for moving directories with OPcache invalidation and a
+	 * fallback to `copy_dir()`.
 	 *
 	 *
 	 * @param string $source      Path to the source file.
@@ -317,12 +322,18 @@ class GC_Filesystem_Direct extends GC_Filesystem_Base {
 			return false;
 		}
 
+		if ( $overwrite && $this->exists( $destination ) && ! $this->delete( $destination, true ) ) {
+			// Can't overwrite if the destination couldn't be deleted.
+			return false;
+		}
+
 		// Try using rename first. if that fails (for example, source is read only) try copy.
 		if ( @rename( $source, $destination ) ) {
 			return true;
 		}
 
-		if ( $this->copy( $source, $destination, $overwrite ) && $this->exists( $destination ) ) {
+		// Backward compatibility: Only fall back to `::copy()` for single files.
+		if ( $this->is_file( $source ) && $this->copy( $source, $destination, $overwrite ) && $this->exists( $destination ) ) {
 			$this->delete( $source );
 
 			return true;
@@ -383,11 +394,11 @@ class GC_Filesystem_Direct extends GC_Filesystem_Base {
 	 * Checks if a file or directory exists.
 	 *
 	 *
-	 * @param string $file Path to file or directory.
-	 * @return bool Whether $file exists or not.
+	 * @param string $path Path to file or directory.
+	 * @return bool Whether $path exists or not.
 	 */
-	public function exists( $file ) {
-		return @file_exists( $file );
+	public function exists( $path ) {
+		return @file_exists( $path );
 	}
 
 	/**
@@ -427,11 +438,11 @@ class GC_Filesystem_Direct extends GC_Filesystem_Base {
 	 * Checks if a file or directory is writable.
 	 *
 	 *
-	 * @param string $file Path to file or directory.
-	 * @return bool Whether $file is writable.
+	 * @param string $path Path to file or directory.
+	 * @return bool Whether $path is writable.
 	 */
-	public function is_writable( $file ) {
-		return @is_writable( $file );
+	public function is_writable( $path ) {
+		return @is_writable( $path );
 	}
 
 	/**
@@ -557,18 +568,28 @@ class GC_Filesystem_Direct extends GC_Filesystem_Base {
 	 * @param bool   $recursive      Optional. Whether to recursively include file details in nested directories.
 	 *                               Default false.
 	 * @return array|false {
-	 *     Array of files. False if unable to list directory contents.
+	 *     Array of arrays containing file information. False if unable to list directory contents.
 	 *
-	 *     @type string $name        Name of the file or directory.
-	 *     @type string $perms       *nix representation of permissions.
-	 *     @type string $permsn      Octal representation of permissions.
-	 *     @type string $owner       Owner name or ID.
-	 *     @type int    $size        Size of file in bytes.
-	 *     @type int    $lastmodunix Last modified unix timestamp.
-	 *     @type mixed  $lastmod     Last modified month (3 letter) and day (without leading 0).
-	 *     @type int    $time        Last modified time.
-	 *     @type string $type        Type of resource. 'f' for file, 'd' for directory.
-	 *     @type mixed  $files       If a directory and `$recursive` is true, contains another array of files.
+	 *     @type array $0... {
+	 *         Array of file information. Note that some elements may not be available on all filesystems.
+	 *
+	 *         @type string           $name        Name of the file or directory.
+	 *         @type string           $perms       *nix representation of permissions.
+	 *         @type string           $permsn      Octal representation of permissions.
+	 *         @type false            $number      File number. Always false in this context.
+	 *         @type string|false     $owner       Owner name or ID, or false if not available.
+	 *         @type string|false     $group       File permissions group, or false if not available.
+	 *         @type int|string|false $size        Size of file in bytes. May be a numeric string.
+	 *                                             False if not available.
+	 *         @type int|string|false $lastmodunix Last modified unix timestamp. May be a numeric string.
+	 *                                             False if not available.
+	 *         @type string|false     $lastmod     Last modified month (3 letters) and day (without leading 0), or
+	 *                                             false if not available.
+	 *         @type string|false     $time        Last modified time, or false if not available.
+	 *         @type string           $type        Type of resource. 'f' for file, 'd' for directory, 'l' for link.
+	 *         @type array|false      $files       If a directory and `$recursive` is true, contains another array of
+	 *                                             files. False if unable to list directory contents.
+	 *     }
 	 * }
 	 */
 	public function dirlist( $path, $include_hidden = true, $recursive = false ) {
@@ -589,7 +610,8 @@ class GC_Filesystem_Direct extends GC_Filesystem_Base {
 			return false;
 		}
 
-		$ret = array();
+		$path = trailingslashit( $path );
+		$ret  = array();
 
 		while ( false !== ( $entry = $dir->read() ) ) {
 			$struc         = array();
@@ -607,20 +629,20 @@ class GC_Filesystem_Direct extends GC_Filesystem_Base {
 				continue;
 			}
 
-			$struc['perms']       = $this->gethchmod( $path . '/' . $entry );
+			$struc['perms']       = $this->gethchmod( $path . $entry );
 			$struc['permsn']      = $this->getnumchmodfromh( $struc['perms'] );
 			$struc['number']      = false;
-			$struc['owner']       = $this->owner( $path . '/' . $entry );
-			$struc['group']       = $this->group( $path . '/' . $entry );
-			$struc['size']        = $this->size( $path . '/' . $entry );
-			$struc['lastmodunix'] = $this->mtime( $path . '/' . $entry );
+			$struc['owner']       = $this->owner( $path . $entry );
+			$struc['group']       = $this->group( $path . $entry );
+			$struc['size']        = $this->size( $path . $entry );
+			$struc['lastmodunix'] = $this->mtime( $path . $entry );
 			$struc['lastmod']     = gmdate( 'M j', $struc['lastmodunix'] );
 			$struc['time']        = gmdate( 'h:i:s', $struc['lastmodunix'] );
-			$struc['type']        = $this->is_dir( $path . '/' . $entry ) ? 'd' : 'f';
+			$struc['type']        = $this->is_dir( $path . $entry ) ? 'd' : 'f';
 
 			if ( 'd' === $struc['type'] ) {
 				if ( $recursive ) {
-					$struc['files'] = $this->dirlist( $path . '/' . $struc['name'], $include_hidden, $recursive );
+					$struc['files'] = $this->dirlist( $path . $struc['name'], $include_hidden, $recursive );
 				} else {
 					$struc['files'] = array();
 				}

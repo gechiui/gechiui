@@ -114,7 +114,7 @@ switch ( $gc_list_table->current_action() ) {
 		if ( ! current_user_can( 'delete_term', $tag_ID ) ) {
 			gc_die(
 				'<h1>' . __( '您需要更高级别的权限。' ) . '</h1>' .
-				'<p>' . __( '抱歉，您不能删除此项目。' ) . '</p>',
+				'<p>' . __( '很抱歉，您不允许删除此项目。' ) . '</p>',
 				403
 			);
 		}
@@ -134,7 +134,7 @@ switch ( $gc_list_table->current_action() ) {
 		if ( ! current_user_can( $tax->cap->delete_terms ) ) {
 			gc_die(
 				'<h1>' . __( '您需要更高级别的权限。' ) . '</h1>' .
-				'<p>' . __( '抱歉，您不能删除这些项目。' ) . '</p>',
+				'<p>' . __( '很抱歉，您不允许删除这些项目。' ) . '</p>',
 				403
 			);
 		}
@@ -157,10 +157,10 @@ switch ( $gc_list_table->current_action() ) {
 		$term    = get_term( $term_id );
 
 		if ( ! $term instanceof GC_Term ) {
-			gc_die( __( '您正在试图编辑一个不存在的条目。它已被删除？' ) );
+			gc_die( __( '您试图编辑一个不存在的项目。也许它被删除了？' ) );
 		}
 
-		gc_redirect( esc_url_raw( get_edit_term_link( $term_id, $taxonomy, $post_type ) ) );
+		gc_redirect( sanitize_url( get_edit_term_link( $term_id, $taxonomy, $post_type ) ) );
 		exit;
 
 	case 'editedtag':
@@ -170,14 +170,14 @@ switch ( $gc_list_table->current_action() ) {
 		if ( ! current_user_can( 'edit_term', $tag_ID ) ) {
 			gc_die(
 				'<h1>' . __( '您需要更高级别的权限。' ) . '</h1>' .
-				'<p>' . __( '抱歉，您不能编辑此项目。' ) . '</p>',
+				'<p>' . __( '很抱歉，不允许您编辑此项目。' ) . '</p>',
 				403
 			);
 		}
 
 		$tag = get_term( $tag_ID, $taxonomy );
 		if ( ! $tag ) {
-			gc_die( __( '您正在试图编辑一个不存在的条目。它已被删除？' ) );
+			gc_die( __( '您试图编辑一个不存在的项目。也许它被删除了？' ) );
 		}
 
 		$ret = gc_update_term( $tag_ID, $taxonomy, $_POST );
@@ -220,6 +220,7 @@ if ( $location ) {
 	/**
 	 * Filters the taxonomy redirect destination URL.
 	 *
+	 * @since 4.6.0
 	 *
 	 * @param string      $location The destination URL.
 	 * @param GC_Taxonomy $tax      The taxonomy object.
@@ -246,7 +247,7 @@ if ( 'category' === $taxonomy || 'link_category' === $taxonomy || 'post_tag' ===
 	if ( 'category' === $taxonomy ) {
 		$help = '<p>' . sprintf(
 			/* translators: %s: URL to Writing Settings screen. */
-			__( '您可以使用分类来定义您站点的分区结构，并可以按不同的主题组织相关的文章。文章的默认分类为“未分类”，您可在<a href="%s">撰写设置</a>中修改它。' ),
+			__( '您可以使用分类来定义您系统的分区结构，并可以按不同的主题组织相关的文章。文章的默认分类为“未分类”，您可在<a href="%s">撰写设置</a>中修改它。' ),
 			'options-writing.php'
 		) . '</p>';
 	} elseif ( 'link_category' === $taxonomy ) {
@@ -258,7 +259,7 @@ if ( 'category' === $taxonomy || 'link_category' === $taxonomy || 'post_tag' ===
 	if ( 'link_category' === $taxonomy ) {
 		$help .= '<p>' . __( '您可以通过“批量操作”来一次删除多个链接分类，但是删除操作并不影响分类中的链接。其下链接将被自动移至默认的链接分类。' ) . '</p>';
 	} else {
-		$help .= '<p>' . __( '分类和标签的区别是什么呢？通常来说，标签是临时安排的一些关键词，用来标记文章中的关键信息（名字、题目等），而其他文章或许也会拥有这个标签；分类则是预先确定的内容分区。若将您的站点比做一本书，那么分类就是书的目录，标签则是目录中索引的术语。' ) . '</p>';
+		$help .= '<p>' . __( '分类和标签的区别是什么呢？通常来说，标签是临时安排的一些关键词，用来标记文章中的关键信息（名字、题目等），而其他文章或许也会拥有这个标签；分类则是预先确定的内容分区。若将您的系统比做一本书，那么分类就是书的目录，标签则是目录中索引的术语。' ) . '</p>';
 	}
 
 	get_current_screen()->add_help_tab(
@@ -277,11 +278,9 @@ if ( 'category' === $taxonomy || 'link_category' === $taxonomy || 'post_tag' ===
 		}
 
 		$help .= '<ul>' .
-		'<li>' . __( '<strong>名称</strong>——此项目在站点上的显示名称。' ) . '</li>';
+		'<li>' . __( '<strong>名称</strong>——此分类在系统上的显示名称。' ) . '</li>';
 
-		if ( ! global_terms_enabled() ) {
-			$help .= '<li>' . __( '<strong>别名</strong>——“别名”是在URL中使用的代号，它可以令URL更美观。别名通常使用小写字母，只能包含字母、数字和连字符。' ) . '</li>';
-		}
+		$help .= '<li>' . __( '<strong>别名</strong>——“别名”是在URL中使用的代号，它可以令URL更美观。别名通常使用小写字母，只能包含字母、数字和连字符。' ) . '</li>';
 
 		if ( 'category' === $taxonomy ) {
 			$help .= '<li>' . __( '<strong>父极分类</strong>与标签不同，它可以有层级结构。您可以有一个名为“音乐”的分类，在该分类下可以有名为“流行”和“古典”的子分类（完全可选）。要创建子分类，只需从父级分类下拉菜单中选择一个分类即可。' ) . '</li>';
@@ -307,7 +306,7 @@ if ( 'category' === $taxonomy || 'link_category' === $taxonomy || 'post_tag' ===
 	} elseif ( 'link_category' === $taxonomy ) {
 		$help .= '<p>' . __( '<a href="https://codex.gechiui.com/Links_Link_Categories_Screen">链接分类文档</a>' ) . '</p>';
 	} else {
-		$help .= '<p>' . __( '<a href="https://www.gechiui.com/support/posts-tags-screen/">标签文档</a>' ) . '</p>';
+		$help .= '<p>' . __( '<a href="https://www.gechiui.com/support/posts-tags-screen/">Tags标签文档</a>' ) . '</p>';
 	}
 
 	$help .= '<p>' . __( '<a href="https://www.gechiui.com/support/">支持</a>' ) . '</p>';
@@ -317,12 +316,15 @@ if ( 'category' === $taxonomy || 'link_category' === $taxonomy || 'post_tag' ===
 	unset( $help );
 }
 
-require_once ABSPATH . 'gc-admin/admin-header.php';
-
 // Also used by the Edit Tag form.
 require_once ABSPATH . 'gc-admin/includes/edit-tag-messages.php';
+if ( $message ) {
+	$class = ( isset( $msg ) && 5 === $msg ) ? 'danger' : 'success';
+	add_settings_error( 'general', 'settings_updated', $message, $class );
+	$_SERVER['REQUEST_URI'] = remove_query_arg( array( 'message', 'error' ), $_SERVER['REQUEST_URI'] );
+}
+require_once ABSPATH . 'gc-admin/admin-header.php';
 
-$class = ( isset( $_REQUEST['error'] ) ) ? 'error' : 'updated';
 
 if ( is_plugin_active( 'gccat2tag-importer/gccat2tag-importer.php' ) ) {
 	$import_link = admin_url( 'admin.php?import=gccat2tag' );
@@ -333,28 +335,20 @@ if ( is_plugin_active( 'gccat2tag-importer/gccat2tag-importer.php' ) ) {
 ?>
 
 <div class="wrap nosubsub">
-<h1 class="gc-heading-inline"><?php echo esc_html( $title ); ?></h1>
+<div class="page-header"><h2 class="header-title"><?php echo esc_html( $title ); ?></h2></div>
 
 <?php
 if ( isset( $_REQUEST['s'] ) && strlen( $_REQUEST['s'] ) ) {
 	echo '<span class="subtitle">';
 	printf(
 		/* translators: %s: Search query. */
-		__( '搜索结果：%s' ),
+		__( '搜索词：%s' ),
 		'<strong>' . esc_html( gc_unslash( $_REQUEST['s'] ) ) . '</strong>'
 	);
 	echo '</span>';
 }
 ?>
 
-<hr class="gc-header-end">
-
-<?php if ( $message ) : ?>
-<div id="message" class="<?php echo $class; ?> notice is-dismissible"><p><?php echo $message; ?></p></div>
-	<?php
-	$_SERVER['REQUEST_URI'] = remove_query_arg( array( 'message', 'error' ), $_SERVER['REQUEST_URI'] );
-endif;
-?>
 <div id="ajax-response"></div>
 
 <form class="search-form gc-clearfix" method="get">
@@ -380,6 +374,7 @@ if ( $can_edit_terms ) {
 		/**
 		 * Fires before the Add Category form.
 		 *
+		 * @since 2.1.0
 		 * @deprecated 3.0.0 Use {@see '{$taxonomy}_pre_add_form'} instead.
 		 *
 		 * @param object $arg Optional arguments cast to an object.
@@ -389,6 +384,7 @@ if ( $can_edit_terms ) {
 		/**
 		 * Fires before the link category form.
 		 *
+		 * @since 2.3.0
 		 * @deprecated 3.0.0 Use {@see '{$taxonomy}_pre_add_form'} instead.
 		 *
 		 * @param object $arg Optional arguments cast to an object.
@@ -398,6 +394,7 @@ if ( $can_edit_terms ) {
 		/**
 		 * Fires before the Add Tag form.
 		 *
+		 * @since 2.5.0
 		 * @deprecated 3.0.0 Use {@see '{$taxonomy}_pre_add_form'} instead.
 		 *
 		 * @param string $taxonomy The taxonomy slug.
@@ -415,6 +412,7 @@ if ( $can_edit_terms ) {
 	 *  - `category_pre_add_form`
 	 *  - `post_tag_pre_add_form`
 	 *
+	 * @since 3.0.0
 	 *
 	 * @param string $taxonomy The taxonomy slug.
 	 */
@@ -435,6 +433,7 @@ if ( $can_edit_terms ) {
 	 *  - `category_term_new_form_tag`
 	 *  - `post_tag_term_new_form_tag`
 	 *
+	 * @since 3.7.0
 	 */
 	do_action( "{$taxonomy}_term_new_form_tag" );
 	?>
@@ -447,16 +446,14 @@ if ( $can_edit_terms ) {
 
 <div class="form-field form-required term-name-wrap">
 	<label for="tag-name"><?php _ex( '名称', 'term name' ); ?></label>
-	<input name="tag-name" id="tag-name" type="text" value="" size="40" aria-required="true" />
-	<p><?php echo $tax->labels->name_field_description; ?></p>
+	<input name="tag-name" id="tag-name" type="text" value="" size="40" aria-required="true" aria-describedby="name-description" />
+	<p id="name-description"><?php echo $tax->labels->name_field_description; ?></p>
 </div>
-	<?php if ( ! global_terms_enabled() ) : ?>
 <div class="form-field term-slug-wrap">
 	<label for="tag-slug"><?php _e( '别名' ); ?></label>
-	<input name="slug" id="tag-slug" type="text" value="" size="40" />
-	<p><?php echo $tax->labels->slug_field_description; ?></p>
+	<input name="slug" id="tag-slug" type="text" value="" size="40" aria-describedby="slug-description" />
+	<p id="slug-description"><?php echo $tax->labels->slug_field_description; ?></p>
 </div>
-<?php endif; // global_terms_enabled() ?>
 	<?php if ( is_taxonomy_hierarchical( $taxonomy ) ) : ?>
 <div class="form-field term-parent-wrap">
 	<label for="parent"><?php echo esc_html( $tax->labels->parent_item ); ?></label>
@@ -474,11 +471,13 @@ if ( $can_edit_terms ) {
 		/**
 		 * Filters the taxonomy parent drop-down on the Edit Term page.
 		 *
+		 * @since 3.7.0
+		 * @since 4.2.0 Added `$context` parameter.
 		 *
 		 * @param array  $dropdown_args {
 		 *     An array of taxonomy parent drop-down arguments.
 		 *
-		 *     @type int|bool $hide_empty       Whether to hide terms not attached to any posts. Default 0|false.
+		 *     @type int|bool $hide_empty       Whether to hide terms not attached to any posts. Default 0.
 		 *     @type bool     $hide_if_empty    Whether to hide the drop-down if no terms exist. Default false.
 		 *     @type string   $taxonomy         The taxonomy slug.
 		 *     @type string   $name             Value of the name attribute to use for the drop-down select element.
@@ -492,19 +491,21 @@ if ( $can_edit_terms ) {
 		 */
 		$dropdown_args = apply_filters( 'taxonomy_parent_dropdown_args', $dropdown_args, $taxonomy, 'new' );
 
+		$dropdown_args['aria_describedby'] = 'parent-description';
+
 		gc_dropdown_categories( $dropdown_args );
 		?>
 		<?php if ( 'category' === $taxonomy ) : ?>
-		<p><?php _e( '分类和标签不同，它可以有层级关系。您可以有一个名为“音乐”的分类，在该分类下可以有名为“流行”和“古典”的子分类（完全可选）。' ); ?></p>
+		<p id="parent-description"><?php _e( '分类和标签不同，它可以有层级关系。您可以有一个名为“音乐”的分类，在该分类下可以有名为“流行”和“古典”的子分类（完全可选）。' ); ?></p>
 	<?php else : ?>
-		<p><?php echo $tax->labels->parent_field_description; ?></p>
+		<p id="parent-description"><?php echo $tax->labels->parent_field_description; ?></p>
 	<?php endif; ?>
 </div>
 	<?php endif; // is_taxonomy_hierarchical() ?>
 <div class="form-field term-description-wrap">
 	<label for="tag-description"><?php _e( '描述' ); ?></label>
-	<textarea name="description" id="tag-description" rows="5" cols="40"></textarea>
-	<p><?php echo $tax->labels->desc_field_description; ?></p>
+	<textarea name="description" id="tag-description" rows="5" cols="40" aria-describedby="description-description"></textarea>
+	<p id="description-description"><?php echo $tax->labels->desc_field_description; ?></p>
 </div>
 
 	<?php
@@ -512,6 +513,7 @@ if ( $can_edit_terms ) {
 		/**
 		 * Fires after the Add Tag form fields for non-hierarchical taxonomies.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param string $taxonomy The taxonomy slug.
 		 */
@@ -528,6 +530,7 @@ if ( $can_edit_terms ) {
 	 *  - `category_add_form_fields`
 	 *  - `post_tag_add_form_fields`
 	 *
+	 * @since 3.0.0
 	 *
 	 * @param string $taxonomy The taxonomy slug.
 	 */
@@ -542,6 +545,7 @@ if ( $can_edit_terms ) {
 		/**
 		 * Fires at the end of the Edit Category form.
 		 *
+		 * @since 2.1.0
 		 * @deprecated 3.0.0 Use {@see '{$taxonomy}_add_form'} instead.
 		 *
 		 * @param object $arg Optional arguments cast to an object.
@@ -551,6 +555,7 @@ if ( $can_edit_terms ) {
 		/**
 		 * Fires at the end of the Edit Link form.
 		 *
+		 * @since 2.3.0
 		 * @deprecated 3.0.0 Use {@see '{$taxonomy}_add_form'} instead.
 		 *
 		 * @param object $arg Optional arguments cast to an object.
@@ -577,6 +582,7 @@ if ( $can_edit_terms ) {
 	 *  - `category_add_form`
 	 *  - `post_tag_add_form`
 	 *
+	 * @since 3.0.0
 	 *
 	 * @param string $taxonomy The taxonomy slug.
 	 */
@@ -649,7 +655,7 @@ endif;
  *  - `after-category-table`
  *  - `after-post_tag-table`
  *
- *
+ * @since 3.0.0
  *
  * @param string $taxonomy The taxonomy name.
  */

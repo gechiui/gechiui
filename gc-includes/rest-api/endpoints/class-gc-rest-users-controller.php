@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core class used to manage users via the REST API.
- *
- *
  *
  * @see GC_REST_Controller
  */
@@ -19,6 +16,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Instance of a user meta fields object.
 	 *
+	 * @since 4.7.0
 	 * @var GC_REST_User_Meta_Fields
 	 */
 	protected $meta;
@@ -26,6 +24,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.7.0
 	 */
 	public function __construct() {
 		$this->namespace = 'gc/v2';
@@ -37,6 +36,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the routes for users.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @see register_rest_route()
 	 */
@@ -154,6 +154,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	 *
 	 * The value can be an integer, 'false', false, or ''.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param int|bool        $value   The value passed to the reassign parameter.
 	 * @param GC_REST_Request $request Full details about the request.
@@ -179,6 +180,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Permissions check for getting all users.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, otherwise GC_Error object.
@@ -241,6 +243,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves all users.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -319,6 +322,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 		 *
 		 * @link https://developer.gechiui.com/reference/classes/gc_user_query/
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param array           $prepared_args Array of arguments for GC_User_Query.
 		 * @param GC_REST_Request $request       The REST API request.
@@ -381,6 +385,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Get the user, if the ID is valid.
 	 *
+	 * @since 4.7.2
 	 *
 	 * @param int $id Supplied ID.
 	 * @return GC_User|GC_Error True if ID is valid, GC_Error otherwise.
@@ -411,6 +416,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to read a user.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access for the item, otherwise GC_Error object.
@@ -447,6 +453,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves a single user.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -466,6 +473,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the current user.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -491,6 +499,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access create users.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to create items, GC_Error object otherwise.
@@ -511,6 +520,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Creates a single user.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -596,6 +606,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 		/**
 		 * Fires immediately after a user is created or updated via the REST API.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_User         $user     Inserted or updated user object.
 		 * @param GC_REST_Request $request  Request object.
@@ -627,6 +638,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 		/**
 		 * Fires after a user is completely created or updated via the REST API.
 		 *
+		 * @since 5.0.0
 		 *
 		 * @param GC_User         $user     Inserted or updated user object.
 		 * @param GC_REST_Request $request  Request object.
@@ -646,6 +658,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to update a user.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to update the item, GC_Error object otherwise.
@@ -667,8 +680,10 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 
 			$request_params = array_keys( $request->get_params() );
 			sort( $request_params );
-			// If only 'id' and 'roles' are specified (we are only trying to
-			// edit roles), then only the 'promote_user' cap is required.
+			/*
+			 * If only 'id' and 'roles' are specified (we are only trying to
+			 * edit roles), then only the 'promote_user' cap is required.
+			 */
 			if ( array( 'id', 'roles' ) === $request_params ) {
 				return true;
 			}
@@ -688,6 +703,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Updates a single user.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -700,15 +716,10 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 
 		$id = $user->ID;
 
-		if ( ! $user ) {
-			return new GC_Error(
-				'rest_user_invalid_id',
-				__( '用户ID无效。' ),
-				array( 'status' => 404 )
-			);
+		$owner_id = false;
+		if ( is_string( $request['email'] ) ) {
+			$owner_id = email_exists( $request['email'] );
 		}
-
-		$owner_id = email_exists( $request['email'] );
 
 		if ( $owner_id && $owner_id !== $id ) {
 			return new GC_Error(
@@ -721,7 +732,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 		if ( ! empty( $request['username'] ) && $request['username'] !== $user->user_login ) {
 			return new GC_Error(
 				'rest_user_invalid_argument',
-				__( "用户名不能被编辑。" ),
+				__( '用户名不可编辑。' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -793,6 +804,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to update the current user.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to update the item, GC_Error object otherwise.
@@ -806,6 +818,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Updates the current user.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -819,6 +832,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access delete a user.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to delete the item, GC_Error object otherwise.
@@ -843,6 +857,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Deletes a single user.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -915,6 +930,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 		/**
 		 * Fires immediately after a user is deleted via the REST API.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_User          $user     The user data.
 		 * @param GC_REST_Response $response The response returned from the API.
@@ -928,6 +944,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to delete the current user.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to delete the item, GC_Error object otherwise.
@@ -941,6 +958,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Deletes the current user.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -954,6 +972,8 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a single user output for response.
 	 *
+	 * @since 4.7.0
+	 * @since 5.9.0 Renamed `$user` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_User         $item    User object.
 	 * @param GC_REST_Request $request Request object.
@@ -1046,11 +1066,14 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 		// Wrap the data in a response object.
 		$response = rest_ensure_response( $data );
 
-		$response->add_links( $this->prepare_links( $user ) );
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$response->add_links( $this->prepare_links( $user ) );
+		}
 
 		/**
 		 * Filters user data returned from the REST API.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_REST_Response $response The response object.
 		 * @param GC_User          $user     User object used to create response.
@@ -1062,6 +1085,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares links for the user request.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_User $user User object.
 	 * @return array Links for the given user.
@@ -1082,12 +1106,13 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a single user for creation or update.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Request object.
 	 * @return object User object.
 	 */
 	protected function prepare_item_for_database( $request ) {
-		$prepared_user = new stdClass;
+		$prepared_user = new stdClass();
 
 		$schema = $this->get_item_schema();
 
@@ -1149,6 +1174,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 		/**
 		 * Filters user data before insertion via the REST API.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param object          $prepared_user User object.
 		 * @param GC_REST_Request $request       Request object.
@@ -1159,6 +1185,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Determines if the current user is allowed to make the desired roles change.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @global GC_Roles $gc_roles GeChiUI role management object.
 	 *
@@ -1222,6 +1249,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	 *
 	 * Performs a couple of checks like edit_user() in gc-admin/includes/user.php.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string          $value   The username submitted in the request.
 	 * @param GC_REST_Request $request Full details about the request.
@@ -1258,6 +1286,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	 *
 	 * Performs a couple of checks like edit_user() in gc-admin/includes/user.php.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param string          $value   The password submitted in the request.
 	 * @param GC_REST_Request $request Full details about the request.
@@ -1275,7 +1304,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 			);
 		}
 
-		if ( false !== strpos( $password, '\\' ) ) {
+		if ( str_contains( $password, '\\' ) ) {
 			return new GC_Error(
 				'rest_user_invalid_password',
 				sprintf(
@@ -1293,6 +1322,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the user's schema, conforming to JSON Schema.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Item schema data.
 	 */
@@ -1465,6 +1495,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the query params for collections.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Collection parameters.
 	 */
@@ -1567,6 +1598,7 @@ class GC_REST_Users_Controller extends GC_REST_Controller {
 		 * collection parameter to an internal GC_User_Query parameter.  Use the
 		 * `rest_user_query` filter to set GC_User_Query arguments.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param array $query_params JSON Schema-formatted collection parameters.
 		 */

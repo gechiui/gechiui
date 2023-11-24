@@ -13,7 +13,6 @@
  */
 
 /**
- *
  * @deprecated 2.1.0 Use gc_editor()
  * @see gc_editor()
  */
@@ -26,7 +25,6 @@ function tinymce_include() {
 /**
  * Unused Admin function.
  *
- *
  * @deprecated 2.5.0
  *
  */
@@ -36,7 +34,6 @@ function documentation_link() {
 
 /**
  * Calculates the new dimensions for a downsampled image.
- *
  *
  * @deprecated 3.0.0 Use gc_constrain_dimensions()
  * @see gc_constrain_dimensions()
@@ -55,7 +52,6 @@ function gc_shrink_dimensions( $width, $height, $wmax = 128, $hmax = 96 ) {
 /**
  * Calculated the new dimensions for a downsampled image.
  *
- *
  * @deprecated 3.5.0 Use gc_constrain_dimensions()
  * @see gc_constrain_dimensions()
  *
@@ -71,17 +67,16 @@ function get_udims( $width, $height ) {
 /**
  * Legacy function used to generate the categories checklist control.
  *
- *
  * @deprecated 2.6.0 Use gc_category_checklist()
  * @see gc_category_checklist()
  *
  * @global int $post_ID
  *
- * @param int $default       Unused.
- * @param int $parent        Unused.
- * @param array $popular_ids Unused.
+ * @param int   $default_category Unused.
+ * @param int   $category_parent  Unused.
+ * @param array $popular_ids      Unused.
  */
-function dropdown_categories( $default = 0, $parent = 0, $popular_ids = array() ) {
+function dropdown_categories( $default_category = 0, $category_parent = 0, $popular_ids = array() ) {
 	_deprecated_function( __FUNCTION__, '2.6.0', 'gc_category_checklist()' );
 	global $post_ID;
 	gc_category_checklist( $post_ID );
@@ -90,15 +85,14 @@ function dropdown_categories( $default = 0, $parent = 0, $popular_ids = array() 
 /**
  * Legacy function used to generate a link categories checklist control.
  *
- *
  * @deprecated 2.6.0 Use gc_link_category_checklist()
  * @see gc_link_category_checklist()
  *
  * @global int $link_id
  *
- * @param int $default Unused.
+ * @param int $default_link_category Unused.
  */
-function dropdown_link_categories( $default = 0 ) {
+function dropdown_link_categories( $default_link_category = 0 ) {
 	_deprecated_function( __FUNCTION__, '2.6.0', 'gc_link_category_checklist()' );
 	global $link_id;
 	gc_link_category_checklist( $link_id );
@@ -106,7 +100,6 @@ function dropdown_link_categories( $default = 0 ) {
 
 /**
  * Get the real filesystem path to a file to edit within the admin.
- *
  *
  * @deprecated 2.9.0
  * @uses GC_CONTENT_DIR Full filesystem path to the gc-content directory.
@@ -123,32 +116,31 @@ function get_real_file_to_edit( $file ) {
 /**
  * Legacy function used for generating a categories drop-down control.
  *
- *
  * @deprecated 3.0.0 Use gc_dropdown_categories()
  * @see gc_dropdown_categories()
  *
- * @param int $currentcat    Optional. ID of the current category. Default 0.
- * @param int $currentparent Optional. Current parent category ID. Default 0.
- * @param int $parent        Optional. Parent ID to retrieve categories for. Default 0.
- * @param int $level         Optional. Number of levels deep to display. Default 0.
- * @param array $categories  Optional. Categories to include in the control. Default 0.
+ * @param int $current_cat     Optional. ID of the current category. Default 0.
+ * @param int $current_parent  Optional. Current parent category ID. Default 0.
+ * @param int $category_parent Optional. Parent ID to retrieve categories for. Default 0.
+ * @param int $level           Optional. Number of levels deep to display. Default 0.
+ * @param array $categories    Optional. Categories to include in the control. Default 0.
  * @return void|false Void on success, false if no categories were found.
  */
-function gc_dropdown_cats( $currentcat = 0, $currentparent = 0, $parent = 0, $level = 0, $categories = 0 ) {
+function gc_dropdown_cats( $current_cat = 0, $current_parent = 0, $category_parent = 0, $level = 0, $categories = 0 ) {
 	_deprecated_function( __FUNCTION__, '3.0.0', 'gc_dropdown_categories()' );
 	if (!$categories )
 		$categories = get_categories( array('hide_empty' => 0) );
 
 	if ( $categories ) {
 		foreach ( $categories as $category ) {
-			if ( $currentcat != $category->term_id && $parent == $category->parent) {
+			if ( $current_cat != $category->term_id && $category_parent == $category->parent) {
 				$pad = str_repeat( '&#8211; ', $level );
 				$category->name = esc_html( $category->name );
 				echo "\n\t<option value='$category->term_id'";
-				if ( $currentparent == $category->term_id )
+				if ( $current_parent == $category->term_id )
 					echo " selected='selected'";
 				echo ">$pad$category->name</option>";
-				gc_dropdown_cats( $currentcat, $currentparent, $category->term_id, $level +1, $categories );
+				gc_dropdown_cats( $current_cat, $current_parent, $category->term_id, $level +1, $categories );
 			}
 		}
 	} else {
@@ -159,7 +151,7 @@ function gc_dropdown_cats( $currentcat = 0, $currentparent = 0, $parent = 0, $le
 /**
  * Register a setting and its sanitization callback
  *
- *
+ * @since 2.7.0
  * @deprecated 3.0.0 Use register_setting()
  * @see register_setting()
  *
@@ -177,7 +169,7 @@ function add_option_update_handler( $option_group, $option_name, $sanitize_callb
 /**
  * Unregister a setting
  *
- *
+ * @since 2.7.0
  * @deprecated 3.0.0 Use unregister_setting()
  * @see unregister_setting()
  *
@@ -193,11 +185,10 @@ function remove_option_update_handler( $option_group, $option_name, $sanitize_ca
 /**
  * Determines the language to use for CodePress syntax highlighting.
  *
- *
  * @deprecated 3.0.0
  *
  * @param string $filename
-**/
+ */
 function codepress_get_lang( $filename ) {
 	_deprecated_function( __FUNCTION__, '3.0.0' );
 }
@@ -205,9 +196,8 @@ function codepress_get_lang( $filename ) {
 /**
  * Adds JavaScript required to make CodePress work on the theme/plugin file editors.
  *
- *
  * @deprecated 3.0.0
-**/
+ */
 function codepress_footer_js() {
 	_deprecated_function( __FUNCTION__, '3.0.0' );
 }
@@ -215,9 +205,8 @@ function codepress_footer_js() {
 /**
  * Determine whether to use CodePress.
  *
- *
  * @deprecated 3.0.0
-**/
+ */
 function use_codepress() {
 	_deprecated_function( __FUNCTION__, '3.0.0' );
 }
@@ -332,7 +321,6 @@ function get_nonauthor_user_ids() {
 if ( ! class_exists( 'GC_User_Search', false ) ) :
 /**
  * GeChiUI User Search class.
- *
  *
  * @deprecated 3.1.0 Use GC_User_Query
  */
@@ -461,6 +449,7 @@ class GC_User_Search {
 	/**
 	 * {@internal Missing Description}}
 	 *
+	 * @since 2.7.0
 	 * @access private
 	 * @var string
 	 */
@@ -505,6 +494,8 @@ class GC_User_Search {
 	 * Prepares the user search query (legacy).
 	 *
 	 * @access public
+	 *
+	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 */
 	public function prepare_query() {
 		global $gcdb;
@@ -542,6 +533,8 @@ class GC_User_Search {
 	 * Executes the user search query.
 	 *
 	 * @access public
+	 *
+	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 */
 	public function query() {
 		global $gcdb;
@@ -584,7 +577,7 @@ class GC_User_Search {
 			if ( $this->paging_text ) {
 				$this->paging_text = sprintf(
 					/* translators: 1: Starting number of users on the current page, 2: Ending number of users, 3: Total number of users. */
-					'<span class="displaying-num">' . __( '当前显示%1$s&#8211;%2$s条，共%3$s条' ) . '</span>%s',
+					'<span class="displaying-num">' . __( '当前显示 %1$s&#8211;%2$s 条，共 %3$s 条' ) . '</span>%s',
 					number_format_i18n( ( $this->page - 1 ) * $this->users_per_page + 1 ),
 					number_format_i18n( min( $this->page * $this->users_per_page, $this->total_users_for_query ) ),
 					number_format_i18n( $this->total_users_for_query ),
@@ -648,7 +641,6 @@ endif;
 
 /**
  * Retrieves editable posts from other users.
- *
  *
  * @deprecated 3.1.0 Use get_posts()
  * @see get_posts()
@@ -717,7 +709,6 @@ function get_others_pending($user_id) {
 /**
  * Output the QuickPress dashboard widget.
  *
- *
  * @deprecated 3.2.0 Use gc_dashboard_quick_press()
  * @see gc_dashboard_quick_press()
  */
@@ -729,7 +720,7 @@ function gc_dashboard_quick_press_output() {
 /**
  * Outputs the TinyMCE editor.
  *
- *
+ * @since 2.7.0
  * @deprecated 3.3.0 Use gc_editor()
  * @see gc_editor()
  */
@@ -786,7 +777,6 @@ function gc_quicktags() {
 /**
  * Returns the screen layout options.
  *
- *
  * @deprecated 3.3.0 GC_Screen::render_screen_layout()
  * @see GC_Screen::render_screen_layout()
  */
@@ -805,7 +795,6 @@ function screen_layout( $screen ) {
 
 /**
  * Returns the screen's per-page options.
- *
  *
  * @deprecated 3.3.0 Use GC_Screen::render_per_page_options()
  * @see GC_Screen::render_per_page_options()
@@ -826,7 +815,7 @@ function screen_options( $screen ) {
 /**
  * Renders the screen's help.
  *
- *
+ * @since 2.7.0
  * @deprecated 3.3.0 Use GC_Screen::render_screen_meta()
  * @see GC_Screen::render_screen_meta()
  */
@@ -838,7 +827,7 @@ function screen_meta( $screen ) {
 /**
  * Favorite actions were deprecated in version 3.2. Use the admin bar instead.
  *
- *
+ * @since 2.7.0
  * @deprecated 3.2.0 Use GC_Admin_Bar
  * @see GC_Admin_Bar
  */
@@ -955,7 +944,7 @@ function type_url_form_file() {
  *
  * Creates an 'Overview' help tab.
  *
- *
+ * @since 2.7.0
  * @deprecated 3.3.0 Use GC_Screen::add_help_tab()
  * @see GC_Screen::add_help_tab()
  *
@@ -974,7 +963,6 @@ function add_contextual_help( $screen, $help ) {
 
 /**
  * Get the allowed themes for the current site.
- *
  *
  * @deprecated 3.4.0 Use gc_get_themes()
  * @see gc_get_themes()
@@ -997,7 +985,6 @@ function get_allowed_themes() {
 /**
  * Retrieves a list of broken themes.
  *
- *
  * @deprecated 3.4.0 Use gc_get_themes()
  * @see gc_get_themes()
  *
@@ -1013,7 +1000,7 @@ function get_broken_themes() {
 		$broken[ $name ] = array(
 			'Name' => $name,
 			'Title' => $name,
-			'description' => $theme->errors()->get_error_message(),
+			'Description' => $theme->errors()->get_error_message(),
 		);
 	}
 	return $broken;
@@ -1021,7 +1008,6 @@ function get_broken_themes() {
 
 /**
  * Retrieves information on the current active theme.
- *
  *
  * @deprecated 3.4.0 Use gc_get_theme()
  * @see gc_get_theme()
@@ -1059,7 +1045,6 @@ function _media_button($title, $icon, $type, $id) {
 /**
  * Gets an existing post and format it for editing.
  *
- *
  * @deprecated 3.5.0 Use get_post()
  * @see get_post()
  *
@@ -1074,7 +1059,6 @@ function get_post_to_edit( $id ) {
 
 /**
  * Gets the default page information to use.
- *
  *
  * @deprecated 3.5.0 Use get_default_post_to_edit()
  * @see get_default_post_to_edit()
@@ -1091,7 +1075,6 @@ function get_default_page_to_edit() {
 
 /**
  * This was once used to create a thumbnail from an Image given a maximum side size.
- *
  *
  * @deprecated 3.5.0 Use image_resize()
  * @see image_resize()
@@ -1111,7 +1094,6 @@ function gc_create_thumbnail( $file, $max_side, $deprecated = '' ) {
  *
  * Deprecated in favor of a '管理位置' tab added to nav menus management screen.
  *
- *
  * @deprecated 3.6.0
  */
 function gc_nav_menu_locations_meta_box() {
@@ -1124,7 +1106,7 @@ function gc_nav_menu_locations_meta_box() {
  * Deprecated in favor of instantating a Core_Upgrader instance directly,
  * and calling the 'upgrade' method.
  *
- *
+ * @since 2.7.0
  * @deprecated 3.7.0 Use Core_Upgrader
  * @see Core_Upgrader
  */
@@ -1147,7 +1129,6 @@ function gc_update_core($current, $feedback = '') {
  * and calling the 'upgrade' method.
  * Unused since 2.8.0.
  *
- *
  * @deprecated 3.7.0 Use Plugin_Upgrader
  * @see Plugin_Upgrader
  */
@@ -1169,7 +1150,7 @@ function gc_update_plugin($plugin, $feedback = '') {
  * and calling the 'upgrade' method.
  * Unused since 2.8.0.
  *
- *
+ * @since 2.7.0
  * @deprecated 3.7.0 Use Theme_Upgrader
  * @see Theme_Upgrader
  */
@@ -1187,7 +1168,6 @@ function gc_update_theme($theme, $feedback = '') {
 /**
  * This was once used to display attachment links. Now it is deprecated and stubbed.
  *
- *
  * @deprecated 3.7.0
  *
  * @param int|bool $id
@@ -1199,7 +1179,7 @@ function the_attachment_links( $id = false ) {
 /**
  * Displays a screen icon.
  *
- *
+ * @since 2.7.0
  * @deprecated 3.8.0
  */
 function screen_icon() {
@@ -1209,7 +1189,6 @@ function screen_icon() {
 
 /**
  * Retrieves the screen icon (no longer used in 3.8+).
- *
  *
  * @deprecated 3.8.0
  *
@@ -1222,7 +1201,6 @@ function get_screen_icon() {
 
 /**
  * Deprecated dashboard widget controls.
- *
  *
  * @deprecated 3.8.0
  */
@@ -1238,7 +1216,7 @@ function gc_dashboard_secondary_output() {}
 /**
  * Deprecated dashboard widget controls.
  *
- *
+ * @since 2.7.0
  * @deprecated 3.8.0
  */
 function gc_dashboard_incoming_links() {}
@@ -1288,7 +1266,6 @@ function gc_dashboard_secondary_control() {}
 /**
  * Display plugins text for the GeChiUI news widget.
  *
- *
  * @deprecated 4.8.0
  *
  * @param string $rss  The RSS feed URL.
@@ -1335,7 +1312,7 @@ function gc_dashboard_plugins_output( $rss, $args = array() ) {
 			// Is this random plugin's slug already installed? If so, try again.
 			reset( $plugin_slugs );
 			foreach ( $plugin_slugs as $plugin_slug ) {
-				if ( $slug == substr( $plugin_slug, 0, strlen( $slug ) ) ) {
+				if ( str_starts_with( $plugin_slug, $slug ) ) {
 					unset( $items[$item_key] );
 					continue 2;
 				}
@@ -1346,7 +1323,7 @@ function gc_dashboard_plugins_output( $rss, $args = array() ) {
 		}
 
 		// Eliminate some common badly formed plugin descriptions.
-		while ( ( null !== $item_key = array_rand($items) ) && false !== strpos( $items[$item_key]->get_description(), 'Plugin Name:' ) )
+		while ( ( null !== $item_key = array_rand($items) ) && str_contains( $items[$item_key]->get_description(), 'Plugin Name:' ) )
 			unset($items[$item_key]);
 
 		if ( !isset($items[$item_key]) )
@@ -1370,7 +1347,6 @@ function gc_dashboard_plugins_output( $rss, $args = array() ) {
 /**
  * This was once used to move child posts to a new parent.
  *
- *
  * @deprecated 3.9.0
  * @access private
  *
@@ -1390,7 +1366,7 @@ function _relocate_children( $old_ID, $new_ID ) {
  * The function which is hooked in to handle the output of the page must check
  * that the user has the required capability as well.
  *
- *
+ * @since 2.7.0
  *
  * @deprecated 4.5.0 Use add_menu_page()
  * @see add_menu_page()
@@ -1400,18 +1376,18 @@ function _relocate_children( $old_ID, $new_ID ) {
  * @param string   $menu_title The text to be used for the menu.
  * @param string   $capability The capability required for this menu to be displayed to the user.
  * @param string   $menu_slug  The slug name to refer to this menu by (should be unique for this menu).
- * @param callable $function   Optional. The function to be called to output the content for this page.
+ * @param callable $callback   Optional. The function to be called to output the content for this page.
  * @param string   $icon_url   Optional. The URL to the icon to be used for this menu.
  * @return string The resulting page's hook_suffix.
  */
-function add_object_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $icon_url = '') {
+function add_object_page( $page_title, $menu_title, $capability, $menu_slug, $callback = '', $icon_url = '') {
 	_deprecated_function( __FUNCTION__, '4.5.0', 'add_menu_page()' );
 
 	global $_gc_last_object_menu;
 
 	$_gc_last_object_menu++;
 
-	return add_menu_page($page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, $_gc_last_object_menu);
+	return add_menu_page($page_title, $menu_title, $capability, $menu_slug, $callback, $icon_url, $_gc_last_object_menu);
 }
 
 /**
@@ -1423,7 +1399,7 @@ function add_object_page( $page_title, $menu_title, $capability, $menu_slug, $fu
  * The function which is hooked in to handle the output of the page must check
  * that the user has the required capability as well.
  *
- *
+ * @since 2.7.0
  *
  * @deprecated 4.5.0 Use add_menu_page()
  * @see add_menu_page()
@@ -1433,18 +1409,18 @@ function add_object_page( $page_title, $menu_title, $capability, $menu_slug, $fu
  * @param string   $menu_title The text to be used for the menu.
  * @param string   $capability The capability required for this menu to be displayed to the user.
  * @param string   $menu_slug  The slug name to refer to this menu by (should be unique for this menu).
- * @param callable $function   Optional. The function to be called to output the content for this page.
+ * @param callable $callback   Optional. The function to be called to output the content for this page.
  * @param string   $icon_url   Optional. The URL to the icon to be used for this menu.
  * @return string The resulting page's hook_suffix.
  */
-function add_utility_page( $page_title, $menu_title, $capability, $menu_slug, $function = '', $icon_url = '') {
+function add_utility_page( $page_title, $menu_title, $capability, $menu_slug, $callback = '', $icon_url = '') {
 	_deprecated_function( __FUNCTION__, '4.5.0', 'add_menu_page()' );
 
 	global $_gc_last_utility_menu;
 
 	$_gc_last_utility_menu++;
 
-	return add_menu_page($page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, $_gc_last_utility_menu);
+	return add_menu_page($page_title, $menu_title, $capability, $menu_slug, $callback, $icon_url, $_gc_last_utility_menu);
 }
 
 /**
@@ -1454,7 +1430,7 @@ function add_utility_page( $page_title, $menu_title, $capability, $menu_slug, $f
  *
  * Replaced with gc_page_reload_on_back_button_js() that also fixes this problem.
  *
- *
+ * @since 4.0.0
  * @deprecated 4.6.0
  *
  * @link https://core.trac.gechiui.com/ticket/35852
@@ -1474,7 +1450,6 @@ function post_form_autocomplete_off() {
 
 /**
  * Display JavaScript on the page.
- *
  *
  * @deprecated 4.9.0
  */
@@ -1498,7 +1473,6 @@ function options_permalink_add_js() {
 /**
  * Previous class for list table for privacy data export requests.
  *
- *
  * @deprecated 5.3.0
  */
 class GC_Privacy_Data_Export_Requests_Table extends GC_Privacy_Data_Export_Requests_List_Table {
@@ -1515,7 +1489,6 @@ class GC_Privacy_Data_Export_Requests_Table extends GC_Privacy_Data_Export_Reque
 
 /**
  * Previous class for list table for privacy data erasure requests.
- *
  *
  * @deprecated 5.3.0
  */
@@ -1534,10 +1507,26 @@ class GC_Privacy_Data_Removal_Requests_Table extends GC_Privacy_Data_Removal_Req
 /**
  * Was used to add options for the privacy requests screens before they were separate files.
  *
- *
+ * @since 4.9.8
  * @access private
  * @deprecated 5.3.0
  */
 function _gc_privacy_requests_screen_options() {
 	_deprecated_function( __FUNCTION__, '5.3.0' );
+}
+
+/**
+ * Was used to filter input from media_upload_form_handler() and to assign a default
+ * post_title from the file name if none supplied.
+ *
+ * @deprecated 6.0.0
+ *
+ * @param array $post       The GC_Post attachment object converted to an array.
+ * @param array $attachment An array of attachment metadata.
+ * @return array Attachment post object converted to an array.
+ */
+function image_attachment_fields_to_save( $post, $attachment ) {
+	_deprecated_function( __FUNCTION__, '6.0.0' );
+
+	return $post;
 }

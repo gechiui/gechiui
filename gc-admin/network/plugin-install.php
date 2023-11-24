@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Multisite
- *
  */
 
 if ( isset( $_GET['tab'] ) && ( 'plugin-information' === $_GET['tab'] ) ) {

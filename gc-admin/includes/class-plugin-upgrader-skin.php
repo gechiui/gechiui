@@ -4,14 +4,11 @@
  *
  * @package GeChiUI
  * @subpackage Upgrader
- *
  */
 
 /**
  * Plugin Upgrader Skin for GeChiUI Plugin Upgrades.
- *
- *
- *
+ * Moved to its own file from gc-admin/includes/class-gc-upgrader-skins.php.
  *
  * @see GC_Upgrader_Skin
  */
@@ -68,7 +65,7 @@ class Plugin_Upgrader_Skin extends GC_Upgrader_Skin {
 	}
 
 	/**
-	 * Action to perform following a single plugin update.
+	 * Performs an action following a single plugin update.
 	 *
 	 */
 	public function after() {
@@ -103,7 +100,6 @@ class Plugin_Upgrader_Skin extends GC_Upgrader_Skin {
 
 		/**
 		 * Filters the list of action links available following a single plugin update.
-		 *
 		 *
 		 * @param string[] $update_actions Array of plugin action links.
 		 * @param string   $plugin         Path to the plugin file relative to the plugins directory.

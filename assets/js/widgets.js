@@ -1,5 +1,5 @@
 /**
- * @output gc-admin/js/widgets.js
+ * @output assets/js/widgets.js
  */
 
 /* global ajaxurl, isRtl, gcWidgets */
@@ -703,7 +703,7 @@ window.gcWidgets = {
 			// have to queue this "by hand".
 			widget.find( '.widget-title' ).trigger('click');
 			// At the end of the animation, announce the widget has been added.
-			window.gc.a11y.speak( gc.i18n.__( '小工具已被加入所选的侧栏' ), 'assertive' );
+			window.gc.a11y.speak( gc.i18n.__( '小工具已添加到所选侧边栏' ), 'assertive' );
 		}, 250 );
 	},
 
@@ -748,7 +748,7 @@ $( function(){ gcWidgets.init(); } );
 /**
  * Removed in 5.5.0, needed for back-compatibility.
  *
- *
+ * @since 4.9.0
  * @deprecated 5.5.0
  *
  * @type {object}

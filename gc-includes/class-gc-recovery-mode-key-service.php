@@ -3,19 +3,21 @@
  * Error Protection API: GC_Recovery_Mode_Key_Service class
  *
  * @package GeChiUI
- *
+ * @since 5.2.0
  */
 
 /**
  * Core class used to generate and validate keys used to enter Recovery Mode.
  *
- *
+ * @since 5.2.0
  */
+#[AllowDynamicProperties]
 final class GC_Recovery_Mode_Key_Service {
 
 	/**
 	 * The option name used to store the keys.
 	 *
+	 * @since 5.2.0
 	 * @var string
 	 */
 	private $option_name = 'recovery_keys';
@@ -23,6 +25,7 @@ final class GC_Recovery_Mode_Key_Service {
 	/**
 	 * Creates a recovery mode token.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return string A random string to identify its associated key in storage.
 	 */
@@ -33,6 +36,7 @@ final class GC_Recovery_Mode_Key_Service {
 	/**
 	 * Creates a recovery mode key.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @global PasswordHash $gc_hasher
 	 *
@@ -64,6 +68,7 @@ final class GC_Recovery_Mode_Key_Service {
 		/**
 		 * Fires when a recovery mode key is generated.
 		 *
+		 * @since 5.2.0
 		 *
 		 * @param string $token The recovery data token.
 		 * @param string $key   The recovery mode key.
@@ -78,6 +83,9 @@ final class GC_Recovery_Mode_Key_Service {
 	 *
 	 * Recovery mode keys can only be used once; the key will be consumed in the process.
 	 *
+	 * @since 5.2.0
+	 *
+	 * @global PasswordHash $gc_hasher
 	 *
 	 * @param string $token The token used when generating the given key.
 	 * @param string $key   The unhashed key.
@@ -85,6 +93,7 @@ final class GC_Recovery_Mode_Key_Service {
 	 * @return true|GC_Error True on success, error object on failure.
 	 */
 	public function validate_recovery_mode_key( $token, $key, $ttl ) {
+		global $gc_hasher;
 
 		$records = $this->get_keys();
 
@@ -100,7 +109,12 @@ final class GC_Recovery_Mode_Key_Service {
 			return new GC_Error( 'invalid_recovery_key_format', __( '无效的恢复密钥格式。' ) );
 		}
 
-		if ( ! gc_check_password( $key, $record['hashed_key'] ) ) {
+		if ( empty( $gc_hasher ) ) {
+			require_once ABSPATH . GCINC . '/class-phpass.php';
+			$gc_hasher = new PasswordHash( 8, true );
+		}
+
+		if ( ! $gc_hasher->CheckPassword( $key, $record['hashed_key'] ) ) {
 			return new GC_Error( 'hash_mismatch', __( '无效的恢复密钥。' ) );
 		}
 
@@ -114,6 +128,7 @@ final class GC_Recovery_Mode_Key_Service {
 	/**
 	 * Removes expired recovery mode keys.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param int $ttl Time in seconds for the keys to be valid for.
 	 */
@@ -133,6 +148,7 @@ final class GC_Recovery_Mode_Key_Service {
 	/**
 	 * Removes a used recovery key.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param string $token The token used when generating a recovery mode key.
 	 */
@@ -152,6 +168,7 @@ final class GC_Recovery_Mode_Key_Service {
 	/**
 	 * Gets the recovery key records.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @return array Associative array of $token => $data pairs, where $data has keys 'hashed_key'
 	 *               and 'created_at'.
@@ -163,6 +180,7 @@ final class GC_Recovery_Mode_Key_Service {
 	/**
 	 * Updates the recovery key records.
 	 *
+	 * @since 5.2.0
 	 *
 	 * @param array $keys Associative array of $token => $data pairs, where $data has keys 'hashed_key'
 	 *                    and 'created_at'.

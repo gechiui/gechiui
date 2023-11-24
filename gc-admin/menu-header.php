@@ -31,14 +31,12 @@ global $menu, $submenu, $parent_file, $submenu_file;
  *
  * Allows plugins to move sub-menu items around.
  *
- *
  * @param string $parent_file The parent file.
  */
 $parent_file = apply_filters( 'parent_file', $parent_file );
 
 /**
  * Filters the file of an admin menu sub-menu item.
- *
  *
  * @param string $submenu_file The submenu file.
  * @param string $parent_file  The submenu item's parent file.

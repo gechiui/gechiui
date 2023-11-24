@@ -1249,12 +1249,12 @@ var charmap = (function () {
     var register$1 = function (editor) {
       editor.addButton('charmap', {
         icon: 'charmap',
-        tooltip: 'Special character',
+        tooltip: '特殊字符',
         cmd: 'mceShowCharmap'
       });
       editor.addMenuItem('charmap', {
         icon: 'charmap',
-        text: 'Special character',
+        text: '特殊字符',
         cmd: 'mceShowCharmap',
         context: 'insert'
       });

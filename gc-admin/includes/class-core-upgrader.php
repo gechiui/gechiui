@@ -4,7 +4,6 @@
  *
  * @package GeChiUI
  * @subpackage Upgrader
- *
  */
 
 /**
@@ -12,33 +11,31 @@
  *
  * It allows for GeChiUI to upgrade itself in combination with
  * the gc-admin/includes/update-core.php file.
- *
- *
- *
+ * Moved to its own file from gc-admin/includes/class-gc-upgrader.php.
  *
  * @see GC_Upgrader
  */
 class Core_Upgrader extends GC_Upgrader {
 
 	/**
-	 * Initialize the upgrade strings.
+	 * Initializes the upgrade strings.
 	 *
 	 */
 	public function upgrade_strings() {
-		$this->strings['up_to_date'] = __( 'GeChiUI已处于最新版本。' );
+		$this->strings['up_to_date'] = __( 'GeChiUI 已处于最新版本。' );
 		$this->strings['locked']     = __( '另一更新正在进行。' );
 		$this->strings['no_package'] = __( '升级包不可用。' );
 		/* translators: %s: Package URL. */
-		$this->strings['downloading_package']   = sprintf( __( '正在从 %s 下载更新…' ), '<span class="code">%s</span>' );
+		$this->strings['downloading_package']   = sprintf( __( '正在从 %s 下载更新...'  ), '<span class="code pre">%s</span>' );
 		$this->strings['unpack_package']        = __( '正在解压缩升级文件&#8230;' );
 		$this->strings['copy_failed']           = __( '无法复制文件。' );
 		$this->strings['copy_failed_space']     = __( '无法复制文件，您可能用完了磁盘空间。' );
-		$this->strings['start_rollback']        = __( '正在尝试回滚到前一版本。' );
-		$this->strings['rollback_was_required'] = __( '在更新时发生了错误，GeChiUI已回滚到您的上一版本。' );
+		$this->strings['start_rollback']        = __( '正在尝试恢复之前的版本。' );
+		$this->strings['rollback_was_required'] = __( '由于更新过程中出现错误，GeChiUI 已恢复到之前的版本。' );
 	}
 
 	/**
-	 * Upgrade GeChiUI core.
+	 * Upgrades GeChiUI core.
 	 *
 	 *
 	 * @global GC_Filesystem_Base $gc_filesystem                GeChiUI filesystem subclass.
@@ -121,8 +118,10 @@ class Core_Upgrader extends GC_Upgrader {
 
 		$download = $this->download_package( $current->packages->$to_download, true );
 
-		// Allow for signature soft-fail.
-		// WARNING: This may be removed in the future.
+		/*
+		 * Allow for signature soft-fail.
+		 * WARNING: This may be removed in the future.
+		 */
 		if ( is_gc_error( $download ) && $download->get_error_data( 'softfail-filename' ) ) {
 			// Output the failure error as a normal feedback, and not as an error:
 			/** This filter is documented in gc-admin/includes/update-core.php */
@@ -155,7 +154,7 @@ class Core_Upgrader extends GC_Upgrader {
 		if ( ! $gc_filesystem->copy( $working_dir . '/gechiui/gc-admin/includes/update-core.php', $gc_dir . 'gc-admin/includes/update-core.php', true ) ) {
 			$gc_filesystem->delete( $working_dir, true );
 			GC_Upgrader::release_lock( 'core_updater' );
-			return new GC_Error( 'copy_failed_for_update_core_file', __( '因为我们不能复制一些文件，升级未被安装。这通常是因为存在不一致的文件权限。' ), 'gc-admin/includes/update-core.php' );
+			return new GC_Error( 'copy_failed_for_update_core_file', __( '由于某些文件无法被复制，更新无法进行。此问题通常是由于文件权限不一致造成的。' ), 'gc-admin/includes/update-core.php' );
 		}
 		$gc_filesystem->chmod( $gc_dir . 'gc-admin/includes/update-core.php', FS_CHMOD_FILE );
 
@@ -179,9 +178,9 @@ class Core_Upgrader extends GC_Upgrader {
 				 * mkdir_failed__copy_dir, copy_failed__copy_dir_retry, and disk_full.
 				 * do_rollback allows for update_core() to trigger a rollback if needed.
 				 */
-				if ( false !== strpos( $error_code, 'do_rollback' ) ) {
+				if ( str_contains( $error_code, 'do_rollback' ) ) {
 					$try_rollback = true;
-				} elseif ( false !== strpos( $error_code, '__copy_dir' ) ) {
+				} elseif ( str_contains( $error_code, '__copy_dir' ) ) {
 					$try_rollback = true;
 				} elseif ( 'disk_full' === $error_code ) {
 					$try_rollback = true;
@@ -263,6 +262,7 @@ class Core_Upgrader extends GC_Upgrader {
 	/**
 	 * Determines if this GeChiUI Core version should update to an offered version or not.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @param string $offered_ver The offered version, of the format x.y.z.
 	 * @return bool True if we should update to the offered version, otherwise false.
@@ -320,7 +320,7 @@ class Core_Upgrader extends GC_Upgrader {
 			}
 
 			// Don't claim we can update on update-core.php if we have a non-critical failure logged.
-			if ( $gc_version === $failure_data['current'] && false !== strpos( $offered_ver, '.1.next.minor' ) ) {
+			if ( $gc_version === $failure_data['current'] && str_contains( $offered_ver, '.1.next.minor' ) ) {
 				return false;
 			}
 
@@ -340,7 +340,7 @@ class Core_Upgrader extends GC_Upgrader {
 			/**
 			 * Filters whether to enable automatic core updates for development versions.
 			 *
-		
+			 * @since 3.7.0
 			 *
 			 * @param bool $upgrade_dev Whether to enable automatic updates for
 			 *                          development versions.
@@ -357,7 +357,7 @@ class Core_Upgrader extends GC_Upgrader {
 			/**
 			 * Filters whether to enable minor automatic core updates.
 			 *
-		
+			 * @since 3.7.0
 			 *
 			 * @param bool $upgrade_minor Whether to enable minor automatic core updates.
 			 */
@@ -370,7 +370,7 @@ class Core_Upgrader extends GC_Upgrader {
 			/**
 			 * Filters whether to enable major automatic core updates.
 			 *
-		
+			 * @since 3.7.0
 			 *
 			 * @param bool $upgrade_major Whether to enable major automatic core updates.
 			 */
@@ -382,8 +382,9 @@ class Core_Upgrader extends GC_Upgrader {
 	}
 
 	/**
-	 * Compare the disk file checksums against the expected checksums.
+	 * Compares the disk file checksums against the expected checksums.
 	 *
+	 * @since 3.7.0
 	 *
 	 * @global string $gc_version       The GeChiUI version string.
 	 * @global string $gc_local_package Locale code of the package.
@@ -401,7 +402,7 @@ class Core_Upgrader extends GC_Upgrader {
 
 		foreach ( $checksums as $file => $checksum ) {
 			// Skip files which get updated.
-			if ( 'gc-content' === substr( $file, 0, 10 ) ) {
+			if ( str_starts_with( $file, 'gc-content' ) ) {
 				continue;
 			}
 			if ( ! file_exists( ABSPATH . $file ) || md5_file( ABSPATH . $file ) !== $checksum ) {

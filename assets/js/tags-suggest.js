@@ -1,7 +1,7 @@
 /**
  * Default settings for jQuery UI Autocomplete for use with non-hierarchical taxonomies.
  *
- * @output gc-admin/js/tags-suggest.js
+ * @output assets/js/tags-suggest.js
  */
 ( function( $ ) {
 	if ( typeof window.uiAutocompleteL10n === 'undefined' ) {
@@ -28,6 +28,7 @@
 	 * The taxonomy can be passed in a `data-gc-taxonomy` attribute on the element or
 	 * can be in `options.taxonomy`.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param {Object} options Options that are passed to UI Autocomplete. Can be used to override the default settings.
 	 * @return {Object} jQuery instance.
@@ -62,7 +63,8 @@
 				$.get( window.ajaxurl, {
 					action: 'ajax-tag-search',
 					tax: taxonomy,
-					q: term
+					q: term,
+					number: 20
 				} ).always( function() {
 					$element.removeClass( 'ui-autocomplete-loading' ); // UI fails to remove this sometimes?
 				} ).done( function( data ) {
@@ -108,7 +110,7 @@
 
 				if ( $.ui.keyCode.TAB === event.keyCode ) {
 					// Audible confirmation message when a tag has been selected.
-					window.gc.a11y.speak( gc.i18n.__( '已选取标签项目。' ), 'assertive' );
+					window.gc.a11y.speak( gc.i18n.__( 'Term selected.' ), 'assertive' );
 					event.preventDefault();
 				} else if ( $.ui.keyCode.ENTER === event.keyCode ) {
 					// If we're in the edit post Tags meta box, add the tag.

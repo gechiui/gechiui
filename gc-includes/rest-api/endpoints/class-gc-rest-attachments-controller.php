@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core controller used to access attachments via the REST API.
- *
- *
  *
  * @see GC_REST_Posts_Controller
  */
@@ -19,6 +16,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Whether the controller supports batching.
 	 *
+	 * @since 5.9.0
 	 * @var false
 	 */
 	protected $allow_batch = false;
@@ -26,6 +24,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Registers the routes for attachments.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @see register_rest_route()
 	 */
@@ -67,6 +66,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	 * Determines the allowed query_vars for a get_items() response and
 	 * prepares for GC_Query.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array           $prepared_args Optional. Array of prepared arguments. Default empty array.
 	 * @param GC_REST_Request $request       Optional. Request to prepare items for.
@@ -94,7 +94,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 
 		// Filter query clauses to include filenames.
 		if ( isset( $query_args['s'] ) ) {
-			add_filter( 'posts_clauses', '_filter_query_attachment_filenames' );
+			add_filter( 'gc_allow_query_attachment_by_filename', '__return_true' );
 		}
 
 		return $query_args;
@@ -103,6 +103,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Checks if a given request has access to create an attachment.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error Boolean true if the attachment may be created, or a GC_Error if not.
@@ -117,7 +118,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 		if ( ! current_user_can( 'upload_files' ) ) {
 			return new GC_Error(
 				'rest_cannot_create',
-				__( '抱歉，您不能在此站点上传媒体。' ),
+				__( '抱歉，您不能在此系统上传媒体。' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -137,6 +138,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Creates a single attachment.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, GC_Error object on failure.
@@ -186,6 +188,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 		/**
 		 * Fires after a single attachment is completely created or updated via the REST API.
 		 *
+		 * @since 5.0.0
 		 *
 		 * @param GC_Post         $attachment Inserted or updated attachment object.
 		 * @param GC_REST_Request $request    Request object.
@@ -196,8 +199,10 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 		gc_after_insert_post( $attachment, false, null );
 
 		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
-			// Set a custom header with the attachment_id.
-			// Used by the browser/client to resume creating image sub-sizes after a PHP fatal error.
+			/*
+			 * Set a custom header with the attachment_id.
+			 * Used by the browser/client to resume creating image sub-sizes after a PHP fatal error.
+			 */
 			header( 'X-GC-Upload-Attachment-ID: ' . $attachment_id );
 		}
 
@@ -205,8 +210,10 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 		require_once ABSPATH . 'gc-admin/includes/media.php';
 		require_once ABSPATH . 'gc-admin/includes/image.php';
 
-		// Post-process the upload (create image sub-sizes, make PDF thumbnails, etc.) and insert attachment meta.
-		// At this point the server may run out of resources and post-processing of uploaded images may fail.
+		/*
+		 * Post-process the upload (create image sub-sizes, make PDF thumbnails, etc.) and insert attachment meta.
+		 * At this point the server may run out of resources and post-processing of uploaded images may fail.
+		 */
 		gc_update_attachment_metadata( $attachment_id, gc_generate_attachment_metadata( $attachment_id, $file ) );
 
 		$response = $this->prepare_item_for_response( $attachment, $request );
@@ -220,6 +227,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Inserts the attachment post in the database. Does not update the attachment meta.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @param GC_REST_Request $request
 	 * @return array|GC_Error
@@ -290,6 +298,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 		/**
 		 * Fires after a single attachment is created or updated via the REST API.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_Post         $attachment Inserted or updated attachment
 		 *                                    object.
@@ -307,6 +316,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Updates a single attachment.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, GC_Error object on failure.
@@ -358,6 +368,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Performs post processing on an attachment.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, GC_Error object on failure.
@@ -378,6 +389,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Checks if a given request can perform post processing on an attachment.
 	 *
+	 * @since 5.3.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has access to update the item, GC_Error object otherwise.
@@ -389,6 +401,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Checks if a given request has access to editing media.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -397,7 +410,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 		if ( ! current_user_can( 'upload_files' ) ) {
 			return new GC_Error(
 				'rest_cannot_edit_image',
-				__( '抱歉，您不能在此站点上传媒体。' ),
+				__( '抱歉，您不能在此系统上传媒体。' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -408,6 +421,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Applies edits to a media item and creates a new attachment record.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, GC_Error object on failure.
@@ -549,8 +563,10 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 		$image_ext  = pathinfo( $image_file, PATHINFO_EXTENSION );
 		$image_name = gc_basename( $image_file, ".{$image_ext}" );
 
-		// Do not append multiple `-edited` to the file name.
-		// The user may be editing a previously edited image.
+		/*
+		 * Do not append multiple `-edited` to the file name.
+		 * The user may be editing a previously edited image.
+		 */
 		if ( preg_match( '/-edited(-\d+)?$/', $image_name ) ) {
 			// Remove any `-1`, `-2`, etc. `gc_unique_filename()` will add the proper number.
 			$image_name = preg_replace( '/-edited(-\d+)?$/', '-edited', $image_name );
@@ -612,8 +628,10 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 		}
 
 		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
-			// Set a custom header with the attachment_id.
-			// Used by the browser/client to resume creating image sub-sizes after a PHP fatal error.
+			/*
+			 * Set a custom header with the attachment_id.
+			 * Used by the browser/client to resume creating image sub-sizes after a PHP fatal error.
+			 */
 			header( 'X-GC-Upload-Attachment-ID: ' . $new_attachment_id );
 		}
 
@@ -645,6 +663,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 		/**
 		 * Filters the meta data for the new image created by editing an existing image.
 		 *
+		 * @since 5.5.0
 		 *
 		 * @param array $new_image_meta    Meta data for the new image.
 		 * @param int   $new_attachment_id Attachment post ID for the new image.
@@ -664,6 +683,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Prepares a single attachment for create or update.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Request object.
 	 * @return stdClass|GC_Error Post object.
@@ -699,6 +719,8 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Prepares a single attachment output for response.
 	 *
+	 * @since 4.7.0
+	 * @since 5.9.0 Renamed `$post` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Post         $item    Attachment object.
 	 * @param GC_REST_Request $request Request object.
@@ -749,7 +771,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 
 			// Ensure empty details is an empty object.
 			if ( empty( $data['media_details'] ) ) {
-				$data['media_details'] = new stdClass;
+				$data['media_details'] = new stdClass();
 			} elseif ( ! empty( $data['media_details']['sizes'] ) ) {
 
 				foreach ( $data['media_details']['sizes'] as $size => &$size_data ) {
@@ -780,7 +802,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 					);
 				}
 			} else {
-				$data['media_details']['sizes'] = new stdClass;
+				$data['media_details']['sizes'] = new stdClass();
 			}
 		}
 
@@ -817,6 +839,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 		 *
 		 * Allows modification of the attachment right before it is returned.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_REST_Response $response The response object.
 		 * @param GC_Post          $post     The original attachment post.
@@ -828,6 +851,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Retrieves the attachment's schema, conforming to JSON Schema.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Item schema as an array.
 	 */
@@ -947,9 +971,10 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Handles an upload via raw POST data.
 	 *
+	 * @since 4.7.0
 	 *
-	 * @param array $data    Supplied file data.
-	 * @param array $headers HTTP headers from the request.
+	 * @param string $data    Supplied file data.
+	 * @param array  $headers HTTP headers from the request.
 	 * @return array|GC_Error Data from gc_handle_sideload().
 	 */
 	protected function upload_from_data( $data, $headers ) {
@@ -982,7 +1007,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 		if ( empty( $filename ) ) {
 			return new GC_Error(
 				'rest_upload_invalid_disposition',
-				__( '提供的Content-Disposition标头值无效。Content-Disposition标头值格式应为`attachment; filename="image.png"`或类似内容。' ),
+				__( '提供的 Content-Disposition 标头值无效。Content-Disposition 标头值格式应为 `attachment; filename="image.png"` 或类似内容。' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -1076,6 +1101,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	 *                         | ext-token "=" ext-value
 	 *     ext-token           = <the characters in token, followed by "*">
 	 *
+	 * @since 4.7.0
 	 *
 	 * @link https://tools.ietf.org/html/rfc2388
 	 * @link https://tools.ietf.org/html/rfc6266
@@ -1090,7 +1116,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 		foreach ( $disposition_header as $value ) {
 			$value = trim( $value );
 
-			if ( strpos( $value, ';' ) === false ) {
+			if ( ! str_contains( $value, ';' ) ) {
 				continue;
 			}
 
@@ -1100,7 +1126,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 			$attributes = array();
 
 			foreach ( $attr_parts as $part ) {
-				if ( strpos( $part, '=' ) === false ) {
+				if ( ! str_contains( $part, '=' ) ) {
 					continue;
 				}
 
@@ -1116,7 +1142,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 			$filename = trim( $attributes['filename'] );
 
 			// Unquote quoted filename, but after trimming.
-			if ( substr( $filename, 0, 1 ) === '"' && substr( $filename, -1, 1 ) === '"' ) {
+			if ( str_starts_with( $filename, '"' ) && str_ends_with( $filename, '"' ) ) {
 				$filename = substr( $filename, 1, -1 );
 			}
 		}
@@ -1127,6 +1153,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Retrieves the query params for collections of attachments.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Query parameters for the attachment collection as an array.
 	 */
@@ -1155,6 +1182,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Handles an upload via multipart/form-data ($_FILES).
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param array $files   Data from the `$_FILES` superglobal.
 	 * @param array $headers HTTP headers from the request.
@@ -1220,6 +1248,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	 *
 	 * Media types are considered the MIME type category.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Array of supported media types.
 	 */
@@ -1244,6 +1273,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	 *
 	 * Replicates check_upload_size().
 	 *
+	 * @since 4.9.8
 	 *
 	 * @param array $file $_FILES array for a given file.
 	 * @return true|GC_Error True if can upload, error for errors.
@@ -1296,6 +1326,7 @@ class GC_REST_Attachments_Controller extends GC_REST_Posts_Controller {
 	/**
 	 * Gets the request args for the edit item route.
 	 *
+	 * @since 5.5.0
 	 *
 	 * @return array
 	 */

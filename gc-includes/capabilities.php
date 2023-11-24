@@ -22,15 +22,13 @@
  *
  * This function does not check whether the user has the required capabilities,
  * it just returns what the required capabilities are.
- *
- *
- *
+ * Added the `export_others_personal_data`, `erase_others_personal_data`,
  *              and `manage_privacy_options` capabilities.
- *
- *
- *
+ * @since 5.1.0 Added the `update_php` capability.
+ * @since 5.2.0 Added the `resume_plugin` and `resume_theme` capabilities.
+ * @since 5.3.0 Formalized the existing and already documented `...$args` parameter
  *              by adding it to the function signature.
- *
+ * @since 5.7.0 Added the `create_app_password`, `list_app_passwords`, `read_app_password`,
  *              `edit_app_password`, `delete_app_passwords`, `delete_app_password`,
  *              and `update_https` capabilities.
  *
@@ -73,6 +71,25 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 			break;
 		case 'delete_post':
 		case 'delete_page':
+			if ( ! isset( $args[0] ) ) {
+				if ( 'delete_post' === $cap ) {
+					/* translators: %s: Capability name. */
+					$message = __( '在检查 %s 权限时，您必须始终依据指定的文章进行检查。' );
+				} else {
+					/* translators: %s: Capability name. */
+					$message = __( '在检查 %s 权限时，您必须始终依据指定的页面进行检查。' );
+				}
+
+				_doing_it_wrong(
+					__FUNCTION__,
+					sprintf( $message, '<code>' . $cap . '</code>' ),
+					'6.1.0'
+				);
+
+				$caps[] = 'do_not_allow';
+				break;
+			}
+
 			$post = get_post( $args[0] );
 			if ( ! $post ) {
 				$caps[] = 'do_not_allow';
@@ -92,7 +109,18 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 			$post_type = get_post_type_object( $post->post_type );
 			if ( ! $post_type ) {
 				/* translators: 1: Post type, 2: Capability name. */
-				_doing_it_wrong( __FUNCTION__, sprintf( __( '此文章类型%1$s未被注册，所以可能无法可靠地检查该类型文章的“%2$s”能力。' ), $post->post_type, $cap ), '4.4.0' );
+				$message = __( '文章类型 %1$s 未被注册，所以可能无法可靠地检查该类型文章的 %2$s 能力。' );
+
+				_doing_it_wrong(
+					__FUNCTION__,
+					sprintf(
+						$message,
+						'<code>' . $post->post_type . '</code>',
+						'<code>' . $cap . '</code>'
+					),
+					'4.4.0'
+				);
+
 				$caps[] = 'edit_others_posts';
 				break;
 			}
@@ -142,10 +170,31 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 			}
 
 			break;
-		// edit_post breaks down to edit_posts, edit_published_posts, or
-		// edit_others_posts.
+		/*
+		 * edit_post breaks down to edit_posts, edit_published_posts, or
+		 * edit_others_posts.
+		 */
 		case 'edit_post':
 		case 'edit_page':
+			if ( ! isset( $args[0] ) ) {
+				if ( 'edit_post' === $cap ) {
+					/* translators: %s: Capability name. */
+					$message = __( '在检查 %s 权限时，您必须始终依据指定的文章进行检查。' );
+				} else {
+					/* translators: %s: Capability name. */
+					$message = __( '在检查 %s 权限时，您必须始终依据指定的页面进行检查。' );
+				}
+
+				_doing_it_wrong(
+					__FUNCTION__,
+					sprintf( $message, '<code>' . $cap . '</code>' ),
+					'6.1.0'
+				);
+
+				$caps[] = 'do_not_allow';
+				break;
+			}
+
 			$post = get_post( $args[0] );
 			if ( ! $post ) {
 				$caps[] = 'do_not_allow';
@@ -163,7 +212,18 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 			$post_type = get_post_type_object( $post->post_type );
 			if ( ! $post_type ) {
 				/* translators: 1: Post type, 2: Capability name. */
-				_doing_it_wrong( __FUNCTION__, sprintf( __( '此文章类型%1$s未被注册，所以可能无法可靠地检查该类型文章的“%2$s”能力。' ), $post->post_type, $cap ), '4.4.0' );
+				$message = __( '文章类型 %1$s 未被注册，所以可能无法可靠地检查该类型文章的 %2$s 能力。' );
+
+				_doing_it_wrong(
+					__FUNCTION__,
+					sprintf(
+						$message,
+						'<code>' . $post->post_type . '</code>',
+						'<code>' . $cap . '</code>'
+					),
+					'4.4.0'
+				);
+
 				$caps[] = 'edit_others_posts';
 				break;
 			}
@@ -215,6 +275,25 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 			break;
 		case 'read_post':
 		case 'read_page':
+			if ( ! isset( $args[0] ) ) {
+				if ( 'read_post' === $cap ) {
+					/* translators: %s: Capability name. */
+					$message = __( '在检查 %s 权限时，您必须始终依据指定的文章进行检查。' );
+				} else {
+					/* translators: %s: Capability name. */
+					$message = __( '在检查 %s 权限时，您必须始终依据指定的页面进行检查。' );
+				}
+
+				_doing_it_wrong(
+					__FUNCTION__,
+					sprintf( $message, '<code>' . $cap . '</code>' ),
+					'6.1.0'
+				);
+
+				$caps[] = 'do_not_allow';
+				break;
+			}
+
 			$post = get_post( $args[0] );
 			if ( ! $post ) {
 				$caps[] = 'do_not_allow';
@@ -232,7 +311,18 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 			$post_type = get_post_type_object( $post->post_type );
 			if ( ! $post_type ) {
 				/* translators: 1: Post type, 2: Capability name. */
-				_doing_it_wrong( __FUNCTION__, sprintf( __( '此文章类型%1$s未被注册，所以可能无法可靠地检查该类型文章的“%2$s”能力。' ), $post->post_type, $cap ), '4.4.0' );
+				$message = __( '文章类型 %1$s 未被注册，所以可能无法可靠地检查该类型文章的 %2$s 能力。' );
+
+				_doing_it_wrong(
+					__FUNCTION__,
+					sprintf(
+						$message,
+						'<code>' . $post->post_type . '</code>',
+						'<code>' . $cap . '</code>'
+					),
+					'4.4.0'
+				);
+
 				$caps[] = 'edit_others_posts';
 				break;
 			}
@@ -249,7 +339,18 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 			$status_obj = get_post_status_object( get_post_status( $post ) );
 			if ( ! $status_obj ) {
 				/* translators: 1: Post status, 2: Capability name. */
-				_doing_it_wrong( __FUNCTION__, sprintf( __( '此文章状态%1$s未被注册，所以可能无法可靠地检查该状态文章的“%2$s”能力。' ), get_post_status( $post ), $cap ), '5.4.0' );
+				$message = __( '此文章状态 %1$s 未被注册，所以可能无法可靠地检查该状态文章的 %2$s 能力。' );
+
+				_doing_it_wrong(
+					__FUNCTION__,
+					sprintf(
+						$message,
+						'<code>' . get_post_status( $post ) . '</code>',
+						'<code>' . $cap . '</code>'
+					),
+					'5.4.0'
+				);
+
 				$caps[] = 'edit_others_posts';
 				break;
 			}
@@ -268,6 +369,20 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 			}
 			break;
 		case 'publish_post':
+			if ( ! isset( $args[0] ) ) {
+				/* translators: %s: Capability name. */
+				$message = __( '在检查 %s 权限时，您必须始终依据指定的文章进行检查。' );
+
+				_doing_it_wrong(
+					__FUNCTION__,
+					sprintf( $message, '<code>' . $cap . '</code>' ),
+					'6.1.0'
+				);
+
+				$caps[] = 'do_not_allow';
+				break;
+			}
+
 			$post = get_post( $args[0] );
 			if ( ! $post ) {
 				$caps[] = 'do_not_allow';
@@ -277,7 +392,18 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 			$post_type = get_post_type_object( $post->post_type );
 			if ( ! $post_type ) {
 				/* translators: 1: Post type, 2: Capability name. */
-				_doing_it_wrong( __FUNCTION__, sprintf( __( '此文章类型%1$s未被注册，所以可能无法可靠地检查该类型文章的“%2$s”能力。' ), $post->post_type, $cap ), '4.4.0' );
+				$message = __( '文章类型 %1$s 未被注册，所以可能无法可靠地检查该类型文章的 %2$s 能力。' );
+
+				_doing_it_wrong(
+					__FUNCTION__,
+					sprintf(
+						$message,
+						'<code>' . $post->post_type . '</code>',
+						'<code>' . $cap . '</code>'
+					),
+					'4.4.0'
+				);
+
 				$caps[] = 'edit_others_posts';
 				break;
 			}
@@ -297,7 +423,33 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 		case 'delete_user_meta':
 		case 'add_user_meta':
 			$object_type = explode( '_', $cap )[1];
-			$object_id   = (int) $args[0];
+
+			if ( ! isset( $args[0] ) ) {
+				if ( 'post' === $object_type ) {
+					/* translators: %s: Capability name. */
+					$message = __( '在检查 %s 权限时，您必须始终依据指定的文章进行检查。' );
+				} elseif ( 'comment' === $object_type ) {
+					/* translators: %s: Capability name. */
+					$message = __( '在检查 %s 权限时，您必须始终依据指定的评论进行检查。' );
+				} elseif ( 'term' === $object_type ) {
+					/* translators: %s: Capability name. */
+					$message = __( '在检查 %s 权限时，您必须始终依据指定的项目进行检查。' );
+				} else {
+					/* translators: %s: Capability name. */
+					$message = __( '在检查 %s 权限时，您必须始终依据指定的用户进行检查。' );
+				}
+
+				_doing_it_wrong(
+					__FUNCTION__,
+					sprintf( $message, '<code>' . $cap . '</code>' ),
+					'6.1.0'
+				);
+
+				$caps[] = 'do_not_allow';
+				break;
+			}
+
+			$object_id = (int) $args[0];
 
 			$object_subtype = get_object_subtype( $object_type, $object_id );
 
@@ -322,7 +474,7 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 					 * and `$object_subtype`, refer to the metadata object type (comment, post, term or user),
 					 * the meta key value, and the object subtype respectively.
 					 *
-				
+					 * @since 4.9.8
 					 *
 					 * @param bool     $allowed   Whether the user can add the object meta. Default false.
 					 * @param string   $meta_key  The meta key.
@@ -342,8 +494,8 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 					 * The dynamic portion of the hook name, `$object_type` refers to the object type being filtered.
 					 * The dynamic portion of the hook name, `$meta_key`, refers to the meta key passed to map_meta_cap().
 					 *
-				
-				
+					 * @since 3.3.0 As `auth_post_meta_{$meta_key}`.
+					 * @since 4.6.0
 					 *
 					 * @param bool     $allowed   Whether the user can add the object meta. Default false.
 					 * @param string   $meta_key  The meta key.
@@ -366,8 +518,8 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 					 * The dynamic portion of the hook name, `$object_subtype` refers to the object subtype being filtered.
 					 * The dynamic portion of the hook name, `$meta_key`, refers to the meta key passed to map_meta_cap().
 					 *
-				
-				
+					 * @since 4.6.0 As `auth_post_{$post_type}_meta_{$meta_key}`.
+					 * @since 4.7.0 Renamed from `auth_post_{$post_type}_meta_{$meta_key}` to
 					 *              `auth_{$object_type}_{$object_subtype}_meta_{$meta_key}`.
 					 * @deprecated 4.9.8 Use {@see 'auth_{$object_type}_meta_{$meta_key}_for_{$object_subtype}'} instead.
 					 *
@@ -392,6 +544,20 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 			}
 			break;
 		case 'edit_comment':
+			if ( ! isset( $args[0] ) ) {
+				/* translators: %s: Capability name. */
+				$message = __( '在检查 %s 权限时，您必须始终依据指定的评论进行检查。' );
+
+				_doing_it_wrong(
+					__FUNCTION__,
+					sprintf( $message, '<code>' . $cap . '</code>' ),
+					'6.1.0'
+				);
+
+				$caps[] = 'do_not_allow';
+				break;
+			}
+
 			$comment = get_comment( $args[0] );
 			if ( ! $comment ) {
 				$caps[] = 'do_not_allow';
@@ -451,8 +617,10 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 		case 'install_themes':
 		case 'upload_themes':
 		case 'update_core':
-			// Disallow anything that creates, deletes, or updates core, plugin, or theme files.
-			// Files in uploads are excepted.
+			/*
+			 * Disallow anything that creates, deletes, or updates core, plugin, or theme files.
+			 * Files in uploads are excepted.
+			 */
 			if ( ! gc_is_file_mod_allowed( 'capability_update_core' ) ) {
 				$caps[] = 'do_not_allow';
 			} elseif ( is_multisite() && ! is_super_admin( $user_id ) ) {
@@ -532,6 +700,20 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
 		case 'edit_term':
 		case 'delete_term':
 		case 'assign_term':
+			if ( ! isset( $args[0] ) ) {
+				/* translators: %s: Capability name. */
+				$message = __( '在检查 %s 权限时，您必须始终依据指定的项目进行检查。' );
+
+				_doing_it_wrong(
+					__FUNCTION__,
+					sprintf( $message, '<code>' . $cap . '</code>' ),
+					'6.1.0'
+				);
+
+				$caps[] = 'do_not_allow';
+				break;
+			}
+
 			$term_id = (int) $args[0];
 			$term    = get_term( $term_id );
 			if ( ! $term || is_gc_error( $term ) ) {
@@ -675,10 +857,9 @@ function map_meta_cap( $cap, $user_id, ...$args ) {
  *
  * Note: Will always return true if the current user is a super admin, unless specifically denied.
  *
- *
- *
+ * @since 5.3.0 Formalized the existing and already documented `...$args` parameter
  *              by adding it to the function signature.
- *
+ * @since 5.8.0 Converted to wrapper for the user_can() function.
  *
  * @see GC_User::has_cap()
  * @see map_meta_cap()
@@ -705,10 +886,9 @@ function current_user_can( $capability, ...$args ) {
  *     current_user_can_for_blog( $blog_id, 'edit_post', $post->ID );
  *     current_user_can_for_blog( $blog_id, 'edit_post_meta', $post->ID, $meta_key );
  *
- *
- *
+ * @since 5.3.0 Formalized the existing and already documented `...$args` parameter
  *              by adding it to the function signature.
- *
+ * @since 5.8.0 Wraps current_user_can() after switching to blog.
  *
  * @param int    $blog_id    Site ID.
  * @param string $capability Capability name.
@@ -740,8 +920,7 @@ function current_user_can_for_blog( $blog_id, $capability, ...$args ) {
  *     author_can( $post, 'edit_post', $post->ID );
  *     author_can( $post, 'edit_post_meta', $post->ID, $meta_key );
  *
- *
- *
+ * @since 5.3.0 Formalized the existing and already documented `...$args` parameter
  *              by adding it to the function signature.
  *
  * @param int|GC_Post $post       Post ID or post object.
@@ -777,8 +956,7 @@ function author_can( $post, $capability, ...$args ) {
  *     user_can( $user->ID, 'edit_post', $post->ID );
  *     user_can( $user->ID, 'edit_post_meta', $post->ID, $meta_key );
  *
- *
- *
+ * @since 5.3.0 Formalized the existing and already documented `...$args` parameter
  *              by adding it to the function signature.
  *
  * @param int|GC_User $user       User ID or object.
@@ -794,7 +972,7 @@ function user_can( $user, $capability, ...$args ) {
 	if ( empty( $user ) ) {
 		// User is logged out, create anonymous user object.
 		$user = new GC_User( 0 );
-		$user->init( new stdClass );
+		$user->init( new stdClass() );
 	}
 
 	return $user->has_cap( $capability, ...$args );
@@ -803,7 +981,7 @@ function user_can( $user, $capability, ...$args ) {
 /**
  * Retrieves the global GC_Roles instance and instantiates it if necessary.
  *
- *
+ * @since 4.3.0
  *
  * @global GC_Roles $gc_roles GeChiUI role management object.
  *
@@ -819,9 +997,7 @@ function gc_roles() {
 }
 
 /**
- * Retrieve role object.
- *
- *
+ * Retrieves role object.
  *
  * @param string $role Role name.
  * @return GC_Role|null GC_Role object if found, null if the role does not exist.
@@ -831,27 +1007,24 @@ function get_role( $role ) {
 }
 
 /**
- * Add role, if it does not exist.
- *
- *
+ * Adds a role, if it does not exist.
  *
  * @param string $role         Role name.
  * @param string $display_name Display name for role.
  * @param bool[] $capabilities List of capabilities keyed by the capability name,
  *                             e.g. array( 'edit_posts' => true, 'delete_posts' => false ).
- * @return GC_Role|null GC_Role object if role is added, null if already exists.
+ * @return GC_Role|void GC_Role object, if the role is added.
  */
 function add_role( $role, $display_name, $capabilities = array() ) {
 	if ( empty( $role ) ) {
 		return;
 	}
+
 	return gc_roles()->add_role( $role, $display_name, $capabilities );
 }
 
 /**
- * Remove role, if it exists.
- *
- *
+ * Removes a role, if it exists.
  *
  * @param string $role Role name.
  */
@@ -860,9 +1033,7 @@ function remove_role( $role ) {
 }
 
 /**
- * Retrieve a list of super admins.
- *
- *
+ * Retrieves a list of super admins.
  *
  * @global array $super_admins
  *
@@ -879,9 +1050,7 @@ function get_super_admins() {
 }
 
 /**
- * Determine if user is a site admin.
- *
- *
+ * Determines whether user is a site admin.
  *
  * @param int|false $user_id Optional. The ID of a user. Defaults to false, to check the current user.
  * @return bool Whether the user is a site admin.
@@ -914,8 +1083,6 @@ function is_super_admin( $user_id = false ) {
 /**
  * Grants Super Admin privileges.
  *
- *
- *
  * @global array $super_admins
  *
  * @param int $user_id ID of the user to be granted Super Admin privileges.
@@ -947,6 +1114,7 @@ function grant_super_admin( $user_id ) {
 		/**
 		 * Fires after the user is granted Super Admin privileges.
 		 *
+		 * @since 3.0.0
 		 *
 		 * @param int $user_id ID of the user that was granted Super Admin privileges.
 		 */
@@ -958,8 +1126,6 @@ function grant_super_admin( $user_id ) {
 
 /**
  * Revokes Super Admin privileges.
- *
- *
  *
  * @global array $super_admins
  *
@@ -994,7 +1160,7 @@ function revoke_super_admin( $user_id ) {
 			/**
 			 * Fires after the user's Super Admin privileges are revoked.
 			 *
-		
+			 * @since 3.0.0
 			 *
 			 * @param int $user_id ID of the user Super Admin privileges were revoked from.
 			 */
@@ -1011,8 +1177,6 @@ function revoke_super_admin( $user_id ) {
  * A user must have at least one out of the 'update_core', 'install_plugins', and
  * 'install_themes' capabilities to qualify for 'install_languages'.
  *
- *
- *
  * @param bool[] $allcaps An array of all the user's capabilities.
  * @return bool[] Filtered array of the user's capabilities.
  */
@@ -1027,7 +1191,7 @@ function gc_maybe_grant_install_languages_cap( $allcaps ) {
 /**
  * Filters the user capabilities to grant the 'resume_plugins' and 'resume_themes' capabilities as necessary.
  *
- *
+ * @since 5.2.0
  *
  * @param bool[] $allcaps An array of all the user's capabilities.
  * @return bool[] Filtered array of the user's capabilities.
@@ -1049,7 +1213,7 @@ function gc_maybe_grant_resume_extensions_caps( $allcaps ) {
 /**
  * Filters the user capabilities to grant the 'view_site_health_checks' capabilities as necessary.
  *
- *
+ * @since 5.2.2
  *
  * @param bool[]   $allcaps An array of all the user's capabilities.
  * @param string[] $caps    Required primitive capabilities for the requested capability.

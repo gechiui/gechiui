@@ -4,19 +4,21 @@
  *
  * @package GeChiUI
  * @subpackage Administration
- *
+ * @since 4.3.0
  */
 
 /**
  * Core class used to implement site icon functionality.
  *
- *
+ * @since 4.3.0
  */
+#[AllowDynamicProperties]
 class GC_Site_Icon {
 
 	/**
 	 * The minimum size of the site icon.
 	 *
+	 * @since 4.3.0
 	 * @var int
 	 */
 	public $min_size = 512;
@@ -24,6 +26,7 @@ class GC_Site_Icon {
 	/**
 	 * The size to which to crop the image so that we can display it in the UI nicely.
 	 *
+	 * @since 4.3.0
 	 * @var int
 	 */
 	public $page_crop = 512;
@@ -31,6 +34,7 @@ class GC_Site_Icon {
 	/**
 	 * List of site icon sizes.
 	 *
+	 * @since 4.3.0
 	 * @var int[]
 	 */
 	public $site_icon_sizes = array(
@@ -63,6 +67,7 @@ class GC_Site_Icon {
 	/**
 	 * Registers actions and filters.
 	 *
+	 * @since 4.3.0
 	 */
 	public function __construct() {
 		add_action( 'delete_attachment', array( $this, 'delete_attachment_data' ) );
@@ -72,10 +77,11 @@ class GC_Site_Icon {
 	/**
 	 * Creates an attachment 'object'.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param string $cropped              Cropped image URL.
 	 * @param int    $parent_attachment_id Attachment ID of parent image.
-	 * @return array Attachment object.
+	 * @return array An array with attachment object data.
 	 */
 	public function create_attachment_object( $cropped, $parent_attachment_id ) {
 		$parent     = get_post( $parent_attachment_id );
@@ -85,7 +91,7 @@ class GC_Site_Icon {
 		$size       = gc_getimagesize( $cropped );
 		$image_type = ( $size ) ? $size['mime'] : 'image/jpeg';
 
-		$object = array(
+		$attachment = array(
 			'ID'             => $parent_attachment_id,
 			'post_title'     => gc_basename( $cropped ),
 			'post_content'   => $url,
@@ -94,24 +100,26 @@ class GC_Site_Icon {
 			'context'        => 'site-icon',
 		);
 
-		return $object;
+		return $attachment;
 	}
 
 	/**
 	 * Inserts an attachment.
 	 *
+	 * @since 4.3.0
 	 *
-	 * @param array  $object Attachment object.
-	 * @param string $file   File path of the attached image.
-	 * @return int           Attachment ID
+	 * @param array  $attachment An array with attachment object data.
+	 * @param string $file       File path of the attached image.
+	 * @return int               Attachment ID.
 	 */
-	public function insert_attachment( $object, $file ) {
-		$attachment_id = gc_insert_attachment( $object, $file );
+	public function insert_attachment( $attachment, $file ) {
+		$attachment_id = gc_insert_attachment( $attachment, $file );
 		$metadata      = gc_generate_attachment_metadata( $attachment_id, $file );
 
 		/**
 		 * Filters the site icon attachment metadata.
 		 *
+		 * @since 4.3.0
 		 *
 		 * @see gc_generate_attachment_metadata()
 		 *
@@ -126,6 +134,7 @@ class GC_Site_Icon {
 	/**
 	 * Adds additional sizes to be made when creating the site icon images.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param array[] $sizes Array of arrays containing information for additional sizes.
 	 * @return array[] Array of arrays containing additional image sizes.
@@ -136,6 +145,7 @@ class GC_Site_Icon {
 		/**
 		 * Filters the different dimensions that a site icon is saved in.
 		 *
+		 * @since 4.3.0
 		 *
 		 * @param int[] $site_icon_sizes Array of sizes available for the Site Icon.
 		 */
@@ -168,6 +178,7 @@ class GC_Site_Icon {
 	/**
 	 * Adds Site Icon sizes to the array of image sizes on demand.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param string[] $sizes Array of image size names.
 	 * @return string[] Array of image size names.
@@ -185,13 +196,14 @@ class GC_Site_Icon {
 	/**
 	 * Deletes the Site Icon when the image file is deleted.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param int $post_id Attachment ID.
 	 */
 	public function delete_attachment_data( $post_id ) {
-		$site_icon_id = get_option( 'site_icon' );
+		$site_icon_id = (int) get_option( 'site_icon' );
 
-		if ( $site_icon_id && $post_id == $site_icon_id ) {
+		if ( $site_icon_id && $post_id === $site_icon_id ) {
 			delete_option( 'site_icon' );
 		}
 	}
@@ -199,6 +211,7 @@ class GC_Site_Icon {
 	/**
 	 * Adds custom image sizes when meta data for an image is requested, that happens to be used as Site Icon.
 	 *
+	 * @since 4.3.0
 	 *
 	 * @param null|array|string $value    The value get_metadata() should return a single metadata value, or an
 	 *                                    array of values.
@@ -209,9 +222,9 @@ class GC_Site_Icon {
 	 */
 	public function get_post_metadata( $value, $post_id, $meta_key, $single ) {
 		if ( $single && '_gc_attachment_backup_sizes' === $meta_key ) {
-			$site_icon_id = get_option( 'site_icon' );
+			$site_icon_id = (int) get_option( 'site_icon' );
 
-			if ( $post_id == $site_icon_id ) {
+			if ( $post_id === $site_icon_id ) {
 				add_filter( 'intermediate_image_sizes', array( $this, 'intermediate_image_sizes' ) );
 			}
 		}

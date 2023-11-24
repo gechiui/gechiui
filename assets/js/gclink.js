@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/gclink.js
+ * @output assets/js/gclink.js
  */
 
  /* global gcLink */

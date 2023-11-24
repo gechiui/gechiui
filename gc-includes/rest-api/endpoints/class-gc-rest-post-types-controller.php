@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
  */
 
 /**
  * Core class to access post types via the REST API.
- *
- *
  *
  * @see GC_REST_Controller
  */
@@ -19,6 +16,7 @@ class GC_REST_Post_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.7.0
 	 */
 	public function __construct() {
 		$this->namespace = 'gc/v2';
@@ -28,6 +26,7 @@ class GC_REST_Post_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the routes for post types.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @see register_rest_route()
 	 */
@@ -73,6 +72,7 @@ class GC_REST_Post_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Checks whether a given request has permission to read types.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return true|GC_Error True if the request has read access, GC_Error object otherwise.
@@ -100,6 +100,7 @@ class GC_REST_Post_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves all public post types.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -123,6 +124,7 @@ class GC_REST_Post_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves a specific post type.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error Response object on success, or GC_Error object on failure.
@@ -162,6 +164,8 @@ class GC_REST_Post_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a post type object for serialization.
 	 *
+	 * @since 4.7.0
+	 * @since 5.9.0 Renamed `$post_type` to `$item` to match parent class for PHP 8 named parameter support.
 	 *
 	 * @param GC_Post_Type    $item    Post type object.
 	 * @param GC_REST_Request $request Full details about the request.
@@ -179,54 +183,62 @@ class GC_REST_Post_Types_Controller extends GC_REST_Controller {
 		$fields = $this->get_fields_for_response( $request );
 		$data   = array();
 
-		if ( in_array( 'capabilities', $fields, true ) ) {
+		if ( rest_is_field_included( 'capabilities', $fields ) ) {
 			$data['capabilities'] = $post_type->cap;
 		}
 
-		if ( in_array( 'description', $fields, true ) ) {
+		if ( rest_is_field_included( 'description', $fields ) ) {
 			$data['description'] = $post_type->description;
 		}
 
-		if ( in_array( 'hierarchical', $fields, true ) ) {
+		if ( rest_is_field_included( 'hierarchical', $fields ) ) {
 			$data['hierarchical'] = $post_type->hierarchical;
 		}
 
-		if ( in_array( 'visibility', $fields, true ) ) {
+		if ( rest_is_field_included( 'has_archive', $fields ) ) {
+			$data['has_archive'] = $post_type->has_archive;
+		}
+
+		if ( rest_is_field_included( 'visibility', $fields ) ) {
 			$data['visibility'] = array(
 				'show_in_nav_menus' => (bool) $post_type->show_in_nav_menus,
 				'show_ui'           => (bool) $post_type->show_ui,
 			);
 		}
 
-		if ( in_array( 'viewable', $fields, true ) ) {
+		if ( rest_is_field_included( 'viewable', $fields ) ) {
 			$data['viewable'] = is_post_type_viewable( $post_type );
 		}
 
-		if ( in_array( 'labels', $fields, true ) ) {
+		if ( rest_is_field_included( 'labels', $fields ) ) {
 			$data['labels'] = $post_type->labels;
 		}
 
-		if ( in_array( 'name', $fields, true ) ) {
+		if ( rest_is_field_included( 'name', $fields ) ) {
 			$data['name'] = $post_type->label;
 		}
 
-		if ( in_array( 'slug', $fields, true ) ) {
+		if ( rest_is_field_included( 'slug', $fields ) ) {
 			$data['slug'] = $post_type->name;
 		}
 
-		if ( in_array( 'supports', $fields, true ) ) {
+		if ( rest_is_field_included( 'icon', $fields ) ) {
+			$data['icon'] = $post_type->menu_icon;
+		}
+
+		if ( rest_is_field_included( 'supports', $fields ) ) {
 			$data['supports'] = $supports;
 		}
 
-		if ( in_array( 'taxonomies', $fields, true ) ) {
+		if ( rest_is_field_included( 'taxonomies', $fields ) ) {
 			$data['taxonomies'] = array_values( $taxonomies );
 		}
 
-		if ( in_array( 'rest_base', $fields, true ) ) {
+		if ( rest_is_field_included( 'rest_base', $fields ) ) {
 			$data['rest_base'] = $base;
 		}
 
-		if ( in_array( 'rest_namespace', $fields, true ) ) {
+		if ( rest_is_field_included( 'rest_namespace', $fields ) ) {
 			$data['rest_namespace'] = $namespace;
 		}
 
@@ -237,22 +249,16 @@ class GC_REST_Post_Types_Controller extends GC_REST_Controller {
 		// Wrap the data in a response object.
 		$response = rest_ensure_response( $data );
 
-		$response->add_links(
-			array(
-				'collection'              => array(
-					'href' => rest_url( sprintf( '%s/%s', $this->namespace, $this->rest_base ) ),
-				),
-				'https://api.w.org/items' => array(
-					'href' => rest_url( rest_get_route_for_post_type_items( $post_type->name ) ),
-				),
-			)
-		);
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$response->add_links( $this->prepare_links( $post_type ) );
+		}
 
 		/**
 		 * Filters a post type returned from the REST API.
 		 *
 		 * Allows modification of the post type data right before it is returned.
 		 *
+		 * @since 4.7.0
 		 *
 		 * @param GC_REST_Response $response  The response object.
 		 * @param GC_Post_Type     $post_type The original post type object.
@@ -262,8 +268,31 @@ class GC_REST_Post_Types_Controller extends GC_REST_Controller {
 	}
 
 	/**
+	 * Prepares links for the request.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param GC_Post_Type $post_type The post type.
+	 * @return array Links for the given post type.
+	 */
+	protected function prepare_links( $post_type ) {
+		return array(
+			'collection'              => array(
+				'href' => rest_url( sprintf( '%s/%s', $this->namespace, $this->rest_base ) ),
+			),
+			'https://api.w.org/items' => array(
+				'href' => rest_url( rest_get_route_for_post_type_items( $post_type->name ) ),
+			),
+		);
+	}
+
+	/**
 	 * Retrieves the post type's schema, conforming to JSON Schema.
 	 *
+	 * @since 4.7.0
+	 * @since 4.8.0 The `supports` property was added.
+	 * @since 5.9.0 The `visibility` and `rest_namespace` properties were added.
+	 * @since 6.1.0 The `icon` property was added.
 	 *
 	 * @return array Item schema data.
 	 */
@@ -325,6 +354,12 @@ class GC_REST_Post_Types_Controller extends GC_REST_Controller {
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
+				'has_archive'    => array(
+					'description' => __( '如果值为字符串，则值将被用作归档别名。 如果值为 false，则此文章类型不会归档。' ),
+					'type'        => array( 'string', 'boolean' ),
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
 				'taxonomies'     => array(
 					'description' => __( '与文章类型关联的分类法。' ),
 					'type'        => 'array',
@@ -362,6 +397,12 @@ class GC_REST_Post_Types_Controller extends GC_REST_Controller {
 						),
 					),
 				),
+				'icon'           => array(
+					'description' => __( '文章类型的图标。' ),
+					'type'        => array( 'string', 'null' ),
+					'context'     => array( 'view', 'edit', 'embed' ),
+					'readonly'    => true,
+				),
 			),
 		);
 
@@ -373,6 +414,7 @@ class GC_REST_Post_Types_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the query params for collections.
 	 *
+	 * @since 4.7.0
 	 *
 	 * @return array Collection parameters.
 	 */
@@ -381,5 +423,4 @@ class GC_REST_Post_Types_Controller extends GC_REST_Controller {
 			'context' => $this->get_context_param( array( 'default' => 'view' ) ),
 		);
 	}
-
 }

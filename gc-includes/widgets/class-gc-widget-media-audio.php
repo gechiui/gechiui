@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Widgets
- *
  */
 
 /**
  * Core class that implements an audio widget.
- *
- *
  *
  * @see GC_Widget_Media
  * @see GC_Widget
@@ -20,6 +17,7 @@ class GC_Widget_Media_Audio extends GC_Widget_Media {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.8.0
 	 */
 	public function __construct() {
 		parent::__construct(
@@ -40,13 +38,13 @@ class GC_Widget_Media_Audio extends GC_Widget_Media {
 				'edit_media'                 => _x( '编辑音频', 'label for button in the audio widget; should preferably not be longer than ~13 characters long' ),
 				'missing_attachment'         => sprintf(
 					/* translators: %s: URL to media library. */
-					__( '找不到指定的音频文件。请使用<a href="%s">媒体库</a>检查音频没有被删除。' ),
+					__( '找不到指定音频。检查您的<a href="%s">媒体库</a>并确保其未被删除。' ),
 					esc_url( admin_url( 'upload.php' ) )
 				),
 				/* translators: %d: Widget count. */
 				'media_library_state_multi'  => _n_noop( '音频小工具（%d）', '音频小工具（%d）' ),
 				'media_library_state_single' => __( '音频小工具' ),
-				'unsupported_file_type'      => __( '文件格式可能不正确。请链接到一个音频文件。' ),
+				'unsupported_file_type'      => __( '文件格式可能不正确。请链接到正确的音频文件。' ),
 			)
 		);
 	}
@@ -54,6 +52,7 @@ class GC_Widget_Media_Audio extends GC_Widget_Media {
 	/**
 	 * Get schema for properties of a widget instance (item).
 	 *
+	 * @since 4.8.0
 	 *
 	 * @see GC_REST_Controller::get_item_schema()
 	 * @see GC_REST_Controller::get_additional_fields()
@@ -92,6 +91,7 @@ class GC_Widget_Media_Audio extends GC_Widget_Media {
 	/**
 	 * Render the media on the frontend.
 	 *
+	 * @since 4.8.0
 	 *
 	 * @param array $instance Widget instance props.
 	 */
@@ -125,6 +125,7 @@ class GC_Widget_Media_Audio extends GC_Widget_Media {
 	 * selective refresh, and so it is important to unconditionally enqueue them in
 	 * case a widget does get added.
 	 *
+	 * @since 4.8.0
 	 */
 	public function enqueue_preview_scripts() {
 		/** This filter is documented in gc-includes/media.php */
@@ -137,6 +138,7 @@ class GC_Widget_Media_Audio extends GC_Widget_Media {
 	/**
 	 * Loads the required media files for the media manager and scripts for media widgets.
 	 *
+	 * @since 4.8.0
 	 */
 	public function enqueue_admin_scripts() {
 		parent::enqueue_admin_scripts();
@@ -177,17 +179,18 @@ class GC_Widget_Media_Audio extends GC_Widget_Media {
 	/**
 	 * Render form template scripts.
 	 *
+	 * @since 4.8.0
 	 */
 	public function render_control_template_scripts() {
 		parent::render_control_template_scripts()
 		?>
 		<script type="text/html" id="tmpl-gc-media-widget-audio-preview">
 			<# if ( data.error && 'missing_attachment' === data.error ) { #>
-				<div class="notice notice-error notice-alt notice-missing-attachment">
+				<div class="alert alert-danger notice-alt notice-missing-attachment">
 					<p><?php echo $this->l10n['missing_attachment']; ?></p>
 				</div>
 			<# } else if ( data.error ) { #>
-				<div class="notice notice-error notice-alt">
+				<div class="alert alert-danger notice-alt">
 					<p><?php _e( '发生了未知错误，无法预览媒体。' ); ?></p>
 				</div>
 			<# } else if ( data.model && data.model.src ) { #>

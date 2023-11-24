@@ -37,7 +37,6 @@
 		/**
 		 * Filters the registration redirect URL.
 		 *
-		 *
 		 * @param string $registration_redirect The redirect destination URL.
 		 */
 		$redirect_to = apply_filters( 'registration_redirect', $registration_redirect );

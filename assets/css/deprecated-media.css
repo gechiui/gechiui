@@ -53,8 +53,7 @@ div#media-upload-header {
   color: #000;
 }
 
-#media-upload:after {
-  /* clearfix */
+#media-upload:after { /* clearfix */
   content: "";
   display: table;
   clear: both;
@@ -401,22 +400,19 @@ table.not-image tr.image-only {
 /**
  * HiDPI Displays
  */
-@media print, (-webkit-min-device-pixel-ratio: 1.25), (min-resolution: 120dpi) {
+@media print, (min-resolution: 120dpi) {
   .image-align-none-label {
     background-image: url(../images/align-none-2x.png?ver=20120916);
     background-size: 21px 15px;
   }
-
   .image-align-left-label {
     background-image: url(../images/align-left-2x.png?ver=20120916);
     background-size: 22px 15px;
   }
-
   .image-align-center-label {
     background-image: url(../images/align-center-2x.png?ver=20120916);
     background-size: 21px 15px;
   }
-
   .image-align-right-label {
     background-image: url(../images/align-right-2x.png?ver=20120916);
     background-size: 22px 15px;

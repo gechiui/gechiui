@@ -1,5 +1,5 @@
 /**
- * @output gc-includes/js/customize-models.js
+ * @output assets/js/customize-models.js
  */
 
 /* global _gcCustomizeHeader */

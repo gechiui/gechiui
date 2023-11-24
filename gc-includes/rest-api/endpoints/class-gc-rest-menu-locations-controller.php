@@ -4,13 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
+ * @since 5.9.0
  */
 
 /**
  * Core class used to access menu locations via the REST API.
  *
- *
+ * @since 5.9.0
  *
  * @see GC_REST_Controller
  */
@@ -19,6 +19,7 @@ class GC_REST_Menu_Locations_Controller extends GC_REST_Controller {
 	/**
 	 * Menu Locations Constructor.
 	 *
+	 * @since 5.9.0
 	 */
 	public function __construct() {
 		$this->namespace = 'gc/v2';
@@ -28,6 +29,7 @@ class GC_REST_Menu_Locations_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the routes for the objects of the controller.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @see register_rest_route()
 	 */
@@ -72,6 +74,7 @@ class GC_REST_Menu_Locations_Controller extends GC_REST_Controller {
 	/**
 	 * Checks whether a given request has permission to read menu locations.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_Error|bool True if the request has read access, GC_Error object otherwise.
@@ -91,6 +94,7 @@ class GC_REST_Menu_Locations_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves all menu locations, depending on user context.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_Error|GC_REST_Response Response object on success, or GC_Error object on failure.
@@ -113,6 +117,7 @@ class GC_REST_Menu_Locations_Controller extends GC_REST_Controller {
 	/**
 	 * Checks if a given request has access to read a menu location.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_Error|bool True if the request has read access for the item, GC_Error object otherwise.
@@ -132,6 +137,7 @@ class GC_REST_Menu_Locations_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves a specific menu location.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_Request $request Full details about the request.
 	 * @return GC_Error|GC_REST_Response Response object on success, or GC_Error object on failure.
@@ -154,6 +160,7 @@ class GC_REST_Menu_Locations_Controller extends GC_REST_Controller {
 	/**
 	 * Prepares a menu location object for serialization.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param stdClass        $item    Post status data.
 	 * @param GC_REST_Request $request Full details about the request.
@@ -186,11 +193,14 @@ class GC_REST_Menu_Locations_Controller extends GC_REST_Controller {
 
 		$response = rest_ensure_response( $data );
 
-		$response->add_links( $this->prepare_links( $location ) );
+		if ( rest_is_field_included( '_links', $fields ) || rest_is_field_included( '_embedded', $fields ) ) {
+			$response->add_links( $this->prepare_links( $location ) );
+		}
 
 		/**
 		 * Filters menu location data returned from the REST API.
 		 *
+		 * @since 5.9.0
 		 *
 		 * @param GC_REST_Response $response The response object.
 		 * @param object           $location The original location object.
@@ -200,8 +210,47 @@ class GC_REST_Menu_Locations_Controller extends GC_REST_Controller {
 	}
 
 	/**
+	 * Prepares links for the request.
+	 *
+	 * @since 5.9.0
+	 *
+	 * @param stdClass $location Menu location.
+	 * @return array Links for the given menu location.
+	 */
+	protected function prepare_links( $location ) {
+		$base = sprintf( '%s/%s', $this->namespace, $this->rest_base );
+
+		// Entity meta.
+		$links = array(
+			'self'       => array(
+				'href' => rest_url( trailingslashit( $base ) . $location->name ),
+			),
+			'collection' => array(
+				'href' => rest_url( $base ),
+			),
+		);
+
+		$locations = get_nav_menu_locations();
+		$menu      = isset( $locations[ $location->name ] ) ? $locations[ $location->name ] : 0;
+		if ( $menu ) {
+			$path = rest_get_route_for_term( $menu );
+			if ( $path ) {
+				$url = rest_url( $path );
+
+				$links['https://api.w.org/menu'][] = array(
+					'href'       => $url,
+					'embeddable' => true,
+				);
+			}
+		}
+
+		return $links;
+	}
+
+	/**
 	 * Retrieves the menu location's schema, conforming to JSON Schema.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @return array Item schema data.
 	 */
@@ -242,6 +291,7 @@ class GC_REST_Menu_Locations_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the query params for collections.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @return array Collection parameters.
 	 */
@@ -249,42 +299,5 @@ class GC_REST_Menu_Locations_Controller extends GC_REST_Controller {
 		return array(
 			'context' => $this->get_context_param( array( 'default' => 'view' ) ),
 		);
-	}
-
-	/**
-	 * Prepares links for the request.
-	 *
-	 *
-	 * @param stdClass $location Menu location.
-	 * @return array Links for the given menu location.
-	 */
-	protected function prepare_links( $location ) {
-		$base = sprintf( '%s/%s', $this->namespace, $this->rest_base );
-
-		// Entity meta.
-		$links = array(
-			'self'       => array(
-				'href' => rest_url( trailingslashit( $base ) . $location->name ),
-			),
-			'collection' => array(
-				'href' => rest_url( $base ),
-			),
-		);
-
-		$locations = get_nav_menu_locations();
-		$menu      = isset( $locations[ $location->name ] ) ? $locations[ $location->name ] : 0;
-		if ( $menu ) {
-			$path = rest_get_route_for_term( $menu );
-			if ( $path ) {
-				$url = rest_url( $path );
-
-				$links['https://api.w.org/menu'][] = array(
-					'href'       => $url,
-					'embeddable' => true,
-				);
-			}
-		}
-
-		return $links;
 	}
 }

@@ -4,13 +4,10 @@
  *
  * @package GeChiUI
  * @subpackage Customize
- *
  */
 
 /**
  * Customize Media Control class.
- *
- *
  *
  * @see GC_Customize_Control
  */
@@ -18,6 +15,7 @@ class GC_Customize_Media_Control extends GC_Customize_Control {
 	/**
 	 * Control type.
 	 *
+	 * @since 4.2.0
 	 * @var string
 	 */
 	public $type = 'media';
@@ -25,6 +23,7 @@ class GC_Customize_Media_Control extends GC_Customize_Control {
 	/**
 	 * Media control mime type.
 	 *
+	 * @since 4.2.0
 	 * @var string
 	 */
 	public $mime_type = '';
@@ -32,6 +31,7 @@ class GC_Customize_Media_Control extends GC_Customize_Control {
 	/**
 	 * Button labels.
 	 *
+	 * @since 4.2.0
 	 * @var array
 	 */
 	public $button_labels = array();
@@ -39,6 +39,8 @@ class GC_Customize_Media_Control extends GC_Customize_Control {
 	/**
 	 * Constructor.
 	 *
+	 * @since 4.1.0
+	 * @since 4.2.0 Moved from GC_Customize_Upload_Control.
 	 *
 	 * @see GC_Customize_Control::__construct()
 	 *
@@ -57,6 +59,8 @@ class GC_Customize_Media_Control extends GC_Customize_Control {
 	/**
 	 * Enqueue control related scripts/styles.
 	 *
+	 * @since 3.4.0
+	 * @since 4.2.0 Moved from GC_Customize_Upload_Control.
 	 */
 	public function enqueue() {
 		gc_enqueue_media();
@@ -65,6 +69,8 @@ class GC_Customize_Media_Control extends GC_Customize_Control {
 	/**
 	 * Refresh the parameters passed to the JavaScript via JSON.
 	 *
+	 * @since 3.4.0
+	 * @since 4.2.0 Moved from GC_Customize_Upload_Control.
 	 *
 	 * @see GC_Customize_Control::to_json()
 	 */
@@ -79,8 +85,10 @@ class GC_Customize_Media_Control extends GC_Customize_Control {
 
 		if ( is_object( $this->setting ) ) {
 			if ( $this->setting->default ) {
-				// Fake an attachment model - needs all fields used by template.
-				// Note that the default value must be a URL, NOT an attachment ID.
+				/*
+				 * Fake an attachment model - needs all fields used by template.
+				 * Note that the default value must be a URL, NOT an attachment ID.
+				 */
 				$ext  = substr( $this->setting->default, -3 );
 				$type = in_array( $ext, array( 'jpg', 'png', 'gif', 'bmp', 'webp' ), true ) ? 'image' : 'document';
 
@@ -113,6 +121,8 @@ class GC_Customize_Media_Control extends GC_Customize_Control {
 	/**
 	 * Don't render any content for this control from PHP.
 	 *
+	 * @since 3.4.0
+	 * @since 4.2.0 Moved from GC_Customize_Upload_Control.
 	 *
 	 * @see GC_Customize_Media_Control::content_template()
 	 */
@@ -121,6 +131,8 @@ class GC_Customize_Media_Control extends GC_Customize_Control {
 	/**
 	 * Render a JS template for the content of the media control.
 	 *
+	 * @since 4.1.0
+	 * @since 4.2.0 Moved from GC_Customize_Upload_Control.
 	 */
 	public function content_template() {
 		?>
@@ -198,6 +210,7 @@ class GC_Customize_Media_Control extends GC_Customize_Control {
 	 *
 	 * Provides an array of the default button labels based on the mime type of the current control.
 	 *
+	 * @since 4.9.0
 	 *
 	 * @return string[] An associative array of default button labels keyed by the button name.
 	 */
@@ -229,7 +242,7 @@ class GC_Customize_Media_Control extends GC_Customize_Control {
 			case 'image':
 				return array(
 					'select'       => __( '选择图片' ),
-					'site_icon'    => __( '选择站点图标' ),
+					'site_icon'    => __( '选择系统图标' ),
 					'change'       => __( '更换图片' ),
 					'default'      => __( '默认' ),
 					'remove'       => __( '移除' ),

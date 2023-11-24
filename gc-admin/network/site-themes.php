@@ -4,14 +4,13 @@
  *
  * @package GeChiUI
  * @subpackage Multisite
- *
  */
 
 /** Load GeChiUI Administration Bootstrap */
 require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'manage_sites' ) ) {
-	gc_die( __( '抱歉，您不能管理此站点的主题。' ) );
+	gc_die( __( '抱歉，您不能管理此系统的主题。' ) );
 }
 
 get_current_screen()->add_help_tab( get_site_screen_help_tab_args() );
@@ -19,9 +18,9 @@ get_current_screen()->set_help_sidebar( get_site_screen_help_sidebar_content() )
 
 get_current_screen()->set_screen_reader_content(
 	array(
-		'heading_views'      => __( '过滤站点主题列表' ),
-		'heading_pagination' => __( '站点主题列表导航' ),
-		'heading_list'       => __( '站点主题列表' ),
+		'heading_views'      => __( '过滤系统主题列表' ),
+		'heading_pagination' => __( '系统主题列表导航' ),
+		'heading_list'       => __( '系统主题列表' ),
 	)
 );
 
@@ -43,14 +42,14 @@ if ( ! empty( $_REQUEST['paged'] ) ) {
 $id = isset( $_REQUEST['id'] ) ? (int) $_REQUEST['id'] : 0;
 
 if ( ! $id ) {
-	gc_die( __( '站点ID无效。' ) );
+	gc_die( __( '系统ID无效。' ) );
 }
 
 $gc_list_table->prepare_items();
 
 $details = get_site( $id );
 if ( ! $details ) {
-	gc_die( __( '请求的站点不存在。' ) );
+	gc_die( __( '请求的系统不存在。' ) );
 }
 
 if ( ! can_edit_network( $details->site_id ) ) {
@@ -129,7 +128,7 @@ if ( $action ) {
 				 *
 				 * The dynamic portion of the hook name, `$screen`, refers to the current screen ID.
 				 *
-			
+				 * @since 4.7.0
 				 *
 				 * @param string $redirect_url The redirect URL.
 				 * @param string $action       The action being taken.
@@ -168,17 +167,10 @@ add_screen_option( 'per_page' );
 
 // Used in the HTML title tag.
 /* translators: %s: Site title. */
-$title = sprintf( __( '编辑站点：%s' ), esc_html( $details->blogname ) );
+$title = sprintf( __( '编辑系统：%s' ), esc_html( $details->blogname ) );
 
 $parent_file  = 'sites.php';
 $submenu_file = 'sites.php';
-
-require_once ABSPATH . 'gc-admin/admin-header.php'; ?>
-
-<div class="wrap">
-<h1 id="edit-site"><?php echo $title; ?></h1>
-<p class="edit-site-actions"><a href="<?php echo esc_url( get_home_url( $id, '/' ) ); ?>"><?php _e( '访问' ); ?></a> | <a href="<?php echo esc_url( get_admin_url( $id ) ); ?>"><?php _e( '仪表盘' ); ?></a></p>
-<?php
 
 network_edit_site_nav(
 	array(
@@ -195,7 +187,7 @@ if ( isset( $_GET['enabled'] ) ) {
 		/* translators: %s: Number of themes. */
 		$message = _n( '已启用%s个主题。', '已启用%s个主题。', $enabled );
 	}
-	echo '<div id="message" class="updated notice is-dismissible"><p>' . sprintf( $message, number_format_i18n( $enabled ) ) . '</p></div>';
+	add_settings_error( 'general', 'message', sprintf( $message, number_format_i18n( $enabled ) ), 'success' );
 } elseif ( isset( $_GET['disabled'] ) ) {
 	$disabled = absint( $_GET['disabled'] );
 	if ( 1 === $disabled ) {
@@ -204,13 +196,19 @@ if ( isset( $_GET['enabled'] ) ) {
 		/* translators: %s: Number of themes. */
 		$message = _n( '已禁用%s个主题。', '已禁用%s个主题。', $disabled );
 	}
-	echo '<div id="message" class="updated notice is-dismissible"><p>' . sprintf( $message, number_format_i18n( $disabled ) ) . '</p></div>';
+	add_settings_error( 'general', 'message', sprintf( $message, number_format_i18n( $disabled ) ), 'success' );
 } elseif ( isset( $_GET['error'] ) && 'none' === $_GET['error'] ) {
-	echo '<div id="message" class="error notice is-dismissible"><p>' . __( '未选择主题。' ) . '</p></div>';
+	add_settings_error( 'general', 'message', __( '未选择主题。' ), 'danger' );
 }
+
+require_once ABSPATH . 'gc-admin/admin-header.php';
 ?>
 
-<p><?php _e( '在站点网络中启用的主题不会显示在本页面。' ); ?></p>
+<div class="wrap">
+<div class="page-header"><h2 id="edit-site" class="header-title"><?php echo esc_html( $title ); ?></h2></div>
+<p class="edit-site-actions"><a href="<?php echo esc_url( get_home_url( $id, '/' ) ); ?>"><?php _e( '访问' ); ?></a> | <a href="<?php echo esc_url( get_admin_url( $id ) ); ?>"><?php _e( '仪表盘' ); ?></a></p>
+
+<p><?php _e( '在SaaS平台中启用的主题不会显示在本页面。' ); ?></p>
 
 <form method="get">
 <?php $gc_list_table->search_box( __( '搜索已安装的主题' ), 'theme' ); ?>

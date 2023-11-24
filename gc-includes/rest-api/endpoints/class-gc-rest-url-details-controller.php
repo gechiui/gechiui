@@ -4,14 +4,14 @@
  *
  * @package GeChiUI
  * @subpackage REST_API
- *
+ * @since 5.9.0
  */
 
 /**
  * Controller which provides REST endpoint for retrieving information
  * from a remote site's HTML response.
  *
- *
+ * @since 5.9.0
  *
  * @see GC_REST_Controller
  */
@@ -20,6 +20,7 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	/**
 	 * Constructs the controller.
 	 *
+	 * @since 5.9.0
 	 */
 	public function __construct() {
 		$this->namespace = 'gc-block-editor/v1';
@@ -29,6 +30,7 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	/**
 	 * Registers the necessary REST API routes.
 	 *
+	 * @since 5.9.0
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -43,7 +45,7 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 							'required'          => true,
 							'description'       => __( '要处理的URL。' ),
 							'validate_callback' => 'gc_http_validate_url',
-							'sanitize_callback' => 'esc_url_raw',
+							'sanitize_callback' => 'sanitize_url',
 							'type'              => 'string',
 							'format'            => 'uri',
 						),
@@ -58,6 +60,7 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the item's schema, conforming to JSON Schema.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @return array Item schema data.
 	 */
@@ -84,7 +87,7 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 				'icon'        => array(
 					'description' => sprintf(
 						/* translators: %s: HTML link tag. */
-						__( '来自 URL 的 %s 元素的图标图像链接。' ),
+						__( '来自 URL 的 %s 元素的图标图片链接。' ),
 						'<link rel="icon">'
 					),
 					'type'        => 'string',
@@ -105,7 +108,7 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 				'image'       => array(
 					'description' => sprintf(
 						/* translators: 1: HTML meta tag, 2: HTML meta tag. */
-						__( 'URL 中 %1$s 或 %2$s 元素的开放图谱图像链接。' ),
+						__( 'URL 中 %1$s 或 %2$s 元素的开放图谱图片链接。' ),
 						'<meta property="og:image">',
 						'<meta property="og:image:url">'
 					),
@@ -121,8 +124,9 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Retrieves the contents of the `<title>` tag from the HTML response.
+	 * Retrieves the contents of the title tag from the HTML response.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param GC_REST_REQUEST $request Full details about the request.
 	 * @return GC_REST_Response|GC_Error The parsed details as a response object. GC_Error if there are errors.
@@ -173,6 +177,7 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 		/**
 		 * Filters the URL data for the response.
 		 *
+		 * @since 5.9.0
 		 *
 		 * @param GC_REST_Response $response            The response object.
 		 * @param string           $url                 The requested URL.
@@ -183,8 +188,9 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Checks whether a given request has permission to read remote urls.
+	 * Checks whether a given request has permission to read remote URLs.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @return GC_Error|bool True if the request has permission, else GC_Error.
 	 */
@@ -209,6 +215,7 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	/**
 	 * Retrieves the document title from a remote URL.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param string $url The website URL whose HTML to access.
 	 * @return string|GC_Error The HTTP response from the remote URL on success.
@@ -235,8 +242,9 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 		/**
 		 * Filters the HTTP request args for URL data retrieval.
 		 *
-		 * Can be used to adjust response size limit and other GC_Http::request args.
+		 * Can be used to adjust response size limit and other GC_Http::request() args.
 		 *
+		 * @since 5.9.0
 		 *
 		 * @param array  $args Arguments used for the HTTP request.
 		 * @param string $url  The attempted URL.
@@ -268,8 +276,9 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Parses the `<title>` contents from the provided HTML.
+	 * Parses the title tag contents from the provided HTML.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param string $html The HTML from the remote website at URL.
 	 * @return string The title tag contents on success. Empty string if not found.
@@ -290,6 +299,7 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	/**
 	 * Parses the site icon from the provided HTML.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param string $html The HTML from the remote website at URL.
 	 * @param string $url  The target website URL.
@@ -334,13 +344,14 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	/**
 	 * Parses the meta description from the provided HTML.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param array $meta_elements {
 	 *     A multi-dimensional indexed array on success, else empty array.
 	 *
-	 *     @type string[] 0 Meta elements with a content attribute.
-	 *     @type string[] 1 Content attribute's opening quotation mark.
-	 *     @type string[] 2 Content attribute's value for each meta element.
+	 *     @type string[] $0 Meta elements with a content attribute.
+	 *     @type string[] $1 Content attribute's opening quotation mark.
+	 *     @type string[] $2 Content attribute's value for each meta element.
 	 * }
 	 * @return string The meta description contents on success. Empty string if not found.
 	 */
@@ -369,13 +380,14 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	 *
 	 * See: https://ogp.me/.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param array  $meta_elements {
 	 *     A multi-dimensional indexed array on success, else empty array.
 	 *
-	 *     @type string[] 0 Meta elements with a content attribute.
-	 *     @type string[] 1 Content attribute's opening quotation mark.
-	 *     @type string[] 2 Content attribute's value for each meta element.
+	 *     @type string[] $0 Meta elements with a content attribute.
+	 *     @type string[] $1 Content attribute's opening quotation mark.
+	 *     @type string[] $2 Content attribute's value for each meta element.
 	 * }
 	 * @param string $url The target website URL.
 	 * @return string The OG image on success. Empty string if not found.
@@ -407,6 +419,7 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	 *    - stripping all HTML tags and tag entities.
 	 *    - converting non-tag entities into characters.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param string $metadata The metadata content to prepare.
 	 * @return string The prepared metadata.
@@ -420,6 +433,7 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	/**
 	 * Utility function to build cache key for a given URL.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param string $url The URL for which to build a cache key.
 	 * @return string The cache key.
@@ -431,6 +445,7 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	/**
 	 * Utility function to retrieve a value from the cache at a given key.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param string $key The cache key.
 	 * @return mixed The value from the cache.
@@ -442,6 +457,7 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	/**
 	 * Utility function to cache a given data set at a given cache key.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param string $key  The cache key under which to store the value.
 	 * @param string $data The data to be stored at the given cache key.
@@ -456,6 +472,7 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 		 * Can be used to adjust the time until expiration in seconds for the cache
 		 * of the data retrieved for the given URL.
 		 *
+		 * @since 5.9.0
 		 *
 		 * @param int $ttl The time until cache expiration in seconds.
 		 */
@@ -465,8 +482,9 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Retrieves the `<head>` section.
+	 * Retrieves the head element section.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param string $html The string of HTML to parse.
 	 * @return string The `<head>..</head>` section on success. Given `$html` if not found.
@@ -501,16 +519,17 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	}
 
 	/**
-	 * Gets all the `<meta>` elements that have a `content` attribute.
+	 * Gets all the meta tag elements that have a 'content' attribute.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param string $html The string of HTML to be parsed.
 	 * @return array {
 	 *     A multi-dimensional indexed array on success, else empty array.
 	 *
-	 *     @type string[] 0 Meta elements with a content attribute.
-	 *     @type string[] 1 Content attribute's opening quotation mark.
-	 *     @type string[] 2 Content attribute's value for each meta element.
+	 *     @type string[] $0 Meta elements with a content attribute.
+	 *     @type string[] $1 Content attribute's opening quotation mark.
+	 *     @type string[] $2 Content attribute's value for each meta element.
 	 * }
 	 */
 	private function get_meta_with_content_elements( $html ) {
@@ -583,13 +602,14 @@ class GC_REST_URL_Details_Controller extends GC_REST_Controller {
 	/**
 	 * Gets the metadata from a target meta element.
 	 *
+	 * @since 5.9.0
 	 *
 	 * @param array  $meta_elements {
 	 *     A multi-dimensional indexed array on success, else empty array.
 	 *
-	 *     @type string[] 0 Meta elements with a content attribute.
-	 *     @type string[] 1 Content attribute's opening quotation mark.
-	 *     @type string[] 2 Content attribute's value for each meta element.
+	 *     @type string[] $0 Meta elements with a content attribute.
+	 *     @type string[] $1 Content attribute's opening quotation mark.
+	 *     @type string[] $2 Content attribute's value for each meta element.
 	 * }
 	 * @param string $attr       Attribute that identifies the element with the target metadata.
 	 * @param string $attr_value The attribute's value that identifies the element with the target metadata.

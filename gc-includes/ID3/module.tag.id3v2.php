@@ -2064,7 +2064,7 @@ class getid3_id3v2 extends getid3_handler
 							$parsedFrame['subframes'][] = $subframe;
 							break;
 						case 'WXXX':
-							list($subframe['chapter_url_description'], $subframe['chapter_url']) = explode("\x00", $encoding_converted_text, 2);
+							@list($subframe['chapter_url_description'], $subframe['chapter_url']) = explode("\x00", $encoding_converted_text, 2);
 							$parsedFrame['chapter_url'][$subframe['chapter_url_description']] = $subframe['chapter_url'];
 							$parsedFrame['subframes'][] = $subframe;
 							break;
@@ -2075,7 +2075,7 @@ class getid3_id3v2 extends getid3_handler
 								$subframe['picture_type'] = $this->APICPictureTypeLookup($subframe_apic_picturetype);
 								$subframe['description']  = trim(getid3_lib::iconv_fallback($subframe['encoding'], $info['encoding'], $subframe_apic_description));
 								if (strlen($this->TextEncodingTerminatorLookup($subframe['encoding'])) == 2) {
-									// the null terminator between "描述" and "picture data" could be either 1 byte (ISO-8859-1, UTF-8) or two bytes (UTF-16)
+									// the null terminator between "description" and "picture data" could be either 1 byte (ISO-8859-1, UTF-8) or two bytes (UTF-16)
 									// the above regex assumes one byte, if it's actually two then strip the second one here
 									$subframe_apic_picturedata = substr($subframe_apic_picturedata, 1);
 								}

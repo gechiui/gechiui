@@ -120,7 +120,6 @@
 		/**
 		 * Filters the login page errors.
 		 *
-		 *
 		 * @param GC_Error $errors      GC Error object.
 		 * @param string   $redirect_to Redirect destination URL.
 		 */

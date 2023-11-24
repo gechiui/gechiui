@@ -1,27 +1,29 @@
 <?php
 /**
- * Plugins may load this file to gain access to special helper functions for
- * plugin installation. This file is not included by GeChiUI and it is
+ * Plugins may load this file to gain access to special helper functions
+ * for plugin installation. This file is not included by GeChiUI and it is
  * recommended, to prevent fatal errors, that this file is included using
  * require_once.
  *
  * These functions are not optimized for speed, but they should only be used
  * once in a while, so speed shouldn't be a concern. If it is and you are
- * needing to use these functions a lot, you might experience time outs. If you
- * do, then it is advised to just write the SQL code yourself.
+ * needing to use these functions a lot, you might experience timeouts.
+ * If you do, then it is advised to just write the SQL code yourself.
  *
  *     check_column( 'gc_links', 'link_description', 'mediumtext' );
+ *
  *     if ( check_column( $gcdb->comments, 'comment_author', 'tinytext' ) ) {
  *         echo "ok\n";
  *     }
  *
- *     $error_count = 0;
- *     $tablename = $gcdb->links;
  *     // Check the column.
  *     if ( ! check_column( $gcdb->links, 'link_description', 'varchar( 255 )' ) ) {
  *         $ddl = "ALTER TABLE $gcdb->links MODIFY COLUMN link_description varchar(255) NOT NULL DEFAULT '' ";
  *         $q = $gcdb->query( $ddl );
  *     }
+ *
+ *     $error_count = 0;
+ *     $tablename   = $gcdb->links;
  *
  *     if ( check_column( $gcdb->links, 'link_description', 'varchar( 255 )' ) ) {
  *         $res .= $tablename . ' - ok <br />';
@@ -41,6 +43,7 @@ if ( ! function_exists( 'maybe_create_table' ) ) :
 	/**
 	 * Creates a table in the database if it doesn't already exist.
 	 *
+	 * @since 1.0.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -58,9 +61,10 @@ if ( ! function_exists( 'maybe_create_table' ) ) :
 		}
 
 		// Didn't find it, so try to create it.
+		// phpcs:ignore GeChiUI.DB.PreparedSQL.NotPrepared -- No applicable variables for this query.
 		$gcdb->query( $create_ddl );
 
-		// We cannot directly tell that whether this succeeded!
+		// We cannot directly tell whether this succeeded!
 		foreach ( $gcdb->get_col( 'SHOW TABLES', 0 ) as $table ) {
 			if ( $table === $table_name ) {
 				return true;
@@ -75,6 +79,7 @@ if ( ! function_exists( 'maybe_add_column' ) ) :
 	/**
 	 * Adds column to database table, if it doesn't already exist.
 	 *
+	 * @since 1.0.0
 	 *
 	 * @global gcdb $gcdb GeChiUI database abstraction object.
 	 *
@@ -86,6 +91,7 @@ if ( ! function_exists( 'maybe_add_column' ) ) :
 	function maybe_add_column( $table_name, $column_name, $create_ddl ) {
 		global $gcdb;
 
+		// phpcs:ignore GeChiUI.DB.PreparedSQL.InterpolatedNotPrepared -- Cannot be prepared. Fetches columns for table names.
 		foreach ( $gcdb->get_col( "DESC $table_name", 0 ) as $column ) {
 			if ( $column === $column_name ) {
 				return true;
@@ -93,9 +99,11 @@ if ( ! function_exists( 'maybe_add_column' ) ) :
 		}
 
 		// Didn't find it, so try to create it.
+		// phpcs:ignore GeChiUI.DB.PreparedSQL.NotPrepared -- No applicable variables for this query.
 		$gcdb->query( $create_ddl );
 
-		// We cannot directly tell that whether this succeeded!
+		// We cannot directly tell whether this succeeded!
+		// phpcs:ignore GeChiUI.DB.PreparedSQL.InterpolatedNotPrepared -- Cannot be prepared. Fetches columns for table names.
 		foreach ( $gcdb->get_col( "DESC $table_name", 0 ) as $column ) {
 			if ( $column === $column_name ) {
 				return true;
@@ -109,8 +117,6 @@ endif;
 /**
  * Drops column from database table, if it exists.
  *
- *
- *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
  * @param string $table_name  Database table name.
@@ -121,13 +127,16 @@ endif;
 function maybe_drop_column( $table_name, $column_name, $drop_ddl ) {
 	global $gcdb;
 
+	// phpcs:ignore GeChiUI.DB.PreparedSQL.InterpolatedNotPrepared -- Cannot be prepared. Fetches columns for table names.
 	foreach ( $gcdb->get_col( "DESC $table_name", 0 ) as $column ) {
 		if ( $column === $column_name ) {
 
 			// Found it, so try to drop it.
+			// phpcs:ignore GeChiUI.DB.PreparedSQL.NotPrepared -- No applicable variables for this query.
 			$gcdb->query( $drop_ddl );
 
-			// We cannot directly tell that whether this succeeded!
+			// We cannot directly tell whether this succeeded!
+			// phpcs:ignore GeChiUI.DB.PreparedSQL.InterpolatedNotPrepared -- Cannot be prepared. Fetches columns for table names.
 			foreach ( $gcdb->get_col( "DESC $table_name", 0 ) as $column ) {
 				if ( $column === $column_name ) {
 					return false;
@@ -145,34 +154,34 @@ function maybe_drop_column( $table_name, $column_name, $drop_ddl ) {
  *
  * Uses the SQL DESC for retrieving the table info for the column. It will help
  * understand the parameters, if you do more research on what column information
- * is returned by the SQL statement. Pass in null to skip checking that
- * criteria.
+ * is returned by the SQL statement. Pass in null to skip checking that criteria.
  *
- * Column names returned from DESC table are case sensitive and are listed:
- *      Field
- *      Type
- *      Null
- *      Key
- *      Default
- *      Extra
+ * Column names returned from DESC table are case sensitive and are as listed:
  *
- *
+ *  - Field
+ *  - Type
+ *  - Null
+ *  - Key
+ *  - Default
+ *  - Extra
  *
  * @global gcdb $gcdb GeChiUI database abstraction object.
  *
- * @param string $table_name Database table name.
- * @param string $col_name   Table column name.
- * @param string $col_type   Table column type.
- * @param bool   $is_null    Optional. Check is null.
- * @param mixed  $key        Optional. Key info.
- * @param mixed  $default    Optional. Default value.
- * @param mixed  $extra      Optional. Extra value.
+ * @param string $table_name    Database table name.
+ * @param string $col_name      Table column name.
+ * @param string $col_type      Table column type.
+ * @param bool   $is_null       Optional. Check is null.
+ * @param mixed  $key           Optional. Key info.
+ * @param mixed  $default_value Optional. Default value.
+ * @param mixed  $extra         Optional. Extra value.
  * @return bool True, if matches. False, if not matching.
  */
-function check_column( $table_name, $col_name, $col_type, $is_null = null, $key = null, $default = null, $extra = null ) {
+function check_column( $table_name, $col_name, $col_type, $is_null = null, $key = null, $default_value = null, $extra = null ) {
 	global $gcdb;
 
-	$diffs   = 0;
+	$diffs = 0;
+
+	// phpcs:ignore GeChiUI.DB.PreparedSQL.InterpolatedNotPrepared -- Cannot be prepared. Fetches columns for table names.
 	$results = $gcdb->get_results( "DESC $table_name" );
 
 	foreach ( $results as $row ) {
@@ -189,7 +198,7 @@ function check_column( $table_name, $col_name, $col_type, $is_null = null, $key 
 			if ( ( null !== $key ) && ( $row->Key !== $key ) ) {
 				++$diffs;
 			}
-			if ( ( null !== $default ) && ( $row->Default !== $default ) ) {
+			if ( ( null !== $default_value ) && ( $row->Default !== $default_value ) ) {
 				++$diffs;
 			}
 			if ( ( null !== $extra ) && ( $row->Extra !== $extra ) ) {
