@@ -6,7 +6,7 @@ GeChiIUI（格尺・后台开发框架），是一款开源的团队协同办公
 
 ### 模板演示：
 
-- [https://sitedemos.gechiui.com/gcoa/](https://sitedemos.gechiui.com/gcoa/)
+- [https://www.gechiui.com/sitedemos/](https://www.gechiui.com/sitedemos/)
 
 ### 生产环境安装包 git：
 如果服务器支持git 可以直接使用git命令在服务器上安装
